@@ -26,8 +26,3 @@
 ？1: GNU GPL V2版权声明原稿可查阅http://www.gnu.org/licenses/gpl-2.0.html 关于GNU GPL的话题可查阅http://zh.wikipedia.org/zh-cn/GPL
 
 ？2: 开源版权声明可查阅http://opensource.org/licenses/index.html 关于开源相关话题可查阅http://zh.wikipedia.org/zh-cn/%E5%BC%80%E6%94%BE%E6%BA%90%E4%BB%A3%E7%A0%81
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
