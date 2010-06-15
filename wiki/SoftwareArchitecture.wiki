@@ -1,4 +1,4 @@
-#summary ezbox的软件系统构架
+#summary ezbox的软件系统架构
 #labels Phase-Implementation
 
 = 简述 =
