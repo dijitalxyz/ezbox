@@ -21,11 +21,15 @@
 #define DBG_PRINT(format, args...)
 #endif
 
+static int children_max;
+
 void show_usage(void)
 {
-	printf("Usage: ezcd [-d]\n");
+	printf("Usage: ezcd [-d] [-c max_children]\n");
 	printf("\n");
-	printf("  -d          daemonize\n");
+	printf("  -d\tdaemonize\n");
+	printf("  -c\tmax children\n");
+	printf("  -h\thelp\n");
 	printf("\n");
 	exit(1);
 }
@@ -47,9 +51,12 @@ int main(int argc, char **argv)
 	int c = 0;
 
 	for (;;) {
-		c = getopt( argc, argv, "hd");
+		c = getopt( argc, argv, "c:dh");
 		if (c == EOF) break;
 		switch (c) {
+			case 'c':
+				children_max = atoi(optarg);
+				break;
 			case 'd':
 				daemonize = 1;
 				break;
