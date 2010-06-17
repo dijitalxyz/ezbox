@@ -1,0 +1,7 @@
+Usual options for ezcd installed in the root filesystem are:
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --sbindir=/sbin \
+    --libdir=/usr/lib \
+    --libexecdir=/lib/ezcd
