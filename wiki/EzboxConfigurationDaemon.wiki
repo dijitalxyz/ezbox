@@ -10,3 +10,14 @@ ezbox配置管理服务进程（ezbox configuration daemon，简称ezcd）用于
 
 == 设计目的 ==
   * ezbox核心软件系统使用squashfs文件系统存储，用于存放软件包配置信息及系统启动配置信息的/etc目录默认是只读的，因此不能按照普通Linux系统对配置文件直接进行修改的方式来操作。为此，我们引入ezcd作为一个桥梁，自动完成用户配置存储与系统配置文件的相互映射。
+
+== 实现细节 ==
+  * ezcd使用unix域套结字（unix domain socket）进行进程间通信
+  * ezcd使用监控者-工作者设计模式（monitor-worker model），在ezcd启动时初始化一个monitor线程，并监听/var/run/ezcd.socket套结字；
+
+== 实现参考 ==
+  * ezcd的monitor-worker模型参考了udevd(?1)的实现，ezcd的多线程实现参考了mongoose(?2)的实现
+
+
+?1 : udev相关信息可查阅http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
+?2 : mongoose的主页http://code.google.com/p/mongoose/
