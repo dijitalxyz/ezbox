@@ -21,4 +21,4 @@ ezbox配置管理服务进程（ezbox configuration daemon，简称ezcd）用于
 = 参考资料 =
 
   * ?1 : udev相关信息可查阅http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
-  * ?2 : mongoose的主页http://code.google.com/p/mongoose/
+  * ?2 : mongoose的主页<a href="http://code.google.com/p/mongoose/">http://code.google.com/p/mongoose/</a>
