@@ -18,6 +18,7 @@ ezbox配置管理服务进程（ezbox configuration daemon，简称ezcd）用于
 == 实现参考 ==
   * ezcd的monitor-worker模型参考了udevd(?1)的实现，ezcd的多线程实现参考了mongoose(?2)的实现
 
+= 参考资料 =
 
-?1 : udev相关信息可查阅http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
-?2 : mongoose的主页http://code.google.com/p/mongoose/
+  * ?1 : udev相关信息可查阅http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
+  * ?2 : mongoose的主页http://code.google.com/p/mongoose/
