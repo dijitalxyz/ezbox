@@ -17,7 +17,7 @@ AM_CPPFLAGS = \
 	-DLIBEXECDIR=\""$(libexecdir)"\"
 
 AM_LDFLAGS = \
-	-Wl,--as-needed
+	-Wl,--as-needed -pthread
 
 CLEANFILES =
 

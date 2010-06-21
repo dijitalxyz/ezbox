@@ -14,6 +14,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <assert.h>
+#include <pthread.h>
+
+#include "ezcd.h"
+
+#define INVALID_SOCKET		(-1)
+#define ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 
 #ifdef DEBUG
 #define DBG_PRINT(format, args...) fprintf(stderr, format, ##args)
@@ -21,41 +36,312 @@
 #define DBG_PRINT(format, args...)
 #endif
 
-static int children_max;
+typedef int SOCKET;
 
-void show_usage(void)
+typedef void * (*ezcd_thread_func_t)(void *);
+
+static int threads_max;
+static int ezcd_exit;
+
+/*
+ * unified socket address. For IPv6 support, add IPv6 address structure
+ * in the union u.
+ */
+struct usa {
+	socklen_t len;
+	union {
+		struct sockaddr sa;
+		struct sockaddr_in sin;
+	} u;
+};
+
+/*
+ * structure used to describe listening socket, or socket which was
+ * accept()-ed by the monitor thread and queued for future handling
+ * by the worker thread.
+ */
+struct socket {
+	struct socket   *next;          /* Linkage                      */
+	SOCKET          sock;           /* Listening socket             */
+	struct usa      lsa;            /* Local socket address         */
+	struct usa      rsa;            /* Remote socket address        */
+};
+
+/*
+ * ezcd context
+ */
+struct ezcd_context {
+	int		stop_flag;	/* Should we stop event loop */
+	char		*nvram;		/* NVRAM */
+	struct socket 	*listening_sockets;
+	int 		num_threads;    /* Number of threads            */
+	int 		num_idle;       /* Number of idle threads       */
+
+	pthread_mutex_t mutex;          /* Protects (max|num)_threads   */
+	pthread_rwlock_t rwlock;        /* Protects options, callbacks  */
+	pthread_cond_t 	thr_cond;       /* Condvar for thread sync      */
+
+	struct socket   queue[20];      /* Accepted sockets             */
+	int             sq_head;        /* Head of the socket queue     */
+	int             sq_tail;        /* Tail of the socket queue     */
+	pthread_cond_t  empty_cond;     /* Socket queue empty condvar   */
+	pthread_cond_t  full_cond;      /* Socket queue full condvar    */
+};
+
+
+static void signal_handler(int sig_num)
 {
-	printf("Usage: ezcd [-d] [-c max_children]\n");
+	if (sig_num == SIGCHLD) {
+		do {
+			/* nothing */
+		} while (waitpid(-1, &sig_num, WNOHANG) > 0);
+	} else {
+		ezcd_exit = sig_num;
+	}
+}
+
+static void show_usage(void)
+{
+	printf("Usage: ezcd [-d] [-c max_worker_threads]\n");
 	printf("\n");
 	printf("  -d\tdaemonize\n");
-	printf("  -c\tmax children\n");
+	printf("  -c\tmax worker threads\n");
 	printf("  -h\thelp\n");
 	printf("\n");
-	exit(1);
 }
 
-void perror_msg_and_die(char *text)
+static void perror_msg(char *text)
 {
 	fprintf(stderr, "%s\n", text);
-	exit(1);
 }
 
-void error_msg_and_die(char *text)
+static void worker_thread(struct ezcd_context *ctx)
 {
-	perror_msg_and_die(text);
+	while (ctx->stop_flag == 0) {
+		printf("%s(%d) \n", __func__, __LINE__);
+		sleep(1);
+	}
+}
+
+static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void *data)
+{
+	pthread_t       thread_id;
+	pthread_attr_t  attr;
+	int             retval;
+
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	pthread_attr_setstacksize(&attr,
+	                          sizeof(struct ezcd_context) * 2);
+
+	if ((retval = pthread_create(&thread_id, &attr, func, data)) != 0)
+		DBG_PRINT("%s: %s", __func__, strerror(retval));
+
+	return (retval);
+}
+
+static void close_all_listening_sockets(struct ezcd_context *ctx)
+{
+	struct socket   *sp, *tmp;
+	for (sp = ctx->listening_sockets; sp != NULL; sp = tmp) {
+		tmp = sp->next;
+                close(sp->sock);
+		free(sp);
+	}
+	ctx->listening_sockets = NULL;
+}
+
+static void add_to_set(SOCKET fd, fd_set *set, int *max_fd)
+{
+	FD_SET(fd, set);
+	if (fd > (SOCKET) *max_fd)
+		*max_fd = (int) fd;
+}
+
+/*
+ * deallocate ezcd context, free up the resources
+ */
+static void ezcd_finish(struct ezcd_context *ctx)
+{
+	close_all_listening_sockets(ctx);
+
+	/* wait until all threads finish */
+	pthread_mutex_lock(&ctx->mutex);
+	while (ctx->num_threads > 0)
+		pthread_cond_wait(&ctx->thr_cond, &ctx->mutex);
+	pthread_mutex_unlock(&ctx->mutex);
+
+	pthread_rwlock_destroy(&ctx->rwlock);
+	pthread_mutex_destroy(&ctx->mutex);
+	pthread_cond_destroy(&ctx->thr_cond);
+	pthread_cond_destroy(&ctx->empty_cond);
+	pthread_cond_destroy(&ctx->full_cond);
+
+	/* signal ezcd_stop() that we're done */
+	ctx->stop_flag = 2;
+}
+
+/*
+ * monitor thread adds accepted socket to a queue
+ */
+static void put_socket(struct ezcd_context *ctx, const struct socket *sp)
+{
+	pthread_mutex_lock(&ctx->mutex);
+
+	/* if the queue is full, wait */
+	while (ctx->sq_head - ctx->sq_tail >= (int) ARRAY_SIZE(ctx->queue))
+		pthread_cond_wait(&ctx->full_cond, &ctx->mutex);
+	assert(ctx->sq_head - ctx->sq_tail < (int) ARRAY_SIZE(ctx->queue));
+
+	/* copy socket to the queue and increment head */
+	ctx->queue[ctx->sq_head % ARRAY_SIZE(ctx->queue)] = *sp;
+	ctx->sq_head++;
+        DBG_PRINT((DEBUG_MGS_PREFIX "%s: queued socket %d",
+	           __func__, sp->sock));
+
+	/* if there are no idle threads, start one */
+	if ((ctx->num_idle == 0) &&
+	    (ctx->num_threads < threads_max)) {
+		if (start_thread(ctx,
+		                 (ezcd_thread_func_t) worker_thread,
+		                  ctx->nvram) != 0)
+                        DBG_PRINT("Cannot start thread: %d", ERRNO);
+		else
+			ctx->num_threads++;
+	}
+
+	pthread_cond_signal(&ctx->empty_cond);
+	pthread_mutex_unlock(&ctx->mutex);
+}
+
+static void accept_new_connection(const struct socket *listener, struct ezcd_context *ctx)
+{
+	struct socket   accepted;
+
+	accepted.rsa.len = sizeof(accepted.rsa.u.sin);
+	accepted.lsa = listener->lsa;
+	if ((accepted.sock = accept(listener->sock,
+	     &accepted.rsa.u.sa, &accepted.rsa.len)) == INVALID_SOCKET)
+		return;
+
+	/* put accepted socket structure into the queue */
+	DBG_PRINT((DEBUG_MGS_PREFIX "%s: accepted socket %d",
+                    __func__, accepted.sock));
+	put_socket(ctx, &accepted);
+}
+
+static void monitor_thread(struct ezcd_context *ctx)
+{
+	fd_set read_set;
+	struct socket *sp;
+	struct timeval tv;
+	int max_fd;
+
+	while (ctx->stop_flag == 0) {
+		FD_ZERO(&read_set);
+		max_fd = -1;
+
+		/* add listening sockets to the read set */
+		pthread_rwlock_rdlock(&ctx->rwlock);
+		for (sp = ctx->listening_sockets; sp != NULL; sp = sp->next)
+			add_to_set(sp->sock, &read_set, &max_fd);
+		pthread_rwlock_unlock(&ctx->rwlock);
+
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
+
+		if (select(max_fd + 1, &read_set, NULL, NULL, &tv) < 0) {
+			/* do nothing */
+		} else {
+			pthread_rwlock_rdlock(&ctx->rwlock);
+			for (sp = ctx->listening_sockets; sp != NULL; sp = sp->next)
+				if (FD_ISSET(sp->sock, &read_set))
+					accept_new_connection(sp, ctx);
+			pthread_rwlock_unlock(&ctx->rwlock);
+		}
+	}
+
+	/* stop signal received: somebody called ezcd_stop. Quit. */
+	ezcd_finish(ctx);
+}
+
+static void ezcd_stop(struct ezcd_context *ctx)
+{
+	ctx->stop_flag = 1;
+
+	/* wait until ezcd_finish() stops */
+	while (ctx->stop_flag != 2)
+		sleep(1);
+
+	assert(ctx->num_threads == 0);
+	free(ctx);
+}
+
+static struct ezcd_context *ezcd_start(void)
+{
+	struct ezcd_context *ctx;
+	ctx = (struct ezcd_context *)malloc(sizeof(struct ezcd_context));
+	if (ctx) {
+		ctx->nvram = (char *)malloc(EZCD_SPACE);
+		if (ctx->nvram == NULL) {
+			free(ctx);
+			return  NULL;
+		}
+
+		/*
+		 * ignore SIGPIPE signal, so if client cancels the request, it
+		 * won't kill the whole process.
+		 */
+		signal(SIGPIPE, SIG_IGN);
+
+		pthread_rwlock_init(&ctx->rwlock, NULL);
+		pthread_mutex_init(&ctx->mutex, NULL);
+		pthread_cond_init(&ctx->thr_cond, NULL);
+		pthread_cond_init(&ctx->empty_cond, NULL);
+		pthread_cond_init(&ctx->full_cond, NULL);
+
+		/* Start monitor thread */
+		start_thread(ctx, (ezcd_thread_func_t) monitor_thread, ctx->nvram);
+	}
+	return ctx;
+}
+
+static int mem_size_mb(void)
+{
+	FILE *fp;
+	char buf[4096];
+	long int memsize = -1;
+
+	fp = fopen("/proc/meminfo", "r");
+	if (fp == NULL)
+		return -1;
+
+	while (fgets(buf, sizeof(buf), fp) != NULL) {
+		long int value;
+
+		if (sscanf(buf, "MemTotal: %ld kB", &value) == 1) {
+			memsize = value / 1024;
+			break;
+		}
+	}
+
+	fclose(fp);
+	return memsize;
 }
 
 int main(int argc, char **argv)
 {
 	int daemonize = 0;
 	int c = 0;
+	struct ezcd_context *ctx;
 
+	threads_max = 0;
 	for (;;) {
 		c = getopt( argc, argv, "c:dh");
 		if (c == EOF) break;
 		switch (c) {
 			case 'c':
-				children_max = atoi(optarg);
+				threads_max = atoi(optarg);
 				break;
 			case 'd':
 				daemonize = 1;
@@ -63,20 +349,50 @@ int main(int argc, char **argv)
 			case 'h':
 			default:
 				show_usage();
-				exit(1);
+				exit(EXIT_FAILURE);
 		}
         }
 
-	if (daemonize)
-	{
-		DBG_PRINT("  daemonizing\n");
-		if (daemon(0, 1) < 0)
-			perror_msg_and_die("daemon");
+	ezcd_exit = 0;
+	signal(SIGCHLD, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGINT, signal_handler);
+
+	ctx = ezcd_start();
+	if (ctx == NULL) {
+		printf("%s\n", "Cannot initialize ezcd context");
+		exit(EXIT_FAILURE);
 	}
 
-	do {
-		sleep(1);
-	} while(1);
+	if (threads_max <= 0) {
+		int memsize = mem_size_mb();
 
-	return 0;
+		/* set value depending on the amount of RAM */
+		if (memsize > 0)
+			threads_max = 2 + (memsize / 8);
+		else
+			threads_max = 2;
+	}
+
+	if (daemonize)
+	{
+		DBG_PRINT("daemonizing\n");
+		if (daemon(0, 1) < 0) {
+			perror_msg("daemon");
+			ezcd_stop(ctx);
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	fflush(stdout);
+	while (ezcd_exit == 0)
+		sleep(1);
+
+	(void) printf("Exiting on signal %d, "
+		"waiting for all threads to finish...", ezcd_exit);
+	fflush(stdout);
+	ezcd_stop(ctx);
+	(void) printf("%s", " done.\n");
+
+	return (EXIT_SUCCESS);
 }
