@@ -28,4 +28,5 @@ sbin_PROGRAMS = \
         src/ezcd
 
 src_ezcd_SOURCES = \
-	src/main.c
+	src/main.c \
+	src/ezcd.c

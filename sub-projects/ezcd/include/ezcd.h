@@ -18,4 +18,8 @@ typedef struct ezcd_header_s {
 	unsigned int 	checksum;
 } ezcd_header_t;
 
+struct ezcd_context;
+
+struct ezcd_context *ezcd_start(void);
+void ezcd_stop(struct ezcd_context *ctx);
 #endif
