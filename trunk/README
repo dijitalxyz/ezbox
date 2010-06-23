@@ -1,0 +1,7 @@
+    ezbox embedded-system study platform
+
+1. openwrt/ :
+  The openwrt/ directory contains build tool from https://dev.openwrt.org/wiki
+
+2. misc/ :
+  This directory stores a lot of nothing, may be removed :-)
