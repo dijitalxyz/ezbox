@@ -4,13 +4,10 @@
   The bootstrap/ directory contains build tools to construct a bootstrap system for ezbox.
   The major part of build tools is from openwrt project(https://dev.openwrt.org/wiki)
 
-2. misc/ :
-  This directory stores a lot of nothing, may be removed :-)
-
-3. openwrt/ :
-  The openwrt/ directory contains build tool from https://dev.openwrt.org/wiki
-
-4. distro/ :
+2. distro/ :
   The distro/ directory contains distribution-related packages.
   Each distribution has its own purpose, and contains different packages.
+
+3. misc/ :
+  This directory stores a lot of nothing, may be removed :-)
 
