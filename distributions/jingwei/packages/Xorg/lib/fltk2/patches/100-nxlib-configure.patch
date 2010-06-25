@@ -1,0 +1,29 @@
+--- fltk-2.0.x-r7513/configure.in  2010-04-16 16:02:53.000000000 +0800
++++ fltk-2.0.x-r7513/configure.in  2010-05-20 18:53:28.838226436 +0800
+@@ -627,7 +627,7 @@
+ 	    AC_MSG_WARN(Ignoring libraries \"$X_PRE_LIBS\" requested by configure.)
+ 	fi
+ 
+-	LIBS="$LIBS -lXext $X_EXTRA_LIBS"
++	LIBS="$LIBS $X_EXTRA_LIBS"
+ 	CFLAGS="$CFLAGS$X_CFLAGS"
+ 	CXXFLAGS="$CXXFLAGS$X_CFLAGS"
+ 	LDFLAGS="$X_LIBS $LDFLAGS"
+@@ -737,7 +737,7 @@
+ 	fi
+ 
+ 	dnl Probably want a test for Xi here...
+-	LIBS="-lXi $LIBS"
++	LIBS="$LIBS"
+ 
+ 	dnl Check for overlay visuals...
+ 	AC_CACHE_CHECK(for X overlay visuals, ac_cv_have_overlay,
+@@ -752,7 +752,7 @@
+ 	fi
+ 
+ 	dnl Check for iconv if the X lacks UTF-8 facilities (non-XFree86).
+-        AC_CHECK_LIB(X11, Xutf8LookupString,,[
++        AC_CHECK_LIB(NX11, Xutf8LookupString,,[
+             AC_CHECK_HEADERS([iconv.h],[
+                 AC_DEFINE(_XOPEN_SOURCE, 1)
+                 AC_CHECK_LIB(iconv, iconv,[

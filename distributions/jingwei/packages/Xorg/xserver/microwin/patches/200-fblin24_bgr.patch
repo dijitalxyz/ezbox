@@ -1,0 +1,713 @@
+diff --git a/src/drivers/fblin24.c b/src/drivers/fblin24.c
+index 94eb8c1..2409592 100644
+--- a/src/drivers/fblin24.c
++++ b/src/drivers/fblin24.c
+@@ -10,6 +10,18 @@
+ #include "device.h"
+ #include "fb.h"
+ 
++/*#define LINUXFB_BGR*/
++#define LINUXFB_BGR
++#ifndef LINUXFB_BGR
++#define OFFSET_B 0
++#define OFFSET_G 1
++#define OFFSET_R 2
++#else
++#define OFFSET_B 2
++#define OFFSET_G 1
++#define OFFSET_R 0
++#endif
++
+ /* Calc linelen and mmap size, return 0 on fail*/
+ static int
+ linear24_init(PSD psd)
+@@ -39,13 +51,13 @@ linear24_drawpixel(PSD psd, MWCOORD x, M
+ 	addr += (x + y * psd->linelen) * 3;
+ 	DRAWON;
+ 	if(gr_mode == MWROP_COPY) {
+-		*addr++ = b;
+-		*addr++ = g;
+-		*addr = r;
++		*(addr+OFFSET_B) = b;
++		*(addr+OFFSET_G) = g;
++		*(addr+OFFSET_R) = r;
+ 	} else {
+-		applyOp(gr_mode, b, addr, ADDR8); ++addr;
+-		applyOp(gr_mode, g, addr, ADDR8); ++addr;
+-		applyOp(gr_mode, r, addr, ADDR8);
++		applyOp(gr_mode, b, addr+OFFSET_B, ADDR8);
++		applyOp(gr_mode, g, addr+OFFSET_G, ADDR8);
++		applyOp(gr_mode, r, addr+OFFSET_R, ADDR8);
+ 	}
+ 	DRAWOFF;
+ }
+@@ -61,7 +73,7 @@ linear24_readpixel(PSD psd, MWCOORD x, M
+ 	assert (y >= 0 && y < psd->yres);
+ 
+ 	addr += (x + y * psd->linelen) * 3;
+-	return RGB2PIXEL888(addr[2], addr[1], addr[0]);
++	return RGB2PIXEL888(addr[OFFSET_R], addr[OFFSET_G], addr[OFFSET_B]);
+ }
+ 
+ /* Draw horizontal line from x1,y to x2,y including final point*/
+@@ -84,15 +96,17 @@ linear24_drawhorzline(PSD psd, MWCOORD x
+ 	DRAWON;
+ 	if(gr_mode == MWROP_COPY) {
+ 		while(x1++ <= x2) {
+-			*addr++ = b;
+-			*addr++ = g;
+-			*addr++ = r;
++			*(addr+OFFSET_B) = b;
++			*(addr+OFFSET_G) = g;
++			*(addr+OFFSET_R) = r;
++			addr += 3;
+ 		}
+ 	} else {
+ 		while (x1++ <= x2) {
+-			applyOp(gr_mode, b, addr, ADDR8); ++addr;
+-			applyOp(gr_mode, g, addr, ADDR8); ++addr;
+-			applyOp(gr_mode, r, addr, ADDR8); ++addr;
++			applyOp(gr_mode, b, addr+OFFSET_B, ADDR8);
++			applyOp(gr_mode, g, addr+OFFSET_G, ADDR8);
++			applyOp(gr_mode, r, addr+OFFSET_R, ADDR8);
++			addr += 3;
+ 		}
+ 	}
+ 	DRAWOFF;
+@@ -119,16 +133,16 @@ linear24_drawvertline(PSD psd, MWCOORD x
+ 	DRAWON;
+ 	if(gr_mode == MWROP_COPY) {
+ 		while(y1++ <= y2) {
+-			addr[0] = b;
+-			addr[1] = g;
+-			addr[2] = r;
++			addr[OFFSET_B] = b;
++			addr[OFFSET_G] = g;
++			addr[OFFSET_R] = r;
+ 			addr += linelen;
+ 		}
+ 	} else {
+ 		while (y1++ <= y2) {
+-			applyOp(gr_mode, b, &addr[0], ADDR8);
+-			applyOp(gr_mode, g, &addr[1], ADDR8);
+-			applyOp(gr_mode, r, &addr[2], ADDR8);
++			applyOp(gr_mode, b, &addr[OFFSET_B], ADDR8);
++			applyOp(gr_mode, g, &addr[OFFSET_G], ADDR8);
++			applyOp(gr_mode, r, &addr[OFFSET_R], ADDR8);
+ 			addr += linelen;
+ 		}
+ 	}
+@@ -472,9 +486,10 @@ linear24_stretchblitex(PSD dstpsd,
+ 
+ 			x_count = width;
+ 			while (x_count-- > 0) {
+-				*dest_ptr++ = src_ptr[0];
+-				*dest_ptr++ = src_ptr[1];
+-				*dest_ptr++ = src_ptr[2];
++				*(dest_ptr+OFFSET_B) = src_ptr[OFFSET_B];
++				*(dest_ptr+OFFSET_G) = src_ptr[OFFSET_G];
++				*(dest_ptr+OFFSET_R) = src_ptr[OFFSET_R];
++				dest_ptr += 3;
+ 
+ 				src_ptr += src_x_step_normal;
+ 				x_error += x_error_step_normal;
+@@ -519,12 +534,10 @@ linear24_stretchblitex(PSD dstpsd,
+ 
+ 			x_count = width;
+ 			while (x_count-- > 0) {
+-				applyOp(op, src_ptr[0], dest_ptr, ADDR8);
+-				dest_ptr++;
+-				applyOp(op, src_ptr[1], dest_ptr, ADDR8);
+-				dest_ptr++;
+-				applyOp(op, src_ptr[2], dest_ptr, ADDR8);
+-				dest_ptr++;
++				applyOp(op, src_ptr[OFFSET_B], dest_ptr+OFFSET_B, ADDR8);
++				applyOp(op, src_ptr[OFFSET_G], dest_ptr+OFFSET_G, ADDR8);
++				applyOp(op, src_ptr[OFFSET_R], dest_ptr+OFFSET_R, ADDR8);
++				dest_ptr += 3;
+ 
+ 				src_ptr += src_x_step_normal;
+ 				x_error += x_error_step_normal;
+@@ -676,13 +689,15 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				bitmap_byte = *src++;
+ 				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						*dst++ = fg_b;
+-						*dst++ = fg_g;
+-						*dst++ = fg_r;
++						*(dst+OFFSET_B) = fg_b;
++						*(dst+OFFSET_G) = fg_g;
++						*(dst+OFFSET_R) = fg_r;
++						dst += 3;
+ 					} else {
+-						*dst++ = bg_b;
+-						*dst++ = bg_g;
+-						*dst++ = bg_r;
++						*(dst+OFFSET_B) = bg_b;
++						*(dst+OFFSET_G) = bg_g;
++						*(dst+OFFSET_R) = bg_r;
++						dst += 3;
+ 					}
+ 				}
+ 			}
+@@ -692,77 +707,85 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				bitmap_byte = *src++;
+ 
+ 				if (MWI_BIT_NO(0) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(1) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(2) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(3) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(4) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(5) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(6) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(7) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 			}
+ 
+ 			/* Do last few bits of line */
+@@ -771,14 +794,15 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				for (mask = postfix_first_bit;
+ 				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						*dst++ = fg_b;
+-						*dst++ = fg_g;
+-						*dst++ = fg_r;
++						*(dst+OFFSET_B) = fg_b;
++						*(dst+OFFSET_G) = fg_g;
++						*(dst+OFFSET_R) = fg_r;
+ 					} else {
+-						*dst++ = bg_b;
+-						*dst++ = bg_g;
+-						*dst++ = bg_r;
++						*(dst+OFFSET_B) = bg_b;
++						*(dst+OFFSET_G) = bg_g;
++						*(dst+OFFSET_R) = bg_r;
+ 					}
++					dst += 3;
+ 				}
+ 			}
+ 
+@@ -793,9 +817,9 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				bitmap_byte = *src++;
+ 				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						dst[0] = fg_b;
+-						dst[1] = fg_g;
+-						dst[2] = fg_r;
++						dst[OFFSET_B] = fg_b;
++						dst[OFFSET_G] = fg_g;
++						dst[OFFSET_R] = fg_r;
+ 					}
+ 					dst += 3;
+ 				}
+@@ -806,44 +830,44 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				bitmap_byte = *src++;
+ 
+ 				if (MWI_BIT_NO(0) & bitmap_byte) {
+-					dst[0 * 3 + 0] = fg_b;
+-					dst[0 * 3 + 1] = fg_g;
+-					dst[0 * 3 + 2] = fg_r;
++					dst[0 * 3 + OFFSET_B] = fg_b;
++					dst[0 * 3 + OFFSET_G] = fg_g;
++					dst[0 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(1) & bitmap_byte) {
+-					dst[1 * 3 + 0] = fg_b;
+-					dst[1 * 3 + 1] = fg_g;
+-					dst[1 * 3 + 2] = fg_r;
++					dst[1 * 3 + OFFSET_B] = fg_b;
++					dst[1 * 3 + OFFSET_G] = fg_g;
++					dst[1 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(2) & bitmap_byte) {
+-					dst[2 * 3 + 0] = fg_b;
+-					dst[2 * 3 + 1] = fg_g;
+-					dst[2 * 3 + 2] = fg_r;
++					dst[2 * 3 + OFFSET_B] = fg_b;
++					dst[2 * 3 + OFFSET_G] = fg_g;
++					dst[2 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(3) & bitmap_byte) {
+-					dst[3 * 3 + 0] = fg_b;
+-					dst[3 * 3 + 1] = fg_g;
+-					dst[3 * 3 + 2] = fg_r;
++					dst[3 * 3 + OFFSET_B] = fg_b;
++					dst[3 * 3 + OFFSET_G] = fg_g;
++					dst[3 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(4) & bitmap_byte) {
+-					dst[4 * 3 + 0] = fg_b;
+-					dst[4 * 3 + 1] = fg_g;
+-					dst[4 * 3 + 2] = fg_r;
++					dst[4 * 3 + OFFSET_B] = fg_b;
++					dst[4 * 3 + OFFSET_G] = fg_g;
++					dst[4 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(5) & bitmap_byte) {
+-					dst[5 * 3 + 0] = fg_b;
+-					dst[5 * 3 + 1] = fg_g;
+-					dst[5 * 3 + 2] = fg_r;
++					dst[5 * 3 + OFFSET_B] = fg_b;
++					dst[5 * 3 + OFFSET_G] = fg_g;
++					dst[5 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(6) & bitmap_byte) {
+-					dst[6 * 3 + 0] = fg_b;
+-					dst[6 * 3 + 1] = fg_g;
+-					dst[6 * 3 + 2] = fg_r;
++					dst[6 * 3 + OFFSET_B] = fg_b;
++					dst[6 * 3 + OFFSET_G] = fg_g;
++					dst[6 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(7) & bitmap_byte) {
+-					dst[7 * 3 + 0] = fg_b;
+-					dst[7 * 3 + 1] = fg_g;
+-					dst[7 * 3 + 2] = fg_r;
++					dst[7 * 3 + OFFSET_B] = fg_b;
++					dst[7 * 3 + OFFSET_G] = fg_g;
++					dst[7 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				dst += 8 * 3;
+ 			}
+@@ -854,9 +878,9 @@ linear24_drawarea_bitmap_bytes_lsb_first
+ 				for (mask = postfix_first_bit;
+ 				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						dst[0] = fg_b;
+-						dst[1] = fg_g;
+-						dst[2] = fg_r;
++						dst[OFFSET_B] = fg_b;
++						dst[OFFSET_G] = fg_g;
++						dst[OFFSET_R] = fg_r;
+ 					}
+ 					dst += 3;
+ 				}
+@@ -1001,14 +1025,15 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				bitmap_byte = *src++;
+ 				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						*dst++ = fg_b;
+-						*dst++ = fg_g;
+-						*dst++ = fg_r;
++						*(dst+OFFSET_B) = fg_b;
++						*(dst+OFFSET_G) = fg_g;
++						*(dst+OFFSET_R) = fg_r;
+ 					} else {
+-						*dst++ = bg_b;
+-						*dst++ = bg_g;
+-						*dst++ = bg_r;
++						*(dst+OFFSET_B) = bg_b;
++						*(dst+OFFSET_G) = bg_g;
++						*(dst+OFFSET_R) = bg_r;
+ 					}
++					dst += 3;
+ 				}
+ 			}
+ 
+@@ -1017,77 +1042,85 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				bitmap_byte = *src++;
+ 
+ 				if (MWI_BIT_NO(0) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(1) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(2) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(3) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(4) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(5) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(6) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 				if (MWI_BIT_NO(7) & bitmap_byte) {
+-					*dst++ = fg_b;
+-					*dst++ = fg_g;
+-					*dst++ = fg_r;
++					*(dst+OFFSET_B) = fg_b;
++					*(dst+OFFSET_G) = fg_g;
++					*(dst+OFFSET_R) = fg_r;
+ 				} else {
+-					*dst++ = bg_b;
+-					*dst++ = bg_g;
+-					*dst++ = bg_r;
++					*(dst+OFFSET_B) = bg_b;
++					*(dst+OFFSET_G) = bg_g;
++					*(dst+OFFSET_R) = bg_r;
+ 				}
++				dst += 3;
+ 			}
+ 
+ 			/* Do last few bits of line */
+@@ -1096,14 +1129,15 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				for (mask = postfix_first_bit;
+ 				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						*dst++ = fg_b;
+-						*dst++ = fg_g;
+-						*dst++ = fg_r;
++						*(dst+OFFSET_B) = fg_b;
++						*(dst+OFFSET_G) = fg_g;
++						*(dst+OFFSET_R) = fg_r;
+ 					} else {
+-						*dst++ = bg_b;
+-						*dst++ = bg_g;
+-						*dst++ = bg_r;
++						*(dst+OFFSET_B) = bg_b;
++						*(dst+OFFSET_G) = bg_g;
++						*(dst+OFFSET_R) = bg_r;
+ 					}
++					dst += 3;
+ 				}
+ 			}
+ 
+@@ -1118,9 +1152,9 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				bitmap_byte = *src++;
+ 				for (mask = prefix_first_bit; mask; MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						dst[0] = fg_b;
+-						dst[1] = fg_g;
+-						dst[2] = fg_r;
++						dst[OFFSET_B] = fg_b;
++						dst[OFFSET_G] = fg_g;
++						dst[OFFSET_R] = fg_r;
+ 					}
+ 					dst += 3;
+ 				}
+@@ -1131,44 +1165,44 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				bitmap_byte = *src++;
+ 
+ 				if (MWI_BIT_NO(0) & bitmap_byte) {
+-					dst[0 * 3 + 0] = fg_b;
+-					dst[0 * 3 + 1] = fg_g;
+-					dst[0 * 3 + 2] = fg_r;
++					dst[0 * 3 + OFFSET_B] = fg_b;
++					dst[0 * 3 + OFFSET_G] = fg_g;
++					dst[0 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(1) & bitmap_byte) {
+-					dst[1 * 3 + 0] = fg_b;
+-					dst[1 * 3 + 1] = fg_g;
+-					dst[1 * 3 + 2] = fg_r;
++					dst[1 * 3 + OFFSET_B] = fg_b;
++					dst[1 * 3 + OFFSET_G] = fg_g;
++					dst[1 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(2) & bitmap_byte) {
+-					dst[2 * 3 + 0] = fg_b;
+-					dst[2 * 3 + 1] = fg_g;
+-					dst[2 * 3 + 2] = fg_r;
++					dst[2 * 3 + OFFSET_B] = fg_b;
++					dst[2 * 3 + OFFSET_G] = fg_g;
++					dst[2 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(3) & bitmap_byte) {
+-					dst[3 * 3 + 0] = fg_b;
+-					dst[3 * 3 + 1] = fg_g;
+-					dst[3 * 3 + 2] = fg_r;
++					dst[3 * 3 + OFFSET_B] = fg_b;
++					dst[3 * 3 + OFFSET_G] = fg_g;
++					dst[3 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(4) & bitmap_byte) {
+-					dst[4 * 3 + 0] = fg_b;
+-					dst[4 * 3 + 1] = fg_g;
+-					dst[4 * 3 + 2] = fg_r;
++					dst[4 * 3 + OFFSET_B] = fg_b;
++					dst[4 * 3 + OFFSET_G] = fg_g;
++					dst[4 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(5) & bitmap_byte) {
+-					dst[5 * 3 + 0] = fg_b;
+-					dst[5 * 3 + 1] = fg_g;
+-					dst[5 * 3 + 2] = fg_r;
++					dst[5 * 3 + OFFSET_B] = fg_b;
++					dst[5 * 3 + OFFSET_G] = fg_g;
++					dst[5 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(6) & bitmap_byte) {
+-					dst[6 * 3 + 0] = fg_b;
+-					dst[6 * 3 + 1] = fg_g;
+-					dst[6 * 3 + 2] = fg_r;
++					dst[6 * 3 + OFFSET_B] = fg_b;
++					dst[6 * 3 + OFFSET_G] = fg_g;
++					dst[6 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				if (MWI_BIT_NO(7) & bitmap_byte) {
+-					dst[7 * 3 + 0] = fg_b;
+-					dst[7 * 3 + 1] = fg_g;
+-					dst[7 * 3 + 2] = fg_r;
++					dst[7 * 3 + OFFSET_B] = fg_b;
++					dst[7 * 3 + OFFSET_G] = fg_g;
++					dst[7 * 3 + OFFSET_R] = fg_r;
+ 				}
+ 				dst += 8 * 3;
+ 			}
+@@ -1179,9 +1213,9 @@ linear24_drawarea_bitmap_bytes_msb_first
+ 				for (mask = postfix_first_bit;
+ 				     MWI_IS_BIT_BEFORE_OR_EQUAL(mask, postfix_last_bit); MWI_ADVANCE_BIT(mask)) {
+ 					if (mask & bitmap_byte) {
+-						dst[0] = fg_b;
+-						dst[1] = fg_g;
+-						dst[2] = fg_r;
++						dst[OFFSET_B] = fg_b;
++						dst[OFFSET_G] = fg_g;
++						dst[OFFSET_R] = fg_r;
+ 					}
+ 					dst += 3;
+ 				}
+@@ -1224,20 +1258,24 @@ linear24_drawarea_alphacol(PSD psd, driv
+ 	for (y = 0; y < gc->height; y++) {
+ 		for (x = 0; x < gc->width; x++) {
+ 			if ((as = *alpha++) == 255) {
+-				*dst++ = psb;
+-				*dst++ = psg;
+-				*dst++ = psr;
++				*(dst+OFFSET_B) = psb;
++				*(dst+OFFSET_G) = psg;
++				*(dst+OFFSET_R) = psr;
++				dst += 3;
+ 			} else if (as != 0) {
+-				register uint32_t pd = *dst;
+-				*dst++ = muldiv255(as, psb - pd) + pd;
+-				pd = *dst;
+-				*dst++ = muldiv255(as, psg - pd) + pd;
+-				pd = *dst;
+-				*dst++ = muldiv255(as, psr - pd) + pd;
++				register uint32_t pd;
++				pd = *(dst+OFFSET_B);
++				*(dst+OFFSET_B) = muldiv255(as, psb - pd) + pd;
++				pd = *(dst+OFFSET_G);
++				*(dst+OFFSET_G) = muldiv255(as, psg - pd) + pd;
++				pd = *(dst+OFFSET_R);
++				*(dst+OFFSET_R) = muldiv255(as, psr - pd) + pd;
++				dst += 3;
+ 			} else if(gc->usebg)	{	/* alpha 0 - draw bkgnd*/
+-				*dst++ = PIXEL888BLUE(gc->bg_color);
+-				*dst++ = PIXEL888GREEN(gc->bg_color);
+-				*dst++ = PIXEL888RED(gc->bg_color);
++				*(dst+OFFSET_B) = PIXEL888BLUE(gc->bg_color);
++				*(dst+OFFSET_G) = PIXEL888GREEN(gc->bg_color);
++				*(dst+OFFSET_R) = PIXEL888RED(gc->bg_color);
++				dst += 3;
+ 			} else
+ 				dst += 3;
+ 		}
