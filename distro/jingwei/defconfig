@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (r34)
-# Fri Jun 25 12:03:48 2010
+# Fri Jun 25 16:21:14 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -975,8 +975,21 @@ CONFIG_PACKAGE_libstdcpp=y
 #
 # Utilities
 #
+# CONFIG_PACKAGE_iconv is not set
+# CONFIG_PACKAGE_jpeg-tools is not set
 CONFIG_PACKAGE_ldconfig=y
 # CONFIG_PACKAGE_ldd is not set
+
+#
+# Libraries
+#
+# CONFIG_PACKAGE_libcharset is not set
+CONFIG_PACKAGE_libfreetype=y
+CONFIG_PACKAGE_libiconv=y
+CONFIG_PACKAGE_libjpeg=y
+# CONFIG_PACKAGE_libltdl is not set
+CONFIG_PACKAGE_libpng=y
+CONFIG_PACKAGE_zlib=y
 
 #
 # Kernel modules
@@ -1203,3 +1216,27 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 #
 # Xen paravirtualized guest support
 #
+
+#
+# Xorg
+#
+
+#
+# app
+#
+CONFIG_PACKAGE_dillo=y
+
+#
+# framework
+#
+CONFIG_PACKAGE_fltk2=y
+
+#
+# libraries
+#
+CONFIG_PACKAGE_nxlib=y
+
+#
+# server
+#
+CONFIG_PACKAGE_microwin=y
