@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (r34)
-# Thu Jun 24 17:07:43 2010
+# Fri Jun 25 11:15:09 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -205,10 +205,30 @@ CONFIG_TARGET_SUFFIX="uclibc"
 # CONFIG_SDK is not set
 CONFIG_MAKE_TOOLCHAIN=y
 # CONFIG_IMAGEOPT is not set
+CONFIG_UCI_PRECONFIG_network_lan_dns=""
+CONFIG_UCI_PRECONFIG_network_lan_proto="static"
+CONFIG_UCI_PRECONFIG_network_lan_gateway=""
+CONFIG_UCI_PRECONFIG_network_lan_netmask="255.255.255.0"
+CONFIG_UCI_PRECONFIG_network_lan_ipaddr="192.168.1.1"
+# CONFIG_PREINITOPT is not set
+CONFIG_TARGET_PREINIT_SUPPRESS_STDERR=y
+CONFIG_TARGET_PREINIT_TIMEOUT=2
+# CONFIG_TARGET_PREINIT_SHOW_NETMSG is not set
+# CONFIG_TARGET_PREINIT_SUPPRESS_FAILSAFE_NETMSG is not set
+CONFIG_TARGET_PREINIT_IFNAME=""
+CONFIG_TARGET_PREINIT_IP="192.168.1.1"
+CONFIG_TARGET_PREINIT_NETMASK="255.255.255.0"
+CONFIG_TARGET_PREINIT_BROADCAST="192.168.1.255"
+# CONFIG_INITOPT is not set
+CONFIG_TARGET_INIT_PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+CONFIG_TARGET_INIT_ENV=""
+CONFIG_TARGET_INIT_CMD="/sbin/init"
+CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 
 #
 # Base system
 #
+CONFIG_PACKAGE_base-files=y
 CONFIG_PACKAGE_busybox=y
 
 #
@@ -946,3 +966,240 @@ CONFIG_BUSYBOX_CONFIG_LOGREAD=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING is not set
 CONFIG_BUSYBOX_CONFIG_KLOGD=y
 CONFIG_BUSYBOX_CONFIG_LOGGER=y
+CONFIG_PACKAGE_libc=y
+CONFIG_PACKAGE_libgcc=y
+CONFIG_PACKAGE_libpthread=y
+CONFIG_PACKAGE_librt=y
+CONFIG_PACKAGE_libstdcpp=y
+
+#
+# Utilities
+#
+CONFIG_PACKAGE_ldconfig=y
+# CONFIG_PACKAGE_ldd is not set
+
+#
+# Kernel modules
+#
+
+#
+# Block Devices
+#
+# CONFIG_PACKAGE_kmod-aoe is not set
+# CONFIG_PACKAGE_kmod-ata-ahci is not set
+# CONFIG_PACKAGE_kmod-ata-artop is not set
+# CONFIG_PACKAGE_kmod-ata-nvidia-sata is not set
+# CONFIG_PACKAGE_kmod-ata-piix is not set
+# CONFIG_PACKAGE_kmod-ata-sil is not set
+# CONFIG_PACKAGE_kmod-ata-sil24 is not set
+# CONFIG_PACKAGE_kmod-ata-via-sata is not set
+# CONFIG_PACKAGE_kmod-block2mtd is not set
+# CONFIG_PACKAGE_kmod-dm is not set
+# CONFIG_PACKAGE_kmod-ide-core is not set
+# CONFIG_PACKAGE_kmod-libsas is not set
+# CONFIG_PACKAGE_kmod-loop is not set
+# CONFIG_PACKAGE_kmod-mvsas is not set
+# CONFIG_PACKAGE_kmod-nbd is not set
+# CONFIG_PACKAGE_kmod-scsi-generic is not set
+
+#
+# Cryptographic API modules
+#
+# CONFIG_PACKAGE_kmod-crypto-core is not set
+
+#
+# Filesystems
+#
+# CONFIG_PACKAGE_kmod-fs-autofs4 is not set
+# CONFIG_PACKAGE_kmod-fs-btrfs is not set
+# CONFIG_PACKAGE_kmod-fs-cifs is not set
+# CONFIG_PACKAGE_kmod-fs-exportfs is not set
+# CONFIG_PACKAGE_kmod-fs-ext2 is not set
+# CONFIG_PACKAGE_kmod-fs-ext3 is not set
+# CONFIG_PACKAGE_kmod-fs-ext4 is not set
+# CONFIG_PACKAGE_kmod-fs-hfs is not set
+# CONFIG_PACKAGE_kmod-fs-hfsplus is not set
+# CONFIG_PACKAGE_kmod-fs-isofs is not set
+# CONFIG_PACKAGE_kmod-fs-mbcache is not set
+# CONFIG_PACKAGE_kmod-fs-minix is not set
+# CONFIG_PACKAGE_kmod-fs-msdos is not set
+# CONFIG_PACKAGE_kmod-fs-nfs is not set
+# CONFIG_PACKAGE_kmod-fs-nfs-common is not set
+# CONFIG_PACKAGE_kmod-fs-nfsd is not set
+# CONFIG_PACKAGE_kmod-fs-ntfs is not set
+# CONFIG_PACKAGE_kmod-fs-reiserfs is not set
+# CONFIG_PACKAGE_kmod-fs-udf is not set
+# CONFIG_PACKAGE_kmod-fs-vfat is not set
+# CONFIG_PACKAGE_kmod-fs-xfs is not set
+
+#
+# FireWire support
+#
+# CONFIG_PACKAGE_kmod-ieee1394 is not set
+
+#
+# Hardware Monitoring Support
+#
+# CONFIG_PACKAGE_kmod-hwmon-core is not set
+
+#
+# I2C support
+#
+# CONFIG_PACKAGE_kmod-i2c-core is not set
+
+#
+# Native Language Support
+#
+# CONFIG_PACKAGE_kmod-nls-base is not set
+# CONFIG_PACKAGE_kmod-nls-cp1250 is not set
+# CONFIG_PACKAGE_kmod-nls-cp1251 is not set
+# CONFIG_PACKAGE_kmod-nls-cp437 is not set
+# CONFIG_PACKAGE_kmod-nls-cp775 is not set
+# CONFIG_PACKAGE_kmod-nls-cp850 is not set
+# CONFIG_PACKAGE_kmod-nls-cp852 is not set
+# CONFIG_PACKAGE_kmod-nls-cp866 is not set
+# CONFIG_PACKAGE_kmod-nls-iso8859-1 is not set
+# CONFIG_PACKAGE_kmod-nls-iso8859-13 is not set
+# CONFIG_PACKAGE_kmod-nls-iso8859-15 is not set
+# CONFIG_PACKAGE_kmod-nls-iso8859-2 is not set
+# CONFIG_PACKAGE_kmod-nls-koi8r is not set
+# CONFIG_PACKAGE_kmod-nls-utf8 is not set
+
+#
+# Netfilter Extensions
+#
+# CONFIG_PACKAGE_kmod-arptables is not set
+# CONFIG_PACKAGE_kmod-ebtables is not set
+# CONFIG_PACKAGE_kmod-ip6tables is not set
+# CONFIG_PACKAGE_kmod-ipt-core is not set
+# CONFIG_PACKAGE_kmod-nf-conntrack-netlink is not set
+# CONFIG_PACKAGE_kmod-nfnetlink is not set
+# CONFIG_PACKAGE_kmod-nfnetlink-log is not set
+# CONFIG_PACKAGE_kmod-nfnetlink-queue is not set
+
+#
+# Network Devices
+#
+CONFIG_PACKAGE_kmod-3c59x=y
+CONFIG_PACKAGE_kmod-8139too=y
+# CONFIG_PACKAGE_kmod-b44 is not set
+CONFIG_PACKAGE_kmod-e100=y
+CONFIG_PACKAGE_kmod-e1000=y
+# CONFIG_PACKAGE_kmod-gigaset is not set
+# CONFIG_PACKAGE_kmod-hfcmulti is not set
+CONFIG_PACKAGE_kmod-libphy=y
+# CONFIG_PACKAGE_kmod-macvlan is not set
+CONFIG_PACKAGE_kmod-natsemi=y
+CONFIG_PACKAGE_kmod-ne2k-pci=y
+CONFIG_PACKAGE_kmod-pcnet32=y
+CONFIG_PACKAGE_kmod-r8169=y
+CONFIG_PACKAGE_kmod-sis900=y
+# CONFIG_PACKAGE_kmod-sky2 is not set
+# CONFIG_PACKAGE_kmod-swconfig is not set
+# CONFIG_PACKAGE_kmod-switch-ip175c is not set
+CONFIG_PACKAGE_kmod-tg3=y
+# CONFIG_PACKAGE_kmod-tulip is not set
+CONFIG_PACKAGE_kmod-via-rhine=y
+CONFIG_PACKAGE_kmod-via-velocity=y
+
+#
+# Network Support
+#
+# CONFIG_PACKAGE_kmod-appletalk is not set
+# CONFIG_PACKAGE_kmod-atm is not set
+# CONFIG_PACKAGE_kmod-ax25 is not set
+# CONFIG_PACKAGE_kmod-bonding is not set
+# CONFIG_PACKAGE_kmod-capi is not set
+# CONFIG_PACKAGE_kmod-gre is not set
+# CONFIG_PACKAGE_kmod-ip6-tunnel is not set
+# CONFIG_PACKAGE_kmod-ipip is not set
+# CONFIG_PACKAGE_kmod-ipsec is not set
+# CONFIG_PACKAGE_kmod-iptunnel4 is not set
+# CONFIG_PACKAGE_kmod-iptunnel6 is not set
+# CONFIG_PACKAGE_kmod-ipv6 is not set
+# CONFIG_PACKAGE_kmod-isdn4linux is not set
+# CONFIG_PACKAGE_kmod-misdn is not set
+# CONFIG_PACKAGE_kmod-mp-alg is not set
+# CONFIG_PACKAGE_kmod-ppp is not set
+# CONFIG_PACKAGE_kmod-pktgen is not set
+# CONFIG_PACKAGE_kmod-sched is not set
+# CONFIG_PACKAGE_kmod-sit is not set
+# CONFIG_PACKAGE_kmod-tun is not set
+
+#
+# Other modules
+#
+# CONFIG_PACKAGE_kmod-bluetooth is not set
+# CONFIG_PACKAGE_kmod-crc-ccitt is not set
+# CONFIG_PACKAGE_kmod-crc-itu-t is not set
+# CONFIG_PACKAGE_kmod-crc16 is not set
+# CONFIG_PACKAGE_kmod-crc7 is not set
+# CONFIG_PACKAGE_kmod-eeprom-93cx6 is not set
+# CONFIG_PACKAGE_kmod-gpio-cs5535 is not set
+# CONFIG_PACKAGE_kmod-gpio-nsc is not set
+# CONFIG_PACKAGE_kmod-gpio-pc8736x is not set
+# CONFIG_PACKAGE_kmod-gpio-scx200 is not set
+# CONFIG_PACKAGE_kmod-input-evdev is not set
+# CONFIG_PACKAGE_kmod-input-joydev is not set
+# CONFIG_PACKAGE_kmod-input-polldev is not set
+# CONFIG_PACKAGE_kmod-leds-alix is not set
+# CONFIG_PACKAGE_kmod-leds-net48xx is not set
+# CONFIG_PACKAGE_kmod-leds-wrap is not set
+# CONFIG_PACKAGE_kmod-ledtrig-morse is not set
+# CONFIG_PACKAGE_kmod-ledtrig-netdev is not set
+# CONFIG_PACKAGE_kmod-mmc is not set
+# CONFIG_PACKAGE_kmod-rfkill is not set
+# CONFIG_PACKAGE_kmod-softdog is not set
+# CONFIG_PACKAGE_kmod-ssb is not set
+# CONFIG_PACKAGE_kmod-textsearch is not set
+# CONFIG_PACKAGE_kmod-wdt-geode is not set
+# CONFIG_PACKAGE_kmod-wdt-sc520 is not set
+# CONFIG_PACKAGE_kmod-wdt-scx200 is not set
+
+#
+# PCMCIA support
+#
+# CONFIG_PACKAGE_kmod-pcmcia-core is not set
+
+#
+# SPI Support
+#
+# CONFIG_PACKAGE_kmod-mmc-spi is not set
+# CONFIG_PACKAGE_kmod-spi-bitbang is not set
+# CONFIG_PACKAGE_kmod-spi-dev is not set
+
+#
+# Sound Support
+#
+# CONFIG_PACKAGE_kmod-pcspkr is not set
+# CONFIG_PACKAGE_kmod-sound-core is not set
+
+#
+# USB Support
+#
+# CONFIG_PACKAGE_kmod-usb-core is not set
+
+#
+# Video Support
+#
+# CONFIG_PACKAGE_kmod-video-core is not set
+
+#
+# W1 support
+#
+# CONFIG_PACKAGE_kmod-w1 is not set
+
+#
+# Wireless Drivers
+#
+# CONFIG_PACKAGE_kmod-lib80211 is not set
+# CONFIG_PACKAGE_kmod-net-airo is not set
+# CONFIG_PACKAGE_kmod-net-hermes is not set
+# CONFIG_PACKAGE_kmod-net-hermes-pci is not set
+# CONFIG_PACKAGE_kmod-net-hermes-pcmcia is not set
+# CONFIG_PACKAGE_kmod-net-hermes-plx is not set
+# CONFIG_PACKAGE_kmod-net-prism54 is not set
+
+#
+# Xen paravirtualized guest support
+#
