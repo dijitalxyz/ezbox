@@ -104,7 +104,7 @@ FBEMULATOR               = N
 # define MWPF_TRUECOLOR332  /* pixel is packed 8 bits 3/3/2 truecolor*/
 #
 ####################################################################
-SCREEN_PIXTYPE           = MWPF_TRUECOLOR888
+SCREEN_PIXTYPE           = MWPF_TRUECOLOR0888
 
 ####################################################################
 #

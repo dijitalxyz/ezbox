@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=microwin
-PKG_VERSION:=20100612
-PKG_REV:=639bcc4f0e5cda23e8c35f170606998441191b0f
+PKG_VERSION:=20100622
+PKG_REV:=ba0fa43513dd4fa9614dddec7ffa80533aa8e69f
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -76,10 +76,13 @@ define Build/InstallDev
 endef
 
 define Package/microwin/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/lib
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/bin/nano-X \
 		$(1)/usr/bin/
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/lib/libnano-X.so \
+		$(1)/usr/lib/
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/bin/nanowm \
 		$(1)/usr/bin/
