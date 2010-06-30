@@ -11,7 +11,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_MAKEFLAGS = --no-print-directory
 
 AM_CPPFLAGS = \
-	-include $(top_builddir)/config.h \
+	-include $(top_builddir)/include/ezcd_config.h \
 	-I$(top_srcdir)/include \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\"
