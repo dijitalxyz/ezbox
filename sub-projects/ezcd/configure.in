@@ -4,7 +4,7 @@
 AC_PREREQ([2.62])
 AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
 AC_CONFIG_SRCDIR([src/main.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([include/ezcd_config.h])
 AM_INIT_AUTOMAKE(ezcd, 0.1)
 
 # Checks for programs.
