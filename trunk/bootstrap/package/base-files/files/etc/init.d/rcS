@@ -1,6 +1,9 @@
 #!/bin/sh
 # Copyright (C) 2006 OpenWrt.org
 
+if [ -x /sbin/ezcd ]; then
+	/sbin/ezcd -d
+else
 run_scripts() {
 	for i in /etc/rc.d/$1*; do
 		[ -x $i ] && $i $2 2>&1
@@ -23,4 +26,5 @@ if [ "$1" = "S" -a "$foreground" != "1" ]; then
 	run_scripts "$1" "$2" &
 else
 	run_scripts "$1" "$2"
+fi
 fi
