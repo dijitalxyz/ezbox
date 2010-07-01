@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (r70)
-# Wed Jun 30 17:27:13 2010
+# Thu Jul  1 11:32:42 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -204,11 +204,6 @@ CONFIG_TARGET_SUFFIX="uclibc"
 # CONFIG_SDK is not set
 CONFIG_MAKE_TOOLCHAIN=y
 # CONFIG_IMAGEOPT is not set
-CONFIG_UCI_PRECONFIG_network_lan_dns=""
-CONFIG_UCI_PRECONFIG_network_lan_proto="static"
-CONFIG_UCI_PRECONFIG_network_lan_gateway=""
-CONFIG_UCI_PRECONFIG_network_lan_netmask="255.255.255.0"
-CONFIG_UCI_PRECONFIG_network_lan_ipaddr="192.168.1.1"
 # CONFIG_PREINITOPT is not set
 CONFIG_TARGET_PREINIT_SUPPRESS_STDERR=y
 CONFIG_TARGET_PREINIT_TIMEOUT=2
@@ -227,7 +222,7 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 #
 # Base system
 #
-CONFIG_PACKAGE_base-files=y
+# CONFIG_PACKAGE_base-files is not set
 CONFIG_PACKAGE_busybox=y
 
 #
