@@ -15,11 +15,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/mman.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/mount.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
@@ -42,7 +47,7 @@ static void signal_handler(int sig_num)
 	}
 }
 
-static void show_usage(void)
+static void ezcd_show_usage(void)
 {
 	printf("Usage: ezcd [-d] [-c max_worker_threads]\n");
 	printf("\n");
@@ -80,7 +85,7 @@ static int mem_size_mb(void)
 	return memsize;
 }
 
-int main(int argc, char **argv)
+static int ezcd_main(int argc, char **argv)
 {
 	int daemonize = 0;
 	int c = 0;
@@ -99,7 +104,7 @@ int main(int argc, char **argv)
 				break;
 			case 'h':
 			default:
-				show_usage();
+				ezcd_show_usage();
 				exit(EXIT_FAILURE);
 		}
         }
@@ -148,3 +153,66 @@ int main(int argc, char **argv)
 	return (EXIT_SUCCESS);
 }
 
+static int init_main(int argc, char **argv)
+{
+        FILE *file = NULL;
+	char *init_argv[] = { "/sbin/init", NULL };
+	int ret = 0;
+
+	/* /proc */
+	mkdir("/proc", 0555);
+	mount("proc", "/proc", "proc", MS_MGC_VAL, NULL);
+
+	/* sysfs -> /sys */
+	mkdir("/sys", 0755);
+	mount("sysfs", "/sys", "sysfs", MS_MGC_VAL, NULL);
+
+	/* /dev */
+	mkdir("/dev", 0755);
+	// mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
+
+	/* /etc */
+	mkdir("/etc", 0755);
+
+	/* hotplug2 */
+	mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
+	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2-init.rules --no-persistent --set-coldplug-cmd /sbin/udevtrigger");
+	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2-init.rules --persistent &");
+
+	/* init shms */
+	mkdir("/dev/shm", 0777);
+
+	/* Mount /dev/pts */
+	mkdir("/dev/pts", 0777);
+	mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
+
+	/* init hotplug */
+	file = fopen("/proc/sys/kernel/hotplug", "w");
+	if (file != NULL)
+	{
+		fprintf(file, "%s", "");
+		fclose(file);
+	}
+
+	/* switch to /sbin/init */
+	execv(init_argv[0], init_argv);
+
+	return (EXIT_SUCCESS);
+}
+
+int main(int argc, char **argv)
+{
+	char *name = strrchr(argv[0], '/');
+	name = name ? name+1 : argv[0];
+
+	if (!strcmp(name, "init")) {
+		return init_main(argc, argv);
+	}
+	else if (!strcmp(name, "ezcd")) {
+		return ezcd_main(argc, argv);
+	}
+	else {
+		printf("Unkown name [%s]!\n", name);
+		return (EXIT_FAILURE);
+	}
+}
