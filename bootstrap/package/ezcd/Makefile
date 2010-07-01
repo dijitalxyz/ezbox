@@ -45,6 +45,8 @@ endef
 define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/ezcd $(1)/sbin/
+	$(LN) /sbin/ezcd $(1)/init
+	$(CP) ./files/* $(1)/
 endef
 
 define Build/InstallDev
