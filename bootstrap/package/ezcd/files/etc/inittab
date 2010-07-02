@@ -1,3 +1,4 @@
+::sysinit:/sbin/ezcd -d
 tts/0::askfirst:/bin/ash --login
 ttyS0::askfirst:/bin/ash --login
 tty1::askfirst:/bin/ash --login
