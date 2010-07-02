@@ -21,6 +21,7 @@
 #include <sys/select.h>
 #include <sys/mman.h>
 #include <sys/time.h>
+#include <sys/un.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
@@ -49,6 +50,7 @@ struct usa {
 	socklen_t len;
 	union {
 		struct sockaddr sa;
+		struct sockaddr_un sun;
 		struct sockaddr_in sin;
 	} u;
 };
@@ -190,7 +192,7 @@ static void accept_new_connection(const struct socket *listener, struct ezcd_con
 {
 	struct socket   accepted;
 
-	accepted.rsa.len = sizeof(accepted.rsa.u.sin);
+	accepted.rsa.len = sizeof(accepted.rsa.u.sun);
 	accepted.lsa = listener->lsa;
 	if ((accepted.sock = accept(listener->sock,
 	     &accepted.rsa.u.sa, &accepted.rsa.len)) == INVALID_SOCKET)
@@ -290,4 +292,9 @@ void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max)
 {
 	assert(ctx);
 	ctx->threads_max = threads_max;
+}
+
+int ezcd_set_listening_socket(struct ezcd_context *ctx, char *sock_name)
+{
+	return(EXIT_SUCCESS);
 }

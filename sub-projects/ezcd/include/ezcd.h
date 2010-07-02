@@ -22,4 +22,6 @@ struct ezcd_context;
 
 struct ezcd_context *ezcd_start(void);
 void ezcd_stop(struct ezcd_context *ctx);
+void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max);
+int ezcd_set_listening_socket(struct ezcd_context *ctx, char *sock_name);
 #endif
