@@ -3,12 +3,10 @@
 
 = 简介 =
 
-为达到企业级软件质量保证，在ezbox的构建发布这个循环学习过程中，我们同样关注ezbox的代码质量。
-本页将引导ezbox的使用者利用各种开源工具进行ezbox的软件代码查错及软件健壮性检查，并建立实际产品开发时所需的软件质量保证概念。
+  * 为达到企业级软件质量保证，在ezbox的构建发布这个循环学习过程中，我们同样关注ezbox的代码质量。
+  * 本页将引导ezbox的使用者利用各种开源工具进行ezbox的软件代码查错及软件健壮性检查，并建立实际产品开发时所需的软件质量保证概念。
 
-= Details =
+= 详细说明 =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+== 参考资料 ==
+  * ?1 "Finding Bugs in Open Source Kernels using Parfait" <a href=http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf>http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf</a>
