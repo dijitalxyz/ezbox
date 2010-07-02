@@ -35,3 +35,4 @@
   * ?1 "Finding Bugs in Open Source Kernels using Parfait" <a href="http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf"> http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf </a>
   * ?2 Clang Static Analyzer 主页 <a href="http://clang-analyzer.llvm.org/"> http://clang-analyzer.llvm.org/ </a>
   * ?3 splint 主页 <a href="http://www.splint.org/"> http://www.splint.org/ </a> 
+  * ?4 开源测试工具 <a href="http://www.opensourcetesting.org/"> http://www.opensourcetesting.org/ </a>
