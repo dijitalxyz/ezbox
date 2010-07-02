@@ -9,4 +9,4 @@
 = 详细说明 =
 
 == 参考资料 ==
-  * ?1 "Finding Bugs in Open Source Kernels using Parfait" <a href=http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf>http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf</a>
+  * ?1 "Finding Bugs in Open Source Kernels using Parfait" <a href="http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf"> http://labs.oracle.com/projects/downunder/publications/kca09-slides.pdf </a>
