@@ -4,7 +4,7 @@
  *
  * Description  : EZCD main program
  *
- * Copyright (C) 2010 by TANG HUI
+ * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch
@@ -31,8 +31,6 @@
 #include <pthread.h>
 
 #include "ezcd.h"
-
-int threads_max;
 
 static int ezcd_exit;
 
@@ -89,9 +87,9 @@ static int ezcd_main(int argc, char **argv)
 {
 	int daemonize = 0;
 	int c = 0;
+	int threads_max = 0;
 	struct ezcd_context *ctx;
 
-	threads_max = 0;
 	for (;;) {
 		c = getopt( argc, argv, "c:dh");
 		if (c == EOF) break;
@@ -129,6 +127,7 @@ static int ezcd_main(int argc, char **argv)
 		else
 			threads_max = 2;
 	}
+	ezcd_set_threads_max(ctx, threads_max);
 
 	if (daemonize)
 	{

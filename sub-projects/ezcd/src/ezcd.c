@@ -2,9 +2,9 @@
  * Project Name : ezbox Configuration Daemon
  * Module Name  : main.c
  *
- * Description  : EZCD main program
+ * Description  : EZCD lib program
  *
- * Copyright (C) 2010 by TANG HUI
+ * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch
@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -39,8 +40,6 @@
 typedef int SOCKET;
 
 typedef void * (*ezcd_thread_func_t)(void *);
-
-extern int threads_max;
 
 /*
  * unified socket address. For IPv6 support, add IPv6 address structure
@@ -70,9 +69,10 @@ struct socket {
  * ezcd context
  */
 struct ezcd_context {
-	int		stop_flag;	/* Should we stop event loop */
-	char		*nvram;		/* NVRAM */
+	int		stop_flag;	/* Should we stop event loop    */
+	char		*nvram;		/* NVRAM                        */
 	struct socket 	*listening_sockets;
+	int 		threads_max;    /* MAX number of threads        */
 	int 		num_threads;    /* Number of threads            */
 	int 		num_idle;       /* Number of idle threads       */
 
@@ -95,7 +95,7 @@ static void worker_thread(struct ezcd_context *ctx)
 	}
 }
 
-static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void *data)
+static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void *args)
 {
 	pthread_t       thread_id;
 	pthread_attr_t  attr;
@@ -106,7 +106,7 @@ static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void 
 	pthread_attr_setstacksize(&attr,
 	                          sizeof(struct ezcd_context) * 2);
 
-	if ((retval = pthread_create(&thread_id, &attr, func, data)) != 0)
+	if ((retval = pthread_create(&thread_id, &attr, func, args)) != 0)
 		DBG_PRINT("%s: %s", __func__, strerror(retval));
 
 	return (retval);
@@ -173,10 +173,10 @@ static void put_socket(struct ezcd_context *ctx, const struct socket *sp)
 
 	/* if there are no idle threads, start one */
 	if ((ctx->num_idle == 0) &&
-	    (ctx->num_threads < threads_max)) {
+	    (ctx->num_threads < ctx->threads_max)) {
 		if (start_thread(ctx,
 		                 (ezcd_thread_func_t) worker_thread,
-		                  ctx->nvram) != 0)
+		                  ctx) != 0)
                         DBG_PRINT("Cannot start thread: %d", ERRNO);
 		else
 			ctx->num_threads++;
@@ -237,6 +237,9 @@ static void monitor_thread(struct ezcd_context *ctx)
 	ezcd_finish(ctx);
 }
 
+/*
+ * public functions
+ */
 void ezcd_stop(struct ezcd_context *ctx)
 {
 	ctx->stop_flag = 1;
@@ -254,11 +257,16 @@ struct ezcd_context *ezcd_start(void)
 	struct ezcd_context *ctx;
 	ctx = (struct ezcd_context *)malloc(sizeof(struct ezcd_context));
 	if (ctx) {
+		/* initialize ctx */
+		memset(ctx, '\0', sizeof(struct ezcd_context));
+
 		ctx->nvram = (char *)malloc(EZCD_SPACE);
 		if (ctx->nvram == NULL) {
 			free(ctx);
 			return  NULL;
 		}
+		/* initialize nvram */
+		memset(ctx->nvram, '\0', EZCD_SPACE);
 
 		/*
 		 * ignore SIGPIPE signal, so if client cancels the request, it
@@ -273,8 +281,13 @@ struct ezcd_context *ezcd_start(void)
 		pthread_cond_init(&ctx->full_cond, NULL);
 
 		/* Start monitor thread */
-		start_thread(ctx, (ezcd_thread_func_t) monitor_thread, ctx->nvram);
+		start_thread(ctx, (ezcd_thread_func_t) monitor_thread, ctx);
 	}
 	return ctx;
 }
 
+void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max)
+{
+	assert(ctx);
+	ctx->threads_max = threads_max;
+}
