@@ -17,7 +17,6 @@ PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://mongoose.googlecode.com/hg/
-PKG_BUILD_DIR=$(BUILD_DIR)/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -38,7 +37,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) linux
+	$(MAKE) -C $(PKG_BUILD_DIR) CC="$(TARGET_CC)" LIB="libmongoose.so" linux
 endef
 
 define Build/Install
