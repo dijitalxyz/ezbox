@@ -13,7 +13,7 @@
   * 测试驱动的开发方法使用 xxx 在编写代码前进行测试用例的编写
 
 == 软件实现阶段 ==
-  * 代码评审(code review)使用 Clang Static Analyzer [?2] 进行源代码分析
+  * 代码评审(code review)使用 Clang Static Analyzer (?2) 进行源代码分析
 
 == 测试阶段 ==
   * 黑盒测试
@@ -28,7 +28,7 @@
 
 = 工具介绍 =
 == 源代码分析工具 ==
-  * splint [?3]
+  * splint (?3)
   * Clang Static Analyzer
 
 = 参考资料 =
