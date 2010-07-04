@@ -18,19 +18,47 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://mongoose.googlecode.com/hg/
 
+PKG_FIXUP:=libtool
+PKG_INSTALL:=1
+
 include $(INCLUDE_DIR)/package.mk
 
-define Package/mongoose
-  SECTION:=net
-  CATEGORY:=Network
+define Package/mongoose/Default
+  SUBMENU:=web server
   TITLE:=Mongoose web server
   URL:=http://code.google.com/p/mongoose/
-  DEPENDS:=+libpthread +libopenssl
 endef
 
-define Package/mongoose/description
+define Package/mongoose/Default/description
   Mongoose is an easy to use web server.
   It can be embedded into existing application to provide a web interface to it.
+endef
+
+define Package/libmongoose
+  $(call Package/mongoose/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  DEPENDS:=+libpthread +libopenssl
+  TITLE+= (library)
+endef
+
+define Package/libmongoose/description
+$(call Package/mongoose/Default/description)
+  This package contains the mongoose web server shared library, used by other
+  programs.
+endef
+
+define Package/mongoose-webserver
+  $(call Package/mongoose/Default)
+  SECTION:=net
+  CATEGORY:=Networks
+  DEPENDS:=+libmongoose
+  TITLE+= (binary)
+endef
+
+define Package/mongoose-webserver/description
+$(call Package/mongoose/Default/description)
+  This package contains the default web server implementation.
 endef
 
 define Build/Configure
@@ -41,13 +69,30 @@ define Build/Compile
 endef
 
 define Build/Install
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libmongoose.so* $(PKG_INSTALL_DIR)/usr/lib
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mongoose $(PKG_INSTALL_DIR)/usr/bin
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mongoose.h $(PKG_INSTALL_DIR)/usr/include
 endef
 
-define Package/mongoose/install
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/mongoose.h $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmongoose.so* $(1)/usr/lib/
+endef
+
+define Package/libmongoose/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmongoose.so* $(1)/usr/lib/
+endef
+
+define Package/mongoose-webserver/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mongoose $(1)/usr/bin
 endef
 
-$(eval $(call BuildPackage,mongoose))
+$(eval $(call BuildPackage,libmongoose))
+$(eval $(call BuildPackage,mongoose-webserver))
