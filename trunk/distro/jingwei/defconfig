@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# OpenWrt version: Kamikaze (r70)
-# Thu Jul  1 11:32:42 2010
+# OpenWrt version: Kamikaze (r99)
+# Sun Jul  4 11:14:06 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -973,12 +973,26 @@ CONFIG_PACKAGE_udevtrigger=y
 #
 # Utilities
 #
+
+#
+# database
+#
+# CONFIG_PACKAGE_sqlite3-cli is not set
 # CONFIG_PACKAGE_iconv is not set
 # CONFIG_PACKAGE_jpeg-tools is not set
 CONFIG_PACKAGE_ldconfig=y
 # CONFIG_PACKAGE_ldd is not set
 # CONFIG_PACKAGE_ocf-crypto-headers is not set
 # CONFIG_PACKAGE_openssl-util is not set
+
+#
+# Networks
+#
+
+#
+# web server
+#
+CONFIG_PACKAGE_mongoose-webserver=y
 
 #
 # Network
@@ -1083,6 +1097,16 @@ CONFIG_PACKAGE_libopenssl=y
 # Configuration
 #
 CONFIG_OPENSSL_ENGINE=y
+
+#
+# database
+#
+CONFIG_PACKAGE_libsqlite3=y
+
+#
+# web server
+#
+CONFIG_PACKAGE_libmongoose=y
 # CONFIG_PACKAGE_libcharset is not set
 CONFIG_PACKAGE_libfreetype=y
 CONFIG_PACKAGE_libiconv=y
