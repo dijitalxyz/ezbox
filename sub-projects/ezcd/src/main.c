@@ -157,6 +157,10 @@ static int init_main(int argc, char **argv)
         FILE *file = NULL;
 	char *init_argv[] = { "/sbin/init", NULL };
 	int ret = 0;
+	char kver[32] = "";
+
+	/* unset umask */
+	umask(0);
 
 	/* /proc */
 	mkdir("/proc", 0555);
@@ -166,12 +170,48 @@ static int init_main(int argc, char **argv)
 	mkdir("/sys", 0755);
 	mount("sysfs", "/sys", "sysfs", MS_MGC_VAL, NULL);
 
+	/* get kernel version */
+	file = fopen("/proc/version", "r");
+	if (file != NULL)
+	{
+		if (fgets(kver, 15, file) != NULL)
+		{
+			if (!strcmp(kver, "Linux version "))
+			{
+				if (fgets(kver, sizeof(kver), file) != NULL)
+				{
+					char *p = strchr(kver, ' ');
+					if (p)
+					{
+						*p = '\0';
+					}
+				}
+				else
+				{
+					kver[0] = '\0';
+				}
+			}
+			else
+			{
+				kver[0] = '\0';
+			}
+		}
+		fclose(file);
+	}
+
+
 	/* /dev */
 	mkdir("/dev", 0755);
 	// mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
 
 	/* /etc */
 	mkdir("/etc", 0755);
+
+	/* /tmp */
+	mkdir("/tmp", 0777);
+
+	/* /var */
+	mkdir("/var", 0777);
 
 	/* hotplug2 */
 	mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
@@ -190,6 +230,35 @@ static int init_main(int argc, char **argv)
 	if (file != NULL)
 	{
 		fprintf(file, "%s", "");
+		fclose(file);
+	}
+
+	/* load preinit kernel modules */
+	file = fopen("/etc/modules", "r");
+	if (file != NULL)
+	{
+		char cmd[64];
+		char buf[32];
+		while(fgets(buf, sizeof(buf), file) != NULL)
+		{
+			if(buf[0] != '#')
+			{
+				int len = strlen(buf);
+				while((len > 0) && 
+				      (buf[len] == '\0' || 
+				       buf[len] == '\r' || 
+				       buf[len] == '\n'))
+				{
+					buf[len] = '\0';
+					len --;
+				}
+				if(len > 0)
+				{
+					snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
+					ret = system(cmd);
+				}
+			}
+		}
 		fclose(file);
 	}
 

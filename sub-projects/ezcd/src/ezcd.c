@@ -16,6 +16,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -256,16 +259,44 @@ void ezcd_stop(struct ezcd_context *ctx)
 
 struct ezcd_context *ezcd_start(void)
 {
-	struct ezcd_context *ctx;
+	struct ezcd_context *ctx = NULL;
+	struct socket *listener = NULL;
+	int fd = -1;
+	struct usa *usa = NULL;
 	ctx = (struct ezcd_context *)malloc(sizeof(struct ezcd_context));
 	if (ctx) {
 		/* initialize ctx */
 		memset(ctx, '\0', sizeof(struct ezcd_context));
 
+		/* initialize unix domain socket */
+		if ((listener = calloc(1, sizeof(*listener))) == NULL) {
+			goto fail_exit;
+		}
+
+		/* unset umask */
+		umask(0);
+
+		/* setup socket files directory */
+		mkdir("/tmp/ezcd", 0777);
+
+		usa = &(listener->lsa);
+		usa->u.sun.sun_family = AF_UNIX;
+		strcpy(usa->u.sun.sun_path, "/tmp/ezcd/ezcd.socket");
+		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
+
+		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			perror("socket error");
+			goto fail_exit;
+		}
+
+		if (bind(fd, (struct sockaddr *)&(usa->u.sun), usa->len) < 0) {
+			perror("bind error");
+			goto fail_exit;
+		}
+
 		ctx->nvram = (char *)malloc(EZCD_SPACE);
 		if (ctx->nvram == NULL) {
-			free(ctx);
-			return  NULL;
+			goto fail_exit;
 		}
 		/* initialize nvram */
 		memset(ctx->nvram, '\0', EZCD_SPACE);
@@ -284,8 +315,21 @@ struct ezcd_context *ezcd_start(void)
 
 		/* Start monitor thread */
 		start_thread(ctx, (ezcd_thread_func_t) monitor_thread, ctx);
+		return ctx;
 	}
-	return ctx;
+fail_exit:
+	if (ctx != NULL) {
+		if (ctx->nvram != NULL)
+			free(ctx->nvram);
+		free(ctx);
+	}
+	if (listener != NULL) {
+		free(listener);
+	}
+	if (fd >= 0) {
+		close(fd);
+	}
+	return NULL;
 }
 
 void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max)
