@@ -51,7 +51,7 @@ endef
 define Package/mongoose-webserver
   $(call Package/mongoose/Default)
   SECTION:=net
-  CATEGORY:=Networks
+  CATEGORY:=Network
   DEPENDS:=+libmongoose
   TITLE+= (binary)
 endef
