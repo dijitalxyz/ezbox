@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# OpenWrt version: Kamikaze (r99)
-# Sun Jul  4 11:14:06 2010
+# OpenWrt version: Kamikaze (r70)
+# Mon Jul  5 11:44:20 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -986,17 +986,13 @@ CONFIG_PACKAGE_ldconfig=y
 # CONFIG_PACKAGE_openssl-util is not set
 
 #
-# Networks
+# Network
 #
 
 #
 # web server
 #
 CONFIG_PACKAGE_mongoose-webserver=y
-
-#
-# Network
-#
 CONFIG_PACKAGE_freeswitch=y
 CONFIG_PACKAGE_freeswitch-collection-minimal=y
 # CONFIG_PACKAGE_freeswitch-collection-upstream-defaults is not set
@@ -1101,7 +1097,7 @@ CONFIG_OPENSSL_ENGINE=y
 #
 # database
 #
-CONFIG_PACKAGE_libsqlite3=y
+# CONFIG_PACKAGE_libsqlite3 is not set
 
 #
 # web server
