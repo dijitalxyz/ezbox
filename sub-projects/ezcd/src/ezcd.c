@@ -17,6 +17,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stddef.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -41,7 +44,15 @@
 #define DBG_PRINT(format, args...)
 #endif
 
+#define MAX_REQUEST_SIZE	8192
+
 typedef int SOCKET;
+
+#if !defined(FALSE)
+enum {FALSE, TRUE};
+#endif /* !FALSE */
+
+typedef int bool_t;
 
 typedef void * (*ezcd_thread_func_t)(void *);
 
@@ -92,12 +103,219 @@ struct ezcd_context {
 	pthread_cond_t  full_cond;      /* Socket queue full condvar    */
 };
 
+/*
+ * client connection.
+ */
+
+struct ezcd_connection {
+	struct ezcd_context *ctx;
+	struct socket client;
+	time_t birth_time;
+};
+
+/*
+ * Read from IO channel - opened file descriptor or socket.
+ * Return number of bytes read.
+ */
+static int
+pull(FILE *fp, SOCKET sock, char *buf, int len)
+{
+	int     nread;
+
+	if (fp != NULL) {
+		nread = fread(buf, 1, (size_t) len, fp);
+		if (ferror(fp))
+			nread = -1;
+	} else {
+		nread = recv(sock, buf, (size_t) len, 0);
+	}
+
+	return (nread);
+}
+
+/*
+ * Check whether full request is buffered. Return:
+ *   -1         if request is malformed
+ *    0         if request is not yet fully buffered
+ *   >0         actual request length, including last \r\n\r\n
+ */
+static int
+get_request_len(const char *buf, size_t buflen)
+{
+	const char *s, *e;
+	int len = 0;
+
+	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++)
+		/* Control characters are not allowed but >=128 is. */
+		if (!isprint(* (unsigned char *) s) && *s != '\r' &&
+		    *s != '\n' && * (unsigned char *) s < 128)
+			len = -1;
+		else if (s[0] == '\n' && s[1] == '\n')
+			len = (int) (s - buf) + 2;
+		else if (s[0] == '\n' && &s[1] < e &&
+		         s[1] == '\r' && s[2] == '\n')
+			len = (int) (s - buf) + 3;
+
+	return (len);
+}
+
+/*
+ * Keep reading the input (either opened file descriptor fd, or socket sock,
+ * or SSL descriptor ssl) into buffer buf, until \r\n\r\n appears in the
+ * buffer (which marks the end of HTTP request). Buffer buf may already
+ * have some data. The length of the data is stored in nread.
+ * Upon every read operation, increase nread by the number of bytes read.
+ */
+static int
+read_request(FILE *fp, SOCKET sock, char *buf, int bufsiz, int *nread)
+{
+	int n, request_len;
+
+	request_len = 0;
+	while (*nread < bufsiz && request_len == 0) {
+		n = pull(fp, sock, buf + *nread, bufsiz - *nread);
+		if (n <= 0) {
+			break;
+		} else {
+			*nread += n;
+			request_len = get_request_len(buf, (size_t) *nread);
+		}
+	}
+
+	return (request_len);
+}
+
+static int
+set_non_blocking_mode(struct ezcd_connection *conn, SOCKET sock)
+{
+	int flags, ok = -1;
+
+	if ((flags = fcntl(sock, F_GETFL, 0)) == -1) {
+		printf("%s: fcntl(F_GETFL): %d", __func__, errno);
+	} else if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) != 0) {
+		printf("%s: fcntl(F_SETFL): %d", __func__, errno);
+	} else {
+		ok = 0; /* Success */
+        }
+
+        return (ok);
+}
+
+static void
+close_socket_gracefully(struct ezcd_connection *conn, SOCKET sock)
+{
+	char buf[BUFSIZ];
+        int n;
+
+	/* Send FIN to the client */
+	shutdown(sock, SHUT_WR);
+	set_non_blocking_mode(conn, sock);
+
+	/*
+	 * Read and discard pending data. If we do not do that and close the
+	 * socket, the data in the send buffer may be discarded. This
+	 * behaviour is seen on Windows, when client keeps sending data
+	 * when server decide to close the connection; then when client
+	 * does recv() it gets no data back.
+	 */
+	do {
+		n = pull(NULL, sock, buf, sizeof(buf));
+	} while (n > 0);
+
+	/* Now we know that our FIN is ACK-ed, safe to close */
+	close(sock);
+}
+
+static void
+close_connection(struct ezcd_connection *conn)
+{
+	if (conn->client.sock != INVALID_SOCKET)
+		close_socket_gracefully(conn, conn->client.sock);
+}
+
+static void
+process_new_connection(struct ezcd_connection *conn)
+{
+	char buf[MAX_REQUEST_SIZE];
+	int request_len, nread;
+
+	nread = 0;
+
+	/* If next request is not pipelined, read it in */
+	if ((request_len = get_request_len(buf, (size_t) nread)) == 0)
+		request_len = read_request(NULL, conn->client.sock,
+		                           buf, sizeof(buf), &nread);
+	assert(nread >= request_len);
+
+	if (request_len <= 0)
+		return; /* Remote end closed the connection */
+
+	/* 0-terminate the request: parse_request uses sscanf */
+	buf[request_len - 1] = '\0';
+}
+
+/*
+ * Worker threads take accepted socket from the queue
+ */
+static bool_t
+get_socket(struct ezcd_context *ctx, struct socket *sp)
+{
+	struct timespec ts;
+	pthread_mutex_lock(&ctx->mutex);
+
+	/* If the queue is empty, wait. We're idle at this point. */
+	ctx->num_idle++;
+	while (ctx->sq_head == ctx->sq_tail) {
+		ts.tv_nsec = 0;
+		ts.tv_sec = time(NULL) + 10;
+		if (pthread_cond_timedwait(&ctx->empty_cond,
+		    &ctx->mutex, &ts) != 0) {
+			/* Timeout! release the mutex and return */
+			pthread_mutex_unlock(&ctx->mutex);
+			return (FALSE);
+		}
+	}
+	assert(ctx->sq_head > ctx->sq_tail);
+
+	/* We're going busy now: got a socket to process! */
+	ctx->num_idle--;
+
+	/* Copy socket from the queue and increment tail */
+	*sp = ctx->queue[ctx->sq_tail % ARRAY_SIZE(ctx->queue)];
+	ctx->sq_tail++;
+
+	/* Wrap pointers if needed */
+	while (ctx->sq_tail > (int) ARRAY_SIZE(ctx->queue)) {
+		ctx->sq_tail -= ARRAY_SIZE(ctx->queue);
+		ctx->sq_head -= ARRAY_SIZE(ctx->queue);
+	}
+
+	pthread_cond_signal(&ctx->full_cond);
+	pthread_mutex_unlock(&ctx->mutex);
+
+	return (TRUE);
+}
+
 static void worker_thread(struct ezcd_context *ctx)
 {
-	while (ctx->stop_flag == 0) {
-		printf("%s(%d) \n", __func__, __LINE__);
-		sleep(1);
+	struct ezcd_connection conn;
+
+	memset(&conn, 0, sizeof(conn));
+
+	while (get_socket(ctx, &conn.client) == TRUE) {
+		conn.birth_time = time(NULL);
+		conn.ctx = ctx;
+		process_new_connection(&conn);
+		close_connection(&conn);
 	}
+
+        /* Signal monitor that we're done with connection and exiting */
+	pthread_mutex_lock(&ctx->mutex);
+	ctx->num_threads--;
+	ctx->num_idle--;
+	pthread_cond_signal(&ctx->thr_cond);
+	assert(ctx->num_threads >= 0);
+	pthread_mutex_unlock(&ctx->mutex);
 }
 
 static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void *args)
@@ -266,7 +484,7 @@ struct ezcd_context *ezcd_start(void)
 	ctx = (struct ezcd_context *)malloc(sizeof(struct ezcd_context));
 	if (ctx) {
 		/* initialize ctx */
-		memset(ctx, '\0', sizeof(struct ezcd_context));
+		memset(ctx, 0, sizeof(struct ezcd_context));
 
 		/* initialize unix domain socket */
 		if ((listener = calloc(1, sizeof(*listener))) == NULL) {
@@ -281,7 +499,7 @@ struct ezcd_context *ezcd_start(void)
 
 		usa = &(listener->lsa);
 		usa->u.sun.sun_family = AF_UNIX;
-		strcpy(usa->u.sun.sun_path, "/tmp/ezcd/ezcd.socket");
+		strcpy(usa->u.sun.sun_path, EZCD_SOCKET_PATH);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
@@ -294,12 +512,22 @@ struct ezcd_context *ezcd_start(void)
 			goto fail_exit;
 		}
 
+		if (chmod (usa->u.sun.sun_path, 0666) < 0) {
+			perror("chmod socket error");
+			goto fail_exit;
+		}
+
+		if (listen(fd, 20) < 0) {
+			perror("listen socket error");
+			goto fail_exit;
+		}
+
 		ctx->nvram = (char *)malloc(EZCD_SPACE);
 		if (ctx->nvram == NULL) {
 			goto fail_exit;
 		}
 		/* initialize nvram */
-		memset(ctx->nvram, '\0', EZCD_SPACE);
+		memset(ctx->nvram, 0, EZCD_SPACE);
 
 		/*
 		 * ignore SIGPIPE signal, so if client cancels the request, it
@@ -341,4 +569,45 @@ void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max)
 int ezcd_set_listening_socket(struct ezcd_context *ctx, char *sock_name)
 {
 	return(EXIT_SUCCESS);
+}
+
+#define CLI_PATH    "/tmp/ezcd/ezci"        /* +5 for pid = 14 chars */
+#define CLI_PERM    S_IRWXU            /* rwx for user only */
+
+/* returns fd if all OK, -1 on error */
+int ezcd_client_connection (const char *name, char project)
+{
+	int fd, len;
+	struct sockaddr_un unix_addr;
+
+	/* create a Unix domain stream socket */
+	if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+		return(-1);
+
+	/* fill socket address structure w/our address */
+	memset(&unix_addr, 0, sizeof(unix_addr));
+	unix_addr.sun_family = AF_UNIX;
+	sprintf(unix_addr.sun_path, "%s%05d-%c", CLI_PATH, getpid(), project);
+	len = sizeof(unix_addr.sun_family) + strlen(unix_addr.sun_path);
+
+	unlink (unix_addr.sun_path); /* in case it already exists */
+	if (bind(fd, (struct sockaddr *) &unix_addr, len) < 0)
+		goto error;
+	if (chmod(unix_addr.sun_path, CLI_PERM) < 0)
+		goto error;
+
+	/* fill socket address structure w/server's addr */
+	memset(&unix_addr, 0, sizeof(unix_addr));
+		unix_addr.sun_family = AF_UNIX;
+	strcpy(unix_addr.sun_path, name);
+	len = sizeof(unix_addr.sun_family) + strlen(unix_addr.sun_path);
+
+	if (connect (fd, (struct sockaddr *) &unix_addr, len) < 0)
+		goto error;
+
+	return (fd);
+
+error:
+	close (fd);
+	return(-1);
 }

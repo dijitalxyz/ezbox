@@ -24,11 +24,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mount.h>
+#include <sys/un.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "ezcd.h"
 
@@ -148,6 +150,109 @@ static int ezcd_main(int argc, char **argv)
 	fflush(stdout);
 	ezcd_stop(ctx);
 	printf("%s", " done.\n");
+
+	return (EXIT_SUCCESS);
+}
+
+static int sock_read (int fd, void* buff, int count)
+{
+	void* pts = buff;
+	int status = 0, n;
+
+	if (count <= 0) return SOCKERR_OK;
+
+	while (status != count) {
+		n = read (fd, pts + status, count - status);
+
+		if (n < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			else
+				return SOCKERR_IO;
+		}
+
+		if (n == 0)
+			return SOCKERR_CLOSED;
+
+		status += n;
+	}
+
+	return status;
+}
+
+static int sock_write (int fd, const void* buff, int count)
+{
+	const void* pts = buff;
+	int status = 0, n;
+
+	if (count < 0) return SOCKERR_OK;
+
+	while (status != count) {
+		n = write (fd, pts + status, count - status);
+		if (n < 0) {
+			if (errno == EPIPE)
+				return SOCKERR_CLOSED;
+			else if (errno == EINTR) {
+				continue;
+			}
+			else
+				return SOCKERR_IO;
+		}
+		status += n;
+	}
+
+	return status;
+}
+
+static int ezci_main(int argc, char **argv)
+{
+	int c = 0;
+	int conn_fd = -1;
+	int n = 0;
+	char buf[32];
+	char data[32];
+
+	for (;;) {
+		c = getopt( argc, argv, "h");
+		if (c == EOF) break;
+		switch (c) {
+			case 'h':
+			default:
+				ezcd_show_usage();
+				exit(EXIT_FAILURE);
+		}
+        }
+
+	conn_fd = ezcd_client_connection(EZCD_SOCKET_PATH, 'a');
+	if (conn_fd < 0) {
+		printf("error : %s\n", "ezcd_client_connection");
+		exit(EXIT_FAILURE);
+	}
+
+	memset(buf, 0, sizeof(buf));
+	strcpy(buf, "mytest!");
+        n = sock_write (conn_fd, buf, sizeof (buf));
+
+        if (n == SOCKERR_IO) {
+            printf ("write error on fd %d\n", conn_fd);
+        }
+        else if (n == SOCKERR_CLOSED) {
+            printf ("fd %d has been closed.\n", conn_fd);
+        }
+        else
+            printf ("Wrote %s to server. \n", buf);
+
+	memset(data, 0, sizeof(data));
+        n = sock_read (conn_fd, data, sizeof (data));
+        if (n == SOCKERR_IO) {
+            printf ("read error on fd %d\n", conn_fd);
+        }
+        else if (n == SOCKERR_CLOSED) {
+            printf ("fd %d has been closed.\n", conn_fd);
+        }
+        else
+            printf ("Got that! data is %s\n", data);
 
 	return (EXIT_SUCCESS);
 }
@@ -278,6 +383,9 @@ int main(int argc, char **argv)
 	}
 	else if (!strcmp(name, "ezcd")) {
 		return ezcd_main(argc, argv);
+	}
+	else if (!strcmp(name, "ezci")) {
+		return ezci_main(argc, argv);
 	}
 	else {
 		printf("Unkown name [%s]!\n", name);
