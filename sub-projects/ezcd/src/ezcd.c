@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -37,12 +38,6 @@
 
 #define INVALID_SOCKET		(-1)
 #define ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
-
-#ifdef DEBUG
-#define DBG_PRINT(format, args...) fprintf(stderr, format, ##args)
-#else
-#define DBG_PRINT(format, args...)
-#endif
 
 #define MAX_REQUEST_SIZE	8192
 
@@ -112,6 +107,38 @@ struct ezcd_connection {
 	struct socket client;
 	time_t birth_time;
 };
+
+/*
+ * Write data to the IO channel - opened file descriptor, socket or SSL
+ * descriptor. Return number of bytes written.
+ */
+static int64_t
+push(FILE *fp, SOCKET sock, const char *buf, int64_t len)
+{
+	int64_t sent;
+	int     n, k;
+
+	sent = 0;
+	while (sent < len) {
+
+		/* How many bytes we send in this iteration */
+		k = len - sent > INT_MAX ? INT_MAX : (int) (len - sent);
+		if (fp != NULL) {
+			n = fwrite(buf + sent, 1, k, fp);
+			if (ferror(fp))
+				n = -1;
+		} else {
+			n = send(sock, buf + sent, k, 0);
+		}
+
+		if (n < 0)
+			break;
+
+		sent += n;
+	}
+
+        return (sent);
+}
 
 /*
  * Read from IO channel - opened file descriptor or socket.
@@ -191,9 +218,9 @@ set_non_blocking_mode(struct ezcd_connection *conn, SOCKET sock)
 	int flags, ok = -1;
 
 	if ((flags = fcntl(sock, F_GETFL, 0)) == -1) {
-		printf("%s: fcntl(F_GETFL): %d", __func__, errno);
+		printf("%s: fcntl(F_GETFL): %d\n", __func__, errno);
 	} else if (fcntl(sock, F_SETFL, flags | O_NONBLOCK) != 0) {
-		printf("%s: fcntl(F_SETFL): %d", __func__, errno);
+		printf("%s: fcntl(F_SETFL): %d\n", __func__, errno);
 	} else {
 		ok = 0; /* Success */
         }
@@ -229,6 +256,7 @@ close_socket_gracefully(struct ezcd_connection *conn, SOCKET sock)
 static void
 close_connection(struct ezcd_connection *conn)
 {
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 	if (conn->client.sock != INVALID_SOCKET)
 		close_socket_gracefully(conn, conn->client.sock);
 }
@@ -239,19 +267,32 @@ process_new_connection(struct ezcd_connection *conn)
 	char buf[MAX_REQUEST_SIZE];
 	int request_len, nread;
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
+
 	nread = 0;
+	request_len = 0;
+	memset(buf, 0, sizeof(buf));
 
 	/* If next request is not pipelined, read it in */
-	if ((request_len = get_request_len(buf, (size_t) nread)) == 0)
+	//if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
+	{
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 		request_len = read_request(NULL, conn->client.sock,
 		                           buf, sizeof(buf), &nread);
+	printf("huedebug--%s(%d) request_len=[%d], buf=[%s]\n", __func__, __LINE__, request_len, buf);
+	}
 	assert(nread >= request_len);
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 	if (request_len <= 0)
 		return; /* Remote end closed the connection */
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 	/* 0-terminate the request: parse_request uses sscanf */
 	buf[request_len - 1] = '\0';
+
+	printf("huedebug--%s(%d)buf=[%s], len=[%d]\n", __func__, __LINE__, buf, request_len);
+	push(NULL, conn->client.sock, (const char *) buf, (int64_t) request_len);
 }
 
 /*
@@ -283,6 +324,9 @@ get_socket(struct ezcd_context *ctx, struct socket *sp)
 	/* Copy socket from the queue and increment tail */
 	*sp = ctx->queue[ctx->sq_tail % ARRAY_SIZE(ctx->queue)];
 	ctx->sq_tail++;
+	printf("%s: thread %p grabbed socket %d, going busy\n",
+            __func__, (void *) pthread_self(), sp->sock);
+
 
 	/* Wrap pointers if needed */
 	while (ctx->sq_tail > (int) ARRAY_SIZE(ctx->queue)) {
@@ -300,15 +344,19 @@ static void worker_thread(struct ezcd_context *ctx)
 {
 	struct ezcd_connection conn;
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
+
 	memset(&conn, 0, sizeof(conn));
 
 	while (get_socket(ctx, &conn.client) == TRUE) {
+		printf("huedebug--%s(%d)\n", __func__, __LINE__);
 		conn.birth_time = time(NULL);
 		conn.ctx = ctx;
 		process_new_connection(&conn);
 		close_connection(&conn);
 	}
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
         /* Signal monitor that we're done with connection and exiting */
 	pthread_mutex_lock(&ctx->mutex);
 	ctx->num_threads--;
@@ -316,6 +364,7 @@ static void worker_thread(struct ezcd_context *ctx)
 	pthread_cond_signal(&ctx->thr_cond);
 	assert(ctx->num_threads >= 0);
 	pthread_mutex_unlock(&ctx->mutex);
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 }
 
 static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void *args)
@@ -330,7 +379,7 @@ static int start_thread(struct ezcd_context *ctx, ezcd_thread_func_t func, void 
 	                          sizeof(struct ezcd_context) * 2);
 
 	if ((retval = pthread_create(&thread_id, &attr, func, args)) != 0)
-		DBG_PRINT("%s: %s", __func__, strerror(retval));
+		printf("%s: %s\n", __func__, strerror(retval));
 
 	return (retval);
 }
@@ -391,8 +440,8 @@ static void put_socket(struct ezcd_context *ctx, const struct socket *sp)
 	/* copy socket to the queue and increment head */
 	ctx->queue[ctx->sq_head % ARRAY_SIZE(ctx->queue)] = *sp;
 	ctx->sq_head++;
-        DBG_PRINT((DEBUG_MGS_PREFIX "%s: queued socket %d",
-	           __func__, sp->sock));
+        printf("%s: queued socket %d\n",
+	           __func__, sp->sock);
 
 	/* if there are no idle threads, start one */
 	if ((ctx->num_idle == 0) &&
@@ -400,7 +449,7 @@ static void put_socket(struct ezcd_context *ctx, const struct socket *sp)
 		if (start_thread(ctx,
 		                 (ezcd_thread_func_t) worker_thread,
 		                  ctx) != 0)
-                        DBG_PRINT("Cannot start thread: %d", ERRNO);
+                        printf("Cannot start thread: %d\n", errno);
 		else
 			ctx->num_threads++;
 	}
@@ -413,6 +462,7 @@ static void accept_new_connection(const struct socket *listener, struct ezcd_con
 {
 	struct socket   accepted;
 
+	printf("huedebug--%s(%d)\n", __func__, __LINE__);
 	accepted.rsa.len = sizeof(accepted.rsa.u.sun);
 	accepted.lsa = listener->lsa;
 	if ((accepted.sock = accept(listener->sock,
@@ -420,8 +470,8 @@ static void accept_new_connection(const struct socket *listener, struct ezcd_con
 		return;
 
 	/* put accepted socket structure into the queue */
-	DBG_PRINT((DEBUG_MGS_PREFIX "%s: accepted socket %d",
-                    __func__, accepted.sock));
+	printf("%s: accepted socket %d sun_path=[%s]\n",
+                    __func__, accepted.sock, accepted.rsa.u.sun.sun_path);
 	put_socket(ctx, &accepted);
 }
 
@@ -433,6 +483,7 @@ static void monitor_thread(struct ezcd_context *ctx)
 	int max_fd;
 
 	while (ctx->stop_flag == 0) {
+		printf("huedebug--%s(%d)\n", __func__, __LINE__);
 		FD_ZERO(&read_set);
 		max_fd = -1;
 
@@ -479,7 +530,7 @@ struct ezcd_context *ezcd_start(void)
 {
 	struct ezcd_context *ctx = NULL;
 	struct socket *listener = NULL;
-	int fd = -1;
+	SOCKET sock = -1;
 	struct usa *usa = NULL;
 	ctx = (struct ezcd_context *)malloc(sizeof(struct ezcd_context));
 	if (ctx) {
@@ -502,12 +553,12 @@ struct ezcd_context *ezcd_start(void)
 		strcpy(usa->u.sun.sun_path, EZCD_SOCKET_PATH);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
 
-		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			perror("socket error");
 			goto fail_exit;
 		}
 
-		if (bind(fd, (struct sockaddr *)&(usa->u.sun), usa->len) < 0) {
+		if (bind(sock, (struct sockaddr *)&(usa->u.sun), usa->len) < 0) {
 			perror("bind error");
 			goto fail_exit;
 		}
@@ -517,10 +568,14 @@ struct ezcd_context *ezcd_start(void)
 			goto fail_exit;
 		}
 
-		if (listen(fd, 20) < 0) {
+		if (listen(sock, 20) < 0) {
 			perror("listen socket error");
 			goto fail_exit;
 		}
+
+		listener->sock = sock;
+		listener->next = ctx->listening_sockets;
+		ctx->listening_sockets = listener;
 
 		ctx->nvram = (char *)malloc(EZCD_SPACE);
 		if (ctx->nvram == NULL) {
@@ -554,8 +609,8 @@ fail_exit:
 	if (listener != NULL) {
 		free(listener);
 	}
-	if (fd >= 0) {
-		close(fd);
+	if (sock >= 0) {
+		close(sock);
 	}
 	return NULL;
 }

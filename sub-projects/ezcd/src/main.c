@@ -154,6 +154,15 @@ static int ezcd_main(int argc, char **argv)
 	return (EXIT_SUCCESS);
 }
 
+static void ezci_show_usage(void)
+{
+	printf("Usage: ezci [-m message]\n");
+	printf("\n");
+	printf("  -m\tmessage sent to ezcd\n");
+	printf("  -h\thelp\n");
+	printf("\n");
+}
+
 static int sock_read (int fd, void* buff, int count)
 {
 	void* pts = buff;
@@ -162,6 +171,7 @@ static int sock_read (int fd, void* buff, int count)
 	if (count <= 0) return SOCKERR_OK;
 
 	while (status != count) {
+		printf("huedebug -- %s(%d)\n", __func__, __LINE__);
 		n = read (fd, pts + status, count - status);
 
 		if (n < 0) {
@@ -213,13 +223,17 @@ static int ezci_main(int argc, char **argv)
 	char buf[32];
 	char data[32];
 
+	memset(buf, 0, sizeof(buf));
 	for (;;) {
-		c = getopt( argc, argv, "h");
+		c = getopt( argc, argv, "hm:");
 		if (c == EOF) break;
 		switch (c) {
+			case 'm':
+				snprintf(buf, sizeof(buf), "%s\r\n\r\n", optarg);
+				break;
 			case 'h':
 			default:
-				ezcd_show_usage();
+				ezci_show_usage();
 				exit(EXIT_FAILURE);
 		}
         }
@@ -230,10 +244,7 @@ static int ezci_main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	memset(buf, 0, sizeof(buf));
-	strcpy(buf, "mytest!");
-        n = sock_write (conn_fd, buf, sizeof (buf));
-
+        n = sock_write (conn_fd, buf, strlen(buf)+1);
         if (n == SOCKERR_IO) {
             printf ("write error on fd %d\n", conn_fd);
         }
@@ -244,7 +255,7 @@ static int ezci_main(int argc, char **argv)
             printf ("Wrote %s to server. \n", buf);
 
 	memset(data, 0, sizeof(data));
-        n = sock_read (conn_fd, data, sizeof (data));
+        n = sock_read (conn_fd, data, strlen(buf)+1);
         if (n == SOCKERR_IO) {
             printf ("read error on fd %d\n", conn_fd);
         }
