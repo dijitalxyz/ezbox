@@ -34,6 +34,9 @@
 
 #include "ezcd.h"
 
+#define EZCD_PRIORITY                  -4
+#define EZCI_PRIORITY                  -2
+
 static int ezcd_exit;
 
 static void signal_handler(int sig_num)
@@ -55,11 +58,6 @@ static void ezcd_show_usage(void)
 	printf("  -c\tmax worker threads\n");
 	printf("  -h\thelp\n");
 	printf("\n");
-}
-
-static void perror_msg(char *text)
-{
-	fprintf(stderr, "%s\n", text);
 }
 
 static int mem_size_mb(void)
@@ -88,11 +86,15 @@ static int mem_size_mb(void)
 static int ezcd_main(int argc, char **argv)
 {
 	int daemonize = 0;
-	int c = 0;
+	int fd = -1;
+	FILE *fp = NULL;
 	int threads_max = 0;
-	struct ezcd_context *ctx;
+	struct ezcd_context *ctx = NULL;
+	int rc = 1;
+	int ret = -1;
 
 	for (;;) {
+		int c;
 		c = getopt( argc, argv, "c:dh");
 		if (c == EOF) break;
 		switch (c) {
@@ -105,9 +107,28 @@ static int ezcd_main(int argc, char **argv)
 			case 'h':
 			default:
 				ezcd_show_usage();
-				exit(EXIT_FAILURE);
+				goto exit;
 		}
         }
+
+	if (getuid() != 0) {
+		fprintf(stderr, "root privileges required\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/* set umask before creating any file/directory */
+	ret = chdir("/");
+	umask(022);
+
+	/* before opening new files, make sure std{in,out,err} fds are in a sane state */
+	fd = open("/dev/null", O_RDWR);
+	if (fd < 0) {
+		fprintf(stderr, "cannot open /dev/null\n");
+	}
+	if (write(STDOUT_FILENO, 0, 0) < 0)
+		dup2(fd, STDOUT_FILENO);
+	if (write(STDERR_FILENO, 0, 0) < 0)
+		dup2(fd, STDERR_FILENO);
 
 	ezcd_exit = 0;
 	signal(SIGCHLD, signal_handler);
@@ -117,7 +138,7 @@ static int ezcd_main(int argc, char **argv)
 	ctx = ezcd_start();
 	if (ctx == NULL) {
 		printf("%s\n", "Cannot initialize ezcd context");
-		exit(EXIT_FAILURE);
+		goto exit;
 	}
 
 	if (threads_max <= 0) {
@@ -133,25 +154,43 @@ static int ezcd_main(int argc, char **argv)
 
 	if (daemonize)
 	{
-		printf("daemonizing\n");
-		if (daemon(0, 1) < 0) {
-			perror_msg("daemon");
-			ezcd_stop(ctx);
-			exit(EXIT_FAILURE);
+		pid_t pid;
+
+		pid = fork();
+		switch (pid) {
+		case 0:
+			break;
+		case -1:
+			rc = 4;
+			goto exit;
+		default:
+			rc = 0;
+			goto exit;
 		}
 	}
 
-	fflush(stdout);
+        /* set scheduling priority for the main daemon process */
+	setpriority(PRIO_PROCESS, 0, EZCD_PRIORITY);
+
+	setsid();
+
+	fp = fopen("/dev/kmsg", "w");
+	if (fp != NULL) {
+		fprintf(fp, "<6>ezcd: starting version " VERSION "\n");
+		fclose(fp);
+        }
+
+
 	while (ezcd_exit == 0)
 		sleep(1);
 
-	printf("Exiting on signal %d, "
-		"waiting for all threads to finish...", ezcd_exit);
-	fflush(stdout);
-	ezcd_stop(ctx);
-	printf("%s", " done.\n");
+	rc = 0;
 
-	return (EXIT_SUCCESS);
+exit:
+	if (ctx)
+		ezcd_stop(ctx);
+
+	return rc;
 }
 
 static void ezci_show_usage(void)
@@ -171,7 +210,6 @@ static int sock_read (int fd, void* buff, int count)
 	if (count <= 0) return SOCKERR_OK;
 
 	while (status != count) {
-		printf("huedebug -- %s(%d)\n", __func__, __LINE__);
 		n = read (fd, pts + status, count - status);
 
 		if (n < 0) {
