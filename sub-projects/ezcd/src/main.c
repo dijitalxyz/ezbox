@@ -135,23 +135,6 @@ static int ezcd_main(int argc, char **argv)
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 
-	ctx = ezcd_start();
-	if (ctx == NULL) {
-		printf("%s\n", "Cannot initialize ezcd context");
-		goto exit;
-	}
-
-	if (threads_max <= 0) {
-		int memsize = mem_size_mb();
-
-		/* set value depending on the amount of RAM */
-		if (memsize > 0)
-			threads_max = 2 + (memsize / 8);
-		else
-			threads_max = 2;
-	}
-	ezcd_set_threads_max(ctx, threads_max);
-
 	if (daemonize)
 	{
 		pid_t pid;
@@ -159,11 +142,32 @@ static int ezcd_main(int argc, char **argv)
 		pid = fork();
 		switch (pid) {
 		case 0:
+			/* child process */
+			ctx = ezcd_start();
+			if (ctx == NULL) {
+				printf("%s\n", "Cannot initialize ezcd context");
+				goto exit;
+			}
+
+			if (threads_max <= 0) {
+				int memsize = mem_size_mb();
+
+				/* set value depending on the amount of RAM */
+				if (memsize > 0)
+					threads_max = 2 + (memsize / 8);
+				else
+					threads_max = 2;
+			}
+			ezcd_set_threads_max(ctx, threads_max);
 			break;
+
 		case -1:
+			/* error */
 			rc = 4;
 			goto exit;
+
 		default:
+			/* parant process */
 			rc = 0;
 			goto exit;
 		}
