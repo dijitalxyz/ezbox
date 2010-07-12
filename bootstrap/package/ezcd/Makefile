@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcd
-PKG_REV:=108
+PKG_REV:=114
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -46,12 +46,13 @@ define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/ezcd $(1)/sbin/
 	$(LN) /sbin/ezcd $(1)/init
+	$(LN) /sbin/ezcd $(1)/sbin/ezci
 	$(CP) ./files/* $(1)/
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_BUILD_DIR)/include/ezcd{,_config}.h $(1)/usr/include
+	$(CP) $(PKG_BUILD_DIR)/include/ezcd.h $(1)/usr/include
 endef
 
 $(eval $(call BuildPackage,ezcd))
