@@ -25,7 +25,7 @@ args="--prefix=/usr \
 --sysconfdir=/etc \
 --sbindir=/sbin \
 --libdir=$(libdir /usr/lib) \
---libexecdir=/lib/ezcd"
+--libexecdir=/lib/ezcfg"
 
 export CFLAGS="$CFLAGS $MYCFLAGS"
 ./configure $args $@
