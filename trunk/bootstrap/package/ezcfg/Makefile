@@ -40,7 +40,7 @@ endef
 define Package/libezcfg
   $(call Package/ezcfg/Default)
   SECTION:=libs
-  CATEGORY:=Libraries
+  CATEGORY:=Base system
   DEPENDS:=+libpthread
   TITLE+= (library)
 endef
@@ -79,9 +79,14 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/include/ezcd.h $(1)/usr/include
 endef
 
+define Package/libezcfg/install
+	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib
+endef
+
 define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/ezcd $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
 	$(LN) /sbin/ezcd $(1)/init
 	$(LN) /sbin/ezcd $(1)/sbin/ezci
 	$(CP) ./files/* $(1)/
