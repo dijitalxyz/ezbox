@@ -18,6 +18,10 @@
 extern "C" {
 #endif
 
+#define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
+#define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
+#define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
+
 /*
  * ezcfg - library context
  *
@@ -43,7 +47,6 @@ struct socket;
  */
 struct ezcfg;
 
-
 int ezcfg_get_log_priority(struct ezcfg *ezcfg);
 void ezcfg_set_log_priority(struct ezcfg *ezcfg, int priority);
 
@@ -57,6 +60,8 @@ struct ezcfg_list_entry *ezcfg_list_entry_get_next(struct ezcfg_list_entry *list
 struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(struct ezcfg_list_entry *list_entry, const char *name);
 const char *ezcfg_list_entry_get_name(struct ezcfg_list_entry *list_entry);
 const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
+
+struct ezcfg *ezcfg_new(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

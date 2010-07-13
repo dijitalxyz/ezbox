@@ -95,6 +95,7 @@ struct ezcfg {
                        int priority, const char *file, int line, const char *fn,
                        const char *format, va_list args);
 	struct ezcfg_list_node properties_list;
+	char 		*rules_path;
 	int		log_priority;
 };
 
@@ -167,3 +168,211 @@ struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg)
 	return ezcfg_list_get_entry(&ezcfg->properties_list);
 }
 
+/**
+ * ezcfg_new:
+ *
+ * Create ezcfg library context.
+ *
+ * Returns: a new ezcfg library context
+ **/
+
+struct ezcfg *ezcfg_new(void)
+{
+	struct ezcfg *ezcfg = NULL;
+	struct socket *listener = NULL;
+	int sock = -1;
+	struct usa *usa = NULL;
+	char *config_file = NULL;
+	const char *env;
+	FILE *fp;
+
+	ezcfg = calloc(1, sizeof(struct ezcfg));
+	if (ezcfg) {
+		/* initialize ezcfg library context */
+		memset(ezcfg, 0, sizeof(struct ezcfg));
+
+		ezcfg->log_fn = log_stderr;
+		ezcfg->log_priority = LOG_ERR;
+		ezcfg_list_init(&ezcfg->properties_list);
+		config_file = strdup(SYSCONFDIR "/ezcfg/ezcfg.conf");
+		if (config_file == NULL) {
+			goto fail_exit;
+		}
+		env = getenv("EZCFG_CONFIG_FILE");
+		if (env != NULL) {
+			free(config_file);
+			config_file = strdup(env);
+			util_remove_trailing_chars(config_file, '/');
+		}
+		if (config_file == NULL) {
+			goto fail_exit;
+		}
+		fp = fopen(config_file, "re");
+		if (fp != NULL) {
+			char line[UTIL_LINE_SIZE];
+			int line_nr = 0;
+
+			while (fgets(line, sizeof(line), fp)) {
+				size_t len;
+				char *key;
+				char *val;
+
+				line_nr++;
+
+				/* find key */
+				key = line;
+				while (isspace(key[0]))
+					key++;
+
+				/* comment or empty line */
+				if (key[0] == '#' || key[0] == '\0')
+					continue;
+
+				/* split key/value */
+				val = strchr(key, '=');
+				if (val == NULL) {
+					err(ezcfg, "missing <key>=<value> in '%s'[%i], skip line\n", config_file, line_nr);
+					continue;
+				}
+				val[0] = '\0';
+				val++;
+
+				/* find value */
+				while (isspace(val[0]))
+					val++;
+
+				/* terminate key */
+				len = strlen(key);
+				if (len == 0)
+					continue;
+				while (isspace(key[len-1]))
+					len--;
+				key[len] = '\0';
+
+				/* terminate value */
+				len = strlen(val);
+				if (len == 0)
+					continue;
+				while (isspace(val[len-1]))
+					len--;
+				val[len] = '\0';
+
+				if (len == 0)
+					continue;
+
+				/* unquote */
+				if (val[0] == '"' || val[0] == '\'') {
+					if (val[len-1] != val[0]) {
+						err(ezcfg, "inconsistent quoting in '%s'[%i], skip line\n", config_file, line_nr);
+						continue;
+					}
+					val[len-1] = '\0';
+					val++;
+				}
+
+				if (strcmp(key, "ezcfg_log") == 0) {
+					ezcfg_set_log_priority(ezcfg, util_log_priority(val));
+					continue;
+				}
+				if (strcmp(key, "ezcfg_rules") == 0) {
+					free(ezcfg->rules_path);
+					ezcfg->rules_path = strdup(val);
+					util_remove_trailing_chars(ezcfg->rules_path, '/');
+					continue;
+				}
+			}
+			fclose(fp);
+		}
+
+		env = getenv("EZCFG_LOG");
+		if (env != NULL)
+			ezcfg_set_log_priority(ezcfg, util_log_priority(env));
+
+		/* initialize unix domain socket */
+		if ((listener = calloc(1, sizeof(struct socket))) == NULL) {
+			goto fail_exit;
+		}
+
+		/* unset umask */
+		umask(0);
+
+		/* setup socket files directory */
+		mkdir(EZCFG_SOCKET_DIR, 0777);
+
+		usa = &(listener->lsa);
+		usa->u.sun.sun_family = AF_UNIX;
+		strcpy(usa->u.sun.sun_path, EZCFG_SOCKET_PATH);
+		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
+
+		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+			err(ezcfg, "socket error\n");
+			goto fail_exit;
+		}
+
+		if (bind(sock, (struct sockaddr *)&(usa->u.sun), usa->len) < 0) {
+			err(ezcfg, "bind error\n");
+			goto fail_exit;
+		}
+
+		if (chmod(usa->u.sun.sun_path, 0666) < 0) {
+			err(ezcfg, "chmod socket error\n");
+			goto fail_exit;
+		}
+
+		if (listen(sock, 20) < 0) {
+			err(ezcfg, "listen socket error\n");
+			goto fail_exit;
+		}
+
+		listener->sock = sock;
+		listener->next = ezcfg->listening_sockets;
+		ezcfg->listening_sockets = listener;
+
+		ezcfg->nvram = (char *)malloc(EZCFG_NVRAM_SPACE);
+		if (ezcfg->nvram == NULL) {
+			goto fail_exit;
+		}
+
+		/* initialize nvram */
+		memset(ezcfg->nvram, 0, EZCFG_NVRAM_SPACE);
+
+		/*
+		 * ignore SIGPIPE signal, so if client cancels the request, it
+		 * won't kill the whole process.
+		 */
+		signal(SIGPIPE, SIG_IGN);
+
+		pthread_rwlock_init(&ezcfg->rwlock, NULL);
+		pthread_mutex_init(&ezcfg->mutex, NULL);
+		pthread_cond_init(&ezcfg->thr_cond, NULL);
+		pthread_cond_init(&ezcfg->empty_cond, NULL);
+		pthread_cond_init(&ezcfg->full_cond, NULL);
+
+		dbg(ezcfg, "context %p created\n", ezcfg);
+		dbg(ezcfg, "log_priority=%d\n", ezcfg->log_priority);
+		dbg(ezcfg, "config_file='%s'\n", config_file);
+		if (ezcfg->rules_path != NULL)
+			dbg(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
+
+		if (config_file != NULL) {
+			free(config_file);
+		}
+		return ezcfg;
+	}
+fail_exit:
+	if (config_file != NULL) {
+		free(config_file);
+	}
+	if (ezcfg != NULL) {
+		if (ezcfg->nvram != NULL)
+			free(ezcfg->nvram);
+		free(ezcfg);
+	}
+	if (listener != NULL) {
+		free(listener);
+	}
+	if (sock >= 0) {
+		close(sock);
+	}
+	return NULL;
+}

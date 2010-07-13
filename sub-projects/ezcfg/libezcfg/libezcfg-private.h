@@ -94,4 +94,13 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_
                                               int unique, int sort);
 void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
 
+/* libezcfg-util.c */
+#define UTIL_PATH_SIZE				1024
+#define UTIL_NAME_SIZE				512
+#define UTIL_LINE_SIZE				16384
+#define EZCFG_ALLOWED_CHARS_INPUT		"/ $%?,"
+
+int util_log_priority(const char *priority);
+void util_remove_trailing_chars(char *path, char c);
+
 #endif

@@ -36,6 +36,7 @@ libezcfg_libezcfg_la_SOURCES = \
 	libezcfg/libezcfg-private.h \
 	libezcfg/libezcfg.h \
 	libezcfg/libezcfg-list.c \
+	libezcfg/libezcfg-util.c \
 	libezcfg/libezcfg.c
 
 libezcfg_libezcfg_la_LDFLAGS = \
