@@ -37,7 +37,6 @@
 #include "ezcd.h"
 
 #define INVALID_SOCKET		(-1)
-#define ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
 
 #define MAX_REQUEST_SIZE	8192
 

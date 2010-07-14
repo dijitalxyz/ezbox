@@ -11,6 +11,8 @@
  * ============================================================================
  */
 
+#include <stddef.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -31,6 +33,9 @@
 #include <assert.h>
 #include <pthread.h>
 #include <errno.h>
+#include <syslog.h>
+#include <ctype.h>
+#include <stdarg.h>
 
 #include "ezcd.h"
 
@@ -38,6 +43,26 @@
 #define EZCI_PRIORITY                  -2
 
 static int ezcd_exit;
+static bool debug;
+
+static void log_fn(struct ezcfg *ezcfg, int priority,
+                   const char *file, int line, const char *fn,
+                   const char *format, va_list args)
+{
+	if (debug) {
+		char buf[1024];
+		struct timeval tv;
+		struct timezone tz;
+
+		vsnprintf(buf, sizeof(buf), format, args);
+		gettimeofday(&tv, &tz);
+		fprintf(stderr, "%llu.%06u [%u] %s: %s",
+		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
+		        (int) getpid(), fn, buf);
+	} else {
+		vsyslog(priority, format, args);
+	}
+}
 
 static void signal_handler(int sig_num)
 {
@@ -52,9 +77,10 @@ static void signal_handler(int sig_num)
 
 static void ezcd_show_usage(void)
 {
-	printf("Usage: ezcd [-d] [-c max_worker_threads]\n");
+	printf("Usage: ezcd [-d] [-D] [-c max_worker_threads]\n");
 	printf("\n");
 	printf("  -d\tdaemonize\n");
+	printf("  -D\tdebug mode\n");
 	printf("  -c\tmax worker threads\n");
 	printf("  -h\thelp\n");
 	printf("\n");
@@ -85,7 +111,7 @@ static int mem_size_mb(void)
 
 static int ezcd_main(int argc, char **argv)
 {
-	int daemonize = 0;
+	bool daemonize = false;
 	int fd = -1;
 	FILE *fp = NULL;
 	int threads_max = 0;
@@ -95,14 +121,17 @@ static int ezcd_main(int argc, char **argv)
 
 	for (;;) {
 		int c;
-		c = getopt( argc, argv, "c:dh");
+		c = getopt( argc, argv, "c:dDh");
 		if (c == EOF) break;
 		switch (c) {
 			case 'c':
 				threads_max = atoi(optarg);
 				break;
 			case 'd':
-				daemonize = 1;
+				daemonize = true;
+				break;
+			case 'D':
+				debug = true;
 				break;
 			case 'h':
 			default:
@@ -135,6 +164,14 @@ static int ezcd_main(int argc, char **argv)
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 
+	if (!debug) {
+		dup2(fd, STDIN_FILENO);
+		dup2(fd, STDOUT_FILENO);
+		dup2(fd, STDERR_FILENO);
+	}
+	if (fd > STDERR_FILENO)
+		close(fd);
+
 	if (daemonize)
 	{
 		pid_t pid;
@@ -143,22 +180,6 @@ static int ezcd_main(int argc, char **argv)
 		switch (pid) {
 		case 0:
 			/* child process */
-			ctx = ezcd_start();
-			if (ctx == NULL) {
-				printf("%s\n", "Cannot initialize ezcd context");
-				goto exit;
-			}
-
-			if (threads_max <= 0) {
-				int memsize = mem_size_mb();
-
-				/* set value depending on the amount of RAM */
-				if (memsize > 0)
-					threads_max = 2 + (memsize / 8);
-				else
-					threads_max = 2;
-			}
-			ezcd_set_threads_max(ctx, threads_max);
 			break;
 
 		case -1:
@@ -173,6 +194,29 @@ static int ezcd_main(int argc, char **argv)
 		}
 	}
 
+	/* main process */
+	ctx = ezcd_start();
+	if (ctx == NULL) {
+		printf("%s\n", "Cannot initialize ezcd context");
+		goto exit;
+	}
+
+	if (threads_max <= 0) {
+		int memsize = mem_size_mb();
+
+		/* set value depending on the amount of RAM */
+		if (memsize > 0)
+			threads_max = 2 + (memsize / 8);
+		else
+			threads_max = 2;
+	}
+	ezcd_set_threads_max(ctx, threads_max);
+
+#if 0
+	if (debug && (ezcd_get_log_priority(ctx) < LOG_INFO))
+		ezcd_set_log_priority(ctx, LOG_INFO);
+#endif
+
         /* set scheduling priority for the main daemon process */
 	setpriority(PRIO_PROCESS, 0, EZCD_PRIORITY);
 
@@ -184,15 +228,15 @@ static int ezcd_main(int argc, char **argv)
 		fclose(fp);
         }
 
-
 	while (ezcd_exit == 0)
 		sleep(1);
 
 	rc = 0;
 
 exit:
-	if (ctx)
+	if (ctx) {
 		ezcd_stop(ctx);
+	}
 
 	return rc;
 }

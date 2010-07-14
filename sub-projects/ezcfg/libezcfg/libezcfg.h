@@ -61,6 +61,14 @@ struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(struct ezcfg_list_entry *l
 const char *ezcfg_list_entry_get_name(struct ezcfg_list_entry *list_entry);
 const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
 
+/*
+ * ezcfg_monitor
+ *
+ */
+struct ezcfg_monitor;
+void ezcfg_monitor_delete(struct ezcfg_monitor *ezcfg_monitor);
+struct ezcfg_monitor *ezcfg_monitor_new_from_socket(struct ezcfg *ezcfg, const char *socket_path);
+
 struct ezcfg *ezcfg_new(void);
 
 #ifdef __cplusplus

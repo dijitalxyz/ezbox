@@ -1,6 +1,9 @@
 #ifndef _EZCD_H_
 #define _EZCD_H_
 
+#include "libezcfg.h"
+#include "libezcfg-private.h"
+
 #define EZCD_VERSION(a,b,c,d) ((((a) << 24) + (((b) << 16) + ((c) <<8))) + (d))
 #define EZCD_VERSION_MAJOR(x) (((x) >> 24) & 0xFF)
 #define EZCD_VERSION_MINOR(x) (((x) >> 16) & 0xFF)

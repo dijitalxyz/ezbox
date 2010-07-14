@@ -102,5 +102,7 @@ void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
 
 int util_log_priority(const char *priority);
 void util_remove_trailing_chars(char *path, char c);
+size_t util_strpcpy(char **dest, size_t size, const char *src);
+size_t util_strscpy(char *dest, size_t size, const char *src);
 
 #endif

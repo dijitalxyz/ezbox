@@ -46,51 +46,9 @@
  */
 
 /*
- * unified socket address. For IPv6 support, add IPv6 address structure
- * in the union u.
- */
-struct usa {
-	socklen_t len;
-	union {
-		struct sockaddr sa;
-		struct sockaddr_un sun;
-		struct sockaddr_in sin;
-        } u;
-};
-
-/*
- * structure used to describe listening socket, or socket which was
- * accept()-ed by the monitor thread and queued for future handling
- * by the worker thread.
- */
-struct socket {
-	struct socket	*next;		/* Linkage                      */
-	int		sock;		/* Listening socket             */
-	struct usa	lsa;		/* Local socket address         */
-	struct usa	rsa;		/* Remote socket address        */
-};
-
-/*
  * ezbox config context
  */
 struct ezcfg {
-	int		stop_flag;	/* Should we stop event loop    */
-	char		*nvram;		/* Non-volatile memory          */
-	struct socket	*listening_sockets;
-	int		threads_max;	/* MAX number of threads        */
-	int		num_threads;	/* Number of threads            */
-	int		num_idle;	/* Number of idle threads       */
-
-	pthread_mutex_t	mutex;		/* Protects (max|num)_threads   */
-	pthread_rwlock_t rwlock;	/* Protects options, callbacks  */
-	pthread_cond_t	thr_cond;	/* Condvar for thread sync      */
-
-	struct socket	queue[20];	/* Accepted sockets             */
-	int		sq_head;	/* Head of the socket queue     */
-	int		sq_tail;	/* Tail of the socket queue     */
-	pthread_cond_t	empty_cond;     /* Socket queue empty condvar   */
-	pthread_cond_t	full_cond;      /* Socket queue full condvar    */
-
 	void (*log_fn)(struct ezcfg *ezcfg,
                        int priority, const char *file, int line, const char *fn,
                        const char *format, va_list args);
@@ -179,9 +137,6 @@ struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg)
 struct ezcfg *ezcfg_new(void)
 {
 	struct ezcfg *ezcfg = NULL;
-	struct socket *listener = NULL;
-	int sock = -1;
-	struct usa *usa = NULL;
 	char *config_file = NULL;
 	const char *env;
 	FILE *fp;
@@ -288,66 +243,6 @@ struct ezcfg *ezcfg_new(void)
 		if (env != NULL)
 			ezcfg_set_log_priority(ezcfg, util_log_priority(env));
 
-		/* initialize unix domain socket */
-		if ((listener = calloc(1, sizeof(struct socket))) == NULL) {
-			goto fail_exit;
-		}
-
-		/* unset umask */
-		umask(0);
-
-		/* setup socket files directory */
-		mkdir(EZCFG_SOCKET_DIR, 0777);
-
-		usa = &(listener->lsa);
-		usa->u.sun.sun_family = AF_UNIX;
-		strcpy(usa->u.sun.sun_path, EZCFG_SOCKET_PATH);
-		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
-
-		if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			err(ezcfg, "socket error\n");
-			goto fail_exit;
-		}
-
-		if (bind(sock, (struct sockaddr *)&(usa->u.sun), usa->len) < 0) {
-			err(ezcfg, "bind error\n");
-			goto fail_exit;
-		}
-
-		if (chmod(usa->u.sun.sun_path, 0666) < 0) {
-			err(ezcfg, "chmod socket error\n");
-			goto fail_exit;
-		}
-
-		if (listen(sock, 20) < 0) {
-			err(ezcfg, "listen socket error\n");
-			goto fail_exit;
-		}
-
-		listener->sock = sock;
-		listener->next = ezcfg->listening_sockets;
-		ezcfg->listening_sockets = listener;
-
-		ezcfg->nvram = (char *)malloc(EZCFG_NVRAM_SPACE);
-		if (ezcfg->nvram == NULL) {
-			goto fail_exit;
-		}
-
-		/* initialize nvram */
-		memset(ezcfg->nvram, 0, EZCFG_NVRAM_SPACE);
-
-		/*
-		 * ignore SIGPIPE signal, so if client cancels the request, it
-		 * won't kill the whole process.
-		 */
-		signal(SIGPIPE, SIG_IGN);
-
-		pthread_rwlock_init(&ezcfg->rwlock, NULL);
-		pthread_mutex_init(&ezcfg->mutex, NULL);
-		pthread_cond_init(&ezcfg->thr_cond, NULL);
-		pthread_cond_init(&ezcfg->empty_cond, NULL);
-		pthread_cond_init(&ezcfg->full_cond, NULL);
-
 		dbg(ezcfg, "context %p created\n", ezcfg);
 		dbg(ezcfg, "log_priority=%d\n", ezcfg->log_priority);
 		dbg(ezcfg, "config_file='%s'\n", config_file);
@@ -364,15 +259,7 @@ fail_exit:
 		free(config_file);
 	}
 	if (ezcfg != NULL) {
-		if (ezcfg->nvram != NULL)
-			free(ezcfg->nvram);
 		free(ezcfg);
-	}
-	if (listener != NULL) {
-		free(listener);
-	}
-	if (sock >= 0) {
-		close(sock);
 	}
 	return NULL;
 }

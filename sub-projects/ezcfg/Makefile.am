@@ -12,7 +12,6 @@ AM_MAKEFLAGS = --no-print-directory
 
 AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
-	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/libezcfg \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\"
@@ -35,7 +34,9 @@ lib_LTLIBRARIES = libezcfg/libezcfg.la
 libezcfg_libezcfg_la_SOURCES = \
 	libezcfg/libezcfg-private.h \
 	libezcfg/libezcfg.h \
+	libezcfg/libezcfg-ctrl.c \
 	libezcfg/libezcfg-list.c \
+	libezcfg/libezcfg-monitor.c \
 	libezcfg/libezcfg-util.c \
 	libezcfg/libezcfg.c
 
@@ -67,11 +68,12 @@ UNINSTALL_EXEC_HOOKS = libezcfg-uninstall-move-hook
 # ezbox Configuration Daemon
 # ------------------------------------------------------------------------------
 sbin_PROGRAMS = \
-        src/ezcd
+        ezcd/ezcd
 
-src_ezcd_SOURCES = \
-	src/main.c \
-	src/ezcd.c
+ezcd_ezcd_SOURCES = \
+	ezcd/ezcd.h \
+	ezcd/ezcd.c \
+	ezcd/main.c
 
 # ------------------------------------------------------------------------------
 # ezbox config tests

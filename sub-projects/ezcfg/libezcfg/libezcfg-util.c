@@ -18,6 +18,8 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
+extern void *mempcpy(void *dest, const void *src, size_t n);
+
 int util_log_priority(const char *priority)
 {
 	char *endptr;
@@ -46,3 +48,36 @@ void util_remove_trailing_chars(char *path, char c)
 		path[--len] = '\0';
 }
 
+/*
+ * Concatenates strings. In any case, terminates in _all_ cases with '\0'
+ * and moves the @dest pointer forward to the added '\0'. Returns the
+ * remaining size, and 0 if the string was truncated.
+ */
+size_t util_strpcpy(char **dest, size_t size, const char *src)
+{
+	size_t len;
+
+	len = strlen(src);
+	if (len >= size) {
+		if (size > 1)
+			*dest = mempcpy(*dest, src, size-1);
+		size = 0;
+		*dest[0] = '\0';
+	} else {
+		if (len > 0) {
+			*dest = mempcpy(*dest, src, len);
+			size -= len;
+		}
+		*dest[0] = '\0';
+	}
+	return size;
+}
+
+/* copies string */
+size_t util_strscpy(char *dest, size_t size, const char *src)
+{
+	char *s;
+
+	s = dest;
+	return util_strpcpy(&s, size, src);
+}
