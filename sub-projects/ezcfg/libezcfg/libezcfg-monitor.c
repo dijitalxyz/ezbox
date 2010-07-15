@@ -190,7 +190,7 @@ struct ezcfg_monitor *ezcfg_monitor_new_from_socket(struct ezcfg *ezcfg, const c
 		return NULL;
 
 	usa = &(listener->lsa);
-	usa->u.sun.sun_family = AF_UNIX;
+	usa->u.sun.sun_family = AF_LOCAL;
 	if (socket_path[0] == '@') {
 		/* translate leading '@' to abstract namespace */
 		util_strscpy(usa->u.sun.sun_path, sizeof(usa->u.sun.sun_path), socket_path);
@@ -206,7 +206,7 @@ struct ezcfg_monitor *ezcfg_monitor_new_from_socket(struct ezcfg *ezcfg, const c
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(socket_path)+1;
 	}
 
-	if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+	if ((sock = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0) {
 		err(ezcfg, "socket error\n");
 		goto fail_exit;
 	}
@@ -214,7 +214,7 @@ struct ezcfg_monitor *ezcfg_monitor_new_from_socket(struct ezcfg *ezcfg, const c
 
 	ezcfg_monitor = ezcfg_monitor_new(ezcfg);
 	if (ezcfg_monitor == NULL) {
-		err(ezcfg, "ezcfg_monitor_new()");
+		err(ezcfg, "new monitor fail: %m\n");
 		goto fail_exit;
 	}
 
@@ -230,3 +230,82 @@ fail_exit:
 	ezcfg_monitor_delete(ezcfg_monitor);
 	return NULL;
 }
+
+/**
+ * ezcfg_monitor_enable_receiving:
+ * @ezcfg_monitor: the monitor which should receive events
+ *
+ * Binds the @ezcfg_monitor socket to the event source.
+ *
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+int ezcfg_monitor_enable_receiving(struct ezcfg_monitor *ezcfg_monitor)
+{
+	int err;
+	const int on = 1;
+	struct socket *sp;
+	struct usa *usa = NULL;
+
+	for(sp = ezcfg_monitor->listening_sockets; sp ; sp = sp->next) {
+
+		usa = &(sp->lsa);
+		if (usa->u.sun.sun_family != 0) {
+			err = bind(sp->sock,
+		                   (struct sockaddr *)&usa->u.sun, usa->len);
+		} else {
+			return -EINVAL;
+		}
+		if (err < 0) {
+			err(ezcfg_monitor->ezcfg, "bind failed: %m\n");
+			return err;
+		}
+		/* enable receiving of sender credentials */
+		setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	}
+
+	return 0;
+}
+
+/**
+ * ezcfg_monitor_set_receive_buffer_size:
+ * @ezcfg_monitor: the monitor which should receive events
+ * @size: the size in bytes
+ *
+ * Set the size of the kernel socket buffer. This call needs the
+ * appropriate privileges to succeed.
+ *
+ * Returns: 0 on success, otherwise -1 on error.
+ */
+int ezcfg_monitor_set_receive_buffer_size(struct ezcfg_monitor *ezcfg_monitor, int size)
+{
+	struct socket *sp;
+
+	if (ezcfg_monitor == NULL)
+		return -1;
+	for(sp = ezcfg_monitor->listening_sockets; sp ; sp = sp->next) {
+		if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUFFORCE, &size, sizeof(size)) < 0)
+			return -1;
+	}
+	return 0;
+}
+
+/**
+ * ezcfg_monitor_get_fd:
+ * @ezcfg_monitor: ezcfg monitor
+ *
+ * Retrieve the socket file descriptor associated with the monitor.
+ *
+ * Returns: the socket file descriptor
+ **/
+int ezcfg_monitor_get_fd(struct ezcfg_monitor *ezcfg_monitor)
+{
+	struct socket *sp;
+	if (ezcfg_monitor == NULL)
+		return -1;
+	for(sp = ezcfg_monitor->listening_sockets; sp ; sp = sp->next) {
+		/* FIXME: only return first listening socket !!! */
+		return sp->sock;
+	}
+	return -1;
+}
+

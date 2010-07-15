@@ -1,6 +1,10 @@
 #ifndef _EZCD_H_
 #define _EZCD_H_
 
+#include <sys/types.h>
+#include <sys/param.h>
+#include <signal.h>
+
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
@@ -15,7 +19,6 @@
 #define EZCD_SPACE		0x20000 /* 128K Bytes */
 
 #define EZCD_SOCKET_PATH	"/tmp/ezcd/ezcd.socket"
-
 
 #define SOCKERR_IO          -1
 #define SOCKERR_CLOSED      -2
@@ -39,4 +42,11 @@ void ezcd_set_threads_max(struct ezcd_context *ctx, int threads_max);
 int ezcd_set_listening_socket(struct ezcd_context *ctx, char *sock_name);
 
 int ezcd_client_connection (const char *name, char project);
+
+/* command entry point */
+int ezcd_main(int argc, char **argv);
+int ezci_main(int argc, char **argv);
+int ezcm_main(int argc, char **argv);
+int init_main(int argc, char **argv);
+
 #endif

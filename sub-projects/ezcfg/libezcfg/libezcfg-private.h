@@ -15,6 +15,10 @@
 #define _LIBEZCFG_PRIVATE_H_
 
 #include <syslog.h>
+#include <signal.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "libezcfg.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
@@ -93,6 +97,22 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_
                                               const char *name, const char *value,
                                               int unique, int sort);
 void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
+
+/* libezcfg-ctrl.c - daemon runtime setup */
+struct ezcfg_ctrl;
+void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const char *socket_path);
+int ezcfg_ctrl_enable_receiving(struct ezcfg_ctrl *ezctrl);
+struct ezcfg *ezcfg_ctrl_get_ezcfg(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_get_fd(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_send_set_log_level(struct ezcfg_ctrl *ezctrl, int priority);
+int ezcfg_ctrl_send_reload_rules(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_send_set_env(struct ezcfg_ctrl *ezctrl, const char *key);
+int ezcfg_ctrl_send_set_children_max(struct ezcfg_ctrl *ezctrl, int count);
+struct ezcfg_ctrl_msg;
+struct ezcfg_ctrl_msg *ezcfg_ctrl_msg(struct ezcfg_ctrl *ezctrl);
+struct ezcfg_ctrl_msg *ezcfg_ctrl_receive_msg(struct ezcfg_ctrl *ezctrl);
+
 
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024

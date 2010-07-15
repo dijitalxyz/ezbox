@@ -77,6 +77,25 @@ static void log_stderr(struct ezcfg *ezcfg,
 }
 
 /**
+ * ezcfg_set_log_fn:
+ * @ezcfg: ezcfg library context
+ * @log_fn: function to be called for logging messages
+ *
+ * The built-in logging writes to stderr. It can be
+ * overridden by a custom function, to plug log messages
+ * into the users' logging functionality.
+ *
+ **/
+void ezcfg_set_log_fn(struct ezcfg *ezcfg,
+                      void (*log_fn)(struct ezcfg *ezcfg,
+                                    int priority, const char *file, int line, const char *fn,
+                                    const char *format, va_list args))
+{
+	ezcfg->log_fn = log_fn;
+	info(ezcfg, "custom logging function %p registered\n", ezcfg);
+}
+
+/**
  * ezcfg_get_log_priority:
  * @ezcfg: ezcfg library context
  *
@@ -258,8 +277,24 @@ fail_exit:
 	if (config_file != NULL) {
 		free(config_file);
 	}
-	if (ezcfg != NULL) {
-		free(ezcfg);
-	}
+	ezcfg_delete(ezcfg);
 	return NULL;
 }
+
+/**
+ * ezcfg_delete:
+ * @ezcfg: ezcfg library context
+ *
+ * Release the ezcfg library context.
+ *
+ **/
+void ezcfg_delete(struct ezcfg *ezcfg)
+{
+	if (ezcfg == NULL)
+		return;
+	if (ezcfg->rules_path != NULL)
+		free(ezcfg->rules_path);
+	dbg(ezcfg, "context %p released\n", ezcfg);
+	free(ezcfg);
+}
+

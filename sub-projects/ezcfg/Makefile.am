@@ -34,7 +34,6 @@ lib_LTLIBRARIES = libezcfg/libezcfg.la
 libezcfg_libezcfg_la_SOURCES = \
 	libezcfg/libezcfg-private.h \
 	libezcfg/libezcfg.h \
-	libezcfg/libezcfg-ctrl.c \
 	libezcfg/libezcfg-list.c \
 	libezcfg/libezcfg-monitor.c \
 	libezcfg/libezcfg-util.c \
@@ -43,6 +42,13 @@ libezcfg_libezcfg_la_SOURCES = \
 libezcfg_libezcfg_la_LDFLAGS = \
 	--version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \
 	-export-symbols $(top_srcdir)/libezcfg/exported_symbols
+
+noinst_LTLIBRARIES = \
+	libezcfg/libezcfg-private.la
+
+libezcfg_libezcfg_private_la_SOURCES =\
+        $(libezcfg_libezcfg_la_SOURCES) \
+        libezcfg/libezcfg-ctrl.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg/libezcfg.pc
@@ -73,7 +79,12 @@ sbin_PROGRAMS = \
 ezcd_ezcd_SOURCES = \
 	ezcd/ezcd.h \
 	ezcd/ezcd.c \
+	ezcd/ezci.c \
+	ezcd/ezcm.c \
+	ezcd/init.c \
 	ezcd/main.c
+
+ezcd_ezcd_LDADD = libezcfg/libezcfg-private.la
 
 # ------------------------------------------------------------------------------
 # ezbox config tests

@@ -12,6 +12,8 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 
 #include "libezcfg.h"
 #include "libezcfg-private.h"
@@ -37,6 +39,18 @@ struct ezcfg_list_entry {
 	char *value;
 	unsigned int flags;
 };
+
+/* list head point to itself if empty */
+void ezcfg_list_init(struct ezcfg_list_node *list)
+{
+	list->next = list;
+	list->prev = list;
+}
+
+int ezcfg_list_is_empty(struct ezcfg_list_node *list)
+{
+	return list->next == list;
+}
 
 static void ezcfg_list_node_insert_between(struct ezcfg_list_node *new,
                                            struct ezcfg_list_node *prev,
@@ -65,6 +79,94 @@ void ezcfg_list_node_remove(struct ezcfg_list_node *entry)
 	entry->next = NULL;
 }
 
+/* return list entry which embeds this node */
+static struct ezcfg_list_entry *list_node_to_entry(struct ezcfg_list_node *node)
+{
+	char *list;
+
+	list = (char *)node;
+	list -= offsetof(struct ezcfg_list_entry, node);
+	return (struct ezcfg_list_entry *)list;
+}
+
+/* insert entry into a list as the last element  */
+void ezcfg_list_entry_append(struct ezcfg_list_entry *new, struct ezcfg_list_node *list)
+{
+	/* inserting before the list head make the node the last node in the list */
+	ezcfg_list_node_insert_between(&new->node, list->prev, list);
+	new->list = list;
+}
+
+/* remove entry from a list */
+void ezcfg_list_entry_remove(struct ezcfg_list_entry *entry)
+{
+	ezcfg_list_node_remove(&entry->node);
+	entry->list = NULL;
+}
+
+/* insert entry into a list, before a given existing entry */
+void ezcfg_list_entry_insert_before(struct ezcfg_list_entry *new, struct ezcfg_list_entry *entry)
+{
+	ezcfg_list_node_insert_between(&new->node, entry->node.prev, &entry->node);
+	new->list = entry->list;
+}
+
+struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_list_node *list,
+                                            const char *name, const char *value,
+                                            int unique, int sort)
+{
+	struct ezcfg_list_entry *entry_loop = NULL;
+	struct ezcfg_list_entry *entry_new;
+
+	if (unique)
+		ezcfg_list_entry_foreach(entry_loop, ezcfg_list_get_entry(list)) {
+			if (strcmp(entry_loop->name, name) == 0) {
+				dbg(ezcfg, "'%s' is already in the list\n", name);
+				free(entry_loop->value);
+				if (value == NULL) {
+					entry_loop->value = NULL;
+					dbg(ezcfg, "'%s' value unset\n", name);
+					return entry_loop;
+				}
+				entry_loop->value = strdup(value);
+				if (entry_loop->value == NULL)
+					return NULL;
+				dbg(ezcfg, "'%s' value replaced with '%s'\n", name, value);
+				return entry_loop;
+			}
+		}
+
+	if (sort)
+		ezcfg_list_entry_foreach(entry_loop, ezcfg_list_get_entry(list)) {
+			if (strcmp(entry_loop->name, name) > 0)
+				break;
+		}
+
+	entry_new = malloc(sizeof(struct ezcfg_list_entry));
+	if (entry_new == NULL)
+		return NULL;
+	memset(entry_new, 0x00, sizeof(struct ezcfg_list_entry));
+	entry_new->ezcfg = ezcfg;
+	entry_new->name = strdup(name);
+	if (entry_new->name == NULL) {
+		free(entry_new);
+		return NULL;
+	}
+	if (value != NULL) {
+		entry_new->value = strdup(value);
+		if (entry_new->value == NULL) {
+			free(entry_new->name);
+			free(entry_new);
+			return NULL;
+		}
+	}
+	if (entry_loop != NULL)
+		ezcfg_list_entry_insert_before(entry_new, entry_loop);
+	else
+		ezcfg_list_entry_append(entry_new, list);
+	dbg(ezcfg, "'%s=%s' added\n", entry_new->name, entry_new->value);
+	return entry_new;
+}
 
 void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry)
 {
@@ -74,3 +176,61 @@ void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry)
 	free(entry);
 }
 
+struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list)
+{
+	if (ezcfg_list_is_empty(list))
+		return NULL;
+	return list_node_to_entry(list->next);
+}
+
+/**
+ * ezcfg_list_entry_get_next:
+ * @list_entry: current entry
+ *
+ * Returns: the next entry from the list, #NULL is no more entries are found.
+ */
+struct ezcfg_list_entry *ezcfg_list_entry_get_next(struct ezcfg_list_entry *list_entry)
+{
+	struct ezcfg_list_node *next;
+
+	if (list_entry == NULL)
+		return NULL;
+	next = list_entry->node.next;
+	/* empty list or no more entries */
+	if (next == list_entry->list)
+		return NULL;
+	return list_node_to_entry(next);
+}
+
+/**
+ * ezcfg_list_entry_get_by_name:
+ * @list_entry: current entry
+ * @name: name string to match
+ *
+ * Returns: the entry where @name matched, #NULL if no matching entry is found.
+ */
+struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(struct ezcfg_list_entry *list_entry, const char *name)
+{
+	struct ezcfg_list_entry *entry;
+
+	ezcfg_list_entry_foreach(entry, list_entry) {
+		if (strcmp(ezcfg_list_entry_get_name(entry), name) == 0) {
+			dbg(entry->ezcfg, "found '%s=%s'\n", entry->name, entry->value);
+			return entry;
+		}
+	}
+	return NULL;
+}
+
+/**
+ * ezcfg_list_entry_get_name:
+ * @list_entry: current entry
+ *
+ * Returns: the name string of this entry.
+ */
+const char *ezcfg_list_entry_get_name(struct ezcfg_list_entry *list_entry)
+{
+	if (list_entry == NULL)
+		return NULL;
+	return list_entry->name;
+}
