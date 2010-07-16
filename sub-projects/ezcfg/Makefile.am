@@ -37,6 +37,7 @@ libezcfg_libezcfg_la_SOURCES = \
 	libezcfg/libezcfg-list.c \
 	libezcfg/libezcfg-monitor.c \
 	libezcfg/libezcfg-util.c \
+	libezcfg/libezcfg-thread.c \
 	libezcfg/libezcfg.c
 
 libezcfg_libezcfg_la_LDFLAGS = \
@@ -48,7 +49,9 @@ noinst_LTLIBRARIES = \
 
 libezcfg_libezcfg_private_la_SOURCES =\
         $(libezcfg_libezcfg_la_SOURCES) \
-        libezcfg/libezcfg-ctrl.c
+        libezcfg/libezcfg-ctrl.c \
+        libezcfg/libezcfg-master.c \
+        libezcfg/libezcfg-worker.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg/libezcfg.pc

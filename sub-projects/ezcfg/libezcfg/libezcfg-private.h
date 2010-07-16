@@ -23,6 +23,8 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+typedef void * (*ezcfg_thread_func_t)(void *);
+
 static inline void __attribute__((always_inline, format(printf, 2, 3)))
 ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
 
@@ -113,6 +115,22 @@ struct ezcfg_ctrl_msg;
 struct ezcfg_ctrl_msg *ezcfg_ctrl_msg(struct ezcfg_ctrl *ezctrl);
 struct ezcfg_ctrl_msg *ezcfg_ctrl_receive_msg(struct ezcfg_ctrl *ezctrl);
 
+/* libezcfg-thread.c */
+int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
+
+/* libezcfg-master.c */
+struct ezcfg_master;
+int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
+struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
+void ezcfg_master_stop(struct ezcfg_master *master);
+
+/* libezcfg-worker.c */
+struct ezcfg_worker;
+void ezcfg_worker_delete(struct ezcfg_worker *worker);
+struct ezcfg_worker *ezcfg_worker_new_from_socket(struct ezcfg *ezcfg, const char *socket_path);
+int ezcfg_worker_enable_receiving(struct ezcfg_worker *worker);
+int ezcfg_worker_set_receive_buffer_size(struct ezcfg_worker *worker, int size);
+int ezcfg_worker_get_fd(struct ezcfg_worker *worker);
 
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024

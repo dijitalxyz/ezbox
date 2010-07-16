@@ -297,4 +297,3 @@ void ezcfg_delete(struct ezcfg *ezcfg)
 	dbg(ezcfg, "context %p released\n", ezcfg);
 	free(ezcfg);
 }
-

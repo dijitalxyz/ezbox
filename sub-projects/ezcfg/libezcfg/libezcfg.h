@@ -36,19 +36,6 @@ extern "C" {
  */
 
 /*
- * unified socket address. For IPv6 support, add IPv6 address structure
- * in the union u.
- */
-struct usa;
-
-/*
- * structure used to describe listening socket, or socket which was
- * accept()-ed by the monitor thread and queued for future handling
- * by the worker thread.
- */
-struct socket;
-
-/*
  * libezcfg.c
  * ezbox config context
  */
