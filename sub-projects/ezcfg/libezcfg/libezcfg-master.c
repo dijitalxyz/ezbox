@@ -358,7 +358,74 @@ static void ezcfg_master_finish(struct ezcfg_master *master)
         master->stop_flag = 2;
 }
 
-static void ezcfg_master_thread(struct ezcfg_master *master) 
+static void add_to_set(int fd, fd_set *set, int *max_fd)
+{
+	FD_SET(fd, set);
+	if (fd > *max_fd)
+	{
+		*max_fd = (int) fd;
+	}
+}
+
+// Master thread adds accepted socket to a queue
+static void put_socket(struct ezcfg_master *master, const struct socket *sp)
+{
+	int stacksize = sizeof(struct ezcfg_master) * 2;
+	
+	pthread_mutex_lock(&master->mutex);
+
+	// If the queue is full, wait
+	while (master->sq_head - master->sq_tail >= (int) ARRAY_SIZE(master->queue)) {
+		pthread_cond_wait(&master->full_cond, &master->mutex);
+	}
+	assert(master->sq_head - master->sq_tail < (int) ARRAY_SIZE(master->queue));
+
+	// Copy socket to the queue and increment head
+	master->queue[master->sq_head % ARRAY_SIZE(master->queue)] = *sp;
+	master->sq_head++;
+	info(master->ezcfg, "%s: queued socket %d", __func__, sp->sock);
+
+	// If there are no idle threads, start one
+	if (master->num_idle == 0 && master->num_threads < master->threads_max) {
+		if (ezcfg_thread_start(master->ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_worker_thread, master) != 0) {
+			err(master->ezcfg, "Cannot start thread: %d", errno);
+		} else {
+			master->num_threads++;
+		}
+	}
+
+	pthread_cond_signal(&master->empty_cond);
+	pthread_mutex_unlock(&master->mutex);
+}
+
+static void accept_new_connection(const struct socket *listener,
+                                  struct ezcfg_master *master) {
+	struct socket accepted;
+	bool allowed;
+
+	accepted.rsa.len = sizeof(accepted.rsa.u.sin);
+	accepted.lsa = listener->lsa;
+	if ((accepted.sock = accept(listener->sock, &accepted.rsa.u.sa,
+	                            &accepted.rsa.len)) == -1) {
+		return;
+	}
+
+	//allowed = check_acl(ctx, &accepted.rsa) == MG_SUCCESS;
+	allowed = true;
+
+	if (allowed == true) {
+		// Put accepted socket structure into the queue
+		info(master->ezcfg, "%s: accepted socket %d",
+		     __func__, accepted.sock);
+		put_socket(master, &accepted);
+	} else {
+		info(master->ezcfg, "%s: %s is not allowed to connect",
+		     __func__, inet_ntoa(accepted.rsa.u.sin.sin_addr));
+		close(accepted.sock);
+	}
+}
+
+void ezcfg_master_thread(struct ezcfg_master *master) 
 {
 	fd_set read_set;
 	struct socket *sp;
@@ -370,24 +437,20 @@ static void ezcfg_master_thread(struct ezcfg_master *master)
 		max_fd = -1;
 
 		/* Add listening sockets to the read set */
-		pthread_rwlock_rdlock(&master->rwlock);
-		for (sp = master->listening_sockets; sp != NULL; sp = sp->next)
-			//add_to_set(sp->sock, &read_set, &max_fd);
-			do {} while(0);
-		pthread_rwlock_unlock(&master->rwlock);
+		for (sp = master->listening_sockets; sp != NULL; sp = sp->next) {
+			add_to_set(sp->sock, &read_set, &max_fd);
+		}
 
 		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 
 		if (select(max_fd + 1, &read_set, NULL, NULL, &tv) < 0) {
 			/* do nothing */
+			do {} while(0);
 		} else {
-			pthread_rwlock_rdlock(&master->rwlock);
 			for (sp = master->listening_sockets; sp != NULL; sp = sp->next)
 				if (FD_ISSET(sp->sock, &read_set))
-					//accept_new_connection(sp, master);
-					do {} while(0);
-			pthread_rwlock_unlock(&master->rwlock);
+					accept_new_connection(sp, master);
 		}
 	}
 
@@ -432,4 +495,11 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 	assert(master->num_threads == 0);
 	ezcfg_master_delete(master);
+}
+
+void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)
+{
+	if (master == NULL)
+		return;
+	master->threads_max = threads_max;
 }

@@ -222,6 +222,7 @@ int ezcd_main(int argc, char **argv)
 		else
 			threads_max = 2;
 	}
+	ezcfg_master_set_threads_max(master, threads_max);
 
         /* set scheduling priority for the main daemon process */
 	setpriority(PRIO_PROCESS, 0, EZCD_PRIORITY);

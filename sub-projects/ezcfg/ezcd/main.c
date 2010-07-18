@@ -50,11 +50,8 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "ezcd")) {
 		return ezcd_main(argc, argv);
 	}
-	else if (!strcmp(name, "ezci")) {
-		return ezci_main(argc, argv);
-	}
 	else if (!strcmp(name, "ezcm")) {
-		return ezci_main(argc, argv);
+		return ezcm_main(argc, argv);
 	}
 	else {
 		printf("Unkown name [%s]!\n", name);

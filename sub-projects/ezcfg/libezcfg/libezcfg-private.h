@@ -123,6 +123,8 @@ struct ezcfg_master;
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
+void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
+void ezcfg_master_thread(struct ezcfg_master *master);
 
 /* libezcfg-worker.c */
 struct ezcfg_worker;
@@ -131,6 +133,7 @@ struct ezcfg_worker *ezcfg_worker_new_from_socket(struct ezcfg *ezcfg, const cha
 int ezcfg_worker_enable_receiving(struct ezcfg_worker *worker);
 int ezcfg_worker_set_receive_buffer_size(struct ezcfg_worker *worker, int size);
 int ezcfg_worker_get_fd(struct ezcfg_worker *worker);
+void ezcfg_worker_thread(struct ezcfg_worker *worker);
 
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024

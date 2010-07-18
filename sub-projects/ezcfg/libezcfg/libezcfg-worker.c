@@ -290,7 +290,7 @@ int ezcfg_worker_set_receive_buffer_size(struct ezcfg_worker *ezcfg_worker, int 
 	return 0;
 }
 
-static void ezcfg_worker_thread(struct ezcfg_worker *worker) 
+void ezcfg_worker_thread(struct ezcfg_worker *worker) 
 {
 
 }

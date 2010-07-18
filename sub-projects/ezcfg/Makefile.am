@@ -82,7 +82,6 @@ sbin_PROGRAMS = \
 ezcd_ezcd_SOURCES = \
 	ezcd/ezcd.h \
 	ezcd/ezcd.c \
-	ezcd/ezci.c \
 	ezcd/ezcm.c \
 	ezcd/init.c \
 	ezcd/main.c
