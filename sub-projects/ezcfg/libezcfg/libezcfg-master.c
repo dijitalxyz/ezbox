@@ -277,10 +277,16 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 
 	// If there are no idle threads, start one
 	if (master->num_idle == 0 && master->num_threads < master->threads_max) {
-		if (ezcfg_thread_start(master->ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_worker_thread, master) != 0) {
-			err(master->ezcfg, "Cannot start thread: %d", errno);
+		struct ezcfg_worker *worker;
+		worker = ezcfg_worker_new(master);
+		if (worker) {
+			if (ezcfg_thread_start(master->ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
+				err(master->ezcfg, "Cannot start thread: %d", errno);
+			} else {
+				master->num_threads++;
+			}
 		} else {
-			master->num_threads++;
+			err(master->ezcfg, "Cannot prepare worker thread: %d", errno);
 		}
 	}
 
@@ -390,4 +396,9 @@ void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)
 	if (master == NULL)
 		return;
 	master->threads_max = threads_max;
+}
+
+struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master)
+{
+	return master->ezcfg;
 }

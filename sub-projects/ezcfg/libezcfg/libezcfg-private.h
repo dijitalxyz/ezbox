@@ -125,11 +125,13 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 void ezcfg_master_thread(struct ezcfg_master *master);
+struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 
 /* libezcfg-worker.c */
 struct ezcfg_worker;
 /* worker inherits master's resource */
-void ezcfg_worker_thread(struct ezcfg_master *master);
+struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
+void ezcfg_worker_thread(struct ezcfg_worker *worker);
 
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024

@@ -51,7 +51,31 @@ struct ezcfg_worker {
 	int64_t num_bytes_sent;
 };
 
-void ezcfg_worker_thread(struct ezcfg_master *master) 
+struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 {
-	return;
+	struct ezcfg *ezcfg;
+	struct ezcfg_worker *worker;
+	struct ezcfg_socket *client;
+	if (master == NULL)
+		return NULL;
+
+	worker = calloc(1, sizeof(struct ezcfg_worker));
+	if (worker == NULL)
+		return NULL;
+
+	ezcfg = ezcfg_master_get_ezcfg(master);
+	client = ezcfg_socket_calloc(ezcfg, 1);
+	if (client == NULL) {
+		free(worker);
+		return NULL;
+	}
+
+	memset(worker, 0x00, sizeof(struct ezcfg_worker));
+	worker->ezcfg = ezcfg;
+	worker->client = client;
+	return worker;
+}
+
+void ezcfg_worker_thread(struct ezcfg_worker *worker) 
+{
 }
