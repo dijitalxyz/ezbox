@@ -31,8 +31,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <assert.h>
 #include <pthread.h>
 

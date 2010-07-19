@@ -128,12 +128,8 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 
 /* libezcfg-worker.c */
 struct ezcfg_worker;
-void ezcfg_worker_delete(struct ezcfg_worker *worker);
-struct ezcfg_worker *ezcfg_worker_new_from_socket(struct ezcfg *ezcfg, const char *socket_path);
-int ezcfg_worker_enable_receiving(struct ezcfg_worker *worker);
-int ezcfg_worker_set_receive_buffer_size(struct ezcfg_worker *worker, int size);
-int ezcfg_worker_get_fd(struct ezcfg_worker *worker);
-void ezcfg_worker_thread(struct ezcfg_worker *worker);
+/* worker inherits master's resource */
+void ezcfg_worker_thread(struct ezcfg_master *master);
 
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024
@@ -145,5 +141,22 @@ int util_log_priority(const char *priority);
 void util_remove_trailing_chars(char *path, char c);
 size_t util_strpcpy(char **dest, size_t size, const char *src);
 size_t util_strscpy(char *dest, size_t size, const char *src);
+
+/* libezcfg-socket.c */
+struct ezcfg_socket;
+void ezcfg_socket_delete(struct ezcfg_socket *sp);
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const char *socket_path);
+struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
+struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
+void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
+int ezcfg_socket_copy(struct ezcfg_socket *dst, struct ezcfg_socket *src);
+int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
+char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
+int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
+int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
+void ezcfg_socket_list_delete(struct ezcfg_socket *sp);
+int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
+struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
+int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp);
 
 #endif

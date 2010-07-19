@@ -26,7 +26,8 @@ extern "C" {
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
 #define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
 #define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ezctrl"
-#define EZCFG_MONITOR_SOCK_PATH	"@/org/kernel/ezcfg/monitor"
+#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
+#define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
 /*
  * ezcfg - library context
@@ -74,18 +75,6 @@ const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
 	for (list_entry = first_entry; \
 	     list_entry != NULL; \
 	     list_entry = ezcfg_list_entry_get_next(list_entry))
-
-/*
- * libezcfg-monitor.c
- * ezcfg_monitor
- *
- */
-struct ezcfg_monitor;
-void ezcfg_monitor_delete(struct ezcfg_monitor *ezcfg_monitor);
-struct ezcfg_monitor *ezcfg_monitor_new_from_socket(struct ezcfg *ezcfg, const char *socket_path);
-int ezcfg_monitor_enable_receiving(struct ezcfg_monitor *ezcfg_monitor);
-int ezcfg_monitor_set_receive_buffer_size(struct ezcfg_monitor *ezcfg_monitor, int size);
-int ezcfg_monitor_get_fd(struct ezcfg_monitor *ezcfg_monitor);
 
 #ifdef __cplusplus
 } /* extern "C" */

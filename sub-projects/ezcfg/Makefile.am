@@ -35,7 +35,6 @@ libezcfg_libezcfg_la_SOURCES = \
 	libezcfg/libezcfg-private.h \
 	libezcfg/libezcfg.h \
 	libezcfg/libezcfg-list.c \
-	libezcfg/libezcfg-monitor.c \
 	libezcfg/libezcfg-util.c \
 	libezcfg/libezcfg-thread.c \
 	libezcfg/libezcfg.c
@@ -50,6 +49,7 @@ noinst_LTLIBRARIES = \
 libezcfg_libezcfg_private_la_SOURCES =\
         $(libezcfg_libezcfg_la_SOURCES) \
         libezcfg/libezcfg-ctrl.c \
+        libezcfg/libezcfg-socket.c \
         libezcfg/libezcfg-master.c \
         libezcfg/libezcfg-worker.c
 
