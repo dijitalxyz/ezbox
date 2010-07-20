@@ -118,6 +118,36 @@ struct ezcfg_ctrl_msg *ezcfg_ctrl_receive_msg(struct ezcfg_ctrl *ezctrl);
 /* libezcfg-thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 
+/* libezcfg-socket.c */
+struct ezcfg_socket;
+void ezcfg_socket_delete(struct ezcfg_socket *sp);
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const char *socket_path);
+struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
+struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
+void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
+int ezcfg_socket_copy(struct ezcfg_socket *dst, struct ezcfg_socket *src);
+int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
+char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
+int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
+int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
+void ezcfg_socket_list_delete(struct ezcfg_socket *sp);
+int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
+struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
+int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp);
+
+/* libezcfg-http.c */
+struct ezcfg_http;
+void ezcfg_http_delete(struct ezcfg_http *http);
+struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
+void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
+void ezcfg_http_delete_post_data(struct ezcfg_http *http);
+void ezcfg_http_reset_attributes(struct ezcfg_http *http);
+bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf);
+char *ezcfg_http_get_version(struct ezcfg_http *http);
+void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
+void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data);
+void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len);
+
 /* libezcfg-master.c */
 struct ezcfg_master;
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
@@ -126,6 +156,10 @@ void ezcfg_master_stop(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
+bool ezcfg_master_is_stop(struct ezcfg_master *master);
+bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
+void ezcfg_master_stop_worker(struct ezcfg_master *master);
+
 
 /* libezcfg-worker.c */
 struct ezcfg_worker;
@@ -143,22 +177,5 @@ int util_log_priority(const char *priority);
 void util_remove_trailing_chars(char *path, char c);
 size_t util_strpcpy(char **dest, size_t size, const char *src);
 size_t util_strscpy(char *dest, size_t size, const char *src);
-
-/* libezcfg-socket.c */
-struct ezcfg_socket;
-void ezcfg_socket_delete(struct ezcfg_socket *sp);
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const char *socket_path);
-struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
-struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
-void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
-int ezcfg_socket_copy(struct ezcfg_socket *dst, struct ezcfg_socket *src);
-int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
-char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
-int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
-int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
-void ezcfg_socket_list_delete(struct ezcfg_socket *sp);
-int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
-struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
-int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp);
 
 #endif

@@ -402,3 +402,23 @@ struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master)
 {
 	return master->ezcfg;
 }
+
+bool ezcfg_master_is_stop(struct ezcfg_master *master)
+{
+	return (master->stop_flag == 0);
+}
+
+bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp)
+{
+	return true;
+}
+
+void ezcfg_master_stop_worker(struct ezcfg_master *master)
+{
+	pthread_mutex_lock(&master->mutex);
+	master->num_threads--;
+	master->num_idle--;
+	pthread_cond_signal(&master->thr_cond);
+	assert(master->num_threads >= 0);
+	pthread_mutex_unlock(&master->mutex);
+}

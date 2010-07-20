@@ -50,7 +50,7 @@ static void ezcm_show_usage(void)
 
 static int sock_read (int fd, void* buff, int count)
 {
-	void* pts = buff;
+	char *pts = buff;
 	int status = 0, n;
 
 	if (count <= 0) return SOCKERR_OK;
@@ -77,7 +77,7 @@ static int sock_read (int fd, void* buff, int count)
 
 static int sock_write (int fd, const void* buff, int count)
 {
-	const void* pts = buff;
+	const char *pts = buff;
 	int status = 0, n;
 
 	if (count < 0) return SOCKERR_OK;
