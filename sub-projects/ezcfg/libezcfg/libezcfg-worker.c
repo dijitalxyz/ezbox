@@ -113,6 +113,14 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	ezcfg_http_reset_attributes(worker->http_info);
 }
 
+// Return content length of the request, or -1 constant if
+// Content-Length header is not set.
+static int get_content_length(const struct ezcfg_worker *worker) {
+	const char *cl = ezcfg_http_get_header(worker->http_info, "Content-Length");
+	return cl == NULL ? -1 : strtol(cl, NULL, 10);
+}
+
+
 // Check whether full request is buffered. Return:
 //   -1  if request is malformed
 //    0  if request is not yet fully buffered
@@ -222,11 +230,11 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 			worker->num_bytes_sent = len;
 		}
 		worker_printf(worker,
-		          "HTTP/1.1 %d %s\r\n"
-		          "Content-Type: text/plain\r\n"
-		          "Content-Length: %d\r\n"
-		          "Connection: close\r\n"
-		          "\r\n%s", status, reason, len, buf);
+		              "HTTP/1.1 %d %s\r\n"
+		              "Content-Type: text/plain\r\n"
+		              "Content-Length: %d\r\n"
+		              "Connection: close\r\n"
+		              "\r\n%s", status, reason, len, buf);
 	}
 }
 
@@ -236,12 +244,30 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 // a directory, or call embedded function, etcetera.
 static void handle_request(struct ezcfg_worker *worker)
 {
-
+	worker_printf(worker,
+	             "HTTP/1.1 %d %s\r\n"
+	             "\r\n", 200, "OK");
 }
 
 static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, int *nread)
 {
+	int cl;
+	int over_len, body_len;
 
+	cl = get_content_length(worker);
+	over_len = *nread - req_len;
+	assert(over_len >= 0);
+
+	if (cl == -1) {
+		body_len = 0;
+	} else if (cl < (int64_t) over_len) {
+		body_len = (int) cl;
+	} else {
+		body_len = over_len;
+	}
+
+	*nread -= req_len + body_len;
+	memmove(buf, buf + req_len + body_len, *nread);
 }
 
 static void process_new_connection(struct ezcfg_worker *worker)

@@ -171,12 +171,6 @@ struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 	return sp;
 }
 
-int ezcfg_socket_copy(struct ezcfg_socket *dst, struct ezcfg_socket *src)
-{
-	*dst = *src;
-	return 0;
-}
-
 /**
  * ezcfg_socket_delete_list:
  *
@@ -184,15 +178,17 @@ int ezcfg_socket_copy(struct ezcfg_socket *dst, struct ezcfg_socket *src)
  *
  * Returns:
  **/
-void ezcfg_socket_list_delete(struct ezcfg_socket *sp)
+void ezcfg_socket_list_delete(struct ezcfg_socket **list)
 {
-	struct ezcfg_socket *next;
-	if (sp == NULL)
-		return ;
-	for (next = sp->next; sp ; sp = next) {
-		if (sp->sock >= 0)
-			close(sp->sock);
-		free(sp);
+	struct ezcfg_socket *cur;
+	cur = *list;
+	while (cur != NULL) {
+		if (cur->sock >= 0) {
+			close(cur->sock);
+		}
+		*list = cur->next;
+		free(cur);
+		cur = *list;
 	}
 }
 
@@ -274,6 +270,12 @@ int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size)
 	return 0;
 }
 
+int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int position, struct ezcfg_socket *sp)
+{
+	*sp = queue[position];
+	return 0;
+}
+
 int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp)
 {
 	queue[position] = *sp;
@@ -308,4 +310,29 @@ void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 
 	if (sp->sock >= 0)
 		close(sp->sock);
+}
+
+int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
+{
+	int err = 0;
+	const int on = 1;
+	struct usa *usa = NULL;
+
+	if (sp == NULL)
+		return -EINVAL;
+
+	usa = &(sp->rsa);
+	if (usa->u.sun.sun_family != 0) {
+		err = connect(sp->sock,
+		           (struct sockaddr *)&usa->u.sun, usa->len);
+	} else {
+		return -EINVAL;
+	}
+	if (err < 0) {
+		return err;
+	}
+
+	/* enable receiving of sender credentials */
+	setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	return 0;
 }

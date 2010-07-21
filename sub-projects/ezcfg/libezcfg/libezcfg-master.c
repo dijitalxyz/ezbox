@@ -73,7 +73,7 @@ static void ezcfg_master_delete(struct ezcfg_master *master)
 	if (master->queue) {
 		free(master->queue);
 	}
-	ezcfg_socket_list_delete(master->listening_sockets);
+	ezcfg_socket_list_delete(&(master->listening_sockets));
 	free(master);
 }
 
@@ -86,48 +86,53 @@ static void ezcfg_master_delete(struct ezcfg_master *master)
  **/
 static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_master *master = NULL;
+	struct ezcfg_master *master;
+
+	if (ezcfg == NULL)
+		return NULL;
 
 	master = calloc(1, sizeof(struct ezcfg_master));
-	if (master) {
-		/* initialize ezcfg library context */
-		memset(master, 0, sizeof(struct ezcfg_master));
-		master->sq_len = EZCFG_MASTER_SOCKET_QUEUE_LENGTH;
-
-		master->nvram = calloc(EZCFG_NVRAM_SPACE, sizeof(char));
-		if(master->nvram == NULL) {
-			err(ezcfg, "calloc nvram.");
-			goto fail_exit;
-		}
-
-		/* initialize nvram */
-		memset(master->nvram, 0, EZCFG_NVRAM_SPACE);
-
-		/* initialize socket queue */
-		master->queue = ezcfg_socket_calloc(ezcfg, master->sq_len);
-		if(master->queue == NULL) {
-			err(ezcfg, "calloc socket queue.");
-			goto fail_exit;
-		}
-
-		/*
-		 * ignore SIGPIPE signal, so if client cancels the request, it
-		 * won't kill the whole process.
-		 */
-		signal(SIGPIPE, SIG_IGN);
-
-		/* initialize thread mutex */
-		pthread_rwlock_init(&master->rwlock, NULL);
-		pthread_mutex_init(&master->mutex, NULL);
-		pthread_cond_init(&master->thr_cond, NULL);
-		pthread_cond_init(&master->empty_cond, NULL);
-		pthread_cond_init(&master->full_cond, NULL);
-
-		/* set ezcfg library context */
-		master->ezcfg = ezcfg;
-
-		return master;
+	if (master == NULL) {
+		err(ezcfg, "calloc ezcfg_master fail: %m\n");
+		return NULL;
 	}
+	/* initialize ezcfg library context */
+	memset(master, 0, sizeof(struct ezcfg_master));
+	master->sq_len = EZCFG_MASTER_SOCKET_QUEUE_LENGTH;
+
+	master->nvram = calloc(EZCFG_NVRAM_SPACE, sizeof(char));
+	if(master->nvram == NULL) {
+		err(ezcfg, "calloc nvram fail: %m\n");
+		goto fail_exit;
+	}
+
+	/* initialize nvram */
+	memset(master->nvram, 0, EZCFG_NVRAM_SPACE);
+
+	/* initialize socket queue */
+	master->queue = ezcfg_socket_calloc(ezcfg, master->sq_len);
+	if(master->queue == NULL) {
+		err(ezcfg, "calloc socket queue.");
+		goto fail_exit;
+	}
+
+	/*
+	 * ignore SIGPIPE signal, so if client cancels the request, it
+	 * won't kill the whole process.
+	 */
+	signal(SIGPIPE, SIG_IGN);
+
+	/* initialize thread mutex */
+	pthread_rwlock_init(&master->rwlock, NULL);
+	pthread_mutex_init(&master->mutex, NULL);
+	pthread_cond_init(&master->thr_cond, NULL);
+	pthread_cond_init(&master->empty_cond, NULL);
+	pthread_cond_init(&master->full_cond, NULL);
+
+	/* set ezcfg library context */
+	master->ezcfg = ezcfg;
+	return master;
+
 fail_exit:
 	ezcfg_master_delete(master);
 	return NULL;
@@ -217,11 +222,13 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
 		goto fail_exit;
 	}
+
+	return master;
+
 fail_exit:
 	/* don't delete sp, ezcfg_master_delete will do it! */
 	ezcfg_master_delete(master);
-
-	return master;
+	return NULL;
 }
 
 /*
@@ -363,8 +370,10 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	/* There must be a ctrl socket */
 	master = ezcfg_master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
-	if (master == NULL)
+	if (master == NULL) {
+		err(ezcfg, "can not initialize control socket");
 		return NULL;
+	}
 
 	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_MASTER_SOCK_PATH);
 	if (sp == NULL) {
@@ -410,6 +419,36 @@ bool ezcfg_master_is_stop(struct ezcfg_master *master)
 
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp)
 {
+	struct timespec ts;
+	pthread_mutex_lock(&master->mutex);
+	// If the queue is empty, wait. We're idle at this point.
+	master->num_idle++;
+	while (master->sq_head == master->sq_tail) {
+		ts.tv_nsec = 0;
+		ts.tv_sec = time(NULL) + 5;
+		if (pthread_cond_timedwait(&master->empty_cond, &master->mutex, &ts) != 0) {
+			// Timeout! release the mutex and return
+			pthread_mutex_unlock(&master->mutex);
+			return false;
+		}
+	}
+	assert(master->sq_head > master->sq_tail);
+
+	// We're going busy now: got a socket to process!
+	master->num_idle--;
+
+	// Copy socket from the queue and increment tail
+	ezcfg_socket_queue_get_socket(master->queue, master->sq_tail % master->sq_len, sp);
+	master->sq_tail++;
+
+	// Wrap pointers if needed
+	while (master->sq_tail > master->sq_len) {
+		master->sq_tail -= master->sq_len;
+		master->sq_head -= master->sq_len;
+	}
+	pthread_cond_signal(&master->full_cond);
+	pthread_mutex_unlock(&master->mutex);
+
 	return true;
 }
 

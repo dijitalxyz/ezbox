@@ -198,3 +198,14 @@ void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len)
 {
 	http->post_data_len = len;
 }
+
+char *ezcfg_http_get_header(struct ezcfg_http *http, char *name)
+{
+	int i;
+
+	for (i = 0; i < http->num_headers; i++)
+		if (!strcasecmp(name, http->headers[i].name))
+			return http->headers[i].value;
+
+	return NULL;
+}

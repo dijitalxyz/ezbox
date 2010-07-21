@@ -39,115 +39,91 @@
 
 #include "ezcd.h"
 
+static bool debug = false;
+
+static void log_fn(struct ezcfg *ezcfg, int priority,
+                   const char *file, int line, const char *fn,
+                   const char *format, va_list args)
+{
+	if (debug) {
+		char buf[1024];
+		struct timeval tv;
+		struct timezone tz;
+
+		vsnprintf(buf, sizeof(buf), format, args);
+		gettimeofday(&tv, &tz);
+		fprintf(stderr, "%llu.%06u [%u] %s: %s",
+		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
+		        (int) getpid(), fn, buf);
+	} else {
+		vsyslog(priority, format, args);
+        }
+}
+
 static void ezcm_show_usage(void)
 {
 	printf("Usage: ezcm [-m message]\n");
 	printf("\n");
 	printf("  -m\tmessage sent to ezcd\n");
+	printf("  -D\tdebug mode\n");
 	printf("  -h\thelp\n");
 	printf("\n");
-}
-
-static int sock_read (int fd, void* buff, int count)
-{
-	char *pts = buff;
-	int status = 0, n;
-
-	if (count <= 0) return SOCKERR_OK;
-
-	while (status != count) {
-		n = read (fd, pts + status, count - status);
-
-		if (n < 0) {
-			if (errno == EINTR) {
-				continue;
-			}
-			else
-				return SOCKERR_IO;
-		}
-
-		if (n == 0)
-			return SOCKERR_CLOSED;
-
-		status += n;
-	}
-
-	return status;
-}
-
-static int sock_write (int fd, const void* buff, int count)
-{
-	const char *pts = buff;
-	int status = 0, n;
-
-	if (count < 0) return SOCKERR_OK;
-
-	while (status != count) {
-		n = write (fd, pts + status, count - status);
-		if (n < 0) {
-			if (errno == EPIPE)
-				return SOCKERR_CLOSED;
-			else if (errno == EINTR) {
-				continue;
-			}
-			else
-				return SOCKERR_IO;
-		}
-		status += n;
-	}
-
-	return status;
 }
 
 int ezcm_main(int argc, char **argv)
 {
 	int c = 0;
-	int conn_fd = -1;
-	int n = 0;
+	int rc = 0;
 	char buf[32];
-	char data[32];
+	struct ezcfg *ezcfg = NULL;
+	struct ezcfg_ctrl *ezctrl = NULL;
 
 	memset(buf, 0, sizeof(buf));
 	for (;;) {
-		c = getopt( argc, argv, "hm:");
+		c = getopt( argc, argv, "Dhm:");
 		if (c == EOF) break;
 		switch (c) {
 			case 'm':
-				snprintf(buf, sizeof(buf), "%s\r\n\r\n", optarg);
+				snprintf(buf, sizeof(buf), "GET /EZCFG HTTP/1.1\r\nMessage: %s\r\n\r\n", optarg);
+				break;
+			case 'D':
+				debug = true;
 				break;
 			case 'h':
 			default:
 				ezcm_show_usage();
-				exit(EXIT_FAILURE);
+				return 0;
 		}
         }
 
 	//conn_fd = ezcd_client_connection(EZCD_SOCKET_PATH, 'a');
-	if (conn_fd < 0) {
-		printf("error : %s\n", "ezcd_client_connection");
-		exit(EXIT_FAILURE);
+	ezcfg = ezcfg_new();
+	if (ezcfg == NULL) {
+		printf("error : %s\n", "ezcfg_new");
+		rc = 1;
+		goto exit;
 	}
 
-        n = sock_write (conn_fd, buf, strlen(buf)+1);
-        if (n == SOCKERR_IO) {
-            printf ("write error on fd %d\n", conn_fd);
-        }
-        else if (n == SOCKERR_CLOSED) {
-            printf ("fd %d has been closed.\n", conn_fd);
-        }
-        else
-            printf ("Wrote %s to server. \n", buf);
+	ezcfg_log_init("ezcm");
+	ezcfg_set_log_fn(ezcfg, log_fn);
+	info(ezcfg, "version %s\n", VERSION);
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
 
-	memset(data, 0, sizeof(data));
-        n = sock_read (conn_fd, data, strlen(buf)+1);
-        if (n == SOCKERR_IO) {
-            printf ("read error on fd %d\n", conn_fd);
-        }
-        else if (n == SOCKERR_CLOSED) {
-            printf ("fd %d has been closed.\n", conn_fd);
-        }
-        else
-            printf ("Got that! data is %s\n", data);
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, buf);
 
-	return (EXIT_SUCCESS);
+	if (ezctrl == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize ezcm controller");
+		rc = 2;
+		goto exit;
+	}
+
+	if (ezcfg_ctrl_connect(ezctrl) < 0) {
+		err(ezcfg, "controller connect fail: %m\n");
+		rc = 3;
+		goto exit;
+	}
+
+exit:
+	ezcfg_delete(ezcfg);
+	return rc;
 }

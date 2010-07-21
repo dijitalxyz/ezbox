@@ -25,8 +25,10 @@ extern "C" {
 #define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
 #define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
-#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ezctrl"
-#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
+//#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
+#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl"
+//#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
+#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
 /*

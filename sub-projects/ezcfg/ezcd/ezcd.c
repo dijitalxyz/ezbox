@@ -45,7 +45,7 @@
 #define EZCI_PRIORITY                  -2
 
 static int ezcd_exit;
-static bool debug;
+static bool debug = false;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *file, int line, const char *fn,
