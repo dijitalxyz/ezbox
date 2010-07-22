@@ -34,6 +34,10 @@ ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
       ezcfg_log(ezcfg, prio, __FILE__, __LINE__, __FUNCTION__, ## arg); \
   } while (0)
 
+/* FIXME: remove it later */
+#define ENABLE_LOGGING	1
+#define ENABLE_DEBUG	1
+
 #ifdef ENABLE_LOGGING
 #  ifdef ENABLE_DEBUG
 #    define dbg(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_DEBUG, ## arg)
@@ -110,15 +114,19 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const cha
 struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
 struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
+void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
+char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
+int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
 int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
 void ezcfg_socket_list_delete(struct ezcfg_socket **list);
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
 int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int position, struct ezcfg_socket *sp);
 int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp);
+int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path);
 int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
 
 /* libezcfg-http.c */

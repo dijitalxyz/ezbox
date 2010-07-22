@@ -124,6 +124,7 @@ int ezcm_main(int argc, char **argv)
 	}
 
 exit:
+	ezcfg_ctrl_delete(ezctrl);
 	ezcfg_delete(ezcfg);
 	return rc;
 }

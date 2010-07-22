@@ -44,9 +44,11 @@ struct ezcfg_ctrl {
 
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 {
-	if (ezctrl == NULL)
-		return;
-	ezcfg_socket_delete(ezctrl->socket);
+	assert(ezctrl);
+
+	if (ezctrl->socket != NULL) {
+		ezcfg_socket_delete(ezctrl->socket);
+	}
 	free(ezctrl);
 }
 
@@ -54,10 +56,8 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, int family, c
 {
 	struct ezcfg_ctrl *ezctrl;
 
-	if (ezcfg == NULL)
-		return NULL;
-	if (socket_path == NULL)
-		return NULL;
+	assert(ezcfg != NULL);
+	assert(socket_path != NULL);
 
 	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
 	if (ezctrl == NULL) {
@@ -74,6 +74,13 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, int family, c
 
 	if (ezcfg_socket_enable_receiving(ezctrl->socket) < 0) {
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
+		ezcfg_socket_close_sock(ezctrl->socket);
+		goto fail_exit;
+	}
+
+	if (ezcfg_socket_set_remote(ezctrl->socket, AF_LOCAL, EZCFG_CTRL_SOCK_PATH) < 0) {
+		err(ezcfg, "set remote socket [%s] receiving fail: %m\n", EZCFG_CTRL_SOCK_PATH);
+		ezcfg_socket_close_sock(ezctrl->socket);
 		goto fail_exit;
 	}
 
@@ -86,8 +93,7 @@ fail_exit:
 
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl)
 {
-	if (ezctrl == NULL)
-		return -1;
+	assert(ezctrl != NULL);
 	return ezcfg_socket_connect_remote(ezctrl->socket);
 }
 

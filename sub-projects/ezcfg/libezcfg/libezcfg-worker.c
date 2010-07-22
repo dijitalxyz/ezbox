@@ -274,6 +274,13 @@ static void process_new_connection(struct ezcfg_worker *worker)
 {
 	int request_len, nread;
 	char buf[MAX_REQUEST_SIZE];
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	dbg(ezcfg, "%d\n", __LINE__);
 
 	nread = 0;
 	reset_connection_attributes(worker);
@@ -283,8 +290,11 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	request_len = read_request(ezcfg_socket_get_sock(worker->client), buf, sizeof(buf), &nread);
 	assert(nread >= request_len);
 	if (request_len <= 0) {
+		info(ezcfg, "%d remote end closed the connection\n", __LINE__);
 		return; /* Remote end closed the connection */
 	}
+
+	dbg(ezcfg, "%d\n", __LINE__);
 
 	/* 0-terminate the request: parse http request uses sscanf */
 	buf[request_len - 1] = '\0';
@@ -310,6 +320,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		/* Do not put garbage in the access log */
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: [%.*s]", nread, buf);
 	}
+	dbg(ezcfg, "%d\n", __LINE__);
 }
 
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
@@ -319,8 +330,7 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	struct ezcfg_socket *client;
 	struct ezcfg_http *http_info;
 
-	if (master == NULL)
-		return NULL;
+	assert(master != NULL);
 
 	worker = calloc(1, sizeof(struct ezcfg_worker));
 	if (worker == NULL)
@@ -350,12 +360,23 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 
 void ezcfg_worker_thread(struct ezcfg_worker *worker) 
 {
-	while (ezcfg_master_is_stop(worker->master) == false && ezcfg_master_get_socket(worker->master, worker->client) == true) {
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	dbg(ezcfg, "%d stop_flag=[%d]\n", __LINE__, ezcfg_master_is_stop(worker->master));
+
+	while ((ezcfg_master_is_stop(worker->master) == false) &&
+	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
+		dbg(ezcfg, "%d\n", __LINE__);
 		worker->birth_time = time(NULL);
 		process_new_connection(worker);
 		close_connection(worker);
 	}
 
+	dbg(ezcfg, "%d\n", __LINE__);
 	// Signal master that we're done with connection and exiting
 	ezcfg_master_stop_worker(worker->master);
 }

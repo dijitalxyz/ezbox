@@ -42,6 +42,7 @@
  */
 struct usa {
 	socklen_t len;
+	int domain;
 	union {
 		struct sockaddr sa;
 		struct sockaddr_un sun;
@@ -54,6 +55,7 @@ struct usa {
  * by the worker thread.
  */
 struct ezcfg_socket {
+	struct ezcfg *ezcfg;
 	struct ezcfg_socket *next;	/* Linkage                      */
 	int		sock;		/* Listening socket             */
 	struct usa	lsa;		/* Local socket address         */
@@ -69,12 +71,25 @@ struct ezcfg_socket {
  **/
 void ezcfg_socket_delete(struct ezcfg_socket *sp)
 {
-	if (sp == NULL)
-		return ;
-	if (sp->sock) {
+	struct ezcfg *ezcfg;
+	assert(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+
+	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
+	if (sp->sock >= 0) {
 		close(sp->sock);
+		/* also remove the filesystem node */
+		dbg(ezcfg, "fixme: %s(%d) path=[%s]\n", __func__, __LINE__, sp->lsa.u.sun.sun_path);
+		if (sp->lsa.domain == AF_LOCAL) {
+			
+			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
+				err(ezcfg, "%d unlink errno=[%d]\n", __LINE__, errno);
+			}
+		}
 	}
 	free(sp);
+	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
 }
 
 /**
@@ -84,69 +99,80 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
  *
  * Returns: a new ezcfg socket
  **/
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const char *socket_path)
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int domain, const char *socket_path)
 {
-	struct stat statbuf;
 	struct ezcfg_socket *sp = NULL;
-	int sock = -1;
 	struct usa *usa = NULL;
 
-	if (socket_path == NULL)
-		return NULL;
+	assert(ezcfg != NULL);
+	assert(socket_path != NULL);
 
-	/* initialize socket */
-	if ((sp = calloc(1, sizeof(struct ezcfg_socket))) == NULL)
-		return NULL;
+	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
 
-	if (family != AF_LOCAL) {
-		err(ezcfg, "unknown socket family %d\n", family);
-		goto fail_exit;
+	if (domain != AF_LOCAL) {
+		err(ezcfg, "%s(%d): unknown socket family %d\n", __func__, __LINE__, domain);
+		return NULL;
 	}
 
-	if (family == AF_LOCAL) {
-		usa = &(sp->lsa);
-		usa->u.sun.sun_family = AF_LOCAL;
-		if (socket_path[0] == '@') {
-			/* translate leading '@' to abstract namespace */
-			util_strscpy(usa->u.sun.sun_path, sizeof(usa->u.sun.sun_path), socket_path);
-			usa->u.sun.sun_path[0] = '\0';
-			usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(socket_path);
-		} else if (stat(socket_path, &statbuf) == 0 && S_ISSOCK(statbuf.st_mode)) {
-			/* existing socket file */
-			util_strscpy(usa->u.sun.sun_path, sizeof(usa->u.sun.sun_path), socket_path);
-			usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(socket_path);
-		} else {
-			/* no socket file, assume abstract namespace socket */
-			util_strscpy(&usa->u.sun.sun_path[1], sizeof(usa->u.sun.sun_path)-1, socket_path);
-			usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(socket_path)+1;
-		}
+	/* initialize socket */
+	if ((sp = calloc(1, sizeof(struct ezcfg_socket))) == NULL) {
+		err(ezcfg, "%s(%d): calloc socket fail.\n", __func__, __LINE__);
+		return NULL;
+	}
+	memset(sp, 0, sizeof(struct ezcfg_socket));
+	sp->sock = -1;
+	sp->ezcfg = ezcfg;
 
-		if ((sock = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0) {
+	switch (domain) {
+	case AF_LOCAL:
+		sp->sock = socket(AF_LOCAL, SOCK_STREAM, 0);
+		if (sp->sock < 0) {
 			err(ezcfg, "socket error\n");
 			goto fail_exit;
 		}
-		sp->sock = sock;
+		usa = &(sp->lsa);
+		usa->domain = AF_LOCAL;
+		usa->u.sun.sun_family = AF_LOCAL;
+		strcpy(usa->u.sun.sun_path, socket_path);
+		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
+		/* translate leading '@' to abstract namespace */
+		if (usa->u.sun.sun_path[0] == '@')
+			usa->u.sun.sun_path[0] = '\0';
+
+		break;
+
+	default:
+		err(ezcfg, "%s(%d): bad family [%d].\n", __func__, __LINE__, domain);
+		goto fail_exit;
+		break;
 	}
+
 	return sp;
+
 fail_exit:
-	if (sp != NULL)
+	if (sp != NULL) {
+		if (sp->sock >= 0)
+			close(sp->sock);
 		free(sp);
-	if (sock >= 0)
-		close(sock);
+	}
 	return NULL;
 }
 
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
 {
-	if (sp == NULL)
-		return -1;
+	assert(sp != NULL);
 	return sp->sock;
+}
+
+char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp)
+{
+	assert(sp != NULL);
+	return sp->lsa.u.sun.sun_path;
 }
 
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
 {
-	if (sp == NULL)
-		return NULL;
+	assert(sp != NULL);
 	return sp->rsa.u.sun.sun_path;
 }
 
@@ -160,14 +186,18 @@ char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
 struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 {
 	struct ezcfg_socket *sp;
-	if (size <= 0) {
-		err(ezcfg, "%s: calloc size should be > 0", __func__);
-		return NULL;
-	}
+
+	assert(ezcfg != NULL);
+	assert(size > 0);
+
 	sp = calloc(size, sizeof(struct ezcfg_socket));
 	if (sp == NULL) {
 		err(ezcfg, "%s: calloc fail", __func__);
 	}
+	memset(sp, 0, sizeof(struct ezcfg_socket));
+	sp->sock = -1;
+	sp->ezcfg = ezcfg;
+
 	return sp;
 }
 
@@ -181,13 +211,13 @@ struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 void ezcfg_socket_list_delete(struct ezcfg_socket **list)
 {
 	struct ezcfg_socket *cur;
+
+	assert(list != NULL);
+
 	cur = *list;
 	while (cur != NULL) {
-		if (cur->sock >= 0) {
-			close(cur->sock);
-		}
 		*list = cur->next;
-		free(cur);
+		ezcfg_socket_delete(cur);
 		cur = *list;
 	}
 }
@@ -201,9 +231,9 @@ void ezcfg_socket_list_delete(struct ezcfg_socket **list)
  **/
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 {
-	if (sp == NULL || list == NULL) {
-		return -1;
-	}
+	assert(list != NULL);
+	assert(sp != NULL);
+
 	sp->next = *list;
 	*list = sp;
 	return 0;
@@ -211,43 +241,86 @@ int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp
 
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list)
 {
-	if (list == NULL) {
-		return NULL;
-	}
+	assert(list != NULL);
+
 	return (*list)->next;
 }
 
 /**
  * ezcfg_socket_enable_receiving:
- * @list: the socket list which should receive events
- * @sock: the listening socket which should receive events
+ * @sp: the listening socket which should receive events
  *
- * Binds the @list to the event source.
+ * Binds the @sp to the event source.
  *
  * Returns: 0 on success, otherwise a negative error value.
  */
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	const int on = 1;
+	//const int on = 1;
 	struct usa *usa = NULL;
+	struct ezcfg *ezcfg;
 
-	if (sp == NULL)
-		return -EINVAL;
+	assert(sp != NULL);
 
+	ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
-	if (usa->u.sun.sun_family != 0) {
+
+	switch(usa->domain) {
+	case AF_LOCAL:
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sun, usa->len);
-	} else {
+		break;
+	default:
+		err(ezcfg, "unknown family [%d]\n", usa->domain);
 		return -EINVAL;
 	}
+
 	if (err < 0) {
 		return err;
 	}
 
 	/* enable receiving of sender credentials */
-	setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	return 0;
+}
+
+/**
+ * ezcfg_socket_enable_listening:
+ * @sp: the listening socket which start receiving events
+ *
+ * Makes the @sp listening to the event source.
+ *
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
+{
+	int err = 0;
+	//const int on = 1;
+	struct usa *usa = NULL;
+	struct ezcfg *ezcfg;
+
+	assert(sp != NULL);
+	assert(backlog > 0);
+
+	ezcfg = sp->ezcfg;
+	usa = &(sp->lsa);
+
+	switch(usa->domain) {
+	case AF_LOCAL:
+		err = listen(sp->sock, backlog);
+		break;
+	default:
+		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		return -EINVAL;
+	}
+
+	if (err < 0) {
+		return err;
+	}
+
+	/* enable receiving of sender credentials */
+	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
 	return 0;
 }
 
@@ -284,16 +357,21 @@ int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, cons
 
 struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener)
 {
-	struct ezcfg_socket *accepted = NULL;
-	if (listener == NULL)
-		return NULL;
+	struct ezcfg_socket *accepted;
+	struct ezcfg *ezcfg;
+
+	assert(listener != NULL);
+	ezcfg = listener->ezcfg;
 
 	accepted = calloc(1, sizeof(struct ezcfg_socket));
-	if (accepted == NULL)
+	if (accepted == NULL) {
+		err(ezcfg, "%s(%d): calloc fail.\n", __func__, __LINE__);
 		return NULL;
-
-	accepted->rsa.len = sizeof(accepted->rsa.u.sun);
+	}
+	memset(accepted, 0, sizeof(struct ezcfg_socket));
+	accepted->ezcfg = ezcfg;
 	accepted->lsa = listener->lsa;
+	accepted->rsa.len = sizeof(accepted->rsa.u.sun);
 	if ((accepted->sock = accept(listener->sock, &(accepted->rsa.u.sa),
 	                            &(accepted->rsa.len))) == -1) {
 		free(accepted);
@@ -305,34 +383,90 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 {
-	if (sp == NULL)
-		return;
+	assert(sp != NULL);
 
-	if (sp->sock >= 0)
+	if (sp->sock >= 0) {
 		close(sp->sock);
+		sp->sock = -1;
+	}
+}
+
+void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp)
+{
+	assert(sp != NULL);
+
+	if (sp->sock >= 0) {
+		fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
+	}
+}
+
+int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path)
+{
+	struct ezcfg *ezcfg;
+	struct usa *usa;
+
+	assert(sp != NULL);
+	assert(socket_path != NULL);
+
+	ezcfg = sp->ezcfg;
+	usa = &(sp->rsa);
+
+	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
+
+	switch (domain) {
+	case AF_LOCAL:
+		usa->domain = AF_LOCAL;
+		usa->u.sun.sun_family = AF_LOCAL;
+		strcpy(usa->u.sun.sun_path, socket_path);
+		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
+		/* translate leading '@' to abstract namespace */
+		if (usa->u.sun.sun_path[0] == '@')
+			usa->u.sun.sun_path[0] = '\0';
+
+		break;
+
+	default:
+		err(ezcfg, "%s(%d): bad family [%d].\n", __func__, __LINE__, domain);
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	const int on = 1;
-	struct usa *usa = NULL;
+	//const int on = 1;
+	struct usa *usa;
+	struct ezcfg *ezcfg;
 
-	if (sp == NULL)
-		return -EINVAL;
+	assert(sp != NULL);
 
+	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
-	if (usa->u.sun.sun_family != 0) {
+
+	dbg(ezcfg, "fixme: %s(%d) remote domain=[%d]\n", __func__, __LINE__, usa->domain);
+	dbg(ezcfg, "fixme: %s(%d) remote family=[%d]\n", __func__, __LINE__, usa->u.sun.sun_family);
+	dbg(ezcfg, "fixme: %s(%d) remote path=[%s]\n", __func__, __LINE__, usa->u.sun.sun_path);
+	dbg(ezcfg, "fixme: %s(%d) remote len=[%d]\n", __func__, __LINE__, usa->len);
+
+	switch (usa->domain) {
+	case AF_LOCAL:
 		err = connect(sp->sock,
 		           (struct sockaddr *)&usa->u.sun, usa->len);
-	} else {
+
+		break;
+
+	default:
+		err(ezcfg, "%s(%d): bad family [%d].\n", __func__, __LINE__, usa->domain);
 		return -EINVAL;
 	}
+
 	if (err < 0) {
 		return err;
 	}
 
 	/* enable receiving of sender credentials */
-	setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
 	return 0;
 }

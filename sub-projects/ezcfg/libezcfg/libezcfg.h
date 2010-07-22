@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+#define EZCFG_INVALID_SOCKET	-1
+
 #define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
 #define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
