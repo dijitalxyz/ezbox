@@ -150,21 +150,34 @@ static int get_request_len(const char *buf, size_t buflen)
 // buffer (which marks the end of HTTP request). Buffer buf may already
 // have some data. The length of the data is stored in nread.
 // Upon every read operation, increase nread by the number of bytes read.
-static int read_request(int sock, char *buf, int bufsiz, int *nread)
+static int read_request(struct ezcfg_worker *worker, char *buf, int bufsiz, int *nread)
 {
+	struct ezcfg *ezcfg;
 	int n, request_len;
+	int sock;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
 
 	request_len = 0;
+	sock = ezcfg_socket_get_sock(worker->client);
+
 	while (*nread < bufsiz && request_len == 0) {
+		dbg(ezcfg, "nread=[%d]\n", *nread);
 		n = recv(sock, buf + *nread, bufsiz - *nread, 0);
+		dbg(ezcfg, "n=[%d]\n", n);
 		if (n <= 0) {
+			dbg(ezcfg, "nread=[%d]\n", *nread);
 			break;
 		} else {
 			*nread += n;
+			dbg(ezcfg, "nread=[%d]\n", *nread);
 			request_len = get_request_len(buf, (size_t) *nread);
 		}
 	}
 
+	dbg(ezcfg, "request_len=[%d]\n", request_len);
 	return request_len;
 }
 
@@ -280,24 +293,41 @@ static void process_new_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	dbg(ezcfg, "%d\n", __LINE__);
-
 	nread = 0;
 	reset_connection_attributes(worker);
 	memset(buf, 0, sizeof(buf));
 
 	/* If next request is not pipelined, read it */
-	request_len = read_request(ezcfg_socket_get_sock(worker->client), buf, sizeof(buf), &nread);
-	assert(nread >= request_len);
-	if (request_len <= 0) {
-		info(ezcfg, "%d remote end closed the connection\n", __LINE__);
+	if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
+		request_len = read_request(worker, buf, sizeof(buf), &nread);
+		dbg(ezcfg, "nread=[%d]\n", nread);
+		dbg(ezcfg, "request_len=[%d]\n", request_len);
+		dbg(ezcfg, "buf[0]=[%d]\n", (int)buf[0]);
+	}
+#if 0
+	nread = ezcfg_socket_read(worker->client, buf, sizeof(buf), 0);
+	dbg(ezcfg, "nread=[%d]\n", nread);
+	if (nread <= 0) {
+		info(ezcfg, "remote end closed the connection: %m\n");
 		return; /* Remote end closed the connection */
 	}
+	request_len = get_request_len(buf, nread);
+	dbg(ezcfg, "request_len=[%d]\n", request_len);
+	if (request_len <= 0) {
+		err(ezcfg, "request error\n");
+		return; /* Request is too large or format is not correct */
+	}
+#endif
+	assert(nread >= request_len);
 
-	dbg(ezcfg, "%d\n", __LINE__);
+	if (request_len <= 0) {
+		err(ezcfg, "request error\n");
+		return; /* Request is too large or format is not correct */
+	}
 
 	/* 0-terminate the request: parse http request uses sscanf */
 	buf[request_len - 1] = '\0';
+	dbg(ezcfg, "request=[%s]\n", buf);
 	if (ezcfg_http_parse_request(worker->http_info, buf)) {
 		char *http_version = ezcfg_http_get_version(worker->http_info);
 		if (http_version == NULL) {
@@ -313,6 +343,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 			ezcfg_http_set_post_data(worker->http_info, buf + request_len);
 			ezcfg_http_set_post_data_len(worker->http_info, nread - request_len);
 			worker->birth_time = time(NULL);
+			ezcfg_http_dump(worker->http_info);
 			handle_request(worker);
 			shift_to_next(worker, buf, request_len, &nread);
 		}
@@ -320,7 +351,6 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		/* Do not put garbage in the access log */
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: [%.*s]", nread, buf);
 	}
-	dbg(ezcfg, "%d\n", __LINE__);
 }
 
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
@@ -366,17 +396,13 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	dbg(ezcfg, "%d stop_flag=[%d]\n", __LINE__, ezcfg_master_is_stop(worker->master));
-
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
-		dbg(ezcfg, "%d\n", __LINE__);
 		worker->birth_time = time(NULL);
 		process_new_connection(worker);
 		close_connection(worker);
 	}
 
-	dbg(ezcfg, "%d\n", __LINE__);
 	// Signal master that we're done with connection and exiting
 	ezcfg_master_stop_worker(worker->master);
 }

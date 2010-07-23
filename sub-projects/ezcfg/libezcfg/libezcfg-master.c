@@ -90,7 +90,6 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 
 	assert(ezcfg != NULL);
 
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
 	master = calloc(1, sizeof(struct ezcfg_master));
 	if (master == NULL) {
 		err(ezcfg, "calloc ezcfg_master fail: %m\n");
@@ -131,12 +130,11 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 
 	/* set ezcfg library context */
 	master->ezcfg = ezcfg;
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
+	dbg(ezcfg, "fixme\n");
 	return master;
 
 fail_exit:
 	ezcfg_master_delete(master);
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
 	return NULL;
 }
 
@@ -165,24 +163,22 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 	assert(master != NULL);
 	ezcfg = master->ezcfg;
 
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
-
 	assert(socket_path != NULL);
 
 	/* initialize unix domain socket */
 	listener = ezcfg_socket_new(ezcfg, family, socket_path);
 	if (listener == NULL) {
-		err(ezcfg, "%s(%d): init socket fail.\n", __func__, __LINE__);
+		err(ezcfg, "init socket fail: %m\n");
 		return NULL;
 	}
 
 	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {
-		err(ezcfg, "%s(%d): insert listener socket fail.\n", __func__, __LINE__);
+		err(ezcfg, "insert listener socket fail: %m\n");
 		ezcfg_socket_delete(listener);
 		return NULL;
 	}
 
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
+	dbg(ezcfg, "fixme\n");
 	return listener;
 }
 
@@ -211,41 +207,38 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 	assert(ezcfg != NULL);
 	assert(socket_path != NULL);
 
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
-
 	master = ezcfg_master_new(ezcfg);
 	if (master == NULL) {
-		err(ezcfg, "%s(%d): new master fail: %m\n", __func__, __LINE__);
+		err(ezcfg, "new master fail: %m\n");
 		return NULL;
 	}
 
 	sp = ezcfg_master_add_socket(master, AF_LOCAL, socket_path);
 	if (sp == NULL) {
-		err(ezcfg, "%s(%d): add socket [%s] fail: %m\n", __func__, __LINE__, socket_path);
+		err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
 		goto fail_exit;
 	}
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "%s(%d): enable socket [%s] receiving fail: %m\n", __func__, __LINE__, socket_path);
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
 		ezcfg_socket_close_sock(sp);
 		goto fail_exit;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-		err(ezcfg, "%s(%d): enable socket [%s] listening fail: %m\n", __func__, __LINE__, socket_path);
+		err(ezcfg, "enable socket [%s] listening fail: %m\n", socket_path);
 		ezcfg_socket_close_sock(sp);
 		goto fail_exit;
 	}
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
+	dbg(ezcfg, "fixme\n");
 	return master;
 
 fail_exit:
 	/* don't delete sp, ezcfg_master_delete will do it! */
 	ezcfg_master_delete(master);
-	dbg(ezcfg, "fixme: %s(%d)\n", __func__, __LINE__);
 	return NULL;
 }
 
@@ -305,13 +298,12 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	// Copy socket to the queue and increment head
 	ezcfg_socket_queue_set_socket(master->queue, master->sq_head % master->sq_len, sp);
 	master->sq_head++;
-	info(ezcfg, "%s: queued socket %d\n", __func__, ezcfg_socket_get_sock(sp));
+	dbg(ezcfg, "queued socket %d\n", ezcfg_socket_get_sock(sp));
 
 	// If there are no idle threads, start one
 	if (master->num_idle == 0 && master->num_threads < master->threads_max) {
 		struct ezcfg_worker *worker;
 
-		dbg(ezcfg, "%d :\n", __LINE__);
 		worker = ezcfg_worker_new(master);
 		if (worker) {
 			if (ezcfg_thread_start(ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
@@ -350,12 +342,12 @@ static void accept_new_connection(struct ezcfg_master *master,
 
 	if (allowed == true) {
 		// Put accepted socket structure into the queue
-		info(ezcfg, "%s: accepted socket %d\n",
-		     __func__, ezcfg_socket_get_sock(accepted));
+		info(ezcfg, "accepted socket %d\n",
+		     ezcfg_socket_get_sock(accepted));
 		put_socket(master, accepted);
 	} else {
-		info(ezcfg, "%s: %s is not allowed to connect\n",
-		     __func__, ezcfg_socket_get_remote_socket_path(accepted));
+		info(ezcfg, "%s is not allowed to connect\n",
+		     ezcfg_socket_get_remote_socket_path(accepted));
 		ezcfg_socket_close_sock(accepted);
 	}
 	free(accepted);
@@ -393,7 +385,9 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 			     sp != NULL;
 			     sp = ezcfg_socket_list_next(&sp)) {
 				if (FD_ISSET(ezcfg_socket_get_sock(sp), &read_set)) {
-					dbg(ezcfg, "%d : sock = [%d] path=[%s]\n", __LINE__, ezcfg_socket_get_sock(sp), ezcfg_socket_get_local_socket_path(sp));
+					dbg(ezcfg, "sock = [%d] path=[%s]\n",
+					    ezcfg_socket_get_sock(sp),
+					    ezcfg_socket_get_local_socket_path(sp));
 					accept_new_connection(master, sp);
 				}
 			}
@@ -426,13 +420,13 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	}
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "%s(%d): enable socket [%s] receiving fail: %m\n", __func__, __LINE__, EZCFG_MASTER_SOCK_PATH);
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_MASTER_SOCK_PATH);
 		ezcfg_socket_close_sock(sp);
 		goto start_thread;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-		err(ezcfg, "%s(%d): enable socket [%s] listening fail: %m\n", __func__, __LINE__, EZCFG_MASTER_SOCK_PATH);
+		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_MASTER_SOCK_PATH);
 		ezcfg_socket_close_sock(sp);
 		goto start_thread;
 	}
@@ -477,7 +471,7 @@ bool ezcfg_master_is_stop(struct ezcfg_master *master)
 	assert(master != NULL);
 
 	ezcfg = master->ezcfg;
-	dbg(ezcfg, "%d stop_flag=[%d]\n", __LINE__, master->stop_flag);
+	dbg(ezcfg, "stop_flag=[%d]\n", master->stop_flag);
 
 	return (master->stop_flag != 0);
 }
@@ -490,8 +484,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	assert(master != NULL);
 
 	ezcfg = master->ezcfg;
-
-	dbg(ezcfg, "%d sp=[%x]\n", __LINE__, (unsigned int)sp);
+	dbg(ezcfg, "sp=[%x]\n", (unsigned int)sp);
 
 	pthread_mutex_lock(&master->mutex);
 	// If the queue is empty, wait. We're idle at this point.
@@ -502,7 +495,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 		if (pthread_cond_timedwait(&master->empty_cond, &master->mutex, &ts) != 0) {
 			// Timeout! release the mutex and return
 			pthread_mutex_unlock(&master->mutex);
-			dbg(ezcfg, "%d timeout\n", __LINE__);
+			dbg(ezcfg, "timeout\n");
 			return false;
 		}
 	}
@@ -513,6 +506,14 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 
 	// Copy socket from the queue and increment tail
 	ezcfg_socket_queue_get_socket(master->queue, master->sq_tail % master->sq_len, sp);
+	dbg(ezcfg, "sp->sock=[%d]\n", ezcfg_socket_get_sock(sp));
+	dbg(ezcfg, "sp->next=[%x]\n", (unsigned int)ezcfg_socket_get_next(sp));
+	dbg(ezcfg, "sp->lsa.len=[%d]\n", ezcfg_socket_get_local_socket_len(sp));
+	dbg(ezcfg, "sp->lsa.domain=[%d]\n", ezcfg_socket_get_local_socket_domain(sp));
+	dbg(ezcfg, "sp->lsa.u.sun.sun_path=[%s]\n", ezcfg_socket_get_local_socket_path(sp));
+	dbg(ezcfg, "sp->rsa.len=[%d]\n", ezcfg_socket_get_remote_socket_len(sp));
+	dbg(ezcfg, "sp->rsa.domain=[%d]\n", ezcfg_socket_get_remote_socket_domain(sp));
+	dbg(ezcfg, "sp->rsa.u.sun.sun_path=[%s]\n", ezcfg_socket_get_remote_socket_path(sp));
 	master->sq_tail++;
 
 	// Wrap pointers if needed
@@ -523,7 +524,6 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	pthread_cond_signal(&master->full_cond);
 	pthread_mutex_unlock(&master->mutex);
 
-	dbg(ezcfg, "%d\n", __LINE__);
 	return true;
 }
 

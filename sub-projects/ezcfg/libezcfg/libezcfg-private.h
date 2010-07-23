@@ -116,7 +116,12 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
 void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
+struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp);
+int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp);
+int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp);
+int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp);
+int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
@@ -128,6 +133,8 @@ int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int position
 int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp);
 int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path);
 int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
+int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);
+int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags);
 
 /* libezcfg-http.c */
 struct ezcfg_http;
@@ -142,6 +149,7 @@ void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
 void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data);
 void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len);
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name);
+void ezcfg_http_dump(struct ezcfg_http *http);
 
 /* libezcfg-master.c */
 struct ezcfg_master;
@@ -168,6 +176,8 @@ struct ezcfg_ctrl;
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
 struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, int family, const char *socket_path);
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
+int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
 
 
 /* libezcfg-util.c */

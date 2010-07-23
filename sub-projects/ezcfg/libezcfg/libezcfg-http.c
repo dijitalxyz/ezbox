@@ -42,6 +42,7 @@ struct http_header {
 };
 
 struct ezcfg_http {
+	struct ezcfg *ezcfg;
 	char *request_method; /* "GET", "POST", etc */
 	char *uri; /* URL-decoded URI */
 	char *http_version; /* E.g. "1.0", "1.1" */
@@ -86,8 +87,8 @@ static char *skip(char **buf, const char *delimiters)
  **/
 void ezcfg_http_delete(struct ezcfg_http *http)
 {
-	if (http == NULL)
-		return ;
+	assert(http != NULL);
+
 	free(http);
 }
 
@@ -100,20 +101,27 @@ void ezcfg_http_delete(struct ezcfg_http *http)
  **/
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_http *http = NULL;
+	struct ezcfg_http *http;
+
+	assert(ezcfg != NULL);
 
 	/* initialize http info structure */
 	if ((http = calloc(1, sizeof(struct ezcfg_http))) == NULL)
 		return NULL;
 
-	memset(http, 0x00, sizeof(struct ezcfg_http));
+	memset(http, 0, sizeof(struct ezcfg_http));
+	http->ezcfg = ezcfg;
 	return http;
 }
 
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http)
 {
-	if (http == NULL)
-		return;
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	if (http->remote_user != NULL) {
 		free(http->remote_user);
 		http->remote_user = NULL;
@@ -122,8 +130,12 @@ void ezcfg_http_delete_remote_user(struct ezcfg_http *http)
 
 void ezcfg_http_delete_post_data(struct ezcfg_http *http)
 {
-	if (http == NULL)
-		return;
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	if (http->post_data != NULL) {
 		free(http->post_data);
 		http->post_data = NULL;
@@ -132,16 +144,27 @@ void ezcfg_http_delete_post_data(struct ezcfg_http *http)
 
 void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 {
-	if (http == NULL)
-		return;
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
 	memset(http, 0, sizeof(struct ezcfg_http));
+	http->ezcfg = ezcfg;
 }
 
 // Parse HTTP headers from the given buffer, advance buffer to the point
 // where parsing stopped.
 static void parse_http_headers(struct ezcfg_http *http, char **buf)
 {
+
+	struct ezcfg *ezcfg;
 	int i;
+
+	assert(http != NULL);
+	assert(buf != NULL);
+
+	ezcfg = http->ezcfg;
 
 	for (i = 0; i < (int)ARRAY_SIZE(http->headers); i++) {
 		http->headers[i].name = skip(buf, ": ");
@@ -154,6 +177,8 @@ static void parse_http_headers(struct ezcfg_http *http, char **buf)
 
 static bool is_valid_http_method(const char *method)
 {
+	assert(method != NULL);
+
 	return !strcmp(method, "GET")  ||
 	       !strcmp(method, "POST") ||
 	       !strcmp(method, "HEAD") ||
@@ -163,7 +188,15 @@ static bool is_valid_http_method(const char *method)
 
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 {
-	bool status = false;
+	struct ezcfg *ezcfg;
+	bool status;
+
+	assert(http != NULL);
+	assert(buf != NULL);
+
+	ezcfg = http->ezcfg;
+
+	status = false;
 	http->request_method = skip(&buf, " ");
 	http->uri = skip(&buf, " ");
 	http->http_version = skip(&buf, "\r\n");
@@ -181,31 +214,84 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 
 char *ezcfg_http_get_version(struct ezcfg_http *http)
 {
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	return http->http_version;
 }
 
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
 {
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	http->status_code = status_code;
 }
 
 void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data)
 {
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	http->post_data = data;
 }
 
 void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len)
 {
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
 	http->post_data_len = len;
 }
 
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name)
 {
 	int i;
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
 
 	for (i = 0; i < http->num_headers; i++)
 		if (!strcasecmp(name, http->headers[i].name))
 			return http->headers[i].value;
 
 	return NULL;
+}
+
+void ezcfg_http_dump(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	info(ezcfg, "request_method=[%s]\n", http->request_method);
+	info(ezcfg, "uri=[%s]\n", http->uri);
+	info(ezcfg, "http_version=[%s]\n", http->http_version);
+	info(ezcfg, "query_string=[%s]\n", http->query_string);
+	info(ezcfg, "post_data=[%s]\n", http->post_data);
+	info(ezcfg, "remote_user=[%s]\n", http->remote_user);
+	info(ezcfg, "remote_address=[%s]\n", http->remote_address);
+	info(ezcfg, "post_data_len=[%d]\n", http->post_data_len);
+	info(ezcfg, "status_code=[%d]\n", http->status_code);
+	info(ezcfg, "is_ssl=[%d]\n", http->is_ssl);
+	info(ezcfg, "num_headers=[%d]\n", http->num_headers);
+	for(i=0; i<http->num_headers; i++)
+		info(ezcfg, "header[%d]=[%s, %s]\n", i, http->headers[i].name, http->headers[i].value);
 }

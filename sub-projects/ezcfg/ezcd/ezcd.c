@@ -58,9 +58,9 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 
 		vsnprintf(buf, sizeof(buf), format, args);
 		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s: %s",
+		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
 		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, buf);
+		        (int) getpid(), fn, line, buf);
 	} else {
 		vsyslog(priority, format, args);
 	}

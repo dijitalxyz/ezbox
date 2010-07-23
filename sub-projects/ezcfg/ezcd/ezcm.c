@@ -52,9 +52,9 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 
 		vsnprintf(buf, sizeof(buf), format, args);
 		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s: %s",
+		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
 		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, buf);
+		        (int) getpid(), fn, line, buf);
 	} else {
 		vsyslog(priority, format, args);
         }
@@ -75,16 +75,18 @@ int ezcm_main(int argc, char **argv)
 	int c = 0;
 	int rc = 0;
 	char buf[32];
+	char msg[1024];
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 
 	memset(buf, 0, sizeof(buf));
+	memset(msg, 0, sizeof(msg));
 	for (;;) {
 		c = getopt( argc, argv, "Dhm:");
 		if (c == EOF) break;
 		switch (c) {
 			case 'm':
-				snprintf(buf, sizeof(buf), "GET /EZCFG HTTP/1.1\r\nMessage: %s\r\n\r\n", optarg);
+				snprintf(msg, sizeof(msg), "GET /EZCFG HTTP/1.1\r\nMessage: %s\r\n\r\n", optarg);
 				break;
 			case 'D':
 				debug = true;
@@ -123,6 +125,21 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
+	if (ezcfg_ctrl_write(ezctrl, msg, strlen(msg), 0) < 0) {
+		err(ezcfg, "controller write: %m\n");
+		rc = 4;
+		goto exit;
+	}
+	info(ezcfg, "sent message=[%s]\n", msg);
+
+#if 1
+	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
+		err(ezcfg, "controller write: %m\n");
+		rc = 5;
+		goto exit;
+	}
+	info(ezcfg, "received message=[%s]\n", msg);
+#endif
 exit:
 	ezcfg_ctrl_delete(ezctrl);
 	ezcfg_delete(ezcfg);
