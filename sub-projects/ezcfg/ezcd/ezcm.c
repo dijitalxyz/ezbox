@@ -86,7 +86,9 @@ int ezcm_main(int argc, char **argv)
 		if (c == EOF) break;
 		switch (c) {
 			case 'm':
-				snprintf(msg, sizeof(msg), "GET /EZCFG HTTP/1.1\r\nMessage: %s\r\n\r\n", optarg);
+				snprintf(msg, sizeof(msg), "M-GET /IGRS HTTP/1.1\r\n"
+"HOST: %s\r\n"
+"Message: %s\r\n\r\n", "192.168.1.1:3880", optarg);
 				break;
 			case 'D':
 				debug = true;

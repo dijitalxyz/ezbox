@@ -50,7 +50,8 @@ struct ezcfg_worker {
 	struct ezcfg *ezcfg;
 	struct ezcfg_master *master;
 	struct ezcfg_socket *client;
-	struct ezcfg_http *http_info;
+	struct ezcfg_http *http;
+	struct ezcfg_igrs *igrs;
 	time_t birth_time;
 	bool free_post_data;
 	int64_t num_bytes_sent;
@@ -58,10 +59,10 @@ struct ezcfg_worker {
 
 static void reset_per_request_attributes(struct ezcfg_worker *worker)
 {
-	ezcfg_http_delete_remote_user(worker->http_info);
+	ezcfg_http_delete_remote_user(worker->http);
 
 	if (worker->free_post_data == true) {
-		ezcfg_http_delete_post_data(worker->http_info);
+		ezcfg_http_delete_post_data(worker->http);
 	}
 }
 
@@ -110,13 +111,13 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	reset_per_request_attributes(worker);
 	worker->free_post_data = false;
 	worker->num_bytes_sent = 0;
-	ezcfg_http_reset_attributes(worker->http_info);
+	ezcfg_http_reset_attributes(worker->http);
 }
 
 // Return content length of the request, or -1 constant if
 // Content-Length header is not set.
 static int get_content_length(const struct ezcfg_worker *worker) {
-	const char *cl = ezcfg_http_get_header(worker->http_info, "Content-Length");
+	const char *cl = ezcfg_http_get_header(worker->http, "Content-Length");
 	return cl == NULL ? -1 : strtol(cl, NULL, 10);
 }
 
@@ -145,11 +146,13 @@ static int get_request_len(const char *buf, size_t buflen)
 	return len;
 }
 
-// Keep reading the input (either opened file descriptor fd, or socket sock,
-// or SSL descriptor ssl) into buffer buf, until \r\n\r\n appears in the
-// buffer (which marks the end of HTTP request). Buffer buf may already
-// have some data. The length of the data is stored in nread.
-// Upon every read operation, increase nread by the number of bytes read.
+/**
+ * Keep reading the input (either opened file descriptor fd, or socket sock,
+ * or SSL descriptor ssl) into buffer buf, until \r\n\r\n appears in the
+ * buffer (which marks the end of HTTP request). Buffer buf may already
+ * have some data. The length of the data is stored in nread.
+ * Upon every read operation, increase nread by the number of bytes read.
+ **/
 static int read_request(struct ezcfg_worker *worker, char *buf, int bufsiz, int *nread)
 {
 	struct ezcfg *ezcfg;
@@ -226,7 +229,7 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 	int len;
 	bool handled;
 
-	ezcfg_http_set_status_code(worker->http_info, status);
+	ezcfg_http_set_status_code(worker->http, status);
 	handled = error_handler(worker);
 
 	if (handled == false) {
@@ -328,28 +331,25 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	/* 0-terminate the request: parse http request uses sscanf */
 	buf[request_len - 1] = '\0';
 	dbg(ezcfg, "request=[%s]\n", buf);
-	if (ezcfg_http_parse_request(worker->http_info, buf)) {
-		char *http_version = ezcfg_http_get_version(worker->http_info);
-		if (http_version == NULL) {
-			send_http_error(worker, 505,
-			                "HTTP version not supported",
-			                "%s", "Weird HTTP version");
-		} else if (strcmp(http_version, "1.0") != 0 &&
-		           strcmp(http_version, "1.1") != 0) {
+	if (ezcfg_http_parse_request(worker->http, buf) == true) {
+		unsigned short major, minor;
+		major = ezcfg_http_get_version_major(worker->http);
+		minor = ezcfg_http_get_version_minor(worker->http);
+		if (major != 1 || minor != 1) {
 			send_http_error(worker, 505,
 			                "HTTP version not supported",
 			                "%s", "Weird HTTP version");
 		} else {
-			ezcfg_http_set_post_data(worker->http_info, buf + request_len);
-			ezcfg_http_set_post_data_len(worker->http_info, nread - request_len);
+			ezcfg_http_set_post_data(worker->http, buf + request_len);
+			ezcfg_http_set_post_data_len(worker->http, nread - request_len);
 			worker->birth_time = time(NULL);
-			ezcfg_http_dump(worker->http_info);
+			ezcfg_http_dump(worker->http);
 			handle_request(worker);
 			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
 		/* Do not put garbage in the access log */
-		send_http_error(worker, 400, "Bad Request", "Can not parse request: [%.*s]", nread, buf);
+		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 }
 
@@ -358,7 +358,7 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	struct ezcfg *ezcfg;
 	struct ezcfg_worker *worker;
 	struct ezcfg_socket *client;
-	struct ezcfg_http *http_info;
+	struct ezcfg_http *http;
 
 	assert(master != NULL);
 
@@ -373,8 +373,8 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 		return NULL;
 	}
 
-	http_info = ezcfg_http_new(ezcfg);
-	if (http_info == NULL) {
+	http = ezcfg_http_new(ezcfg);
+	if (http == NULL) {
 		free(worker);
 		free(client);
 		return NULL;
@@ -384,7 +384,7 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	worker->ezcfg = ezcfg;
 	worker->master = master;
 	worker->client = client;
-	worker->http_info = http_info;
+	worker->http = http;
 	return worker;
 }
 

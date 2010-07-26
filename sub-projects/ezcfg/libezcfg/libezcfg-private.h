@@ -144,12 +144,19 @@ void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
 void ezcfg_http_delete_post_data(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf);
-char *ezcfg_http_get_version(struct ezcfg_http *http);
+unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
+unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
 void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data);
 void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len);
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
+
+/* libezcfg-irgs.c */
+struct ezcfg_igrs;
+void ezcfg_irgs_delete(struct ezcfg_igrs *igrs);
+struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
+void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 
 /* libezcfg-master.c */
 struct ezcfg_master;

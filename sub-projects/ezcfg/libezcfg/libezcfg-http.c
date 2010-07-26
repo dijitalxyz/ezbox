@@ -43,24 +43,48 @@ struct http_header {
 
 struct ezcfg_http {
 	struct ezcfg *ezcfg;
-	char *request_method; /* "GET", "POST", etc */
+	unsigned char request_method; /* index of method_strings, should be > 0, 0 means error */
 	char *uri; /* URL-decoded URI */
-	char *http_version; /* E.g. "1.0", "1.1" */
+	unsigned short version_major;
+	unsigned short version_minor;
 	char *query_string; /* \0 - terminated */
 	char *post_data; /* POST data buffer */
 	char *remote_user; /* Authenticated user */
 	char *log_message; /* error log message */
 	char *remote_address; /* Client's network address (path or ip/port) */
 	int post_data_len; /* POST buffer length */
-	int status_code; /* HTTP status code */
+	unsigned short status_code; /* HTTP status code */
 	bool is_ssl; /* true if SSL-ed, false if not */
-	int num_headers; /* Number of headers */
+	unsigned char num_headers; /* Number of headers */
 	struct http_header headers[64]; /* Maximum 64 headers */
 };
 
-// Skip the characters until one of the delimiters characters found.
-// 0-terminate resulting word. Skip the rest of the delimiters if any.
-// Advance pointer to buffer to the next word. Return found 0-terminated word.
+static const char *method_strings[] = {
+	/* bad method string */
+	NULL,
+	/* HTTP/1.1 define methods */
+	"OPTIONS",
+	"GET",
+	"HEAD",
+	"POST",
+	"PUT",
+	"DELETE",
+	"TRACE",
+	"CONNECT",
+	/* IGRS extened methods */
+	"NOTIFY",
+	"M-GET",
+	"M-POST",
+	"M-SEARCH",
+	"M-NOTIFY",
+};
+
+
+/**
+ * Skip the characters until one of the delimiters characters found.
+ * 0-terminate resulting word. Skip the rest of the delimiters if any.
+ * Advance pointer to buffer to the next word. Return found 0-terminated word.
+ **/
 static char *skip(char **buf, const char *delimiters)
 {
 	char *p, *begin_word, *end_word, *end_delimiters;
@@ -153,12 +177,36 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 	http->ezcfg = ezcfg;
 }
 
-// Parse HTTP headers from the given buffer, advance buffer to the point
-// where parsing stopped.
-static void parse_http_headers(struct ezcfg_http *http, char **buf)
+static void clear_http_headers(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
+		if ( http->headers[i].name != NULL) {
+			free(http->headers[i].name);
+			http->headers[i].name = NULL;
+		}
+		if ( http->headers[i].value != NULL) {
+			free(http->headers[i].value);
+			http->headers[i].value = NULL;
+		}
+	}
+	http->num_headers = 0;
+}
+
+/**
+ * Parse HTTP headers from the given buffer, advance buffer to the point
+ * where parsing stopped.
+ **/
+static bool parse_http_headers(struct ezcfg_http *http, char **buf)
 {
 
 	struct ezcfg *ezcfg;
+	char *name, *value;
 	int i;
 
 	assert(http != NULL);
@@ -166,53 +214,100 @@ static void parse_http_headers(struct ezcfg_http *http, char **buf)
 
 	ezcfg = http->ezcfg;
 
-	for (i = 0; i < (int)ARRAY_SIZE(http->headers); i++) {
-		http->headers[i].name = skip(buf, ": ");
-		http->headers[i].value = skip(buf, "\r\n");
-		if (http->headers[i].name[0] == '\0')
+	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
+		name = skip(buf, ":");
+		value = skip(buf, "\r\n");
+		while (*value == ' ') value++;
+		if (name[0] == '\0')
 			break;
-		http->num_headers = i + 1;
+		http->headers[i].name = strdup(name);
+		http->headers[i].value = strdup(value);
+		if ((http->headers[i].name == NULL) || (http->headers[i].value == NULL)) {
+			clear_http_headers(http);
+			return false;
+		}
 	}
+	http->num_headers = i;
+	return true;
 }
 
-static bool is_valid_http_method(const char *method)
+static unsigned char find_method_index(struct ezcfg *ezcfg, const char *method)
 {
+	int i;
+
+	assert(ezcfg != NULL);
 	assert(method != NULL);
 
-	return !strcmp(method, "GET")  ||
-	       !strcmp(method, "POST") ||
-	       !strcmp(method, "HEAD") ||
-	       !strcmp(method, "PUT")  ||
-	       !strcmp(method, "DELETE");
+	for (i=ARRAY_SIZE(method_strings)-1; i>0; i--) {
+		if (strcmp(method_strings[i], method) == 0)
+			return i;
+	}
+	return 0;
 }
 
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 {
 	struct ezcfg *ezcfg;
-	bool status;
+	char *p;
+	char *method, *uri, *version;
 
 	assert(http != NULL);
 	assert(buf != NULL);
 
 	ezcfg = http->ezcfg;
 
-	status = false;
-	http->request_method = skip(&buf, " ");
-	http->uri = skip(&buf, " ");
-	http->http_version = skip(&buf, "\r\n");
+	/* split HTTP Request-Line (RFC2616 section 5.1) */
+	method = skip(&buf, "\r\n");
+	dbg(ezcfg, "request_line=[%s]\n", method);
 
-	if (is_valid_http_method(http->request_method) &&
-	    http->uri[0] == '/' &&
-	    strncmp(http->http_version, "HTTP/", 5) == 0) {
-		http->http_version += 5; /* Skip "HTTP/" */
-		parse_http_headers(http, &buf);
-		status = true;
-	}
+	/* get request method string */
+	p = strchr(method, ' ');
+	if (p == NULL)
+		return false;
 
-	return status;
+	/* 0-terminated method string */
+	*p = '\0';
+	http->request_method = find_method_index(http->ezcfg, method);
+	if (http->request_method == 0)
+		return false;
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get uri string */
+	uri = p+1;
+	if (uri[0] != '/' && uri[0] != '*')
+		return false;
+
+	p = strchr(uri, ' ');
+	if (p == NULL)
+		return false;
+
+	/* 0-terminated method string */
+	*p = '\0';
+	http->uri = strdup(uri);
+	if (http->uri == NULL)
+		return false;
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get http version */
+	version = p+1;
+	if (strncmp(version, "HTTP/", 5) != 0)
+		return false;
+
+	p = version+5;
+	if (sscanf(p, "%hd.%hd",
+	           &http->version_major,
+	            &http->version_minor) != 2)
+		return false;
+
+	/* parse http headers */
+	return parse_http_headers(http, &buf);
 }
 
-char *ezcfg_http_get_version(struct ezcfg_http *http)
+unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 
@@ -220,7 +315,18 @@ char *ezcfg_http_get_version(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	return http->http_version;
+	return http->version_major;
+}
+
+unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->version_minor;
 }
 
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
@@ -281,9 +387,9 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	info(ezcfg, "request_method=[%s]\n", http->request_method);
+	info(ezcfg, "request_method=[%s]\n", method_strings[http->request_method]);
 	info(ezcfg, "uri=[%s]\n", http->uri);
-	info(ezcfg, "http_version=[%s]\n", http->http_version);
+	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
 	info(ezcfg, "query_string=[%s]\n", http->query_string);
 	info(ezcfg, "post_data=[%s]\n", http->post_data);
 	info(ezcfg, "remote_user=[%s]\n", http->remote_user);
@@ -293,5 +399,5 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 	info(ezcfg, "is_ssl=[%d]\n", http->is_ssl);
 	info(ezcfg, "num_headers=[%d]\n", http->num_headers);
 	for(i=0; i<http->num_headers; i++)
-		info(ezcfg, "header[%d]=[%s, %s]\n", i, http->headers[i].name, http->headers[i].value);
+		info(ezcfg, "header[%d]=[(%s),(%s)]\n", i, http->headers[i].name, http->headers[i].value);
 }

@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
+#include <netinet/in.h>
 #include <assert.h>
 #include <pthread.h>
 
@@ -46,6 +47,7 @@ struct usa {
 	union {
 		struct sockaddr sa;
 		struct sockaddr_un sun;
+		struct sockaddr_in sin;
         } u;
 };
 
