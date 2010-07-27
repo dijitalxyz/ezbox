@@ -113,7 +113,7 @@ int ezcm_main(int argc, char **argv)
 	info(ezcfg, "version %s\n", VERSION);
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
 
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, buf);
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf);
 
 	if (ezctrl == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm controller");

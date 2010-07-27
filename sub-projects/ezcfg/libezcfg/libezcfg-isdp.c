@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-igrs.c
+ * File Name    : libezcfg-isdp.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-07-26   0.1       Write it from scratch
+ * 2010-07-27   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,12 +36,12 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
-struct ezcfg_igrs {
+struct ezcfg_isdp {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	unsigned short version_major; /* IGRS major version, must be 1 */
-	unsigned short version_minor; /* IGRS minor version, must be 0 */
-	unsigned short message_type; /* index for message type string */
+	unsigned short version_major;
+	unsigned short version_minor;
+	unsigned short message_type;
 	char *host; /* Multicast channel and port reserved for ISDP */
 	/* NOTIFY headers */
 	char *cache_control; /* Used in advertisement mechanisms */
@@ -133,58 +133,12 @@ static const char *message_type_strings[] = {
 	"SendNotification",
 };
 
-void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
+void ezcfg_isdp_dump(struct ezcfg_isdp *isdp)
 {
 	struct ezcfg *ezcfg;
 
-	assert(igrs != NULL);
+	assert(isdp != NULL);
 
-	ezcfg = igrs->ezcfg;
-
-	if (igrs->http != NULL) {
-		ezcfg_http_delete(igrs->http);
-	}
-
-	free(igrs);
-}
-
-/**
- * ezcfg_igrs_new:
- *
- * Create ezcfg igrs protocol data structure
- *
- * Returns: a new ezcfg igrs protocol data structure
- **/
-struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg)
-{
-	struct ezcfg_igrs *igrs;
-
-	assert(ezcfg != NULL);
-
-	/* initialize igrs protocol data structure */
-	igrs = calloc(1, sizeof(struct ezcfg_igrs));
-	if (igrs == NULL) {
-		return NULL;
-	}
-
-	memset(igrs, 0, sizeof(struct ezcfg_igrs));
-
-	igrs->http = ezcfg_http_new(ezcfg);
-	if (igrs->http == NULL) {
-		free(igrs);
-		return NULL;
-	}
-
-	igrs->ezcfg = ezcfg;
-	return igrs;
-}
-
-void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
-{
-	struct ezcfg *ezcfg;
-
-	assert(igrs != NULL);
-
-	ezcfg = igrs->ezcfg;
+	ezcfg = isdp->ezcfg;
 
 }

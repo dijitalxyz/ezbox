@@ -47,7 +47,7 @@ struct ezcfg_http {
 	char *uri; /* URL-decoded URI */
 	unsigned short version_major;
 	unsigned short version_minor;
-	char *query_string; /* \0 - terminated */
+	char *query_string; /* \0 - terminated, use same buf with uri! */
 	char *post_data; /* POST data buffer */
 	char *remote_user; /* Authenticated user */
 	char *log_message; /* error log message */
@@ -102,6 +102,27 @@ static char *skip(char **buf, const char *delimiters)
 	return begin_word;
 }
 
+static void clear_http_headers(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
+		if ( http->headers[i].name != NULL) {
+			free(http->headers[i].name);
+			http->headers[i].name = NULL;
+		}
+		if ( http->headers[i].value != NULL) {
+			free(http->headers[i].value);
+			http->headers[i].value = NULL;
+		}
+	}
+	http->num_headers = 0;
+}
+
 /**
  * ezcfg_http_delete:
  *
@@ -113,6 +134,22 @@ void ezcfg_http_delete(struct ezcfg_http *http)
 {
 	assert(http != NULL);
 
+	clear_http_headers(http);
+	if (http->uri != NULL) {
+		free(http->uri);
+	}
+	if (http->post_data != NULL) {
+		free(http->post_data);
+	}
+	if (http->remote_user != NULL) {
+		free(http->remote_user);
+	}
+	if (http->log_message != NULL) {
+		free(http->log_message);
+	}
+	if (http->remote_address != NULL) {
+		free(http->remote_address);
+	}
 	free(http);
 }
 
@@ -175,27 +212,6 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 	ezcfg = http->ezcfg;
 	memset(http, 0, sizeof(struct ezcfg_http));
 	http->ezcfg = ezcfg;
-}
-
-static void clear_http_headers(struct ezcfg_http *http)
-{
-	struct ezcfg *ezcfg;
-	int i;
-
-	assert(http != NULL);
-
-	ezcfg = http->ezcfg;
-	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
-		if ( http->headers[i].name != NULL) {
-			free(http->headers[i].name);
-			http->headers[i].name = NULL;
-		}
-		if ( http->headers[i].value != NULL) {
-			free(http->headers[i].value);
-			http->headers[i].value = NULL;
-		}
-	}
-	http->num_headers = 0;
 }
 
 /**

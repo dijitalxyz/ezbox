@@ -33,6 +33,12 @@ extern "C" {
 #define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
+/* ezcfg supported protocols */
+#define EZCFG_PROTO_UNKNOWN	0
+#define EZCFG_PROTO_HTTP	1
+#define EZCFG_PROTO_IGRS	2
+#define EZCFG_PROTO_ISDP	3
+
 /*
  * ezcfg - library context
  *

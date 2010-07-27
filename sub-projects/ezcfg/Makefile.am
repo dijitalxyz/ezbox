@@ -52,6 +52,7 @@ libezcfg_libezcfg_private_la_SOURCES =\
         libezcfg/libezcfg-socket.c \
         libezcfg/libezcfg-http.c \
         libezcfg/libezcfg-igrs.c \
+        libezcfg/libezcfg-isdp.c \
         libezcfg/libezcfg-master.c \
         libezcfg/libezcfg-worker.c
 

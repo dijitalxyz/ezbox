@@ -60,6 +60,7 @@ struct ezcfg_socket {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *next;	/* Linkage                      */
 	int		sock;		/* Listening socket             */
+	unsigned char	proto;		/* communication protocol 	*/
 	struct usa	lsa;		/* Local socket address         */
 	struct usa	rsa;		/* Remote socket address        */
 };
@@ -98,7 +99,7 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
  *
  * Returns: a new ezcfg socket
  **/
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int domain, const char *socket_path)
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const unsigned char proto, const char *socket_path)
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
@@ -111,6 +112,13 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int domain, const cha
 		return NULL;
 	}
 
+	if (proto != EZCFG_PROTO_HTTP &&
+	    proto != EZCFG_PROTO_IGRS &&
+	    proto != EZCFG_PROTO_ISDP) {
+		err(ezcfg, "unknown communication protocol %d\n", proto);
+		return NULL;
+	}
+
 	/* initialize socket */
 	if ((sp = calloc(1, sizeof(struct ezcfg_socket))) == NULL) {
 		err(ezcfg, "calloc socket fail: %m\n");
@@ -119,6 +127,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int domain, const cha
 	memset(sp, 0, sizeof(struct ezcfg_socket));
 	sp->sock = -1;
 	sp->ezcfg = ezcfg;
+	sp->proto = proto;
 
 	switch (domain) {
 	case AF_LOCAL:
@@ -159,6 +168,12 @@ int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
 {
 	assert(sp != NULL);
 	return sp->sock;
+}
+
+unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
+{
+	assert(sp != NULL);
+	return sp->proto;
 }
 
 struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp)
@@ -398,6 +413,8 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	}
 	memset(accepted, 0, sizeof(struct ezcfg_socket));
 	accepted->ezcfg = ezcfg;
+	accepted->sock = -1;
+	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
 	domain = listener->lsa.domain;
 	accepted->rsa.domain = domain;
@@ -528,7 +545,7 @@ int ezcfg_socket_read (struct ezcfg_socket *sp, void *buf, int len, int flags)
 	sock = sp->sock;
 	memset(buf, '\0', len);
 
-	while (status != len) {
+	while (status == 0) {
 		n = read (sock, p + status, len - status);
 
 		if (n < 0) {

@@ -155,7 +155,7 @@ fail_exit:
  *
  * Returns: socket, or NULL, in case of an error
  **/
-static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master, int family, const char *socket_path)
+static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master, int family, unsigned char proto, const char *socket_path)
 {
 	struct ezcfg_socket *listener;
 	struct ezcfg *ezcfg;
@@ -166,7 +166,7 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 	assert(socket_path != NULL);
 
 	/* initialize unix domain socket */
-	listener = ezcfg_socket_new(ezcfg, family, socket_path);
+	listener = ezcfg_socket_new(ezcfg, family, proto, socket_path);
 	if (listener == NULL) {
 		err(ezcfg, "init socket fail: %m\n");
 		return NULL;
@@ -213,7 +213,7 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 		return NULL;
 	}
 
-	sp = ezcfg_master_add_socket(master, AF_LOCAL, socket_path);
+	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_IGRS, socket_path);
 	if (sp == NULL) {
 		err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
 		goto fail_exit;
@@ -413,7 +413,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		return NULL;
 	}
 
-	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_MASTER_SOCK_PATH);
+	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_IGRS, EZCFG_MASTER_SOCK_PATH);
 	if (sp == NULL) {
 		err(ezcfg, "can not add master socket");
 		goto start_thread;

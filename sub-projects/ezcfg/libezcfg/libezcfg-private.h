@@ -110,12 +110,13 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 /* libezcfg-socket.c */
 struct ezcfg_socket;
 void ezcfg_socket_delete(struct ezcfg_socket *sp);
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, int family, const char *socket_path);
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path);
 struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
 struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
 void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
+unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp);
 struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp);
 int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp);
 int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp);
@@ -154,9 +155,15 @@ void ezcfg_http_dump(struct ezcfg_http *http);
 
 /* libezcfg-irgs.c */
 struct ezcfg_igrs;
-void ezcfg_irgs_delete(struct ezcfg_igrs *igrs);
+void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
 struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
+
+/* libezcfg-isdp.c */
+struct ezcfg_isdp;
+void ezcfg_isdp_delete(struct ezcfg_isdp *isdp);
+struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
+void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
 /* libezcfg-master.c */
 struct ezcfg_master;
@@ -181,7 +188,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker);
 /* libezcfg-ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, int family, const char *socket_path);
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path);
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
