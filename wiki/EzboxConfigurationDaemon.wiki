@@ -32,3 +32,6 @@ ezbox配置管理服务进程（ezbox configuration daemon，简称ezcd）用于
   # <a href="http://hes-standards.org/doc/SC25_WG1_N1297.pdf"> IGRS Part 5-6:Service type </a>
 
   * ?4 ISO/IEC 14543-5 标准相关信息可参阅<a href="http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=44391"> ISO/IEC 14543-5-1:2010 </a>
+  * ?5 IGRS 协议相关的 IANA 分配资源
+  # 端口号 3880/tcp 及 3880/udp
+  # 多播地址 224.0.0.110
