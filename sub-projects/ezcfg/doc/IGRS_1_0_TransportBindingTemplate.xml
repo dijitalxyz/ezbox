@@ -11,7 +11,7 @@
 
   <simpleType name="transportMethod">
     <restriction base="string">
-      <enumeration value="http://www.igrs.org/igrs/igrspipe/">
+      <enumeration value="http://www.igrs.org/igrs/igrspipe"/>
     </restriction>
   </simpleType>
 
