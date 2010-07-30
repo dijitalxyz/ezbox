@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- This is the WSDL 1.1 version -->
-<wsdl:definitions xmlns:igrs="http://www.igrs.org/igrs/ServiceDescription"
+<definitions xmlns:igrs="http://www.igrs.org/igrs/ServiceDescription"
   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/"
   targetNamespace="http://www.igrs.org/igrs/ServiceDescription" name="igrs">
 
-  <wsdl:types>
+  <types>
     <schema targetNamespace="http://www.igrs.org/igrs/ServiceDescription"
       xmlns="http://www.w3.org/2001/XMLSchema"
       xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
@@ -213,7 +213,7 @@
 
     </schema>
 
-  </wsdl:types>
+  </types>
 
   <message name="findServiceAttributeInputMessage">
     <part name="parameters" element="igrs:findServiceAttribute"/>
@@ -273,4 +273,4 @@
     </igrs:staticServiceAttributeValues>
   </IGRSportType>
 
-</wsdl:definitions>
+</definitions>
