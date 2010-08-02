@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schema targetNamespace="http://www.igrs.org/igrs/"
-  xmlns:igrs="http://www.igrs.org/igrs/" xmlns="http://www.w3.org/2001/XMLSchema">
+<?xml version="1.0" encoding="utf-8"?>
+<schema
+  targetNamespace="http://www.igrs.org/igrs/"
+  xmlns:igrs="http://www.igrs.org/igrs/"
+  xmlns="http://www.w3.org/2001/XMLSchema">
 
   <element name="binding" type="igrs:bindingType"/>
 
