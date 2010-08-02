@@ -75,20 +75,21 @@ int ezcm_main(int argc, char **argv)
 	int c = 0;
 	int rc = 0;
 	char buf[32];
-	char msg[1024];
+	char soap_buf[2048];
+	char msg[4096];
 	struct ezcfg *ezcfg = NULL;
+	struct ezcfg_xml_element *elem = NULL;
+	struct ezcfg_xml *xml = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 
 	memset(buf, 0, sizeof(buf));
+	memset(soap_buf, 0, sizeof(soap_buf));
 	memset(msg, 0, sizeof(msg));
 	for (;;) {
 		c = getopt( argc, argv, "Dhm:");
 		if (c == EOF) break;
 		switch (c) {
 			case 'm':
-				snprintf(msg, sizeof(msg), "M-GET /IGRS HTTP/1.1\r\n"
-"HOST: %s\r\n"
-"Message: %s\r\n\r\n", "192.168.1.1:3880", optarg);
 				break;
 			case 'D':
 				debug = true;
@@ -111,6 +112,41 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_log_init("ezcm");
 	ezcfg_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
+
+	xml = ezcfg_xml_new(ezcfg);
+	if (xml == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize ezcm xml parser");
+		rc = 2;
+		goto exit;
+	}
+
+	elem = ezcfg_xml_new_element(xml, "mytest", "OK");
+	if (elem == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize ezcm xml element");
+		rc = 2;
+		goto exit;
+	}
+
+	ezcfg_xml_add_element(xml, NULL, NULL, elem);
+
+	ezcfg_xml_write(xml, soap_buf, sizeof(soap_buf));
+
+	snprintf(msg, sizeof(msg),
+"M-POST /IGRS HTTP/1.1\r\n"
+"HOST: 192.168.1.1:3880\r\n"
+"MAN: \"http://www.igrs.org/session\"; ns=01\r\n"
+"01-IGRSVersion: IGRS/1.0\r\n"
+"01-IGRSMessageType:CreateSessionRequest\r\n"
+"01-TargetDeviceId: \r\n"
+"01-SourceDeviceId: \r\n"
+"01-SequenceId: 1\r\n"
+"Content-type: text/xml; charset=utf-8\r\n"
+"Content-length: %d\r\n"
+"MAN: \"http://www.w3.org/2002/12/soap-envelope\"; ns=02\r\n"
+"02-SoapAction: \"IGRS-CreateSession-Request\"\r\n"
+"\r\n"
+"%s",strlen(soap_buf), soap_buf);
+
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
 
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf);
@@ -143,7 +179,14 @@ int ezcm_main(int argc, char **argv)
 	info(ezcfg, "received message=[%s]\n", msg);
 #endif
 exit:
-	ezcfg_ctrl_delete(ezctrl);
-	ezcfg_delete(ezcfg);
+	if (xml != NULL)
+		ezcfg_xml_delete(xml);
+
+	if (ezctrl != NULL)
+		ezcfg_ctrl_delete(ezctrl);
+
+	if (ezcfg != NULL)
+		ezcfg_delete(ezcfg);
+
 	return rc;
 }

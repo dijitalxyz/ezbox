@@ -50,6 +50,7 @@ libezcfg_libezcfg_private_la_SOURCES =\
         $(libezcfg_libezcfg_la_SOURCES) \
         libezcfg/libezcfg-ctrl.c \
         libezcfg/libezcfg-socket.c \
+        libezcfg/libezcfg-xml.c \
         libezcfg/libezcfg-http.c \
         libezcfg/libezcfg-igrs.c \
         libezcfg/libezcfg-isdp.c \

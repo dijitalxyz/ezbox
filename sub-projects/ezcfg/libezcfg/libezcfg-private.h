@@ -137,6 +137,22 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
 int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);
 int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags);
 
+/* libezcfg-xml.c */
+struct ezcfg_xml_element;
+struct ezcfg_xml;
+void ezcfg_xml_delete(struct ezcfg_xml *xml);
+struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg);
+int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len);
+void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem);
+struct ezcfg_xml_element *ezcfg_xml_new_element(
+        struct ezcfg_xml *xml,
+        const char *name, const char *content);
+int ezcfg_xml_add_element(
+        struct ezcfg_xml *xml,
+        struct ezcfg_xml_element *parent,
+        struct ezcfg_xml_element *sibling,
+        struct ezcfg_xml_element *elem);
+
 /* libezcfg-http.c */
 struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);

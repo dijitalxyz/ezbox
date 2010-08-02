@@ -152,6 +152,8 @@ int ezcd_main(int argc, char **argv)
 	ret = chdir("/");
 	umask(022);
 
+	mkdir("/tmp/ezcfg", 0777);
+
 	/* before opening new files, make sure std{in,out,err} fds are in a sane state */
 	fd = open("/dev/null", O_RDWR);
 	if (fd < 0) {
