@@ -75,45 +75,17 @@ static void reset_per_request_attributes(struct ezcfg_worker *worker)
 	}
 }
 
-static int set_non_blocking_mode(int sock)
-{
-	int flags;
-
-	flags = fcntl(sock, F_GETFL, 0);
-	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-
-	return 0;
-}
-
-static void close_socket_gracefully(int sock) {
-	char buf[BUFFER_SIZE];
-	int n;
-
-	// Send FIN to the client
-	shutdown(sock, 1);
-	set_non_blocking_mode(sock);
-
-	// Read and discard pending data. If we do not do that and close the
-	// socket, the data in the send buffer may be discarded. This
-	// behaviour is seen on Windows, when client keeps sending data
-	// when server decide to close the connection; then when client
-	// does recv() it gets no data back.
-	do {
-		n = recv(sock, buf, sizeof(buf), 0);
-	} while (n > 0);
-
-	// Now we know that our FIN is ACK-ed, safe to close
-	close(sock);
-}
-
 static void close_connection(struct ezcfg_worker *worker)
 {
-	int sock;
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
 	reset_per_request_attributes(worker);
-	sock = ezcfg_socket_get_sock(worker->client);
-	if (sock != INVALID_SOCKET) {
-		close_socket_gracefully(sock);
-	}
+
+	ezcfg_socket_close_sock(worker->client);
 }
 
 static void reset_connection_attributes(struct ezcfg_worker *worker) {

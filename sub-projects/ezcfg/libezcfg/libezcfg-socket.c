@@ -65,6 +65,37 @@ struct ezcfg_socket {
 	struct usa	rsa;		/* Remote socket address        */
 };
 
+static int set_non_blocking_mode(int sock)
+{
+	int flags;
+
+	flags = fcntl(sock, F_GETFL, 0);
+	fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+
+	return 0;
+}
+
+static void close_socket_gracefully(int sock) {
+	char buf[4096];
+	int n;
+
+	// Send FIN to the client
+	shutdown(sock, 1);
+	set_non_blocking_mode(sock);
+
+	// Read and discard pending data. If we do not do that and close the
+	// socket, the data in the send buffer may be discarded. This
+	// behaviour is seen on Windows, when client keeps sending data
+	// when server decide to close the connection; then when client
+	// does recv() it gets no data back.
+	do {
+		n = read(sock, buf, sizeof(buf));
+	} while (n > 0);
+
+	// Now we know that our FIN is ACK-ed, safe to close
+	close(sock);
+}
+
 /**
  * ezcfg_socket_delete:
  *
@@ -80,10 +111,12 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 
 	if (sp->sock >= 0) {
+		dbg(ezcfg, "close sock=[%d]\n", sp->sock);
 		close(sp->sock);
 		/* also remove the filesystem node */
 		if (sp->lsa.domain == AF_LOCAL) {
 			
+			dbg(ezcfg, "unlink path=[%s]\n", sp->lsa.u.sun.sun_path);
 			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
 				err(ezcfg, "unlink fail: %m\n");
 			}
@@ -445,7 +478,7 @@ void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 	assert(sp != NULL);
 
 	if (sp->sock >= 0) {
-		close(sp->sock);
+		close_socket_gracefully(sp->sock);
 		sp->sock = -1;
 	}
 }

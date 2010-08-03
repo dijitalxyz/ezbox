@@ -39,6 +39,19 @@ extern "C" {
 #define EZCFG_PROTO_IGRS	2
 #define EZCFG_PROTO_ISDP	3
 
+/* ezcfg xml definitions */
+#define EZCFG_XML_MAX_ELEMENTS	128
+#define EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL 0
+#define EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD 1
+
+/* ezcfg soap element names */
+#define EZCFG_SOAP_ENV_ELEMENT_NAME	"SOAP-ENV:Envelope"
+#define EZCFG_SOAP_BODY_ELEMENT_NAME	"SOAP-ENV:Body"
+#define EZCFG_SOAP_ENV_NS_NAME		"xmlns:SOAP-ENV"
+#define EZCFG_SOAP_ENV_NS_VALUE		"http://www.w3.org/2002/12/soap-envelope"
+#define EZCFG_SOAP_ENV_ENC_NAME		"SOAP-ENV:encodingStyle"
+#define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
+
 /*
  * ezcfg - library context
  *

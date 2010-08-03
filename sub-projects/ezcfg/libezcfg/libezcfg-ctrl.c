@@ -93,19 +93,34 @@ fail_exit:
 
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl)
 {
+	struct ezcfg *ezcfg;
+
 	assert(ezctrl != NULL);
+
+	ezcfg = ezctrl->ezcfg;
+	info(ezcfg, "debug\n");
 	return ezcfg_socket_connect_remote(ezctrl->socket);
 }
 
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags)
 {
+	struct ezcfg *ezcfg;
+
 	assert(ezctrl != NULL);
+
+	ezcfg = ezctrl->ezcfg;
+	info(ezcfg, "debug\n");
 	return ezcfg_socket_read(ezctrl->socket, buf, len, flags);
 }
 
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags)
 {
+	struct ezcfg *ezcfg;
+
 	assert(ezctrl != NULL);
+
+	ezcfg = ezctrl->ezcfg;
+	info(ezcfg, "debug\n");
 	return ezcfg_socket_write(ezctrl->socket, buf, len, flags);
 }
 

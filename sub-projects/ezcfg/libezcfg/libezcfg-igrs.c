@@ -39,6 +39,9 @@
 struct ezcfg_igrs {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+
+	/* IGRS info */
 	unsigned short version_major; /* IGRS major version, must be 1 */
 	unsigned short version_minor; /* IGRS minor version, must be 0 */
 	unsigned short message_type; /* index for message type string */

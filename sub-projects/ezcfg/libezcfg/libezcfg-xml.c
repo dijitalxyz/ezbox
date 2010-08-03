@@ -29,8 +29,16 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
+struct attribute {
+	char *name;
+	char *value;
+	struct attribute *next;
+};
+
 struct ezcfg_xml_element {
 	char *name;
+	struct attribute *attr_head;
+	struct attribute *attr_tail;
 	char *content;
 	int etag_index; /* etag index in root stack */
 };
@@ -62,14 +70,12 @@ static void delete_elements(struct ezcfg_xml *xml)
 		if (p == NULL)
 			continue;
 
-		if (p->name != NULL)
-			free(p->name);
-		if (p->content != NULL)
-			free(p->content);
 		/* clean etag pointer */
-		xml->root[p->etag_index] = NULL;
+		if (p->etag_index > 0) {
+			xml->root[p->etag_index] = NULL;
+		}
 
-		free(p);
+		ezcfg_xml_element_delete(p);
 	}
 }
 
@@ -100,38 +106,56 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 
 	assert(ezcfg != NULL);
 
+	dbg(ezcfg, "fixme\n");
+
 	/* initialize xml parser data structure */
 	xml = calloc(1, sizeof(struct ezcfg_xml));
+	dbg(ezcfg, "fixme\n");
 	if (xml == NULL) {
 		err(ezcfg, "initialize xml parser error.\n");
 		return NULL;
 	}
 
 	memset(xml, 0, sizeof(struct ezcfg_xml));
+	dbg(ezcfg, "fixme\n");
 
-	xml->max_elements = 64 * 2; /* must be times of 2 */
+	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
+	dbg(ezcfg, "fixme\n");
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
+	dbg(ezcfg, "fixme\n");
 	if (xml->root == NULL) {
 		err(ezcfg, "initialize xml element stack error.\n");
 		free(xml);
 		return NULL;
 	}
 
+	memset(xml->root, 0, sizeof(struct ezcfg_xml_element *) * xml->max_elements);
+
 	xml->ezcfg = ezcfg;
+	dbg(ezcfg, "fixme\n");
 	return xml;
 }
 
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
+	struct attribute *a;
 	assert(elem != NULL);
 	if (elem->name)
 		free(elem->name);
+	while (elem->attr_head != NULL) {
+		a = elem->attr_head;
+		elem->attr_head = a->next;
+		if (a->name != NULL)
+			free(a->name);
+		if (a->value != NULL)
+			free(a->value);
+	}
 	if (elem->content)
 		free(elem->content);
 	free(elem);
 }
 
-struct ezcfg_xml_element *ezcfg_xml_new_element(
+struct ezcfg_xml_element *ezcfg_xml_element_new(
 	struct ezcfg_xml *xml,
 	const char *name, const char *content) {
 
@@ -139,6 +163,7 @@ struct ezcfg_xml_element *ezcfg_xml_new_element(
 	struct ezcfg_xml_element *elem;
 
 	assert(xml != NULL);
+	assert(name != NULL);
 
 	ezcfg = xml->ezcfg;
 
@@ -147,14 +172,87 @@ struct ezcfg_xml_element *ezcfg_xml_new_element(
 		err(ezcfg, "calloc xml element error.\n");
 		return NULL;
 	}
+
+	memset(elem, 0, sizeof(struct ezcfg_xml_element));
+
 	elem->name = strdup(name);
-	elem->content = strdup(content);
-	if (elem->name == NULL || elem->content == NULL) {
-		err(ezcfg, "initialize xml element error.\n");
+	if (elem->name == NULL) {
+		err(ezcfg, "initialize xml element name error.\n");
 		ezcfg_xml_element_delete(elem);
 		return NULL;
 	}
+	if (content != NULL) {
+		elem->content = strdup(content);
+		if (elem->content == NULL) {
+			err(ezcfg, "initialize xml element content error.\n");
+			ezcfg_xml_element_delete(elem);
+			return NULL;
+		}
+	}
 	return elem;
+}
+
+bool ezcfg_xml_element_add_attribute(
+	struct ezcfg_xml *xml,
+	struct ezcfg_xml_element *elem,
+	const char *name, const char *value, int pos) {
+
+	struct ezcfg *ezcfg;
+	struct attribute *a;
+
+	assert(xml != NULL);
+	assert(elem != NULL);
+	assert(name != NULL);
+	assert(value != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	a = calloc(1, sizeof(struct attribute));
+	if (a == NULL) {
+		err(ezcfg, "no memory for element attribute\n");
+		return false;
+	}
+
+	memset(a, 0, sizeof(struct attribute));
+
+	a->name = strdup(name);
+	if (a->name == NULL) {
+		err(ezcfg, "no memory for element attribute name\n");
+		free(a);
+		return false;
+	}
+
+	a->value = strdup(value);
+	if (a->value == NULL) {
+		err(ezcfg, "no memory for element attribute value\n");
+		free(a->name);
+		free(a);
+		return false;
+	}
+
+	if (pos == EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD) {
+		a->next = elem->attr_head;
+		elem->attr_head = a;
+		if (elem->attr_tail == NULL) {
+			elem->attr_tail = a;
+		}
+	} else if (pos == EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL) {
+		if (elem->attr_tail == NULL) {
+			elem->attr_head = a;
+			elem->attr_tail = a;
+		} else {
+			a->next = elem->attr_tail->next;
+			elem->attr_tail->next = a;
+			elem->attr_tail = a;
+		}
+	} else {
+		err(ezcfg, "not support element attribute position\n");
+		free(a->name);
+		free(a->value);
+		free(a);
+		return false;
+	}
+	return true;
 }
 
 int ezcfg_xml_add_element(
@@ -242,6 +340,7 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
+	struct attribute *a;
 	int i;
 
 	assert(xml != NULL);
@@ -252,7 +351,19 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 	for (i = 0; i < xml->num_elements; i++) {
 		if (root[i]->etag_index != i) {
 			/* start tag */
-			snprintf(buf+strlen(buf), len-strlen(buf), "<%s>%s", root[i]->name, root[i]->content);
+			snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
+			a = root[i]->attr_head;
+			while(a != NULL) {
+				snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
+				snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
+				a = a->next;
+			}
+			snprintf(buf+strlen(buf), len-strlen(buf), ">");
+			if (root[i]->content != NULL) {
+				snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+			} else {
+				snprintf(buf+strlen(buf), len-strlen(buf), "\r\n");
+			}
 		}
 		else {
 			/* end tag */
@@ -260,4 +371,22 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 		}
 	}
 	return strlen(buf);
+}
+
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element *elem;
+	int i;
+
+	assert(xml != NULL);
+	assert(xml->root != NULL);
+
+	ezcfg = xml->ezcfg;
+	for (i = 0; i < xml->num_elements; i++) {
+		elem = xml->root[i];
+		if (strcmp(elem->name, name) == 0)
+			return i;
+	}
+	return -1;
 }

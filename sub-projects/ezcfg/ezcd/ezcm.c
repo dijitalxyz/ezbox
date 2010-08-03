@@ -79,6 +79,7 @@ int ezcm_main(int argc, char **argv)
 	char msg[4096];
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_xml_element *elem = NULL;
+	struct ezcfg_xml_element *elem2 = NULL;
 	struct ezcfg_xml *xml = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 
@@ -120,14 +121,24 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
-	elem = ezcfg_xml_new_element(xml, "mytest", "OK");
+	elem = ezcfg_xml_element_new(xml, EZCFG_SOAP_ENV_ELEMENT_NAME, NULL);
 	if (elem == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm xml element");
 		rc = 2;
 		goto exit;
 	}
+	ezcfg_xml_element_add_attribute(xml, elem, EZCFG_SOAP_ENV_NS_NAME, EZCFG_SOAP_ENV_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_xml_element_add_attribute(xml, elem, EZCFG_SOAP_ENV_ENC_NAME, EZCFG_SOAP_ENV_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	ezcfg_xml_add_element(xml, NULL, NULL, elem);
+
+	elem2 = ezcfg_xml_element_new(xml, EZCFG_SOAP_BODY_ELEMENT_NAME, NULL);
+	if (elem2 == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize ezcm xml element");
+		rc = 2;
+		goto exit;
+	}
+	ezcfg_xml_add_element(xml, elem, NULL, elem2);
 
 	ezcfg_xml_write(xml, soap_buf, sizeof(soap_buf));
 
