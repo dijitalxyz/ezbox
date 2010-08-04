@@ -56,19 +56,19 @@ struct ezcfg_http {
 	unsigned short version_minor;
 
 	unsigned short status_code; /* HTTP response status code */
-	char * reason_phrase; /* HTTP response Reason-Phrase */
+	char *reason_phrase; /* HTTP response Reason-Phrase */
 
 	unsigned char max_headers; /* Max number of headers */
 	unsigned char num_headers; /* Number of headers */
 	struct http_header *headers; /* HTTP header array */
 
+	int message_body_len; /* HTTP message body length */
+	char *message_body; /* HTTP message bosy buffer */
+
 	bool is_ssl; /* true if SSL-ed, false if not */
-	char *post_data; /* POST data buffer */
 	char *remote_user; /* Authenticated user */
 	char *log_message; /* error log message */
 	char *remote_address; /* Client's network address (path or ip/port) */
-	int post_data_len; /* POST buffer length */
-
 };
 
 static const char *default_method_strings[] = {
@@ -147,8 +147,8 @@ void ezcfg_http_delete(struct ezcfg_http *http)
 	if (http->request_uri != NULL) {
 		free(http->request_uri);
 	}
-	if (http->post_data != NULL) {
-		free(http->post_data);
+	if (http->message_body != NULL) {
+		free(http->message_body);
 	}
 	if (http->remote_user != NULL) {
 		free(http->remote_user);
@@ -212,20 +212,6 @@ void ezcfg_http_delete_remote_user(struct ezcfg_http *http)
 	}
 }
 
-void ezcfg_http_delete_post_data(struct ezcfg_http *http)
-{
-	struct ezcfg *ezcfg;
-
-	assert(http != NULL);
-
-	ezcfg = http->ezcfg;
-
-	if (http->post_data != NULL) {
-		free(http->post_data);
-		http->post_data = NULL;
-	}
-}
-
 void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
@@ -233,8 +219,32 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 	assert(http != NULL);
 
 	ezcfg = http->ezcfg;
-	memset(http, 0, sizeof(struct ezcfg_http));
-	http->ezcfg = ezcfg;
+
+	clear_http_headers(http);
+
+	if (http->request_uri != NULL) {
+		free(http->request_uri);
+		http->request_uri = NULL;
+	}
+
+	if (http->message_body != NULL) {
+		free(http->message_body);
+		http->message_body = NULL;
+		http->message_body_len = 0;
+	}
+
+	if (http->remote_user != NULL) {
+		free(http->remote_user);
+		http->remote_user = NULL;
+	}
+	if (http->log_message != NULL) {
+		free(http->log_message);
+		http->log_message = NULL;
+	}
+	if (http->remote_address != NULL) {
+		free(http->remote_address);
+		http->remote_address = NULL;
+	}
 }
 
 /**
@@ -408,28 +418,6 @@ void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
 	http->status_code = status_code;
 }
 
-void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data)
-{
-	struct ezcfg *ezcfg;
-
-	assert(http != NULL);
-
-	ezcfg = http->ezcfg;
-
-	http->post_data = data;
-}
-
-void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len)
-{
-	struct ezcfg *ezcfg;
-
-	assert(http != NULL);
-
-	ezcfg = http->ezcfg;
-
-	http->post_data_len = len;
-}
-
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name)
 {
 	int i;
@@ -457,12 +445,12 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 
 	info(ezcfg, "request_method=[%s]\n", http->method_strings[http->method_index]);
 	info(ezcfg, "uri=[%s]\n", http->request_uri);
-	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
 	info(ezcfg, "query_string=[%s]\n", http->query_string);
-	info(ezcfg, "post_data=[%s]\n", http->post_data);
+	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
+	info(ezcfg, "message_body_len=[%d]\n", http->message_body_len);
+	info(ezcfg, "message_body=[%s]\n", http->message_body);
 	info(ezcfg, "remote_user=[%s]\n", http->remote_user);
 	info(ezcfg, "remote_address=[%s]\n", http->remote_address);
-	info(ezcfg, "post_data_len=[%d]\n", http->post_data_len);
 	info(ezcfg, "status_code=[%d]\n", http->status_code);
 	info(ezcfg, "is_ssl=[%d]\n", http->is_ssl);
 	info(ezcfg, "max_headers=[%d]\n", http->max_headers);
@@ -523,6 +511,31 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 	}
 
 	http->request_uri = request_uri;
+
+	return true;
+}
+
+bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len)
+{
+	struct ezcfg *ezcfg;
+	char *message_body;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	message_body = calloc(len, sizeof(char));
+	if (message_body == NULL) {
+		return false;
+	}
+	memcpy(message_body, body, len);
+
+	if (http->message_body != NULL) {
+		free(http->message_body);
+	}
+
+	http->message_body = message_body;
+	http->message_body_len = len;
 
 	return true;
 }

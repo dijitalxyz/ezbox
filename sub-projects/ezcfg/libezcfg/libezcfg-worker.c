@@ -53,18 +53,12 @@ struct ezcfg_worker {
 	unsigned char proto;
 	void *proto_data;
 	time_t birth_time;
-	bool free_post_data;
 	int64_t num_bytes_sent;
 };
 
 static void reset_per_request_attributes(struct ezcfg_worker *worker)
 {
 	if (worker->proto == EZCFG_PROTO_HTTP) {
-		ezcfg_http_delete_remote_user(worker->proto_data);
-
-		if (worker->free_post_data == true) {
-			ezcfg_http_delete_post_data(worker->proto_data);
-		}
 	}
 	else if (worker->proto == EZCFG_PROTO_IGRS) {
 	}
@@ -90,7 +84,6 @@ static void close_connection(struct ezcfg_worker *worker)
 
 static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	reset_per_request_attributes(worker);
-	worker->free_post_data = false;
 	worker->num_bytes_sent = 0;
 	if (worker->proto == EZCFG_PROTO_HTTP) {
 		ezcfg_http_reset_attributes(worker->proto_data);
@@ -271,7 +264,6 @@ static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, i
 	memmove(buf, buf + req_len + body_len, *nread);
 }
 
-#if 1
 static void process_http_new_connection(struct ezcfg_worker *worker)
 {
 	int request_len, nread;
@@ -312,8 +304,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 			                "HTTP version not supported",
 			                "%s", "Weird HTTP version");
 		} else {
-			ezcfg_http_set_post_data(worker->proto_data, buf + request_len);
-			ezcfg_http_set_post_data_len(worker->proto_data, nread - request_len);
+			ezcfg_http_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
 			worker->birth_time = time(NULL);
 			ezcfg_http_dump(worker->proto_data);
 			handle_request(worker);
@@ -324,7 +315,6 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 }
-#endif
 
 static void process_new_connection(struct ezcfg_worker *worker)
 {

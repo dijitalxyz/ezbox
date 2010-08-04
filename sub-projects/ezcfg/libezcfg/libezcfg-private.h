@@ -142,7 +142,6 @@ struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
-void ezcfg_http_delete_post_data(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf);
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
@@ -153,8 +152,7 @@ bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
-void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data);
-void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len);
+bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
 
@@ -192,6 +190,7 @@ struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type);
+int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 
 /* libezcfg-isdp.c */
 struct ezcfg_isdp;

@@ -282,3 +282,8 @@ bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)
 	}
 	return false;
 }
+
+int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
+{
+	return 0;
+}
