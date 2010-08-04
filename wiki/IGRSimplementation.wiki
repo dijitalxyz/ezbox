@@ -24,5 +24,19 @@
 
   # 
 
+= 相关协议文档 =
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1253.pdf"> IGRS Part 5-1:Core Protocol </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1294.pdf"> IGRS Part 5-21:Application Profile – AV Profile </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1295.pdf"> IGRS Part 5-22:Application Profile – File Profile </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1255.pdf"> IGRS Part 5-4:Device Validation </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1296.pdf"> IGRS Part 5-5:Device type </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1297.pdf"> IGRS Part 5-6:Service type </a>
+  # <a href="http://www.iso.org/iso/iso_catalogue/catalogue_tc/catalogue_detail.htm?csnumber=44391"> ISO/IEC 14543-5-1:2010 Information technology -- Home electronic system (HES) architecture -- Part 5-1: Intelligent grouping and resource sharing for Class 2 and Class 3 -- Core protocol </a>
+  # <a href="http://www.iso.org/iso/catalogue_detail.htm?csnumber=51469"> ISO/IEC 14543-5-22:2010 Information technology -- Home electronic system (HES) architecture -- Part 5-22: Intelligent grouping and resource sharing for HES Class 2 and Class 3 -- Application profile -- File profile </a>
+  # <a href="http://www.faqs.org/rfcs/rfc2616.html"> RFC2616 - Hypertext Transfer Protocol -- HTTP/1.1 </a>
+  # <a href="http://www.faqs.org/rfcs/rfc2774.html"> RFC2774 - An HTTP Extension Framework </a>
+  # <a href="http://www.w3.org/TR/wsdl20/"> Web Services Description Language (WSDL) Version 2.0 Part 1: Core Language </a>
+  # <a href="http://www.w3.org/TR/2007/REC-soap12-part1-20070427/"> SOAP Version 1.2 Part 1: Messaging Framework (Second Edition) </a>
+
 = 参考资料 =
   # IGRS Media Server on Linux <a ref="http://code.google.com/p/igrs-media-server/">http://code.google.com/p/igrs-media-server/</a>
