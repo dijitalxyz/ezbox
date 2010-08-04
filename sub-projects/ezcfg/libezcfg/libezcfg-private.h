@@ -147,6 +147,11 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf);
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
 unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
+bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major);
+bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor);
+bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_strings, unsigned char num_methods);
+unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method);
+bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
 void ezcfg_http_set_post_data(struct ezcfg_http *http, char *data);
 void ezcfg_http_set_post_data_len(struct ezcfg_http *http, int len);
@@ -177,13 +182,16 @@ bool ezcfg_xml_element_add_attribute(
 /* libezcfg-soap.c */
 struct ezcfg_soap;
 void ezcfg_soap_delete(struct ezcfg_soap *soap);
-struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg, struct ezcfg_xml *xml);
+struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg);
 
 /* libezcfg-irgs.c */
+struct ezcfg_igrs_msg_op;
 struct ezcfg_igrs;
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
 struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
+bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type);
 
 /* libezcfg-isdp.c */
 struct ezcfg_isdp;

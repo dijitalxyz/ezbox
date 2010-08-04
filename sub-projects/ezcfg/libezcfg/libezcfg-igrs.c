@@ -36,6 +36,11 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
+struct ezcfg_igrs_msg_op {
+	char *name;
+	bool (*builder)(struct ezcfg_igrs *igrs);
+};
+
 struct ezcfg_igrs {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -44,7 +49,10 @@ struct ezcfg_igrs {
 	/* IGRS info */
 	unsigned short version_major; /* IGRS major version, must be 1 */
 	unsigned short version_minor; /* IGRS minor version, must be 0 */
-	unsigned short message_type; /* index for message type string */
+
+	unsigned short num_message_types; /* Number of supported message types */
+	const struct ezcfg_igrs_msg_op *message_type_ops;
+	unsigned short message_type_index; /* index for message type string */
 	char *host; /* Multicast channel and port reserved for ISDP */
 	/* NOTIFY headers */
 	char *cache_control; /* Used in advertisement mechanisms */
@@ -59,81 +67,91 @@ struct ezcfg_igrs {
 	char *st; /* Search Target */
 };
 
-static const char *message_type_strings[] = {
-	/* bad Message Type string */
+/* for HTTP/1.1 request methods */
+static const char *igrs_method_strings[] = {
+	/* bad method string */
 	NULL,
+	/* IGRS used motheds */
+	"M-POST",
+};
+
+static bool build_create_session_request(struct ezcfg_igrs *igrs);
+
+static const struct ezcfg_igrs_msg_op default_message_type_ops[] = {
+	/* bad Message Type string */
+	{ NULL, NULL },
 	/* 9.1 Device Advertisement */
-	"DeviceOnlineAdvertisement",
-	"DeviceOfflineAdvertisement",
+	{ "DeviceOnlineAdvertisement", NULL },
+	{ "DeviceOfflineAdvertisement", NULL },
 	/* 9.2 Device Pipe Management */
-	"CreatePipeRequest",
-	"CreatePipeResponse",
-	"AuthenticateRequest",
-	"AuthenticateResponse",
-	"AuthenticateResultRequest",
-	"AuthenticateResultResponse",
-	"CreatePipeResultRequest",
-	"CreatePipeResultResponse",
-	"DetachPipeNotify",
-	"DeviceOnlineDetectionRequest",
-	"DeviceOnlineDetectionResponse",
+	{ "CreatePipeRequest", NULL },
+	{ "CreatePipeResponse", NULL },
+	{ "AuthenticateRequest", NULL },
+	{ "AuthenticateResponse", NULL },
+	{ "AuthenticateResultRequest", NULL },
+	{ "AuthenticateResultResponse", NULL },
+	{ "CreatePipeResultRequest", NULL },
+	{ "CreatePipeResultResponse", NULL },
+	{ "DetachPipeNotify", NULL },
+	{ "DeviceOnlineDetectionRequest", NULL },
+	{ "DeviceOnlineDetectionResponse", NULL },
 	/* 9.3 Detaild Device Description Document Retrieval */
-	"GetDeviceDescriptionRequest",
-	"GetDeviceDescriptionResponse",
+	{ "GetDeviceDescriptionRequest", NULL },
+	{ "GetDeviceDescriptionResponse", NULL },
 	/* 9.4 Retrieve Detailed Device Description Document Based on Non-Secure Pipe */
 	/* 9.5 Device Group Setup */
-	"PeerDeviceGroupAdvertisement",
-	"QuitPeerDeviceGroupNotify",
-	"CentralisedDeviceGroupAdvertisement",
-	"JoinCentralisedDeviceGroupRequest",
-	"JoinCentralisedDeviceGroupResponse",
-	"QuitCentralisedDeviceGroupAdvertisement",
-	"QuitCentralisedDeviceGroupNotify",
+	{ "PeerDeviceGroupAdvertisement", NULL },
+	{ "QuitPeerDeviceGroupNotify", NULL },
+	{ "CentralisedDeviceGroupAdvertisement", NULL },
+	{ "JoinCentralisedDeviceGroupRequest", NULL },
+	{ "JoinCentralisedDeviceGroupResponse", NULL },
+	{ "QuitCentralisedDeviceGroupAdvertisement", NULL },
+	{ "QuitCentralisedDeviceGroupNotify", NULL },
 	/* 9.6 Device Search */
-	"SearchDeviceRequest",
-	"SearchDeviceResponse",
-	"SearchDeviceRequestOnDevice",
-	"SearchDeviceResponseOnDevice",
+	{ "SearchDeviceRequest", NULL },
+	{ "SearchDeviceResponse", NULL },
+	{ "SearchDeviceRequestOnDevice", NULL },
+	{ "SearchDeviceResponseOnDevice", NULL },
 	/* 9.7 Device Online/Offline Event Subscription */
-	"SubscribeDeviceEventRequest",
-	"RenewSubscriptionDeviceEventRequest",
-	"SubscribeDeviceEventResponse",
-	"UnSubscribeDeviceEventNotify",
-	"NotifyDeviceEvent",
+	{ "SubscribeDeviceEventRequest", NULL },
+	{ "RenewSubscriptionDeviceEventRequest", NULL },
+	{ "SubscribeDeviceEventResponse", NULL },
+	{ "UnSubscribeDeviceEventNotify", NULL },
+	{ "NotifyDeviceEvent", NULL },
 	/* 9.8 Device Group Search */
-	"SearchDeviceGroupRequest",
-	"SearchDeviceGroupResponse",
+	{ "SearchDeviceGroupRequest", NULL },
+	{ "SearchDeviceGroupResponse", NULL },
 	/* 10.1 Service Online/Offline Advertisement */
-	"ServiceOnlineAdvertisement",
-	"ServiceOfflineAdvertisement",
-	"RegisterServiceNotify",
-	"UnRegisterServiceNotify",
+	{ "ServiceOnlineAdvertisement", NULL },
+	{ "ServiceOfflineAdvertisement", NULL },
+	{ "RegisterServiceNotify", NULL },
+	{ "UnRegisterServiceNotify", NULL },
 	/* 10.2 Service Search */
-	"SearchServiceRequest",
-	"SearchServiceResponse",
-	"SearchServiceRequestOnDevice",
-	"SearchServiceResponseOnDevice",
+	{ "SearchServiceRequest", NULL },
+	{ "SearchServiceResponse", NULL },
+	{ "SearchServiceRequestOnDevice", NULL },
+	{ "SearchServiceResponseOnDevice", NULL },
 	/* 10.3 Service Online/Offline Event Subscription */
-	"SubscribeServiceEventRequest",
-	"RenewSubscriptionServiceEventRequest",
-	"SubscribeServiceEventResponse",
-	"UnSubscribeDeviceEventNotify",
-	"NotifyServiceEvent",
+	{ "SubscribeServiceEventRequest", NULL },
+	{ "RenewSubscriptionServiceEventRequest", NULL },
+	{ "SubscribeServiceEventResponse", NULL },
+	{ "UnSubscribeDeviceEventNotify", NULL },
+	{ "NotifyServiceEvent", NULL },
 	/* 10.4 Service Description Document Retrieval */
-	"GetServiceDescriptionRequest",
-	"GetServiceDescriptionResponse",
+	{ "GetServiceDescriptionRequest", NULL },
+	{ "GetServiceDescriptionResponse", NULL },
 	/* 10.5 Session */
-	"CreateSessionRequest",
-	"CreateSessionResponse",
-	"DestroySessionNotify",
-	"ApplySessionKeyRequest",
-	"ApplySessionKeyResponse",
-	"TransferSessionKeyRequest",
-	"TransferSessionKeyResponse",
+	{ "CreateSessionRequest", build_create_session_request },
+	{ "CreateSessionResponse", NULL },
+	{ "DestroySessionNotify", NULL },
+	{ "ApplySessionKeyRequest", NULL },
+	{ "ApplySessionKeyResponse", NULL },
+	{ "TransferSessionKeyRequest", NULL },
+	{ "TransferSessionKeyResponse", NULL },
 	/* 10.6 Service Invocation */
-	"InvokeServiceRequest",
-	"InvokeServiceResponse",
-	"SendNotification",
+	{ "InvokeServiceRequest", NULL },
+	{ "InvokeServiceResponse", NULL },
+	{ "SendNotification", NULL },
 };
 
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
@@ -146,6 +164,10 @@ void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
 
 	if (igrs->http != NULL) {
 		ezcfg_http_delete(igrs->http);
+	}
+
+	if (igrs->soap != NULL) {
+		ezcfg_soap_delete(igrs->soap);
 	}
 
 	free(igrs);
@@ -174,11 +196,19 @@ struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg)
 
 	igrs->http = ezcfg_http_new(ezcfg);
 	if (igrs->http == NULL) {
-		free(igrs);
+		ezcfg_igrs_delete(igrs);
+		return NULL;
+	}
+
+	igrs->soap = ezcfg_soap_new(ezcfg);
+	if (igrs->soap == NULL) {
+		ezcfg_igrs_delete(igrs);
 		return NULL;
 	}
 
 	igrs->ezcfg = ezcfg;
+	ezcfg_http_set_method_strings(igrs->http, igrs_method_strings, ARRAY_SIZE(igrs_method_strings) - 1);
+	ezcfg_igrs_set_message_type_ops(igrs, default_message_type_ops, ARRAY_SIZE(default_message_type_ops) - 1);
 	return igrs;
 }
 
@@ -190,4 +220,65 @@ void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
 
 	ezcfg = igrs->ezcfg;
 
+}
+
+static bool build_create_session_request(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+
+	assert(igrs != NULL);
+	assert(igrs->http != NULL);
+	assert(igrs->soap != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+	soap = igrs->soap;
+
+	ezcfg_http_set_request_method(http, "M-POST");
+	ezcfg_http_set_request_uri(http, "/IGRS");
+	ezcfg_http_set_version_major(http, 1);
+	ezcfg_http_set_version_minor(http, 1);
+
+	return true;
+}
+
+bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(message_type_ops != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->num_message_types = num_message_types;
+	igrs->message_type_ops = message_type_ops;
+
+	return true;
+}
+
+bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)
+{
+	struct ezcfg *ezcfg;
+	const struct ezcfg_igrs_msg_op *op;
+	int i;
+
+	assert(igrs != NULL);
+	assert(type != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	dbg(ezcfg, "debug num_message_types=[%d]\n", igrs->num_message_types);
+	for (i = igrs->num_message_types; i > 0; i--) {
+	dbg(ezcfg, "debug i=[%d]\n", i);
+		op = &(igrs->message_type_ops[i]);
+		if ( strcmp(op->name, type) == 0) {
+			if (op->builder != NULL) {
+				return op->builder(igrs);
+			}
+		}
+	}
+	return false;
 }

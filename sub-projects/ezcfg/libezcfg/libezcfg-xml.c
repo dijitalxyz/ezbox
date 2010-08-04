@@ -29,16 +29,16 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
-struct attribute {
+struct elem_attribute {
 	char *name;
 	char *value;
-	struct attribute *next;
+	struct elem_attribute *next;
 };
 
 struct ezcfg_xml_element {
 	char *name;
-	struct attribute *attr_head;
-	struct attribute *attr_tail;
+	struct elem_attribute *attr_head;
+	struct elem_attribute *attr_tail;
 	char *content;
 	int etag_index; /* etag index in root stack */
 };
@@ -138,7 +138,7 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
-	struct attribute *a;
+	struct elem_attribute *a;
 	assert(elem != NULL);
 	if (elem->name)
 		free(elem->name);
@@ -198,7 +198,7 @@ bool ezcfg_xml_element_add_attribute(
 	const char *name, const char *value, int pos) {
 
 	struct ezcfg *ezcfg;
-	struct attribute *a;
+	struct elem_attribute *a;
 
 	assert(xml != NULL);
 	assert(elem != NULL);
@@ -207,13 +207,13 @@ bool ezcfg_xml_element_add_attribute(
 
 	ezcfg = xml->ezcfg;
 
-	a = calloc(1, sizeof(struct attribute));
+	a = calloc(1, sizeof(struct elem_attribute));
 	if (a == NULL) {
 		err(ezcfg, "no memory for element attribute\n");
 		return false;
 	}
 
-	memset(a, 0, sizeof(struct attribute));
+	memset(a, 0, sizeof(struct elem_attribute));
 
 	a->name = strdup(name);
 	if (a->name == NULL) {
@@ -340,7 +340,7 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
-	struct attribute *a;
+	struct elem_attribute *a;
 	int i;
 
 	assert(xml != NULL);

@@ -2,7 +2,8 @@
  * Project Name : ezbox configuration utilities
  * File Name    : libezcfg-http.c
  *
- * Description  : interface to configurate ezbox information
+ * Description  : implement HTTP/1.1 protocol (RFC 2616)
+ *                and it's extension (RFC 2774)
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -43,26 +44,37 @@ struct http_header {
 
 struct ezcfg_http {
 	struct ezcfg *ezcfg;
-	unsigned char request_method; /* index of method_strings, should be > 0, 0 means error */
-	char *uri; /* URL-decoded URI */
+
+	unsigned char num_methods; /* Number of supported methods */
+	const char **method_strings;
+	unsigned char method_index; /* index of method_strings, should be > 0, 0 means error */
+
+	char *request_uri; /* URL-decoded URI */
+	char *query_string; /* \0 - terminated, use same buf with request_uri !!! */
+
 	unsigned short version_major;
 	unsigned short version_minor;
-	char *query_string; /* \0 - terminated, use same buf with uri! */
+
+	unsigned short status_code; /* HTTP response status code */
+	char * reason_phrase; /* HTTP response Reason-Phrase */
+
+	unsigned char max_headers; /* Max number of headers */
+	unsigned char num_headers; /* Number of headers */
+	struct http_header *headers; /* HTTP header array */
+
+	bool is_ssl; /* true if SSL-ed, false if not */
 	char *post_data; /* POST data buffer */
 	char *remote_user; /* Authenticated user */
 	char *log_message; /* error log message */
 	char *remote_address; /* Client's network address (path or ip/port) */
 	int post_data_len; /* POST buffer length */
-	unsigned short status_code; /* HTTP status code */
-	bool is_ssl; /* true if SSL-ed, false if not */
-	unsigned char num_headers; /* Number of headers */
-	struct http_header headers[64]; /* Maximum 64 headers */
+
 };
 
-static const char *method_strings[] = {
+static const char *default_method_strings[] = {
 	/* bad method string */
 	NULL,
-	/* HTTP/1.1 define methods */
+	/* HTTP/1.1 defined methods */
 	"OPTIONS",
 	"GET",
 	"HEAD",
@@ -71,12 +83,6 @@ static const char *method_strings[] = {
 	"DELETE",
 	"TRACE",
 	"CONNECT",
-	/* IGRS extened methods */
-	"NOTIFY",
-	"M-GET",
-	"M-POST",
-	"M-SEARCH",
-	"M-NOTIFY",
 };
 
 
@@ -110,7 +116,7 @@ static void clear_http_headers(struct ezcfg_http *http)
 	assert(http != NULL);
 
 	ezcfg = http->ezcfg;
-	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
+	for (i=0; i<(int)(http->max_headers); i++) {
 		if ( http->headers[i].name != NULL) {
 			free(http->headers[i].name);
 			http->headers[i].name = NULL;
@@ -133,10 +139,13 @@ static void clear_http_headers(struct ezcfg_http *http)
 void ezcfg_http_delete(struct ezcfg_http *http)
 {
 	assert(http != NULL);
+	assert(http->headers != NULL);
 
 	clear_http_headers(http);
-	if (http->uri != NULL) {
-		free(http->uri);
+	free(http->headers);
+
+	if (http->request_uri != NULL) {
+		free(http->request_uri);
 	}
 	if (http->post_data != NULL) {
 		free(http->post_data);
@@ -150,6 +159,7 @@ void ezcfg_http_delete(struct ezcfg_http *http)
 	if (http->remote_address != NULL) {
 		free(http->remote_address);
 	}
+
 	free(http);
 }
 
@@ -167,11 +177,24 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	assert(ezcfg != NULL);
 
 	/* initialize http info structure */
-	if ((http = calloc(1, sizeof(struct ezcfg_http))) == NULL)
+	http = calloc(1, sizeof(struct ezcfg_http));
+	if (http == NULL) {
 		return NULL;
+	}
 
 	memset(http, 0, sizeof(struct ezcfg_http));
+
+	http->max_headers = EZCFG_HTTP_MAX_HEADERS;
+	http->headers = calloc(http->max_headers, sizeof(struct http_header));
+	if (http->headers == NULL) {
+		free(http);
+		return NULL;
+	}
+
 	http->ezcfg = ezcfg;
+	http->num_methods = ARRAY_SIZE(default_method_strings) - 1; /* first item is NULL */
+	http->method_strings = default_method_strings;
+
 	return http;
 }
 
@@ -230,7 +253,7 @@ static bool parse_http_headers(struct ezcfg_http *http, char **buf)
 
 	ezcfg = http->ezcfg;
 
-	for (i=0; i<(int)ARRAY_SIZE(http->headers); i++) {
+	for (i=0; i<(int)(http->max_headers); i++) {
 		name = skip(buf, ":");
 		value = skip(buf, "\r\n");
 		while (*value == ' ') value++;
@@ -247,15 +270,18 @@ static bool parse_http_headers(struct ezcfg_http *http, char **buf)
 	return true;
 }
 
-static unsigned char find_method_index(struct ezcfg *ezcfg, const char *method)
+static unsigned char find_method_index(struct ezcfg_http *http, const char *method)
 {
+	struct ezcfg *ezcfg;
 	int i;
 
-	assert(ezcfg != NULL);
+	assert(http != NULL);
 	assert(method != NULL);
 
-	for (i=ARRAY_SIZE(method_strings)-1; i>0; i--) {
-		if (strcmp(method_strings[i], method) == 0)
+	ezcfg = http->ezcfg;
+
+	for (i = http->num_methods; i > 0; i--) {
+		if (strcmp(http->method_strings[i], method) == 0)
 			return i;
 	}
 	return 0;
@@ -283,8 +309,8 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 
 	/* 0-terminated method string */
 	*p = '\0';
-	http->request_method = find_method_index(http->ezcfg, method);
-	if (http->request_method == 0)
+	http->method_index = find_method_index(http, method);
+	if (http->method_index == 0)
 		return false;
 
 	/* restore the SP charactor */
@@ -301,8 +327,8 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 
 	/* 0-terminated method string */
 	*p = '\0';
-	http->uri = strdup(uri);
-	if (http->uri == NULL)
+	http->request_uri = strdup(uri);
+	if (http->request_uri == NULL)
 		return false;
 
 	/* restore the SP charactor */
@@ -343,6 +369,32 @@ unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http)
 	ezcfg = http->ezcfg;
 
 	return http->version_minor;
+}
+
+bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->version_major = major;
+
+	return true;
+}
+
+bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->version_minor = minor;
+
+	return true;
 }
 
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
@@ -403,8 +455,8 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	info(ezcfg, "request_method=[%s]\n", method_strings[http->request_method]);
-	info(ezcfg, "uri=[%s]\n", http->uri);
+	info(ezcfg, "request_method=[%s]\n", http->method_strings[http->method_index]);
+	info(ezcfg, "uri=[%s]\n", http->request_uri);
 	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
 	info(ezcfg, "query_string=[%s]\n", http->query_string);
 	info(ezcfg, "post_data=[%s]\n", http->post_data);
@@ -413,7 +465,64 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 	info(ezcfg, "post_data_len=[%d]\n", http->post_data_len);
 	info(ezcfg, "status_code=[%d]\n", http->status_code);
 	info(ezcfg, "is_ssl=[%d]\n", http->is_ssl);
+	info(ezcfg, "max_headers=[%d]\n", http->max_headers);
 	info(ezcfg, "num_headers=[%d]\n", http->num_headers);
 	for(i=0; i<http->num_headers; i++)
 		info(ezcfg, "header[%d]=[(%s),(%s)]\n", i, http->headers[i].name, http->headers[i].value);
+}
+
+bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_strings, unsigned char num_methods)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+	assert(method_strings != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->num_methods = num_methods;
+	http->method_strings = method_strings;
+
+	return true;
+}
+
+unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	assert(http != NULL);
+	assert(method != NULL);
+
+	ezcfg = http->ezcfg;
+
+	for (i = http->num_methods; i > 0; i++) {
+		if (strcmp(http->method_strings[i], method) == 0)
+			break;
+	}
+
+	return i;
+}
+
+bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
+{
+	struct ezcfg *ezcfg;
+	char *request_uri;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	request_uri = strdup(uri);
+	if (request_uri == NULL) {
+		return false;
+	}
+
+	if (http->request_uri != NULL) {
+		free(http->request_uri);
+	}
+
+	http->request_uri = request_uri;
+
+	return true;
 }

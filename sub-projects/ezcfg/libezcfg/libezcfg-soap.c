@@ -67,12 +67,11 @@ void ezcfg_soap_delete(struct ezcfg_soap *soap)
  *
  * Returns: a new ezcfg soap info builder data structure
  **/
-struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg, struct ezcfg_xml *xml)
+struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_soap *soap;
 
 	assert(ezcfg != NULL);
-	assert(xml != NULL);
 
 	/* initialize soap info builder data structure */
 	soap = calloc(1, sizeof(struct ezcfg_soap));
@@ -83,6 +82,13 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg, struct ezcfg_xml *xml)
 
 	memset(soap, 0, sizeof(struct ezcfg_soap));
 
+	soap->xml = ezcfg_xml_new(ezcfg);
+	if (soap->xml == NULL) {
+		ezcfg_soap_delete(soap);
+		return NULL;
+	}
+
+#if 0
 	soap->env_index = ezcfg_xml_get_element_index(xml, EZCFG_SOAP_ENV_ELEMENT_NAME);
 	if (soap->env_index != 0) {
 		err(ezcfg, "invalid soap envelope element!\n");
@@ -96,9 +102,9 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg, struct ezcfg_xml *xml)
 		free(soap);
 		return NULL;
 	}
+#endif
 
 	soap->ezcfg = ezcfg;
-	soap->xml = xml;
 
 	return soap;
 }

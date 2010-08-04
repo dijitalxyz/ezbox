@@ -81,6 +81,7 @@ int ezcm_main(int argc, char **argv)
 	struct ezcfg_xml_element *elem = NULL;
 	struct ezcfg_xml_element *elem2 = NULL;
 	struct ezcfg_xml *xml = NULL;
+	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 
 	memset(buf, 0, sizeof(buf));
@@ -114,6 +115,19 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
 
+	dbg(ezcfg, "debug\n");
+	igrs = ezcfg_igrs_new(ezcfg);
+	dbg(ezcfg, "debug\n");
+	if (igrs == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize ezcm igrs builder");
+		rc = 2;
+		goto exit;
+	}
+
+	dbg(ezcfg, "debug\n");
+	ezcfg_igrs_build_message(igrs, "CreateSessionRequest");
+	dbg(ezcfg, "debug\n");
+
 	xml = ezcfg_xml_new(ezcfg);
 	if (xml == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm xml parser");
@@ -141,6 +155,7 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_xml_add_element(xml, elem, NULL, elem2);
 
 	ezcfg_xml_write(xml, soap_buf, sizeof(soap_buf));
+
 
 	snprintf(msg, sizeof(msg),
 "M-POST /IGRS HTTP/1.1\r\n"
@@ -190,6 +205,9 @@ int ezcm_main(int argc, char **argv)
 	info(ezcfg, "received message=[%s]\n", msg);
 #endif
 exit:
+	if (igrs != NULL)
+		ezcfg_igrs_delete(igrs);
+
 	if (xml != NULL)
 		ezcfg_xml_delete(xml);
 

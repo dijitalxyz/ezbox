@@ -52,6 +52,9 @@ extern "C" {
 #define EZCFG_SOAP_ENV_ENC_NAME		"SOAP-ENV:encodingStyle"
 #define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
 
+/* ezcfg http definitions */
+#define EZCFG_HTTP_MAX_HEADERS	64 /* must be less than 256 */
+
 /*
  * ezcfg - library context
  *
