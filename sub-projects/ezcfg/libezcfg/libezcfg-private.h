@@ -155,6 +155,9 @@ void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
 bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
+int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len);
+bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
+int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
 
 /* libezcfg-xml.c */
 struct ezcfg_xml_element;

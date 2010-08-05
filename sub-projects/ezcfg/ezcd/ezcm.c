@@ -75,17 +75,13 @@ int ezcm_main(int argc, char **argv)
 	int c = 0;
 	int rc = 0;
 	char buf[32];
-	char soap_buf[2048];
 	char msg[4096];
+	int msg_len;
 	struct ezcfg *ezcfg = NULL;
-	struct ezcfg_xml_element *elem = NULL;
-	struct ezcfg_xml_element *elem2 = NULL;
-	struct ezcfg_xml *xml = NULL;
 	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 
 	memset(buf, 0, sizeof(buf));
-	memset(soap_buf, 0, sizeof(soap_buf));
 	memset(msg, 0, sizeof(msg));
 	for (;;) {
 		c = getopt( argc, argv, "Dhm:");
@@ -127,7 +123,9 @@ int ezcm_main(int argc, char **argv)
 	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_build_message(igrs, "CreateSessionRequest");
 	dbg(ezcfg, "debug\n");
+	msg_len = ezcfg_igrs_write_message(igrs, msg, sizeof(msg));
 
+#if 0
 	xml = ezcfg_xml_new(ezcfg);
 	if (xml == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm xml parser");
@@ -172,7 +170,7 @@ int ezcm_main(int argc, char **argv)
 "02-SoapAction: \"IGRS-CreateSession-Request\"\r\n"
 "\r\n"
 "%s",strlen(soap_buf), soap_buf);
-
+#endif
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
 
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf);
@@ -189,7 +187,7 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, strlen(msg), 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		err(ezcfg, "controller write: %m\n");
 		rc = 4;
 		goto exit;
@@ -207,9 +205,6 @@ int ezcm_main(int argc, char **argv)
 exit:
 	if (igrs != NULL)
 		ezcfg_igrs_delete(igrs);
-
-	if (xml != NULL)
-		ezcfg_xml_delete(xml);
 
 	if (ezctrl != NULL)
 		ezcfg_ctrl_delete(ezctrl);
