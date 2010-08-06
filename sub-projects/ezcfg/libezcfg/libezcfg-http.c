@@ -241,7 +241,8 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 
 		/* find header value field */
 		value++;
-		while (*value == ' ' || *value == '\t') value++; /* skip LWS */
+		//while (*value == ' ' || *value == '\t') value++; /* skip LWS */
+		value = ezcfg_util_skip_leading_charlist(value, " \t"); /* skip LWS */
 
 		if (name[0] != '\0') {
 			if (ezcfg_http_add_header(http, name, value) == false) {
@@ -535,6 +536,21 @@ bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_
 	return true;
 }
 
+bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **header_strings, unsigned char num_headers)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+	assert(header_strings != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->num_known_headers = num_headers;
+	http->known_header_strings = header_strings;
+
+	return true;
+}
+
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method)
 {
 	struct ezcfg *ezcfg;
@@ -581,7 +597,7 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 	return true;
 }
 
-bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len)
+char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len)
 {
 	struct ezcfg *ezcfg;
 	char *message_body;
@@ -592,7 +608,7 @@ bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int 
 
 	message_body = calloc(len, sizeof(char));
 	if (message_body == NULL) {
-		return false;
+		return NULL;
 	}
 	memcpy(message_body, body, len);
 
@@ -603,7 +619,18 @@ bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int 
 	http->message_body = message_body;
 	http->message_body_len = len;
 
-	return true;
+	return message_body;
+}
+
+int ezcfg_http_get_message_body_len(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->message_body_len;
 }
 
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
@@ -721,3 +748,26 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value)
 	}
 	return true;
 }
+
+int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+
+	assert(http != NULL);
+	assert(buf != NULL);
+	assert(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	if (len < http->message_body_len) {
+		err(ezcfg, "buf length is too small\n");
+		return -1;
+	}
+
+	if (http->message_body != NULL) {
+		memcpy(buf, http->message_body, http->message_body_len);
+	}
+
+	return http->message_body_len;
+}
+

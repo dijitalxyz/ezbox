@@ -80,6 +80,7 @@ int ezcm_main(int argc, char **argv)
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
+	time_t t;
 
 	memset(buf, 0, sizeof(buf));
 	memset(msg, 0, sizeof(msg));
@@ -120,6 +121,15 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
+	dbg(ezcfg, "debug\n");
+	ezcfg_igrs_set_version_major(igrs, 1);
+	ezcfg_igrs_set_version_minor(igrs, 0);
+	dbg(ezcfg, "debug\n");
+	ezcfg_igrs_set_source_device_id(igrs, EZCFG_UUID_NIL_STRING);
+	ezcfg_igrs_set_target_device_id(igrs, EZCFG_UUID_NIL_STRING);
+	dbg(ezcfg, "debug\n");
+	srand((unsigned)time(&t));
+	ezcfg_igrs_set_sequence_id(igrs, rand());
 	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_build_message(igrs, "CreateSessionRequest");
 	dbg(ezcfg, "debug\n");

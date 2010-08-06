@@ -55,6 +55,11 @@ extern "C" {
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS	64 /* must be less than 256 */
 
+/* ezcfg uuid definitions */
+#define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
+#define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
+#define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
+
 /*
  * ezcfg - library context
  *

@@ -54,6 +54,12 @@ struct ezcfg_igrs {
 	unsigned short num_message_types; /* Number of supported message types */
 	const struct ezcfg_igrs_msg_op *message_type_ops;
 	unsigned short message_type_index; /* index for message type string */
+
+	char source_device_id[EZCFG_UUID_STRING_LEN+1]; /* +1 for \0-terminated */
+	char target_device_id[EZCFG_UUID_STRING_LEN+1]; /* +1 for \0-terminated */
+
+	unsigned int sequence_id; /* 0 reserved */
+
 	char *host; /* Multicast channel and port reserved for ISDP */
 	/* NOTIFY headers */
 	char *cache_control; /* Used in advertisement mechanisms */
@@ -74,6 +80,23 @@ static const char *igrs_method_strings[] = {
 	NULL,
 	/* IGRS used motheds */
 	"M-POST",
+};
+
+/* for HTTP/1.1 known header */
+static const char *igrs_header_strings[] = {
+	/* bad header string */
+	NULL,
+	/* IGRS known headers */
+	"Host",
+	"Content-Type",
+	"Content-Length",
+	"Man",
+	"01-IGRSVersion",
+	"01-IGRSMessageType",
+	"01-TargetDeviceId",
+	"01-SourceDeviceId",
+	"01-SequenceId",
+	"02-SoapAction",
 };
 
 static bool build_create_session_request(struct ezcfg_igrs *igrs);
@@ -164,6 +187,8 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
+	char buf[1024];
+	int n;
 
 	assert(igrs != NULL);
 	assert(igrs->http != NULL);
@@ -172,6 +197,17 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
 	soap = igrs->soap;
+
+	/* build SOAP */
+	ezcfg_soap_set_version_major(soap, 1);
+	ezcfg_soap_set_version_minor(soap, 2);
+	ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENV_ELEMENT_NAME);
+	ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENV_NS_NAME, EZCFG_SOAP_ENV_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENV_ENC_NAME, EZCFG_SOAP_ENV_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	buf[0] = '\0';
+	n = ezcfg_soap_write(soap, buf, sizeof(buf));
+	ezcfg_http_set_message_body(http, buf, n);
 
 	/* build HTTP request line */
 	ezcfg_http_set_request_method(http, "M-POST");
@@ -182,13 +218,26 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	/* build HTTP headers */
 	ezcfg_http_add_header(http, "HOST", "192.168.1.1:3880");
 	ezcfg_http_add_header(http, "MAN", "\"http://www.igrs.org/session\";ns=01");
-	ezcfg_http_add_header(http, "01-IGRSVersion", "IGRS/1.0");
+
+	snprintf(buf, sizeof(buf), "IGRS/%d.%d", igrs->version_major, igrs->version_minor);
+	ezcfg_http_add_header(http, "01-IGRSVersion", buf);
+
 	ezcfg_http_add_header(http, "01-IGRSMessageType", "CreateSessionRequest");
-	ezcfg_http_add_header(http, "01-TargetDeviceId", "urn:IGRS:Device:DeviceId:88888888-4444-4444-4444-CCCCCCCCCCCC");
-	ezcfg_http_add_header(http, "01-SourceDeviceId", "urn:IGRS:Device:DeviceId:88888888-4444-4444-4444-CCCCCCCCCCCC");
-	ezcfg_http_add_header(http, "01-SequenceId", "123456");
+
+	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->target_device_id);
+	ezcfg_http_add_header(http, "01-TargetDeviceId", buf);
+
+	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->source_device_id);
+	ezcfg_http_add_header(http, "01-SourceDeviceId", buf);
+
+	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
+	ezcfg_http_add_header(http, "01-SequenceId", buf);
+
 	ezcfg_http_add_header(http, "Content-type", "text/xml;charset=utf-8");
-	ezcfg_http_add_header(http, "Content-length", "0");
+
+	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
+	ezcfg_http_add_header(http, "Content-length", buf);
+
 	ezcfg_http_add_header(http, "MAN", "\"http://www.w3.org/2002/12/soap-envelope\";ns=02");
 	ezcfg_http_add_header(http, "02-SoapAction", "\"IGRS-CreateSession-Request\"");
 
@@ -218,13 +267,35 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 	n = 0;
 	n = ezcfg_http_write_request_line(http, p, len);
 	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_request_line\n");
 		return n;
 	}
 	p += n;
 	len -= n;
 	n = ezcfg_http_write_headers(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_headers\n");
+		return n;
+	}
+	p += n;
+	len -= n;
 
-	return n;
+	if (len < 2) {
+		err(ezcfg, "buffer is to small for igrs message\n");
+		return -1;
+	}
+
+	p[0] = '\r'; p[1] = '\n'; /* add CRLF for HTTP */
+	p += 2;
+	len -= 2;
+
+	n = ezcfg_http_write_message_body(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_message_body\n");
+		return n;
+	}
+
+	return (p-buf)+n;
 }
 
 /**
@@ -282,6 +353,7 @@ struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg)
 
 	igrs->ezcfg = ezcfg;
 	ezcfg_http_set_method_strings(igrs->http, igrs_method_strings, ARRAY_SIZE(igrs_method_strings) - 1);
+	ezcfg_http_set_known_header_strings(igrs->http, igrs_header_strings, ARRAY_SIZE(igrs_header_strings) - 1);
 	ezcfg_igrs_set_message_type_ops(igrs, default_message_type_ops, ARRAY_SIZE(default_message_type_ops) - 1);
 	return igrs;
 }
@@ -309,6 +381,126 @@ bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg
 	igrs->message_type_ops = message_type_ops;
 
 	return true;
+}
+
+unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->version_major;
+}
+
+unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->version_minor;
+}
+
+bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->version_major = major;
+
+	return true;
+}
+
+bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->version_minor = minor;
+
+	return true;
+}
+
+bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(uuid_str != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	snprintf(igrs->source_device_id, EZCFG_UUID_STRING_LEN+1, "%s", uuid_str);
+	return true;
+}
+
+char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->source_device_id;
+}
+
+bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(uuid_str != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	snprintf(igrs->target_device_id, EZCFG_UUID_STRING_LEN+1, "%s", uuid_str);
+	return true;
+}
+
+char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->target_device_id;
+}
+
+bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(seq_id > 0);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->sequence_id = seq_id;
+	return true;
+}
+
+unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->sequence_id;
 }
 
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)

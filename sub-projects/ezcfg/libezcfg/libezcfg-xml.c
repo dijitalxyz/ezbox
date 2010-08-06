@@ -347,6 +347,7 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 
 	ezcfg = xml->ezcfg;
 	root = xml->root;
+	buf[0] = '\0';
 
 	for (i = 0; i < xml->num_elements; i++) {
 		if (root[i]->etag_index != i) {
@@ -389,4 +390,16 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name)
 			return i;
 	}
 	return -1;
+}
+
+struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, int i)
+{
+	struct ezcfg *ezcfg;
+
+	assert(xml != NULL);
+	assert(xml->root != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	return xml->root[i];
 }

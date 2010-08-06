@@ -149,15 +149,18 @@ unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
 bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major);
 bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor);
 bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_strings, unsigned char num_methods);
+bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **header_strings, unsigned char num_headers);
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
 void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
-bool ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
+char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
+int ezcfg_http_get_message_body_len(struct ezcfg_http *http);
 char *ezcfg_http_get_header(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
 
 /* libezcfg-xml.c */
 struct ezcfg_xml_element;
@@ -179,11 +182,19 @@ bool ezcfg_xml_element_add_attribute(
         struct ezcfg_xml *xml,
         struct ezcfg_xml_element *elem,
         const char *name, const char *value, int pos);
+struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, int index);
 
 /* libezcfg-soap.c */
 struct ezcfg_soap;
 void ezcfg_soap_delete(struct ezcfg_soap *soap);
 struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg);
+unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap);
+unsigned short ezcfg_soap_get_version_minor(struct ezcfg_soap *soap);
+bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major);
+bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor);
+int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name);
+bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name, const char *value, int pos);
+int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
 /* libezcfg-irgs.c */
 struct ezcfg_igrs_msg_op;
@@ -192,6 +203,16 @@ void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
 struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
+unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs);
+unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
+bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
+bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
+char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
+char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id);
+unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 
@@ -236,9 +257,10 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 #define UTIL_LINE_SIZE				16384
 #define EZCFG_ALLOWED_CHARS_INPUT		"/ $%?,"
 
-int util_log_priority(const char *priority);
-void util_remove_trailing_chars(char *path, char c);
-size_t util_strpcpy(char **dest, size_t size, const char *src);
-size_t util_strscpy(char *dest, size_t size, const char *src);
+int ezcfg_util_log_priority(const char *priority);
+void ezcfg_util_remove_trailing_char(char *s, char c);
+void ezcfg_util_remove_trailing_charlist(char *s, char *l);
+char *ezcfg_util_skip_leading_char(char *s, char c);
+char *ezcfg_util_skip_leading_charlist(char *s, char *l);
 
 #endif

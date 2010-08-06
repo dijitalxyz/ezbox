@@ -176,7 +176,7 @@ struct ezcfg *ezcfg_new(void)
 		if (env != NULL) {
 			free(config_file);
 			config_file = strdup(env);
-			util_remove_trailing_chars(config_file, '/');
+			ezcfg_util_remove_trailing_char(config_file, '/');
 		}
 		if (config_file == NULL) {
 			goto fail_exit;
@@ -245,13 +245,13 @@ struct ezcfg *ezcfg_new(void)
 				}
 
 				if (strcmp(key, "ezcfg_log") == 0) {
-					ezcfg_set_log_priority(ezcfg, util_log_priority(val));
+					ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(val));
 					continue;
 				}
 				if (strcmp(key, "ezcfg_rules") == 0) {
 					free(ezcfg->rules_path);
 					ezcfg->rules_path = strdup(val);
-					util_remove_trailing_chars(ezcfg->rules_path, '/');
+					ezcfg_util_remove_trailing_char(ezcfg->rules_path, '/');
 					continue;
 				}
 			}
@@ -260,7 +260,7 @@ struct ezcfg *ezcfg_new(void)
 
 		env = getenv("EZCFG_LOG");
 		if (env != NULL)
-			ezcfg_set_log_priority(ezcfg, util_log_priority(env));
+			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(env));
 
 		dbg(ezcfg, "context %p created\n", ezcfg);
 		dbg(ezcfg, "log_priority=%d\n", ezcfg->log_priority);

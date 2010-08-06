@@ -18,9 +18,7 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
-extern void *mempcpy(void *dest, const void *src, size_t n);
-
-int util_log_priority(const char *priority)
+int ezcfg_util_log_priority(const char *priority)
 {
 	char *endptr;
 	int prio;
@@ -37,47 +35,45 @@ int util_log_priority(const char *priority)
 	return 0;
 }
 
-void util_remove_trailing_chars(char *path, char c)
+void ezcfg_util_remove_trailing_char(char *s, char c)
 {
 	size_t len;
 
-	if (path == NULL)
+	if (s == NULL)
 		return;
-	len = strlen(path);
-	while (len > 0 && path[len-1] == c)
-		path[--len] = '\0';
+	len = strlen(s);
+	while (len > 0 && s[len-1] == c)
+		s[--len] = '\0';
 }
 
-/*
- * Concatenates strings. In any case, terminates in _all_ cases with '\0'
- * and moves the @dest pointer forward to the added '\0'. Returns the
- * remaining size, and 0 if the string was truncated.
- */
-size_t util_strpcpy(char **dest, size_t size, const char *src)
+void ezcfg_util_remove_trailing_charlist(char *s, char *l)
 {
 	size_t len;
 
-	len = strlen(src);
-	if (len >= size) {
-		if (size > 1)
-			*dest = mempcpy(*dest, src, size-1);
-		size = 0;
-		*dest[0] = '\0';
-	} else {
-		if (len > 0) {
-			*dest = mempcpy(*dest, src, len);
-			size -= len;
-		}
-		*dest[0] = '\0';
-	}
-	return size;
+	if (s == NULL || l == NULL)
+		return;
+	len = strlen(s);
+	while (len > 0 && strchr(l, s[len-1]) != NULL)
+		s[--len] = '\0';
 }
 
-/* copies string */
-size_t util_strscpy(char *dest, size_t size, const char *src)
+char *ezcfg_util_skip_leading_char(char *s, char c)
 {
-	char *s;
-
-	s = dest;
-	return util_strpcpy(&s, size, src);
+	if (s == NULL)
+		return NULL;
+	if (c == '\0')
+		return s;
+	while (*s == c) s++;
+	return s;
 }
+
+char *ezcfg_util_skip_leading_charlist(char *s, char *l)
+{
+	if (s == NULL)
+		return NULL;
+	if (l == NULL)
+		return s;
+	while (*s != '\0' && strchr(l, *s) != NULL) s++;
+	return s;
+}
+
