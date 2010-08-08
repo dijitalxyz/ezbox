@@ -205,6 +205,8 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENV_NS_NAME, EZCFG_SOAP_ENV_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENV_ENC_NAME, EZCFG_SOAP_ENV_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
 	buf[0] = '\0';
 	n = ezcfg_soap_write(soap, buf, sizeof(buf));
 	ezcfg_http_set_message_body(http, buf, n);

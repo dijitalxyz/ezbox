@@ -38,9 +38,12 @@ struct ezcfg_soap {
 	unsigned short version_minor;
 
 	/* SOAP Envelope */
-	int env_index; /* SOAP Envelope element index in xml-root */
+	int envelope_index; /* SOAP Envelope element index in xml-root */
 	char *env_ns; /* SOAP envelope namespace */
 	char *env_enc; /* SOAP envelope encodingstyle */
+
+	/* SOAP header */
+	int header_index; /* SOAP Header element index in xml-root */
 
 	/* SOAP Body */
 	int body_index; /* SOAP Body element index in xml->root */
@@ -89,7 +92,7 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 		return NULL;
 	}
 
-	soap->env_index = -1;
+	soap->envelope_index = -1;
 	soap->body_index = -1;
 	soap->ezcfg = ezcfg;
 
@@ -165,8 +168,8 @@ int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name)
 		return -1;
 	}
 
-	soap->env_index = ezcfg_xml_add_element(xml, NULL, NULL, elem);
-	return soap->env_index;
+	soap->envelope_index = ezcfg_xml_add_element(xml, NULL, NULL, elem);
+	return soap->envelope_index;
 }
 
 bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name, const char *value, int pos) {
@@ -181,18 +184,53 @@ bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
-	if (soap->env_index < 0) {
+	if (soap->envelope_index < 0) {
 		err(ezcfg, "no soap envelope element!\n");
 		return false;
 	}
 
-	elem = ezcfg_xml_get_element_by_index(xml, soap->env_index);
+	elem = ezcfg_xml_get_element_by_index(xml, soap->envelope_index);
 	if (elem == NULL) {
 		err(ezcfg, "soap envelope element not set correct!\n");
 		return false;
 	}
 
 	return ezcfg_xml_element_add_attribute(xml, elem, name, value, pos);
+}
+
+int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+	struct ezcfg_xml_element *envelope, *elem;
+
+	assert(soap != NULL);
+	assert(soap->xml != NULL);
+	assert(name != NULL);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	elem = ezcfg_xml_element_new(xml, name, NULL);
+
+	if (elem == NULL) {
+		err(ezcfg, "Cannot initialize soap body\n");
+		return -1;
+	}
+
+	if (soap->envelope_index < 0) {
+		err(ezcfg, "no envelope for soap body\n");
+		return -1;
+	}
+
+	envelope = ezcfg_xml_get_element_by_index(xml, soap->envelope_index);
+	if (envelope == NULL) {
+		err(ezcfg, "soap envelope is invalid\n");
+		return -1;
+	}
+
+	soap->body_index = ezcfg_xml_add_element(xml, envelope, NULL, elem);
+	return soap->body_index;
 }
 
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
