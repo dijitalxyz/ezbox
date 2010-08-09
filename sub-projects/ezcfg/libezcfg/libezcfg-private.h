@@ -195,6 +195,8 @@ bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name);
 bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name, const char *value, int pos);
 int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);
+int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, int pi, int si, const char *name, const char *content);
+bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
 /* libezcfg-irgs.c */

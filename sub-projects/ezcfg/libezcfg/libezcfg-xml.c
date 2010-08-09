@@ -327,6 +327,7 @@ int ezcfg_xml_add_element(
 			err(ezcfg, "sibling element not found\n");
 			return -1;
 		}
+		i++; /* move to next element slot */
 		root[i] = elem;
 		xml->num_elements++;
 		elem->etag_index = i+1;

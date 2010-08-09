@@ -233,6 +233,77 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 	return soap->body_index;
 }
 
+int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int si, const char *name, const char *content)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+	struct ezcfg_xml_element *parent, *sibling, *elem;
+
+	assert(soap != NULL);
+	assert(soap->xml != NULL);
+	assert(name != NULL);
+	assert(pi > 0);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	elem = ezcfg_xml_element_new(xml, name, content);
+
+	if (elem == NULL) {
+		err(ezcfg, "Cannot initialize soap body\n");
+		return -1;
+	}
+
+	if (soap->body_index < 0) {
+		err(ezcfg, "no body for soap child\n");
+		return -1;
+	}
+
+	parent = ezcfg_xml_get_element_by_index(xml, pi);
+	if (parent == NULL) {
+		err(ezcfg, "soap parent index is invalid\n");
+		return -1;
+	}
+
+	sibling = NULL;
+	if (si > 0) {
+		sibling = ezcfg_xml_get_element_by_index(xml, si);
+		if (sibling == NULL) {
+			err(ezcfg, "soap sibling index is invalid\n");
+			return -1;
+		}
+	}
+
+	return ezcfg_xml_add_element(xml, parent, sibling, elem);
+}
+
+bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos) {
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+	struct ezcfg_xml_element *elem;
+
+	assert(soap != NULL);
+	assert(ei > 0);
+	assert(name != NULL);
+	assert(value != NULL);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	if (soap->envelope_index < 0) {
+		err(ezcfg, "no soap envelope element!\n");
+		return false;
+	}
+
+	elem = ezcfg_xml_get_element_by_index(xml, ei);
+	if (elem == NULL) {
+		err(ezcfg, "soap element index is invalid!\n");
+		return false;
+	}
+
+	return ezcfg_xml_element_add_attribute(xml, elem, name, value, pos);
+}
+
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 {
 	struct ezcfg *ezcfg;

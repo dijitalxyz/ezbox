@@ -60,6 +60,26 @@ extern "C" {
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
 
+/* ezcfg igrs soap element names */
+#define EZCFG_IGRS_ENVELOPE_ELEMENT_NAME	"SOAP-ENV:Envelope"
+#define EZCFG_IGRS_BODY_ELEMENT_NAME	"SOAP-ENV:Body"
+#define EZCFG_IGRS_SESSION_ELEMENT_NAME	"Session"
+#define EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME	"SourceClientId"
+#define EZCFG_IGRS_TARGET_SERVICE_ID_ELEMENT_NAME	"TargetServiceId"
+#define EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME	"SequenceId"
+#define EZCFG_IGRS_USER_INFO_ELEMENT_NAME	"UserInfo"
+#define EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME	"SourceUserId"
+#define EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME	"ServiceSecurityId"
+#define EZCFG_IGRS_TOKEN_ELEMENT_NAME	"Token"
+
+/* ezcfg igrs soap element attributes */
+#define EZCFG_IGRS_ENVELOPE_ATTR_NS_NAME		"xmlns:SOAP-ENV"
+#define EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE		"http://www.w3.org/2002/12/soap-envelope"
+#define EZCFG_IGRS_ENVELOPE_ATTR_ENC_NAME		"SOAP-ENV:encodingStyle"
+#define EZCFG_IGRS_ENVELOPE_ATTR_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
+#define EZCFG_IGRS_SESSION_ATTR_NS_NAME		"xmlns"
+#define EZCFG_IGRS_SESSION_ATTR_NS_VALUE	"www.igrs.org/spec1.0"
+
 /*
  * ezcfg - library context
  *
