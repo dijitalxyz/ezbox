@@ -46,7 +46,7 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *format, va_list args)
 {
 	if (debug) {
-		char buf[1024];
+		char buf[1024*8];
 		struct timeval tv;
 		struct timezone tz;
 
@@ -129,61 +129,22 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_igrs_set_target_device_id(igrs, EZCFG_UUID_NIL_STRING);
 	dbg(ezcfg, "debug\n");
 	srand((unsigned)time(&t));
+	ezcfg_igrs_set_source_client_id(igrs, rand());
+	ezcfg_igrs_set_target_service_id(igrs, rand());
 	ezcfg_igrs_set_sequence_id(igrs, rand());
+	ezcfg_igrs_set_source_user_id(igrs, "igrs-tester");
+	ezcfg_igrs_set_service_security_id(igrs, NULL);
 	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_build_message(igrs, "CreateSessionRequest");
 	dbg(ezcfg, "debug\n");
 	msg_len = ezcfg_igrs_write_message(igrs, msg, sizeof(msg));
+	dbg(ezcfg, "debug\n");
 
-#if 0
-	xml = ezcfg_xml_new(ezcfg);
-	if (xml == NULL) {
-		err(ezcfg, "%s\n", "Cannot initialize ezcm xml parser");
-		rc = 2;
-		goto exit;
-	}
-
-	elem = ezcfg_xml_element_new(xml, EZCFG_SOAP_ENV_ELEMENT_NAME, NULL);
-	if (elem == NULL) {
-		err(ezcfg, "%s\n", "Cannot initialize ezcm xml element");
-		rc = 2;
-		goto exit;
-	}
-	ezcfg_xml_element_add_attribute(xml, elem, EZCFG_SOAP_ENV_NS_NAME, EZCFG_SOAP_ENV_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_xml_element_add_attribute(xml, elem, EZCFG_SOAP_ENV_ENC_NAME, EZCFG_SOAP_ENV_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	ezcfg_xml_add_element(xml, NULL, NULL, elem);
-
-	elem2 = ezcfg_xml_element_new(xml, EZCFG_SOAP_BODY_ELEMENT_NAME, NULL);
-	if (elem2 == NULL) {
-		err(ezcfg, "%s\n", "Cannot initialize ezcm xml element");
-		rc = 2;
-		goto exit;
-	}
-	ezcfg_xml_add_element(xml, elem, NULL, elem2);
-
-	ezcfg_xml_write(xml, soap_buf, sizeof(soap_buf));
-
-
-	snprintf(msg, sizeof(msg),
-"M-POST /IGRS HTTP/1.1\r\n"
-"HOST: 192.168.1.1:3880\r\n"
-"MAN: \"http://www.igrs.org/session\"; ns=01\r\n"
-"01-IGRSVersion: IGRS/1.0\r\n"
-"01-IGRSMessageType:CreateSessionRequest\r\n"
-"01-TargetDeviceId: \r\n"
-"01-SourceDeviceId: \r\n"
-"01-SequenceId: 1\r\n"
-"Content-type: text/xml; charset=utf-8\r\n"
-"Content-length: %d\r\n"
-"MAN: \"http://www.w3.org/2002/12/soap-envelope\"; ns=02\r\n"
-"02-SoapAction: \"IGRS-CreateSession-Request\"\r\n"
-"\r\n"
-"%s",strlen(soap_buf), soap_buf);
-#endif
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
+	dbg(ezcfg, "debug\n");
 
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf);
+	dbg(ezcfg, "debug\n");
 
 	if (ezctrl == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm controller");
@@ -191,20 +152,25 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
+	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		err(ezcfg, "controller connect fail: %m\n");
 		rc = 3;
 		goto exit;
 	}
 
+	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	dbg(ezcfg, "debug\n");
 		err(ezcfg, "controller write: %m\n");
 		rc = 4;
 		goto exit;
 	}
-	info(ezcfg, "sent message=[%s]\n", msg);
+	dbg(ezcfg, "debug\n");
+	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
 #if 1
+	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
 		err(ezcfg, "controller write: %m\n");
 		rc = 5;

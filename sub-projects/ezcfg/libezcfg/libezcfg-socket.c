@@ -79,28 +79,24 @@ static void close_socket_gracefully(int sock) {
 	char buf[4096];
 	int n;
 
-	// Send FIN to the client
+	/* Send FIN to the client */
 	shutdown(sock, 1);
 	set_non_blocking_mode(sock);
 
-	// Read and discard pending data. If we do not do that and close the
-	// socket, the data in the send buffer may be discarded. This
-	// behaviour is seen on Windows, when client keeps sending data
-	// when server decide to close the connection; then when client
-	// does recv() it gets no data back.
+	/* Read and discard pending data. If we do not do that and close the
+	 * socket, the data in the send buffer may be discarded.
+	 */
 	do {
 		n = read(sock, buf, sizeof(buf));
 	} while (n > 0);
 
-	// Now we know that our FIN is ACK-ed, safe to close
+	/* Now we know that our FIN is ACK-ed, safe to close */
 	close(sock);
 }
 
 /**
  * ezcfg_socket_delete:
- *
  * Delete ezcfg unified socket.
- *
  * Returns:
  **/
 void ezcfg_socket_delete(struct ezcfg_socket *sp)
@@ -111,12 +107,10 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 
 	if (sp->sock >= 0) {
-		dbg(ezcfg, "close sock=[%d]\n", sp->sock);
 		close(sp->sock);
 		/* also remove the filesystem node */
 		if (sp->lsa.domain == AF_LOCAL) {
 			
-			dbg(ezcfg, "unlink path=[%s]\n", sp->lsa.u.sun.sun_path);
 			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
 				err(ezcfg, "unlink fail: %m\n");
 			}
@@ -127,9 +121,7 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 
 /**
  * ezcfg_socket_new:
- *
  * Create ezcfg unified socket.
- *
  * Returns: a new ezcfg socket
  **/
 struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const unsigned char proto, const char *socket_path)
@@ -175,9 +167,9 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		strcpy(usa->u.sun.sun_path, socket_path);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
 		/* translate leading '@' to abstract namespace */
-		if (usa->u.sun.sun_path[0] == '@')
+		if (usa->u.sun.sun_path[0] == '@') {
 			usa->u.sun.sun_path[0] = '\0';
-
+		}
 		break;
 
 	default:
@@ -190,8 +182,9 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 
 fail_exit:
 	if (sp != NULL) {
-		if (sp->sock >= 0)
+		if (sp->sock >= 0) {
 			close(sp->sock);
+		}
 		free(sp);
 	}
 	return NULL;
@@ -253,9 +246,7 @@ char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
 
 /**
  * ezcfg_socket_calloc:
- *
  * Allocate ezcfg socket buffer.
- *
  * Returns:
  **/
 struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
@@ -278,9 +269,7 @@ struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 
 /**
  * ezcfg_socket_delete_list:
- *
  * Delete ezcfg socket list linked with sp.
- *
  * Returns:
  **/
 void ezcfg_socket_list_delete(struct ezcfg_socket **list)
@@ -299,9 +288,7 @@ void ezcfg_socket_list_delete(struct ezcfg_socket **list)
 
 /**
  * ezcfg_socket_list_insert:
- *
  * Add socket to list header.
- *
  * Returns:
  **/
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp)
@@ -324,15 +311,12 @@ struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list)
 /**
  * ezcfg_socket_enable_receiving:
  * @sp: the listening socket which should receive events
- *
  * Binds the @sp to the event source.
- *
  * Returns: 0 on success, otherwise a negative error value.
  */
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	//const int on = 1;
 	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
@@ -363,15 +347,12 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 /**
  * ezcfg_socket_enable_listening:
  * @sp: the listening socket which start receiving events
- *
  * Makes the @sp listening to the event source.
- *
  * Returns: 0 on success, otherwise a negative error value.
  */
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 {
 	int err = 0;
-	//const int on = 1;
 	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
@@ -403,10 +384,8 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
  * ezcfg_socket_set_receive_buffer_size:
  * @sp: the socket which should receive events
  * @size: the size in bytes
- *
  * Set the size of the kernel socket buffer. This call needs the
  * appropriate privileges to succeed.
- *
  * Returns: 0 on success, otherwise -1 on error.
  */
 int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size)
@@ -418,15 +397,15 @@ int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size)
 	return 0;
 }
 
-int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int position, struct ezcfg_socket *sp)
+int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int pos, struct ezcfg_socket *sp)
 {
-	*sp = queue[position];
+	*sp = queue[pos];
 	return 0;
 }
 
-int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int position, const struct ezcfg_socket *sp)
+int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int pos, const struct ezcfg_socket *sp)
 {
-	queue[position] = *sp;
+	queue[pos] = *sp;
 	return 0;
 }
 
@@ -526,7 +505,6 @@ int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *soc
 int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	//const int on = 1;
 	struct usa *usa;
 	struct ezcfg *ezcfg;
 
@@ -535,18 +513,10 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
 
-	dbg(ezcfg, "fixme: remote domain=[%d]\n", usa->domain);
-	dbg(ezcfg, "fixme: remote family=[%d]\n", usa->u.sun.sun_family);
-	dbg(ezcfg, "fixme: remote path=[%s]\n", usa->u.sun.sun_path);
-	dbg(ezcfg, "fixme: remote len=[%d]\n", usa->len);
-
 	switch (usa->domain) {
 	case AF_LOCAL:
-		err = connect(sp->sock,
-		           (struct sockaddr *)&usa->u.sun, usa->len);
-
+		err = connect(sp->sock, (struct sockaddr *)&usa->u.sun, usa->len);
 		break;
-
 	default:
 		err(ezcfg, "bad family [%d]\n", usa->domain);
 		return -EINVAL;
@@ -561,7 +531,7 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 	return 0;
 }
 
-int ezcfg_socket_read (struct ezcfg_socket *sp, void *buf, int len, int flags)
+int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 {
 	struct ezcfg *ezcfg;
 	char * p;
@@ -579,7 +549,7 @@ int ezcfg_socket_read (struct ezcfg_socket *sp, void *buf, int len, int flags)
 	memset(buf, '\0', len);
 
 	while (status == 0) {
-		n = read (sock, p + status, len - status);
+		n = read(sock, p + status, len - status);
 
 		if (n < 0) {
 			if (errno == EPIPE) {
@@ -600,16 +570,12 @@ int ezcfg_socket_read (struct ezcfg_socket *sp, void *buf, int len, int flags)
 			info(ezcfg, "remote end closed connection: %m\n");
 			p = buf;
 			p[len-1] = '\0';
-			dbg(ezcfg, "buf=[%s]\n", p);
-			dbg(ezcfg, "status=[%d]\n", status);
-			dbg(ezcfg, "strlen(buf)=[%d]\n", strlen(buf));
 			break;
 		}
 		status += n;
 	}
 	return status;
 }
-
 
 int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags)
 {
@@ -628,7 +594,7 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	sock = sp->sock;
 
 	while (status != len) {
-		n = write (sock, p + status, len - status);
+		n = write(sock, p + status, len - status);
 		if (n < 0) {
 			if (errno == EPIPE) {
 				info(ezcfg, "remote end closed connection: %m\n");
@@ -648,4 +614,3 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 
 	return status;
 }
-

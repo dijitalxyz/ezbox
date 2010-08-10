@@ -106,23 +106,17 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 
 	assert(ezcfg != NULL);
 
-	dbg(ezcfg, "fixme\n");
-
 	/* initialize xml parser data structure */
 	xml = calloc(1, sizeof(struct ezcfg_xml));
-	dbg(ezcfg, "fixme\n");
 	if (xml == NULL) {
 		err(ezcfg, "initialize xml parser error.\n");
 		return NULL;
 	}
 
 	memset(xml, 0, sizeof(struct ezcfg_xml));
-	dbg(ezcfg, "fixme\n");
 
 	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
-	dbg(ezcfg, "fixme\n");
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
-	dbg(ezcfg, "fixme\n");
 	if (xml->root == NULL) {
 		err(ezcfg, "initialize xml element stack error.\n");
 		free(xml);
@@ -132,7 +126,6 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 	memset(xml->root, 0, sizeof(struct ezcfg_xml_element *) * xml->max_elements);
 
 	xml->ezcfg = ezcfg;
-	dbg(ezcfg, "fixme\n");
 	return xml;
 }
 

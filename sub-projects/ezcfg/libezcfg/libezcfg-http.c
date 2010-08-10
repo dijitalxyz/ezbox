@@ -75,89 +75,89 @@ struct ezcfg_http {
 
 static const char *default_method_strings[] = {
 	/* bad method string */
-	NULL,
+	NULL ,
 	/* HTTP/1.1 (RFC2616) defined methods */
-	"OPTIONS",
-	"GET",
-	"HEAD",
-	"POST",
-	"PUT",
-	"DELETE",
-	"TRACE",
-	"CONNECT",
+	EZCFG_HTTP_METHOD_OPTIONS ,
+	EZCFG_HTTP_METHOD_GET ,
+	EZCFG_HTTP_METHOD_HEAD ,
+	EZCFG_HTTP_METHOD_POST ,
+	EZCFG_HTTP_METHOD_PUT ,
+	EZCFG_HTTP_METHOD_DELETE ,
+	EZCFG_HTTP_METHOD_TRACE ,
+	EZCFG_HTTP_METHOD_CONNECT ,
 	/* HTTP/1.1 extension (RFC2774) defined methods */
-	"M-OPTIONS",
-	"M-GET",
-	"M-HEAD",
-	"M-POST",
-	"M-PUT",
-	"M-DELETE",
-	"M-TRACE",
-	"M-CONNECT",
+	EZCFG_HTTP_METHOD_OPTIONS_EXT ,
+	EZCFG_HTTP_METHOD_GET_EXT ,
+	EZCFG_HTTP_METHOD_HEAD_EXT ,
+	EZCFG_HTTP_METHOD_POST_EXT ,
+	EZCFG_HTTP_METHOD_PUT_EXT ,
+	EZCFG_HTTP_METHOD_DELETE_EXT ,
+	EZCFG_HTTP_METHOD_TRACE_EXT ,
+	EZCFG_HTTP_METHOD_CONNECT_EXT ,
 };
 
 static const char *default_header_strings[] = {
 	/* bad header string */
-	NULL,
+	NULL ,
 	/* HTTP/1.1 (RFC2616) General headers */
-	"Cache-Control",
-	"Connection",
-	"Date",
-	"Pragma",
-	"Trailer",
-	"Transfer-Encoding",
-	"Upgrade",
-	"Via",
-	"Warning",
+	EZCFG_HTTP_HEADER_CACHE_CONTROL ,
+	EZCFG_HTTP_HEADER_CONNECTION ,
+	EZCFG_HTTP_HEADER_DATE ,
+	EZCFG_HTTP_HEADER_PRAGMA ,
+	EZCFG_HTTP_HEADER_TRAILER ,
+	EZCFG_HTTP_HEADER_TRANSFER_ENCODING ,
+	EZCFG_HTTP_HEADER_UPGRADE ,
+	EZCFG_HTTP_HEADER_VIA ,
+	EZCFG_HTTP_HEADER_WARNING ,
 	/* HTTP/1.1 (RFC2616) request headers */
-	"Accept",
-	"Accept-Charset",
-	"Accept-Encoding",
-	"Accept-Language",
-	"Authorization",
-	"Expect",
-	"From",
-	"Host",
-	"If-Match",
-	"If-Modified-Since",
-	"If-None-Match",
-	"If-Range",
-	"If-Unmodified-Since",
-	"Max-Forwards",
-	"Proxy-Authorization",
-	"Range",
-	"Referer",
-	"TE",
-	"User-Agent",
+	EZCFG_HTTP_HEADER_ACCEPT ,
+	EZCFG_HTTP_HEADER_ACCEPT_CHARSET ,
+	EZCFG_HTTP_HEADER_ACCEPT_ENCODING ,
+	EZCFG_HTTP_HEADER_ACCEPT_LANGUAGE ,
+	EZCFG_HTTP_HEADER_AUTHORIZATION ,
+	EZCFG_HTTP_HEADER_EXPECT ,
+	EZCFG_HTTP_HEADER_FROM ,
+	EZCFG_HTTP_HEADER_HOST ,
+	EZCFG_HTTP_HEADER_IF_MATCH ,
+	EZCFG_HTTP_HEADER_IF_MODIFIED_SINCE ,
+	EZCFG_HTTP_HEADER_IF_NONE_MATCH ,
+	EZCFG_HTTP_HEADER_IF_RANGE ,
+	EZCFG_HTTP_HEADER_IF_UNMODIFIED_SINCE ,
+	EZCFG_HTTP_HEADER_MAX_FORWARDS ,
+	EZCFG_HTTP_HEADER_PROXY_AUTHORIZATION ,
+	EZCFG_HTTP_HEADER_RANGE ,
+	EZCFG_HTTP_HEADER_REFERER ,
+	EZCFG_HTTP_HEADER_TE ,
+	EZCFG_HTTP_HEADER_USER_AGENT ,
 	/* HTTP/1.1 (RFC2616) response headers */
-	"Accept-Ranges",
-	"Age",
-	"ETag",
-	"Location",
-	"Proxy-Authenticate",
-	"Retry-After",
-	"Server",
-	"Vary",
-	"WWW-Authenticate",
+	EZCFG_HTTP_HEADER_ACCEPT_RANGES ,
+	EZCFG_HTTP_HEADER_AGE ,
+	EZCFG_HTTP_HEADER_ETAG ,
+	EZCFG_HTTP_HEADER_LOCATION ,
+	EZCFG_HTTP_HEADER_PROXY_AUTHENTICATE ,
+	EZCFG_HTTP_HEADER_RETRY_AFTER ,
+	EZCFG_HTTP_HEADER_SERVER ,
+	EZCFG_HTTP_HEADER_VARY ,
+	EZCFG_HTTP_HEADER_WWW_AUTHENTICATE ,
 	/* HTTP/1.1 (RFC2616) entity headers */
-	"Allow",
-	"Content-Encoding",
-	"Content-Language",
-	"Content-Length",
-	"Content-Location",
-	"Content-MD5",
-	"Content-Range",
-	"Content-Type",
-	"Expires",
-	"Last-Modified",
+	EZCFG_HTTP_HEADER_ALLOW ,
+	EZCFG_HTTP_HEADER_CONTENT_ENCODING ,
+	EZCFG_HTTP_HEADER_CONTENT_LANGUAGE ,
+	EZCFG_HTTP_HEADER_CONTENT_LENGTH ,
+	EZCFG_HTTP_HEADER_CONTENT_LOCATION ,
+	EZCFG_HTTP_HEADER_CONTENT_MD5 ,
+	EZCFG_HTTP_HEADER_CONTENT_RANGE ,
+	EZCFG_HTTP_HEADER_CONTENT_TYPE ,
+	EZCFG_HTTP_HEADER_EXPIRES ,
+	EZCFG_HTTP_HEADER_LAST_MODIFIED ,
 	/* HTTP/1.1 extension (RFC2774) headers */
-	"Man",
-	"Opt",
-	"C-Man",
-	"C-Opt",
+	EZCFG_HTTP_HEADER_MAN ,
+	EZCFG_HTTP_HEADER_OPT ,
+	EZCFG_HTTP_HEADER_C_MAN ,
+	EZCFG_HTTP_HEADER_C_OPT ,
 	/* HTTP/1.1 extension (RFC2774) responese headers */
-	"Ext",
-	"C-Ext",
+	EZCFG_HTTP_HEADER_EXT ,
+	EZCFG_HTTP_HEADER_C_EXT ,
 };
 
 /**
@@ -211,48 +211,46 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 {
 
 	struct ezcfg *ezcfg;
-	char *header, *end, *name, *value;
+	char *end, *name, *value;
 
 	assert(http != NULL);
 	assert(buf != NULL);
 
 	ezcfg = http->ezcfg;
 
+	name = buf;
 	/* header end with CRLF */
-	header = buf;
+	end = strstr(name, "\r\n");
+	if (end == NULL) {
+		err(ezcfg, "HTTP header parse error.\n");
+		return false;
+	}
+	*end = '\0';
 
-	do {
-		/* find header line */
-		end = strstr(header, "\r\n");
-		if (end == NULL) {
-			err(ezcfg, "HTTP header parse error.\n");
-			return false;
-		}
-		*end = '\0';
-
-		/* find header name field */
-		name = header;
-		value = strchr(header, ':');
+	while (name[0] != '\0') {
+		value = strchr(name, ':'); /* format is [name:value] */
 		if (value == NULL) {
 			err(ezcfg, "HTTP header parse error 2.\n");
 			return false;
 		}
-		*value = '\0';
-
+		*value = '\0'; /* 0-terminated name string */
 		/* find header value field */
 		value++;
-		//while (*value == ' ' || *value == '\t') value++; /* skip LWS */
 		value = ezcfg_util_skip_leading_charlist(value, " \t"); /* skip LWS */
 
-		if (name[0] != '\0') {
-			if (ezcfg_http_add_header(http, name, value) == false) {
-				err(ezcfg, "HTTP add header error.\n");
-				return false;
-			}
+		if (ezcfg_http_add_header(http, name, value) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			return false;
 		}
 
-		header = end+2; /* skip CRLF */
-	} while(name[0] != '\0');
+		name = end+2; /* skip CRLF */
+		end = strstr(name, "\r\n");
+		if (end == NULL) {
+			err(ezcfg, "HTTP header parse error 3.\n");
+			return false;
+		}
+		*end = '\0';
+	};
 
 	return true;
 }
@@ -368,7 +366,6 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 
 	headers = p+2; /* skip CRLF */
 	*p = '\0';
-	dbg(ezcfg, "request_line=[%s]\n", method);
 
 	/* get request method string */
 	p = strchr(method, ' ');
@@ -490,7 +487,7 @@ char *ezcfg_http_get_header(struct ezcfg_http *http, char *name)
 	h = http->header_head;
 	while(h != NULL) {
 		if (strcasecmp(name, h->name) == 0)
-			return h->name;
+			return h->value;
 		h = h->next;
 	}
 
@@ -655,6 +652,24 @@ int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 	         http->version_major,
 	         http->version_minor);
 	if (n < 0) {
+		return -1;
+	}
+	return n;
+}
+
+int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	int n;
+
+	assert(http != NULL);
+	assert(buf != NULL);
+	assert(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	n = snprintf(buf, len, "\r\n");
+	if (n < 2) {
 		return -1;
 	}
 	return n;

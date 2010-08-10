@@ -58,7 +58,12 @@ struct ezcfg_igrs {
 	char source_device_id[EZCFG_UUID_STRING_LEN+1]; /* +1 for \0-terminated */
 	char target_device_id[EZCFG_UUID_STRING_LEN+1]; /* +1 for \0-terminated */
 
+	unsigned int source_client_id; /* 0 reserved */
+	unsigned int target_service_id; /* 0 reserved */
 	unsigned int sequence_id; /* 0 reserved */
+
+	char *source_user_id; /* string, max length is 127 */
+	char *service_security_id;
 
 	char *host; /* Multicast channel and port reserved for ISDP */
 	/* NOTIFY headers */
@@ -77,26 +82,26 @@ struct ezcfg_igrs {
 /* for HTTP/1.1 request methods */
 static const char *igrs_method_strings[] = {
 	/* bad method string */
-	NULL,
+	NULL ,
 	/* IGRS used motheds */
-	"M-POST",
+	EZCFG_IGRS_METHOD_POST_EXT ,
 };
 
 /* for HTTP/1.1 known header */
 static const char *igrs_header_strings[] = {
 	/* bad header string */
-	NULL,
+	NULL ,
 	/* IGRS known headers */
-	"Host",
-	"Content-Type",
-	"Content-Length",
-	"Man",
-	"01-IGRSVersion",
-	"01-IGRSMessageType",
-	"01-TargetDeviceId",
-	"01-SourceDeviceId",
-	"01-SequenceId",
-	"02-SoapAction",
+	EZCFG_IGRS_HEADER_HOST ,
+	EZCFG_IGRS_HEADER_CONTENT_TYPE ,
+	EZCFG_IGRS_HEADER_CONTENT_LENGTH ,
+	EZCFG_IGRS_HEADER_MAN ,
+	EZCFG_IGRS_HEADER_01_IGRS_VERSION ,
+	EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE ,
+	EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID ,
+	EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID ,
+	EZCFG_IGRS_HEADER_01_SEQUENCE_ID ,
+	EZCFG_IGRS_HEADER_02_SOAP_ACTION ,
 };
 
 static bool build_create_session_request(struct ezcfg_igrs *igrs);
@@ -202,22 +207,40 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	/* build SOAP */
 	ezcfg_soap_set_version_major(soap, 1);
 	ezcfg_soap_set_version_minor(soap, 2);
+
+	/* SOAP Envelope */
 	ezcfg_soap_set_envelope(soap, EZCFG_IGRS_ENVELOPE_ELEMENT_NAME);
 	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_ENVELOPE_ATTR_NS_NAME, EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_ENVELOPE_ATTR_ENC_NAME, EZCFG_IGRS_ENVELOPE_ATTR_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	/* SOAP Body */
 	body_index = ezcfg_soap_set_body(soap, EZCFG_IGRS_BODY_ELEMENT_NAME);
 
+	/* Body child Session part */
 	session_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_IGRS_SESSION_ELEMENT_NAME, NULL);
 	ezcfg_soap_add_body_child_attribute(soap, session_index, EZCFG_IGRS_SESSION_ATTR_NS_NAME, EZCFG_IGRS_SESSION_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	child_index = ezcfg_soap_add_body_child(soap, session_index, -1, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, "111111");
-	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_TARGET_SERVICE_ID_ELEMENT_NAME, "222222");
-	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME, "333333");
+	/* SourceCleintId part */
+	snprintf(buf, sizeof(buf), "%u", igrs->source_client_id);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, -1, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
 
+	/* TargetServiceId part */
+	snprintf(buf, sizeof(buf), "%u", igrs->target_service_id);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_TARGET_SERVICE_ID_ELEMENT_NAME, buf);
+
+	/* SequenceId part */
+	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME, buf);
+
+	/* UserInfo part */
 	userinfo_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_USER_INFO_ELEMENT_NAME, NULL);
-	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, -1, EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME, "igrs-tester");
-	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME, "urn:IGRS:ServiceSecurity:NULL");
+
+	snprintf(buf, sizeof(buf), "%s", igrs->source_user_id ? igrs->source_user_id : "NULL");
+	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, -1, EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME, buf);
+
+	snprintf(buf, sizeof(buf), "urn:IGRS:ServiceSecurity:%s", igrs->service_security_id ? igrs->service_security_id : "NULL");
+	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME, buf);
+
 	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_TOKEN_ELEMENT_NAME, "");
 
 	buf[0] = '\0';
@@ -278,23 +301,29 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 	http = igrs->http;
 	soap = igrs->soap;
 
-	p = buf;
-	n = 0;
+	p = buf; n = 0;
 	n = ezcfg_http_write_request_line(http, p, len);
 	if (n < 0) {
 		err(ezcfg, "ezcfg_http_write_request_line\n");
 		return n;
 	}
-	p += n;
-	len -= n;
+	p += n;	len -= n;
+
 	n = ezcfg_http_write_headers(http, p, len);
 	if (n < 0) {
 		err(ezcfg, "ezcfg_http_write_headers\n");
 		return n;
 	}
-	p += n;
-	len -= n;
+	p += n;	len -= n;
 
+	n = ezcfg_http_write_crlf(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_crlf\n");
+		return n;
+	}
+	p += n;	len -= n;
+
+#if 0
 	if (len < 2) {
 		err(ezcfg, "buffer is to small for igrs message\n");
 		return -1;
@@ -303,6 +332,7 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 	p[0] = '\r'; p[1] = '\n'; /* add CRLF for HTTP */
 	p += 2;
 	len -= 2;
+#endif
 
 	n = ezcfg_http_write_message_body(http, p, len);
 	if (n < 0) {
@@ -330,6 +360,14 @@ void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
 
 	if (igrs->soap != NULL) {
 		ezcfg_soap_delete(igrs->soap);
+	}
+
+	if (igrs->source_user_id != NULL) {
+		free(igrs->source_user_id);
+	}
+
+	if (igrs->service_security_id != NULL) {
+		free(igrs->service_security_id);
 	}
 
 	free(igrs);
@@ -380,7 +418,6 @@ void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
 	assert(igrs != NULL);
 
 	ezcfg = igrs->ezcfg;
-
 }
 
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types)
@@ -494,6 +531,77 @@ char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs)
 	return igrs->target_device_id;
 }
 
+bool ezcfg_igrs_set_source_user_id(struct ezcfg_igrs *igrs, const char *user_id)
+{
+	struct ezcfg *ezcfg;
+	char *s;
+
+	assert(igrs != NULL);
+	assert(user_id != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	s = strdup(user_id);
+	if (s == NULL) {
+		err(ezcfg, "no enough memory for user id\n");
+		return false;
+	}
+
+	if (igrs->source_user_id != NULL) {
+		free(igrs->source_user_id);
+	}
+	igrs->source_user_id = s;
+	return true;
+}
+
+char *ezcfg_igrs_get_source_user_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->source_user_id;
+}
+
+bool ezcfg_igrs_set_service_security_id(struct ezcfg_igrs *igrs, const char *security_id)
+{
+	struct ezcfg *ezcfg;
+	char *s;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	if (security_id == NULL) {
+		s = NULL;
+	} else {
+		s = strdup(security_id);
+		if (s == NULL) {
+			err(ezcfg, "no enough memory for service security id\n");
+			return false;
+		}
+	}
+
+	if (igrs->service_security_id != NULL) {
+		free(igrs->service_security_id);
+	}
+	igrs->service_security_id = s;
+	return true;
+}
+
+char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->service_security_id;
+}
+
 bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id)
 {
 	struct ezcfg *ezcfg;
@@ -518,6 +626,54 @@ unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs)
 	return igrs->sequence_id;
 }
 
+bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int client_id)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(client_id > 0);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->source_client_id = client_id;
+	return true;
+}
+
+unsigned int ezcfg_igrs_get_source_client_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->source_client_id;
+}
+
+bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int service_id)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+	assert(service_id > 0);
+
+	ezcfg = igrs->ezcfg;
+
+	igrs->target_service_id = service_id;
+	return true;
+}
+
+unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->target_service_id;
+}
+
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)
 {
 	struct ezcfg *ezcfg;
@@ -529,9 +685,7 @@ bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)
 
 	ezcfg = igrs->ezcfg;
 
-	dbg(ezcfg, "debug num_message_types=[%d]\n", igrs->num_message_types);
 	for (i = igrs->num_message_types; i > 0; i--) {
-	dbg(ezcfg, "debug i=[%d]\n", i);
 		op = &(igrs->message_type_ops[i]);
 		if ( strcmp(op->name, type) == 0) {
 			if (op->builder != NULL) {
@@ -566,4 +720,85 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 		return op->writer(igrs, buf, len);
 	}
 	return -1;
+}
+
+char *ezcfg_igrs_get_http_header(struct ezcfg_igrs *igrs, char *name)
+{
+        struct ezcfg *ezcfg;
+
+        assert(igrs != NULL);
+
+        ezcfg = igrs->ezcfg;
+
+	return ezcfg_http_get_header(igrs->http, name);
+}
+
+void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+	soap = igrs->soap;
+
+	ezcfg_http_reset_attributes(http);
+	//ezcfg_soap_reset_attributes(soap);
+
+	if (igrs->source_user_id != NULL) {
+		free(igrs->source_user_id);
+		igrs->source_user_id = NULL;
+	}
+
+	if (igrs->service_security_id != NULL) {
+		free(igrs->service_security_id);
+		igrs->service_security_id = NULL;
+	}
+}
+
+bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	char *igrs_version;
+	int n;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+
+	dbg(ezcfg, "debug\n");
+	if (ezcfg_http_parse_request(http, buf) == false) {
+		return false;
+	}
+
+	igrs_version = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	if (igrs_version == NULL) {
+		err(ezcfg, "no igrs version in header\n");
+		return false;
+	}
+	n = sscanf(igrs_version, "IGRS/%hd.%hd", &(igrs->version_major), &(igrs->version_minor));
+	if (n != 2) {
+		err(ezcfg, "igrs version format in header is invalid\n");
+		return false;
+	}
+
+	return true;
+}
+
+char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+
+	assert(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+
+	return ezcfg_http_set_message_body(http, body, len);
 }

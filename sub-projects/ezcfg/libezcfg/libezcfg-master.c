@@ -130,7 +130,6 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 
 	/* set ezcfg library context */
 	master->ezcfg = ezcfg;
-	dbg(ezcfg, "fixme\n");
 	return master;
 
 fail_exit:
@@ -178,7 +177,6 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 		return NULL;
 	}
 
-	dbg(ezcfg, "fixme\n");
 	return listener;
 }
 
@@ -233,7 +231,6 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-	dbg(ezcfg, "fixme\n");
 	return master;
 
 fail_exit:
@@ -295,12 +292,11 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	}
 	assert(master->sq_head - master->sq_tail < master->sq_len);
 
-	// Copy socket to the queue and increment head
+	/* Copy socket to the queue and increment head */
 	ezcfg_socket_queue_set_socket(master->queue, master->sq_head % master->sq_len, sp);
 	master->sq_head++;
-	dbg(ezcfg, "queued socket %d\n", ezcfg_socket_get_sock(sp));
 
-	// If there are no idle threads, start one
+	/* If there are no idle threads, start one */
 	if (master->num_idle == 0 && master->num_threads < master->threads_max) {
 		struct ezcfg_worker *worker;
 
@@ -385,9 +381,6 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 			     sp != NULL;
 			     sp = ezcfg_socket_list_next(&sp)) {
 				if (FD_ISSET(ezcfg_socket_get_sock(sp), &read_set)) {
-					dbg(ezcfg, "sock = [%d] path=[%s]\n",
-					    ezcfg_socket_get_sock(sp),
-					    ezcfg_socket_get_local_socket_path(sp));
 					accept_new_connection(master, sp);
 				}
 			}
@@ -471,7 +464,6 @@ bool ezcfg_master_is_stop(struct ezcfg_master *master)
 	assert(master != NULL);
 
 	ezcfg = master->ezcfg;
-	dbg(ezcfg, "stop_flag=[%d]\n", master->stop_flag);
 
 	return (master->stop_flag != 0);
 }
@@ -484,10 +476,9 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	assert(master != NULL);
 
 	ezcfg = master->ezcfg;
-	dbg(ezcfg, "sp=[%x]\n", (unsigned int)sp);
 
 	pthread_mutex_lock(&master->mutex);
-	// If the queue is empty, wait. We're idle at this point.
+	/* If the queue is empty, wait. We're idle at this point. */
 	master->num_idle++;
 	while (master->sq_head == master->sq_tail) {
 		ts.tv_nsec = 0;
@@ -506,14 +497,6 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 
 	// Copy socket from the queue and increment tail
 	ezcfg_socket_queue_get_socket(master->queue, master->sq_tail % master->sq_len, sp);
-	dbg(ezcfg, "sp->sock=[%d]\n", ezcfg_socket_get_sock(sp));
-	dbg(ezcfg, "sp->next=[%x]\n", (unsigned int)ezcfg_socket_get_next(sp));
-	dbg(ezcfg, "sp->lsa.len=[%d]\n", ezcfg_socket_get_local_socket_len(sp));
-	dbg(ezcfg, "sp->lsa.domain=[%d]\n", ezcfg_socket_get_local_socket_domain(sp));
-	dbg(ezcfg, "sp->lsa.u.sun.sun_path=[%s]\n", ezcfg_socket_get_local_socket_path(sp));
-	dbg(ezcfg, "sp->rsa.len=[%d]\n", ezcfg_socket_get_remote_socket_len(sp));
-	dbg(ezcfg, "sp->rsa.domain=[%d]\n", ezcfg_socket_get_remote_socket_domain(sp));
-	dbg(ezcfg, "sp->rsa.u.sun.sun_path=[%s]\n", ezcfg_socket_get_remote_socket_path(sp));
 	master->sq_tail++;
 
 	// Wrap pointers if needed

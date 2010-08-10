@@ -55,10 +55,104 @@ extern "C" {
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS	64 /* must be less than 256 */
 
+/* HTTP/1.1 (RFC2616) defined methods */
+#define EZCFG_HTTP_METHOD_OPTIONS  "OPTIONS"
+#define EZCFG_HTTP_METHOD_GET      "GET"
+#define EZCFG_HTTP_METHOD_HEAD     "HEAD"
+#define EZCFG_HTTP_METHOD_POST     "POST"
+#define EZCFG_HTTP_METHOD_PUT      "PUT"
+#define EZCFG_HTTP_METHOD_DELETE   "DELETE"
+#define EZCFG_HTTP_METHOD_TRACE    "TRACE"
+#define EZCFG_HTTP_METHOD_CONNECT  "CONNECT"
+/* HTTP/1.1 extension (RFC2774) defined methods */
+#define EZCFG_HTTP_METHOD_OPTIONS_EXT  "M-OPTIONS"
+#define EZCFG_HTTP_METHOD_GET_EXT      "M-GET"
+#define EZCFG_HTTP_METHOD_HEAD_EXT     "M-HEAD"
+#define EZCFG_HTTP_METHOD_POST_EXT     "M-POST"
+#define EZCFG_HTTP_METHOD_PUT_EXT      "M-PUT"
+#define EZCFG_HTTP_METHOD_DELETE_EXT   "M-DELETE"
+#define EZCFG_HTTP_METHOD_TRACE_EXT    "M-TRACE"
+#define EZCFG_HTTP_METHOD_CONNECT_EXT  "M-CONNECT"
+
+/* HTTP/1.1 (RFC2616) General headers */
+#define EZCFG_HTTP_HEADER_CACHE_CONTROL       "Cache-Control"
+#define EZCFG_HTTP_HEADER_CONNECTION          "Connection"
+#define EZCFG_HTTP_HEADER_DATE                "Date"
+#define EZCFG_HTTP_HEADER_PRAGMA              "Pragma"
+#define EZCFG_HTTP_HEADER_TRAILER             "Trailer"
+#define EZCFG_HTTP_HEADER_TRANSFER_ENCODING   "Transfer-Encoding"
+#define EZCFG_HTTP_HEADER_UPGRADE             "Upgrade"
+#define EZCFG_HTTP_HEADER_VIA                 "Via"
+#define EZCFG_HTTP_HEADER_WARNING             "Warning"
+/* HTTP/1.1 (RFC2616) request headers */
+#define EZCFG_HTTP_HEADER_ACCEPT              "Accept"
+#define EZCFG_HTTP_HEADER_ACCEPT_CHARSET      "Accept-Charset"
+#define EZCFG_HTTP_HEADER_ACCEPT_ENCODING     "Accept-Encoding"
+#define EZCFG_HTTP_HEADER_ACCEPT_LANGUAGE     "Accept-Language"
+#define EZCFG_HTTP_HEADER_AUTHORIZATION       "Authorization"
+#define EZCFG_HTTP_HEADER_EXPECT              "Expect"
+#define EZCFG_HTTP_HEADER_FROM                "From"
+#define EZCFG_HTTP_HEADER_HOST                "Host"
+#define EZCFG_HTTP_HEADER_IF_MATCH            "If-Match"
+#define EZCFG_HTTP_HEADER_IF_MODIFIED_SINCE   "If-Modified-Since"
+#define EZCFG_HTTP_HEADER_IF_NONE_MATCH       "If-None-Match"
+#define EZCFG_HTTP_HEADER_IF_RANGE            "If-Range"
+#define EZCFG_HTTP_HEADER_IF_UNMODIFIED_SINCE "If-Unmodified-Since"
+#define EZCFG_HTTP_HEADER_MAX_FORWARDS        "Max-Forwards"
+#define EZCFG_HTTP_HEADER_PROXY_AUTHORIZATION "Proxy-Authorization"
+#define EZCFG_HTTP_HEADER_RANGE               "Range"
+#define EZCFG_HTTP_HEADER_REFERER             "Referer"
+#define EZCFG_HTTP_HEADER_TE                  "TE"
+#define EZCFG_HTTP_HEADER_USER_AGENT          "User-Agent"
+/* HTTP/1.1 (RFC2616) response headers */
+#define EZCFG_HTTP_HEADER_ACCEPT_RANGES       "Accept-Ranges"
+#define EZCFG_HTTP_HEADER_AGE                 "Age"
+#define EZCFG_HTTP_HEADER_ETAG                "ETag"
+#define EZCFG_HTTP_HEADER_LOCATION            "Location"
+#define EZCFG_HTTP_HEADER_PROXY_AUTHENTICATE  "Proxy-Authenticate"
+#define EZCFG_HTTP_HEADER_RETRY_AFTER         "Retry-After"
+#define EZCFG_HTTP_HEADER_SERVER              "Server"
+#define EZCFG_HTTP_HEADER_VARY                "Vary"
+#define EZCFG_HTTP_HEADER_WWW_AUTHENTICATE    "WWW-Authenticate"
+/* HTTP/1.1 (RFC2616) entity headers */
+#define EZCFG_HTTP_HEADER_ALLOW               "Allow"
+#define EZCFG_HTTP_HEADER_CONTENT_ENCODING    "Content-Encoding"
+#define EZCFG_HTTP_HEADER_CONTENT_LANGUAGE    "Content-Language"
+#define EZCFG_HTTP_HEADER_CONTENT_LENGTH      "Content-Length"
+#define EZCFG_HTTP_HEADER_CONTENT_LOCATION    "Content-Location"
+#define EZCFG_HTTP_HEADER_CONTENT_MD5         "Content-MD5"
+#define EZCFG_HTTP_HEADER_CONTENT_RANGE       "Content-Range"
+#define EZCFG_HTTP_HEADER_CONTENT_TYPE        "Content-Type"
+#define EZCFG_HTTP_HEADER_EXPIRES             "Expires"
+#define EZCFG_HTTP_HEADER_LAST_MODIFIED       "Last-Modified"
+/* HTTP/1.1 extension (RFC2774) headers */
+#define EZCFG_HTTP_HEADER_MAN                 "Man"
+#define EZCFG_HTTP_HEADER_OPT                 "Opt"
+#define EZCFG_HTTP_HEADER_C_MAN               "C-Man"
+#define EZCFG_HTTP_HEADER_C_OPT               "C-Opt"
+/* HTTP/1.1 extension (RFC2774) responese headers */
+#define EZCFG_HTTP_HEADER_EXT                 "Ext"
+#define EZCFG_HTTP_HEADER_C_EXT               "C-Ext"
+
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
+
+/* ezcfg igrs http methods */
+#define EZCFG_IGRS_METHOD_POST         "POST"
+#define EZCFG_IGRS_METHOD_POST_EXT     "M-POST"
+/* ezcfg igrs http headers */
+#define EZCFG_IGRS_HEADER_HOST                 "Host"
+#define EZCFG_IGRS_HEADER_CONTENT_TYPE         "Content-Type"
+#define EZCFG_IGRS_HEADER_CONTENT_LENGTH       "Content-Length"
+#define EZCFG_IGRS_HEADER_MAN                  "Man"
+#define EZCFG_IGRS_HEADER_01_IGRS_VERSION      "01-IGRSVersion"
+#define EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE "01-IGRSMessageType"
+#define EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID  "01-TargetDeviceId"
+#define EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID  "01-SourceDeviceId"
+#define EZCFG_IGRS_HEADER_01_SEQUENCE_ID       "01-SequenceId"
+#define EZCFG_IGRS_HEADER_02_SOAP_ACTION       "02-SoapAction"
 
 /* ezcfg igrs soap element names */
 #define EZCFG_IGRS_ENVELOPE_ELEMENT_NAME	"SOAP-ENV:Envelope"

@@ -42,7 +42,6 @@
 
 /*
  * ezcfg_worker:
- *
  * Opaque object handling one event source.
  * Multi-threads model - worker part.
  */
@@ -88,30 +87,38 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	if (worker->proto == EZCFG_PROTO_HTTP) {
 		ezcfg_http_reset_attributes(worker->proto_data);
 	}
+	if (worker->proto == EZCFG_PROTO_IGRS) {
+		ezcfg_igrs_reset_attributes(worker->proto_data);
+	}
 }
 
-// Return content length of the request, or -1 constant if
-// Content-Length header is not set.
+/* Return content length of the request, or -1 constant if
+ * Content-Length header is not set.
+ */
 static int get_content_length(const struct ezcfg_worker *worker) {
-	const char *cl;
+	const char *cl = NULL;
 	if (worker->proto == EZCFG_PROTO_HTTP) {
-		cl = ezcfg_http_get_header(worker->proto_data, "Content-Length");
+		cl = ezcfg_http_get_header(worker->proto_data, EZCFG_HTTP_HEADER_CONTENT_LENGTH);
+	}
+	else if (worker->proto == EZCFG_PROTO_IGRS) {
+		cl = ezcfg_igrs_get_http_header(worker->proto_data, EZCFG_IGRS_HEADER_CONTENT_LENGTH);
 	}
 	return cl == NULL ? -1 : strtol(cl, NULL, 10);
 }
 
 
-// Check whether full request is buffered. Return:
-//   -1  if request is malformed
-//    0  if request is not yet fully buffered
-//   >0  actual request length, including last \r\n\r\n
+/* Check whether full request is buffered. Return:
+ *   -1  if request is malformed
+ *    0  if request is not yet fully buffered
+ *   >0  actual request length, including last \r\n\r\n
+ */
 static int get_request_len(const char *buf, size_t buflen)
 {
 	const char *s, *e;
 	int len = 0;
 
 	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++)
-		// Control characters are not allowed but >=128 is.
+		/* Control characters are not allowed but >=128 is. */
 		if (!isprint(* (unsigned char *) s) && *s != '\r' &&
 		    *s != '\n' && * (unsigned char *) s < 128) {
 			len = -1;
@@ -144,46 +151,21 @@ static int read_request(struct ezcfg_worker *worker, char *buf, int bufsiz, int 
 	request_len = 0;
 
 	while (*nread < bufsiz && request_len == 0) {
-		dbg(ezcfg, "nread=[%d]\n", *nread);
-		//n = recv(sock, buf + *nread, bufsiz - *nread, 0);
 		n = ezcfg_socket_read(worker->client, buf + *nread, bufsiz - *nread, 0);
-		dbg(ezcfg, "n=[%d]\n", n);
 		if (n <= 0) {
-			dbg(ezcfg, "nread=[%d]\n", *nread);
 			break;
 		} else {
 			*nread += n;
-			dbg(ezcfg, "nread=[%d]\n", *nread);
 			request_len = get_request_len(buf, (size_t) *nread);
 		}
 	}
 
-	dbg(ezcfg, "request_len=[%d]\n", request_len);
 	return request_len;
 }
 
 static bool error_handler(struct ezcfg_worker *worker)
 {
 	return false;
-}
-
-static int worker_write(struct ezcfg_worker *worker, const char *buf, int len)
-{
-	int sent;
-	int n, k;
-	int sock;
-
-	sent = 0;
-	sock = ezcfg_socket_get_sock(worker->client);
-	while (sent < len) {
-		/* How many bytes we send in this iteration */
-		k = len - sent > INT_MAX ? INT_MAX : (int) (len - sent);
-		n = send(sock, buf + sent, k, 0);
-		if (n < 0)
-			break;
-		sent += n;
-	}
-	return sent;
 }
 
 static int worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
@@ -196,7 +178,7 @@ static int worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 	len = vsnprintf(buf, sizeof(buf), fmt, ap);
 	va_end(ap);
 
-	return worker_write(worker, buf, len);
+	return ezcfg_socket_write(worker->client, buf, len, 0);
 }
 
 static void send_http_error(struct ezcfg_worker *worker, int status,
@@ -232,10 +214,44 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 	}
 }
 
-// This is the heart of the worker's logic.
-// This function is called when the request is read, parsed and validated,
-// and worker must decide what action to take: serve a file, or
-// a directory, or call embedded function, etcetera.
+static void send_igrs_error(struct ezcfg_worker *worker, int status,
+                            const char *reason, const char *fmt, ...)
+{
+	char buf[BUFFER_SIZE];
+	va_list ap;
+	int len;
+	bool handled;
+
+	//ezcfg_http_set_status_code(worker->proto_data, status);
+	handled = error_handler(worker);
+
+	if (handled == false) {
+		buf[0] = '\0';
+		len = 0;
+
+		/* Errors 1xx, 204 and 304 MUST NOT send a body */
+		if (status > 199 && status != 204 && status != 304) {
+			len = snprintf(buf, sizeof(buf),
+			               "Error %d: %s\n", status, reason);
+			va_start(ap, fmt);
+			len += vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
+			va_end(ap);
+			worker->num_bytes_sent = len;
+		}
+		worker_printf(worker,
+		              "HTTP/1.1 %d %s\r\n"
+		              "Content-Type: text/plain\r\n"
+		              "Content-Length: %d\r\n"
+		              "Connection: close\r\n"
+		              "\r\n%s", status, reason, len, buf);
+	}
+}
+
+/* This is the heart of the worker's logic.
+ * This function is called when the request is read, parsed and validated,
+ * and worker must decide what action to take: serve a file, or
+ * a directory, or call embedded function, etcetera.
+ */
 static void handle_request(struct ezcfg_worker *worker)
 {
 	worker_printf(worker,
@@ -281,9 +297,6 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	/* If next request is not pipelined, read it */
 	if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
 		request_len = read_request(worker, buf, sizeof(buf), &nread);
-		dbg(ezcfg, "nread=[%d]\n", nread);
-		dbg(ezcfg, "request_len=[%d]\n", request_len);
-		dbg(ezcfg, "buf[0]=[%d]\n", (int)buf[0]);
 	}
 	assert(nread >= request_len);
 
@@ -292,9 +305,10 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		return; /* Request is too large or format is not correct */
 	}
 
-	/* 0-terminate the request: parse http request uses sscanf */
-	buf[request_len - 1] = '\0';
-	dbg(ezcfg, "request=[%s]\n", buf);
+	/* 0-terminate the request: parse http request uses sscanf
+	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
+	 */
+	//buf[request_len - 1] = '\0';
 	if (ezcfg_http_parse_request(worker->proto_data, buf) == true) {
 		unsigned short major, minor;
 		major = ezcfg_http_get_version_major(worker->proto_data);
@@ -316,6 +330,56 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	}
 }
 
+static void process_igrs_new_connection(struct ezcfg_worker *worker)
+{
+	int request_len, nread;
+	char buf[MAX_REQUEST_SIZE];
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	nread = 0;
+	reset_connection_attributes(worker);
+	memset(buf, 0, sizeof(buf));
+
+	/* If next request is not pipelined, read it */
+	if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
+		request_len = read_request(worker, buf, sizeof(buf), &nread);
+	}
+	assert(nread >= request_len);
+
+	if (request_len <= 0) {
+		err(ezcfg, "request error\n");
+		return; /* Request is too large or format is not correct */
+	}
+
+	/* 0-terminate the request: parse http request uses sscanf
+	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
+	 */
+	//buf[request_len - 1] = '\0';
+	if (ezcfg_igrs_parse_request(worker->proto_data, buf) == true) {
+		unsigned short major, minor;
+		major = ezcfg_igrs_get_version_major(worker->proto_data);
+		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
+		if (major != 1 || minor != 0) {
+			send_igrs_error(worker, 505,
+			                "IGRS version not supported",
+			                "%s", "Weird IGRS version");
+		} else {
+			ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			worker->birth_time = time(NULL);
+			ezcfg_igrs_dump(worker->proto_data);
+			handle_request(worker);
+			shift_to_next(worker, buf, request_len, &nread);
+		}
+	} else {
+		/* Do not put garbage in the access log */
+		send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
+	}
+}
+
 static void process_new_connection(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -327,6 +391,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	/* dispatch protocol handler */
 	if (worker->proto == EZCFG_PROTO_HTTP) {
 		process_http_new_connection(worker);
+	}
+	else if (worker->proto == EZCFG_PROTO_IGRS) {
+		process_igrs_new_connection(worker);
 	}
 }
 
@@ -369,6 +436,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
+
 		worker->birth_time = time(NULL);
 
 		/* set communication protocol */
@@ -405,6 +473,6 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 		}
 	}
 
-	// Signal master that we're done with connection and exiting
+	/* Signal master that we're done with connection and exiting */
 	ezcfg_master_stop_worker(worker->master);
 }
