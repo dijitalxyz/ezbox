@@ -806,7 +806,7 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 	return -1;
 }
 
-char *ezcfg_igrs_get_http_header(struct ezcfg_igrs *igrs, char *name)
+char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name)
 {
         struct ezcfg *ezcfg;
 
@@ -814,7 +814,7 @@ char *ezcfg_igrs_get_http_header(struct ezcfg_igrs *igrs, char *name)
 
         ezcfg = igrs->ezcfg;
 
-	return ezcfg_http_get_header(igrs->http, name);
+	return ezcfg_http_get_header_value(igrs->http, name);
 }
 
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
@@ -860,7 +860,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
 	}
 
 	/* check IGRS version */
-	s = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
 	if (s == NULL) {
 		err(ezcfg, "no igrs version in header\n");
 		return false;
@@ -872,7 +872,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
 	}
 
 	/* check IGRS message type */
-	s = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
 	if (s == NULL) {
 		err(ezcfg, "no igrs message type in header\n");
 		return false;

@@ -98,10 +98,10 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 static int get_content_length(const struct ezcfg_worker *worker) {
 	const char *cl = NULL;
 	if (worker->proto == EZCFG_PROTO_HTTP) {
-		cl = ezcfg_http_get_header(worker->proto_data, EZCFG_HTTP_HEADER_CONTENT_LENGTH);
+		cl = ezcfg_http_get_header_value(worker->proto_data, EZCFG_HTTP_HEADER_CONTENT_LENGTH);
 	}
 	else if (worker->proto == EZCFG_PROTO_IGRS) {
-		cl = ezcfg_igrs_get_http_header(worker->proto_data, EZCFG_IGRS_HEADER_CONTENT_LENGTH);
+		cl = ezcfg_igrs_get_http_header_value(worker->proto_data, EZCFG_IGRS_HEADER_CONTENT_LENGTH);
 	}
 	return cl == NULL ? -1 : strtol(cl, NULL, 10);
 }

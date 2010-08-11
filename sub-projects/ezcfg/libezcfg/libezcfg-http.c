@@ -475,7 +475,7 @@ void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
 	http->status_code = status_code;
 }
 
-char *ezcfg_http_get_header(struct ezcfg_http *http, char *name)
+char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name)
 {
 	struct ezcfg *ezcfg;
 	struct http_header *h;
