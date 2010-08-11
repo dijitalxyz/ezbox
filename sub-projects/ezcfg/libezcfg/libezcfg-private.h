@@ -211,6 +211,7 @@ unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs);
 unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
 bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
+unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type);
 bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
 char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
@@ -225,7 +226,7 @@ bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int serv
 unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id);
 unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type);
+bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_get_http_header(struct ezcfg_igrs *igrs, char *name);
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);

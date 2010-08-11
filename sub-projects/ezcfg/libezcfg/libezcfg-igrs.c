@@ -111,77 +111,135 @@ static const struct ezcfg_igrs_msg_op default_message_type_ops[] = {
 	/* bad Message Type string */
 	{ NULL, NULL, NULL },
 	/* 9.1 Device Advertisement */
-	{ "DeviceOnlineAdvertisement", NULL, NULL },
-	{ "DeviceOfflineAdvertisement", NULL, NULL },
+	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_DEVICE_OFFLINE_ADVERTISEMENT ,
+	  NULL, NULL },
 	/* 9.2 Device Pipe Management */
-	{ "CreatePipeRequest", NULL, NULL },
-	{ "CreatePipeResponse", NULL, NULL },
-	{ "AuthenticateRequest", NULL, NULL },
-	{ "AuthenticateResponse", NULL, NULL },
-	{ "AuthenticateResultRequest", NULL, NULL },
-	{ "AuthenticateResultResponse", NULL, NULL },
-	{ "CreatePipeResultRequest", NULL, NULL },
-	{ "CreatePipeResultResponse", NULL, NULL },
-	{ "DetachPipeNotify", NULL, NULL },
-	{ "DeviceOnlineDetectionRequest", NULL, NULL },
-	{ "DeviceOnlineDetectionResponse", NULL, NULL },
+	{ EZCFG_IGRS_MSG_CREATE_PIPE_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_AUTHENTICATE_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESULT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESULT_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESULT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESULT_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_DETACH_PIPE_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_DETECTION_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_DETECTION_RESPONSE ,
+	  NULL, NULL },
 	/* 9.3 Detaild Device Description Document Retrieval */
-	{ "GetDeviceDescriptionRequest", NULL, NULL },
-	{ "GetDeviceDescriptionResponse", NULL, NULL },
+	{ EZCFG_IGRS_MSG_GET_DEVICE_DESCRIPTION_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_GET_DEVICE_DESCRIPTION_RESPONSE ,
+	  NULL, NULL },
 	/* 9.4 Retrieve Detailed Device Description Document Based on Non-Secure Pipe */
 	/* 9.5 Device Group Setup */
-	{ "PeerDeviceGroupAdvertisement", NULL, NULL },
-	{ "QuitPeerDeviceGroupNotify", NULL, NULL },
-	{ "CentralisedDeviceGroupAdvertisement", NULL, NULL },
-	{ "JoinCentralisedDeviceGroupRequest", NULL, NULL },
-	{ "JoinCentralisedDeviceGroupResponse", NULL, NULL },
-	{ "QuitCentralisedDeviceGroupAdvertisement", NULL, NULL },
-	{ "QuitCentralisedDeviceGroupNotify", NULL, NULL },
+	{ EZCFG_IGRS_MSG_PEER_DEVICE_GROUP_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_QUIT_PEER_DEVICE_GROUP_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_CENTRALISED_DEVICE_GROUP_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_JOIN_CENTRALISED_DEVICE_GROUP_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_JOIN_CENTRALISED_DEVICE_GROUP_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_QUIT_CENTRALISED_DEVICE_GROUP_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_QUIT_CENTRALISED_DEVICE_GROUP_NOTIFY ,
+	  NULL, NULL },
 	/* 9.6 Device Search */
-	{ "SearchDeviceRequest", NULL, NULL },
-	{ "SearchDeviceResponse", NULL, NULL },
-	{ "SearchDeviceRequestOnDevice", NULL, NULL },
-	{ "SearchDeviceResponseOnDevice", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_REQUEST_ON_DEVICE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_RESPONSE_ON_DEVICE ,
+	  NULL, NULL },
 	/* 9.7 Device Online/Offline Event Subscription */
-	{ "SubscribeDeviceEventRequest", NULL, NULL },
-	{ "RenewSubscriptionDeviceEventRequest", NULL, NULL },
-	{ "SubscribeDeviceEventResponse", NULL, NULL },
-	{ "UnSubscribeDeviceEventNotify", NULL, NULL },
-	{ "NotifyDeviceEvent", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SUBSCRIBE_DEVICE_EVENT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_RENEW_SUBSCRIPTION_DEVICE_EVENT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SUBSCRIBE_DEVICE_EVENT_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_UNSUBSCRIBE_DEVICE_EVENT_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_NOTIFY_DEVICE_EVENT ,
+	  NULL, NULL },
 	/* 9.8 Device Group Search */
-	{ "SearchDeviceGroupRequest", NULL, NULL },
-	{ "SearchDeviceGroupResponse", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_GROUP_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_GROUP_RESPONSE ,
+	  NULL, NULL },
 	/* 10.1 Service Online/Offline Advertisement */
-	{ "ServiceOnlineAdvertisement", NULL, NULL },
-	{ "ServiceOfflineAdvertisement", NULL, NULL },
-	{ "RegisterServiceNotify", NULL, NULL },
-	{ "UnRegisterServiceNotify", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SERVICE_ONLINE_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SERVICE_OFFLINE_ADVERTISEMENT ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_REGISTER_SERVICE_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_UNREGISTER_SERVICE_NOTIFY ,
+	  NULL, NULL },
 	/* 10.2 Service Search */
-	{ "SearchServiceRequest", NULL, NULL },
-	{ "SearchServiceResponse", NULL, NULL },
-	{ "SearchServiceRequestOnDevice", NULL, NULL },
-	{ "SearchServiceResponseOnDevice", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_REQUEST_ON_DEVICE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_RESPONSE_ON_DEVICE ,
+	  NULL, NULL },
 	/* 10.3 Service Online/Offline Event Subscription */
-	{ "SubscribeServiceEventRequest", NULL, NULL },
-	{ "RenewSubscriptionServiceEventRequest", NULL, NULL },
-	{ "SubscribeServiceEventResponse", NULL, NULL },
-	{ "UnSubscribeDeviceEventNotify", NULL, NULL },
-	{ "NotifyServiceEvent", NULL, NULL },
+	{ EZCFG_IGRS_MSG_SUBSCRIBE_SERVICE_EVENT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_RENEW_SUBSCRIPTION_SERVICE_EVENT_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SUBSCRIBE_SERVICE_EVENT_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_UNSUBSCRIBE_DEVICE_EVENT_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_NOTIFY_SERVICE_EVENT ,
+	  NULL, NULL },
 	/* 10.4 Service Description Document Retrieval */
-	{ "GetServiceDescriptionRequest", NULL, NULL },
-	{ "GetServiceDescriptionResponse", NULL, NULL },
+	{ EZCFG_IGRS_MSG_GET_SERVICE_DESCRIPTION_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_GET_SERVICE_DESCRIPTION_RESPONSE ,
+	  NULL, NULL },
 	/* 10.5 Session */
-	{ "CreateSessionRequest", build_create_session_request, write_create_session_request },
-	{ "CreateSessionResponse", NULL, NULL },
-	{ "DestroySessionNotify", NULL, NULL },
-	{ "ApplySessionKeyRequest", NULL, NULL },
-	{ "ApplySessionKeyResponse", NULL, NULL },
-	{ "TransferSessionKeyRequest", NULL, NULL },
-	{ "TransferSessionKeyResponse", NULL, NULL },
+	{ EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST ,
+	  build_create_session_request, write_create_session_request },
+	{ EZCFG_IGRS_MSG_CREATE_SESSION_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_DESTROY_SESSION_NOTIFY ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_APPLY_SESSION_KEY_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_APPLY_SESSION_KEY_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_TRANSFER_SESSION_KEY_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_TRANSFER_SESSION_KEY_RESPONSE ,
+	  NULL, NULL },
 	/* 10.6 Service Invocation */
-	{ "InvokeServiceRequest", NULL, NULL },
-	{ "InvokeServiceResponse", NULL, NULL },
-	{ "SendNotification", NULL, NULL },
+	{ EZCFG_IGRS_MSG_INVOKE_SERVICE_REQUEST ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_INVOKE_SERVICE_RESPONSE ,
+	  NULL, NULL },
+	{ EZCFG_IGRS_MSG_SEND_NOTIFICATION ,
+	  NULL, NULL },
 };
 
 /**
@@ -248,36 +306,42 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	ezcfg_http_set_message_body(http, buf, n);
 
 	/* build HTTP request line */
-	ezcfg_http_set_request_method(http, "M-POST");
+	ezcfg_http_set_request_method(http, EZCFG_IGRS_METHOD_POST_EXT);
 	ezcfg_http_set_request_uri(http, "/IGRS");
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
 
 	/* build HTTP headers */
-	ezcfg_http_add_header(http, "HOST", "192.168.1.1:3880");
-	ezcfg_http_add_header(http, "MAN", "\"http://www.igrs.org/session\";ns=01");
+	snprintf(buf, sizeof(buf), "%s", "192.168.1.1:3880");
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_HOST , buf);
+
+	snprintf(buf, sizeof(buf), "\"%s\";ns=01", EZCFG_IGRS_SESSION_ATTR_NS_VALUE);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_MAN , buf);
 
 	snprintf(buf, sizeof(buf), "IGRS/%d.%d", igrs->version_major, igrs->version_minor);
-	ezcfg_http_add_header(http, "01-IGRSVersion", buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION , buf);
 
-	ezcfg_http_add_header(http, "01-IGRSMessageType", "CreateSessionRequest");
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE , EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
 
 	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->target_device_id);
-	ezcfg_http_add_header(http, "01-TargetDeviceId", buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID , buf);
 
 	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->source_device_id);
-	ezcfg_http_add_header(http, "01-SourceDeviceId", buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID , buf);
 
 	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
-	ezcfg_http_add_header(http, "01-SequenceId", buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_SEQUENCE_ID , buf);
 
-	ezcfg_http_add_header(http, "Content-type", "text/xml;charset=utf-8");
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_CONTENT_TYPE , "text/xml;charset=utf-8");
 
 	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-	ezcfg_http_add_header(http, "Content-length", buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_CONTENT_LENGTH , buf);
 
-	ezcfg_http_add_header(http, "MAN", "\"http://www.w3.org/2002/12/soap-envelope\";ns=02");
-	ezcfg_http_add_header(http, "02-SoapAction", "\"IGRS-CreateSession-Request\"");
+	snprintf(buf, sizeof(buf), "\"%s\";ns=02", EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_MAN , buf);
+
+	snprintf(buf, sizeof(buf), "\"%s\"", EZCFG_IGRS_SOAP_ACTION_CREATE_SESSION_REQUEST);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_02_SOAP_ACTION , buf);
 
 	return true;
 }
@@ -483,6 +547,27 @@ bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor)
 	return true;
 }
 
+unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type)
+{
+	struct ezcfg *ezcfg;
+	const struct ezcfg_igrs_msg_op *op;
+	unsigned short i;
+
+	assert(igrs != NULL);
+	assert(type != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	i = igrs->num_message_types;
+	op = &(igrs->message_type_ops[i]);
+	while ((i > 0) && (strcmp(op->name, type) != 0)) {
+		i--;
+		op = &(igrs->message_type_ops[i]);
+	}
+	igrs->message_type_index = i;
+	return i;
+}
+
 bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str)
 {
 	struct ezcfg *ezcfg;
@@ -674,27 +759,26 @@ unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs)
 	return igrs->target_service_id;
 }
 
-bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs, const char *type)
+bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs)
 {
 	struct ezcfg *ezcfg;
 	const struct ezcfg_igrs_msg_op *op;
-	int i;
 
 	assert(igrs != NULL);
-	assert(type != NULL);
 
 	ezcfg = igrs->ezcfg;
 
-	for (i = igrs->num_message_types; i > 0; i--) {
-		op = &(igrs->message_type_ops[i]);
-		if ( strcmp(op->name, type) == 0) {
-			if (op->builder != NULL) {
-				igrs->message_type_index = i;
-				return op->builder(igrs);
-			}
-		}
+	if (igrs->message_type_index == 0) {
+		err(ezcfg, "build message fail with unknown message type\n");
+		return false;
 	}
-	return false;
+
+	op = &(igrs->message_type_ops[igrs->message_type_index]);
+	if (op->builder == NULL) {
+		err(ezcfg, "message no builder\n");
+		return false;
+	}
+	return op->builder(igrs);
 }
 
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
@@ -763,7 +847,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	char *igrs_version;
+	char *s;
 	int n;
 
 	assert(igrs != NULL);
@@ -771,22 +855,33 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
 
-	dbg(ezcfg, "debug\n");
 	if (ezcfg_http_parse_request(http, buf) == false) {
 		return false;
 	}
 
-	igrs_version = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
-	if (igrs_version == NULL) {
+	/* check IGRS version */
+	s = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	if (s == NULL) {
 		err(ezcfg, "no igrs version in header\n");
 		return false;
 	}
-	n = sscanf(igrs_version, "IGRS/%hd.%hd", &(igrs->version_major), &(igrs->version_minor));
+	n = sscanf(s, "IGRS/%hd.%hd", &(igrs->version_major), &(igrs->version_minor));
 	if (n != 2) {
 		err(ezcfg, "igrs version format in header is invalid\n");
 		return false;
 	}
 
+	/* check IGRS message type */
+	s = ezcfg_http_get_header(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
+	if (s == NULL) {
+		err(ezcfg, "no igrs message type in header\n");
+		return false;
+	}
+	if (ezcfg_igrs_set_message_type(igrs, s) == 0) {
+		err(ezcfg, "igrs message type is unknown\n");
+		return false;
+	}
+	
 	return true;
 }
 

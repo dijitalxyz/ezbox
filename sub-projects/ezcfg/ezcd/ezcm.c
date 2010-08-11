@@ -135,7 +135,8 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_igrs_set_source_user_id(igrs, "igrs-tester");
 	ezcfg_igrs_set_service_security_id(igrs, NULL);
 	dbg(ezcfg, "debug\n");
-	ezcfg_igrs_build_message(igrs, "CreateSessionRequest");
+	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
+	ezcfg_igrs_build_message(igrs);
 	dbg(ezcfg, "debug\n");
 	msg_len = ezcfg_igrs_write_message(igrs, msg, sizeof(msg));
 	dbg(ezcfg, "debug\n");
