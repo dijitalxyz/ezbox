@@ -319,6 +319,8 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	http->num_known_headers = ARRAY_SIZE(default_header_strings) - 1; /* first item is NULL */
 	http->known_header_strings = default_header_strings;
 
+	http->message_body_len = -1;
+
 	return http;
 }
 
@@ -340,7 +342,7 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 	if (http->message_body != NULL) {
 		free(http->message_body);
 		http->message_body = NULL;
-		http->message_body_len = 0;
+		http->message_body_len = -1;
 	}
 
 }
@@ -730,6 +732,7 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value)
 		/* A known header */
 		h->is_known_header = true;
 	} else {
+		/* treat it as an extension-header */
 		h->is_known_header = false;
 		h->name = strdup(name);
 		if (h->name == NULL) {
@@ -738,7 +741,7 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value)
 			return false;
 		}
 	}
-				
+
 	if (value[0] != '\0') {
 		h->value = strdup(value);
 		if (h->name == NULL) {

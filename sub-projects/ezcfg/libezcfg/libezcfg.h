@@ -22,7 +22,9 @@
 extern "C" {
 #endif
 
-#define EZCFG_INVALID_SOCKET	-1
+#define EZCFG_INVALID_SOCKET	  -1
+#define EZCFG_BUFFER_SIZE         8192
+#define EZCFG_MAX_REQUEST_SIZE    8192
 
 #define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
@@ -53,7 +55,8 @@ extern "C" {
 #define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
 
 /* ezcfg http definitions */
-#define EZCFG_HTTP_MAX_HEADERS	64 /* must be less than 256 */
+#define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
+#define EZCFG_HTTP_MAX_REQUEST_SIZE    8192
 
 /* HTTP/1.1 (RFC2616) defined methods */
 #define EZCFG_HTTP_METHOD_OPTIONS  "OPTIONS"
@@ -139,6 +142,8 @@ extern "C" {
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
 
+/* ezcfg igrs request header size */
+#define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
 /* ezcfg igrs http methods */
 #define EZCFG_IGRS_METHOD_POST         "POST"
 #define EZCFG_IGRS_METHOD_POST_EXT     "M-POST"

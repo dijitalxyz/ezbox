@@ -255,6 +255,7 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master);
 /* libezcfg-worker.c */
 struct ezcfg_worker;
 /* worker inherits master's resource */
+void ezcfg_worker_delete(struct ezcfg_worker *worker);
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
 void ezcfg_worker_thread(struct ezcfg_worker *worker);
 

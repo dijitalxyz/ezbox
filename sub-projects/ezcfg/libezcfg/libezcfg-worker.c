@@ -36,10 +36,6 @@
 #include "libezcfg.h"
 #include "libezcfg-private.h"
 
-#define INVALID_SOCKET	-1
-#define BUFFER_SIZE	4096
-#define MAX_REQUEST_SIZE 8192
-
 /*
  * ezcfg_worker:
  * Opaque object handling one event source.
@@ -55,17 +51,25 @@ struct ezcfg_worker {
 	int64_t num_bytes_sent;
 };
 
-static void reset_per_request_attributes(struct ezcfg_worker *worker)
-{
-	if (worker->proto == EZCFG_PROTO_HTTP) {
+static void reset_connection_attributes(struct ezcfg_worker *worker) {
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	switch(worker->proto) {
+	case EZCFG_PROTO_HTTP :
+		ezcfg_http_reset_attributes(worker->proto_data);
+		break;
+	case EZCFG_PROTO_IGRS :
+		ezcfg_igrs_reset_attributes(worker->proto_data);
+		break;
+	default :
+		info(ezcfg, "unknown protocol\n");
 	}
-	else if (worker->proto == EZCFG_PROTO_IGRS) {
-	}
-	else if (worker->proto == EZCFG_PROTO_ISDP) {
-	}
-	else {
-		/* unknown proto, do nothing */
-	}
+
+	worker->num_bytes_sent = 0;
 }
 
 static void close_connection(struct ezcfg_worker *worker)
@@ -76,20 +80,7 @@ static void close_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	reset_per_request_attributes(worker);
-
 	ezcfg_socket_close_sock(worker->client);
-}
-
-static void reset_connection_attributes(struct ezcfg_worker *worker) {
-	reset_per_request_attributes(worker);
-	worker->num_bytes_sent = 0;
-	if (worker->proto == EZCFG_PROTO_HTTP) {
-		ezcfg_http_reset_attributes(worker->proto_data);
-	}
-	if (worker->proto == EZCFG_PROTO_IGRS) {
-		ezcfg_igrs_reset_attributes(worker->proto_data);
-	}
 }
 
 /* Return content length of the request, or -1 constant if
@@ -117,7 +108,7 @@ static int get_request_len(const char *buf, size_t buflen)
 	const char *s, *e;
 	int len = 0;
 
-	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++)
+	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++) {
 		/* Control characters are not allowed but >=128 is. */
 		if (!isprint(* (unsigned char *) s) && *s != '\r' &&
 		    *s != '\n' && * (unsigned char *) s < 128) {
@@ -128,13 +119,13 @@ static int get_request_len(const char *buf, size_t buflen)
 			   s[1] == '\r' && s[2] == '\n') {
 			len = (int) (s - buf) + 3;
 		}
+	}
 
 	return len;
 }
 
 /**
- * Keep reading the input (either opened file descriptor fd, or socket sock,
- * or SSL descriptor ssl) into buffer buf, until \r\n\r\n appears in the
+ * Keep reading the input into buffer buf, until \r\n\r\n appears in the
  * buffer (which marks the end of HTTP request). Buffer buf may already
  * have some data. The length of the data is stored in nread.
  * Upon every read operation, increase nread by the number of bytes read.
@@ -170,7 +161,7 @@ static bool error_handler(struct ezcfg_worker *worker)
 
 static int worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 {
-	char buf[MAX_REQUEST_SIZE];
+	char buf[EZCFG_MAX_REQUEST_SIZE];
 	int len;
 	va_list ap;
 
@@ -184,7 +175,7 @@ static int worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 static void send_http_error(struct ezcfg_worker *worker, int status,
                             const char *reason, const char *fmt, ...)
 {
-	char buf[BUFFER_SIZE];
+	char buf[EZCFG_BUFFER_SIZE];
 	va_list ap;
 	int len;
 	bool handled;
@@ -217,7 +208,7 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 static void send_igrs_error(struct ezcfg_worker *worker, int status,
                             const char *reason, const char *fmt, ...)
 {
-	char buf[BUFFER_SIZE];
+	char buf[EZCFG_BUFFER_SIZE];
 	va_list ap;
 	int len;
 	bool handled;
@@ -283,32 +274,30 @@ static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, i
 static void process_http_new_connection(struct ezcfg_worker *worker)
 {
 	int request_len, nread;
-	char buf[MAX_REQUEST_SIZE];
+	char *buf;
+	int buf_len;
 	struct ezcfg *ezcfg;
 
 	assert(worker != NULL);
 
 	ezcfg = worker->ezcfg;
+	buf_len = EZCFG_HTTP_MAX_REQUEST_SIZE ;
 
-	nread = 0;
-	reset_connection_attributes(worker);
-	memset(buf, 0, sizeof(buf));
-
-	/* If next request is not pipelined, read it */
-	if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
-		request_len = read_request(worker, buf, sizeof(buf), &nread);
+	buf = calloc(buf_len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for processing http new connection\n");
+		return;
 	}
+	request_len = read_request(worker, buf, buf_len, &nread);
+
 	assert(nread >= request_len);
 
 	if (request_len <= 0) {
 		err(ezcfg, "request error\n");
+		free(buf);
 		return; /* Request is too large or format is not correct */
 	}
 
-	/* 0-terminate the request: parse http request uses sscanf
-	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
-	 */
-	//buf[request_len - 1] = '\0';
 	if (ezcfg_http_parse_request(worker->proto_data, buf) == true) {
 		unsigned short major, minor;
 		major = ezcfg_http_get_version_major(worker->proto_data);
@@ -328,30 +317,35 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		/* Do not put garbage in the access log */
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
+
+	/* release buf memory */
+	free(buf);
 }
 
 static void process_igrs_new_connection(struct ezcfg_worker *worker)
 {
 	int request_len, nread;
-	char buf[MAX_REQUEST_SIZE];
+	char *buf;
+	int buf_len;
 	struct ezcfg *ezcfg;
 
 	assert(worker != NULL);
 
 	ezcfg = worker->ezcfg;
+	buf_len = EZCFG_IGRS_MAX_REQUEST_SIZE ;
 
-	nread = 0;
-	reset_connection_attributes(worker);
-	memset(buf, 0, sizeof(buf));
-
-	/* If next request is not pipelined, read it */
-	if ((request_len = get_request_len(buf, (size_t) nread)) == 0) {
-		request_len = read_request(worker, buf, sizeof(buf), &nread);
+	buf = calloc(buf_len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for processing igrs new connection\n");
+		return;
 	}
+	request_len = read_request(worker, buf, buf_len, &nread);
+
 	assert(nread >= request_len);
 
 	if (request_len <= 0) {
 		err(ezcfg, "request error\n");
+		free(buf);
 		return; /* Request is too large or format is not correct */
 	}
 
@@ -378,6 +372,38 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		/* Do not put garbage in the access log */
 		send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
+
+	/* release buf memory */
+	free(buf);
+}
+
+static void init_protocol_data(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+	/* proto_data should be empty before init */
+	assert(worker->proto_data == NULL);
+
+	ezcfg = worker->ezcfg;
+
+	/* set communication protocol */
+	worker->proto = ezcfg_socket_get_proto(worker->client);
+
+	/* initialize protocol data structure */
+	switch(worker->proto) {
+	case EZCFG_PROTO_HTTP :
+		worker->proto_data = ezcfg_http_new(ezcfg);
+		break;
+	case EZCFG_PROTO_IGRS :
+		worker->proto_data = ezcfg_igrs_new(ezcfg);
+		break;
+	case EZCFG_PROTO_ISDP :
+		//worker->proto_data = ezcfg_isdp_new(ezcfg);
+		break;
+	default :
+		info(ezcfg, "unknown protocol\n");
+	}
 }
 
 static void process_new_connection(struct ezcfg_worker *worker)
@@ -388,13 +414,64 @@ static void process_new_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
+	reset_connection_attributes(worker);
+
 	/* dispatch protocol handler */
-	if (worker->proto == EZCFG_PROTO_HTTP) {
+	switch(worker->proto) {
+	case EZCFG_PROTO_HTTP :
 		process_http_new_connection(worker);
-	}
-	else if (worker->proto == EZCFG_PROTO_IGRS) {
+		break;
+	case EZCFG_PROTO_IGRS :
 		process_igrs_new_connection(worker);
+		break;
+	case EZCFG_PROTO_ISDP :
+		//process_isdp_new_connection(worker);
+		break;
+	default :
+		info(ezcfg, "unknown protocol\n");
 	}
+}
+ 
+static void release_protocol_data(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	/* release protocol data */
+	switch(worker->proto) {
+	case EZCFG_PROTO_HTTP :
+		ezcfg_http_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_IGRS :
+		ezcfg_igrs_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_ISDP :
+		//ezcfg_isdp_delete(worker->proto_data);
+		//worker->proto_data = NULL;
+		break;
+	default :
+		info(ezcfg, "unknown protocol\n");
+	}
+}
+
+/**
+ * Public functions
+ **/
+void ezcfg_worker_delete(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	assert(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	ezcfg_socket_delete(worker->client);
+	free(worker);
 }
 
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
@@ -429,29 +506,21 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 void ezcfg_worker_thread(struct ezcfg_worker *worker) 
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_master *master;
 
 	assert(worker != NULL);
 
 	ezcfg = worker->ezcfg;
+	master = worker->master;
 
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
 
+		/* record start working time */
 		worker->birth_time = time(NULL);
 
-		/* set communication protocol */
-		worker->proto = ezcfg_socket_get_proto(worker->client);
-
-		/* initialize protocol data structure */
-		if (worker->proto == EZCFG_PROTO_HTTP) {
-			worker->proto_data = ezcfg_http_new(ezcfg);
-		}
-		else if (worker->proto == EZCFG_PROTO_IGRS) {
-			worker->proto_data = ezcfg_igrs_new(ezcfg);
-		}
-		else if (worker->proto == EZCFG_PROTO_ISDP) {
-			//worker->proto_data = ezcfg_isdp_new(ezcfg);
-		}
+		/* initialize protocol data */
+		init_protocol_data(worker);
 
 		/* process the connection */
 		if (worker->proto_data != NULL) {
@@ -461,18 +530,15 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 		/* close connection */
 		close_connection(worker);
 
-		/* release protocol data structure */
-		if (worker->proto == EZCFG_PROTO_HTTP) {
-			ezcfg_http_delete(worker->proto_data);
-		}
-		else if (worker->proto == EZCFG_PROTO_IGRS) {
-			ezcfg_igrs_delete(worker->proto_data);
-		}
-		else if (worker->proto == EZCFG_PROTO_ISDP) {
-			//ezcfg_isdp_delete(worker->proto_data);
+		/* release protocol data */
+		if (worker->proto_data != NULL) {
+			release_protocol_data(worker);
 		}
 	}
 
+	/* clean worker resource */
+	ezcfg_worker_delete(worker);
+
 	/* Signal master that we're done with connection and exiting */
-	ezcfg_master_stop_worker(worker->master);
+	ezcfg_master_stop_worker(master);
 }
