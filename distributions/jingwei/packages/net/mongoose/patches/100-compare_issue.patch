@@ -1,11 +1,11 @@
---- monggose/mongoose.c	2010-07-03 00:16:24.525292208 +0800
-+++ mongoose/mongoose.c	2010-07-03 00:17:24.240294099 +0800
-@@ -3497,7 +3497,7 @@
- 	remove_double_dots_and_double_slashes(ri->uri);
- 	convert_uri_to_file_name(conn, ri->uri, path, sizeof(path));
+--- mongoose/mongoose.c	2010-07-23 16:19:41.971269779 +0800
++++ mongoose/mongoose.c	2010-08-16 10:56:48.935806000 +0800
+@@ -3081,7 +3081,7 @@
+   remove_double_dots_and_double_slashes(ri->uri);
+   convert_uri_to_file_name(conn, ri->uri, path, sizeof(path));
  
--	if (new_request_callback && new_request_callback(conn, ri) == TRUE) {
-+	if (new_request_callback && new_request_callback(conn, ri) == MG_SUCCESS) {
- 		/* Do nothing, callback has served the request */
- 	} else if (!check_authorization(conn, path)) {
- 		send_authorization_request(conn);
+-  if (new_request_callback && new_request_callback(conn, ri) == TRUE) {
++  if (new_request_callback && new_request_callback(conn, ri) == MG_SUCCESS) {
+     // Do nothing, callback has served the request
+   } else if (!check_authorization(conn, path)) {
+     send_authorization_request(conn);

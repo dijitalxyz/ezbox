@@ -1,0 +1,30 @@
+--- mongoose/mongoose.c	2010-07-23 16:19:41.971269779 +0800
++++ mongoose/mongoose.c	2010-08-16 10:56:48.935806000 +0800
+@@ -294,6 +294,7 @@
+   {NULL,    NULL}
+ };
+ 
++#if !defined(NO_SSL)
+ // Similar array as ssl_sw. These functions could be located in different lib.
+ static struct ssl_func crypto_sw[] = {
+   {"CRYPTO_num_locks",  NULL},
+@@ -301,6 +302,7 @@
+   {"CRYPTO_set_id_callback", NULL},
+   {NULL,    NULL}
+ };
++#endif
+ 
+ static const char *month_names[] = {
+   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+@@ -3812,7 +3814,10 @@
+ 
+   // NOTE(lsm): order is important here. SSL certificates must
+   // be initialized before listening ports. UID must be set last.
+-  if (set_ssl_option(ctx) == MG_ERROR ||
++  if (
++#if !defined(NO_SSL)
++      set_ssl_option(ctx) == MG_ERROR ||
++#endif
+       set_ports_option(ctx) == MG_ERROR ||
+       set_gpass_option(ctx) == MG_ERROR ||
+ #if !defined(_WIN32)
