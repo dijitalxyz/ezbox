@@ -30,7 +30,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -54,7 +53,7 @@ struct ezcfg_worker {
 static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -76,7 +75,7 @@ static void close_connection(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -135,7 +134,7 @@ static int read_request(struct ezcfg_worker *worker, char *buf, int bufsiz, int 
 	struct ezcfg *ezcfg;
 	int n, request_len;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -257,7 +256,7 @@ static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, i
 
 	cl = get_content_length(worker);
 	over_len = *nread - req_len;
-	assert(over_len >= 0);
+	ASSERT(over_len >= 0);
 
 	if (cl == -1) {
 		body_len = 0;
@@ -278,7 +277,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	int buf_len;
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 	buf_len = EZCFG_HTTP_MAX_REQUEST_SIZE ;
@@ -290,7 +289,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	}
 	request_len = read_request(worker, buf, buf_len, &nread);
 
-	assert(nread >= request_len);
+	ASSERT(nread >= request_len);
 
 	if (request_len <= 0) {
 		err(ezcfg, "request error\n");
@@ -329,7 +328,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	int buf_len;
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 	buf_len = EZCFG_IGRS_MAX_REQUEST_SIZE ;
@@ -341,7 +340,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	}
 	request_len = read_request(worker, buf, buf_len, &nread);
 
-	assert(nread >= request_len);
+	ASSERT(nread >= request_len);
 
 	if (request_len <= 0) {
 		err(ezcfg, "request error\n");
@@ -381,9 +380,9 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 	/* proto_data should be empty before init */
-	assert(worker->proto_data == NULL);
+	ASSERT(worker->proto_data == NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -410,7 +409,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -436,7 +435,7 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -466,11 +465,12 @@ void ezcfg_worker_delete(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 
 	ezcfg_socket_delete(worker->client);
+
 	free(worker);
 }
 
@@ -480,7 +480,7 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	struct ezcfg_worker *worker = NULL;
 	struct ezcfg_socket *client = NULL;
 
-	assert(master != NULL);
+	ASSERT(master != NULL);
 	worker = calloc(1, sizeof(struct ezcfg_worker));
 	if (worker == NULL)
 		return NULL;
@@ -508,7 +508,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	struct ezcfg *ezcfg;
 	struct ezcfg_master *master;
 
-	assert(worker != NULL);
+	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 	master = worker->master;
@@ -537,8 +537,9 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	}
 
 	/* clean worker resource */
-	ezcfg_worker_delete(worker);
+	/* do it in ezcfg_master_stop_worker */
+	//ezcfg_worker_delete(worker);
 
 	/* Signal master that we're done with connection and exiting */
-	ezcfg_master_stop_worker(master);
+	ezcfg_master_stop_worker(master, worker);
 }

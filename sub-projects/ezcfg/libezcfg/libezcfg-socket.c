@@ -31,7 +31,6 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <netinet/in.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -102,7 +101,7 @@ static void close_socket_gracefully(int sock) {
 void ezcfg_socket_delete(struct ezcfg_socket *sp)
 {
 	struct ezcfg *ezcfg;
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 
 	ezcfg = sp->ezcfg;
 
@@ -129,8 +128,8 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
 
-	assert(ezcfg != NULL);
-	assert(socket_path != NULL);
+	ASSERT(ezcfg != NULL);
+	ASSERT(socket_path != NULL);
 
 	if (domain != AF_LOCAL) {
 		err(ezcfg, "unknown socket family %d\n", domain);
@@ -192,55 +191,55 @@ fail_exit:
 
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->sock;
 }
 
 unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->proto;
 }
 
 struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->next;
 }
 
 int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->lsa.len;
 }
 
 int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->lsa.domain;
 }
 
 char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->lsa.u.sun.sun_path;
 }
 
 int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->rsa.len;
 }
 
 int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->rsa.domain;
 }
 
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 	return sp->rsa.u.sun.sun_path;
 }
 
@@ -253,8 +252,8 @@ struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 {
 	struct ezcfg_socket *sp;
 
-	assert(ezcfg != NULL);
-	assert(size > 0);
+	ASSERT(ezcfg != NULL);
+	ASSERT(size > 0);
 
 	sp = calloc(size, sizeof(struct ezcfg_socket));
 	if (sp == NULL) {
@@ -276,7 +275,7 @@ void ezcfg_socket_list_delete(struct ezcfg_socket **list)
 {
 	struct ezcfg_socket *cur;
 
-	assert(list != NULL);
+	ASSERT(list != NULL);
 
 	cur = *list;
 	while (cur != NULL) {
@@ -293,8 +292,8 @@ void ezcfg_socket_list_delete(struct ezcfg_socket **list)
  **/
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 {
-	assert(list != NULL);
-	assert(sp != NULL);
+	ASSERT(list != NULL);
+	ASSERT(sp != NULL);
 
 	sp->next = *list;
 	*list = sp;
@@ -303,7 +302,7 @@ int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp
 
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list)
 {
-	assert(list != NULL);
+	ASSERT(list != NULL);
 
 	return (*list)->next;
 }
@@ -320,7 +319,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 
 	ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
@@ -356,8 +355,8 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
-	assert(sp != NULL);
-	assert(backlog > 0);
+	ASSERT(sp != NULL);
+	ASSERT(backlog > 0);
 
 	ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
@@ -415,7 +414,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	struct ezcfg *ezcfg;
 	int domain;
 
-	assert(listener != NULL);
+	ASSERT(listener != NULL);
 	ezcfg = listener->ezcfg;
 
 	accepted = calloc(1, sizeof(struct ezcfg_socket));
@@ -454,7 +453,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 
 	if (sp->sock >= 0) {
 		close_socket_gracefully(sp->sock);
@@ -464,7 +463,7 @@ void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 
 void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp)
 {
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 
 	if (sp->sock >= 0) {
 		fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
@@ -476,8 +475,8 @@ int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *soc
 	struct ezcfg *ezcfg;
 	struct usa *usa;
 
-	assert(sp != NULL);
-	assert(socket_path != NULL);
+	ASSERT(sp != NULL);
+	ASSERT(socket_path != NULL);
 
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
@@ -508,7 +507,7 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 	struct usa *usa;
 	struct ezcfg *ezcfg;
 
-	assert(sp != NULL);
+	ASSERT(sp != NULL);
 
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
@@ -538,9 +537,9 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 	int status, n;
 	int sock;
 
-	assert(sp != NULL);
-	assert(buf != NULL);
-	assert(len >= 0);
+	ASSERT(sp != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len >= 0);
 
 	ezcfg = sp->ezcfg;
 	p = buf;
@@ -584,9 +583,9 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	int status, n;
 	int sock;
 
-	assert(sp != NULL);
-	assert(buf != NULL);
-	assert(len >= 0);
+	ASSERT(sp != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len >= 0);
 
 	ezcfg = sp->ezcfg;
 	p = buf;

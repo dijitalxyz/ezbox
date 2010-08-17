@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -56,7 +55,7 @@ void ezcfg_soap_delete(struct ezcfg_soap *soap)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
+	ASSERT(soap != NULL);
 
 	ezcfg = soap->ezcfg;
 
@@ -75,7 +74,7 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_soap *soap;
 
-	assert(ezcfg != NULL);
+	ASSERT(ezcfg != NULL);
 
 	/* initialize soap info builder data structure */
 	soap = calloc(1, sizeof(struct ezcfg_soap));
@@ -104,7 +103,7 @@ unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
+	ASSERT(soap != NULL);
 
 	ezcfg = soap->ezcfg;
 
@@ -115,7 +114,7 @@ unsigned short ezcfg_soap_get_version_minor(struct ezcfg_soap *soap)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
+	ASSERT(soap != NULL);
 
 	ezcfg = soap->ezcfg;
 
@@ -126,7 +125,7 @@ bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
+	ASSERT(soap != NULL);
 
 	ezcfg = soap->ezcfg;
 
@@ -139,7 +138,7 @@ bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
+	ASSERT(soap != NULL);
 
 	ezcfg = soap->ezcfg;
 
@@ -154,9 +153,9 @@ int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name)
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *elem;
 
-	assert(soap != NULL);
-	assert(soap->xml != NULL);
-	assert(name != NULL);
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(name != NULL);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -177,9 +176,9 @@ bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *elem;
 
-	assert(soap != NULL);
-	assert(name != NULL);
-	assert(value != NULL);
+	ASSERT(soap != NULL);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -204,9 +203,9 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *envelope, *elem;
 
-	assert(soap != NULL);
-	assert(soap->xml != NULL);
-	assert(name != NULL);
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(name != NULL);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -239,10 +238,10 @@ int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int s
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *parent, *sibling, *elem;
 
-	assert(soap != NULL);
-	assert(soap->xml != NULL);
-	assert(name != NULL);
-	assert(pi > 0);
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(name != NULL);
+	ASSERT(pi > 0);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -282,10 +281,10 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *elem;
 
-	assert(soap != NULL);
-	assert(ei > 0);
-	assert(name != NULL);
-	assert(value != NULL);
+	ASSERT(soap != NULL);
+	ASSERT(ei > 0);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -308,9 +307,9 @@ int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 
-	assert(soap != NULL);
-	assert(buf != NULL);
-	assert(len > 0);
+	ASSERT(soap != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = soap->ezcfg;
 

@@ -16,6 +16,9 @@ AM_CPPFLAGS = \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\"
 
+AM_CFLAGS = \
+	-DEZCFG_DEBUG
+
 AM_LDFLAGS = \
 	-Wl,--as-needed -pthread
 

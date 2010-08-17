@@ -249,7 +249,6 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
-void ezcfg_master_stop_worker(struct ezcfg_master *master);
 
 
 /* libezcfg-worker.c */
@@ -258,6 +257,8 @@ struct ezcfg_worker;
 void ezcfg_worker_delete(struct ezcfg_worker *worker);
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
 void ezcfg_worker_thread(struct ezcfg_worker *worker);
+/* worker call this to notify master */
+void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);
 
 
 /* libezcfg-ctrl.c - daemon runtime setup */

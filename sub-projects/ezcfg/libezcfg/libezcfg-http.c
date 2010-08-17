@@ -31,7 +31,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -169,7 +168,7 @@ static void clear_http_headers(struct ezcfg_http *http)
 	struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 	while(http->header_head != NULL) {
@@ -190,8 +189,8 @@ static const char *find_known_header_name(struct ezcfg_http *http, char *name)
 	struct ezcfg *ezcfg;
 	int i;
 
-	assert(http != NULL);
-	assert(name != NULL);
+	ASSERT(http != NULL);
+	ASSERT(name != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -213,8 +212,8 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 	struct ezcfg *ezcfg;
 	char *end, *name, *value;
 
-	assert(http != NULL);
-	assert(buf != NULL);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -260,8 +259,8 @@ static unsigned char find_method_index(struct ezcfg_http *http, const char *meth
 	struct ezcfg *ezcfg;
 	int i;
 
-	assert(http != NULL);
-	assert(method != NULL);
+	ASSERT(http != NULL);
+	ASSERT(method != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -277,7 +276,7 @@ static unsigned char find_method_index(struct ezcfg_http *http, const char *meth
  **/
 void ezcfg_http_delete(struct ezcfg_http *http)
 {
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	clear_http_headers(http);
 
@@ -302,7 +301,7 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_http *http;
 
-	assert(ezcfg != NULL);
+	ASSERT(ezcfg != NULL);
 
 	/* initialize http info structure */
 	http = calloc(1, sizeof(struct ezcfg_http));
@@ -328,7 +327,7 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -353,8 +352,8 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 	char *p;
 	char *method, *uri, *version, *headers;
 
-	assert(http != NULL);
-	assert(buf != NULL);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -422,7 +421,7 @@ unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -433,7 +432,7 @@ unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -444,7 +443,7 @@ bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -457,7 +456,7 @@ bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -470,7 +469,7 @@ void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -482,7 +481,7 @@ char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name)
 	struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -501,7 +500,7 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 	struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -524,8 +523,8 @@ bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
-	assert(method_strings != NULL);
+	ASSERT(http != NULL);
+	ASSERT(method_strings != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -539,8 +538,8 @@ bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **h
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
-	assert(header_strings != NULL);
+	ASSERT(http != NULL);
+	ASSERT(header_strings != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -555,8 +554,8 @@ unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char 
 	struct ezcfg *ezcfg;
 	int i;
 
-	assert(http != NULL);
-	assert(method != NULL);
+	ASSERT(http != NULL);
+	ASSERT(method != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -578,7 +577,7 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 	struct ezcfg *ezcfg;
 	char *request_uri;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -601,7 +600,7 @@ char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int
 	struct ezcfg *ezcfg;
 	char *message_body;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -625,7 +624,7 @@ int ezcfg_http_get_message_body_len(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -637,9 +636,9 @@ int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 	struct ezcfg *ezcfg;
 	int n;
 
-	assert(http != NULL);
-	assert(buf != NULL);
-	assert(len > 0);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 
@@ -664,9 +663,9 @@ int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
 	struct ezcfg *ezcfg;
 	int n;
 
-	assert(http != NULL);
-	assert(buf != NULL);
-	assert(len > 0);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 
@@ -683,9 +682,9 @@ int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len)
 	struct http_header *h;
 	int n, count;
 
-	assert(http != NULL);
-	assert(buf != NULL);
-	assert(len > 0);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 
@@ -714,9 +713,9 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value)
 	struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	assert(http != NULL);
-	assert(name != NULL);
-	assert(value != NULL);
+	ASSERT(http != NULL);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
 
 	ezcfg = http->ezcfg;
 
@@ -771,9 +770,9 @@ int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 
-	assert(http != NULL);
-	assert(buf != NULL);
-	assert(len > 0);
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 

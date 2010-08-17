@@ -30,7 +30,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -88,7 +87,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
 
-	assert(ezcfg != NULL);
+	ASSERT(ezcfg != NULL);
 
 	master = calloc(1, sizeof(struct ezcfg_master));
 	if (master == NULL) {
@@ -159,10 +158,10 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 	struct ezcfg_socket *listener;
 	struct ezcfg *ezcfg;
 
-	assert(master != NULL);
+	ASSERT(master != NULL);
 	ezcfg = master->ezcfg;
 
-	assert(socket_path != NULL);
+	ASSERT(socket_path != NULL);
 
 	/* initialize unix domain socket */
 	listener = ezcfg_socket_new(ezcfg, family, proto, socket_path);
@@ -202,8 +201,8 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 	struct ezcfg_master *master = NULL;
 	struct ezcfg_socket *sp = NULL;
 
-	assert(ezcfg != NULL);
-	assert(socket_path != NULL);
+	ASSERT(ezcfg != NULL);
+	ASSERT(socket_path != NULL);
 
 	master = ezcfg_master_new(ezcfg);
 	if (master == NULL) {
@@ -278,8 +277,8 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	struct ezcfg *ezcfg;
 	int stacksize;
 	
-	assert(master != NULL);
-	assert(sp != NULL);
+	ASSERT(master != NULL);
+	ASSERT(sp != NULL);
 
 	ezcfg = master->ezcfg;
 	stacksize = 0;
@@ -290,7 +289,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	while (master->sq_head - master->sq_tail >= master->sq_len) {
 		pthread_cond_wait(&master->full_cond, &master->mutex);
 	}
-	assert(master->sq_head - master->sq_tail < master->sq_len);
+	ASSERT(master->sq_head - master->sq_tail < master->sq_len);
 
 	/* Copy socket to the queue and increment head */
 	ezcfg_socket_queue_set_socket(master->queue, master->sq_head % master->sq_len, sp);
@@ -322,8 +321,8 @@ static void accept_new_connection(struct ezcfg_master *master,
 	struct ezcfg_socket *accepted;
 	bool allowed;
 
-	assert(master != NULL);
-	assert(listener != NULL);
+	ASSERT(master != NULL);
+	ASSERT(listener != NULL);
 
 	ezcfg = master->ezcfg;
 
@@ -357,7 +356,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 	struct timeval tv;
 	int max_fd;
 
-	assert(master != NULL);
+	ASSERT(master != NULL);
 
 	ezcfg = master->ezcfg;
 
@@ -397,7 +396,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	int stacksize = sizeof(struct ezcfg_master) * 2;
 	struct ezcfg_socket * sp;
 
-	assert(ezcfg != NULL);
+	ASSERT(ezcfg != NULL);
 
 	/* There must be a ctrl socket */
 	master = ezcfg_master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
@@ -441,7 +440,7 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 	while (master->stop_flag != 2)
 		sleep(1);
 
-	assert(master->num_threads == 0);
+	ASSERT(master->num_threads == 0);
 	ezcfg_master_delete(master);
 }
 
@@ -461,7 +460,7 @@ bool ezcfg_master_is_stop(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 
-	assert(master != NULL);
+	ASSERT(master != NULL);
 
 	ezcfg = master->ezcfg;
 
@@ -473,7 +472,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	struct ezcfg *ezcfg;
 	struct timespec ts;
 
-	assert(master != NULL);
+	ASSERT(master != NULL);
 
 	ezcfg = master->ezcfg;
 
@@ -490,7 +489,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 			return false;
 		}
 	}
-	assert(master->sq_head > master->sq_tail);
+	ASSERT(master->sq_head > master->sq_tail);
 
 	// We're going busy now: got a socket to process!
 	master->num_idle--;
@@ -510,12 +509,24 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	return true;
 }
 
-void ezcfg_master_stop_worker(struct ezcfg_master *master)
+void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker)
 {
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+	ASSERT(worker != NULL);
+
+	ezcfg = master->ezcfg;
+
 	pthread_mutex_lock(&master->mutex);
+
+	/* clean worker resource */
+	ezcfg_worker_delete(worker);
+
 	master->num_threads--;
 	master->num_idle--;
 	pthread_cond_signal(&master->thr_cond);
-	assert(master->num_threads >= 0);
+	ASSERT(master->num_threads >= 0);
+
 	pthread_mutex_unlock(&master->mutex);
 }

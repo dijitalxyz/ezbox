@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -83,7 +82,7 @@ void ezcfg_xml_delete(struct ezcfg_xml *xml)
 {
 	struct ezcfg *ezcfg;
 
-	assert(xml != NULL);
+	ASSERT(xml != NULL);
 
 	ezcfg = xml->ezcfg;
 
@@ -104,7 +103,7 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_xml *xml;
 
-	assert(ezcfg != NULL);
+	ASSERT(ezcfg != NULL);
 
 	/* initialize xml parser data structure */
 	xml = calloc(1, sizeof(struct ezcfg_xml));
@@ -132,7 +131,7 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
 	struct elem_attribute *a;
-	assert(elem != NULL);
+	ASSERT(elem != NULL);
 	if (elem->name)
 		free(elem->name);
 	while (elem->attr_head != NULL) {
@@ -155,8 +154,8 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 
-	assert(xml != NULL);
-	assert(name != NULL);
+	ASSERT(xml != NULL);
+	ASSERT(name != NULL);
 
 	ezcfg = xml->ezcfg;
 
@@ -193,10 +192,10 @@ bool ezcfg_xml_element_add_attribute(
 	struct ezcfg *ezcfg;
 	struct elem_attribute *a;
 
-	assert(xml != NULL);
-	assert(elem != NULL);
-	assert(name != NULL);
-	assert(value != NULL);
+	ASSERT(xml != NULL);
+	ASSERT(elem != NULL);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
 
 	ezcfg = xml->ezcfg;
 
@@ -258,8 +257,8 @@ int ezcfg_xml_add_element(
 	struct ezcfg_xml_element **root;
 	int i;
 
-	assert(xml != NULL);
-	assert(xml->num_elements+2 <= xml->max_elements);
+	ASSERT(xml != NULL);
+	ASSERT(xml->num_elements+2 <= xml->max_elements);
 
 	ezcfg = xml->ezcfg;
 	root = xml->root;
@@ -337,7 +336,7 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 	struct elem_attribute *a;
 	int i;
 
-	assert(xml != NULL);
+	ASSERT(xml != NULL);
 
 	ezcfg = xml->ezcfg;
 	root = xml->root;
@@ -374,8 +373,8 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name)
 	struct ezcfg_xml_element *elem;
 	int i;
 
-	assert(xml != NULL);
-	assert(xml->root != NULL);
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
 
 	ezcfg = xml->ezcfg;
 	for (i = 0; i < xml->num_elements; i++) {
@@ -390,8 +389,8 @@ struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, 
 {
 	struct ezcfg *ezcfg;
 
-	assert(xml != NULL);
-	assert(xml->root != NULL);
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
 
 	ezcfg = xml->ezcfg;
 

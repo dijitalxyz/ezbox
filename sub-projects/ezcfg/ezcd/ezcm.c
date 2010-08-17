@@ -121,31 +121,23 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
-	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_set_version_major(igrs, 1);
 	ezcfg_igrs_set_version_minor(igrs, 0);
-	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_set_source_device_id(igrs, EZCFG_UUID_NIL_STRING);
 	ezcfg_igrs_set_target_device_id(igrs, EZCFG_UUID_NIL_STRING);
-	dbg(ezcfg, "debug\n");
 	srand((unsigned)time(&t));
 	ezcfg_igrs_set_source_client_id(igrs, rand());
 	ezcfg_igrs_set_target_service_id(igrs, rand());
 	ezcfg_igrs_set_sequence_id(igrs, rand());
 	ezcfg_igrs_set_source_user_id(igrs, "igrs-tester");
 	ezcfg_igrs_set_service_security_id(igrs, NULL);
-	dbg(ezcfg, "debug\n");
 	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
 	ezcfg_igrs_build_message(igrs);
-	dbg(ezcfg, "debug\n");
 	msg_len = ezcfg_igrs_write_message(igrs, msg, sizeof(msg));
-	dbg(ezcfg, "debug\n");
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
-	dbg(ezcfg, "debug\n");
 
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf);
-	dbg(ezcfg, "debug\n");
 
 	if (ezctrl == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm controller");
@@ -160,25 +152,19 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
-	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
-	dbg(ezcfg, "debug\n");
 		err(ezcfg, "controller write: %m\n");
 		rc = 4;
 		goto exit;
 	}
-	dbg(ezcfg, "debug\n");
 	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
-#if 1
-	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
 		err(ezcfg, "controller write: %m\n");
 		rc = 5;
 		goto exit;
 	}
 	info(ezcfg, "received message=[%s]\n", msg);
-#endif
 exit:
 	if (igrs != NULL)
 		ezcfg_igrs_delete(igrs);

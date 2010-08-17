@@ -18,11 +18,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef EZCFG_DEBUG
+#include <assert.h>
+#define ASSERT(exp) assert(exp)   
+#else
+#define ASSERT(exp) do {} while(0) 
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define EZCFG_INVALID_SOCKET	  -1
+#define EZCFG_INVALID_SOCKET      -1
 #define EZCFG_BUFFER_SIZE         8192
 #define EZCFG_MAX_REQUEST_SIZE    8192
 

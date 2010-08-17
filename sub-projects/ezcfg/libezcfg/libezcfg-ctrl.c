@@ -31,7 +31,6 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <assert.h>
 #include <pthread.h>
 
 #include "libezcfg.h"
@@ -44,7 +43,7 @@ struct ezcfg_ctrl {
 
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 {
-	assert(ezctrl);
+	ASSERT(ezctrl);
 
 	if (ezctrl->socket != NULL) {
 		ezcfg_socket_delete(ezctrl->socket);
@@ -56,8 +55,8 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 {
 	struct ezcfg_ctrl *ezctrl;
 
-	assert(ezcfg != NULL);
-	assert(socket_path != NULL);
+	ASSERT(ezcfg != NULL);
+	ASSERT(socket_path != NULL);
 
 	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
 	if (ezctrl == NULL) {
@@ -95,7 +94,7 @@ int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl)
 {
 	struct ezcfg *ezcfg;
 
-	assert(ezctrl != NULL);
+	ASSERT(ezctrl != NULL);
 
 	ezcfg = ezctrl->ezcfg;
 	info(ezcfg, "debug\n");
@@ -106,7 +105,7 @@ int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags)
 {
 	struct ezcfg *ezcfg;
 
-	assert(ezctrl != NULL);
+	ASSERT(ezctrl != NULL);
 
 	ezcfg = ezctrl->ezcfg;
 	info(ezcfg, "debug\n");
@@ -117,7 +116,7 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 {
 	struct ezcfg *ezcfg;
 
-	assert(ezctrl != NULL);
+	ASSERT(ezctrl != NULL);
 
 	ezcfg = ezctrl->ezcfg;
 	info(ezcfg, "debug\n");
