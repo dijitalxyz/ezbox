@@ -270,6 +270,13 @@ int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
 
 
+/* libezcfg-uuid.c */
+struct ezcfg_uuid;
+bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
+struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg);
+bool ezcfg_uuid_set_version(struct ezcfg_uuid *uuid, int version);
+
+
 /* libezcfg-util.c */
 #define UTIL_PATH_SIZE				1024
 #define UTIL_NAME_SIZE				512
