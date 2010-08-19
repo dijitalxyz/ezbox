@@ -273,8 +273,12 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 /* libezcfg-uuid.c */
 struct ezcfg_uuid;
 bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
-struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg);
-bool ezcfg_uuid_set_version(struct ezcfg_uuid *uuid, int version);
+struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
+int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
+bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len);
+bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
 
 /* libezcfg-util.c */
