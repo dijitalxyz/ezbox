@@ -36,6 +36,7 @@
   # <a href="http://www.faqs.org/rfcs/rfc2616.html"> RFC2616 - Hypertext Transfer Protocol -- HTTP/1.1 </a>
   # <a href="http://www.faqs.org/rfcs/rfc2774.html"> RFC2774 - An HTTP Extension Framework </a>
   # <a href="http://www.faqs.org/rfcs/rfc4122.html"> RFC4122 - A Universally Unique IDentifier (UUID) URN Namespace </a>
+  # <a href="http://www.faqs.org/rfcs/rfc1750.html"> RFC1750 - Randomness Recommendations for Security </a>
   # <a href="http://www.w3.org/TR/wsdl20/"> Web Services Description Language (WSDL) Version 2.0 Part 1: Core Language </a>
   # <a href="http://www.w3.org/TR/2007/REC-soap12-part1-20070427/"> SOAP Version 1.2 Part 1: Messaging Framework (Second Edition) </a>
   # <a href="http://www.w3.org/TR/2006/REC-xml-20060816/"> Extensible Markup Language (XML) 1.0 (Fourth Edition) </a>
