@@ -78,6 +78,8 @@ int ezcm_main(int argc, char **argv)
 	char msg[4096];
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
+	struct ezcfg_nvram *nvram = NULL;
+	struct ezcfg_uuid *uuid = NULL;
 	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	time_t t;
@@ -123,8 +125,27 @@ int ezcm_main(int argc, char **argv)
 
 	ezcfg_igrs_set_version_major(igrs, 1);
 	ezcfg_igrs_set_version_minor(igrs, 0);
-	ezcfg_igrs_set_source_device_id(igrs, EZCFG_UUID_NIL_STRING);
-	ezcfg_igrs_set_target_device_id(igrs, EZCFG_UUID_NIL_STRING);
+
+	uuid = ezcfg_uuid_new(ezcfg, 1);
+	if (uuid == NULL) {
+		err(ezcfg, "%s\n", "Cannot init uuid");
+		goto exit;
+	}
+	if (ezcfg_uuid_generate(uuid) == true) {
+		char uuid_str[EZCFG_UUID_STRING_LEN+1];
+		ezcfg_uuid_export_str(uuid, uuid_str, sizeof(uuid_str));
+		ezcfg_igrs_set_source_device_id(igrs, uuid_str);
+	} else {
+		ezcfg_igrs_set_source_device_id(igrs, EZCFG_UUID_NIL_STRING);
+	}
+	if (ezcfg_uuid_generate(uuid) == true) {
+		char uuid_str[EZCFG_UUID_STRING_LEN+1];
+		ezcfg_uuid_export_str(uuid, uuid_str, sizeof(uuid_str));
+		ezcfg_igrs_set_target_device_id(igrs, uuid_str);
+	} else {
+		ezcfg_igrs_set_target_device_id(igrs, EZCFG_UUID_NIL_STRING);
+	}
+
 	srand((unsigned)time(&t));
 	ezcfg_igrs_set_source_client_id(igrs, rand());
 	ezcfg_igrs_set_target_service_id(igrs, rand());
@@ -164,8 +185,24 @@ int ezcm_main(int argc, char **argv)
 		rc = 5;
 		goto exit;
 	}
-	info(ezcfg, "received message=[%s]\n", msg);
+	//info(ezcfg, "received message=[%s]\n", msg);
+	nvram = ezcfg_nvram_new(ezcfg);
+	if (nvram == NULL) {
+		err(ezcfg, "nvram new: %m\n");
+		rc = 6;
+		goto exit;
+	}
+	ezcfg_nvram_set_type(nvram, 1);
+	ezcfg_nvram_set_store_path(nvram, "/tmp/ezcfg/nvram.bin");
+	ezcfg_nvram_set_total_space(nvram, 10000);
+	ezcfg_nvram_initialize(nvram);
 exit:
+	if (nvram != NULL)
+		ezcfg_nvram_delete(nvram);
+
+	if (uuid != NULL)
+		ezcfg_uuid_delete(uuid);
+
 	if (igrs != NULL)
 		ezcfg_igrs_delete(igrs);
 

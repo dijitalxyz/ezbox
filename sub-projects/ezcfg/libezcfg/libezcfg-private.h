@@ -270,11 +270,26 @@ int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
 
 
+/* libezcfg-nvram.c */
+struct ezcfg_nvram;
+bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
+struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
+bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type);
+bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path);
+char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
+int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value);
+bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+
+
 /* libezcfg-uuid.c */
 struct ezcfg_uuid;
 bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
 struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
+char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
 bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
 bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
 bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len);

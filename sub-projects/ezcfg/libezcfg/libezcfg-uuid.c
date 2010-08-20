@@ -37,80 +37,98 @@
     Unix UTC base time is January  1, 1970) */
 #define UUID_TIMEOFFSET 0x01B21DD213814000LL
 
+struct ezcfg_uuid {
+	struct ezcfg *ezcfg;
+	int version; /* UUID version : 1 - 5 */
 
-/* UUID binary representation according to UUID standards */
-struct uuid_binary {
 	unsigned int time_low; /* bits 0-31 of time field */
 	unsigned short time_mid; /* bits 32-47 of time field */
 	unsigned short time_hi_and_version; /* bits 48-59 of time field plus 4 bit version */
-	unsigned char clock_seq_hi_and_reserved; /* bits 8-13 of clock sequence field plus 2 bit variant */
 	unsigned char clock_seq_low; /* bits 0-7 of clock sequence field */
+	unsigned char clock_seq_hi_and_reserved; /* bits 8-13 of clock sequence field plus 2 bit variant */
 	unsigned char node[6]; /* bits 0-47 of node MAC address */
-};
 
-
-struct ezcfg_uuid {
-	struct ezcfg *ezcfg;
-	int version;
-	struct uuid_binary uuid_bin;
 	union {
 		unsigned char *mac; /* UUID version 1: time, clock and node based */
 		void *md5; /* UUID version 3: name based with MD5 */
 		void *prng; /* UUID version 4: random number based */
 		void *sha1; /* UUID version 5: name based with SHA-1 */
         } u;
-	struct timeval time_last;
-	unsigned long  time_seq;
+
+	char *store_name; /* stable store name in ezcfg nvram */
 };
 
 /*
  * Private functions
  */
+
+static bool get_generator_state(char uuid_str[EZCFG_UUID_STRING_LEN+1], unsigned long long *ts, unsigned long *clock_seq, unsigned char node[6])
+{
+	if (uuid_str[0] == '\0')
+		return false;
+
+	return true;
+}
+
 static bool gen_uuid_v1(struct ezcfg_uuid *uuid)
 {
 	struct ezcfg *ezcfg;
 	struct timeval time_now;
-	unsigned long long t;
+	unsigned long clock_seq;
+	unsigned char store_node[6];
+	char uuid_str[EZCFG_UUID_STRING_LEN+1];
+	unsigned long long ts, store_ts;
+	bool is_state_good;
 
 	ezcfg = uuid->ezcfg;
 
-	/* get time */
-	while (1) {
-		/* get current system time */
-		if (gettimeofday(&time_now, NULL) == -1) {
-			err(ezcfg, "can not gettimeofday.\n");
-			return false;
-		}
+	/* read stable store UUID generator state */
+	uuid_str[0] = '\0';
+	is_state_good = get_generator_state(uuid_str, &store_ts, &clock_seq, store_node);
 
-		/* check whether system time changed */
-		if (!(time_now.tv_sec == uuid->time_last.tv_sec &&
-		      time_now.tv_usec == uuid->time_last.tv_usec)) {
-			/* reset time sequence counter and continue */
-			uuid->time_seq = 0;
-			break;
-		}
-
-		if (uuid->time_seq < UUIDS_PER_TICK) {
-			uuid->time_seq++;
-			break;
-		}
-		usleep(1);
+	/* Get the current time */
+	if (gettimeofday(&time_now, NULL) == -1) {
+		err(ezcfg, "can not gettimeofday.\n");
+		return false;
 	}
-
 	/* convert to 64-bit
 	 * Offset between UUID formatted times and Unix formatted times.
 	 * UUID UTC base time is October 15, 1582.
 	 * Unix base time is January 1, 1970.
 	 */
-	t = ( time_now.tv_sec * 10000000 ) + ( time_now.tv_usec * 10 ) + UUID_TIMEOFFSET;
+	ts = ( time_now.tv_sec * 10000000 ) + ( time_now.tv_usec * 10 ) + UUID_TIMEOFFSET;
 
-	if (uuid->time_seq > 0) {
-		t += uuid->time_seq;
+	/* Get the current node ID */
+	ezcfg_uuid_v1_enforce_multicast_mac(uuid);
+
+	/* If the state was unavailable (e.g., non-existent or corrupted),
+	 * or the saved node ID is different than the current node ID
+	 */
+	if (is_state_good == false || memcmp(store_node, uuid->node, 6) != 0) {
+		clock_seq = rand();
+	}
+	/* If the state was available, but the saved timestamp is later than
+	 * the current timestamp
+	 */
+	else if (is_state_good == true && ts < store_ts) {
+		clock_seq++;
 	}
 
-	/* generate node */
-	memcpy(uuid->uuid_bin.node, uuid->u.mac, 6);
-
+	/* Format a UUID from the current timestamp, clock sequence, and node
+	 * ID values 
+	 */
+	uuid->time_low = (unsigned long)(ts & 0xFFFFFFFF);
+	uuid->time_mid = (unsigned short)((ts >> 32) & 0xFFFF);
+	uuid->time_hi_and_version = (unsigned short)((ts >> 48) & 0x0FFF);
+	uuid->time_hi_and_version |= (1 << 12);
+	uuid->clock_seq_low = clock_seq & 0xFF;
+	uuid->clock_seq_hi_and_reserved = (clock_seq & 0x3F00) >> 8;
+	uuid->clock_seq_hi_and_reserved |= 0x80;
+	memcpy(uuid->node, uuid->u.mac, 6);
+ 
+	/* Save the state */
+	ezcfg_uuid_export_str(uuid, uuid_str, sizeof(uuid_str));
+	info(ezcfg, "uuid=[%s]\n", uuid_str);
 	return true;
 }
 
@@ -152,6 +170,7 @@ bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid)
 struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version)
 {
 	struct ezcfg_uuid *uuid;
+	time_t t;
 
 	ASSERT(ezcfg != NULL);
 
@@ -203,6 +222,8 @@ struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version)
 		free(uuid);
 		return NULL;
 	}
+	/* set random seed */
+	srand((unsigned)time(&t));
 	return uuid;
 }
 
@@ -217,6 +238,40 @@ int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid)
 	return uuid->version;
 }
 
+bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	ASSERT(uuid != NULL);
+	ASSERT(store_name != NULL);
+
+	ezcfg = uuid->ezcfg;
+
+	p = strdup(store_name);
+	if (p == NULL) {
+		err(ezcfg, "unable allocate store name.\n");
+		return false;
+	}
+
+	if (uuid->store_name != NULL) {
+		free(uuid->store_name);
+	}
+	uuid->store_name = p;
+	return true;
+}
+
+char * ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(uuid != NULL);
+
+	ezcfg = uuid->ezcfg;
+
+	return uuid->store_name;
+}
+
 bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid)
 {
 	struct ezcfg *ezcfg;
@@ -227,10 +282,8 @@ bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid)
 
 	switch(uuid->version) {
 	case 1:
+		/* no stable store info for UUID v1 */
 		return gen_uuid_v1(uuid);
-		break;
-
-	case 2:
 		break;
 
 	case 3:
@@ -262,17 +315,17 @@ bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len)
 
 	if (snprintf(buf, EZCFG_UUID_STRING_LEN+1,
 	         "%08lx-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-	         (unsigned long)uuid->uuid_bin.time_low,
-	         (unsigned int)uuid->uuid_bin.time_mid,
-	         (unsigned int)uuid->uuid_bin.time_hi_and_version,
-	         (unsigned int)uuid->uuid_bin.clock_seq_hi_and_reserved,
-	         (unsigned int)uuid->uuid_bin.clock_seq_low,
-	         (unsigned int)uuid->uuid_bin.node[0],
-	         (unsigned int)uuid->uuid_bin.node[1],
-	         (unsigned int)uuid->uuid_bin.node[2],
-	         (unsigned int)uuid->uuid_bin.node[3],
-	         (unsigned int)uuid->uuid_bin.node[4],
-	         (unsigned int)uuid->uuid_bin.node[5]) != EZCFG_UUID_STRING_LEN) {
+	         (unsigned long)uuid->time_low,
+	         (unsigned int)uuid->time_mid,
+	         (unsigned int)uuid->time_hi_and_version,
+	         (unsigned int)uuid->clock_seq_hi_and_reserved,
+	         (unsigned int)uuid->clock_seq_low,
+	         (unsigned int)uuid->node[0],
+	         (unsigned int)uuid->node[1],
+	         (unsigned int)uuid->node[2],
+	         (unsigned int)uuid->node[3],
+	         (unsigned int)uuid->node[4],
+	         (unsigned int)uuid->node[5]) != EZCFG_UUID_STRING_LEN) {
 		err(ezcfg, "export str error.\n");
 		return false;
 	}
@@ -303,7 +356,6 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid)
 {
 	struct ezcfg *ezcfg;
 	int i;
-	time_t t;
 
 	ASSERT(uuid != NULL);
 
@@ -315,14 +367,11 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid)
 	}
 
 	for(i=0; i<6; i++) {
-		/* set random seed */
-		srand((unsigned)time(&t));
-		uuid->u.mac[i] = rand() & 0x00ff;
+		uuid->u.mac[i] = rand() & 0xFF;
 	}
 
 	/* set to local multicast MAC address */
 	uuid->u.mac[0] |= 0x03;
-	uuid->u.mac[0] |= 0x80;
 	
 	return true;
 }

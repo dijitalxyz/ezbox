@@ -52,6 +52,7 @@ noinst_LTLIBRARIES = \
 libezcfg_libezcfg_private_la_SOURCES =\
 	$(libezcfg_libezcfg_la_SOURCES) \
 	libezcfg/libezcfg-ctrl.c \
+	libezcfg/libezcfg-nvram.c \
 	libezcfg/libezcfg-uuid.c \
 	libezcfg/libezcfg-socket.c \
 	libezcfg/libezcfg-http.c \
