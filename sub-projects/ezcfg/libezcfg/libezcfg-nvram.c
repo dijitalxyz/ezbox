@@ -627,7 +627,7 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		}
 		break;
 	default:
-		err(ezcfg, "uknown nvram type.\n");
+		err(ezcfg, "unknown nvram type.\n");
 		return false;
 	}
 	return true;
