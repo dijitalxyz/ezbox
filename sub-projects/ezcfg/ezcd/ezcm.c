@@ -78,7 +78,6 @@ int ezcm_main(int argc, char **argv)
 	char msg[4096];
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
-	struct ezcfg_nvram *nvram = NULL;
 	struct ezcfg_uuid *uuid = NULL;
 	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
@@ -185,21 +184,8 @@ int ezcm_main(int argc, char **argv)
 		rc = 5;
 		goto exit;
 	}
-	//info(ezcfg, "received message=[%s]\n", msg);
-	nvram = ezcfg_nvram_new(ezcfg);
-	if (nvram == NULL) {
-		err(ezcfg, "nvram new: %m\n");
-		rc = 6;
-		goto exit;
-	}
-	ezcfg_nvram_set_type(nvram, 1);
-	ezcfg_nvram_set_store_path(nvram, "/tmp/ezcfg/nvram.bin");
-	ezcfg_nvram_set_total_space(nvram, 10000);
-	ezcfg_nvram_initialize(nvram);
+	info(ezcfg, "received message=[%s]\n", msg);
 exit:
-	if (nvram != NULL)
-		ezcfg_nvram_delete(nvram);
-
 	if (uuid != NULL)
 		ezcfg_uuid_delete(uuid);
 

@@ -100,7 +100,7 @@ int nvram_main(int argc, char **argv)
 	}
 	ezcfg_nvram_set_type(nvram, 1);
 	ezcfg_nvram_set_store_path(nvram, "/tmp/ezcfg/nvram.bin");
-	ezcfg_nvram_set_total_space(nvram, 10000);
+	ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_SPACE);
 	ezcfg_nvram_initialize(nvram);
 
 	if (argc < 2) {

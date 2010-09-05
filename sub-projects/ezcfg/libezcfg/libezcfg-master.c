@@ -44,7 +44,7 @@
 struct ezcfg_master {
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
-	char *nvram; /* Non-volatile memory */
+	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 	int threads_max; /* MAX number of threads */
 	int num_threads; /* Number of threads */
 	int num_idle; /* Number of idle threads */
@@ -67,7 +67,7 @@ static void ezcfg_master_delete(struct ezcfg_master *master)
 	if (master == NULL)
 		return;
 	if (master->nvram) {
-		free(master->nvram);
+		ezcfg_nvram_delete(master->nvram);
 	}
 	if (master->queue) {
 		free(master->queue);
@@ -97,14 +97,17 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	/* initialize ezcfg library context */
 	memset(master, 0, sizeof(struct ezcfg_master));
 
-	master->nvram = calloc(EZCFG_NVRAM_SPACE, sizeof(char));
+	master->nvram = ezcfg_nvram_new(ezcfg);
 	if(master->nvram == NULL) {
 		err(ezcfg, "calloc nvram fail: %m\n");
 		goto fail_exit;
 	}
 
 	/* initialize nvram */
-	memset(master->nvram, 0, EZCFG_NVRAM_SPACE);
+	ezcfg_nvram_set_type(master->nvram, 1);
+	ezcfg_nvram_set_store_path(master->nvram, "/tmp/ezcfg/nvram.bin");
+	ezcfg_nvram_set_total_space(master->nvram, EZCFG_NVRAM_SPACE);
+	ezcfg_nvram_initialize(master->nvram);
 
 	/* initialize socket queue */
 	master->sq_len = EZCFG_MASTER_SOCKET_QUEUE_LENGTH;
