@@ -93,6 +93,7 @@ ezcd_ezcd_SOURCES = \
 	ezcd/ezcd.h \
 	ezcd/ezcd.c \
 	ezcd/ezcm.c \
+	ezcd/nvram.c \
 	ezcd/init.c \
 	ezcd/main.c
 

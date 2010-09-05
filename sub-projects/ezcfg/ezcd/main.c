@@ -53,6 +53,9 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "ezcm")) {
 		return ezcm_main(argc, argv);
 	}
+	else if (!strcmp(name, "nvram")) {
+		return nvram_main(argc, argv);
+	}
 	else {
 		printf("Unkown name [%s]!\n", name);
 		return (EXIT_FAILURE);

@@ -280,6 +280,10 @@ char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value);
+char *ezcfg_nvram_get_node_value(struct ezcfg_nvram *nvram, const char *name);
+bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name);
+char *ezcfg_nvram_get_all_nodes(struct ezcfg_nvram *nvram, int *buf_len);
+bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
