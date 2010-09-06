@@ -46,6 +46,10 @@ struct ezcfg_soap {
 
 	/* SOAP Body */
 	int body_index; /* SOAP Body element index in xml->root */
+
+	/* SOAP binding */
+	unsigned char proto;
+	struct ezcfg_http *http; /* this info must be deleted explicitly */
 };
 
 /**
@@ -97,7 +101,6 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 
 	return soap;
 }
-
 
 unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap)
 {
@@ -314,4 +317,64 @@ int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 	ezcfg = soap->ezcfg;
 
         return ezcfg_xml_write(soap->xml, buf, len);
+}
+
+char *ezcfg_soap_get_http_header_value(struct ezcfg_soap *soap, char *name)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->http != NULL);
+
+	ezcfg = soap->ezcfg;
+
+	return ezcfg_http_get_header_value(soap->http, name);
+}
+
+void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
+}
+
+bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	char *s;
+	int n;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->http != NULL);
+
+	ezcfg = soap->ezcfg;
+	http = soap->http;
+
+	return true;
+}
+
+char *ezcfg_soap_set_message_body(struct ezcfg_soap *soap, const char *body, int len)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->http != NULL);
+
+	ezcfg = soap->ezcfg;
+	http = soap->http;
+
+	return ezcfg_http_set_message_body(http, body, len);
+}
+
+void ezcfg_soap_dump(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
 }

@@ -829,7 +829,7 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	soap = igrs->soap;
 
 	ezcfg_http_reset_attributes(http);
-	//ezcfg_soap_reset_attributes(soap);
+	ezcfg_soap_reset_attributes(soap);
 
 	if (igrs->source_user_id != NULL) {
 		free(igrs->source_user_id);

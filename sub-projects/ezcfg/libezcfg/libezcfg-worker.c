@@ -61,6 +61,9 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	case EZCFG_PROTO_HTTP :
 		ezcfg_http_reset_attributes(worker->proto_data);
 		break;
+	case EZCFG_PROTO_SOAP :
+		ezcfg_soap_reset_attributes(worker->proto_data);
+		break;
 	case EZCFG_PROTO_IGRS :
 		ezcfg_igrs_reset_attributes(worker->proto_data);
 		break;
@@ -89,6 +92,9 @@ static int get_content_length(const struct ezcfg_worker *worker) {
 	const char *cl = NULL;
 	if (worker->proto == EZCFG_PROTO_HTTP) {
 		cl = ezcfg_http_get_header_value(worker->proto_data, EZCFG_HTTP_HEADER_CONTENT_LENGTH);
+	}
+	else if (worker->proto == EZCFG_PROTO_SOAP) {
+		cl = ezcfg_soap_get_http_header_value(worker->proto_data, EZCFG_SOAP_HEADER_CONTENT_LENGTH);
 	}
 	else if (worker->proto == EZCFG_PROTO_IGRS) {
 		cl = ezcfg_igrs_get_http_header_value(worker->proto_data, EZCFG_IGRS_HEADER_CONTENT_LENGTH);
@@ -180,6 +186,39 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 	bool handled;
 
 	ezcfg_http_set_status_code(worker->proto_data, status);
+	handled = error_handler(worker);
+
+	if (handled == false) {
+		buf[0] = '\0';
+		len = 0;
+
+		/* Errors 1xx, 204 and 304 MUST NOT send a body */
+		if (status > 199 && status != 204 && status != 304) {
+			len = snprintf(buf, sizeof(buf),
+			               "Error %d: %s\n", status, reason);
+			va_start(ap, fmt);
+			len += vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
+			va_end(ap);
+			worker->num_bytes_sent = len;
+		}
+		worker_printf(worker,
+		              "HTTP/1.1 %d %s\r\n"
+		              "Content-Type: text/plain\r\n"
+		              "Content-Length: %d\r\n"
+		              "Connection: close\r\n"
+		              "\r\n%s", status, reason, len, buf);
+	}
+}
+
+static void send_soap_error(struct ezcfg_worker *worker, int status,
+                            const char *reason, const char *fmt, ...)
+{
+	char buf[EZCFG_BUFFER_SIZE];
+	va_list ap;
+	int len;
+	bool handled;
+
+	//ezcfg_http_set_status_code(worker->proto_data, status);
 	handled = error_handler(worker);
 
 	if (handled == false) {
@@ -321,6 +360,61 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	free(buf);
 }
 
+static void process_soap_new_connection(struct ezcfg_worker *worker)
+{
+	int request_len, nread;
+	char *buf;
+	int buf_len;
+	struct ezcfg *ezcfg;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+	buf_len = EZCFG_SOAP_MAX_REQUEST_SIZE ;
+
+	buf = calloc(buf_len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for processing soap new connection\n");
+		return;
+	}
+	request_len = read_request(worker, buf, buf_len, &nread);
+
+	ASSERT(nread >= request_len);
+
+	if (request_len <= 0) {
+		err(ezcfg, "request error\n");
+		free(buf);
+		return; /* Request is too large or format is not correct */
+	}
+
+	/* 0-terminate the request: parse http request uses sscanf
+	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
+	 */
+	//buf[request_len - 1] = '\0';
+	if (ezcfg_soap_parse_request(worker->proto_data, buf) == true) {
+		unsigned short major, minor;
+		major = ezcfg_soap_get_version_major(worker->proto_data);
+		minor = ezcfg_soap_get_version_minor(worker->proto_data);
+		if (major != 1 || minor != 0) {
+			send_soap_error(worker, 505,
+			                "SOAP version not supported",
+			                "%s", "Weird SOAP version");
+		} else {
+			ezcfg_soap_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			worker->birth_time = time(NULL);
+			ezcfg_soap_dump(worker->proto_data);
+			handle_request(worker);
+			shift_to_next(worker, buf, request_len, &nread);
+		}
+	} else {
+		/* Do not put garbage in the access log */
+		send_soap_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
+	}
+
+	/* release buf memory */
+	free(buf);
+}
+
 static void process_igrs_new_connection(struct ezcfg_worker *worker)
 {
 	int request_len, nread;
@@ -394,6 +488,9 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_HTTP :
 		worker->proto_data = ezcfg_http_new(ezcfg);
 		break;
+	case EZCFG_PROTO_SOAP :
+		worker->proto_data = ezcfg_soap_new(ezcfg);
+		break;
 	case EZCFG_PROTO_IGRS :
 		worker->proto_data = ezcfg_igrs_new(ezcfg);
 		break;
@@ -420,6 +517,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_HTTP :
 		process_http_new_connection(worker);
 		break;
+	case EZCFG_PROTO_SOAP :
+		process_soap_new_connection(worker);
+		break;
 	case EZCFG_PROTO_IGRS :
 		process_igrs_new_connection(worker);
 		break;
@@ -443,6 +543,10 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 	switch(worker->proto) {
 	case EZCFG_PROTO_HTTP :
 		ezcfg_http_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_SOAP :
+		ezcfg_soap_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 	case EZCFG_PROTO_IGRS :

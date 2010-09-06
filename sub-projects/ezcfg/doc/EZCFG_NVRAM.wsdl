@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is the WSDL 2.0 version -->
+<description
+   xmlns="http://www.w3.org/ns/wsdl"
+   targetNamespace="http://www.ezidc.net/ezcfg/nvram/wsdl"
+   xmlns:tns="http://www.ezidc.net/ezcfg/nvram/wsdl"
+   xmlns:nvns="http://www.ezidc.net/ezcfg/nvram/schemas"
+   xmlns:wsoap="http://www.w3.org/ns/wsdl/soap"
+   xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+   xmlns:whttp="http://www.w3.org/ns/wsdl/http"
+   xmlns:wsdlx="http://www.w3.org/ns/wsdl-extensions">
+
+  <documentation>
+     This is a WSDL 2.0 description of EZCFG NVRAM service.
+  </documentation>
+
+  <types>
+    <xs:schema
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       targetNamespace="http://www.ezidc.net/ezcfg/nvram/schemas"
+       xmln="http://www.ezidc.net/ezcfg/nvram/schemas">
+
+      <xs:element name="getNvram" type="xs:string"/>
+      <xs:element name="getNvramResponse" type="xs:string"/>
+
+      <xs:element name="setNvram" type="tSetNvram"/>
+      <xs:complexType name="tSetNvram">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="setNvramResponse" type="xs:string"/>
+
+      <xs:element name="showNvram" type="xs:string"/>
+      <xs:element name="showNvramResponse" type="tNvramList"/>
+      <xs:complexType name="tNvram">
+        <xs:sequence>
+          <xs:element name="name" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="tNvramList">
+        <xs:sequence>
+          <xs:element name="nvram" type="tNvram" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:element name="invalidNameFault" type="xs:string"/>
+
+      <xs:element name="invalidValueFault" type="xs:string"/>
+
+    </xs:schema>
+  </types>
+
+  <interface name="nvramInterface">
+
+    <fault name="invalidNameFault" element="nvns:invalidNameFault"/>
+    <fault name="invalidValueFault" element="nvns:invalidValueFault"/>
+
+    <operation name="opGetNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="true">
+      <input messageLabel="In"
+         element="nvns:getNvram"/>
+      <output messageLabel="Out"
+         element="nvns:getNvramResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+    </operation>
+
+    <operation name="opSetNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="true">
+      <input messageLabel="In"
+         element="nvns:setNvram"/>
+      <output messageLabel="Out"
+         element="nvns:setNvramResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+      <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
+    </operation>
+
+    <operation name="opShowNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="true">
+      <input messageLabel="In"
+         element="nvns:showNvram"/>
+      <output messageLabel="Out"
+         element="nvns:showNvramResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+    </operation>
+
+  </interface>
+
+  <!-- SOAP 1.2 binding -->
+  <binding name="nvramSOAPBinding"
+     interface="tns:nvramInterface"
+     type="http://www.w3.org/ns/wsdl/soap"
+     wsoap:protocol="http://www.w3.org/2003/05/soap/bindings/HTTP/">
+
+    <fault ref="tns:invalidNameFault"
+       wsoap:code="soap:Sender"/>
+
+    <fault ref="tns:invalidValueFault"
+       wsoap:code="soap:Sender"/>
+
+    <operation ref="tns:opGetNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+
+    <operation ref="tns:opSetNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+
+    <operation ref="tns:opShowNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+
+  </binding>
+
+  <!-- HTTP 1.1 binding -->
+  <binding name="nvramHTTPBinding"
+     interface="tns:nvramInterface"
+     type="http://www.w3.org/ns/wsdl/http"
+     whttp:methodDefault="GET">
+
+    <operation ref="tns:opGetNvram"
+       whttp:location="get/{getNvram}"/>
+
+    <operation ref="tns:opSetNvram"
+       whttp:location="set/{name}"/>
+
+    <operation ref="tns:opShowNvram"
+       whttp:location="show/{showNvram}"/>
+
+  </binding>
+
+  <service name="nvramService"
+     interface="tns:nvramInterface">
+
+    <endpoint name="nvramSOAPEndpoint"
+       binding="tns:nvramSOAPBinding"
+       address="http://www.ezidc.net/ezcfg/nvram/"/>
+
+    <endpoint name="nvramHTTPEndpoint"
+       binding="tns:nvramHTTPBinding"
+       address="http://www.ezidc.net/ezcfg/nvram/"/>
+
+  </service>
+
+</description>

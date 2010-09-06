@@ -45,8 +45,9 @@ extern "C" {
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0
 #define EZCFG_PROTO_HTTP	1
-#define EZCFG_PROTO_IGRS	2
-#define EZCFG_PROTO_ISDP	3
+#define EZCFG_PROTO_SOAP	2
+#define EZCFG_PROTO_IGRS	3
+#define EZCFG_PROTO_ISDP	4
 
 /* ezcfg xml definitions */
 #define EZCFG_XML_MAX_ELEMENTS	128
@@ -60,6 +61,10 @@ extern "C" {
 #define EZCFG_SOAP_ENV_NS_VALUE		"http://www.w3.org/2002/12/soap-envelope"
 #define EZCFG_SOAP_ENV_ENC_NAME		"SOAP-ENV:encodingStyle"
 #define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
+/* ezcfg soap http headers */
+#define EZCFG_SOAP_HEADER_CONTENT_LENGTH       "Content-Length"
+/* ezcfg soap request header size */
+#define EZCFG_SOAP_MAX_REQUEST_SIZE    20480
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
