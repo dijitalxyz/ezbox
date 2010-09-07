@@ -33,11 +33,13 @@
 #define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
 #define NVRAM_VERSOIN_REV   0x01 /* version[3] */ 
 
+#if 0
 static unsigned char default_magics[][4] = {
 	{ 'N', 'O', 'N', 'E' },
 	{ 'F', 'I', 'L', 'E' },
 	{ 'F', 'L', 'S', 'H' },
 };
+#endif
 
 struct nvram_pair {
 	char *name;

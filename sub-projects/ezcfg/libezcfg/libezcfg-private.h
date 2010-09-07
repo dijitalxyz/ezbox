@@ -199,11 +199,23 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);
 int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, int pi, int si, const char *name, const char *content);
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
-char *ezcfg_soap_get_http_header_value(struct ezcfg_soap *soap, char *name);
-void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap);
-bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf);
-char *ezcfg_soap_set_message_body(struct ezcfg_soap *soap, const char *body, int len);
-void ezcfg_soap_dump(struct ezcfg_soap *soap);
+
+/* libezcfg-soap_http.c */
+struct ezcfg_soap_http;
+void ezcfg_soap_http_delete(struct ezcfg_soap_http *sh);
+struct ezcfg_soap_http *ezcfg_soap_http_new(struct ezcfg *ezcfg);
+struct ezcfg_soap *ezcfg_soap_http_get_soap(struct ezcfg_soap_http *sh);
+struct ezcfg_http *ezcfg_soap_http_get_http(struct ezcfg_soap_http *sh);
+unsigned short ezcfg_soap_http_get_soap_version_major(struct ezcfg_soap_http *sh);
+unsigned short ezcfg_soap_http_get_soap_version_minor(struct ezcfg_soap_http *sh);
+bool ezcfg_soap_http_set_soap_version_major(struct ezcfg_soap_http *sh, unsigned short major);
+bool ezcfg_soap_http_set_soap_version_minor(struct ezcfg_soap_http *sh, unsigned short minor);
+char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *name);
+void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh);
+bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf);
+char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
+void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
+int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
 
 /* libezcfg-irgs.c */
 struct ezcfg_igrs_msg_op;
@@ -269,7 +281,7 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 /* libezcfg-ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path);
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);

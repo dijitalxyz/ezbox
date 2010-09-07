@@ -184,7 +184,7 @@ static void clear_http_headers(struct ezcfg_http *http)
 	http->header_tail = NULL;
 }
 
-static const char *find_known_header_name(struct ezcfg_http *http, char *name)
+static char *find_known_header_name(struct ezcfg_http *http, char *name)
 {
 	struct ezcfg *ezcfg;
 	int i;
@@ -196,7 +196,7 @@ static const char *find_known_header_name(struct ezcfg_http *http, char *name)
 
 	for (i = http->num_known_headers; i > 0; i--) {
 		if (strcasecmp(http->known_header_strings[i], name) == 0) {
-			return http->known_header_strings[i];
+			return (char *)http->known_header_strings[i];
 		}
 	}
 	return NULL;
@@ -559,7 +559,7 @@ unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char 
 
 	ezcfg = http->ezcfg;
 
-	for (i = http->num_methods; i > 0; i++) {
+	for (i = http->num_methods; i > 0; i--) {
 		if (strcmp(http->method_strings[i], method) == 0) {
 			http->method_index = i;
 			if (method[0] == 'M' && method[1] == '-') {

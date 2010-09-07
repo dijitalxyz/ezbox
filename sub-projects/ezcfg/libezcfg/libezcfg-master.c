@@ -408,6 +408,25 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		return NULL;
 	}
 
+	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, EZCFG_NVRAM_SOCK_PATH);
+	if (sp == NULL) {
+		err(ezcfg, "can not add nvram socket");
+		goto start_thread;
+	}
+
+	if (ezcfg_socket_enable_receiving(sp) < 0) {
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
+		ezcfg_socket_close_sock(sp);
+		goto start_thread;
+	}
+
+	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
+		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
+		ezcfg_socket_close_sock(sp);
+		goto start_thread;
+	}
+
+#if 0
 	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_IGRS, EZCFG_MASTER_SOCK_PATH);
 	if (sp == NULL) {
 		err(ezcfg, "can not add master socket");
@@ -425,6 +444,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		ezcfg_socket_close_sock(sp);
 		goto start_thread;
 	}
+#endif
 
 start_thread:
 	/* Start master (listening) thread */

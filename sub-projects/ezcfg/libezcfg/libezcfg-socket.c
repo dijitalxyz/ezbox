@@ -137,6 +137,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	}
 
 	if (proto != EZCFG_PROTO_HTTP &&
+	    proto != EZCFG_PROTO_SOAP_HTTP &&
 	    proto != EZCFG_PROTO_IGRS &&
 	    proto != EZCFG_PROTO_ISDP) {
 		err(ezcfg, "unknown communication protocol %d\n", proto);

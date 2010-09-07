@@ -11,7 +11,6 @@
  * ============================================================================
  */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,12 +50,13 @@ void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 	free(ezctrl);
 }
 
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path)
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path)
 {
 	struct ezcfg_ctrl *ezctrl;
 
 	ASSERT(ezcfg != NULL);
-	ASSERT(socket_path != NULL);
+	ASSERT(local_socket_path != NULL);
+	ASSERT(remote_socket_path != NULL);
 
 	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
 	if (ezctrl == NULL) {
@@ -65,20 +65,20 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 	}
 	ezctrl->ezcfg = ezcfg;
 
-	ezctrl->socket = ezcfg_socket_new(ezcfg, family, proto, socket_path);
+	ezctrl->socket = ezcfg_socket_new(ezcfg, family, proto, local_socket_path);
 	if (ezctrl->socket == NULL) {
-		err(ezcfg, "controller add socket[%s] fail: %m\n", socket_path);
+		err(ezcfg, "controller add socket[%s] fail: %m\n", local_socket_path);
 		goto fail_exit;
 	}
 
 	if (ezcfg_socket_enable_receiving(ezctrl->socket) < 0) {
-		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", local_socket_path);
 		ezcfg_socket_close_sock(ezctrl->socket);
 		goto fail_exit;
 	}
 
-	if (ezcfg_socket_set_remote(ezctrl->socket, AF_LOCAL, EZCFG_CTRL_SOCK_PATH) < 0) {
-		err(ezcfg, "set remote socket [%s] receiving fail: %m\n", EZCFG_CTRL_SOCK_PATH);
+	if (ezcfg_socket_set_remote(ezctrl->socket, AF_LOCAL, remote_socket_path) < 0) {
+		err(ezcfg, "set remote socket [%s] receiving fail: %m\n", remote_socket_path);
 		ezcfg_socket_close_sock(ezctrl->socket);
 		goto fail_exit;
 	}

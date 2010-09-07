@@ -37,15 +37,17 @@ extern "C" {
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
 #define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
 //#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
-#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl"
+#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
+//#define EZCFG_NVRAM_SOCK_PATH	"@/org/kernel/ezcfg/nvram"
+#define EZCFG_NVRAM_SOCK_PATH	"/tmp/ezcfg/nvram.sock"
 //#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
-#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master"
+#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0
 #define EZCFG_PROTO_HTTP	1
-#define EZCFG_PROTO_SOAP	2
+#define EZCFG_PROTO_SOAP_HTTP	2
 #define EZCFG_PROTO_IGRS	3
 #define EZCFG_PROTO_ISDP	4
 
@@ -61,10 +63,6 @@ extern "C" {
 #define EZCFG_SOAP_ENV_NS_VALUE		"http://www.w3.org/2002/12/soap-envelope"
 #define EZCFG_SOAP_ENV_ENC_NAME		"SOAP-ENV:encodingStyle"
 #define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
-/* ezcfg soap http headers */
-#define EZCFG_SOAP_HEADER_CONTENT_LENGTH       "Content-Length"
-/* ezcfg soap request header size */
-#define EZCFG_SOAP_MAX_REQUEST_SIZE    20480
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
@@ -153,6 +151,16 @@ extern "C" {
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
+
+/* ezcfg SOAP/HTTP request header size */
+#define EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE    20480
+/* ezcfg SOAP/HTTP http methods */
+#define EZCFG_SOAP_HTTP_METHOD_GET          "GET"
+#define EZCFG_SOAP_HTTP_METHOD_POST         "POST"
+/* ezcfg SOAP/HTTP http headers */
+#define EZCFG_SOAP_HTTP_HEADER_HOST                 "Host"
+#define EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE         "Content-Type"
+#define EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH       "Content-Length"
 
 /* ezcfg igrs request header size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480

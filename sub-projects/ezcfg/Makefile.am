@@ -58,6 +58,7 @@ libezcfg_libezcfg_private_la_SOURCES =\
 	libezcfg/libezcfg-http.c \
 	libezcfg/libezcfg-xml.c \
 	libezcfg/libezcfg-soap.c \
+	libezcfg/libezcfg-soap_http.c \
 	libezcfg/libezcfg-igrs.c \
 	libezcfg/libezcfg-isdp.c \
 	libezcfg/libezcfg-master.c \

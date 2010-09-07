@@ -55,6 +55,7 @@ struct ezcfg_isdp {
 	char *st; /* Search Target */
 };
 
+#if 0
 static const char *message_type_strings[] = {
 	/* bad Message Type string */
 	NULL,
@@ -131,6 +132,7 @@ static const char *message_type_strings[] = {
 	"InvokeServiceResponse",
 	"SendNotification",
 };
+#endif
 
 void ezcfg_isdp_dump(struct ezcfg_isdp *isdp)
 {

@@ -82,7 +82,7 @@ struct ezcfg_igrs {
 static const char *igrs_method_strings[] = {
 	/* bad method string */
 	NULL ,
-	/* IGRS used motheds */
+	/* IGRS used methods */
 	EZCFG_IGRS_METHOD_POST_EXT ,
 };
 
@@ -385,17 +385,6 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 		return n;
 	}
 	p += n;	len -= n;
-
-#if 0
-	if (len < 2) {
-		err(ezcfg, "buffer is to small for igrs message\n");
-		return -1;
-	}
-
-	p[0] = '\r'; p[1] = '\n'; /* add CRLF for HTTP */
-	p += 2;
-	len -= 2;
-#endif
 
 	n = ezcfg_http_write_message_body(http, p, len);
 	if (n < 0) {
@@ -808,12 +797,15 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name)
 {
         struct ezcfg *ezcfg;
+        struct ezcfg_http *http;
 
         ASSERT(igrs != NULL);
+        ASSERT(igrs->http != NULL);
 
         ezcfg = igrs->ezcfg;
+        http = igrs->http;
 
-	return ezcfg_http_get_header_value(igrs->http, name);
+	return ezcfg_http_get_header_value(http, name);
 }
 
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
@@ -823,13 +815,15 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	struct ezcfg_soap *soap;
 
 	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
 	soap = igrs->soap;
 
 	ezcfg_http_reset_attributes(http);
-	ezcfg_soap_reset_attributes(soap);
+	//ezcfg_soap_reset_attributes(soap);
 
 	if (igrs->source_user_id != NULL) {
 		free(igrs->source_user_id);

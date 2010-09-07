@@ -32,8 +32,8 @@
       </xs:complexType>
       <xs:element name="setNvramResponse" type="xs:string"/>
 
-      <xs:element name="showNvram" type="xs:string"/>
-      <xs:element name="showNvramResponse" type="tNvramList"/>
+      <xs:element name="listNvram" type="xs:string"/>
+      <xs:element name="listNvramResponse" type="tNvramList"/>
       <xs:complexType name="tNvram">
         <xs:sequence>
           <xs:element name="name" type="xs:string"/>
@@ -81,14 +81,14 @@
       <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
     </operation>
 
-    <operation name="opShowNvram"
+    <operation name="opListNvram"
        pattern="http://www.w3.org/ns/wsdl/in-out"
        style="http://www.w3.org/ns/wsdl/style/iri"
        wsdlx:safe="true">
       <input messageLabel="In"
-         element="nvns:showNvram"/>
+         element="nvns:listNvram"/>
       <output messageLabel="Out"
-         element="nvns:showNvramResponse"/>
+         element="nvns:listNvramResponse"/>
       <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
     </operation>
 
@@ -112,7 +112,13 @@
     <operation ref="tns:opSetNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
-    <operation ref="tns:opShowNvram"
+    <operation ref="tns:opUnsetNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+
+    <operation ref="tns:opListNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+
+    <operation ref="tns:opCommitNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
   </binding>
@@ -129,8 +135,8 @@
     <operation ref="tns:opSetNvram"
        whttp:location="set/{name}"/>
 
-    <operation ref="tns:opShowNvram"
-       whttp:location="show/{showNvram}"/>
+    <operation ref="tns:opListNvram"
+       whttp:location="list/{listNvram}"/>
 
   </binding>
 

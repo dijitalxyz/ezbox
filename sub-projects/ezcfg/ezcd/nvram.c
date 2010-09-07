@@ -68,7 +68,7 @@ static void nvram_show_usage(void)
 	printf("    get <name>          get nvram value by <name>\n");
 	printf("    set <name> <value>  set nvram <name> with <value>\n");
 	printf("    unset <name>        remove nvram <name> and its <value>\n");
-	printf("    show                list all nvram\n");
+	printf("    list                list all nvram\n");
 	printf("    commit              save nvram to storage device\n");
 	printf("\n");
 }
@@ -76,8 +76,17 @@ static void nvram_show_usage(void)
 int nvram_main(int argc, char **argv)
 {
 	int rc = 0;
+	char buf[1024];
+	char msg[4096];
+	int msg_len, n;
 	struct ezcfg *ezcfg = NULL;
-	struct ezcfg_nvram *nvram = NULL;
+	struct ezcfg_ctrl *ezctrl = NULL;
+	struct ezcfg_soap_http *sh = NULL;
+	struct ezcfg_soap *soap = NULL;
+	struct ezcfg_http *http = NULL;
+
+	memset(buf, 0, sizeof(buf));
+	memset(msg, 0, sizeof(msg));
 
 	debug = true;
 
@@ -92,20 +101,19 @@ int nvram_main(int argc, char **argv)
 	ezcfg_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
 
-	nvram = ezcfg_nvram_new(ezcfg);
-	if (nvram == NULL) {
-		err(ezcfg, "nvram new: %m\n");
+	sh = ezcfg_soap_http_new(ezcfg);
+	if (sh == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize nvram SOAP/HTTP builder");
 		rc = 2;
 		goto exit;
 	}
-	ezcfg_nvram_set_type(nvram, 1);
-	ezcfg_nvram_set_store_path(nvram, "/tmp/ezcfg/nvram.bin");
-	ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_SPACE);
-	ezcfg_nvram_initialize(nvram);
+
+	soap = ezcfg_soap_http_get_soap(sh);
+	http = ezcfg_soap_http_get_http(sh);
 
 	if (argc < 2) {
 		err(ezcfg, "need more arguments.\n");
-		rc = 3;
+		rc = 1;
 		nvram_show_usage();
 		goto exit;
 	}
@@ -113,24 +121,32 @@ int nvram_main(int argc, char **argv)
 	if (strcmp(argv[1], "get") == 0) {
 		if (argc != 3) {
 			err(ezcfg, "number of arguments is incorrect.\n");
-			rc = 4;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
-			char *value = ezcfg_nvram_get_node_value(nvram, argv[2]);
-			if (value == NULL) {
-				printf("no nvram named [%s]\n", argv[2]);
-			}
-			else {
-				printf("%s=%s\n", argv[2], value);
-				free(value);
-			}
+			/* build SOAP */
+			ezcfg_soap_http_set_soap_version_major(sh, 1);
+			ezcfg_soap_http_set_soap_version_minor(sh, 2);
+
+			/* SOAP Envelope */
+			ezcfg_soap_set_envelope(soap, EZCFG_IGRS_ENVELOPE_ELEMENT_NAME);
+			buf[0] = '\0';
+			n = ezcfg_soap_write(soap, buf, sizeof(buf));
+			ezcfg_http_set_message_body(http, buf, n);
+
+			/* build HTTP request line */
+			ezcfg_http_set_request_method(http, EZCFG_SOAP_HTTP_METHOD_GET);
+			snprintf(buf, sizeof(buf), "/ezcfg/nvram/getNvram/%s", argv[2]);
+			ezcfg_http_set_request_uri(http, buf);
+			ezcfg_http_set_version_major(http, 1);
+			ezcfg_http_set_version_minor(http, 1);
 		}
 		else {
 			err(ezcfg, "the nvram name is empty.\n");
-			rc = 5;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
@@ -138,20 +154,16 @@ int nvram_main(int argc, char **argv)
 	else if (strcmp(argv[1], "set") == 0) {
 		if (argc != 4) {
 			err(ezcfg, "number of arguments is incorrect.\n");
-			rc = 4;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
-			bool result = ezcfg_nvram_set_node_value(nvram, argv[2], argv[3]);
-			if (result == false) {
-				printf("can not set nvram [%s] to [%s]\n", argv[2], argv[3]);
-			}
 		}
 		else {
 			err(ezcfg, "the nvram name is empty.\n");
-			rc = 5;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
@@ -159,72 +171,79 @@ int nvram_main(int argc, char **argv)
 	else if (strcmp(argv[1], "unset") == 0) {
 		if (argc != 3) {
 			err(ezcfg, "number of arguments is incorrect.\n");
-			rc = 4;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
-			bool result = ezcfg_nvram_unset_node_value(nvram, argv[2]);
-			if (result == false) {
-				printf("can not remove nvram [%s]\n", argv[2]);
-			}
 		}
 		else {
 			err(ezcfg, "the nvram name is empty.\n");
-			rc = 5;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
 	}
-	else if (strcmp(argv[1], "show") == 0) {
+	else if (strcmp(argv[1], "list") == 0) {
 		if (argc != 2) {
 			err(ezcfg, "number of arguments is incorrect.\n");
-			rc = 4;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
 
-		int buf_len;
-		char *buf = ezcfg_nvram_get_all_nodes(nvram, &buf_len);
-		if (buf == NULL) {
-			printf("can not get all nvram info\n");
-		}
-		else {
-			char *line = buf;
-			int line_len;
-			while (buf_len > 0) {
-				line_len = strlen(line) + 1; /* +1 for '\0' */
-				printf("%s\n", line);
-				buf_len -= line_len;
-				line += line_len;
-			}
-			free(buf);
-		}
 	}
 	else if (strcmp(argv[1], "commit") == 0) {
 		if (argc != 2) {
 			err(ezcfg, "number of arguments is incorrect.\n");
-			rc = 4;
+			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
-
-		bool result = ezcfg_nvram_commit(nvram);
-		if (result == false) {
-			printf("can not commit nvram\n");
-		}
-		else {
-			printf("commit nvram OK!\n");
-		}
 	}
 
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	info(ezcfg, "debug\n");
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+
+	if (ezctrl == NULL) {
+		err(ezcfg, "%s\n", "Cannot initialize nvram controller");
+		rc = 2;
+		goto exit;
+	}
+
+	if (ezcfg_ctrl_connect(ezctrl) < 0) {
+		err(ezcfg, "controller connect fail: %m\n");
+		rc = 3;
+		goto exit;
+	}
+
+	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+		err(ezcfg, "controller write: %m\n");
+		rc = 4;
+		goto exit;
+	}
+	info(ezcfg, "sent message=[%s]\n\n\n", msg);
+
+	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
+		err(ezcfg, "controller write: %m\n");
+		rc = 5;
+		goto exit;
+	}
+	info(ezcfg, "received message=[%s]\n", msg);
+
 exit:
-	if (nvram != NULL)
-		ezcfg_nvram_delete(nvram);
+        if (sh != NULL)
+                ezcfg_soap_http_delete(sh);
 
-	if (ezcfg != NULL)
-		ezcfg_delete(ezcfg);
+        if (ezctrl != NULL)
+                ezcfg_ctrl_delete(ezctrl);
 
-	return rc;
+        if (ezcfg != NULL)
+                ezcfg_delete(ezcfg);
+
+        return rc;
 }
