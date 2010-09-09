@@ -553,3 +553,8 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 
 	pthread_mutex_unlock(&master->mutex);
 }
+
+char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name)
+{
+	return ezcfg_nvram_get_node_value(master->nvram, name);
+}

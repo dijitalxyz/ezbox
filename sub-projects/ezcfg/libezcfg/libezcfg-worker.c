@@ -280,6 +280,148 @@ static void send_igrs_error(struct ezcfg_worker *worker, int status,
 	}
 }
 
+static void handle_http_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	worker_printf(worker,
+	             "HTTP/1.1 %d %s\r\n"
+	             "\r\n", 200, "OK");
+}
+
+static void handle_soap_http_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_soap_http *sh;
+	struct ezcfg_http *http;
+	char *request_uri;
+	char *p, *value;
+	char buf[2048];
+	int n;
+
+	ASSERT(worker != NULL);
+	ASSERT(worker->proto_data != NULL);
+
+	sh = worker->proto_data;
+
+	ezcfg = worker->ezcfg;
+	http = ezcfg_soap_http_get_http(sh);
+
+	request_uri = ezcfg_http_get_request_uri(http);
+	if (request_uri == NULL) {
+		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
+
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 400);
+		buf[0] = '\0'; n = 0;
+		ezcfg_http_set_message_body(http, buf, n);
+
+		/* build SOAP/HTTP binding error response */
+		ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+		worker_printf(worker, "%s", buf);
+		return ;
+	}
+
+	if (strncmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI, strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI)) == 0) {
+		/* nvram get uri=[/ezcfg/nvram/getNvram?name=xxx]*/
+		p = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI);
+		if (strncmp(p, "?name=", 6) != 0) {
+			err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
+
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 400);
+			buf[0] = '\0'; n = 0;
+			ezcfg_http_set_message_body(http, buf, n);
+
+			/* build SOAP/HTTP binding error response */
+			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+			worker_printf(worker, "%s", buf);
+			return ;
+		}
+		p += 6; /* skip "?name=" */
+		
+		/* get nvram node value, must release value!!! */
+		value = ezcfg_master_get_nvram_value(worker->master, p);
+
+		if (value != NULL) {
+			snprintf(buf, sizeof(buf), "[%s=%s]", p, value);
+			n = strlen(buf);
+			free(value);
+
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 200);
+			ezcfg_http_set_message_body(http, buf, n);
+
+			/* build SOAP/HTTP binding error response */
+			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+			worker_printf(worker, "%s", buf);
+
+		}
+		else {
+			err(ezcfg, "no nvram %s .\n", p);
+
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 400);
+			buf[0] = '\0'; n = 0;
+			ezcfg_http_set_message_body(http, buf, n);
+
+			/* build SOAP/HTTP binding error response */
+			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+			worker_printf(worker, "%s", buf);
+		}
+	}
+	else {
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		buf[0] = '\0'; n = 0;
+		ezcfg_http_set_message_body(http, buf, n);
+
+		/* build SOAP/HTTP binding error response */
+		ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+		worker_printf(worker, "%s", buf);
+	}
+}
+
+static void handle_igrs_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	worker_printf(worker,
+	             "HTTP/1.1 %d %s\r\n"
+	             "\r\n", 200, "OK");
+}
+
+static void handle_isdp_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	worker_printf(worker,
+	             "HTTP/1.1 %d %s\r\n"
+	             "\r\n", 200, "OK");
+}
+
 /* This is the heart of the worker's logic.
  * This function is called when the request is read, parsed and validated,
  * and worker must decide what action to take: serve a file, or
@@ -287,9 +429,29 @@ static void send_igrs_error(struct ezcfg_worker *worker, int status,
  */
 static void handle_request(struct ezcfg_worker *worker)
 {
-	worker_printf(worker,
-	             "HTTP/1.1 %d %s\r\n"
-	             "\r\n", 200, "OK");
+	struct ezcfg *ezcfg;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+
+	/* dispatch protocol handler */
+	switch(worker->proto) {
+	case EZCFG_PROTO_HTTP :
+		handle_http_request(worker);
+		break;
+	case EZCFG_PROTO_SOAP_HTTP :
+		handle_soap_http_request(worker);
+		break;
+	case EZCFG_PROTO_IGRS :
+		handle_igrs_request(worker);
+		break;
+	case EZCFG_PROTO_ISDP :
+		handle_isdp_request(worker);
+		break;
+	default :
+		info(ezcfg, "unknown protocol\n");
+	}
 }
 
 static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, int *nread)
@@ -397,13 +559,13 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 	//buf[request_len - 1] = '\0';
 	if (ezcfg_soap_http_parse_request(worker->proto_data, buf) == true) {
 		unsigned short major, minor;
-		major = ezcfg_soap_http_get_soap_version_major(worker->proto_data);
-		minor = ezcfg_soap_http_get_soap_version_minor(worker->proto_data);
+		major = ezcfg_soap_http_get_http_version_major(worker->proto_data);
+		minor = ezcfg_soap_http_get_http_version_minor(worker->proto_data);
 		info(ezcfg, "major=[%d], minor=[%d]\n", major, minor);
-		if (major != 1 || minor != 2) {
+		if (major != 1 || minor != 1) {
 			send_soap_http_error(worker, 505,
-			                "SOAP version not supported",
-			                "%s", "Weird SOAP version");
+			                "SOAP/HTTP binding version not supported",
+			                "%s", "Weird HTTP version");
 		} else {
 			ezcfg_soap_http_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
 			worker->birth_time = time(NULL);

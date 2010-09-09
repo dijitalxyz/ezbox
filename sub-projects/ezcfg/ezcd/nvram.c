@@ -127,22 +127,22 @@ int nvram_main(int argc, char **argv)
 		}
 
 		if (strlen(argv[2]) > 0) {
-			/* build SOAP */
-			ezcfg_soap_http_set_soap_version_major(sh, 1);
-			ezcfg_soap_http_set_soap_version_minor(sh, 2);
-
-			/* SOAP Envelope */
-			ezcfg_soap_set_envelope(soap, EZCFG_IGRS_ENVELOPE_ELEMENT_NAME);
-			buf[0] = '\0';
-			n = ezcfg_soap_write(soap, buf, sizeof(buf));
+			/* build HTTP message body, it's empty */
+			buf[0] = '\0'; n = 0;
 			ezcfg_http_set_message_body(http, buf, n);
 
 			/* build HTTP request line */
 			ezcfg_http_set_request_method(http, EZCFG_SOAP_HTTP_METHOD_GET);
-			snprintf(buf, sizeof(buf), "/ezcfg/nvram/getNvram/%s", argv[2]);
+			snprintf(buf, sizeof(buf), "/ezcfg/nvram/getNvram?name=%s", argv[2]);
 			ezcfg_http_set_request_uri(http, buf);
 			ezcfg_http_set_version_major(http, 1);
 			ezcfg_http_set_version_minor(http, 1);
+
+			/* build HTTP headers */
+			snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_HOST, buf);
+			snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 		}
 		else {
 			err(ezcfg, "the nvram name is empty.\n");
@@ -203,7 +203,7 @@ int nvram_main(int argc, char **argv)
 		}
 	}
 
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
 	info(ezcfg, "debug\n");
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());

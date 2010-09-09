@@ -150,14 +150,17 @@ bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major)
 bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor);
 bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_strings, unsigned char num_methods);
 bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **header_strings, unsigned char num_headers);
+bool ezcfg_http_set_status_code_maps(struct ezcfg_http *http, const void *maps, unsigned short num_status_codes);
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method);
+char *ezcfg_http_get_request_uri(struct ezcfg_http *http);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
-void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code);
+unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code);
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
 int ezcfg_http_get_message_body_len(struct ezcfg_http *http);
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len);
 int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
@@ -210,12 +213,16 @@ unsigned short ezcfg_soap_http_get_soap_version_major(struct ezcfg_soap_http *sh
 unsigned short ezcfg_soap_http_get_soap_version_minor(struct ezcfg_soap_http *sh);
 bool ezcfg_soap_http_set_soap_version_major(struct ezcfg_soap_http *sh, unsigned short major);
 bool ezcfg_soap_http_set_soap_version_minor(struct ezcfg_soap_http *sh, unsigned short minor);
+unsigned short ezcfg_soap_http_get_http_version_major(struct ezcfg_soap_http *sh);
+unsigned short ezcfg_soap_http_get_http_version_minor(struct ezcfg_soap_http *sh);
+bool ezcfg_soap_http_set_http_version_major(struct ezcfg_soap_http *sh, unsigned short major);
+bool ezcfg_soap_http_set_http_version_minor(struct ezcfg_soap_http *sh, unsigned short minor);
 char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *name);
 void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh);
 bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf);
 char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
-int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
+int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
 
 /* libezcfg-irgs.c */
 struct ezcfg_igrs_msg_op;
@@ -266,6 +273,7 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
+char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name);
 
 
 /* libezcfg-worker.c */

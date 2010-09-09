@@ -67,6 +67,9 @@ extern "C" {
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
 #define EZCFG_HTTP_MAX_REQUEST_SIZE    8192
+/* ezcfg http request/response mode */
+#define EZCFG_HTTP_MODE_REQUEST        0
+#define EZCFG_HTTP_MODE_RESPONSE       1
 
 /* HTTP/1.1 (RFC2616) defined methods */
 #define EZCFG_HTTP_METHOD_OPTIONS  "OPTIONS"
@@ -146,12 +149,75 @@ extern "C" {
 /* HTTP/1.1 extension (RFC2774) responese headers */
 #define EZCFG_HTTP_HEADER_EXT                 "Ext"
 #define EZCFG_HTTP_HEADER_C_EXT               "C-Ext"
+/* HTTP/1.1 (RFC2616) status code reason phrase section 10 */
+#define EZCFG_HTTP_REASON_PHRASE_1XX          "Informational"
+#define EZCFG_HTTP_REASON_PHRASE_100          "Continue"
+#define EZCFG_HTTP_REASON_PHRASE_101          "Switching Protocols"
+/* HTTP Extensions for Distributed Authoring -- WEBDAV (RFC2518) status code 102 */
+#define EZCFG_HTTP_REASON_PHRASE_102          "Processing"
+#define EZCFG_HTTP_REASON_PHRASE_2XX          "Successful"
+#define EZCFG_HTTP_REASON_PHRASE_200          "OK"
+#define EZCFG_HTTP_REASON_PHRASE_201          "Created"
+#define EZCFG_HTTP_REASON_PHRASE_202          "Accepted"
+#define EZCFG_HTTP_REASON_PHRASE_203          "Non-Authoritative Information"
+#define EZCFG_HTTP_REASON_PHRASE_204          "No Content"
+#define EZCFG_HTTP_REASON_PHRASE_205          "Reset Content"
+#define EZCFG_HTTP_REASON_PHRASE_206          "Partial Content"
+/* HTTP Extensions for Distributed Authoring -- WEBDAV (RFC2518) status code 207 */
+#define EZCFG_HTTP_REASON_PHRASE_207          "Multi-Status"
+#define EZCFG_HTTP_REASON_PHRASE_3XX          "Redirection"
+#define EZCFG_HTTP_REASON_PHRASE_300          "Multiple Choices"
+#define EZCFG_HTTP_REASON_PHRASE_301          "Moved Permanently"
+#define EZCFG_HTTP_REASON_PHRASE_302          "Found"
+#define EZCFG_HTTP_REASON_PHRASE_303          "See Other"
+#define EZCFG_HTTP_REASON_PHRASE_304          "Not Modified"
+#define EZCFG_HTTP_REASON_PHRASE_305          "Use Proxy"
+#define EZCFG_HTTP_REASON_PHRASE_306          "(Unused)"
+#define EZCFG_HTTP_REASON_PHRASE_307          "Temporary Redirect"
+#define EZCFG_HTTP_REASON_PHRASE_4XX          "Client Error"
+#define EZCFG_HTTP_REASON_PHRASE_400          "Bad Request"
+#define EZCFG_HTTP_REASON_PHRASE_401          "Unauthorized"
+#define EZCFG_HTTP_REASON_PHRASE_402          "Payment Required"
+#define EZCFG_HTTP_REASON_PHRASE_403          "Forbidden"
+#define EZCFG_HTTP_REASON_PHRASE_404          "Not Found"
+#define EZCFG_HTTP_REASON_PHRASE_405          "Method Not Allowed"
+#define EZCFG_HTTP_REASON_PHRASE_406          "Not Acceptable"
+#define EZCFG_HTTP_REASON_PHRASE_407          "Proxy Authentication Required"
+#define EZCFG_HTTP_REASON_PHRASE_408          "Request Timeout"
+#define EZCFG_HTTP_REASON_PHRASE_409          "Conflict"
+#define EZCFG_HTTP_REASON_PHRASE_410          "Gone"
+#define EZCFG_HTTP_REASON_PHRASE_411          "Length Required"
+#define EZCFG_HTTP_REASON_PHRASE_412          "Precondition Failed"
+#define EZCFG_HTTP_REASON_PHRASE_413          "Request Entity Too Large"
+#define EZCFG_HTTP_REASON_PHRASE_414          "Request-URI Too Long"
+#define EZCFG_HTTP_REASON_PHRASE_415          "Unsupported Media Type"
+#define EZCFG_HTTP_REASON_PHRASE_416          "Requested Range Not Satisfiable"
+#define EZCFG_HTTP_REASON_PHRASE_417          "Expectation Failed"
+/* HTTP Extensions for Distributed Authoring -- WEBDAV (RFC2518) for status code 422-424 */
+#define EZCFG_HTTP_REASON_PHRASE_422          "Unprocessable Entity"
+#define EZCFG_HTTP_REASON_PHRASE_423          "Locked"
+#define EZCFG_HTTP_REASON_PHRASE_424          "Failed Dependency"
+/* Upgrading to TLS Within HTTP/1.1 (RFC2817) for status code 426 */
+#define EZCFG_HTTP_REASON_PHRASE_426          "Upgrade Required"
+#define EZCFG_HTTP_REASON_PHRASE_5XX          "Server Error"
+#define EZCFG_HTTP_REASON_PHRASE_500          "Internal Server Error"
+#define EZCFG_HTTP_REASON_PHRASE_501          "Not Implemented"
+#define EZCFG_HTTP_REASON_PHRASE_502          "Bad Gateway"
+#define EZCFG_HTTP_REASON_PHRASE_503          "Service Unavailable"
+#define EZCFG_HTTP_REASON_PHRASE_504          "Gateway Timeout"
+#define EZCFG_HTTP_REASON_PHRASE_505          "HTTP Version Not Supported"
+/* HTTP Extensions for Distributed Authoring -- WEBDAV (RFC2518) status code 507 */
+#define EZCFG_HTTP_REASON_PHRASE_507          "Insufficient Storage"
+
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
 
+/* ezcfg SOAP/HTTP request/response mode */
+#define EZCFG_SOAP_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
+#define EZCFG_SOAP_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
 /* ezcfg SOAP/HTTP request header size */
 #define EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE    20480
 /* ezcfg SOAP/HTTP http methods */
@@ -161,9 +227,19 @@ extern "C" {
 #define EZCFG_SOAP_HTTP_HEADER_HOST                 "Host"
 #define EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE         "Content-Type"
 #define EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH       "Content-Length"
+#define EZCFG_SOAP_HTTP_HEADER_ACCEPT               "Accept"
+/* ezcfg SOAP/HTTP nvram handler */
+#define EZCFG_SOAP_HTTP_NVRAM_GET_URI               "/ezcfg/nvram/getNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_SET_URI               "/ezcfg/nvram/setNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_UNSET_URI             "/ezcfg/nvram/unsetNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/listNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/commitNvram"
 
 /* ezcfg igrs request header size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
+/* ezcfg igrs request/response mode */
+#define EZCFG_IGRS_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
+#define EZCFG_IGRS_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
 /* ezcfg igrs http methods */
 #define EZCFG_IGRS_METHOD_POST         "POST"
 #define EZCFG_IGRS_METHOD_POST_EXT     "M-POST"

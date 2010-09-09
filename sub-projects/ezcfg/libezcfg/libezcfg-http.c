@@ -43,6 +43,11 @@ struct http_header {
 	bool is_known_header; /* true if name in header_strings */
 };
 
+struct status_code_reason_phrase_map {
+	unsigned short status_code;
+	char *reason_phrase;
+};
+
 struct ezcfg_http {
 	struct ezcfg *ezcfg;
 
@@ -51,13 +56,13 @@ struct ezcfg_http {
 	unsigned char method_index; /* index of method_strings, should be > 0, 0 means error */
 
 	char *request_uri; /* URL-decoded URI */
-	char *query_string; /* \0 - terminated, use same buf with request_uri !!! */
 
 	unsigned short version_major;
 	unsigned short version_minor;
 
-	unsigned short status_code; /* HTTP response status code */
-	char *reason_phrase; /* HTTP response Reason-Phrase */
+	unsigned short num_status_codes; /* Number of supported status codes */
+	const struct status_code_reason_phrase_map *status_code_maps;
+	unsigned short status_code_index; /* index of status_code_reason_phrase_map, should be > 0 */
 
 	unsigned char num_known_headers; /* Number of supported headers */
 	const char **known_header_strings;
@@ -157,6 +162,59 @@ static const char *default_header_strings[] = {
 	/* HTTP/1.1 extension (RFC2774) responese headers */
 	EZCFG_HTTP_HEADER_EXT ,
 	EZCFG_HTTP_HEADER_C_EXT ,
+};
+
+static const struct status_code_reason_phrase_map default_status_code_maps[] = {
+	/* bad method string */
+	{ 0 , NULL } ,
+	{ 100 , EZCFG_HTTP_REASON_PHRASE_100 } ,
+	{ 101 , EZCFG_HTTP_REASON_PHRASE_101 } ,
+	{ 102 , EZCFG_HTTP_REASON_PHRASE_102 } ,
+	{ 200 , EZCFG_HTTP_REASON_PHRASE_200 } ,
+	{ 201 , EZCFG_HTTP_REASON_PHRASE_201 } ,
+	{ 202 , EZCFG_HTTP_REASON_PHRASE_202 } ,
+	{ 203 , EZCFG_HTTP_REASON_PHRASE_203 } ,
+	{ 204 , EZCFG_HTTP_REASON_PHRASE_204 } ,
+	{ 205 , EZCFG_HTTP_REASON_PHRASE_205 } ,
+	{ 206 , EZCFG_HTTP_REASON_PHRASE_206 } ,
+	{ 207 , EZCFG_HTTP_REASON_PHRASE_207 } ,
+	{ 300 , EZCFG_HTTP_REASON_PHRASE_300 } ,
+	{ 301 , EZCFG_HTTP_REASON_PHRASE_301 } ,
+	{ 302 , EZCFG_HTTP_REASON_PHRASE_302 } ,
+	{ 303 , EZCFG_HTTP_REASON_PHRASE_303 } ,
+	{ 304 , EZCFG_HTTP_REASON_PHRASE_304 } ,
+	{ 305 , EZCFG_HTTP_REASON_PHRASE_305 } ,
+	{ 306 , EZCFG_HTTP_REASON_PHRASE_306 } ,
+	{ 307 , EZCFG_HTTP_REASON_PHRASE_307 } ,
+	{ 400 , EZCFG_HTTP_REASON_PHRASE_400 } ,
+	{ 401 , EZCFG_HTTP_REASON_PHRASE_401 } ,
+	{ 402 , EZCFG_HTTP_REASON_PHRASE_402 } ,
+	{ 403 , EZCFG_HTTP_REASON_PHRASE_403 } ,
+	{ 404 , EZCFG_HTTP_REASON_PHRASE_404 } ,
+	{ 405 , EZCFG_HTTP_REASON_PHRASE_405 } ,
+	{ 406 , EZCFG_HTTP_REASON_PHRASE_406 } ,
+	{ 407 , EZCFG_HTTP_REASON_PHRASE_407 } ,
+	{ 408 , EZCFG_HTTP_REASON_PHRASE_408 } ,
+	{ 409 , EZCFG_HTTP_REASON_PHRASE_409 } ,
+	{ 410 , EZCFG_HTTP_REASON_PHRASE_410 } ,
+	{ 411 , EZCFG_HTTP_REASON_PHRASE_411 } ,
+	{ 412 , EZCFG_HTTP_REASON_PHRASE_412 } ,
+	{ 413 , EZCFG_HTTP_REASON_PHRASE_413 } ,
+	{ 414 , EZCFG_HTTP_REASON_PHRASE_414 } ,
+	{ 415 , EZCFG_HTTP_REASON_PHRASE_415 } ,
+	{ 416 , EZCFG_HTTP_REASON_PHRASE_416 } ,
+	{ 417 , EZCFG_HTTP_REASON_PHRASE_417 } ,
+	{ 422 , EZCFG_HTTP_REASON_PHRASE_422 } ,
+	{ 423 , EZCFG_HTTP_REASON_PHRASE_423 } ,
+	{ 424 , EZCFG_HTTP_REASON_PHRASE_424 } ,
+	{ 426 , EZCFG_HTTP_REASON_PHRASE_426 } ,
+	{ 500 , EZCFG_HTTP_REASON_PHRASE_500 } ,
+	{ 501 , EZCFG_HTTP_REASON_PHRASE_501 } ,
+	{ 502 , EZCFG_HTTP_REASON_PHRASE_502 } ,
+	{ 503 , EZCFG_HTTP_REASON_PHRASE_503 } ,
+	{ 504 , EZCFG_HTTP_REASON_PHRASE_504 } ,
+	{ 505 , EZCFG_HTTP_REASON_PHRASE_505 } ,
+	{ 507 , EZCFG_HTTP_REASON_PHRASE_507 } ,
 };
 
 /**
@@ -318,6 +376,9 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	http->num_known_headers = ARRAY_SIZE(default_header_strings) - 1; /* first item is NULL */
 	http->known_header_strings = default_header_strings;
 
+	http->num_status_codes = ARRAY_SIZE(default_status_code_maps) - 1; /* first item is NULL */
+	http->status_code_maps = default_status_code_maps;
+
 	http->message_body_len = -1;
 
 	return http;
@@ -465,17 +526,6 @@ bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
 	return true;
 }
 
-void ezcfg_http_set_status_code(struct ezcfg_http *http, int status_code)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(http != NULL);
-
-	ezcfg = http->ezcfg;
-
-	http->status_code = status_code;
-}
-
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name)
 {
 	struct ezcfg *ezcfg;
@@ -499,18 +549,22 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 	struct http_header *h;
+	unsigned short status_code;
+	char *reason_phrase;
 
 	ASSERT(http != NULL);
 
 	ezcfg = http->ezcfg;
+	status_code = http->status_code_maps[http->status_code_index].status_code;
+	reason_phrase = http->status_code_maps[http->status_code_index].reason_phrase;
 
 	info(ezcfg, "request_method=[%s]\n", http->method_strings[http->method_index]);
 	info(ezcfg, "uri=[%s]\n", http->request_uri);
-	info(ezcfg, "query_string=[%s]\n", http->query_string);
 	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
 	info(ezcfg, "message_body_len=[%d]\n", http->message_body_len);
 	info(ezcfg, "message_body=[%s]\n", http->message_body);
-	info(ezcfg, "status_code=[%d]\n", http->status_code);
+	info(ezcfg, "status_code=[%d]\n", status_code);
+	info(ezcfg, "reason_phrase=[%s]\n", reason_phrase);
 	info(ezcfg, "is_ssl=[%d]\n", http->is_ssl);
 	h = http->header_head;
 	while (h != NULL) {
@@ -549,6 +603,21 @@ bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **h
 	return true;
 }
 
+bool ezcfg_http_set_status_code_maps(struct ezcfg_http *http, const void *maps, unsigned short num_status_codes)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+	ASSERT(maps != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->num_status_codes = num_status_codes;
+	http->status_code_maps = maps;
+
+	return true;
+}
+
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method)
 {
 	struct ezcfg *ezcfg;
@@ -570,6 +639,37 @@ unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char 
 	}
 
 	return 0;
+}
+
+unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	ASSERT(http != NULL);
+	ASSERT(status_code != 0);
+
+	ezcfg = http->ezcfg;
+
+	for (i = http->num_status_codes; i > 0; i--) {
+		if (http->status_code_maps[i].status_code == status_code) {
+			http->status_code_index = i;
+			return i;
+		}
+	}
+
+	return 0;
+}
+
+char *ezcfg_http_get_request_uri(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->request_uri;
 }
 
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
@@ -652,6 +752,43 @@ int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 	         http->request_uri,
 	         http->version_major,
 	         http->version_minor);
+	if (n < 0) {
+		return -1;
+	}
+	return n;
+}
+
+int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	int n;
+	unsigned short status_code;
+	char *reason_phrase;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	status_code = http->status_code_maps[http->status_code_index].status_code;
+	reason_phrase = http->status_code_maps[http->status_code_index].reason_phrase;
+
+	if (status_code == 0) {
+		err(ezcfg, "unknown http response status code\n");
+		return -1;
+	}
+
+	if (reason_phrase == NULL) {
+		err(ezcfg, "unknown http response status code reason phrase\n");
+		return -1;
+	}
+
+	n = snprintf(buf, len, "HTTP/%d.%d %3d %s\r\n",
+	         http->version_major,
+	         http->version_minor,
+	         status_code,
+	         reason_phrase);
 	if (n < 0) {
 		return -1;
 	}
