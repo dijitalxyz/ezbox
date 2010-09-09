@@ -18,19 +18,16 @@
     <xs:schema
        xmlns:xs="http://www.w3.org/2001/XMLSchema"
        targetNamespace="http://www.ezidc.net/ezcfg/nvram/schemas"
-       xmln="http://www.ezidc.net/ezcfg/nvram/schemas">
+       xmlns="http://www.ezidc.net/ezcfg/nvram/schemas">
 
       <xs:element name="getNvram" type="xs:string"/>
-      <xs:element name="getNvramResponse" type="xs:string"/>
+      <xs:element name="getNvramResponse" type="tNvram"/>
 
-      <xs:element name="setNvram" type="tSetNvram"/>
-      <xs:complexType name="tSetNvram">
-        <xs:sequence>
-          <xs:element name="name" type="xs:string"/>
-          <xs:element name="value" type="xs:string"/>
-        </xs:sequence>
-      </xs:complexType>
+      <xs:element name="setNvram" type="tNvram"/>
       <xs:element name="setNvramResponse" type="xs:string"/>
+
+      <xs:element name="unsetNvram" type="xs:string"/>
+      <xs:element name="unsetNvramResponse" type="xs:string"/>
 
       <xs:element name="listNvram" type="xs:string"/>
       <xs:element name="listNvramResponse" type="tNvramList"/>
@@ -81,6 +78,17 @@
       <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
     </operation>
 
+    <operation name="opUnsetNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="true">
+      <input messageLabel="In"
+         element="nvns:unsetNvram"/>
+      <output messageLabel="Out"
+         element="nvns:unsetNvramResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+    </operation>
+
     <operation name="opListNvram"
        pattern="http://www.w3.org/ns/wsdl/in-out"
        style="http://www.w3.org/ns/wsdl/style/iri"
@@ -110,7 +118,7 @@
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
     <operation ref="tns:opSetNvram"
-       wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
 
     <operation ref="tns:opUnsetNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
@@ -130,13 +138,19 @@
      whttp:methodDefault="GET">
 
     <operation ref="tns:opGetNvram"
-       whttp:location="get/{getNvram}"/>
+       whttp:location="getNvram/{getNvram}"/>
 
     <operation ref="tns:opSetNvram"
-       whttp:location="set/{name}"/>
+       whttp:location="setNvram/{name}"/>
+
+    <operation ref="tns:opUnsetNvram"
+       whttp:location="unsetNvram/{unsetNvram}"/>
 
     <operation ref="tns:opListNvram"
-       whttp:location="list/{listNvram}"/>
+       whttp:location="listNvram"/>
+
+    <operation ref="tns:opCommitNvram"
+       whttp:location="commitNvram"/>
 
   </binding>
 

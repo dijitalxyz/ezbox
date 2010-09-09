@@ -298,10 +298,12 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	struct ezcfg *ezcfg;
 	struct ezcfg_soap_http *sh;
 	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
 	char *request_uri;
 	char *p, *value;
 	char buf[2048];
 	int n;
+	int body_index, child_index;
 
 	ASSERT(worker != NULL);
 	ASSERT(worker->proto_data != NULL);
@@ -310,6 +312,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 	http = ezcfg_soap_http_get_http(sh);
+	soap = ezcfg_soap_http_get_soap(sh);
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
@@ -328,32 +331,41 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 		return ;
 	}
 
-	if (strncmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI, strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI)) == 0) {
+	if (strncmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI"?name=", strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI) + 6) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/getNvram?name=xxx]*/
-		p = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI);
-		if (strncmp(p, "?name=", 6) != 0) {
-			err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
-
-			/* clean http structure info */
-			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 400);
-			buf[0] = '\0'; n = 0;
-			ezcfg_http_set_message_body(http, buf, n);
-
-			/* build SOAP/HTTP binding error response */
-			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
-
-			worker_printf(worker, "%s", buf);
-			return ;
-		}
-		p += 6; /* skip "?name=" */
+		p = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI) + 6;
 		
 		/* get nvram node value, must release value!!! */
 		value = ezcfg_master_get_nvram_value(worker->master, p);
 
 		if (value != NULL) {
-			snprintf(buf, sizeof(buf), "[%s=%s]", p, value);
+			int getnv_index;
+			/* build SOAP */
+			ezcfg_soap_set_version_major(soap, 1);
+			ezcfg_soap_set_version_minor(soap, 2);
+
+			/* SOAP Envelope */
+			ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+			ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+			/* SOAP Body */
+			body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+			/* Body child getNvram part */
+			getnv_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_NVRAM_GETNV_RESPONSE_ELEMENT_NAME, NULL);
+			ezcfg_soap_add_body_child_attribute(soap, getnv_index, EZCFG_SOAP_NVRAM_ATTR_NS_NAME, EZCFG_SOAP_NVRAM_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+			/* nvram name part */
+			child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, p);
+
+			/* nvram value part */
+			child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, value);
+
+			snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 			n = strlen(buf);
+			n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
+			ezcfg_http_set_message_body(http, buf, n);
+
 			free(value);
 
 			/* clean http structure info */
@@ -361,18 +373,24 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			ezcfg_http_set_status_code(http, 200);
 			ezcfg_http_set_message_body(http, buf, n);
 
+			snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
+
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+
+			snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+
 			/* build SOAP/HTTP binding error response */
 			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
 			worker_printf(worker, "%s", buf);
-
 		}
 		else {
 			err(ezcfg, "no nvram %s .\n", p);
 
 			/* clean http structure info */
 			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 400);
+			ezcfg_http_set_status_code(http, 200);
 			buf[0] = '\0'; n = 0;
 			ezcfg_http_set_message_body(http, buf, n);
 

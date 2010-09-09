@@ -57,12 +57,29 @@ extern "C" {
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD 1
 
 /* ezcfg soap element names */
-#define EZCFG_SOAP_ENV_ELEMENT_NAME	"SOAP-ENV:Envelope"
-#define EZCFG_SOAP_BODY_ELEMENT_NAME	"SOAP-ENV:Body"
-#define EZCFG_SOAP_ENV_NS_NAME		"xmlns:SOAP-ENV"
-#define EZCFG_SOAP_ENV_NS_VALUE		"http://www.w3.org/2002/12/soap-envelope"
-#define EZCFG_SOAP_ENV_ENC_NAME		"SOAP-ENV:encodingStyle"
-#define EZCFG_SOAP_ENV_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
+#define EZCFG_SOAP_ENVELOPE_ELEMENT_NAME    "env:Envelope"
+#define EZCFG_SOAP_HEADER_ELEMENT_NAME      "env:Header"
+#define EZCFG_SOAP_BODY_ELEMENT_NAME        "env:Body"
+#define EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME    "xmlns:env"
+#define EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE   "http://www.w3.org/2003/05/soap-envelope"
+#define EZCFG_SOAP_ENVELOPE_ATTR_ENC_NAME   "env:encodingStyle"
+#define EZCFG_SOAP_ENVELOPE_ATTR_ENC_VALUE  "http://www.w3.org/2003/05/soap-encoding"
+
+#define EZCFG_SOAP_NVRAM_GETNV_ELEMENT_NAME              "nvns:getNvram"
+#define EZCFG_SOAP_NVRAM_GETNV_RESPONSE_ELEMENT_NAME     "nvns:getNvramResponse"
+#define EZCFG_SOAP_NVRAM_SETNV_ELEMENT_NAME              "nvns:setNvram"
+#define EZCFG_SOAP_NVRAM_SETNV_RESPONSE_ELEMENT_NAME     "nvns:setNvramResponse"
+#define EZCFG_SOAP_NVRAM_UNSETNV_ELEMENT_NAME            "nvns:unsetNvram"
+#define EZCFG_SOAP_NVRAM_UNSETNV_RESPONSE_ELEMENT_NAME   "nvns:unsetNvramResponse"
+#define EZCFG_SOAP_NVRAM_LISTNV_ELEMENT_NAME             "nvns:listNvram"
+#define EZCFG_SOAP_NVRAM_LISTNV_RESPONSE_ELEMENT_NAME    "nvns:listNvramResponse"
+#define EZCFG_SOAP_NVRAM_COMMITNV_ELEMENT_NAME           "nvns:commitNvram"
+#define EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME  "nvns:commitNvramResponse"
+#define EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME               "nvns:name"
+#define EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME              "nvns:value"
+#define EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME              "nvns:nvram"
+#define EZCFG_SOAP_NVRAM_ATTR_NS_NAME                    "xmlns:nvns"
+#define EZCFG_SOAP_NVRAM_ATTR_NS_VALUE                   "http://www.ezidc.net/ezcfg/nvram/schemas"
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
@@ -214,6 +231,10 @@ extern "C" {
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
 #define EZCFG_UUID_STRING_LEN	36 /* 8+1+4+1+4+1+4+1+12 */
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
+
+
+/* ezcfg nvram SOAP/HTTP binding */
+
 
 /* ezcfg SOAP/HTTP request/response mode */
 #define EZCFG_SOAP_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
