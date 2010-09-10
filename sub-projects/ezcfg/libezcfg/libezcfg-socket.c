@@ -454,7 +454,11 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 {
+	struct ezcfg *ezcfg;
+
 	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
 
 	if (sp->sock >= 0) {
 		close_socket_gracefully(sp->sock);

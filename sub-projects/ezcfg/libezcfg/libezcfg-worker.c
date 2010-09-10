@@ -381,6 +381,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
 
 			/* build SOAP/HTTP binding error response */
+			memset(buf, 0, sizeof(buf));
 			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
 			worker_printf(worker, "%s", buf);
@@ -395,6 +396,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			ezcfg_http_set_message_body(http, buf, n);
 
 			/* build SOAP/HTTP binding error response */
+			memset(buf, 0, sizeof(buf));
 			ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
 			worker_printf(worker, "%s", buf);
@@ -510,6 +512,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		err(ezcfg, "not enough memory for processing http new connection\n");
 		return;
 	}
+	nread = 0;
 	request_len = read_request(worker, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
@@ -561,6 +564,7 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		err(ezcfg, "not enough memory for processing SOAP/HTTP new connection\n");
 		return;
 	}
+	nread = 0;
 	request_len = read_request(worker, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
@@ -617,6 +621,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		err(ezcfg, "not enough memory for processing igrs new connection\n");
 		return;
 	}
+	nread = 0;
 	request_len = read_request(worker, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
@@ -760,7 +765,10 @@ void ezcfg_worker_delete(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	ezcfg_socket_delete(worker->client);
+	if (worker->client != NULL) {
+		info(ezcfg, "delete worker client\n");
+		ezcfg_socket_delete(worker->client);
+	}
 
 	free(worker);
 }
@@ -804,6 +812,8 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 	master = worker->master;
 
+	info(ezcfg, "enter worker thread.\n");
+
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
 
@@ -833,4 +843,6 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 
 	/* Signal master that we're done with connection and exiting */
 	ezcfg_master_stop_worker(master, worker);
+
+	info(ezcfg, "exit worker thread.\n");
 }

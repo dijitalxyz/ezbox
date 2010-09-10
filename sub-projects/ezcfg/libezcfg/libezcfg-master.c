@@ -340,8 +340,9 @@ static void accept_new_connection(struct ezcfg_master *master,
 
 	if (allowed == true) {
 		// Put accepted socket structure into the queue
-		info(ezcfg, "accepted socket %d\n",
-		     ezcfg_socket_get_sock(accepted));
+		info(ezcfg, "accepted socket [%d], listener socket =[%d]\n",
+		     ezcfg_socket_get_sock(accepted),
+		     ezcfg_socket_get_sock(listener));
 		put_socket(master, accepted);
 	} else {
 		info(ezcfg, "%s is not allowed to connect\n",

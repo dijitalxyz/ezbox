@@ -228,6 +228,7 @@ int nvram_main(int argc, char **argv)
 	}
 	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
+	memset(msg, 0, sizeof(msg));
 	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
 		err(ezcfg, "controller write: %m\n");
 		rc = 5;
