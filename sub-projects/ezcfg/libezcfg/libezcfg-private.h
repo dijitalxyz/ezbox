@@ -107,6 +107,37 @@ void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
 /* libezcfg-thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 
+
+/* libezcfg-nvram.c */
+struct ezcfg_nvram;
+bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
+struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
+bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type);
+bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path);
+char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
+int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value);
+char *ezcfg_nvram_get_node_value(struct ezcfg_nvram *nvram, const char *name);
+bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name);
+char *ezcfg_nvram_get_all_nodes(struct ezcfg_nvram *nvram, int *buf_len);
+bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+
+
+/* libezcfg-uuid.c */
+struct ezcfg_uuid;
+bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
+struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
+int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
+char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
+bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len);
+bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
+
+
 /* libezcfg-socket.c */
 struct ezcfg_socket;
 void ezcfg_socket_delete(struct ezcfg_socket *sp);
@@ -223,6 +254,7 @@ bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf);
 char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
+void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram);
 
 /* libezcfg-irgs.c */
 struct ezcfg_igrs_msg_op;
@@ -273,6 +305,9 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
+bool ezcfg_master_lock_nvram(struct ezcfg_master *master);
+bool ezcfg_master_unlock_nvram(struct ezcfg_master *master);
+struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
 char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name);
 
 
@@ -293,36 +328,6 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
-
-
-/* libezcfg-nvram.c */
-struct ezcfg_nvram;
-bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
-struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
-bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type);
-bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path);
-char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
-int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value);
-char *ezcfg_nvram_get_node_value(struct ezcfg_nvram *nvram, const char *name);
-bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name);
-char *ezcfg_nvram_get_all_nodes(struct ezcfg_nvram *nvram, int *buf_len);
-bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
-
-
-/* libezcfg-uuid.c */
-struct ezcfg_uuid;
-bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
-struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
-int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
-char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
-bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len);
-bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
 
 /* libezcfg-util.c */

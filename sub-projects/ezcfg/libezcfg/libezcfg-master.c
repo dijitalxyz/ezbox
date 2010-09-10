@@ -555,7 +555,43 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 	pthread_mutex_unlock(&master->mutex);
 }
 
+bool ezcfg_master_lock_nvram(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ezcfg = master->ezcfg;
+
+	return true;
+}
+
+bool ezcfg_master_unlock_nvram(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ezcfg = master->ezcfg;
+
+	return true;
+}
+
+struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ezcfg = master->ezcfg;
+
+	return master->nvram;
+}
+
 char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name)
 {
-	return ezcfg_nvram_get_node_value(master->nvram, name);
+	struct ezcfg *ezcfg;
+	char *value;
+
+	ezcfg = master->ezcfg;
+
+	ezcfg_master_lock_nvram(master);
+	value = ezcfg_nvram_get_node_value(master->nvram, name);
+	ezcfg_master_unlock_nvram(master);
+	return value;
 }
+

@@ -391,8 +391,10 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 		err(ezcfg, "ezcfg_http_write_message_body\n");
 		return n;
 	}
+	p += n; len -= n;
+	*p = '\0'; /* \0-terminated it */
 
-	return (p-buf)+n;
+	return (p-buf);
 }
 
 /**

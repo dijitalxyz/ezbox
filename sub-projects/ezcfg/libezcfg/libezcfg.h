@@ -60,6 +60,16 @@ extern "C" {
 #define EZCFG_SOAP_ENVELOPE_ELEMENT_NAME    "env:Envelope"
 #define EZCFG_SOAP_HEADER_ELEMENT_NAME      "env:Header"
 #define EZCFG_SOAP_BODY_ELEMENT_NAME        "env:Body"
+#define EZCFG_SOAP_FAULT_ELEMENT_NAME       "env:Fault"
+#define EZCFG_SOAP_CODE_ELEMENT_NAME        "env:Code"
+#define EZCFG_SOAP_VALUE_ELEMENT_NAME       "env:Value"
+#define EZCFG_SOAP_VALUE_ELEMENT_VALUE      "env:Sender"
+#define EZCFG_SOAP_SUBCODE_ELEMENT_NAME     "env:Subcode"
+#define EZCFG_SOAP_REASON_ELEMENT_NAME      "env:Reason"
+#define EZCFG_SOAP_TEXT_ELEMENT_NAME        "env:Text"
+#define EZCFG_SOAP_DETAIL_ELEMENT_NAME      "env:Detail"
+#define EZCFG_SOAP_NODE_ELEMENT_NAME        "env:Node"
+#define EZCFG_SOAP_ROLE_ELEMENT_NAME        "env:Role"
 #define EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME    "xmlns:env"
 #define EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE   "http://www.w3.org/2003/05/soap-envelope"
 #define EZCFG_SOAP_ENVELOPE_ATTR_ENC_NAME   "env:encodingStyle"
@@ -80,6 +90,8 @@ extern "C" {
 #define EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME              "nvns:nvram"
 #define EZCFG_SOAP_NVRAM_ATTR_NS_NAME                    "xmlns:nvns"
 #define EZCFG_SOAP_NVRAM_ATTR_NS_VALUE                   "http://www.ezidc.net/ezcfg/nvram/schemas"
+#define EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE        "NVRAM Name is Invalid"
+#define EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE       "NVRAM Value is Invalid"
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
@@ -239,8 +251,10 @@ extern "C" {
 /* ezcfg SOAP/HTTP request/response mode */
 #define EZCFG_SOAP_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
 #define EZCFG_SOAP_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
-/* ezcfg SOAP/HTTP request header size */
+/* ezcfg SOAP/HTTP request size */
 #define EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE    20480
+/* ezcfg SOAP/HTTP response size */
+#define EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE    20480
 /* ezcfg SOAP/HTTP http methods */
 #define EZCFG_SOAP_HTTP_METHOD_GET          "GET"
 #define EZCFG_SOAP_HTTP_METHOD_POST         "POST"
@@ -256,7 +270,7 @@ extern "C" {
 #define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/listNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/commitNvram"
 
-/* ezcfg igrs request header size */
+/* ezcfg igrs request size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
 /* ezcfg igrs request/response mode */
 #define EZCFG_IGRS_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST

@@ -350,7 +350,144 @@ int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len
 		err(ezcfg, "ezcfg_http_write_message_body\n");
 		return n;
 	}
+	p += n; len -= n;
+	*p = '\0'; /* \0-terminated it */
 
-	return (p-buf)+n;
+	return (p-buf);
 }
 
+static void build_nvram_get_response(struct ezcfg_soap_http *sh, const char *name, const char *value)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
+	int body_index, child_index;
+	int n;
+	
+	ASSERT(sh != NULL);
+	ASSERT(sh->http != NULL);
+	ASSERT(sh->soap != NULL);
+	ASSERT(name != NULL);
+
+	ezcfg = sh->ezcfg;
+	http = sh->http;
+	soap = sh->soap;
+
+	if (value != NULL) {
+		int getnv_index;
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* Body child getNvram part */
+		getnv_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_NVRAM_GETNV_RESPONSE_ELEMENT_NAME, NULL);
+		ezcfg_soap_add_body_child_attribute(soap, getnv_index, EZCFG_SOAP_NVRAM_ATTR_NS_NAME, EZCFG_SOAP_NVRAM_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* nvram name part */
+		child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, name);
+
+		/* nvram value part */
+		child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, value);
+
+		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(buf);
+		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
+		ezcfg_http_set_message_body(http, buf, n);
+
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_message_body(http, buf, n);
+
+		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+
+		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+	}
+	else {
+		int fault_index;
+		int code_index;
+		int reason_index;
+		err(ezcfg, "no nvram [%s]\n", name);
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* SOAP Fault part */
+		fault_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_FAULT_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code part */
+		code_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_CODE_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code value part */
+		child_index = ezcfg_soap_add_body_child(soap, code_index, -1, EZCFG_SOAP_VALUE_ELEMENT_NAME, EZCFG_SOAP_VALUE_ELEMENT_VALUE);
+
+		/* SOAP Fault Reason part */
+		reason_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_REASON_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Reason Text part */
+		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE);
+
+		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(buf);
+		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
+		ezcfg_http_set_message_body(http, buf, n);
+
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_message_body(http, buf, n);
+
+		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+
+		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+	}
+}
+
+void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	char *request_uri;
+	char *name, *value;
+
+	ASSERT(sh != NULL);
+	ASSERT(sh->http != NULL);
+	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
+
+	ezcfg = sh->ezcfg;
+
+	request_uri = ezcfg_http_get_request_uri(sh->http);
+
+	if (strncmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI, strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI)) == 0) {
+		/* nvram get uri=[/ezcfg/nvram/getNvram?name=xxx]*/
+		name = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI) + 6;
+		
+		/* get nvram node value, must release value!!! */
+		value = ezcfg_nvram_get_node_value(nvram, name);
+
+		build_nvram_get_response(sh, name, value);
+
+		if (value != NULL) {
+			free(value);
+		}
+	}
+}
