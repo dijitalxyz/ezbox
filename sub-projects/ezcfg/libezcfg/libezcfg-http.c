@@ -379,8 +379,6 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	http->num_status_codes = ARRAY_SIZE(default_status_code_maps) - 1; /* first item is NULL */
 	http->status_code_maps = default_status_code_maps;
 
-	http->message_body_len = -1;
-
 	return http;
 }
 
@@ -402,12 +400,12 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 	if (http->message_body != NULL) {
 		free(http->message_body);
 		http->message_body = NULL;
-		http->message_body_len = -1;
+		http->message_body_len = 0;
 	}
 
 }
 
-bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
+bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	char *p;
@@ -415,10 +413,12 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf)
 
 	ASSERT(http != NULL);
 	ASSERT(buf != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 
 	method = buf;
+
 	/* split HTTP Request-Line (RFC2616 section 5.1) */
 	p = strstr(buf, "\r\n");
 	if (p == NULL) {
@@ -695,20 +695,27 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 	return true;
 }
 
+/* \0-terminated the message body */
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len)
 {
 	struct ezcfg *ezcfg;
 	char *message_body;
 
 	ASSERT(http != NULL);
+	ASSERT(body != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = http->ezcfg;
 
-	message_body = calloc(len, sizeof(char));
+	message_body = calloc(len+1, sizeof(char));
 	if (message_body == NULL) {
 		return NULL;
 	}
-	memcpy(message_body, body, len);
+
+	if (len > 0) {
+		memcpy(message_body, body, len);
+	}
+	message_body[len] = '\0';
 
 	if (http->message_body != NULL) {
 		free(http->message_body);
@@ -729,6 +736,17 @@ int ezcfg_http_get_message_body_len(struct ezcfg_http *http)
 	ezcfg = http->ezcfg;
 
 	return http->message_body_len;
+}
+
+char *ezcfg_http_get_message_body(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->message_body;
 }
 
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)

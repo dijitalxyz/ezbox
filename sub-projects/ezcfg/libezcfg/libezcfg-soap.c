@@ -231,6 +231,16 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 	return soap->body_index;
 }
 
+int ezcfg_soap_get_body_index(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
+	return soap->body_index;
+}
+
 int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int si, const char *name, const char *content)
 {
 	struct ezcfg *ezcfg;
@@ -300,6 +310,64 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 	}
 
 	return ezcfg_xml_element_add_attribute(xml, elem, name, value, pos);
+}
+
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const char *name)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(name != NULL);
+	ASSERT(pi > 0);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	if (soap->body_index < 0) {
+		err(ezcfg, "no body for soap child\n");
+		return -1;
+	}
+
+	return ezcfg_xml_get_element_index(xml, pi, name);
+}
+
+char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int i)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(i > 0);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	return ezcfg_xml_get_element_content_by_index(xml, i);
+}
+
+bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
+{
+	/* buf must be \0-terminated */
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	/* first check if buf is xml document */
+	if (strncmp(buf, "<?xml ", 6) != 0) {
+		return false;
+	}
+
+	return true;
 }
 
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)

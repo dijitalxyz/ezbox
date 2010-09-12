@@ -24,22 +24,33 @@
       <xs:element name="getNvramResponse" type="tNvram"/>
 
       <xs:element name="setNvram" type="tNvram"/>
-      <xs:element name="setNvramResponse" type="xs:string"/>
+      <xs:element name="setNvramResponse" type="tNvramResult"/>
 
       <xs:element name="unsetNvram" type="xs:string"/>
-      <xs:element name="unsetNvramResponse" type="xs:string"/>
+      <xs:element name="unsetNvramResponse" type="tNvramResult"/>
 
       <xs:element name="listNvram" type="xs:string"/>
       <xs:element name="listNvramResponse" type="tNvramList"/>
+
+      <xs:element name="commitNvram" type="xs:string"/>
+      <xs:element name="commitNvramResponse" type="tNvramResult"/>
+
       <xs:complexType name="tNvram">
         <xs:sequence>
           <xs:element name="name" type="xs:string"/>
           <xs:element name="value" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
+
       <xs:complexType name="tNvramList">
         <xs:sequence>
           <xs:element name="nvram" type="tNvram" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="tNvramResult">
+        <xs:sequence>
+          <xs:element name="result" type="xs:string"/>
         </xs:sequence>
       </xs:complexType>
 
@@ -69,7 +80,7 @@
     <operation name="opSetNvram"
        pattern="http://www.w3.org/ns/wsdl/in-out"
        style="http://www.w3.org/ns/wsdl/style/iri"
-       wsdlx:safe="true">
+       wsdlx:safe="false">
       <input messageLabel="In"
          element="nvns:setNvram"/>
       <output messageLabel="Out"
@@ -97,7 +108,16 @@
          element="nvns:listNvram"/>
       <output messageLabel="Out"
          element="nvns:listNvramResponse"/>
-      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+    </operation>
+
+    <operation name="opCommitNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="true">
+      <input messageLabel="In"
+         element="nvns:commitNvram"/>
+      <output messageLabel="Out"
+         element="nvns:commitNvramResponse"/>
     </operation>
 
   </interface>
@@ -106,7 +126,9 @@
   <binding name="nvramSOAPBinding"
      interface="tns:nvramInterface"
      type="http://www.w3.org/ns/wsdl/soap"
-     wsoap:protocol="http://www.w3.org/2003/05/soap/bindings/HTTP/">
+     wsoap:version="1.2"
+     wsoap:protocol="http://www.w3.org/2003/05/soap/bindings/HTTP/"
+     wsoap:mepDefault="http://www.w3.org/2003/05/soap/mep/soap-response">
 
     <fault ref="tns:invalidNameFault"
        wsoap:code="soap:Sender"/>
@@ -137,11 +159,18 @@
      type="http://www.w3.org/ns/wsdl/http"
      whttp:methodDefault="GET">
 
+    <fault ref="tns:invalidNameFault"
+       whttp:code="404"/>
+
+    <fault ref="tns:invalidValueFault"
+       whttp:code="400"/>
+
     <operation ref="tns:opGetNvram"
        whttp:location="getNvram/{getNvram}"/>
 
     <operation ref="tns:opSetNvram"
-       whttp:location="setNvram/{name}"/>
+       whttp:location="setNvram/{name}"
+       whttp:method="POST"/>
 
     <operation ref="tns:opUnsetNvram"
        whttp:location="unsetNvram/{unsetNvram}"/>
@@ -159,11 +188,11 @@
 
     <endpoint name="nvramSOAPEndpoint"
        binding="tns:nvramSOAPBinding"
-       address="http://www.ezidc.net/ezcfg/nvram/"/>
+       address="http://www.ezidc.net/ezcfg/nvram/soap-http/"/>
 
     <endpoint name="nvramHTTPEndpoint"
        binding="tns:nvramHTTPBinding"
-       address="http://www.ezidc.net/ezcfg/nvram/"/>
+       address="http://www.ezidc.net/ezcfg/nvram/http/"/>
 
   </service>
 

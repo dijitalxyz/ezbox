@@ -174,7 +174,7 @@ void ezcfg_http_delete(struct ezcfg_http *http);
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
-bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf);
+bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len);
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
 unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
 bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major);
@@ -187,6 +187,7 @@ char *ezcfg_http_get_request_uri(struct ezcfg_http *http);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
 unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code);
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
+char *ezcfg_http_get_message_body(struct ezcfg_http *http);
 int ezcfg_http_get_message_body_len(struct ezcfg_http *http);
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
@@ -212,12 +213,13 @@ int ezcfg_xml_add_element(
         struct ezcfg_xml_element *parent,
         struct ezcfg_xml_element *sibling,
         struct ezcfg_xml_element *elem);
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name);
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char *name);
 bool ezcfg_xml_element_add_attribute(
         struct ezcfg_xml *xml,
         struct ezcfg_xml_element *elem,
         const char *name, const char *value, int pos);
 struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, int index);
+char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, int index);
 
 /* libezcfg-soap.c */
 struct ezcfg_soap;
@@ -230,8 +232,12 @@ bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name);
 bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name, const char *value, int pos);
 int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);
+int ezcfg_soap_get_body_index(struct ezcfg_soap *soap);
 int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, int pi, int si, const char *name, const char *content);
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos);
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const char *name);
+char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int index);
+bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
 /* libezcfg-soap_http.c */
@@ -250,8 +256,8 @@ bool ezcfg_soap_http_set_http_version_major(struct ezcfg_soap_http *sh, unsigned
 bool ezcfg_soap_http_set_http_version_minor(struct ezcfg_soap_http *sh, unsigned short minor);
 char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *name);
 void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh);
-bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf);
-char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
+bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int len);
+char *ezcfg_soap_http_set_http_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
 void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram);
@@ -286,7 +292,7 @@ bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name);
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf);
+bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
 
 /* libezcfg-isdp.c */

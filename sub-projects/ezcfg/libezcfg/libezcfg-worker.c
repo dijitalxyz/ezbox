@@ -181,6 +181,11 @@ static int worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 	return ezcfg_socket_write(worker->client, buf, len, 0);
 }
 
+static int worker_write(struct ezcfg_worker *worker, const char *buf, int len)
+{
+	return ezcfg_socket_write(worker->client, buf, len, 0);
+}
+
 static void send_http_error(struct ezcfg_worker *worker, int status,
                             const char *reason, const char *fmt, ...)
 {
@@ -324,6 +329,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	struct ezcfg_nvram *nvram;
 	char *request_uri;
 	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
+	int len;
 
 	ASSERT(worker != NULL);
 	ASSERT(worker->proto_data != NULL);
@@ -342,13 +348,12 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
-		buf[0] = '\0';
-		ezcfg_http_set_message_body(http, buf, 0);
 
 		/* build SOAP/HTTP binding error response */
-		ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+		buf[0] = '\0';
+		len = ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
-		worker_printf(worker, "%s", buf);
+		worker_write(worker, buf, len);
 		return ;
 	}
 
@@ -359,9 +364,9 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 		/* build SOAP/HTTP binding response */
 		buf[0] = '\0';
-		ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+		len = ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
-		worker_printf(worker, "%s", buf);
+		worker_write(worker, buf, len);
 	}
 }
 
@@ -378,6 +383,7 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	             "\r\n", 200, "OK");
 }
 
+#if 0
 static void handle_isdp_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -390,12 +396,14 @@ static void handle_isdp_request(struct ezcfg_worker *worker)
 	             "HTTP/1.1 %d %s\r\n"
 	             "\r\n", 200, "OK");
 }
+#endif
 
 /* This is the heart of the worker's logic.
  * This function is called when the request is read, parsed and validated,
  * and worker must decide what action to take: serve a file, or
  * a directory, or call embedded function, etcetera.
  */
+#if 0
 static void handle_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -422,6 +430,7 @@ static void handle_request(struct ezcfg_worker *worker)
 		info(ezcfg, "unknown protocol\n");
 	}
 }
+#endif
 
 static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, int *nread)
 {
@@ -472,7 +481,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		return; /* Request is too large or format is not correct */
 	}
 
-	if (ezcfg_http_parse_request(worker->proto_data, buf) == true) {
+	if (ezcfg_http_parse_request(worker->proto_data, buf, nread) == true) {
 		unsigned short major, minor;
 		major = ezcfg_http_get_version_major(worker->proto_data);
 		minor = ezcfg_http_get_version_minor(worker->proto_data);
@@ -481,10 +490,11 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 			                "HTTP version not supported",
 			                "%s", "Weird HTTP version");
 		} else {
-			ezcfg_http_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			if (nread > request_len) {
+				ezcfg_http_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			}
 			worker->birth_time = time(NULL);
-			ezcfg_http_dump(worker->proto_data);
-			handle_request(worker);
+			handle_http_request(worker);
 			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
@@ -528,7 +538,7 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[request_len - 1] = '\0';
-	if (ezcfg_soap_http_parse_request(worker->proto_data, buf) == true) {
+	if (ezcfg_soap_http_parse_request(worker->proto_data, buf, nread) == true) {
 		unsigned short major, minor;
 		major = ezcfg_soap_http_get_http_version_major(worker->proto_data);
 		minor = ezcfg_soap_http_get_http_version_minor(worker->proto_data);
@@ -538,10 +548,11 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 			                "SOAP/HTTP binding version not supported",
 			                "%s", "Weird HTTP version");
 		} else {
-			ezcfg_soap_http_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			if (nread > request_len) {
+				ezcfg_soap_http_set_http_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			}
 			worker->birth_time = time(NULL);
-			ezcfg_soap_http_dump(worker->proto_data);
-			handle_request(worker);
+			handle_soap_http_request(worker);
 			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
@@ -585,7 +596,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[request_len - 1] = '\0';
-	if (ezcfg_igrs_parse_request(worker->proto_data, buf) == true) {
+	if (ezcfg_igrs_parse_request(worker->proto_data, buf, nread) == true) {
 		unsigned short major, minor;
 		major = ezcfg_igrs_get_version_major(worker->proto_data);
 		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
@@ -594,10 +605,11 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 			                "IGRS version not supported",
 			                "%s", "Weird IGRS version");
 		} else {
-			ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			if (nread > request_len) {
+				ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+			}
 			worker->birth_time = time(NULL);
-			ezcfg_igrs_dump(worker->proto_data);
-			handle_request(worker);
+			handle_igrs_request(worker);
 			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {

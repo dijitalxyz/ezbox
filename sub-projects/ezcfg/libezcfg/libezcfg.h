@@ -87,11 +87,14 @@ extern "C" {
 #define EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME  "nvns:commitNvramResponse"
 #define EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME               "nvns:name"
 #define EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME              "nvns:value"
+#define EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME             "nvns:result"
 #define EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME              "nvns:nvram"
 #define EZCFG_SOAP_NVRAM_ATTR_NS_NAME                    "xmlns:nvns"
 #define EZCFG_SOAP_NVRAM_ATTR_NS_VALUE                   "http://www.ezidc.net/ezcfg/nvram/schemas"
 #define EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE        "NVRAM Name is Invalid"
 #define EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE       "NVRAM Value is Invalid"
+#define EZCFG_SOAP_NVRAM_RESULT_VALUE_OK                 "OK"
+#define EZCFG_SOAP_NVRAM_RESULT_VALUE_FAIL               "FAIL"
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
@@ -264,11 +267,11 @@ extern "C" {
 #define EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH       "Content-Length"
 #define EZCFG_SOAP_HTTP_HEADER_ACCEPT               "Accept"
 /* ezcfg SOAP/HTTP nvram handler */
-#define EZCFG_SOAP_HTTP_NVRAM_GET_URI               "/ezcfg/nvram/getNvram"
-#define EZCFG_SOAP_HTTP_NVRAM_SET_URI               "/ezcfg/nvram/setNvram"
-#define EZCFG_SOAP_HTTP_NVRAM_UNSET_URI             "/ezcfg/nvram/unsetNvram"
-#define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/listNvram"
-#define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/commitNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_GET_URI               "/ezcfg/nvram/soap-http/getNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_SET_URI               "/ezcfg/nvram/soap-http/setNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_UNSET_URI             "/ezcfg/nvram/soap-http/unsetNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/soap-http/listNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/soap-http/commitNvram"
 
 /* ezcfg igrs request size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480

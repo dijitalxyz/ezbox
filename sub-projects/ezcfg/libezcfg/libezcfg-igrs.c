@@ -386,13 +386,14 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 	}
 	p += n;	len -= n;
 
-	n = ezcfg_http_write_message_body(http, p, len);
-	if (n < 0) {
-		err(ezcfg, "ezcfg_http_write_message_body\n");
-		return n;
+	if (ezcfg_http_get_message_body(http) != NULL) {
+		n = ezcfg_http_write_message_body(http, p, len);
+		if (n < 0) {
+			err(ezcfg, "ezcfg_http_write_message_body\n");
+			return n;
+		}
+		p += n; len -= n;
 	}
-	p += n; len -= n;
-	*p = '\0'; /* \0-terminated it */
 
 	return (p-buf);
 }
@@ -838,7 +839,7 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	}
 }
 
-bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
+bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -850,7 +851,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf)
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
 
-	if (ezcfg_http_parse_request(http, buf) == false) {
+	if (ezcfg_http_parse_request(http, buf, len) == false) {
 		return false;
 	}
 

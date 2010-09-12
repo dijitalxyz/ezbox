@@ -367,7 +367,7 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 	return strlen(buf);
 }
 
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name)
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char *name)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
@@ -375,11 +375,12 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const char *name)
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
+	ASSERT(pi < xml->num_elements);
 
 	ezcfg = xml->ezcfg;
-	for (i = 0; i < xml->num_elements; i++) {
+	for (i = pi; i < xml->num_elements; i++) {
 		elem = xml->root[i];
-		if (strcmp(elem->name, name) == 0)
+		if (strcmp(elem->name, name) == 0 && (elem->etag_index > 0))
 			return i;
 	}
 	return -1;
@@ -391,8 +392,24 @@ struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, 
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
+	ASSERT(i < xml->num_elements);
 
 	ezcfg = xml->ezcfg;
 
 	return xml->root[i];
+}
+
+char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, int i)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element *elem;
+
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
+	ASSERT(i < xml->num_elements);
+
+	ezcfg = xml->ezcfg;
+
+	elem = xml->root[i];
+	return elem->content;
 }
