@@ -362,8 +362,7 @@ bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
-	/* first check if buf is xml document */
-	if (strncmp(buf, "<?xml ", 6) != 0) {
+	if (ezcfg_xml_parse(xml, buf, len) == false) {
 		return false;
 	}
 

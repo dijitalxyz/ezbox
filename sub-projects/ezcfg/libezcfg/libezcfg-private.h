@@ -203,6 +203,8 @@ struct ezcfg_xml_element;
 struct ezcfg_xml;
 void ezcfg_xml_delete(struct ezcfg_xml *xml);
 struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg);
+int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len);
+bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len);
 int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len);
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem);
 struct ezcfg_xml_element *ezcfg_xml_element_new(

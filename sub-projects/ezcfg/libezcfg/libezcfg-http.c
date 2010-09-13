@@ -277,7 +277,7 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 
 	name = buf;
 	/* header end with CRLF */
-	end = strstr(name, "\r\n");
+	end = strstr(name, EZCFG_HTTP_CRLF_STRING);
 	if (end == NULL) {
 		err(ezcfg, "HTTP header parse error.\n");
 		return false;
@@ -301,7 +301,7 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 		}
 
 		name = end+2; /* skip CRLF */
-		end = strstr(name, "\r\n");
+		end = strstr(name, EZCFG_HTTP_CRLF_STRING);
 		if (end == NULL) {
 			err(ezcfg, "HTTP header parse error 3.\n");
 			return false;
@@ -420,7 +420,7 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
 	method = buf;
 
 	/* split HTTP Request-Line (RFC2616 section 5.1) */
-	p = strstr(buf, "\r\n");
+	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
 	if (p == NULL) {
 		err(ezcfg, "no HTTP request line\n");
 		return false;
@@ -765,11 +765,12 @@ int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 		return -1;
 	}
 
-	n = snprintf(buf, len, "%s %s HTTP/%d.%d\r\n",
+	n = snprintf(buf, len, "%s %s HTTP/%d.%d%s",
 	         http->method_strings[http->method_index],
 	         http->request_uri,
 	         http->version_major,
-	         http->version_minor);
+	         http->version_minor,
+	         EZCFG_HTTP_CRLF_STRING);
 	if (n < 0) {
 		return -1;
 	}
@@ -802,11 +803,12 @@ int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len)
 		return -1;
 	}
 
-	n = snprintf(buf, len, "HTTP/%d.%d %3d %s\r\n",
+	n = snprintf(buf, len, "HTTP/%d.%d %3d %s%s",
 	         http->version_major,
 	         http->version_minor,
 	         status_code,
-	         reason_phrase);
+	         reason_phrase,
+	         EZCFG_HTTP_CRLF_STRING);
 	if (n < 0) {
 		return -1;
 	}
@@ -824,7 +826,7 @@ int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
 
 	ezcfg = http->ezcfg;
 
-	n = snprintf(buf, len, "\r\n");
+	n = snprintf(buf, len, EZCFG_HTTP_CRLF_STRING);
 	if (n < 2) {
 		return -1;
 	}
@@ -851,9 +853,10 @@ int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len)
 	h = http->header_head;
 	count = 0;
 	while (h != NULL) {
-		n = snprintf(buf+count, len-count, "%s:%s\r\n",
+		n = snprintf(buf+count, len-count, "%s:%s%s",
 		         h->name,
-		         h->value ? h->value : "");
+		         h->value ? h->value : "",
+		         EZCFG_HTTP_CRLF_STRING);
 		if (n < 0) {
 			return -1;
 		}

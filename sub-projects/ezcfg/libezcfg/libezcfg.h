@@ -103,6 +103,9 @@ extern "C" {
 #define EZCFG_HTTP_MODE_REQUEST        0
 #define EZCFG_HTTP_MODE_RESPONSE       1
 
+/* ezcfg http define strings */
+#define EZCFG_HTTP_CRLF_STRING         "\r\n"
+
 /* HTTP/1.1 (RFC2616) defined methods */
 #define EZCFG_HTTP_METHOD_OPTIONS  "OPTIONS"
 #define EZCFG_HTTP_METHOD_GET      "GET"

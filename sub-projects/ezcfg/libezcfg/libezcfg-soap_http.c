@@ -421,7 +421,7 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, const char *nam
 		/* nvram value part */
 		child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, value);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
@@ -470,7 +470,7 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, const char *nam
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
@@ -526,7 +526,7 @@ static void build_nvram_set_response(struct ezcfg_soap_http *sh, const char *nam
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, unsetnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
@@ -575,7 +575,7 @@ static void build_nvram_set_response(struct ezcfg_soap_http *sh, const char *nam
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
@@ -632,7 +632,7 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, const char *n
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, unsetnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
@@ -681,7 +681,7 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, const char *n
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 		n = strlen(buf);
 		n += ezcfg_soap_write(soap, buf + n, sizeof(buf) - n);
 
