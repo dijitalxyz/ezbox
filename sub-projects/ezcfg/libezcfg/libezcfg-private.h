@@ -212,16 +212,17 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
         const char *name, const char *content);
 int ezcfg_xml_add_element(
         struct ezcfg_xml *xml,
-        struct ezcfg_xml_element *parent,
-        struct ezcfg_xml_element *sibling,
+        const int pi,
+        const int si,
         struct ezcfg_xml_element *elem);
 int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char *name);
 bool ezcfg_xml_element_add_attribute(
         struct ezcfg_xml *xml,
         struct ezcfg_xml_element *elem,
         const char *name, const char *value, int pos);
-struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, int index);
-char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, int index);
+struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, const int index);
+bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int index, const char *content);
+char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int index);
 
 /* libezcfg-soap.c */
 struct ezcfg_soap;

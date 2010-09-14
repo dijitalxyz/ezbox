@@ -166,7 +166,7 @@ int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name)
 		return -1;
 	}
 
-	soap->envelope_index = ezcfg_xml_add_element(xml, NULL, NULL, elem);
+	soap->envelope_index = ezcfg_xml_add_element(xml, -1, -1, elem);
 	return soap->envelope_index;
 }
 
@@ -227,7 +227,7 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 		return -1;
 	}
 
-	soap->body_index = ezcfg_xml_add_element(xml, envelope, NULL, elem);
+	soap->body_index = ezcfg_xml_add_element(xml, soap->envelope_index, -1, elem);
 	return soap->body_index;
 }
 
@@ -282,7 +282,7 @@ int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int s
 		}
 	}
 
-	return ezcfg_xml_add_element(xml, parent, sibling, elem);
+	return ezcfg_xml_add_element(xml, pi, si, elem);
 }
 
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos) {
