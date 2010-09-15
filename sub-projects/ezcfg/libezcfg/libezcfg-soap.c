@@ -82,36 +82,24 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* initialize soap info builder data structure */
-	dbg(ezcfg, "\n");
 	soap = calloc(1, sizeof(struct ezcfg_soap));
-	dbg(ezcfg, "\n");
 	if (soap == NULL) {
-	dbg(ezcfg, "\n");
 		err(ezcfg, "initialize soap builder error.\n");
 		return NULL;
 	}
 
-	dbg(ezcfg, "\n");
 	memset(soap, 0, sizeof(struct ezcfg_soap));
 
-	dbg(ezcfg, "\n");
 	soap->xml = ezcfg_xml_new(ezcfg);
-	dbg(ezcfg, "\n");
 	if (soap->xml == NULL) {
-	dbg(ezcfg, "\n");
 		ezcfg_soap_delete(soap);
 		return NULL;
 	}
 
-	dbg(ezcfg, "\n");
 	soap->envelope_index = -1;
-	dbg(ezcfg, "\n");
 	soap->header_index = -1;
-	dbg(ezcfg, "\n");
 	soap->body_index = -1;
-	dbg(ezcfg, "\n");
 	soap->ezcfg = ezcfg;
-	dbg(ezcfg, "\n");
 
 	return soap;
 }
@@ -412,17 +400,13 @@ bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
 
 	soap->envelope_index = 0;
 
-	dbg(ezcfg, "\n");
 	if (ezcfg_xml_get_element_index(xml, 0, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
-	dbg(ezcfg, "\n");
 		return false;
 	}
 
 	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, EZCFG_SOAP_BODY_ELEMENT_NAME);
 
-	dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
 	if (soap->body_index < 1) {
-	dbg(ezcfg, "\n");
 		return false;
 	}
 

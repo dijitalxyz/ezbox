@@ -359,9 +359,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 	if (is_soap_http_nvram_request(request_uri) == true) {
 		ezcfg_master_lock_nvram(worker->master);
-		dbg(ezcfg, "\n");
 		ezcfg_soap_http_handle_nvram_request(sh, nvram);
-		dbg(ezcfg, "\n");
 		ezcfg_master_unlock_nvram(worker->master);
 
 		/* build SOAP/HTTP binding response */
@@ -556,9 +554,7 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird HTTP version");
 		} else {
 			worker->birth_time = time(NULL);
-			dbg(ezcfg, "\n");
 			handle_soap_http_request(worker);
-			dbg(ezcfg, "\n");
 			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
@@ -638,25 +634,20 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 
 	/* set communication protocol */
-	dbg(ezcfg, "\n");
 	worker->proto = ezcfg_socket_get_proto(worker->client);
 
 	/* initialize protocol data structure */
 	switch(worker->proto) {
 	case EZCFG_PROTO_HTTP :
-	dbg(ezcfg, "\n");
 		worker->proto_data = ezcfg_http_new(ezcfg);
 		break;
 	case EZCFG_PROTO_SOAP_HTTP :
-	dbg(ezcfg, "\n");
 		worker->proto_data = ezcfg_soap_http_new(ezcfg);
 		break;
 	case EZCFG_PROTO_IGRS :
-	dbg(ezcfg, "\n");
 		worker->proto_data = ezcfg_igrs_new(ezcfg);
 		break;
 	case EZCFG_PROTO_ISDP :
-	dbg(ezcfg, "\n");
 		//worker->proto_data = ezcfg_isdp_new(ezcfg);
 		break;
 	default :
@@ -790,28 +781,21 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
 
 		/* record start working time */
-		dbg(ezcfg, "\n");
 		worker->birth_time = time(NULL);
 
 		/* initialize protocol data */
-		dbg(ezcfg, "\n");
 		init_protocol_data(worker);
 
 		/* process the connection */
-		dbg(ezcfg, "\n");
 		if (worker->proto_data != NULL) {
-		dbg(ezcfg, "\n");
 			process_new_connection(worker);
 		}
 
 		/* close connection */
-		dbg(ezcfg, "\n");
 		close_connection(worker);
 
 		/* release protocol data */
-		dbg(ezcfg, "\n");
 		if (worker->proto_data != NULL) {
-		dbg(ezcfg, "\n");
 			release_protocol_data(worker);
 		}
 	}

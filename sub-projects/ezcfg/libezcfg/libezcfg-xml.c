@@ -1204,39 +1204,28 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* initialize xml parser data structure */
-	dbg(ezcfg, "\n");
 	xml = calloc(1, sizeof(struct ezcfg_xml));
-	dbg(ezcfg, "\n");
 	if (xml == NULL) {
 		err(ezcfg, "initialize xml parser error.\n");
 		return NULL;
 	}
 
-	dbg(ezcfg, "\n");
 	memset(xml, 0, sizeof(struct ezcfg_xml));
 
-	dbg(ezcfg, "\n");
 	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
-	dbg(ezcfg, "xml->max_elements=[%d]\n", xml->max_elements);
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
-	dbg(ezcfg, "\n");
 	if (xml->root == NULL) {
 		err(ezcfg, "initialize xml element stack error.\n");
 		free(xml);
 		return NULL;
 	}
 
-	dbg(ezcfg, "\n");
 	memset(xml->root, 0, sizeof(struct ezcfg_xml_element *) * xml->max_elements);
 
-	dbg(ezcfg, "\n");
 	xml->ezcfg = ezcfg;
-	dbg(ezcfg, "\n");
 	xml->num_encoding_names = ARRAY_SIZE(default_character_encoding_names) - 1; /* first item is NULL */
-	dbg(ezcfg, "\n");
 	xml->encoding_names = default_character_encoding_names;
 
-	dbg(ezcfg, "\n");
 	return xml;
 }
 
@@ -1262,18 +1251,22 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
 	struct elem_attribute *a;
 	ASSERT(elem != NULL);
-	if (elem->name)
+	if (elem->name) {
 		free(elem->name);
+	}
 	while (elem->attr_head != NULL) {
 		a = elem->attr_head;
 		elem->attr_head = a->next;
-		if (a->name != NULL)
+		if (a->name != NULL) {
 			free(a->name);
-		if (a->value != NULL)
+		}
+		if (a->value != NULL) {
 			free(a->value);
+		}
 	}
-	if (elem->content)
+	if (elem->content) {
 		free(elem->content);
+	}
 	free(elem);
 }
 
