@@ -779,8 +779,13 @@ void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezc
 		value = ezcfg_soap_get_element_content_by_index(soap, child_index);
 
 		if (name != NULL && value != NULL) {
-			ezcfg_nvram_set_node_value(nvram, name, value);
-			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
+			dbg(ezcfg, "name=[%s], value=[%s]\n", name, value);
+			if (ezcfg_nvram_set_node_value(nvram, name, value) == true) {
+				result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
+			}
+			else {
+				result = EZCFG_SOAP_NVRAM_RESULT_VALUE_FAIL;
+			}
 		}
 
 		build_nvram_set_response(sh, name, result);

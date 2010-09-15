@@ -297,7 +297,7 @@ int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
 bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
 	struct ezcfg *ezcfg;
-	struct nvram_pool *pl_used, *pl_free;
+	struct nvram_pool *pl_used, *pl_free, *pl_used_new, *pl_free_new;
 	struct nvram_node *pre_node=NULL, *cur_node=NULL, *new_node=NULL;
 	int i, j;
 	int name_len, value_len;
@@ -319,6 +319,7 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 	/* find nvram node */
 	for (i = 0; i < nvram->num_block_size; i++) {
 		pl_used = &nvram->used_nodes[i];
+		pl_free = &nvram->free_nodes[i];
 		pre_node=NULL;
 		cur_node = pl_used->head;
 		while (cur_node != NULL && strcmp(cur_node->name, name) != 0) {
@@ -332,12 +333,17 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 				err(ezcfg, "no enough space for nvram set\n");
 				return false;
 			}
+
+			/* first clean original info */
+			nvram->used_space -= cur_node->len;
+			nvram->free_space += cur_node->len;
+
 			/* block has enough space for nvram node */
 			if (name_len + value_len + 2 <= (int)nvram->block_sizes[i]) {
 				sprintf(cur_node->value, "%s", value);
-				nvram->used_space += (name_len + value_len + 2 - cur_node->len);
-				nvram->free_space -= (name_len + value_len + 2 - cur_node->len);
 				cur_node->len = (name_len + value_len + 2);
+				nvram->used_space += cur_node->len;
+				nvram->free_space -= cur_node->len;
 				return true;
 			}
 			/* block has not enough space for nvram node */
@@ -346,11 +352,11 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 			while (name_len + value_len + 2 > (int)nvram->block_sizes[j]) {
 				j++;
 			}
-			pl_free = &nvram->free_nodes[j];
-			pl_used = &nvram->used_nodes[j];
+			pl_free_new = &nvram->free_nodes[j];
+			pl_used_new = &nvram->used_nodes[j];
 
 			/* free pool has node */
-			if (pl_free->count > 0) {
+			if (pl_free_new->count > 0) {
 				/* put original nvram node to free pool */
 				if (pre_node == NULL) {
 					pl_used->head = cur_node->next;
@@ -358,25 +364,25 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 				else {
 					pre_node->next = cur_node->next;
 				}
-				cur_node->next = nvram->free_nodes[i].head;
-				nvram->free_nodes[i].head = cur_node;
-				nvram->free_nodes[i].count++;
+				cur_node->next = pl_free->head;
+				pl_free->head = cur_node;
+				pl_free->count++;
 				nvram->used_space -= cur_node->len;
 				nvram->free_space += cur_node->len;
 
 				/* set new nvram node */
-				cur_node = pl_free->head;
-				pl_free->head = cur_node->next;
-				pl_free->count--;
+				cur_node = pl_free_new->head;
+				pl_free_new->head = cur_node->next;
+				pl_free_new->count--;
 				sprintf(cur_node->name, "%s", name);
 				cur_node->value = cur_node->name + name_len + 1;
 				sprintf(cur_node->value, "%s", value);
 				cur_node->len = (name_len + value_len + 2);
 
 				/* put nvram node to used pool */
-				cur_node->next = pl_used->head;
-				pl_used->head = cur_node;
-				pl_used->count++;
+				cur_node->next = pl_used_new->head;
+				pl_used_new->head = cur_node;
+				pl_used_new->count++;
 				nvram->used_space += cur_node->len;
 				nvram->free_space -= cur_node->len;
 				return true;
@@ -400,11 +406,25 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 				sprintf(new_node->value, "%s", value);
 				new_node->len = name_len + value_len + 2;
 
-				/* put it to used pool */
-				new_node->next = pl_used->head;
-				pl_used->head = new_node;
-				pl_used->count++;
+				/* put original nvram node to free pool */
+				if (pre_node == NULL) {
+					pl_used->head = cur_node->next;
+				}
+				else {
+					pre_node->next = cur_node->next;
+				}
+				cur_node->next = pl_free->head;
+				pl_free->head = cur_node;
+				pl_free->count++;
+				nvram->used_space -= cur_node->len;
+				nvram->free_space += cur_node->len;
+
+				/* put new node to used pool */
+				new_node->next = pl_used_new->head;
+				pl_used_new->head = new_node;
+				pl_used_new->count++;
 				nvram->used_space += new_node->len;
+				nvram->free_space -= new_node->len;
 				return true;
 			}
 		}
@@ -416,7 +436,8 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 	while (name_len + value_len + 2 > (int)nvram->block_sizes[j]) {
 		j++;
 	}
-	pl_used = &nvram->used_nodes[j];
+	pl_free_new = &nvram->free_nodes[j];
+	pl_used_new = &nvram->used_nodes[j];
 
 	new_node = calloc(1, sizeof(struct nvram_node));
 	if (new_node == NULL) {
@@ -436,10 +457,11 @@ bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, con
 	new_node->len = name_len + value_len + 2;
 
 	/* put it to used pool */
-	new_node->next = pl_used->head;
-	pl_used->head = new_node;
-	pl_used->count++;
+	new_node->next = pl_used_new->head;
+	pl_used_new->head = new_node;
+	pl_used_new->count++;
 	nvram->used_space += new_node->len;
+	nvram->free_space -= new_node->len;
 	return true;
 }
 
