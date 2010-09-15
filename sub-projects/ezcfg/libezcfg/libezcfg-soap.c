@@ -62,6 +62,11 @@ void ezcfg_soap_delete(struct ezcfg_soap *soap)
 	if (soap->xml != NULL)
 		ezcfg_xml_delete(soap->xml);
 
+	/* 
+	 * soap->env_ns point to xml->root[]
+	 * soap->env_enc point to xml->root[]
+	 */
+
 	free(soap);
 }
 
@@ -77,25 +82,62 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* initialize soap info builder data structure */
+	dbg(ezcfg, "\n");
 	soap = calloc(1, sizeof(struct ezcfg_soap));
+	dbg(ezcfg, "\n");
 	if (soap == NULL) {
+	dbg(ezcfg, "\n");
 		err(ezcfg, "initialize soap builder error.\n");
 		return NULL;
 	}
 
+	dbg(ezcfg, "\n");
 	memset(soap, 0, sizeof(struct ezcfg_soap));
 
+	dbg(ezcfg, "\n");
 	soap->xml = ezcfg_xml_new(ezcfg);
+	dbg(ezcfg, "\n");
 	if (soap->xml == NULL) {
+	dbg(ezcfg, "\n");
 		ezcfg_soap_delete(soap);
 		return NULL;
 	}
 
+	dbg(ezcfg, "\n");
 	soap->envelope_index = -1;
+	dbg(ezcfg, "\n");
+	soap->header_index = -1;
+	dbg(ezcfg, "\n");
 	soap->body_index = -1;
+	dbg(ezcfg, "\n");
 	soap->ezcfg = ezcfg;
+	dbg(ezcfg, "\n");
 
 	return soap;
+}
+
+void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	ezcfg_xml_reset_attributes(xml);
+
+	soap->version_major = 0;
+	soap->version_minor = 0;
+
+	soap->env_ns = NULL;
+	soap->env_enc = NULL;
+
+	soap->envelope_index = -1;
+	soap->header_index = -1;
+	soap->body_index = -1;
 }
 
 unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap)
@@ -320,15 +362,17 @@ int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const ch
 	ASSERT(soap != NULL);
 	ASSERT(soap->xml != NULL);
 	ASSERT(name != NULL);
-	ASSERT(pi > 0);
+	ASSERT(pi >= 0);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
+#if 0
 	if (soap->body_index < 0) {
 		err(ezcfg, "no body for soap child\n");
 		return -1;
 	}
+#endif
 
 	return ezcfg_xml_get_element_index(xml, pi, name);
 }
@@ -363,6 +407,22 @@ bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
 	xml = soap->xml;
 
 	if (ezcfg_xml_parse(xml, buf, len) == false) {
+		return false;
+	}
+
+	soap->envelope_index = 0;
+
+	dbg(ezcfg, "\n");
+	if (ezcfg_xml_get_element_index(xml, 0, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
+	dbg(ezcfg, "\n");
+		return false;
+	}
+
+	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+	dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
+	if (soap->body_index < 1) {
+	dbg(ezcfg, "\n");
 		return false;
 	}
 

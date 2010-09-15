@@ -57,6 +57,14 @@ struct ezcfg_xml {
 	struct ezcfg_xml_element **root; /* stack for representing xml doc tree */
 };
 
+/* private function previous declaration */
+static int parse_xml_document_element(
+	struct ezcfg_xml *xml,
+	char **pbuf,
+	int *plen,
+	const int pi,
+	const int si);
+
 const char *default_character_encoding_names[] = {
 	/* bad encoding string */
 	NULL,
@@ -104,18 +112,14 @@ static bool is_white_space(char c) {
 	if (c == 0x20 || c == 0x09 || c == 0x0d || c == 0x0a) {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 static bool is_equal_sign(char c) {
 	if (c == '=') {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 /* Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF] */
@@ -123,9 +127,7 @@ static bool is_char(char c) {
 	if (c == 0x09 || c == 0x0d || c == 0x0a || c > 0x1f) {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 
@@ -137,9 +139,7 @@ static bool is_name_start_char(char c) {
 	    c == '_') {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 /* NameChar ::= NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040] */
@@ -150,14 +150,12 @@ static bool is_name_char(char c) {
 	    isdigit(c) != 0) {
 		return true;
 	}
-	else {
-		return false;
-	}
+	return false;
 }
 
 static bool is_xml_element_start_tag(char *buf) {
 	if (buf[0] == '<' && is_name_start_char(buf[1]) == true) {
-		char *p = strchr(buf, '>'); /* find the start tag end part ">" */
+		char *p = strstr(buf, ">"); /* find the start tag end part ">" */
 		if (p == NULL) {
 			return false;
 		}
@@ -168,7 +166,7 @@ static bool is_xml_element_start_tag(char *buf) {
 
 static bool is_xml_element_end_tag(char *buf) {
 	if (strncmp(buf, "</", 2) == 0 && is_name_start_char(buf[2]) == true) {
-		char *p = strchr(buf, '>'); /* find the end tag end part ">" */
+		char *p = strstr(buf, ">"); /* find the end tag end part ">" */
 		if (p == NULL) {
 			return false;
 		}
@@ -179,8 +177,11 @@ static bool is_xml_element_end_tag(char *buf) {
 
 static bool is_xml_element_empty_element_tag(char *buf) {
 	if (is_xml_element_start_tag(buf) == true) {
-		char *p = strchr(buf, '>');
-		if (p != NULL && *(p-1) == '/') {
+		char *p = strstr(buf, ">"); /* find the empty element tag end part "/>" */
+		if (p == NULL) {
+			return false;
+		}
+		if (*(p-1) == '/') {
 			return true;
 		}
 	}
@@ -188,27 +189,53 @@ static bool is_xml_element_empty_element_tag(char *buf) {
 }
 
 static bool is_xml_entity_reference(char *buf) {
+	char *p;
 	if (buf[0] == '&' && is_name_start_char(buf[1]) == true) {
-		return true;
+		p = buf+2;
+		while (is_name_char(*p) == true) p++;
+		if (*p == ';') {
+			return true;
+		}
 	}
 	return false;
 }
 
+/* CharRef ::= '&#' [0-9]+ ';' | '&#x' [0-9a-fA-F]+ ';' */
+
 static bool is_xml_character_reference(char *buf) {
-	if (strncmp(buf, "&#", 2) == 0 && isdigit(buf[2]) != 0) {
-		return true;
-	}
-	else if (strncmp(buf, "&#x", 3) == 0 && isxdigit(buf[3]) != 0) {
-		return true;
+	char *p;
+	if (strncmp(buf, "&#", 2) == 0) {
+		p = buf+2;
+		if (isdigit(*p) != 0) {
+			while (isdigit(*p) != 0) p++;
+			if (*p == ';') {
+				return true;
+			}
+		}
+		else if(*p == 'x') {
+			p++;
+			if (isxdigit(*p) != 0) {
+				while (isxdigit(*p) != 0) p++;
+				if (*p == ';') {
+					return true;
+				}
+			}
+		}
 	}
 	return false;
 }
 
 static bool is_xml_cdata_section(char *buf) {
-	if (strncmp(buf, "<![CDATA[", 9) == 0 && is_char(buf[9])) {
-		char *p = strchr(buf, '>'); /* find the cdata section tag end part ">" */
+	if (strncmp(buf, "<![CDATA[", 9) == 0 && is_char(buf[9]) == true) {
+		char *p = strstr(buf+10, "]]>"); /* find the cdata section tag end part "]]>" */
 		if (p == NULL) {
 			return false;
+		}
+		while (p > buf+9) {
+			if (is_char(*p) == false) {
+				return false;
+			}
+			p--;
 		}
 		return true;
 	}
@@ -217,7 +244,7 @@ static bool is_xml_cdata_section(char *buf) {
 
 static bool is_xml_declaration(char *buf) {
 	if (strncmp(buf, "<?xml", 5) == 0 && is_white_space(buf[5])) {
-		char *p = strchr(buf, '>'); /* find the XML declaration tag end part ">" */
+		char *p = strstr(buf, "?>"); /* find the XML declaration tag end part "?>" */
 		if (p == NULL) {
 			return false;
 		}
@@ -228,7 +255,7 @@ static bool is_xml_declaration(char *buf) {
 
 static bool is_xml_document_type_declaration(char *buf) {
 	if (strncmp(buf, "<!DOCTYPE", 9) == 0 && is_white_space(buf[9])) {
-		char *p = strchr(buf, '>'); /* find the XML document type declaration tag end part ">" */
+		char *p = strstr(buf, ">"); /* find the XML document type declaration tag end part ">" */
 		if (p == NULL) {
 			return false;
 		}
@@ -239,7 +266,7 @@ static bool is_xml_document_type_declaration(char *buf) {
 
 static bool is_xml_text_declaration(char *buf) {
 	if (strncmp(buf, "<?xml", 5) == 0 && is_white_space(buf[5])) {
-		char *p = strchr(buf, '>'); /* find the XML text declaration tag end part ">" */
+		char *p = strstr(buf, "?>"); /* find the XML text declaration tag end part "?>" */
 		if (p == NULL) {
 			return false;
 		}
@@ -254,6 +281,10 @@ static bool is_xml_comment(char *buf) {
 		if (p == NULL) {
 			return false;
 		}
+		if (*(p-1) == '-') {
+			/* not allow "--->" as a XML comment tag end part */
+			return false;
+		}
 		return true;
 	}
 	return false;
@@ -265,7 +296,7 @@ static bool is_xml_processing_instruction(char *buf) {
 		if(strncasecmp(p, "xml", 3) == 0 && (is_white_space(p[3]) || p[3] == '?')) {
 			return false;
 		}
-		p = strchr(buf, '>'); /* find the processing instruction tag end part ">" */
+		p = strstr(buf, "?>"); /* find the processing instruction tag end part "?>" */
 		if (p == NULL) {
 			return false;
 		}
@@ -282,6 +313,45 @@ static bool is_xml_misc(char *buf) {
 		return true;
 	}
 	else if (is_white_space(*buf) == true) {
+		return true;
+	}
+	return false;
+}
+
+static bool is_xml_element(char *buf) {
+	if (is_xml_element_start_tag(buf) == true) {
+		return true;
+	}
+	else if (is_xml_element_empty_element_tag(buf) == true) {
+		return true;
+	}
+	return false;
+}
+
+static bool is_xml_reference(char *buf) {
+	if (is_xml_entity_reference(buf) == true) {
+		return true;
+	}
+	else if (is_xml_character_reference(buf) == true) {
+		return true;
+	}
+	return false;
+}
+
+static bool is_xml_content_markup(char *buf) {
+	if (is_xml_element(buf) == true) {
+		return true;
+	}
+	else if (is_xml_reference(buf) == true) {
+		return true;
+	}
+	else if (is_xml_cdata_section(buf) == true) {
+		return true;
+	}
+	else if (is_xml_processing_instruction(buf) == true) {
+		return true;
+	}
+	else if (is_xml_comment(buf) == true) {
 		return true;
 	}
 	return false;
@@ -325,6 +395,13 @@ static bool is_xml_markup(char *buf) {
 	return false;
 }
 
+static char *skip_white_space(char *buf)
+{
+	char *p = buf;
+	while (is_white_space(*p) == true) p++;
+	return p;
+}
+
 static unsigned short find_encoding_name_index(struct ezcfg_xml *xml, const char *enc_name)
 {
 	struct ezcfg *ezcfg;
@@ -363,6 +440,9 @@ static bool parse_xml_comment(struct ezcfg_xml *xml, char **pbuf, int *plen)
 	}
 	p += 3; /* skip "-->" */
 
+	/* skip white space */
+	p = skip_white_space(p);
+
 	*pbuf = p;
 	*plen = len - (buf - p);
 
@@ -393,6 +473,9 @@ static bool parse_xml_processing_instruction(struct ezcfg_xml *xml, char **pbuf,
 	}
 	p += 2; /* skip "?>" */
 
+	/* skip white space */
+	p = skip_white_space(p);
+
 	*pbuf = p;
 	*plen = len - (buf - p);
 
@@ -402,9 +485,13 @@ static bool parse_xml_processing_instruction(struct ezcfg_xml *xml, char **pbuf,
 static bool parse_xml_document_misc(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
 	struct ezcfg *ezcfg;
-	char *p;
+	char *p, *buf;
+	int len;
 
 	ezcfg = xml->ezcfg;
+
+	buf = *pbuf;
+	len = *plen;
 
 	p = *pbuf;
 
@@ -420,10 +507,10 @@ static bool parse_xml_document_misc(struct ezcfg_xml *xml, char **pbuf, int *ple
 		}
 	}
 	else if (is_white_space(*p) == true) {
-		*pbuf += 1;
-		*plen -= 1;
+		p = skip_white_space(p);
+		*pbuf = p;
+		*plen = len - (p - buf);
 	}
-
 	return true;
 }
 
@@ -440,15 +527,15 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 
 	/* XMLDecl */
 	p = buf+5; /* skip "<?xml" */
-	while (is_white_space(*p) == true) p++;
+	p = skip_white_space(p);
 	if (strncmp(p, "version", 7) == 0) {
 		/* get version info */
 		p += 7; /* skip "version" */
 		/* XML 1.0 fifth edition. Eq ::= S? '=' S? */
-		while (is_white_space(*p) == true) p++;
+		p = skip_white_space(p);
 		if (is_equal_sign(*p) == true) {
 			p++;
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 			/* VersionNum part, force to 1.0 if incorrect */
 			if (p[0] == '1' && p[1] == '.') {
 				xml->version_major = 1;
@@ -459,17 +546,17 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 					xml->version_minor += (*p - '0');
 				}
 			}
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 		}
 	}
 	if (strncmp(p, "encoding", 8) == 0) {
 		/* get encoding info */
 		p += 8; /* skip "encoding" */
 		/* XML 1.0 fifth edition. Eq ::= S? '=' S? */
-		while (is_white_space(*p) == true) p++;
+		p = skip_white_space(p);
 		if (is_equal_sign(*p) == true) {
 			p++;
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 			/* EncName part, force to UTF-8 if incorrect */
 			if (p[0] == '\"' || p[0] == '\'') {
 				char str_tag;
@@ -485,17 +572,17 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 					*p = str_tag;
 				}
 			}
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 		}
 	}
 	if (strncmp(p, "standalone", 10) == 0) {
 		/* get standalone info */
 		p += 10; /* skip "standalone" */
 		/* XML 1.0 fifth edition. Eq ::= S? '=' S? */
-		while (is_white_space(*p) == true) p++;
+		p = skip_white_space(p);
 		if (is_equal_sign(*p) == true) {
 			p++;
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 			/* EncName part, force to UTF-8 if incorrect */
 			if (p[0] == '\"' || p[0] == '\'') {
 				char str_tag;
@@ -513,7 +600,7 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 					*p = str_tag;
 				}
 			}
-			while (is_white_space(*p) == true) p++;
+			p = skip_white_space(p);
 		}
 	}
 
@@ -523,6 +610,9 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 		return false;
 	}
 	p += 2; /* skip "?>" */
+
+	/* skip white space */
+	p = skip_white_space(p);
 
 	*pbuf = p;
 	*plen = len - (buf - p);
@@ -551,6 +641,9 @@ static bool parse_xml_prolog_doctypedecl(struct ezcfg_xml *xml, char **pbuf, int
 		return false;
 	}
 	p += 1; /* skip ">" */
+
+	/* skip white space */
+	p = skip_white_space(p);
 
 	*pbuf = p;
 	*plen = len - (buf - p);
@@ -635,7 +728,9 @@ static int parse_element_empty_elem_tag(
 	/* Name part */
 	name = *pbuf+1; /* skip '<' */
 	start_tag_end = strstr(name, "/>");
-	*start_tag_end = '\0';
+	if (start_tag_end == NULL) {
+		return -1;
+	}
 
 	p = name+1;
 	while(is_name_char(*p) == true && p < start_tag_end) p++;
@@ -651,7 +746,7 @@ static int parse_element_empty_elem_tag(
 
 	while(p < start_tag_end) {
 		/* skip S */
-		while(is_white_space(*p) == true) p++;
+		p = skip_white_space(p);
 
 		/* Attribute part */
 		/* Attribute ::= Name Eq AttValue */
@@ -665,13 +760,11 @@ static int parse_element_empty_elem_tag(
 			if (is_equal_sign(*p)) { *p = '\0'; p++; }
 			else { return -1; }
 
-			if (is_white_space(*p) == true) { *p = '\0'; p++; }
-
-			value = p;
-
-			if (*value == '\"') {
-				value++;
-				p = strchr(value, '\"');
+			p = skip_white_space(p);
+			if (*p == '\"' || *p == '\'') {
+				c = *p;
+				value = p+1; /* skip \" or \' */
+				p = strchr(value, c); /* find end tag for string */
 				if (p == NULL) {
 					return -1;
 				}
@@ -685,6 +778,10 @@ static int parse_element_empty_elem_tag(
 		}
 	}
 	p += 2; /* skip "/>" */
+
+	/* skip white space */
+	p = skip_white_space(p);
+
 	*pbuf = p;
 	*plen = len - (p - buf);
 
@@ -721,24 +818,27 @@ static int parse_element_stag(
 
 	/* Name part */
 	name = *pbuf+1; /* skip '<' */
-	start_tag_end = strchr(name, '>');
-	*start_tag_end = '\0';
+	start_tag_end = strstr(name, ">");
+	if (start_tag_end == NULL) {
+		return -1;
+	}
 
 	p = name+1;
 	while(is_name_char(*p) == true && p < start_tag_end) p++;
+
 	c = *p;
 	*p = '\0';
 	elem = ezcfg_xml_element_new(xml, name, NULL);
+	*p = c;
+
 	if (elem == NULL) {
 		err(ezcfg, "Cannot initialize xml root element\n");
 		return -1;
 	}
 
-	*p = c;
-
 	while(p < start_tag_end) {
 		/* skip S */
-		while(is_white_space(*p) == true) p++;
+		p = skip_white_space(p);
 
 		/* Attribute part */
 		/* Attribute ::= Name Eq AttValue */
@@ -752,13 +852,11 @@ static int parse_element_stag(
 			if (is_equal_sign(*p)) { *p = '\0'; p++; }
 			else { return -1; }
 
-			if (is_white_space(*p) == true) { *p = '\0'; p++; }
-
-			value = p;
-
-			if (*value == '\"') {
-				value++;
-				p = strchr(value, '\"');
+			p = skip_white_space(p);
+			if (*p == '\"' || *p == '\'') {
+				c = *p;
+				value = p+1; /* skip \" or \' */
+				p = strchr(value, c); /* find end tag for string */
 				if (p == NULL) {
 					return -1;
 				}
@@ -772,10 +870,114 @@ static int parse_element_stag(
 		}
 	}
 	p++; /* skip '>' */
+
+	/* skip white space */
+	p = skip_white_space(p);
+
 	*pbuf = p;
 	*plen = len - (p - buf);
 
 	return ezcfg_xml_add_element(xml, pi, si, elem);
+}
+
+static bool parse_xml_char_data(
+	struct ezcfg_xml *xml,
+	char **pbuf,
+	int *plen,
+	const int pi) {
+
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element *elem;
+	char *p, *buf, *content;
+	char c;
+	int len;
+
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	elem = xml->root[pi];
+
+	if (elem == NULL) {
+		return false;
+	}
+
+	buf = *pbuf;
+	len = *plen;
+
+	p = buf;
+	while (is_xml_markup(p) == false) p++;
+	c = *p;
+	*p = '\0';
+
+	content = strdup(*pbuf);
+	*p = c;
+
+	if (content == NULL) {
+		return false;
+	}
+
+	if (elem->content != NULL) {
+		free(elem->content);
+	}
+	elem->content = content;
+
+	/* skip white space */
+	p = skip_white_space(p);
+
+	*pbuf = p;
+	*plen = len - (p - buf);
+
+	return true;
+}
+
+static bool parse_xml_reference(struct ezcfg_xml *xml, char **pbuf, int *plen)
+{
+	char *p, *buf;
+	int len;
+
+	buf = *pbuf;
+	len = *plen;
+
+	/* just skip it */
+	p = strchr(buf, ';');
+	if (p == NULL) {
+		return false;
+	}
+	p++; /* skip ';' */
+
+	/* skip white space */
+	p = skip_white_space(p);
+
+	*pbuf = p;
+	*plen = len - (p - buf);
+
+	return true;
+}
+
+static bool parse_xml_cdata_section(struct ezcfg_xml *xml, char **pbuf, int *plen)
+{
+	char *p, *buf;
+	int len;
+
+	buf = *pbuf;
+	len = *plen;
+
+	/* just skip it */
+	p = strstr(buf, "]]>");
+	if (p == NULL) {
+		return false;
+	}
+	p += 3; /* skip "]]>" */
+
+	/* skip white space */
+	p = skip_white_space(p);
+
+	*pbuf = p;
+	*plen = len - (p - buf);
+
+	return true;
 }
 
 static int parse_element_content(
@@ -786,12 +988,12 @@ static int parse_element_content(
 	const int si) {
 
 	struct ezcfg *ezcfg;
+	int ci; /* current element index */
 
 	ASSERT(xml != NULL);
 
 	ezcfg = xml->ezcfg;
-
-#if 0
+	ci = si;
 
 	/* content ::= CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* */
 	if (is_xml_markup(*pbuf) == false) {
@@ -800,14 +1002,10 @@ static int parse_element_content(
 		}
 	}
 
-	while(is_xml_element(*pbuf) == true ||
-	      is_xml_reference(*pbuf) == true ||
-	      is_xml_cdata_section(*pbuf) == true ||
-	      is_xml_processing_instruction(*pbuf) == true ||
-	      is_xml_comment(*pbuf) == true) {
-
+	while(is_xml_content_markup(*pbuf) == true) {
 		if (is_xml_element(*pbuf) == true) {
-			if (parse_xml_element(xml, pbuf, plen, pi, si) == -1) {
+			ci = parse_xml_document_element(xml, pbuf, plen, pi, ci);
+			if (ci == -1) {
 				return -1;
 			}
 		}
@@ -822,7 +1020,7 @@ static int parse_element_content(
 			}
 		}
 		else if (is_xml_processing_instruction(*pbuf) == true) {
-			if (parse_xml_process_instruction(xml, pbuf, plen) == false) {
+			if (parse_xml_processing_instruction(xml, pbuf, plen) == false) {
 				return -1;
 			}
 		}
@@ -838,8 +1036,6 @@ static int parse_element_content(
 			}
 		}
 	}
-
-#endif
 
 	return pi;
 }
@@ -877,8 +1073,10 @@ static int parse_element_etag(
 
 	/* Name part */
 	name = *pbuf+2; /* skip '</' */
-	end_tag_end = strchr(name, '>');
-	*end_tag_end = '\0';
+	end_tag_end = strstr(name, ">");
+	if (end_tag_end == NULL) {
+		return -1;
+	}
 
 	p = name+1;
 	while(is_name_char(*p) == true && p < end_tag_end) p++;
@@ -892,7 +1090,11 @@ static int parse_element_etag(
 
 	*p = c;
 
-	p++; /* skip '>' */
+	p = end_tag_end+1; /* skip '>' */
+
+	/* skip white space */
+	p = skip_white_space(p);
+
 	*pbuf = p;
 	*plen = len - (p - buf);
 
@@ -924,6 +1126,10 @@ static int parse_element_stag_content_etag(
 	}
 
 	if (parse_element_content(xml, pbuf, plen, stag_index, -1) == -1) {
+		return -1;
+	}
+
+	if (is_xml_element_end_tag(*pbuf) == false) {
 		return -1;
 	}
 
@@ -996,29 +1202,58 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* initialize xml parser data structure */
+	dbg(ezcfg, "\n");
 	xml = calloc(1, sizeof(struct ezcfg_xml));
+	dbg(ezcfg, "\n");
 	if (xml == NULL) {
 		err(ezcfg, "initialize xml parser error.\n");
 		return NULL;
 	}
 
+	dbg(ezcfg, "\n");
 	memset(xml, 0, sizeof(struct ezcfg_xml));
 
+	dbg(ezcfg, "\n");
 	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
+	dbg(ezcfg, "\n");
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
+	dbg(ezcfg, "\n");
 	if (xml->root == NULL) {
 		err(ezcfg, "initialize xml element stack error.\n");
 		free(xml);
 		return NULL;
 	}
 
+	dbg(ezcfg, "\n");
 	memset(xml->root, 0, sizeof(struct ezcfg_xml_element *) * xml->max_elements);
 
+	dbg(ezcfg, "\n");
 	xml->ezcfg = ezcfg;
+	dbg(ezcfg, "\n");
 	xml->num_encoding_names = ARRAY_SIZE(default_character_encoding_names) - 1; /* first item is NULL */
+	dbg(ezcfg, "\n");
 	xml->encoding_names = default_character_encoding_names;
 
+	dbg(ezcfg, "\n");
 	return xml;
+}
+
+void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(xml != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	if (xml->root != NULL)
+		delete_elements(xml);
+
+	xml->version_major = 0;
+	xml->version_minor = 0;
+	xml->encoding_name_index = 0;
+	xml->standalone = false;
+	xml->num_elements = 0;
 }
 
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
@@ -1331,23 +1566,33 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 
 	for (i = 0; i < xml->num_elements; i++) {
 		if (root[i]->etag_index != i) {
-			/* start tag */
-			snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
-			a = root[i]->attr_head;
-			while(a != NULL) {
-				snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
-				snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
-				a = a->next;
-			}
-			if (root[i]->content == NULL && root[i]->etag_index == i+1) {
-				snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
+			if ((root[i]->name)[0] == '\0') {
+				/* special case for content is CharData in middle of element */
+				/* <caption>This is Raphael's "Foligno" Madonna, painted in
+				     <date>1511</date> - <date>1512</date>.
+				   </caption>
+				 */
+				snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
 			}
 			else {
-				snprintf(buf+strlen(buf), len-strlen(buf), ">");
-				if (root[i]->content != NULL) {
-					snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
-				} else {
-					snprintf(buf+strlen(buf), len-strlen(buf), "\n");
+				/* start tag */
+				snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
+				a = root[i]->attr_head;
+				while(a != NULL) {
+					snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
+					snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
+					a = a->next;
+				}
+				if (root[i]->content == NULL && root[i]->etag_index == i+1) {
+					snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
+				}
+				else {
+					snprintf(buf+strlen(buf), len-strlen(buf), ">");
+					if (root[i]->content != NULL) {
+						snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+					} else {
+						snprintf(buf+strlen(buf), len-strlen(buf), "\n");
+					}
 				}
 			}
 		}
@@ -1367,6 +1612,7 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char 
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
+	ASSERT(pi >= 0);
 	ASSERT(pi < xml->num_elements);
 
 	ezcfg = xml->ezcfg;

@@ -203,6 +203,7 @@ struct ezcfg_xml_element;
 struct ezcfg_xml;
 void ezcfg_xml_delete(struct ezcfg_xml *xml);
 struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg);
+void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml);
 int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len);
 bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len);
 int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len);
@@ -228,6 +229,7 @@ char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int in
 struct ezcfg_soap;
 void ezcfg_soap_delete(struct ezcfg_soap *soap);
 struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg);
+void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap);
 unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap);
 unsigned short ezcfg_soap_get_version_minor(struct ezcfg_soap *soap);
 bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major);
