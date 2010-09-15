@@ -105,7 +105,9 @@ static void delete_elements(struct ezcfg_xml *xml)
 		}
 
 		ezcfg_xml_element_delete(p);
+		xml->root[i] = NULL;
 	}
+	xml->num_elements = 0;
 }
 
 static bool is_white_space(char c) {
@@ -1215,7 +1217,7 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 
 	dbg(ezcfg, "\n");
 	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
-	dbg(ezcfg, "\n");
+	dbg(ezcfg, "xml->max_elements=[%d]\n", xml->max_elements);
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
 	dbg(ezcfg, "\n");
 	if (xml->root == NULL) {
