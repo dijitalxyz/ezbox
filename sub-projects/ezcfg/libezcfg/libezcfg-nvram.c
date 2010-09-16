@@ -3,6 +3,7 @@
  * File Name    : libezcfg-nvram.c
  *
  * Description  : implement Non-Volatile RAM
+ * Warning      : must exclusively use it, say lock NVRAM before using it.
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -33,20 +34,25 @@
 #define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
 #define NVRAM_VERSOIN_REV   0x01 /* version[3] */ 
 
-#if 0
 static unsigned char default_magics[][4] = {
 	{ 'N', 'O', 'N', 'E' },
 	{ 'F', 'I', 'L', 'E' },
 	{ 'F', 'L', 'S', 'H' },
 };
-#endif
 
-struct nvram_pair {
+static unsigned char default_version[4] = {
+	NVRAM_VERSOIN_MAJOR ,
+	NVRAM_VERSOIN_MINOR ,
+	NVRAM_VERSOIN_MICRO ,
+	NVRAM_VERSOIN_REV ,
+};
+
+struct ezcfg_nvram_pair {
 	char *name;
 	char *value;
 };
 
-static struct nvram_pair default_nvram_settings[] = {
+static struct ezcfg_nvram_pair default_nvram_settings[] = {
 	{ "mytest", "ok" },
 	{ "mytest2", "ok2" },
 };
@@ -97,15 +103,19 @@ struct ezcfg_nvram {
 	struct ezcfg *ezcfg;
 	struct nvram_header header;
 
-	/* storage type, mapping to nvram header->magic
-	 * 0 -> NONE
-	 * 1 -> FILE
-	 * 2 -> FLSH
+	/* storage backend type, mapping to nvram header->magic
+	 * 0 -> NONE : in memory only
+	 * 1 -> FILE : store on file-system a file
+	 * 2 -> FLSH : store on flash chip
 	 */
-	int type;
+	int backend_type;
 
 	/* nvram storage device/file path */
 	char *store_path;
+
+	/* default settings */
+	int num_default_settings;
+	struct ezcfg_nvram_pair *default_settings;
 
 	/* total_space = sizeof(header) + free_space + used_space */
 	int total_space; /* storage space for nvram */
@@ -121,7 +131,240 @@ struct ezcfg_nvram {
 /*
  * Private functions
  */
+static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram_pair *nvp;
+	int i;
 
+	ezcfg = nvram->ezcfg;
+
+	for (i=0; i<nvram->num_default_settings; i++) {
+		nvp = &nvram->default_settings[i];
+		info(ezcfg, "name=[%s] value=[%s]\n", nvp->name, nvp->value);
+		if (ezcfg_nvram_set_node_value(nvram, nvp->name, nvp->value) == false) {
+			err(ezcfg, "set nvram error.\n");
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	struct nvram_header *ph;
+	struct ezcfg_nvram_pair *nvp;
+	FILE *fp;
+	char *buf, *p, *q;
+	char *name, *value;
+	int len, i;
+	bool ret;
+
+	ezcfg = nvram->ezcfg;
+	ph = &nvram->header;
+	ret = true;
+	fp = NULL;
+	buf = NULL;
+
+	fp = fopen(nvram->store_path, "r");
+	if (fp == NULL) {
+		err(ezcfg, "can't open file for nvram init\n");
+		return false;
+	}
+
+	if (fread(ph, sizeof(struct nvram_header), 1, fp) < 1) {
+		err(ezcfg, "read nvram header error\n");
+		ret = false;
+		goto init_exit;
+	}
+
+	buf = calloc(ph->length, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "can't calloc for nvram_init_from_file\n");
+		ret = false;
+		goto init_exit;
+	}
+	
+	if (fread(buf, sizeof(char), ph->length, fp) < ph->length) {
+		err(ezcfg, "read nvram info from file error\n");
+		ret = false;
+		goto init_exit;
+	}
+
+	/* do checksum calculate */
+
+	/* setup nvram node info */
+	p = buf;
+	while (p < buf+len) {
+		len = strlen(p);
+		q = strchr(p, '=');
+		if (q == NULL) {
+			err(ezcfg, "nvram pair file store format error\n");
+			ret = false;
+			goto init_exit;
+		}
+		*q = '\0';
+		name = p;
+		value = q+1;
+		info(ezcfg, "name=[%s] value=[%s]\n", name, value);
+		if (ezcfg_nvram_set_node_value(nvram, name, value) == false) {
+			err(ezcfg, "set nvram error.\n");
+			ret = false;
+			goto init_exit;
+		}
+		p += (len+1);
+	}
+
+	/* fill missing critic nvram with default settings */
+	for (i=0; i<nvram->num_default_settings; i++) {
+		nvp = &nvram->default_settings[i];
+		value = ezcfg_nvram_get_node_value(nvram, nvp->name);
+		info(ezcfg, "name=[%s] value=[%s] default value=[%s]\n", nvp->name, value, nvp->value);
+		if (value == NULL) {  
+			if (ezcfg_nvram_set_node_value(nvram, nvp->name, nvp->value) == false) {
+				err(ezcfg, "set nvram error.\n");
+				ret = false;
+				goto init_exit;
+			}
+		}
+		else {
+			free(value);
+		}
+	}
+
+	ret = true;
+
+init_exit:
+	if (buf != NULL) {
+		free(buf);
+	}
+
+	if (fp != NULL) {
+		fclose(fp);
+	}
+
+	return ret;
+}
+
+static bool nvram_init_from_flash(struct ezcfg_nvram *nvram)
+{
+	return true;
+}
+
+static void build_nvram_buffer(struct ezcfg_nvram *nvram, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	struct nvram_pool *pl_used;
+	struct nvram_node *node;
+	char *p;
+	int i, n;
+
+	ASSERT(nvram != NULL);
+	ASSERT(buf != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	p = buf;
+
+	/* find all nvram nodes */
+	for (i = 0; i < nvram->num_block_size; i++) {
+		pl_used = &nvram->used_nodes[i];
+		node = pl_used->head;
+		while (node != NULL) {
+			n = sprintf(p, "%s=%s", node->name, node->value);
+			p += n+1; /* one more char for \0-terminated string */
+			node = node->next;
+		}
+	}
+}
+
+static void generate_nvram_header(struct ezcfg_nvram *nvram, char *buf, int len)
+{
+	struct nvram_header *ph;
+	int i;
+
+	ph = &nvram->header;
+	for (i=0; i<4; i++) {
+		ph->magic[i] = default_magics[nvram->backend_type][i];
+	}
+	for (i=0; i<4; i++) {
+		ph->version[i] = default_version[i];
+	}
+	ph->length = nvram->used_space;
+	ph->checksum = 0;
+}
+
+static void nvram_header_copy(struct nvram_header *dest, const struct nvram_header *src)
+{
+	memcpy(dest, src, sizeof(struct nvram_header));
+}
+
+static bool nvram_commit_to_file(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	struct nvram_header *ph;
+	FILE *fp;
+	char *buf, *p;
+	size_t len;
+	bool ret;
+
+	ezcfg = nvram->ezcfg;
+	ret = true;
+	buf = NULL;
+	fp = NULL;
+
+	len = sizeof(struct nvram_header) + nvram->used_space;
+	buf = calloc(len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "can't calloc for nvram_commit_to_file\n");
+		return false;
+	}
+	
+	/* skip struct nvram_header */
+	ph = (struct nvram_header *)buf;
+	p = buf + sizeof(struct nvram_header);
+
+	/* build nvram pair buffer represent */
+	build_nvram_buffer(nvram, p, nvram->used_space);
+	
+	/* generate nvram header info */
+	generate_nvram_header(nvram, p, nvram->used_space);
+
+	/* sync nvram header info to buf */
+	nvram_header_copy(ph, &nvram->header);
+
+	fp = fopen(nvram->store_path, "w");
+	if (fp == NULL) {
+		err(ezcfg, "can't open file for nvram commit\n");
+		ret = false;
+		goto commit_exit;
+	}
+
+	if (fwrite(buf, sizeof(char), len, fp) < len) {
+		err(ezcfg, "write nvram to file error\n");
+		ret = false;
+		goto commit_exit;
+	}
+
+	ret = true;
+
+commit_exit:
+	if (buf != NULL) {
+		free(buf);
+	}
+
+	if (fp != NULL) {
+		fclose(fp);
+	}
+
+	return ret;
+}
+
+static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram)
+{
+	return true;
+}
 
 /*
  * Public functions
@@ -214,10 +457,14 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	nvram->free_nodes = free_nodes;
 	nvram->used_nodes = used_nodes;
 
+	/* set default settings */
+	nvram->num_default_settings = ARRAY_SIZE(default_nvram_settings);
+	nvram->default_settings = default_nvram_settings;
+
 	return nvram;
 }
 
-bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type)
+bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int type)
 {
 	struct ezcfg *ezcfg;
 
@@ -226,7 +473,7 @@ bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type)
 
 	ezcfg = nvram->ezcfg;
 
-	nvram->type = type;
+	nvram->backend_type = type;
 
 	return true;
 }
@@ -292,6 +539,13 @@ int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
 	ezcfg = nvram->ezcfg;
 
 	return nvram->total_space;
+}
+
+bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nvram_pair *settings, int num_settings)
+{
+	nvram->default_settings = settings;
+	nvram->num_default_settings = num_settings;
+	return true;
 }
 
 bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value)
@@ -503,43 +757,32 @@ char *ezcfg_nvram_get_node_value(struct ezcfg_nvram *nvram, const char *name)
 	return NULL;
 }
 
-char *ezcfg_nvram_get_all_nodes(struct ezcfg_nvram *nvram, int *buf_len)
+bool ezcfg_nvram_get_all_nodes_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_list_entry *entry;
 	struct nvram_pool *pl_used;
-	struct nvram_node *node=NULL;
-	char *buf, *p;
-	int i, len;
+	struct nvram_node *node;
+	int i;
 
 	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
 
 	ezcfg = nvram->ezcfg;
-
-	buf = calloc(nvram->used_space, sizeof(char));
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for get_all_nodes\n");
-		return NULL;
-	}
-
-	p = buf;
 
 	/* find all nvram nodes */
 	for (i = 0; i < nvram->num_block_size; i++) {
 		pl_used = &nvram->used_nodes[i];
 		node = pl_used->head;
 		while (node != NULL) {
-			len = sprintf(p, "%s=%s", node->name, node->value);
-			if (len +1 != node->len) {
-				free(buf);
-				return NULL;
+			entry = ezcfg_list_entry_add(ezcfg, list, node->name, node->value, 1, 0);
+			if (entry == NULL) {
+				return false;
 			}
-			p += node->len;
 			node = node->next;
 		}
 	}
-
-	*buf_len = nvram->used_space;
-	return buf;
+	return true;
 }
 
 bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name)
@@ -589,71 +832,75 @@ bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name)
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
-	struct nvram_pool *pl_used;
-	struct nvram_node *node=NULL;
-	char *buf, *p;
-	int i, len;
+	bool ret;
 
 	ASSERT(nvram != NULL);
 
 	ezcfg = nvram->ezcfg;
 
-	buf = calloc(nvram->used_space, sizeof(char));
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for nvram commit\n");
-		return NULL;
+	switch (nvram->backend_type) {
+	case EZCFG_NVRAM_BACKEND_TYPE_NONE :
+		info(ezcfg, "nvram in memory only, do nothing\n");
+		ret = true;
+		break;
+
+	case EZCFG_NVRAM_BACKEND_TYPE_FILE :
+		info(ezcfg, "nvram store on file-system file\n");
+		ret = nvram_commit_to_file(nvram);
+		break;
+
+	case EZCFG_NVRAM_BACKEND_TYPE_FLASH :
+		info(ezcfg, "nvram store on flash chip\n");
+		ret = nvram_commit_to_flash(nvram);
+		break;
+
+	default:
+		err(ezcfg, "unknown nvram type.\n");
+		ret = false;
+		break;
 	}
-
-	p = buf;
-
-	/* find all nvram nodes */
-	for (i = 0; i < nvram->num_block_size; i++) {
-		pl_used = &nvram->used_nodes[i];
-		node = pl_used->head;
-		while (node != NULL) {
-			len = sprintf(p, "%s=%s", node->name, node->value);
-			if (len +1 != node->len) {
-				free(buf);
-				return NULL;
-			}
-			p += node->len;
-			node = node->next;
-		}
-	}
-
-	return true;
+	return ret;
 }
 
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
-	int i;
-	struct nvram_pair *nvp;
+	bool ret;
 
 	ASSERT(nvram != NULL);
 
 	ezcfg = nvram->ezcfg;
 
-	if (nvram->store_path == NULL) {
+	if (nvram->backend_type != EZCFG_NVRAM_BACKEND_TYPE_NONE &&
+	    nvram->store_path == NULL) {
 		err(ezcfg, "not setting nvram store path.\n");
 		return false;
 	}
 
-	switch (nvram->type) {
-	case 1:
-		for (i=0; i<(int)ARRAY_SIZE(default_nvram_settings); i++) {
-			nvp = &default_nvram_settings[i];
-			info(ezcfg, "name=[%s] value=[%s]\n", nvp->name, nvp->value);
-			if (ezcfg_nvram_set_node_value(nvram, nvp->name, nvp->value) == false) {
-				err(ezcfg, "set nvram error.\n");
-				return false;
-			}
+	switch (nvram->backend_type) {
+	case EZCFG_NVRAM_BACKEND_TYPE_NONE :
+		ret = nvram_init_by_defaults(nvram);
+		break;
+
+	case EZCFG_NVRAM_BACKEND_TYPE_FILE :
+		ret = nvram_init_from_file(nvram);
+		if (ret == false) {
+			ret = nvram_init_by_defaults(nvram);
 		}
 		break;
+
+	case EZCFG_NVRAM_BACKEND_TYPE_FLASH :
+		ret = nvram_init_from_flash(nvram);
+		if (ret == false) {
+			ret = nvram_init_by_defaults(nvram);
+		}
+		break;
+
 	default:
 		err(ezcfg, "unknown nvram type.\n");
-		return false;
+		ret = false;
+		break;
 	}
-	return true;
+	return ret;
 }
 

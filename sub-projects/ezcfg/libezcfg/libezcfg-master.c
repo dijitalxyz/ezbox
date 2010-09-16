@@ -104,7 +104,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	}
 
 	/* initialize nvram */
-	ezcfg_nvram_set_type(master->nvram, 1);
+	ezcfg_nvram_set_backend_type(master->nvram, EZCFG_NVRAM_BACKEND_TYPE_FILE);
 	ezcfg_nvram_set_store_path(master->nvram, "/tmp/ezcfg/nvram.bin");
 	ezcfg_nvram_set_total_space(master->nvram, EZCFG_NVRAM_SPACE);
 	ezcfg_nvram_initialize(master->nvram);

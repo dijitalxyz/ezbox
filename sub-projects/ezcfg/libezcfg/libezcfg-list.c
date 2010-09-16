@@ -32,8 +32,8 @@
  * contains a name, and optionally a value.
  */
 struct ezcfg_list_entry {
-	struct ezcfg_list_node node;
 	struct ezcfg *ezcfg;
+	struct ezcfg_list_node node;
 	struct ezcfg_list_node *list;
 	char *name;
 	char *value;
@@ -47,14 +47,15 @@ void ezcfg_list_init(struct ezcfg_list_node *list)
 	list->prev = list;
 }
 
-int ezcfg_list_is_empty(struct ezcfg_list_node *list)
+bool ezcfg_list_is_empty(struct ezcfg_list_node *list)
 {
-	return list->next == list;
+	return (list->next == list);
 }
 
-static void ezcfg_list_node_insert_between(struct ezcfg_list_node *new,
-                                           struct ezcfg_list_node *prev,
-                                           struct ezcfg_list_node *next)
+static void ezcfg_list_node_insert_between(
+	struct ezcfg_list_node *new,
+	struct ezcfg_list_node *prev,
+	struct ezcfg_list_node *next)
 {
 	next->prev = new;
 	new->next = next;
@@ -62,7 +63,9 @@ static void ezcfg_list_node_insert_between(struct ezcfg_list_node *new,
 	prev->next = new;
 }
 
-void ezcfg_list_node_append(struct ezcfg_list_node *new, struct ezcfg_list_node *list)
+void ezcfg_list_node_append(
+	struct ezcfg_list_node *new,
+	struct ezcfg_list_node *list)
 {
 	ezcfg_list_node_insert_between(new, list->prev, list);
 }
@@ -105,20 +108,25 @@ void ezcfg_list_entry_remove(struct ezcfg_list_entry *entry)
 }
 
 /* insert entry into a list, before a given existing entry */
-void ezcfg_list_entry_insert_before(struct ezcfg_list_entry *new, struct ezcfg_list_entry *entry)
+void ezcfg_list_entry_insert_before(
+	struct ezcfg_list_entry *new,
+	struct ezcfg_list_entry *entry)
 {
 	ezcfg_list_node_insert_between(&new->node, entry->node.prev, &entry->node);
 	new->list = entry->list;
 }
 
-struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_list_node *list,
-                                            const char *name, const char *value,
-                                            int unique, int sort)
+struct ezcfg_list_entry *ezcfg_list_entry_add(
+	struct ezcfg *ezcfg,
+	struct ezcfg_list_node *list,
+	const char *name,
+	const char *value,
+	int unique, int sort)
 {
 	struct ezcfg_list_entry *entry_loop = NULL;
 	struct ezcfg_list_entry *entry_new;
 
-	if (unique)
+	if (unique) {
 		ezcfg_list_entry_foreach(entry_loop, ezcfg_list_get_entry(list)) {
 			if (strcmp(entry_loop->name, name) == 0) {
 				dbg(ezcfg, "'%s' is already in the list\n", name);
@@ -135,17 +143,20 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_
 				return entry_loop;
 			}
 		}
+	}
 
-	if (sort)
+	if (sort) {
 		ezcfg_list_entry_foreach(entry_loop, ezcfg_list_get_entry(list)) {
 			if (strcmp(entry_loop->name, name) > 0)
 				break;
 		}
+	}
 
 	entry_new = malloc(sizeof(struct ezcfg_list_entry));
-	if (entry_new == NULL)
+	if (entry_new == NULL) {
 		return NULL;
-	memset(entry_new, 0x00, sizeof(struct ezcfg_list_entry));
+	}
+	memset(entry_new, 0, sizeof(struct ezcfg_list_entry));
 	entry_new->ezcfg = ezcfg;
 	entry_new->name = strdup(name);
 	if (entry_new->name == NULL) {
@@ -160,17 +171,26 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_
 			return NULL;
 		}
 	}
-	if (entry_loop != NULL)
+	if (entry_loop != NULL) {
 		ezcfg_list_entry_insert_before(entry_new, entry_loop);
-	else
+	}
+	else {
 		ezcfg_list_entry_append(entry_new, list);
+	}
 	dbg(ezcfg, "'%s=%s' added\n", entry_new->name, entry_new->value);
 	return entry_new;
 }
 
 void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry)
 {
+	struct ezcfg *ezcfg;
+
+	ASSERT(entry != NULL);
+
+	ezcfg = entry->ezcfg;
+
 	ezcfg_list_node_remove(&entry->node);
+	dbg(ezcfg, "'%s=%s' delete\n", entry->name, entry->value);
 	free(entry->name);
 	free(entry->value);
 	free(entry);
@@ -209,7 +229,9 @@ struct ezcfg_list_entry *ezcfg_list_entry_get_next(struct ezcfg_list_entry *list
  *
  * Returns: the entry where @name matched, #NULL if no matching entry is found.
  */
-struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(struct ezcfg_list_entry *list_entry, const char *name)
+struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(
+	struct ezcfg_list_entry *list_entry,
+	const char *name)
 {
 	struct ezcfg_list_entry *entry;
 
@@ -233,4 +255,17 @@ const char *ezcfg_list_entry_get_name(struct ezcfg_list_entry *list_entry)
 	if (list_entry == NULL)
 		return NULL;
 	return list_entry->name;
+}
+
+/**
+ * ezcfg_list_entry_get_value:
+ * @list_entry: current entry
+ *
+ * Returns: the value string of this entry.
+ */
+const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry)
+{
+	if (list_entry == NULL)
+		return NULL;
+	return list_entry->value;
 }

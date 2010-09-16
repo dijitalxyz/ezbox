@@ -236,16 +236,43 @@ int nvram_main(int argc, char **argv)
 		}
 	}
 	else if (strcmp(argv[1], "list") == 0) {
-		if (argc != 2) {
+		if (argc == 2) {
+			/* build HTTP request line */
+			ezcfg_http_set_request_method(http, EZCFG_SOAP_HTTP_METHOD_GET);
+			snprintf(buf, sizeof(buf), "%s", EZCFG_SOAP_HTTP_NVRAM_LIST_URI);
+			ezcfg_http_set_request_uri(http, buf);
+			ezcfg_http_set_version_major(http, 1);
+			ezcfg_http_set_version_minor(http, 1);
+
+			/* build HTTP headers */
+			snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_HOST, buf);
+			snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
+		}
+		else {
 			err(ezcfg, "number of arguments is incorrect.\n");
 			rc = 1;
 			nvram_show_usage();
 			goto exit;
 		}
-
 	}
 	else if (strcmp(argv[1], "commit") == 0) {
-		if (argc != 2) {
+		if (argc == 2) {
+			/* build HTTP request line */
+			ezcfg_http_set_request_method(http, EZCFG_SOAP_HTTP_METHOD_GET);
+			snprintf(buf, sizeof(buf), "%s", EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI);
+			ezcfg_http_set_request_uri(http, buf);
+			ezcfg_http_set_version_major(http, 1);
+			ezcfg_http_set_version_minor(http, 1);
+
+			/* build HTTP headers */
+			snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_HOST, buf);
+			snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
+			ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
+		}
+		else {
 			err(ezcfg, "number of arguments is incorrect.\n");
 			rc = 1;
 			nvram_show_usage();

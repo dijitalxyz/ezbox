@@ -78,7 +78,7 @@ struct ezcfg_list_node {
 };
 
 void ezcfg_list_init(struct ezcfg_list_node *list);
-int ezcfg_list_is_empty(struct ezcfg_list_node *list);
+bool ezcfg_list_is_empty(struct ezcfg_list_node *list);
 void ezcfg_list_node_append(struct ezcfg_list_node *new, struct ezcfg_list_node *list);
 void ezcfg_list_node_remove(struct ezcfg_list_node *entry);
 #define ezcfg_list_node_foreach(node, list) \
@@ -99,28 +99,26 @@ void ezcfg_list_entry_append(struct ezcfg_list_entry *new, struct ezcfg_list_nod
 void ezcfg_list_cleanup_entries(struct ezcfg *ezcfg, struct ezcfg_list_node *name_list);
 struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
 
-struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_list_node *list,
-                                              const char *name, const char *value,
-                                              int unique, int sort);
-void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
 
 /* libezcfg-thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 
 
 /* libezcfg-nvram.c */
+struct ezcfg_nvram_pair;
 struct ezcfg_nvram;
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
-bool ezcfg_nvram_set_type(struct ezcfg_nvram *nvram, const int type);
+bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int type);
 bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path);
 char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nvram_pair *settings, int num_settings);
 bool ezcfg_nvram_set_node_value(struct ezcfg_nvram *nvram, const char *name, const char *value);
 char *ezcfg_nvram_get_node_value(struct ezcfg_nvram *nvram, const char *name);
 bool ezcfg_nvram_unset_node_value(struct ezcfg_nvram *nvram, const char *name);
-char *ezcfg_nvram_get_all_nodes(struct ezcfg_nvram *nvram, int *buf_len);
+bool ezcfg_nvram_get_all_nodes_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list);
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 

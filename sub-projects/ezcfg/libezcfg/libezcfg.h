@@ -33,7 +33,6 @@ extern "C" {
 #define EZCFG_BUFFER_SIZE         8192
 #define EZCFG_MAX_REQUEST_SIZE    8192
 
-#define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
 #define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
 #define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
 //#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
@@ -44,6 +43,14 @@ extern "C" {
 #define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
+/* ezcfg nvram definitions */
+#define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
+#define EZCFG_NVRAM_BACKEND_TYPE_NONE      0
+#define EZCFG_NVRAM_BACKEND_TYPE_FILE      1
+#define EZCFG_NVRAM_BACKEND_TYPE_FLASH     2
+#define EZCFG_NVRAM_BACKEND_TYPE_HDD       3
+
+
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0
 #define EZCFG_PROTO_HTTP	1
@@ -51,10 +58,12 @@ extern "C" {
 #define EZCFG_PROTO_IGRS	3
 #define EZCFG_PROTO_ISDP	4
 
+
 /* ezcfg xml definitions */
 #define EZCFG_XML_MAX_ELEMENTS	128
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL 0
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD 1
+
 
 /* ezcfg soap element names */
 #define EZCFG_SOAP_ENVELOPE_ELEMENT_NAME    "env:Envelope"
@@ -93,8 +102,10 @@ extern "C" {
 #define EZCFG_SOAP_NVRAM_ATTR_NS_VALUE                   "http://www.ezidc.net/ezcfg/nvram/schemas"
 #define EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE        "NVRAM Name is Invalid"
 #define EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE       "NVRAM Value is Invalid"
+#define EZCFG_SOAP_NVRAM_OPERATION_FAIL_FAULT_VALUE      "NVRAM Operation Fail"
 #define EZCFG_SOAP_NVRAM_RESULT_VALUE_OK                 "OK"
 #define EZCFG_SOAP_NVRAM_RESULT_VALUE_FAIL               "FAIL"
+
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
