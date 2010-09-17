@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-autoreconf --install --symlink
+autoreconf --install --symlink --force
 
 MYCFLAGS="-g -Wall \
 -Wmissing-declarations -Wmissing-prototypes \
