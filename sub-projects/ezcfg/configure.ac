@@ -6,7 +6,6 @@ AC_INIT([ezcfg], [0.1], [ezbox@ezidc.net])
 AC_CANONICAL_SYSTEM
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
 AC_DISABLE_STATIC
