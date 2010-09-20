@@ -23,6 +23,48 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+# Configure variables: LIBEZCFG_LIB and LIBEZCFG_INC.
+AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.la is at])
+AC_ARG_VAR([LIBEZCFG_INC], [where libezcfg.h is at])
+
+# Ensure that both or neither are specified.
+if (test -n "$LIBEZCFG_LIB" && test -z "$LIBEZCFG_INC") || \
+   (test -n "$LIBEZCFG_INC" && test -z "$LIBEZCFG_LIB"); then
+	AC_MSG_ERROR([both or neither libezcfg variables])
+fi
+
+# Not specified? Check for libezcfg in standard places.
+if test -z "$LIBEZCFG_LIB"; then
+  # Check for libezcfg as a sub-project.
+  if test -d "$srcdir/libezcfg"; then
+	AC_CONFIG_SUBDIRS([libezcfg])
+	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
+	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/.libs'
+  else
+    # Check for libezcfg as a super-project.
+    if test -d "$srcdir/../libezcfg"; then
+	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
+	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/.libs'
+    fi
+  fi
+fi
+
+# Still empty? Check for installed libezcfg.
+if test -z "$LIBEZCFG_LIB"; then
+	AC_CHECK_LIB([libezcfg], [ezcfg_new], 
+		[AC_CHECK_HEADERS([libezcfg.h])
+			LIBS="-lezcfg $LIBS"],
+	[AC_MSG_ERROR([No libezcfg found.])])
+fi
+
+# AC_SUBST command line variables.
+if test -n "$LIBEZCFG_LIB"; then
+	AC_SUBST([LIBEZCFG_LTLIB], ["$LIBEZCFG_LIB/libezcfg.la"])
+	AC_SUBST([LIBEZCFG_INCLUDE], ["-I$LIBEZCFG_INC"])
+fi
+
+
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -67,4 +109,7 @@ AC_MSG_RESULT([
 	compiler:		${CC}
 	cflags:			${CFLAGS}
 	ldflags:		${LDFLAGS}
+
+	libezcfg_lib:		${LIBEZCFG_LIB:-INSTALLED}
+	libezcfg_inc:		${LIBEZCFG_INC:-INSTALLED}
 ])

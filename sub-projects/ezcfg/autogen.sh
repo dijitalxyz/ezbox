@@ -2,7 +2,7 @@
 
 autoreconf --install --symlink --force
 
-MYCFLAGS="-g -Wall \
+EZCFG_CFLAGS="-g -Wall \
 -Wmissing-declarations -Wmissing-prototypes \
 -Wnested-externs -Wpointer-arith \
 -Wpointer-arith -Wsign-compare -Wchar-subscripts \
@@ -13,7 +13,7 @@ case "$CFLAGS" in
 	*-O[0-9]*)
 		;;
 	*)
-		MYCFLAGS="$MYCFLAGS -O2"
+		EZCFG_CFLAGS="$EZCFG_CFLAGS -O2"
 		;;
 esac
 
@@ -21,11 +21,15 @@ libdir() {
 	echo $(cd $1/$(gcc -print-multi-os-directory); pwd)
 }
 
-args="--prefix=/usr \
---sysconfdir=/etc \
---sbindir=/sbin \
---libdir=$(libdir /usr/lib) \
---libexecdir=/lib/ezcfg"
+#args="--prefix=/usr/local \
+#--sysconfdir=/etc \
+#--sbindir=/sbin \
+#--libdir=$(libdir /lib) \
+#--libexecdir=/lib/ezcfg \
+#--includedir=/usr/include"
 
-export CFLAGS="$CFLAGS $MYCFLAGS"
+args="--prefix=/usr/local \
+--sysconfdir=/etc"
+
+export CFLAGS="$CFLAGS $EZCFG_CFLAGS"
 ./configure $args $@

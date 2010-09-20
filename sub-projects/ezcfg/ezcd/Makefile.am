@@ -10,8 +10,7 @@ SUBDIRS = .
 
 AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
-	-I$(srcdir)/include \
-	-I$(top_srcdir)/../libezcfg/include
+	-I$(srcdir)/include
 
 sbin_PROGRAMS = \
 	ezcd
@@ -23,7 +22,10 @@ ezcd_SOURCES = \
 	src/init.c \
 	src/nvram.c
 
-ezcd_LDADD = $(top_builddir)/../libezcfg/libezcfg.la
+ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(LIBEZCFG_INCLUDE)
+#ezcd_LDFLAGS = $(AM_LDFLAGS) -L$(LIBEZCFG_LIB) -lezcfg
+#ezcd_LIBADD = $(LIBEZCFG_LTLIB)
+ezcd_LDADD = $(LIBEZCFG_LTLIB)
 
 # pkgconfigdir = $(libdir)/pkgconfig
 # pkgconfig_DATA = ezcd.pc

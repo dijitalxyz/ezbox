@@ -39,6 +39,41 @@ AC_HEADER_MAJOR
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 memset mkdir select socket strchr strerror strrchr])
 
+# Checks for POSIX Threads
+echo "--------------------------- pthread stuff -------------------------------------"
+ACX_PTHREAD(
+	[],
+	[AC_MSG_ERROR([POSIX threads are required to build this program])])
+# Update environment variables for pthreads
+CC="$PTHREAD_CC"
+CFLAGS="$PTHREAD_CFLAGS $CFLAGS"
+LIBS="$PTHREAD_LIBS $LIBS"
+#
+# Determine if pthread_rwlock_t is available
+#
+echo "----------------------- pthread_rwlock_t stuff --------------------------------"
+AC_MSG_CHECKING([if pthread_rwlock_t is available])
+AC_LANG([C])
+AC_COMPILE_IFELSE(
+	[AC_LANG_PROGRAM(
+		[#include <pthread.h>],
+		[pthread_rwlock_t *x;])],
+	[AC_DEFINE([LIBEZCFG_USE_RWLOCK], [1], [Use pthread_rwlock_t])
+		AC_MSG_RESULT([yes, supported without any options])],
+	[AC_COMPILE_IFELSE(
+		[AC_LANG_PROGRAM(
+			[#define _GNU_SOURCE
+			#include <pthread.h>],
+			[pthread_rwlock_t *x;])],
+		[AC_DEFINE([LIBEZCFG_USE_RWLOCK], [1], [Use pthread_rwlock_t])
+			CPPFLAGS="$CPPFLAGS -D_GNU_SOURCE"
+			AC_MSG_RESULT([yes, definition of _GNU_SOURCE required])],
+		[AC_DEFINE([LIBEZCFG_USE_RWLOCK], [0], [Do not use pthread_rwlock_t])
+			AC_MSG_RESULT([no, needs to fallback to pthread_mutex])
+			AC_MSG_ERROR([pthread_rwlock_t not available])])])
+echo "-------------------------------------------------------------------------------"
+
+
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
