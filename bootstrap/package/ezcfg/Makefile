@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=129
+PKG_REV:=189
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -75,8 +75,8 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_BUILD_DIR)/libezcfg/libezcfg.h $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/include/libezcfg
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/libezcfg/*.h $(1)/usr/include/libezcfg
 endef
 
 define Package/libezcfg/install
@@ -88,7 +88,8 @@ define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
 	$(LN) /sbin/ezcd $(1)/init
-	$(LN) /sbin/ezcd $(1)/sbin/ezci
+	$(LN) /sbin/ezcd $(1)/sbin/ezcm
+	$(LN) /sbin/ezcd $(1)/sbin/nvram
 	$(CP) ./files/* $(1)/
 endef
 
