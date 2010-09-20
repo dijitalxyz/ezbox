@@ -29,8 +29,8 @@ libezcfg_la_LDFLAGS = \
 	-export-symbols $(srcdir)/exported_symbols
 
 libezcfg_la_SOURCES = \
-	src/libezcfg-private.h \
-	src/libezcfg.h \
+	include/libezcfg-private.h \
+	include/libezcfg.h \
 	src/libezcfg-list.c \
 	src/libezcfg-util.c \
 	src/libezcfg-thread.c \
