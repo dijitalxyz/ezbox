@@ -478,6 +478,79 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
 	return parse_http_headers(http, headers);
 }
 
+bool ezcfg_http_parse_response(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+	char *method, *uri, *version, *headers;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	method = buf;
+
+	/* split HTTP Response-Line (RFC2616 section 6) */
+	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
+	if (p == NULL) {
+		err(ezcfg, "no HTTP response line\n");
+		return false;
+	}
+
+	headers = p+2; /* skip CRLF */
+	*p = '\0';
+
+	/* get request method string */
+	p = strchr(method, ' ');
+	if (p == NULL)
+		return false;
+
+	/* 0-terminated method string */
+	*p = '\0';
+	http->method_index = find_method_index(http, method);
+	if (http->method_index == 0) {
+		*p = ' ';
+		return false;
+	}
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get uri string */
+	uri = p+1;
+	if (uri[0] != '/' && uri[0] != '*')
+		return false;
+
+	p = strchr(uri, ' ');
+	if (p == NULL)
+		return false;
+
+	/* 0-terminated method string */
+	*p = '\0';
+	http->request_uri = strdup(uri);
+	if (http->request_uri == NULL)
+		return false;
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get http version */
+	version = p+1;
+	if (strncmp(version, "HTTP/", 5) != 0)
+		return false;
+
+	p = version+5;
+	if (sscanf(p, "%hd.%hd",
+	           &http->version_major,
+	            &http->version_minor) != 2)
+		return false;
+
+	/* parse http headers */
+	return parse_http_headers(http, headers);
+}
+
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;

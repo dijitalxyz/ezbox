@@ -6,6 +6,7 @@
 #define EZCFG_E_CONNECTION    3 /* connection error */
 #define EZCFG_E_READ          4 /* read error */
 #define EZCFG_E_WRITE         5 /* write error */
+#define EZCFG_E_PARSE         6 /* parse error */
 
 
 #endif

@@ -413,6 +413,39 @@ bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
 	return true;
 }
 
+bool ezcfg_soap_parse_response(struct ezcfg_soap *soap, char *buf, int len)
+{
+	/* buf must be \0-terminated */
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	ASSERT(soap != NULL);
+	ASSERT(soap->xml != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = soap->ezcfg;
+	xml = soap->xml;
+
+	if (ezcfg_xml_parse(xml, buf, len) == false) {
+		return false;
+	}
+
+	soap->envelope_index = 0;
+
+	if (ezcfg_xml_get_element_index(xml, 0, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
+		return false;
+	}
+
+	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+	if (soap->body_index < 1) {
+		return false;
+	}
+
+	return true;
+}
+
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 {
 	struct ezcfg *ezcfg;

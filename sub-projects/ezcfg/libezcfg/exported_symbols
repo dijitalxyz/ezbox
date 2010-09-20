@@ -1,3 +1,4 @@
+ezcfg_api_nvram_get
 ezcfg_new
 ezcfg_delete
 ezcfg_set_log_fn

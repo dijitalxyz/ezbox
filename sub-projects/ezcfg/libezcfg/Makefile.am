@@ -17,8 +17,8 @@ LDADD = \
 
 libezcfgincludedir = $(includedir)/libezcfg
 libezcfginclude_HEADERS = \
-	include/libezcfg-private.h \
-	include/libezcfg.h
+	api/include/ezcfg-api.h \
+	api/include/ezcfg-api-errno.h
 
 lib_LTLIBRARIES = libezcfg.la
 
@@ -80,6 +80,10 @@ libezcfg_la_SOURCES += \
 libezcfg_la_SOURCES += \
 	src/libezcfg-master.c \
 	src/libezcfg-worker.c
+
+# ezcfg API wrap
+libezcfg_la_SOURCES += \
+	api/src/nvram.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg.pc

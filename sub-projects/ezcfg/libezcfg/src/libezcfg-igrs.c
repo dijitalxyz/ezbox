@@ -881,6 +881,48 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 	return true;
 }
 
+bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	char *s;
+	int n;
+
+	ASSERT(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+
+	if (ezcfg_http_parse_response(http, buf, len) == false) {
+		return false;
+	}
+
+	/* check IGRS version */
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	if (s == NULL) {
+		err(ezcfg, "no igrs version in header\n");
+		return false;
+	}
+	n = sscanf(s, "IGRS/%hd.%hd", &(igrs->version_major), &(igrs->version_minor));
+	if (n != 2) {
+		err(ezcfg, "igrs version format in header is invalid\n");
+		return false;
+	}
+
+	/* check IGRS message type */
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
+	if (s == NULL) {
+		err(ezcfg, "no igrs message type in header\n");
+		return false;
+	}
+	if (ezcfg_igrs_set_message_type(igrs, s) == 0) {
+		err(ezcfg, "igrs message type is unknown\n");
+		return false;
+	}
+	
+	return true;
+}
+
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len)
 {
 	struct ezcfg *ezcfg;

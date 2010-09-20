@@ -173,6 +173,7 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len);
+bool ezcfg_http_parse_response(struct ezcfg_http *http, char *buf, int len);
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
 unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
 bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major);
@@ -241,6 +242,7 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const char *name);
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int index);
 bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len);
+bool ezcfg_soap_parse_response(struct ezcfg_soap *soap, char *buf, int len);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
 /* libezcfg-soap_http.c */
@@ -260,6 +262,7 @@ bool ezcfg_soap_http_set_http_version_minor(struct ezcfg_soap_http *sh, unsigned
 char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *name);
 void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh);
 bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int len);
+bool ezcfg_soap_http_parse_response(struct ezcfg_soap_http *sh, char *buf, int len);
 char *ezcfg_soap_http_set_http_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
@@ -296,6 +299,7 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name);
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len);
+bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
 
 /* libezcfg-isdp.c */
@@ -337,6 +341,7 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
+struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl);
 
 
 /* libezcfg-util.c */

@@ -123,3 +123,7 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 	return ezcfg_socket_write(ezctrl->socket, buf, len, flags);
 }
 
+struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl)
+{
+	return ezctrl->socket;
+}
