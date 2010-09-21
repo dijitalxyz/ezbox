@@ -342,7 +342,7 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 	return ezcfg_xml_element_add_attribute(xml, elem, name, value, pos);
 }
 
-int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const char *name)
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, const char *name)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
@@ -350,7 +350,7 @@ int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const ch
 	ASSERT(soap != NULL);
 	ASSERT(soap->xml != NULL);
 	ASSERT(name != NULL);
-	ASSERT(pi >= 0);
+	ASSERT(pi >= -1);
 
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
@@ -362,7 +362,7 @@ int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const ch
 	}
 #endif
 
-	return ezcfg_xml_get_element_index(xml, pi, name);
+	return ezcfg_xml_get_element_index(xml, pi, si, name);
 }
 
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int i)
@@ -380,7 +380,7 @@ char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int
 	return ezcfg_xml_get_element_content_by_index(xml, i);
 }
 
-bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
+bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 {
 	/* buf must be \0-terminated */
 	struct ezcfg *ezcfg;
@@ -400,44 +400,11 @@ bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len)
 
 	soap->envelope_index = 0;
 
-	if (ezcfg_xml_get_element_index(xml, 0, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
+	if (ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
 		return false;
 	}
 
-	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, EZCFG_SOAP_BODY_ELEMENT_NAME);
-
-	if (soap->body_index < 1) {
-		return false;
-	}
-
-	return true;
-}
-
-bool ezcfg_soap_parse_response(struct ezcfg_soap *soap, char *buf, int len)
-{
-	/* buf must be \0-terminated */
-	struct ezcfg *ezcfg;
-	struct ezcfg_xml *xml;
-
-	ASSERT(soap != NULL);
-	ASSERT(soap->xml != NULL);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	ezcfg = soap->ezcfg;
-	xml = soap->xml;
-
-	if (ezcfg_xml_parse(xml, buf, len) == false) {
-		return false;
-	}
-
-	soap->envelope_index = 0;
-
-	if (ezcfg_xml_get_element_index(xml, 0, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
-		return false;
-	}
-
-	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, EZCFG_SOAP_BODY_ELEMENT_NAME);
+	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, -1, EZCFG_SOAP_BODY_ELEMENT_NAME);
 
 	if (soap->body_index < 1) {
 		return false;

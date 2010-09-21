@@ -844,31 +844,41 @@ static int parse_element_stag(
 
 		/* Attribute part */
 		/* Attribute ::= Name Eq AttValue */
-		if (is_name_start_char(*p) == true) {
-			name = p;
-			p++;
-			while(is_name_char(*p) == true) p++;
+		if (is_name_start_char(*p) == false) {
+			/* format error! not Name start */
+			return -1;
+		}
 
-			if (is_white_space(*p) == true) { *p = '\0'; p++; }
+		name = p;
+		p++;
+		while(is_name_char(*p) == true) p++;
 
-			if (is_equal_sign(*p)) { *p = '\0'; p++; }
-			else { return -1; }
+		if (is_white_space(*p) == true) { *p = '\0'; p++; }
 
-			p = skip_white_space(p);
-			if (*p == '\"' || *p == '\'') {
-				c = *p;
-				value = p+1; /* skip \" or \' */
-				p = strchr(value, c); /* find end tag for string */
-				if (p == NULL) {
-					return -1;
-				}
-				*p = '\0';
-				p++;
-				if (ezcfg_xml_element_add_attribute(xml, elem, name, value, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL) == false) {
-					return -1;
-				}
-			}
-			else { return -1; }
+		if (is_equal_sign(*p) == false) {
+			/* format error! not Eq */
+			return -1;
+		}
+
+		*p = '\0';
+		p++;
+
+		p = skip_white_space(p);
+		if (*p != '\"' && *p != '\'') {
+			/* format error! not start with \" or \' */
+			return -1;
+		}
+
+		c = *p;
+		value = p+1; /* skip \" or \' */
+		p = strchr(value, c); /* find end tag for string */
+		if (p == NULL) {
+			return -1;
+		}
+		*p = '\0';
+		p++;
+		if (ezcfg_xml_element_add_attribute(xml, elem, name, value, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL) == false) {
+			return -1;
 		}
 	}
 	p++; /* skip '>' */
@@ -1548,7 +1558,8 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
 	struct elem_attribute *a;
-	int i;
+	char *p;
+	int i, n, l;
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
@@ -1558,6 +1569,8 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 	ezcfg = xml->ezcfg;
 	root = xml->root;
 	buf[0] = '\0';
+	l = len;
+	p = buf;
 
 	for (i = 0; i < xml->num_elements; i++) {
 		if (root[i]->etag_index != i) {
@@ -1567,39 +1580,74 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 				     <date>1511</date> - <date>1512</date>.
 				   </caption>
 				 */
-				snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+				//snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+				n = snprintf(p, l, "%s", root[i]->content);
+				p += n;
+				l -= n;
 			}
 			else {
 				/* start tag */
-				snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
+				//snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
+				n = snprintf(p, l, "<%s", root[i]->name);
+				p += n;
+				l -= n;
+
 				a = root[i]->attr_head;
 				while(a != NULL) {
-					snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
-					snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
+					//snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
+					n = snprintf(p, l, " %s", a->name);
+					p += n;
+					l -= n;
+
+					//snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
+					n = snprintf(p, l, "=\"%s\"", a->value);
+					p += n;
+					l -= n;
+
 					a = a->next;
 				}
 				if (root[i]->content == NULL && root[i]->etag_index == i+1) {
-					snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
+					//snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
+					n = snprintf(p, l, "/>\n");
+					p += n;
+					l -= n;
+
 				}
 				else {
-					snprintf(buf+strlen(buf), len-strlen(buf), ">");
+					//snprintf(buf+strlen(buf), len-strlen(buf), ">");
+					n = snprintf(p, l, ">");
+					p += n;
+					l -= n;
+
 					if (root[i]->content != NULL) {
-						snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+						//snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+						n = snprintf(p, l, "%s", root[i]->content);
+						p += n;
+						l -= n;
 					} else {
-						snprintf(buf+strlen(buf), len-strlen(buf), "\n");
+						//snprintf(buf+strlen(buf), len-strlen(buf), "\n");
+						n = snprintf(p, l, "\n");
+						p += n;
+						l -= n;
 					}
 				}
 			}
 		}
 		else {
 			/* end tag */
-			snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
+			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
+			n = snprintf(p, l, "</%s>\n", root[i]->name);
+			p += n;
+			l -= n;
 		}
 	}
-	return strlen(buf);
+	if (p == buf+len) {
+		return -1;
+	}
+	return (p - buf);
 }
 
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char *name)
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, const char *name)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
@@ -1607,14 +1655,18 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char 
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
-	ASSERT(pi >= 0);
+	ASSERT(pi >= -1);
+	ASSERT(si >= -1);
 	ASSERT(pi < xml->num_elements);
+	ASSERT(si < xml->num_elements);
 
 	ezcfg = xml->ezcfg;
-	for (i = pi; i < xml->num_elements; i++) {
+
+	for (i = (si == -1) ? pi+1 : si+1 ; i < xml->num_elements; i++) {
 		elem = xml->root[i];
-		if (strcmp(elem->name, name) == 0 && (elem->etag_index > 0))
+		if (strcmp(elem->name, name) == 0 && (elem->etag_index > 0)) {
 			return i;
+		}
 	}
 	return -1;
 }

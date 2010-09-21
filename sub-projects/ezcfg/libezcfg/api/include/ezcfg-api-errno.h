@@ -7,6 +7,7 @@
 #define EZCFG_E_READ          4 /* read error */
 #define EZCFG_E_WRITE         5 /* write error */
 #define EZCFG_E_PARSE         6 /* parse error */
-
+#define EZCFG_E_SPACE         7 /* space not enough error */
+#define EZCFG_E_RESULT        8 /* result is error */
 
 #endif

@@ -23,9 +23,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
-# Configure variables: LIBEZCFG_LIB and LIBEZCFG_INC.
+# Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
 AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.la is at])
 AC_ARG_VAR([LIBEZCFG_INC], [where libezcfg.h is at])
+AC_ARG_VAR([LIBEZCFG_API_INC], [where ezcfg-api.h is at])
 
 # Ensure that both or neither are specified.
 if (test -n "$LIBEZCFG_LIB" && test -z "$LIBEZCFG_INC") || \
@@ -38,13 +39,15 @@ if test -z "$LIBEZCFG_LIB"; then
   # Check for libezcfg as a sub-project.
   if test -d "$srcdir/libezcfg"; then
 	AC_CONFIG_SUBDIRS([libezcfg])
-	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
 	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/.libs'
+	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
+	LIBEZCFG_API_INC='$(top_srcdir)/libezcfg/api/include'
   else
     # Check for libezcfg as a super-project.
     if test -d "$srcdir/../libezcfg"; then
-	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
 	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/.libs'
+	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
+	LIBEZCFG_API_INC='$(top_srcdir)/../libezcfg/api/include'
     fi
   fi
 fi
@@ -61,6 +64,7 @@ fi
 if test -n "$LIBEZCFG_LIB"; then
 	AC_SUBST([LIBEZCFG_LTLIB], ["$LIBEZCFG_LIB/libezcfg.la"])
 	AC_SUBST([LIBEZCFG_INCLUDE], ["-I$LIBEZCFG_INC"])
+	AC_SUBST([LIBEZCFG_API_INCLUDE], ["-I$LIBEZCFG_API_INC"])
 fi
 
 
@@ -112,4 +116,5 @@ AC_MSG_RESULT([
 
 	libezcfg_lib:		${LIBEZCFG_LIB:-INSTALLED}
 	libezcfg_inc:		${LIBEZCFG_INC:-INSTALLED}
+	libezcfg_api_inc:	${LIBEZCFG_API_INC:-INSTALLED}
 ])

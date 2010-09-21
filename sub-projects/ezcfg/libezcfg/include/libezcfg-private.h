@@ -215,7 +215,7 @@ int ezcfg_xml_add_element(
         const int pi,
         const int si,
         struct ezcfg_xml_element *elem);
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const char *name);
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, const char *name);
 bool ezcfg_xml_element_add_attribute(
         struct ezcfg_xml *xml,
         struct ezcfg_xml_element *elem,
@@ -239,10 +239,9 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);
 int ezcfg_soap_get_body_index(struct ezcfg_soap *soap);
 int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, int pi, int si, const char *name, const char *content);
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos);
-int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const char *name);
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, const char *name);
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int index);
-bool ezcfg_soap_parse_request(struct ezcfg_soap *soap, char *buf, int len);
-bool ezcfg_soap_parse_response(struct ezcfg_soap *soap, char *buf, int len);
+bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
 /* libezcfg-soap_http.c */

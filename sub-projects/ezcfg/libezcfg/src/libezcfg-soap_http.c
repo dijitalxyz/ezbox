@@ -202,12 +202,11 @@ static void build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	result = NULL;
 
 	if (name != NULL && value != NULL) {
-		dbg(ezcfg, "name=[%s], value=[%s]\n", name, value);
 		if (ezcfg_nvram_set_node_value(nvram, name, value) == true) {
 			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
 		}
 		else {
-			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_FAIL;
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR;
 		}
 	}
 
@@ -925,7 +924,7 @@ bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int le
 	msg_body_len = ezcfg_http_get_message_body_len(http);
 
 	if (msg_body != NULL && msg_body_len > 0) {
-		if (ezcfg_soap_parse_request(soap, msg_body, msg_body_len) == false) {
+		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {
 			return false;
 		}
 	}
@@ -957,7 +956,7 @@ bool ezcfg_soap_http_parse_response(struct ezcfg_soap_http *sh, char *buf, int l
 	msg_body_len = ezcfg_http_get_message_body_len(http);
 
 	if (msg_body != NULL && msg_body_len > 0) {
-		if (ezcfg_soap_parse_response(soap, msg_body, msg_body_len) == false) {
+		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {
 			return false;
 		}
 	}
@@ -1073,14 +1072,14 @@ void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezc
 
 		/* get setNvram part */
 		body_index = ezcfg_soap_get_body_index(soap);
-		setnv_index = ezcfg_soap_get_element_index(soap, body_index, EZCFG_SOAP_NVRAM_SETNV_ELEMENT_NAME);
+		setnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_SETNV_ELEMENT_NAME);
 
 		/* get nvram node name */
-		child_index = ezcfg_soap_get_element_index(soap, setnv_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
+		child_index = ezcfg_soap_get_element_index(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
 		name = ezcfg_soap_get_element_content_by_index(soap, child_index);
 		
 		/* get nvram node value */
-		child_index = ezcfg_soap_get_element_index(soap, setnv_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
+		child_index = ezcfg_soap_get_element_index(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
 		value = ezcfg_soap_get_element_content_by_index(soap, child_index);
 
 		build_nvram_set_response(sh, nvram, name, value);

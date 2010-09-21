@@ -329,6 +329,24 @@ static unsigned char find_method_index(struct ezcfg_http *http, const char *meth
 	return 0;
 }
 
+static unsigned short find_status_code_index(struct ezcfg_http *http, const unsigned short status_code)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	ASSERT(http != NULL);
+	ASSERT(status_code > 0);
+
+	ezcfg = http->ezcfg;
+
+	for (i = http->num_status_codes; i > 0; i--) {
+		if (http->status_code_maps[i].status_code == status_code) {
+			return i;
+		}
+	}
+	return 0;
+}
+
 /**
  * Public functions
  **/
@@ -454,7 +472,7 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
 	if (p == NULL)
 		return false;
 
-	/* 0-terminated method string */
+	/* 0-terminated request uri string */
 	*p = '\0';
 	http->request_uri = strdup(uri);
 	if (http->request_uri == NULL)
@@ -482,7 +500,9 @@ bool ezcfg_http_parse_response(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	char *p;
-	char *method, *uri, *version, *headers;
+	char *version, *reason_phrase, *headers;
+	unsigned short status_code;
+	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(buf != NULL);
@@ -490,62 +510,65 @@ bool ezcfg_http_parse_response(struct ezcfg_http *http, char *buf, int len)
 
 	ezcfg = http->ezcfg;
 
-	method = buf;
+	version = buf;
 
-	/* split HTTP Response-Line (RFC2616 section 6) */
+	/* split HTTP Status-Line (RFC2616 section 6.1) */
 	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
 	if (p == NULL) {
-		err(ezcfg, "no HTTP response line\n");
+		err(ezcfg, "no HTTP status line\n");
 		return false;
 	}
 
 	headers = p+2; /* skip CRLF */
 	*p = '\0';
 
-	/* get request method string */
-	p = strchr(method, ' ');
-	if (p == NULL)
+	/* get version string */
+	p = strchr(version, ' ');
+	if (p == NULL) {
 		return false;
+	}
 
-	/* 0-terminated method string */
+	/* 0-terminated version string */
 	*p = '\0';
-	http->method_index = find_method_index(http, method);
-	if (http->method_index == 0) {
-		*p = ' ';
+	if (strncmp(version, "HTTP/", 5) != 0) {
+		return false;
+	}
+
+	if (sscanf(version+5, "%hd.%hd",
+	           &http->version_major,
+	           &http->version_minor) != 2) {
 		return false;
 	}
 
 	/* restore the SP charactor */
 	*p = ' ';
 
-	/* get uri string */
-	uri = p+1;
-	if (uri[0] != '/' && uri[0] != '*')
+	/* get status code string */
+	p++;
+	if (isdigit(p[0]) == 0 ||
+	    isdigit(p[1]) == 0 ||
+	    isdigit(p[2]) == 0 ||
+	    p[3] != ' ') {
 		return false;
+	}
 
-	p = strchr(uri, ' ');
-	if (p == NULL)
+	status_code = (p[0] - '0') * 100
+	            + (p[1] - '0') * 10
+	            + (p[2] - '0');
+
+	/* skip status code string, and get reason phrase string */
+	reason_phrase = p+4;
+
+	i = find_status_code_index(http, status_code);
+	if (i == 0) {
 		return false;
+	}
 
-	/* 0-terminated method string */
-	*p = '\0';
-	http->request_uri = strdup(uri);
-	if (http->request_uri == NULL)
+	if (strcasecmp(reason_phrase, http->status_code_maps[i].reason_phrase) != 0) {
 		return false;
+	}
 
-	/* restore the SP charactor */
-	*p = ' ';
-
-	/* get http version */
-	version = p+1;
-	if (strncmp(version, "HTTP/", 5) != 0)
-		return false;
-
-	p = version+5;
-	if (sscanf(p, "%hd.%hd",
-	           &http->version_major,
-	            &http->version_minor) != 2)
-		return false;
+	http->status_code_index = i;
 
 	/* parse http headers */
 	return parse_http_headers(http, headers);

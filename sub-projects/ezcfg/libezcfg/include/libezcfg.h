@@ -104,7 +104,7 @@ extern "C" {
 #define EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE       "NVRAM Value is Invalid"
 #define EZCFG_SOAP_NVRAM_OPERATION_FAIL_FAULT_VALUE      "NVRAM Operation Fail"
 #define EZCFG_SOAP_NVRAM_RESULT_VALUE_OK                 "OK"
-#define EZCFG_SOAP_NVRAM_RESULT_VALUE_FAIL               "FAIL"
+#define EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR              "ERROR"
 
 
 /* ezcfg http definitions */
@@ -115,6 +115,7 @@ extern "C" {
 #define EZCFG_HTTP_MODE_RESPONSE       1
 
 /* ezcfg http define strings */
+#define EZCFG_HTTP_SP_STRING           " "
 #define EZCFG_HTTP_CRLF_STRING         "\r\n"
 
 /* HTTP/1.1 (RFC2616) defined methods */
