@@ -62,6 +62,7 @@ struct ezcfg_socket {
 	unsigned char	proto;		/* communication protocol 	*/
 	struct usa	lsa;		/* Local socket address         */
 	struct usa	rsa;		/* Remote socket address        */
+	bool		need_unlink;	/* Need to unlink socket node 	*/
 };
 
 static int set_non_blocking_mode(int sock)
@@ -108,7 +109,7 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 	if (sp->sock >= 0) {
 		close(sp->sock);
 		/* also remove the filesystem node */
-		if (sp->lsa.domain == AF_LOCAL) {
+		if (sp->lsa.domain == AF_LOCAL && sp->need_unlink == true) {
 			
 			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
 				err(ezcfg, "unlink fail: %m\n");
@@ -428,6 +429,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	accepted->sock = -1;
 	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
+	accepted->need_unlink = listener->need_unlink;
 	domain = listener->lsa.domain;
 	accepted->rsa.domain = domain;
 
@@ -473,6 +475,13 @@ void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp)
 	if (sp->sock >= 0) {
 		fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 	}
+}
+
+void ezcfg_socket_set_need_unlink(struct ezcfg_socket *sp, bool need_unlink)
+{
+	ASSERT(sp != NULL);
+
+	sp->need_unlink = need_unlink;
 }
 
 int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path)

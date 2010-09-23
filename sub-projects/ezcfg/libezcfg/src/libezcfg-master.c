@@ -105,7 +105,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 
 	/* initialize nvram */
 	ezcfg_nvram_set_backend_type(master->nvram, EZCFG_NVRAM_BACKEND_TYPE_FILE);
-	ezcfg_nvram_set_store_path(master->nvram, "/tmp/ezcfg/nvram.bin");
+	ezcfg_nvram_set_store_path(master->nvram, EZCFG_NVRAM_STORE_FILE_PATH);
 	ezcfg_nvram_set_total_space(master->nvram, EZCFG_NVRAM_SPACE);
 	ezcfg_nvram_initialize(master->nvram);
 
@@ -171,6 +171,10 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 	if (listener == NULL) {
 		err(ezcfg, "init socket fail: %m\n");
 		return NULL;
+	}
+
+	if (socket_path[0] != '@') {
+		ezcfg_socket_set_need_unlink(listener, true);
 	}
 
 	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {

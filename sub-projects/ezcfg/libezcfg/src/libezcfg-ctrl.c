@@ -70,6 +70,9 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 		err(ezcfg, "controller add socket[%s] fail: %m\n", local_socket_path);
 		goto fail_exit;
 	}
+	if (local_socket_path[0] != '@') {
+		ezcfg_socket_set_need_unlink(ezctrl->socket, true);
+	}
 
 	if (ezcfg_socket_enable_receiving(ezctrl->socket) < 0) {
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", local_socket_path);

@@ -33,14 +33,12 @@ extern "C" {
 #define EZCFG_BUFFER_SIZE         8192
 #define EZCFG_MAX_REQUEST_SIZE    8192
 
-#define EZCFG_SOCKET_DIR	"/tmp/ezcfg"
-#define EZCFG_SOCKET_PATH	"/tmp/ezcfg/ezcfg.sock"
-//#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
-#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
-//#define EZCFG_NVRAM_SOCK_PATH	"@/org/kernel/ezcfg/nvram"
-#define EZCFG_NVRAM_SOCK_PATH	"/tmp/ezcfg/nvram.sock"
-//#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
-#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
+#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
+//#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
+#define EZCFG_NVRAM_SOCK_PATH	"@/org/kernel/ezcfg/nvram"
+//#define EZCFG_NVRAM_SOCK_PATH	"/tmp/ezcfg/nvram.sock"
+#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
+//#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
 /* ezcfg nvram definitions */
@@ -49,7 +47,7 @@ extern "C" {
 #define EZCFG_NVRAM_BACKEND_TYPE_FILE      1
 #define EZCFG_NVRAM_BACKEND_TYPE_FLASH     2
 #define EZCFG_NVRAM_BACKEND_TYPE_HDD       3
-
+#define EZCFG_NVRAM_STORE_FILE_PATH        "/var/ezcfg/nvram.bin"
 
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0

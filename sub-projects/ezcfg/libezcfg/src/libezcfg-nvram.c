@@ -47,6 +47,11 @@ static unsigned char default_version[4] = {
 	NVRAM_VERSOIN_REV ,
 };
 
+static unsigned char default_codings[][4] = {
+	{ 'N', 'O', 'N', 'E' },
+	{ 'G', 'Z', 'I', 'P' },
+};
+
 /* same data type as nvram_node->len!!!
  * free[0] -> 2^4=16 bytes;
  * free[1] -> free[0]*4 = 16*4 = 64 bytes;
@@ -71,6 +76,7 @@ static unsigned short default_block_sizes[8] = {
 struct nvram_header {
 	unsigned char magic[4];
 	unsigned char version[4];
+	unsigned char coding[4];
 	unsigned long length;
 	unsigned long checksum;
 };
@@ -100,8 +106,17 @@ struct ezcfg_nvram {
 	 */
 	int backend_type;
 
+	/* nvram content coding type, mapping to nvram header->coding
+	 * 0 -> NONE : plain text
+	 * 1 -> GZIP : store with gzip compress
+	 */
+	int coding_type;
+
 	/* nvram storage device/file path */
 	char *store_path;
+
+	/* backup nvram storage device/file path */
+	char *backup_store_path;
 
 	/* default settings */
 	int num_default_settings;
@@ -302,6 +317,9 @@ static void generate_nvram_header(struct ezcfg_nvram *nvram, char *buf, size_t l
 		ph->magic[i] = default_magics[nvram->backend_type][i];
 	}
 	for (i=0; i<4; i++) {
+		ph->coding[i] = default_codings[nvram->coding_type][i];
+	}
+	for (i=0; i<4; i++) {
 		ph->version[i] = default_version[i];
 	}
 	ph->length = nvram->used_space;
@@ -398,6 +416,10 @@ bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 		free(nvram->store_path);
 	}
 
+	if (nvram->backup_store_path != NULL) {
+		free(nvram->backup_store_path);
+	}
+
 	if (nvram->free_nodes != NULL) {
 		for(i = 0; i < nvram->num_block_size; i++) {
 			pl = &nvram->free_nodes[i];
@@ -491,6 +513,20 @@ bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int type)
 	return true;
 }
 
+bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int type)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(nvram != NULL);
+	ASSERT(type >= 0);
+
+	ezcfg = nvram->ezcfg;
+
+	nvram->coding_type = type;
+
+	return true;
+}
+
 bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path)
 {
 	struct ezcfg *ezcfg;
@@ -515,6 +551,30 @@ bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path)
 	return true;
 }
 
+bool ezcfg_nvram_set_backup_store_path(struct ezcfg_nvram *nvram, const char *path)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	ASSERT(nvram != NULL);
+	ASSERT(path != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	p = strdup(path);
+	if (p == NULL) {
+		err(ezcfg, "can not calloc nvram backup store path\n");
+		return false;
+	}
+
+	if (nvram->backup_store_path) {
+		free(nvram->backup_store_path);
+	}
+	nvram->backup_store_path = p;
+
+	return true;
+}
+
 char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -524,6 +584,17 @@ char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram)
 	ezcfg = nvram->ezcfg;
 
 	return nvram->store_path;
+}
+
+char *ezcfg_nvram_get_backup_store_path(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(nvram != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	return nvram->backup_store_path;
 }
 
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space)
