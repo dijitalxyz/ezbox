@@ -589,7 +589,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	int body_index, child_index, listnv_index, nvnode_index;
 	char *res_name, *res_value;
 	char *p;
-	int n;
+	int l, n;
 	int rc = 0;
 
 	if (list == NULL || len < 1) {
@@ -679,9 +679,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	/* get nvram node index */
 	nvnode_index = ezcfg_soap_get_element_index(soap, listnv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-	list[0] = '\0';
-	n = 0;
 	p = list;
+	l = len;
 	while (nvnode_index > 0) {
 		/* get nvram node name */
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
@@ -702,11 +701,11 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
 
 		/* construct list buffer */
-		n = snprintf(list, len, "%s=%s\n", res_name, res_value);
+		n = snprintf(p, l, "%s=%s\n", res_name, res_value);
 		p += n;
-		len -= n;
+		l -= n;
 
-		if (len == 0) {
+		if (l == 0) {
 			rc = -EZCFG_E_SPACE ;
 			goto exit;
 		}

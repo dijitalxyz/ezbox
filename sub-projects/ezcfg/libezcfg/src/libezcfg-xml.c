@@ -1664,7 +1664,7 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 
 	for (i = (si == -1) ? pi+1 : si+1 ; i < xml->num_elements; i++) {
 		elem = xml->root[i];
-		if (strcmp(elem->name, name) == 0 && (elem->etag_index > 0)) {
+		if (strcmp(elem->name, name) == 0 && (elem->etag_index != i)) {
 			return i;
 		}
 	}
