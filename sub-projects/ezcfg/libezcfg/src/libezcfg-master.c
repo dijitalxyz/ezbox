@@ -509,7 +509,6 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 		if (pthread_cond_timedwait(&master->empty_cond, &master->mutex, &ts) != 0) {
 			// Timeout! release the mutex and return
 			pthread_mutex_unlock(&master->mutex);
-			dbg(ezcfg, "timeout\n");
 			return false;
 		}
 	}

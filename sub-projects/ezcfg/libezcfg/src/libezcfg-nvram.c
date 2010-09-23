@@ -131,6 +131,27 @@ struct ezcfg_nvram {
 /*
  * Private functions
  */
+/* The Adler-32 checksum calculation */
+#define MOD_ADLER 65521
+/* data: Pointer to the data to be summed; len is in bytes */
+static unsigned long crc32(char *data, size_t len)
+{
+	unsigned long a = 1, b = 0;
+	while (len > 0)
+	{
+		size_t tlen = len > 5550 ? 5550 : len;
+		len -= tlen;
+		do {
+			a += *data++;
+			b += a;
+		} while (--tlen);
+
+		a %= MOD_ADLER;
+		b %= MOD_ADLER;
+	}
+	return (b << 16) | a;
+}
+
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -141,7 +162,6 @@ static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
-		info(ezcfg, "name=[%s] value=[%s]\n", nvp->name, nvp->value);
 		if (ezcfg_nvram_set_node_value(nvram, nvp->name, nvp->value) == false) {
 			err(ezcfg, "set nvram error.\n");
 			return false;
@@ -158,6 +178,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	FILE *fp;
 	char *buf, *p, *q;
 	char *name, *value;
+	unsigned long checksum;
 	int len, i;
 	bool ret;
 
@@ -193,10 +214,14 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	}
 
 	/* do checksum calculate */
+	checksum = crc32(buf, ph->length);
+	if (ph->checksum != checksum) {
+		err(ezcfg, "checksum is error.\n");
+	}
 
 	/* setup nvram node info */
 	p = buf;
-	while (p < buf+len) {
+	while (p < buf+ph->length) {
 		len = strlen(p);
 		q = strchr(p, '=');
 		if (q == NULL) {
@@ -207,7 +232,6 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 		*q = '\0';
 		name = p;
 		value = q+1;
-		info(ezcfg, "name=[%s] value=[%s]\n", name, value);
 		if (ezcfg_nvram_set_node_value(nvram, name, value) == false) {
 			err(ezcfg, "set nvram error.\n");
 			ret = false;
@@ -220,7 +244,6 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
 		value = ezcfg_nvram_get_node_value(nvram, nvp->name);
-		info(ezcfg, "name=[%s] value=[%s] default value=[%s]\n", nvp->name, value, nvp->value);
 		if (value == NULL) {  
 			if (ezcfg_nvram_set_node_value(nvram, nvp->name, nvp->value) == false) {
 				err(ezcfg, "set nvram error.\n");
@@ -252,7 +275,7 @@ static bool nvram_init_from_flash(struct ezcfg_nvram *nvram)
 	return true;
 }
 
-static void build_nvram_buffer(struct ezcfg_nvram *nvram, char *buf, int len)
+static void build_nvram_buffer(struct ezcfg_nvram *nvram, char *buf, size_t len)
 {
 	struct ezcfg *ezcfg;
 	struct nvram_pool *pl_used;
@@ -279,7 +302,7 @@ static void build_nvram_buffer(struct ezcfg_nvram *nvram, char *buf, int len)
 	}
 }
 
-static void generate_nvram_header(struct ezcfg_nvram *nvram, char *buf, int len)
+static void generate_nvram_header(struct ezcfg_nvram *nvram, char *buf, size_t len)
 {
 	struct nvram_header *ph;
 	int i;
@@ -292,7 +315,7 @@ static void generate_nvram_header(struct ezcfg_nvram *nvram, char *buf, int len)
 		ph->version[i] = default_version[i];
 	}
 	ph->length = nvram->used_space;
-	ph->checksum = 0;
+	ph->checksum = crc32(buf, len);
 }
 
 static void nvram_header_copy(struct nvram_header *dest, const struct nvram_header *src)

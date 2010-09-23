@@ -261,12 +261,9 @@ struct ezcfg *ezcfg_new(void)
 		if (env != NULL)
 			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(env));
 
-		dbg(ezcfg, "context %p created\n", ezcfg);
-		dbg(ezcfg, "log_priority=%d\n", ezcfg->log_priority);
-		dbg(ezcfg, "config_file='%s'\n", config_file);
-		if (ezcfg->rules_path != NULL)
-			dbg(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
-
+		if (ezcfg->rules_path != NULL) {
+			info(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
+		}
 		if (config_file != NULL) {
 			free(config_file);
 		}
@@ -293,6 +290,5 @@ void ezcfg_delete(struct ezcfg *ezcfg)
 		return;
 	if (ezcfg->rules_path != NULL)
 		free(ezcfg->rules_path);
-	dbg(ezcfg, "context %p released\n", ezcfg);
 	free(ezcfg);
 }

@@ -129,17 +129,14 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(
 	if (unique) {
 		ezcfg_list_entry_foreach(entry_loop, ezcfg_list_get_entry(list)) {
 			if (strcmp(entry_loop->name, name) == 0) {
-				dbg(ezcfg, "'%s' is already in the list\n", name);
 				free(entry_loop->value);
 				if (value == NULL) {
 					entry_loop->value = NULL;
-					dbg(ezcfg, "'%s' value unset\n", name);
 					return entry_loop;
 				}
 				entry_loop->value = strdup(value);
 				if (entry_loop->value == NULL)
 					return NULL;
-				dbg(ezcfg, "'%s' value replaced with '%s'\n", name, value);
 				return entry_loop;
 			}
 		}
@@ -177,7 +174,6 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(
 	else {
 		ezcfg_list_entry_append(entry_new, list);
 	}
-	dbg(ezcfg, "'%s=%s' added\n", entry_new->name, entry_new->value);
 	return entry_new;
 }
 
@@ -190,7 +186,6 @@ void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry)
 	ezcfg = entry->ezcfg;
 
 	ezcfg_list_node_remove(&entry->node);
-	dbg(ezcfg, "'%s=%s' delete\n", entry->name, entry->value);
 	free(entry->name);
 	free(entry->value);
 	free(entry);
@@ -237,7 +232,6 @@ struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(
 
 	ezcfg_list_entry_foreach(entry, list_entry) {
 		if (strcmp(ezcfg_list_entry_get_name(entry), name) == 0) {
-			dbg(entry->ezcfg, "found '%s=%s'\n", entry->name, entry->value);
 			return entry;
 		}
 	}

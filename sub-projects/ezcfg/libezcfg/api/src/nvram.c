@@ -42,7 +42,7 @@
 
 #include "ezcfg-api.h"
 
-static bool debug = true;
+static bool debug = false;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *file, int line, const char *fn,
@@ -736,8 +736,129 @@ exit:
  **/
 int ezcfg_api_nvram_commit(void)
 {
+	char buf[1024];
+	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	int msg_len;
+	struct ezcfg *ezcfg = NULL;
+	struct ezcfg_ctrl *ezctrl = NULL;
+	struct ezcfg_soap_http *sh = NULL;
+	struct ezcfg_soap *soap = NULL;
+	struct ezcfg_http *http = NULL;
+	int body_index, child_index, commitnv_index;
+	char *result;
+	int n;
 	int rc = 0;
+
+	ezcfg = ezcfg_new();
+	if (ezcfg == NULL) {
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+        ezcfg_log_init("nvram_commit");
+        ezcfg_set_log_fn(ezcfg, log_fn);
+        info(ezcfg, "nvram commit\n");
+
+	sh = ezcfg_soap_http_new(ezcfg);
+	if (sh == NULL) {
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+	soap = ezcfg_soap_http_get_soap(sh);
+	http = ezcfg_soap_http_get_http(sh);
+
+	/* build HTTP request line */
+	ezcfg_http_set_request_method(http, EZCFG_SOAP_HTTP_METHOD_GET);
+	snprintf(buf, sizeof(buf), "%s", EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI);
+	ezcfg_http_set_request_uri(http, buf);
+	ezcfg_http_set_version_major(http, 1);
+	ezcfg_http_set_version_minor(http, 1);
+
+	/* build HTTP headers */
+	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
+	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_HOST, buf);
+	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
+	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
+
+	memset(msg, 0, sizeof(msg));
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+
+	if (ezctrl == NULL) {
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+	if (ezcfg_ctrl_connect(ezctrl) < 0) {
+		rc = -EZCFG_E_CONNECTION ;
+		goto exit;
+	}
+
+	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+		rc = -EZCFG_E_WRITE ;
+		goto exit;
+	}
+
+	ezcfg_soap_http_reset_attributes(sh);
+
+	memset(msg, 0, sizeof(msg));
+	n = 0;
+	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+
+	if (msg_len <= 0) {
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+
+	if (n > msg_len) {
+		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+	}
+
+	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
+	}
+
+	/* get unsetNvramResponse part */
+	body_index = ezcfg_soap_get_body_index(soap);
+	commitnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME);
+	if (commitnv_index < 2) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
+	}
+
+	/* get nvram result part */
+	child_index = ezcfg_soap_get_element_index(soap, commitnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
+	if (child_index < 2) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
+	}
+
+	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
+
+	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
+		rc = 0;
+	}
+	else {
+		rc = -EZCFG_E_RESULT ;
+	}
+
+exit:
+        if (sh != NULL) {
+                ezcfg_soap_http_delete(sh);
+	}
+
+        if (ezctrl != NULL) {
+                ezcfg_ctrl_delete(ezctrl);
+	}
+
+        if (ezcfg != NULL) {
+                ezcfg_delete(ezcfg);
+	}
+
 	return rc;
 }
-
 

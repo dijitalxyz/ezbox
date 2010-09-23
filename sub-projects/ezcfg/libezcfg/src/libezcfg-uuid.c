@@ -128,7 +128,6 @@ static bool gen_uuid_v1(struct ezcfg_uuid *uuid)
  
 	/* Save the state */
 	ezcfg_uuid_export_str(uuid, uuid_str, sizeof(uuid_str));
-	info(ezcfg, "uuid=[%s]\n", uuid_str);
 	return true;
 }
 

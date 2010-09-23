@@ -68,7 +68,7 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 		ezcfg_igrs_reset_attributes(worker->proto_data);
 		break;
 	default :
-		info(ezcfg, "unknown protocol\n");
+		err(ezcfg, "unknown protocol\n");
 	}
 
 	worker->num_bytes_sent = 0;
@@ -383,55 +383,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	             "\r\n", 200, "OK");
 }
 
-#if 0
-static void handle_isdp_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
-
-	worker_printf(worker,
-	             "HTTP/1.1 %d %s\r\n"
-	             "\r\n", 200, "OK");
-}
-#endif
-
-/* This is the heart of the worker's logic.
- * This function is called when the request is read, parsed and validated,
- * and worker must decide what action to take: serve a file, or
- * a directory, or call embedded function, etcetera.
- */
-#if 0
-static void handle_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
-
-	/* dispatch protocol handler */
-	switch(worker->proto) {
-	case EZCFG_PROTO_HTTP :
-		handle_http_request(worker);
-		break;
-	case EZCFG_PROTO_SOAP_HTTP :
-		handle_soap_http_request(worker);
-		break;
-	case EZCFG_PROTO_IGRS :
-		handle_igrs_request(worker);
-		break;
-	case EZCFG_PROTO_ISDP :
-		handle_isdp_request(worker);
-		break;
-	default :
-		info(ezcfg, "unknown protocol\n");
-	}
-}
-#endif
-
 static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, int *nread)
 {
 	int cl;
@@ -547,7 +498,6 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		unsigned short major, minor;
 		major = ezcfg_soap_http_get_http_version_major(worker->proto_data);
 		minor = ezcfg_soap_http_get_http_version_minor(worker->proto_data);
-		info(ezcfg, "major=[%d], minor=[%d]\n", major, minor);
 		if (major != 1 || minor != 1) {
 			send_soap_http_error(worker, 505,
 			                "SOAP/HTTP binding version not supported",
@@ -663,8 +613,6 @@ static void process_new_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	info(ezcfg, "proto=[%d]\n", worker->proto);
-
 	reset_connection_attributes(worker);
 
 	/* dispatch protocol handler */
@@ -682,7 +630,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		//process_isdp_new_connection(worker);
 		break;
 	default :
-		info(ezcfg, "unknown protocol\n");
+		err(ezcfg, "unknown protocol\n");
 	}
 }
  
@@ -713,7 +661,7 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		//worker->proto_data = NULL;
 		break;
 	default :
-		info(ezcfg, "unknown protocol\n");
+		err(ezcfg, "unknown protocol\n");
 	}
 }
 
