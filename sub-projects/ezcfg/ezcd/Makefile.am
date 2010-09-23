@@ -17,6 +17,7 @@ sbin_PROGRAMS = \
 
 ezcd_SOURCES = \
 	src/main.c \
+	src/preinit.c \
 	src/ezcd.c \
 	src/ezcm.c \
 	src/init.c \

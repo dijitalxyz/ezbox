@@ -44,8 +44,8 @@ int main(int argc, char **argv)
 	char *name = strrchr(argv[0], '/');
 	name = name ? name+1 : argv[0];
 
-	if (!strcmp(name, "init")) {
-		return init_main(argc, argv);
+	if (!strcmp(argv[0], "/init")) {
+		return preinit_main(argc, argv);
 	}
 	else if (!strcmp(name, "ezcd")) {
 		return ezcd_main(argc, argv);
