@@ -57,3 +57,4 @@ ezcfg_ctrl_delete
 ezcfg_ctrl_connect
 ezcfg_ctrl_write
 ezcfg_ctrl_read
+ezcfg_nvram_get_num_default_nvram_settings

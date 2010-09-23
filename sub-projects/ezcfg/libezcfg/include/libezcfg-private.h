@@ -105,7 +105,13 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 
 
 /* libezcfg-nvram.c */
-struct ezcfg_nvram_pair;
+struct ezcfg_nvram_pair {
+	char *name;
+	char *value;
+};
+extern struct ezcfg_nvram_pair default_nvram_settings[];
+int ezcfg_nvram_get_num_default_nvram_settings(void);
+
 struct ezcfg_nvram;
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);

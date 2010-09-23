@@ -42,7 +42,8 @@ libezcfg_la_SOURCES += \
 
 # ezcfg nvram
 libezcfg_la_SOURCES += \
-	src/libezcfg-nvram.c
+	src/libezcfg-nvram.c \
+	src/libezcfg-nvram_defaults.c
 
 # ezcfg UUID
 libezcfg_la_SOURCES += \

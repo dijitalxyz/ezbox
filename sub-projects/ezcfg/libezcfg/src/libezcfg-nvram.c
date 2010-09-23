@@ -47,16 +47,6 @@ static unsigned char default_version[4] = {
 	NVRAM_VERSOIN_REV ,
 };
 
-struct ezcfg_nvram_pair {
-	char *name;
-	char *value;
-};
-
-static struct ezcfg_nvram_pair default_nvram_settings[] = {
-	{ "mytest", "ok" },
-	{ "mytest2", "ok2" },
-};
-
 /* same data type as nvram_node->len!!!
  * free[0] -> 2^4=16 bytes;
  * free[1] -> free[0]*4 = 16*4 = 64 bytes;
@@ -481,7 +471,7 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	nvram->used_nodes = used_nodes;
 
 	/* set default settings */
-	nvram->num_default_settings = ARRAY_SIZE(default_nvram_settings);
+	nvram->num_default_settings = ezcfg_nvram_get_num_default_nvram_settings();
 	nvram->default_settings = default_nvram_settings;
 
 	return nvram;
