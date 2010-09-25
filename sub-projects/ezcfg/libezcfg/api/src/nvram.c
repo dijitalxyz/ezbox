@@ -235,6 +235,10 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	}
 
 	res_name = ezcfg_soap_get_element_content_by_index(soap, child_index);
+	if (res_name == NULL) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
+	}
 
 	/* get nvram node value */
 	child_index = ezcfg_soap_get_element_index(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
@@ -245,13 +249,17 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
 
+	if (res_value == NULL) {
+		/* nvram value is empty */
+		res_value = "";
+	}
+
 	if (len < strlen(res_value)+1) {
 		rc = -EZCFG_E_SPACE ;
 		goto exit;
 	}
 
 	rc = snprintf(value, len, "%s", res_value);
-
 exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
@@ -409,6 +417,10 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
+	if (result == NULL) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
 		rc = 0;
@@ -546,6 +558,10 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
+	if (result == NULL) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
 		rc = 0;
@@ -690,6 +706,10 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		}
 
 		res_name = ezcfg_soap_get_element_content_by_index(soap, child_index);
+		if (res_name == NULL) {
+			rc = -EZCFG_E_PARSE ;
+			goto exit;
+		}
 
 		/* get nvram node value */
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
@@ -699,6 +719,10 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		}
 
 		res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
+		if (res_value == NULL) {
+			/* nvram value is empty */
+			res_value = "";
+		}
 
 		/* construct list buffer */
 		n = snprintf(p, l, "%s=%s\n", res_name, res_value);
@@ -838,6 +862,10 @@ int ezcfg_api_nvram_commit(void)
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
+	if (result == NULL) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
 		rc = 0;
@@ -862,3 +890,7 @@ exit:
 	return rc;
 }
 
+void ezcfg_api_nvram_set_debug(bool enable_debug)
+{
+	debug = enable_debug;
+}

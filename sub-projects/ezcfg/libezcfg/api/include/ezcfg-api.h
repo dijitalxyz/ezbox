@@ -9,5 +9,6 @@ int ezcfg_api_nvram_set(const char *name, const char *value);
 int ezcfg_api_nvram_unset(const char *name);
 int ezcfg_api_nvram_list(char *buf, size_t len);
 int ezcfg_api_nvram_commit(void);
+void ezcfg_api_nvram_set_debug(bool enable_debug);
 
 #endif

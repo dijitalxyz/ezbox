@@ -52,6 +52,21 @@ bool ezcfg_list_is_empty(struct ezcfg_list_node *list)
 	return (list->next == list);
 }
 
+int ezcfg_list_get_num_nodes(struct ezcfg_list_node *list)
+{
+	struct ezcfg_list_node *next;
+	int count;
+
+	next = list->next;
+	count = 0;
+
+	while(next != list) {
+		count++;
+		next = next->next;
+	}
+	return count;
+}
+
 static void ezcfg_list_node_insert_between(
 	struct ezcfg_list_node *new,
 	struct ezcfg_list_node *prev,

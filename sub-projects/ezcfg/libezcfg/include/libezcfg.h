@@ -58,7 +58,8 @@ extern "C" {
 
 
 /* ezcfg xml definitions */
-#define EZCFG_XML_MAX_ELEMENTS	128
+#define EZCFG_XML_MAX_ELEMENTS	         128
+#define EZCFG_XML_ENLARGE_SIZE           16
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL 0
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD 1
 

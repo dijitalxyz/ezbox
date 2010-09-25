@@ -79,6 +79,7 @@ struct ezcfg_list_node {
 
 void ezcfg_list_init(struct ezcfg_list_node *list);
 bool ezcfg_list_is_empty(struct ezcfg_list_node *list);
+int ezcfg_list_get_num_nodes(struct ezcfg_list_node *list);
 void ezcfg_list_node_append(struct ezcfg_list_node *new, struct ezcfg_list_node *list);
 void ezcfg_list_node_remove(struct ezcfg_list_node *entry);
 #define ezcfg_list_node_foreach(node, list) \
@@ -213,6 +214,9 @@ struct ezcfg_xml;
 void ezcfg_xml_delete(struct ezcfg_xml *xml);
 struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg);
 void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml);
+int ezcfg_xml_get_max_elements(struct ezcfg_xml *xml);
+bool ezcfg_xml_set_max_elements(struct ezcfg_xml *xml, const int max_elements);
+int ezcfg_xml_get_num_elements(struct ezcfg_xml *xml);
 int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len);
 bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len);
 int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len);
@@ -243,6 +247,8 @@ unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap);
 unsigned short ezcfg_soap_get_version_minor(struct ezcfg_soap *soap);
 bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major);
 bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor);
+int ezcfg_soap_get_max_nodes(struct ezcfg_soap *soap);
+bool ezcfg_soap_set_max_nodes(struct ezcfg_soap *soap, const int max_nodes);
 int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name);
 bool ezcfg_soap_add_envelope_attribute(struct ezcfg_soap *soap, const char *name, const char *value, int pos);
 int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);

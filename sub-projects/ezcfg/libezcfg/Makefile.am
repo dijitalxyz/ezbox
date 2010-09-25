@@ -10,7 +10,8 @@ SUBDIRS = .
 
 AM_CPPFLAGS = \
 	-I$(srcdir)/include \
-	-DSYSCONFDIR=\""$(sysconfdir)"\"
+	-DSYSCONFDIR=\""$(sysconfdir)"\" \
+	-DEZCFG_DEBUG
 
 LDADD = \
 	libezcfg.la

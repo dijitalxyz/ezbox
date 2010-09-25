@@ -328,8 +328,8 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	struct ezcfg_soap *soap;
 	struct ezcfg_nvram *nvram;
 	char *request_uri;
-	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
-	int len;
+	char *buf;
+	int len, buf_len;
 
 	ASSERT(worker != NULL);
 	ASSERT(worker->proto_data != NULL);
@@ -341,6 +341,14 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	soap = ezcfg_soap_http_get_soap(sh);
 	nvram = ezcfg_master_get_nvram(worker->master);
 
+	buf_len = EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE ;
+
+	buf = calloc(buf_len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for handling SOAP/HTTP request\n");
+		return;
+	}
+
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
 		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
@@ -351,10 +359,10 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 		/* build SOAP/HTTP binding error response */
 		buf[0] = '\0';
-		len = ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+		len = ezcfg_soap_http_write_message(sh, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
 		worker_write(worker, buf, len);
-		return ;
+		goto exit;
 	}
 
 	if (is_soap_http_nvram_request(request_uri) == true) {
@@ -364,10 +372,12 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 		/* build SOAP/HTTP binding response */
 		buf[0] = '\0';
-		len = ezcfg_soap_http_write_message(sh, buf, sizeof(buf), EZCFG_SOAP_HTTP_MODE_RESPONSE);
+		len = ezcfg_soap_http_write_message(sh, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
 
 		worker_write(worker, buf, len);
 	}
+exit:
+	free(buf);
 }
 
 static void handle_igrs_request(struct ezcfg_worker *worker)

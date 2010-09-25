@@ -176,6 +176,30 @@ bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 	return true;
 }
 
+int ezcfg_soap_get_max_nodes(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
+
+	/* env, header, body */
+	return ezcfg_xml_get_max_elements(soap->xml) - 6;
+}
+
+bool ezcfg_soap_set_max_nodes(struct ezcfg_soap *soap, const int max_nodes)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
+
+	/* env, header, body */
+	return ezcfg_xml_set_max_elements(soap->xml, max_nodes + 6);
+}
+
 int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name)
 {
 	struct ezcfg *ezcfg;
@@ -197,6 +221,9 @@ int ezcfg_soap_set_envelope(struct ezcfg_soap *soap, const char *name)
 	}
 
 	soap->envelope_index = ezcfg_xml_add_element(xml, -1, -1, elem);
+	if (soap->envelope_index < 0) {
+		ezcfg_xml_element_delete(elem);
+	}
 	return soap->envelope_index;
 }
 
@@ -258,6 +285,9 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 	}
 
 	soap->body_index = ezcfg_xml_add_element(xml, soap->envelope_index, -1, elem);
+	if (soap->body_index < 0) {
+		ezcfg_xml_element_delete(elem);
+	}
 	return soap->body_index;
 }
 
@@ -276,6 +306,7 @@ int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int s
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 	struct ezcfg_xml_element *parent, *sibling, *elem;
+	int ei;
 
 	ASSERT(soap != NULL);
 	ASSERT(soap->xml != NULL);
@@ -312,7 +343,11 @@ int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, const int pi, const int s
 		}
 	}
 
-	return ezcfg_xml_add_element(xml, pi, si, elem);
+	ei = ezcfg_xml_add_element(xml, pi, si, elem);
+	if (ei < 0) {
+		ezcfg_xml_element_delete(elem);
+	}
+	return ei;
 }
 
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos) {

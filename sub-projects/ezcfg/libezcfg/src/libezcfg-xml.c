@@ -712,6 +712,7 @@ static int parse_element_empty_elem_tag(
 	char c;
 	char *buf;
 	int len;
+	int ei;
 
 	ASSERT(xml != NULL);
 	ASSERT(pbuf != NULL);
@@ -760,7 +761,7 @@ static int parse_element_empty_elem_tag(
 			if (is_white_space(*p) == true) { *p = '\0'; p++; }
 
 			if (is_equal_sign(*p)) { *p = '\0'; p++; }
-			else { return -1; }
+			else { ei = -1; goto exit; }
 
 			p = skip_white_space(p);
 			if (*p == '\"' || *p == '\'') {
@@ -768,15 +769,17 @@ static int parse_element_empty_elem_tag(
 				value = p+1; /* skip \" or \' */
 				p = strchr(value, c); /* find end tag for string */
 				if (p == NULL) {
-					return -1;
+					ei = -1;
+					goto exit;
 				}
 				*p = '\0';
 				p++;
 				if (ezcfg_xml_element_add_attribute(xml, elem, name, value, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL) == false) {
-					return -1;
+					ei = -1;
+					goto exit;
 				}
 			}
-			else { return -1; }
+			else { ei = -1; goto exit; }
 		}
 	}
 	p += 2; /* skip "/>" */
@@ -786,8 +789,12 @@ static int parse_element_empty_elem_tag(
 
 	*pbuf = p;
 	*plen = len - (p - buf);
-
-	return ezcfg_xml_add_element(xml, pi, si, elem);
+	ei = ezcfg_xml_add_element(xml, pi, si, elem);
+exit:
+	if (ei < 0) {
+		ezcfg_xml_element_delete(elem);
+	}
+	return ei;
 }
 
 static int parse_element_stag(
@@ -804,6 +811,7 @@ static int parse_element_stag(
 	char c;
 	char *buf;
 	int len;
+	int ei;
 
 	ASSERT(xml != NULL);
 	ASSERT(pbuf != NULL);
@@ -846,7 +854,8 @@ static int parse_element_stag(
 		/* Attribute ::= Name Eq AttValue */
 		if (is_name_start_char(*p) == false) {
 			/* format error! not Name start */
-			return -1;
+			ei = -1;
+			goto exit;
 		}
 
 		name = p;
@@ -857,7 +866,8 @@ static int parse_element_stag(
 
 		if (is_equal_sign(*p) == false) {
 			/* format error! not Eq */
-			return -1;
+			ei = -1;
+			goto exit;
 		}
 
 		*p = '\0';
@@ -866,19 +876,22 @@ static int parse_element_stag(
 		p = skip_white_space(p);
 		if (*p != '\"' && *p != '\'') {
 			/* format error! not start with \" or \' */
-			return -1;
+			ei = -1;
+			goto exit;
 		}
 
 		c = *p;
 		value = p+1; /* skip \" or \' */
 		p = strchr(value, c); /* find end tag for string */
 		if (p == NULL) {
-			return -1;
+			ei = -1;
+			goto exit;
 		}
 		*p = '\0';
 		p++;
 		if (ezcfg_xml_element_add_attribute(xml, elem, name, value, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL) == false) {
-			return -1;
+			ei = -1;
+			goto exit;
 		}
 	}
 	p++; /* skip '>' */
@@ -888,8 +901,12 @@ static int parse_element_stag(
 
 	*pbuf = p;
 	*plen = len - (p - buf);
-
-	return ezcfg_xml_add_element(xml, pi, si, elem);
+	ei = ezcfg_xml_add_element(xml, pi, si, elem);
+exit:
+	if (ei < 0) {
+		ezcfg_xml_element_delete(elem);
+	}
+	return ei;
 }
 
 static bool parse_xml_char_data(
@@ -1196,8 +1213,10 @@ void ezcfg_xml_delete(struct ezcfg_xml *xml)
 
 	ezcfg = xml->ezcfg;
 
-	if (xml->root != NULL)
+	if (xml->root != NULL) {
 		delete_elements(xml);
+		free(xml->root);
+	}
 
 	free(xml);
 }
@@ -1257,6 +1276,59 @@ void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml)
 	xml->num_elements = 0;
 }
 
+int ezcfg_xml_get_max_elements(struct ezcfg_xml *xml)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(xml != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	return xml->max_elements;
+}
+
+bool ezcfg_xml_set_max_elements(struct ezcfg_xml *xml, const int max_elements)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element **root; /* stack for representing xml doc tree */
+	int i;
+
+	ASSERT(xml != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	if (max_elements <= xml->max_elements) {
+		err(ezcfg, "must enlarge the xml stack.\n");
+		return false;
+	}
+
+	root=realloc(xml->root, sizeof(struct ezcfg_xml_element *) * max_elements);
+	if (root == NULL) {
+		err(ezcfg, "can not realloc for xml->root.\n");
+		return false;
+	}
+
+	/* initialize newly allocated memory which was uninitialized */
+	for (i = xml->num_elements; i < max_elements; i++) {
+		root[i] = NULL;
+	}
+
+	xml->root = root;
+	xml->max_elements = max_elements;
+	return true;
+}
+
+int ezcfg_xml_get_num_elements(struct ezcfg_xml *xml)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(xml != NULL);
+
+	ezcfg = xml->ezcfg;
+
+	return xml->num_elements;
+}
+
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
 	struct elem_attribute *a;
@@ -1274,7 +1346,7 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 			free(a->value);
 		}
 	}
-	if (elem->content) {
+	if (elem->content != NULL) {
 		free(elem->content);
 	}
 	free(elem);
@@ -1390,12 +1462,28 @@ int ezcfg_xml_add_element(
 	struct ezcfg_xml_element **root;
 	struct ezcfg_xml_element *parent;
 	struct ezcfg_xml_element *sibling;
-	int i;
+	int i, max_elements;
 
 	ASSERT(xml != NULL);
-	ASSERT(xml->num_elements+2 <= xml->max_elements);
+	//ASSERT(xml->num_elements+2 <= xml->max_elements);
 
 	ezcfg = xml->ezcfg;
+
+	if (xml->num_elements+2 > xml->max_elements) {
+		max_elements = xml->max_elements + EZCFG_XML_ENLARGE_SIZE ;
+		root=realloc(xml->root, sizeof(struct ezcfg_xml_element *) * max_elements);
+		if (root == NULL) {
+			err(ezcfg, "can not realloc for xml->root.\n");
+			return -1;
+		}
+		/* initialize newly allocated memory which was uninitialized */
+		for (i = xml->num_elements; i < max_elements; i++) {
+			root[i] = NULL;
+		}
+		xml->root = root;
+		xml->max_elements = max_elements;
+	}
+
 	root = xml->root;
 	i = 0;
 
