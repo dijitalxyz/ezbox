@@ -3,7 +3,7 @@
 
 = 简介 =
 
-本页介绍如何移植 ezbox 到 EchoLife HG522-C 华为电信宽带相框猫硬件平台
+本页介绍如何移植 ezbox 到 EchoLife HG522-C 华为电信宽带相框猫-科胜讯(Conexant)版本-硬件平台
 
 
 = 详细说明 =
