@@ -1,0 +1,29 @@
+#summary EchoLife HG522-C 华为电信宽带相框猫
+#labels Phase-Implementation
+
+= 简介 =
+
+本页介绍如何移植 ezbox 到 EchoLife HG522-C 华为电信宽带相框猫硬件平台
+
+
+= 详细说明 =
+
+
+== 硬件平台信息 ==
+
+  * CPU : Conexant CX94610-11Z
+  * SDRAM : Hynix HY57V281620FTP-6 X2 (32MB)
+  * FLASH : Spansion S29GL128N10T (16MB)
+  * SWITCH : Realtek RTL8306SD
+  * WLAN : 
+
+
+== 串口针脚定义 ==
+  * 板上预留UART口，丝印J5 留有接口(插针)，其中 第4PIN 空脚。 上面还有个J6的焊盘（未知）。
+  * 针脚从左到右分别是 : Txd Gnd Rxd 空脚 未知
+
+= 常见问题 =
+
+
+= 参考资料 =
+  # EchoLife HG522-c 华为电信宽带猫 <a ref="http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html">http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html</a>
