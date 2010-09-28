@@ -34,3 +34,4 @@
 = 参考资料 =
   # EchoLife HG522-c 华为电信宽带猫 <a ref="http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html">http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html</a>
   # 无线宽带猫－－中国电信定制无线家庭网关产品大全 e8-B篇 <a href="http://hi.baidu.com/broadcom/blog/item/57a19c08d360cda62eddd4d4.html">http://hi.baidu.com/broadcom/blog/item/57a19c08d360cda62eddd4d4.html</a>
+  # [CONEXANT系列芯片] 【华为Huawei】EchoLife HG522-C V100R001C03B016 <a href="http://www.chinaqos.net/viewthread.php?tid=39007">http://www.chinaqos.net/viewthread.php?tid=39007</a>
