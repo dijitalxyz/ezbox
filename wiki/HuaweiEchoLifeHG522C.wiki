@@ -21,7 +21,8 @@
   * SDRAM : Hynix HY57V281620FTP-6 X2 (32MB)
   * FLASH : Spansion S29GL128N10T (16MB)
   * SWITCH : Realtek RTL8306SD
-  * WLAN : 
+  * WLAN : CX50221
+  * USB : CX20552
 
 == 串口针脚定义 ==
   * 板上预留 UART 口，丝印 J5 留有接口(插针)，其中第 4 PIN 空脚。上面还有个J6的焊盘（未知）。
@@ -38,23 +39,23 @@
 
 == 登录帐号密码 ==
   * 网页电信管理员登录
-  登陆地址: http//192.168.1.1/
-  用户名: telecomadmin
-  密码: nE7jA%5m
+  # 登陆地址: http//192.168.1.1/
+  # 用户名: telecomadmin
+  # 密码: nE7jA%5m
 
   * telnet登录
-  登录地址: telnet 192.168.1.1
-  用户名: !!Huawei
-  密码: @HuaweiHgw
+  # 登录地址: telnet 192.168.1.1
+  # 用户名: !!Huawei
+  # 密码: @HuaweiHgw
 
   * 串口登录
-  登录地址: 连接好串口线后，输入回车
-  用户名: !!Huawei
-  密码: @HuaweiHgw
+  # 登录地址: 连接好串口线后，输入回车
+  # 用户名: !!Huawei
+  # 密码: @HuaweiHgw
 
   * 进入Linux环境
-  登录地址: 使用 telnet 或串口登录后，在 CLI 环境下输入 start
-  即： ATP> start
+  # 登录地址: 使用 telnet 或串口登录后，在 CLI 环境下输入 start
+  # 即： ATP> start
 
 = 常见问题 =
 
