@@ -7,6 +7,16 @@
 
 = 详细说明 =
 
+== 产品信息 ==
+  * 技术标准 Annex A ANSI T1.413 Issue 2，ITU-T G.992.1（G.DMT），G.992.3（ADSL2）和G.992.5（ADSL2+），802.11b/802.11g
+  * 数据传输速率 G.992.5(ADSL2+): 下行最大24M bit/s，上行最大1M bit/s
+  * Wi-Fi速率: 54，48，36，24，18，12，11，9，6，5.5，2和1M bit/s
+  * 外部接口WAN: 一个ADSL/ADSL2+端口（RJ-11）
+  * LAN: 四个自适应10/100 Base-T以太网端口（RJ-45）
+  * WLAN: 一个天线，用于进行802.11b/g无线连接
+  * USB: 一个USB接口，可以连接打印机和存储设备
+
+
 == 设备基本信息 ==
 
   * 设备型号 : EchoLife HG522
@@ -110,7 +120,7 @@
 == 相似产品 ==
 === Linksys WAG54G2 v1.0 ===
   * OpenWRT上的介绍 <a href="http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html">http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html</a>
-  * Linksys 提供 GPL 源代码 <a href="http://homesupport.cisco.com/en-us/gplcodecenter">http://homesupport.cisco.com/en-us/gplcodecenter</a>
+  * Linksys 提供 GPL 源代码 <a href="http://homesupport.cisco.com/en-us/gplcodecenter">http://homesupport.cisco.com/en-us/gplcodecenter</a> 选择 WAG54G2 AnnexA 的 GPL 源代码
 
 = 常见问题 =
 
@@ -124,9 +134,6 @@ Boot from Ethernet Port
 ..TCP timeout retryCount = 0, state = 3
 ...TCP timeout retryCount = 0, state = 3
 }}}
-
-
-
 
 = 参考资料 =
   # EchoLife HG522-c 华为电信宽带猫 <a ref="http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html">http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html</a>
