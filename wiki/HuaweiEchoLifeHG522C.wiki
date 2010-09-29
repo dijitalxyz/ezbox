@@ -107,6 +107,10 @@
 === Linux 启动命令 ===
   * console=ttyS0 root=31:2 mem=31M r mtdparts=phys_mapped_flash:128k(boot),768k(kernel),4608k(SQUASHFS),768k(none),4m(JFFS2) rootfstype=squashfs
 
+== 相似产品 ==
+=== Linksys WAG54G2 v1.0 ===
+  * OpenWRT上的介绍 <a href="http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html">http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html</a>
+  * Linksys 提供 GPL 源代码 <a href="http://homesupport.cisco.com/en-us/gplcodecenter">http://homesupport.cisco.com/en-us/gplcodecenter</a>
 
 = 常见问题 =
 
