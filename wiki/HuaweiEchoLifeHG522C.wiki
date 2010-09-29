@@ -109,6 +109,19 @@
 
 = 常见问题 =
 
+== 我的猫不能用本地升级方式升级固件 ==
+  # 请确认你进入到了boot固件升级模式
+  # 如果可以请连接你的串口线，观察升级时的串口输出信息，已知在boot中的网卡驱动与某些PC配置的网卡存在兼容性问题，如果你在串口中看到如下信息，请换一台PC使用其他类型的网卡重新尝试
+{{{
+Booting from Webserver
+
+Boot from Ethernet Port
+..TCP timeout retryCount = 0, state = 3
+...TCP timeout retryCount = 0, state = 3
+}}}
+
+
+
 
 = 参考资料 =
   # EchoLife HG522-c 华为电信宽带猫 <a ref="http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html">http://hi.baidu.com/haitun198/blog/item/b50877b3a486e1acd8335a63.html</a>
