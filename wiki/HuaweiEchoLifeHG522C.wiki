@@ -57,6 +57,56 @@
   # 登录地址: 使用 telnet 或串口登录后，在 CLI 环境下输入 start
   # 即： ATP> start
 
+== 系统信息 ==
+基于 V100R001C02B029SP01_GDCT 版本固件
+
+=== CPU 信息 ===
+  * Processor	: ARM1026EJ-Sid(wb)B rev 2 (v5l)
+  * BogoMIPS	: 351.43
+  * Features	: swp half thumb fastmult 
+  * CPU implementer	: 0x41
+  * CPU architecture: 5TEJ
+  * CPU variant	: 0x0
+  * CPU part	: 0xa26
+  * CPU revision	: 2
+  * Cache type	: VIPT write-back
+  * Cache clean	: cp15 c7 ops
+  * Cache lockdown	: format C
+  * Cache format	: Harvard
+  * I size		: 16384
+  * I assoc		: 4
+  * I line length	: 32
+  * I sets		: 128
+  * D size		: 8192
+  * D assoc		: 4
+  * D line length	: 32
+  * D sets		: 64
+  * Hardware	: Solos CX4615
+  * Revision	: 0000
+  * Serial		: 0000002233445566
+
+=== FLASH 分区信息 ===
+  * dev:    size   erasesize  name
+  * mtd0: 00020000 00020000 "boot"
+  * mtd1: 000c0000 00020000 "kernel"
+  * mtd2: 00480000 00020000 "SQUASHFS"
+  * mtd3: 000c0000 00020000 "none"
+  * mtd4: 00400000 00020000 "JFFS2"
+
+  * major minor  #blocks  name
+  *  31     0        128 mtdblock0
+  *  31     1        768 mtdblock1
+  *  31     2       4608 mtdblock2
+  *  31     3        768 mtdblock3
+  *  31     4       4096 mtdblock4
+
+=== Linux 版本 ===
+  * Linux version 2.6.8.1 (root@localhost.localdomain) (gcc version 4.0.1) #17 Fri Jun 5 10:41:20 CST 2009
+
+=== Linux 启动命令 ===
+  * console=ttyS0 root=31:2 mem=31M r mtdparts=phys_mapped_flash:128k(boot),768k(kernel),4608k(SQUASHFS),768k(none),4m(JFFS2) rootfstype=squashfs
+
+
 = 常见问题 =
 
 
