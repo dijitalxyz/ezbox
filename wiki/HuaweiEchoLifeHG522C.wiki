@@ -22,6 +22,7 @@
   * FLASH : Spansion S29GL128N10T (16MB)
   * SWITCH : Realtek RTL8306SD
   * WLAN : CX50221
+  * RF-FEM: CX3510
   * USB : CX20552
 
 == 串口针脚定义 ==
@@ -129,3 +130,4 @@ Boot from Ethernet Port
   # [CONEXANT系列芯片] 【华为Huawei】EchoLife HG522-C V100R001C03B016 <a href="http://www.chinaqos.net/viewthread.php?tid=39007">http://www.chinaqos.net/viewthread.php?tid=39007</a>
   # [CONEXANT系列芯片] 【华为Huawei】EchoLife HG522-C V100R001C02B029SP01_GDCT <a href="http://www.chinadsl.net/viewthread.php?tid=39799">http://www.chinadsl.net/viewthread.php?tid=39799</a>
   # 解除华为 hg522-c ADSL无线路由Modem限制 <a href="http://hi.baidu.com/es1120/blog/item/79111b1a2841cdf3ae513305.html">http://hi.baidu.com/es1120/blog/item/79111b1a2841cdf3ae513305.html</a>
+  # e8-b维修前期指导 <a href="http://www.chinadsl.net/viewthread.php?tid=28352">http://www.chinadsl.net/viewthread.php?tid=28352</a>
