@@ -1,4 +1,5 @@
-# (C) 2009 OpenWrt.org
+#
+# Copyright (C) 2009-2010 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=freeswitch
 PKG_VERSION:=1.0.6
-PKG_RELEASE:=1
+PKG_RELEASE:=11
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
@@ -172,12 +173,14 @@ endef
 
 define Package/freeswitch-config-minimal
 $(call Package/freeswitch/Default)
-  TITLE:=FreeSWITCH minimal OpenWRT config
+  TITLE:=FreeSWITCH a minimal FS config
   DEPENDS:= freeswitch
 endef
 
 define Package/freeswitch-config-minimal/description
-  The OpenWRT configuration for the OpenWRT FreeSWITCH minimal package collection.
+  A minimal configuration of FreeSWITCH for OpenWRT devices.  Is what the UCI 
+  configuration began with.
+  
 endef
 
 define Package/freeswitch-collection-upstream-defaults
@@ -209,12 +212,9 @@ $(call Package/freeswitch/Default)
 		+freeswitch-tools
 endef
 
-# mod_lua is included in FreeSWITCH minimal because it is intended to be used
-# by the LuCI / ucitrigger interface to FreeSWITCH on OpenWRT
-
 define Package/freeswitch-collection-minimal
 $(call Package/freeswitch/Default)
-  TITLE:=FreeSWITCH on OpenWRT minimal config
+  TITLE:=A FreeSWITCH minimal package collection
   DEPENDS:= freeswitch \
   		+freeswitch-config-minimal \
 		+freeswitch-mod-commands \
@@ -227,7 +227,6 @@ $(call Package/freeswitch/Default)
 		+freeswitch-mod-sofia \
 		+freeswitch-mod-tone-stream \
 		+freeswitch-mod-voipcodecs \
-		+freeswitch-mod-lua \
 		+freeswitch-tools
 endef
 
@@ -267,19 +266,19 @@ endef
 MAKE_INSTALL_TARGETS:=install
 
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-celt),)
- $(eval $(call Download/files,celt,celt-0.6.1.tar.gz,2961ffb6fadb5f905d20de9f0d86e44c,downloads/libs/,libs/))
+ $(eval $(call Download/files,celt,celt-0.7.1.tar.gz,c7f6b8346e132b1a48dae0eff77ea9f0,downloads/libs/,libs/))
 endif
 
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-curl),)
- $(eval $(call Download/files,json-c,json-c-0.8.tar.gz,9c7b90dff16eec3063084829c382ebac,downloads/libs/,libs/))
+ $(eval $(call Download/files,json-c,json-c-0.9.tar.gz,4653b3b9c568bb9c782178abfaac128d,downloads/libs/,libs/))
 endif
 
 ifneq ($(CONFIG_PACKAGE_freeswitch-mod-flite),)
- $(eval $(call Download/files,flite,flite-1.3.99.tar.gz,,downloads/libs/,libs/))
+ $(eval $(call Download/files,flite,flite-1.3.99-latest.tar.gz,,downloads/libs/,libs/))
 endif
 
 ifneq ($(CONFIG_PACKAGE_freeswitch-sounds-en),)
- $(eval $(call Download/files,sounds-en,freeswitch-sounds-en-us-callie-8000-1.0.10.tar.gz,f7f85aaf3763673c884ec3451f1c1c3e,,))
+ $(eval $(call Download/files,sounds-en,freeswitch-sounds-en-us-callie-8000-1.0.12.tar.gz,d700439027dd95dd118e5e85f38e4d81,,))
 	MAKE_INSTALL_TARGETS+= sounds-install
 endif
 
@@ -288,9 +287,11 @@ ifneq ($(CONFIG_PACKAGE_freeswitch-sounds-moh),)
 	MAKE_INSTALL_TARGETS+= moh-install
 endif
 
-FS_TARGET_CFLAGS = ${TARGET_CFLAGS} -DLUA_USE_LINUX $(FPIC) -std=gnu99
-FS_TARGET_CXXFLAGS = ${TARGET_CXXFLAGS} -DLUA_USE_LINUX $(FPIC)
-FS_TARGET_CPPFLAGS = -I. -I./lua ${TARGET_CPPFLAGS}
+# XXX: -fgnu89-inline is not supported on all compiler versions, so only enable it on avr32 where it solves build issues
+ifneq ($(CONFIG_avr32),)
+  TARGET_CFLAGS += -fgnu89-inline
+  TARGET_CXXFLAGS += -fgnu89-inline
+endif
 
 ifneq ($(CONFIG_USE_EGLIBC),)
   ifeq ($(CONFIG_EGLIBC_OPTION_EGLIBC_UTMP),)
@@ -298,8 +299,12 @@ ifneq ($(CONFIG_USE_EGLIBC),)
   endif
 endif
 
+FS_TARGET_CFLAGS:= ${TARGET_CFLAGS} -DLUA_USE_LINUX $(FPIC) -std=gnu99 -Wno-format
+FS_TARGET_CXXFLAGS:= ${TARGET_CXXFLAGS} -DLUA_USE_LINUX $(FPIC) -Wno-format
+FS_TARGET_CPPFLAGS:= -I. -I./lua ${TARGET_CPPFLAGS}
+
 CONFIGURE_ARGS+= \
-	--prefix="/usr/freeswitch" \
+	--prefix="/usr/share/freeswitch" \
 	--bindir="/usr/bin" \
 	--libdir="/usr/lib" \
 	--sysconfdir="/etc/freeswitch" \
@@ -375,12 +380,12 @@ define Build/Compile
 		LDFLAGS_FOR_BUILD="$(HOST_LDFLAGS)" \
 		all $(MAKE_INSTALL_TARGETS)
 	$(SED) 's|^\([ \t]*\)\(.*\)"mod_console"\(.*\)$$$$|\1<!-- \2"mod_console"\3 -->|' $(PKG_INSTALL_DIR)/etc/freeswitch/autoload_configs/modules.conf.xml
-	$(SED) 's|^\([ \t]*\)<!-- \(.*\)"mod_syslog"\(.*\) -->\(.*\)$$$$|\1\2"mod_syslog"\3\4|' $(PKG_INSTALL_DIR)/etc/freeswitch/autoload_configs/modules.conf.xml
+	$(SED) 's|^\([ \t]*\)<!-- *\(.*\)"mod_syslog"\(.*\) *-->\(.*\)$$$$|\1\2"mod_syslog"\3\4|' $(PKG_INSTALL_DIR)/etc/freeswitch/autoload_configs/modules.conf.xml
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/freeswitch
-	$(CP) $(PKG_INSTALL_DIR)/usr/freeswitch/include/* $(1)/usr/include/freeswitch/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/freeswitch/include/* $(1)/usr/include/freeswitch/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libfreeswitch.{a,so*} $(1)/usr/lib/
 endef
@@ -419,19 +424,23 @@ define Package/freeswitch-collection-minimal/install
 	$(INSTALL_DIR) $(1)/etc/freeswitch
 endef
 
+define Package/freeswitch-collection-uci-minimal/install
+	$(INSTALL_DIR) $(1)/etc/freeswitch
+endef
+
 define Package/freeswitch-config-minimal/install
 	$(INSTALL_DIR) $(1)/etc/freeswitch
 	$(CP) ./files/etc.minimal/* $(1)/etc/freeswitch/
 endef
 
 define Package/freeswitch-sounds-en/install
-	$(INSTALL_DIR) $(1)/usr/freeswitch/sounds
-	$(CP) $(PKG_INSTALL_DIR)/usr/freeswitch/sounds/en $(1)/usr/freeswitch/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/freeswitch/sounds
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/freeswitch/sounds/en $(1)/usr/share/freeswitch/sounds/
 endef
 
 define Package/freeswitch-sounds-moh/install
-	$(INSTALL_DIR) $(1)/usr/freeswitch/sounds
-	$(CP) $(PKG_INSTALL_DIR)/usr/freeswitch/sounds/music $(1)/usr/freeswitch/sounds/
+	$(INSTALL_DIR) $(1)/usr/share/freeswitch/sounds
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/freeswitch/sounds/music $(1)/usr/share/freeswitch/sounds/
 endef
 
 define Package/freeswitch-tools/install
@@ -458,6 +467,22 @@ define BuildPlugin
 			$(PKG_INSTALL_DIR)/usr/lib/freeswitch/$$$$$$$${f}.so \
 			$$(1)/usr/lib/freeswitch/ ; \
 	done
+	if [ -d "./files/etc.packages/$(1)" ]; then \
+		$(INSTALL_DIR) $$(1)/etc/freeswitch ; \
+		$(CP) \
+			./files/etc.packages/$(1)/* \
+			$$(1)/etc/freeswitch/ ; \
+        fi
+  endef
+
+  define Package/freeswitch-mod-$(1)/postinst
+#!/bin/sh
+sed -i -e 's|^\([ \t]*\)<!-- *\(.*\)"mod_$(subst -,_,$(1))"\(.*\) *-->\(.*\)$$$$|\1\2"mod_$(subst -,_,$(1))"\3\4|' $$$${IPKG_INSTROOT}/etc/freeswitch/autoload_configs/modules.conf.xml
+  endef
+
+  define Package/freeswitch-mod-$(1)/postrm
+#!/bin/sh
+sed -i -e 's|^\([ \t]*\)\(.*\)"mod_$(subst -,_,$(1))"\(.*\)$$$$|\1<!-- \2"mod_$(subst -,_,$(1))"\3 -->|' $$$${IPKG_INSTROOT}/etc/freeswitch/autoload_configs/modules.conf.xml
   endef
 
   $$(eval $$(call BuildPackage,freeswitch-mod-$(1)))
@@ -474,7 +499,7 @@ $(eval $(call BuildPackage,freeswitch-config-upstream-defaults))
 $(eval $(call BuildPackage,freeswitch-config-minimal))
 
 #$(eval $(call BuildPlugin,Name,Title,Files,Depends))
-$(eval $(call BuildPlugin,alsa,Alsa endpoint,mod_alsa,,+alsa-lib))
+$(eval $(call BuildPlugin,alsa,Alsa endpoint,mod_alsa,,))
 $(eval $(call BuildPlugin,amr,GSM-AMR codec,mod_amr,,))
 $(eval $(call BuildPlugin,amrwb,GSM-AMRWB,mod_amrwb,,))
 $(eval $(call BuildPlugin,bv,codec mod_bv,mod_bv,,))
@@ -502,10 +527,10 @@ $(eval $(call BuildPlugin,esf,Extra SIP Functionality,mod_esf,,))
 $(eval $(call BuildPlugin,event-multicast,Multicast event handler,mod_event_multicast,,))
 $(eval $(call BuildPlugin,event-socket,Socket event handler,mod_event_socket,,))
 $(eval $(call BuildPlugin,expr,Expression evaluation,mod_expr,,))
-$(eval $(call BuildPlugin,fax,Fax,mod_fax,,@BROKEN +libjpeg)) # fails in spandsp
+$(eval $(call BuildPlugin,fax,Fax,mod_fax,,+libjpeg @(!(powerpc)||BROKEN))) # fails in spandsp
 $(eval $(call BuildPlugin,fifo,FIFO,mod_fifo,,))
 $(eval $(call BuildPlugin,file-string,File streaming,mod_file_string,,))
-$(eval $(call BuildPlugin,flite,Festival TTS,mod_flite,,))
+$(eval $(call BuildPlugin,flite,Festival TTS,mod_flite,,@(!(armeb||avr32)||BROKEN)))
 $(eval $(call BuildPlugin,fsv,Video,mod_fsv,,))
 $(eval $(call BuildPlugin,g723-1,G.723.1 codec,mod_g723_1,,))
 $(eval $(call BuildPlugin,g729,G.729 codec,mod_g729,,))
@@ -525,7 +550,7 @@ $(eval $(call BuildPlugin,memcache,MemCached interface,mod_memcache,,@BROKEN)) #
 $(eval $(call BuildPlugin,native-file,Native files,mod_native_file,,))
 $(eval $(call BuildPlugin,nibblebill,Billing,mod_nibblebill,,))
 $(eval $(call BuildPlugin,opal,Multi-Protocol endpoint,mod_opal,,@BROKEN)) # needs Opal
-$(eval $(call BuildPlugin,openzap,Zaptel hardware interface,mod_openzap ozmod_analog ozmod_analog_em ozmod_isdn ozmod_skel ozmod_ss7_boost ozmod_zt,,+libpcap))
+$(eval $(call BuildPlugin,openzap,Zaptel hardware interface,mod_openzap ozmod_analog ozmod_analog_em ozmod_isdn ozmod_skel ozmod_zt,,+libpcap))
 $(eval $(call BuildPlugin,perl,Perl language interface,mod_perl,,+perl @BROKEN)) # needs Perl
 $(eval $(call BuildPlugin,pocketsphinx,PocketSphinx SR,mod_pocketsphinx,,@BROKEN)) # fails in sphinxbase
 $(eval $(call BuildPlugin,portaudio,Local audio endpoint,mod_portaudio,,+alsa-lib))
@@ -570,7 +595,7 @@ $(eval $(call BuildPlugin,unimrcp,MRCP interface,mod_unimrcp,,))
 $(eval $(call BuildPlugin,valet-parking,application mod_valet_parking,mod_valet_parking,,))
 $(eval $(call BuildPlugin,vmd,VoiceMail beep detection,mod_vmd,,))
 $(eval $(call BuildPlugin,voicemail,VoiceMail,mod_voicemail,,))
-$(eval $(call BuildPlugin,voipcodecs,VoIP codecs,mod_voipcodecs,,))
+$(eval $(call BuildPlugin,voipcodecs,VoIP codecs,mod_voipcodecs,,@(!(powerpc)||BROKEN))) # fails in spandsp
 $(eval $(call BuildPlugin,xml-cdr,XML-CDR handler,mod_xml_cdr,,+libcurl))
 $(eval $(call BuildPlugin,xml-curl,XML-Curl gateway,mod_xml_curl,,+libcurl))
 $(eval $(call BuildPlugin,xml-ldap,LDAP-XML gateway,mod_xml_ldap,,@BROKEN)) # fails in openldap
