@@ -17,4 +17,8 @@ LINUX_VERSION:=2.6.32.14
 
 include $(INCLUDE_DIR)/target.mk
 
+define Target/Description
+	Build firmware images for Conexant Solos SoC based routers and media devices.
+endef
+
 $(eval $(call BuildTarget))
