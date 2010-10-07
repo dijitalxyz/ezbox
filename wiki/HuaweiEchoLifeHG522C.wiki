@@ -122,6 +122,15 @@
   * OpenWRT上的介绍 <a href="http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html">http://oldwiki.openwrt.org/OpenWrtDocs(2f)Hardware(2f)Linksys(2f)WAG54G2.html</a>
   * Linksys 提供 GPL 源代码 <a href="http://homesupport.cisco.com/en-us/gplcodecenter">http://homesupport.cisco.com/en-us/gplcodecenter</a> 选择 WAG54G2 AnnexA 的 GPL 源代码
 
+=== Netgear DG834 v5 ===
+  * Wiki 百科上的介绍 <a href="http://en.wikipedia.org/wiki/Netgear_DG834">http://en.wikipedia.org/wiki/Netgear_DG834</a>
+  * Netgear GPL 源代码下载地址 ftp://downloads.netgear.com/files/GPL/
+
+=== Conexant Solos SoC Linux BSP ===
+  * OpenWRT 邮件列表的讨论 <a href="http://comments.gmane.org/gmane.comp.embedded.openwrt.devel/6586">http://comments.gmane.org/gmane.comp.embedded.openwrt.devel/6586</a>
+  * conexant Solos SoC Linux BSP 下载地址 <a href="http://broadband.gennetsa.com/gpl/tellas-20090712/">http://broadband.gennetsa.com/gpl/tellas-20090712/</a>
+
+
 = 常见问题 =
 
 == 我的猫不能用本地升级方式升级固件 ==
