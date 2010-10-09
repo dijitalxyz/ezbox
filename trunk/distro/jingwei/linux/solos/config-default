@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.32.14
-# Thu Oct  7 22:49:49 2010
+# Sat Oct  9 11:44:43 2010
 #
 CONFIG_ARM=y
 CONFIG_SYS_SUPPORTS_APM_EMULATION=y
@@ -59,11 +59,18 @@ CONFIG_LOG_BUF_SHIFT=14
 # CONFIG_RELAY is not set
 # CONFIG_NAMESPACES is not set
 CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_RD_GZIP=y
+CONFIG_INITRAMFS_SOURCE="/home/hue/workplace/ezbox/ezbox/trunk/bootstrap/build_dir/target-arm_v5te_uClibc-0.9.32_eabi/root-solos /home/hue/workplace/ezbox/ezbox/trunk/bootstrap/target/linux/generic/image/initramfs-base-files.txt"
+CONFIG_INITRAMFS_ROOT_UID=1000
+CONFIG_INITRAMFS_ROOT_GID=100
+# CONFIG_RD_GZIP is not set
 # CONFIG_RD_BZIP2 is not set
-# CONFIG_RD_LZMA is not set
+CONFIG_RD_LZMA=y
 # CONFIG_RD_LZO is not set
+# CONFIG_INITRAMFS_COMPRESSION_NONE is not set
+# CONFIG_INITRAMFS_COMPRESSION_GZIP is not set
+# CONFIG_INITRAMFS_COMPRESSION_BZIP2 is not set
+CONFIG_INITRAMFS_COMPRESSION_LZMA=y
+# CONFIG_INITRAMFS_COMPRESSION_LZO is not set
 CONFIG_CC_OPTIMIZE_FOR_SIZE=y
 CONFIG_SYSCTL=y
 CONFIG_ANON_INODES=y
@@ -247,7 +254,8 @@ CONFIG_PREEMPT_NONE=y
 # CONFIG_PREEMPT_VOLUNTARY is not set
 # CONFIG_PREEMPT is not set
 CONFIG_HZ=100
-# CONFIG_AEABI is not set
+CONFIG_AEABI=y
+# CONFIG_OABI_COMPAT is not set
 # CONFIG_ARCH_SPARSEMEM_DEFAULT is not set
 # CONFIG_ARCH_SELECT_MEMORY_MODEL is not set
 # CONFIG_HIGHMEM is not set
@@ -290,9 +298,6 @@ CONFIG_CMDLINE="console=ttyS0 root=31:2 mem=15M rw mtdparts=phys_mapped_flash:12
 #
 # At least one emulation must be selected
 #
-CONFIG_FPE_NWFPE=y
-# CONFIG_FPE_NWFPE_XP is not set
-# CONFIG_FPE_FASTFPE is not set
 
 #
 # Userspace binary formats
@@ -302,7 +307,6 @@ CONFIG_BINFMT_ELF=y
 CONFIG_HAVE_AOUT=y
 # CONFIG_BINFMT_AOUT is not set
 # CONFIG_BINFMT_MISC is not set
-# CONFIG_ARTHUR is not set
 
 #
 # Power management options
@@ -760,6 +764,11 @@ CONFIG_DEVKMEM=y
 #
 # Non-8250 serial port support
 #
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_SERIAL_SOLOS=y
+CONFIG_SERIAL_SOLOS_CONSOLE=y
+CONFIG_SERIAL_SOLOS_CONSOLE_BAUD=38400
 CONFIG_UNIX98_PTYS=y
 # CONFIG_DEVPTS_MULTIPLE_INSTANCES is not set
 CONFIG_LEGACY_PTYS=y
@@ -979,6 +988,7 @@ CONFIG_TRACING_SUPPORT=y
 # CONFIG_FTRACE is not set
 # CONFIG_SAMPLES is not set
 CONFIG_HAVE_ARCH_KGDB=y
+# CONFIG_ARM_UNWIND is not set
 # CONFIG_DEBUG_USER is not set
 
 #
@@ -1108,7 +1118,7 @@ CONFIG_CRC32=y
 # CONFIG_CRC7 is not set
 # CONFIG_LIBCRC32C is not set
 CONFIG_ZLIB_INFLATE=y
-CONFIG_DECOMPRESS_GZIP=y
+CONFIG_DECOMPRESS_LZMA=y
 # CONFIG_TEXTSEARCH is not set
 # CONFIG_TEXTSEARCH_KMP is not set
 # CONFIG_TEXTSEARCH_BM is not set
