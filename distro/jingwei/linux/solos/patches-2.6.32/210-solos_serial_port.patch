@@ -1,0 +1,12 @@
+--- a/include/linux/serial_core.h	2010-10-09 12:19:23.352952503 +0800
++++ b/include/linux/serial_core.h	2010-10-09 12:20:18.336774744 +0800
+@@ -179,6 +179,9 @@
+ /* BCM63xx family SoCs */
+ #define PORT_BCM63XX	89
+ 
++/* Conexant Solos SoCs */
++#define PORT_SOLOS	90
++
+ #ifdef __KERNEL__
+ 
+ #include <linux/compiler.h>
