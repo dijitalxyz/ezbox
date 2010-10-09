@@ -313,8 +313,8 @@ int as_printk(const char *fmt, ...)
 }
 EXPORT_SYMBOL(as_printk);
 
-asmlinkage  int as_vsnprintf(char *s,int size, const char *format, va_list *arg);
-asmlinkage  int as_vsnprintf(char *s,int size, const char *format, va_list *arg)
+asmlinkage  int as_vsnprintf(char *s,int size, const char *format, va_list arg);
+asmlinkage  int as_vsnprintf(char *s,int size, const char *format, va_list arg)
 {
 	int r;
 	r = vsnprintf(s,size,format,arg);
@@ -322,8 +322,8 @@ asmlinkage  int as_vsnprintf(char *s,int size, const char *format, va_list *arg)
 }
 EXPORT_SYMBOL(as_vsnprintf);
 
-asmlinkage int as_vprintk(const char *format, va_list *args);
-asmlinkage int as_vprintk(const char *format, va_list *args)
+asmlinkage int as_vprintk(const char *format, va_list args);
+asmlinkage int as_vprintk(const char *format, va_list args)
 {
 	int r;
 	r = vprintk(format,args);

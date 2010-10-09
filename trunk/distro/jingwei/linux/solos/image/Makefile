@@ -16,25 +16,19 @@ define Image/Build/squashfs
 endef
 
 define Image/BuildKernel
-	$(CP) $(KDIR)/bzImage $(BIN_DIR)/$(IMG_PREFIX)-vmlinuz
+	$(CP) $(KDIR)/zImage $(BIN_DIR)/$(IMG_PREFIX)-vmlinuz
 endef
 
 define Image/Prepare
-	$(CP) $(LINUX_DIR)/arch/x86/boot/bzImage $(KDIR)/bzImage
+	$(CP) $(LINUX_DIR)/arch/arm/boot/zImage $(KDIR)/zImage
 	$(call Image/Prepare/bootscript)
-	$(call Image/Prepare/grub)
 endef
 
 define Image/Build
 	$(call Image/Build/$(1))
 	$(call Image/Build/bootscript,$(1))
-  ifneq ($(1),iso)
-	$(call Image/Build/grub,$(1))
-	$(call Image/Build/vdi,$(1))
-	$(call Image/Build/vmdk,$(1))
-  endif
 	$(CP) $(KDIR)/root.$(1) $(BIN_DIR)/$(IMG_PREFIX)-rootfs-$(1).img
-	$(CP) $(KDIR)/bzImage $(BIN_DIR)/$(IMG_PREFIX)-vmlinuz
+	$(CP) $(KDIR)/zImage $(BIN_DIR)/$(IMG_PREFIX)-vmlinuz
   ifeq ($(1),ext2)
 	gzip -f9 $(BIN_DIR)/$(IMG_PREFIX)-combined-$(1).img
 	gzip -f9 $(BIN_DIR)/$(IMG_PREFIX)-rootfs-$(1).img
