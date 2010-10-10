@@ -1,0 +1,35 @@
+--- a/drivers/usb/host/Kconfig	2010-10-09 23:25:24.413475399 +0800
++++ b/drivers/usb/host/Kconfig	2010-10-09 23:29:12.125479241 +0800
+@@ -59,6 +59,22 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ehci-hcd.
+ 
++config SOLOS_USB_HOST0
++	bool "Enable USB host 0"
++	depends on USB && ARCH_SOLOS
++
++config SOLOS_USB_HOST1
++	bool "Enable USB host 1"
++	depends on USB && ARCH_SOLOS && !ARCH_SOLOS_228PIN
++
++config USB_SOLOS_PHY0_EXT_CLK
++	bool "Use external clock on PHY 0"
++	depends on USB && ARCH_SOLOS && SOLOS_USB_HOST0
++
++config USB_SOLOS_PHY1_EXT_CLK
++	bool "Use external clock on PHY 1"
++	depends on USB && ARCH_SOLOS && SOLOS_USB_HOST1
++
+ config USB_EHCI_ROOT_HUB_TT
+ 	bool "Root Hub Transaction Translators"
+ 	depends on USB_EHCI_HCD
+--- a/drivers/usb/host/Makefile	2010-10-09 23:25:29.001484541 +0800
++++ b/drivers/usb/host/Makefile	2010-10-09 23:31:21.117478126 +0800
+@@ -26,6 +26,7 @@
+ obj-$(CONFIG_USB_UHCI_HCD)	+= uhci-hcd.o
+ obj-$(CONFIG_USB_FHCI_HCD)	+= fhci.o
+ obj-$(CONFIG_USB_XHCI_HCD)	+= xhci.o
++obj-$(CONFIG_ARCH_SOLOS)	+= ehci-solos.o
+ obj-$(CONFIG_USB_SL811_HCD)	+= sl811-hcd.o
+ obj-$(CONFIG_USB_SL811_CS)	+= sl811_cs.o
+ obj-$(CONFIG_USB_U132_HCD)	+= u132-hcd.o
