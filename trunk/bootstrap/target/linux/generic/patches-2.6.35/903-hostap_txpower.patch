@@ -116,7 +116,7 @@
  
  	return (unsigned char) tmp;
  }
-@@ -4057,3 +4054,35 @@ int hostap_ioctl(struct net_device *dev,
+@@ -4056,3 +4053,35 @@ int hostap_ioctl(struct net_device *dev,
  
  	return ret;
  }

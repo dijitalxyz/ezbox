@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2010 Gabor Juhos <juhosg@openwrt.org>
  * Copyright (C) 2010 Antti Seppälä <a.seppala@gmail.com>
+ * Copyright (C) 2010 Roman Yeryomin <roman@advem.lv>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 2 as published
@@ -15,7 +16,6 @@
 #include <linux/platform_device.h>
 #include <linux/delay.h>
 #include <linux/skbuff.h>
-#include <linux/switch.h>
 #include <linux/rtl8366rb.h>
 
 #include "rtl8366_smi.h"
@@ -26,6 +26,7 @@
 #define RTL8366RB_PHY_NO_MAX	4
 #define RTL8366RB_PHY_PAGE_MAX	7
 #define RTL8366RB_PHY_ADDR_MAX	31
+#define RTL8366RB_PHY_WAN	4
 
 /* Switch Global Configuration register */
 #define RTL8366RB_SGCR				0x0000
@@ -107,7 +108,7 @@
 #define RTL8366RB_TABLE_VLAN_READ_CTRL		0x0E01
 #define RTL8366RB_TABLE_VLAN_WRITE_CTRL		0x0F01
 
-#define RTL8366RB_VLAN_MEMCONF_BASE		0x0020
+#define RTL8366RB_VLAN_MC_BASE(_x)		(0x0020 + (_x) * 3)
 
 
 #define RTL8366RB_PORT_LINK_STATUS_BASE		0x0014
@@ -156,32 +157,40 @@
 
 #define RTL8366RB_PORT_ALL_INTERNAL	 RTL8366RB_PORT_CPU
 
-struct rtl8366rb {
-	struct device		*parent;
-	struct rtl8366_smi	smi;
-	struct switch_dev	dev;
-};
+#define RTL8366RB_VLAN_VID_MASK		0xfff
+#define RTL8366RB_VLAN_PRIORITY_SHIFT	12
+#define RTL8366RB_VLAN_PRIORITY_MASK	0x7
+#define RTL8366RB_VLAN_UNTAG_SHIFT	8
+#define RTL8366RB_VLAN_UNTAG_MASK	0xff
+#define RTL8366RB_VLAN_MEMBER_MASK	0xff
+#define RTL8366RB_VLAN_FID_MASK		0x7
 
-struct rtl8366rb_vlan_mc {
-	u16	reserved2:1;
-	u16	priority:3;
-	u16	vid:12;
-	u16	untag:8;
-	u16	member:8;
-	u16	stag_mbr:8;
-	u16	stag_idx:3;
-	u16	reserved1:2;
-	u16	fid:3;
-};
 
-struct rtl8366rb_vlan_4k {
-	u16	reserved1:4;
-	u16	vid:12;
-	u16	untag:8;
-	u16	member:8;
-	u16	reserved2:13;
-	u16	fid:3;
-};
+/* Port ingress bandwidth control */
+#define RTL8366RB_IB_BASE		0x0200
+#define RTL8366RB_IB_REG(pnum)		(RTL8366RB_IB_BASE + pnum)
+#define RTL8366RB_IB_BDTH_MASK		0x3fff
+#define RTL8366RB_IB_PREIFG_OFFSET	14
+#define RTL8366RB_IB_PREIFG_MASK	(1 << RTL8366RB_IB_PREIFG_OFFSET)
+
+/* Port egress bandwidth control */
+#define RTL8366RB_EB_BASE		0x02d1
+#define RTL8366RB_EB_REG(pnum)		(RTL8366RB_EB_BASE + pnum)
+#define RTL8366RB_EB_BDTH_MASK		0x3fff
+#define RTL8366RB_EB_PREIFG_REG	0x02f8
+#define RTL8366RB_EB_PREIFG_OFFSET	9
+#define RTL8366RB_EB_PREIFG_MASK	(1 << RTL8366RB_EB_PREIFG_OFFSET)
+
+#define RTL8366RB_BDTH_SW_MAX		1048512
+#define RTL8366RB_BDTH_BASE		64
+#define RTL8366RB_BDTH_REG_DEFAULT	16383
+
+/* QOS */
+#define RTL8366RB_QOS_BIT		15
+#define RTL8366RB_QOS_MASK		(1 << RTL8366RB_QOS_BIT)
+/* Include/Exclude Preamble and IFG (20 bytes). 0:Exclude, 1:Include. */
+#define RTL8366RB_QOS_DEFAULT_PREIFG	1
+
 
 static struct rtl8366_mib_counter rtl8366rb_mib_counters[] = {
 	{ 0,  0, 4, "IfInOctets"				},
@@ -233,22 +242,6 @@ static struct rtl8366_mib_counter rtl8366rb_mib_counters[] = {
 			return err;					\
 	} while (0)
 
-static inline struct rtl8366rb *smi_to_rtl8366rb(struct rtl8366_smi *smi)
-{
-	return container_of(smi, struct rtl8366rb, smi);
-}
-
-static inline struct rtl8366rb *sw_to_rtl8366rb(struct switch_dev *sw)
-{
-	return container_of(sw, struct rtl8366rb, dev);
-}
-
-static inline struct rtl8366_smi *sw_to_rtl8366_smi(struct switch_dev *sw)
-{
-	struct rtl8366rb *rtl = sw_to_rtl8366rb(sw);
-	return &rtl->smi;
-}
-
 static int rtl8366rb_reset_chip(struct rtl8366_smi *smi)
 {
 	int timeout = 10;
@@ -284,11 +277,11 @@ static int rtl8366rb_hw_init(struct rtl8366_smi *smi)
 	/* enable all ports */
 	REG_WR(smi, RTL8366RB_PECR, 0);
 
-	/* disable learning for all ports */
-	REG_WR(smi, RTL8366RB_SSCR0, RTL8366RB_PORT_ALL);
+	/* enable learning for all ports */
+	REG_WR(smi, RTL8366RB_SSCR0, 0);
 
-	/* disable auto ageing for all ports */
-	REG_WR(smi, RTL8366RB_SSCR1, RTL8366RB_PORT_ALL);
+	/* enable auto ageing for all ports */
+	REG_WR(smi, RTL8366RB_SSCR1, 0);
 
 	/*
 	 * discard VLAN tagged packets if the port is not a member of
@@ -419,22 +412,18 @@ static int rtl8366rb_get_mib_counter(struct rtl8366_smi *smi, int counter,
 static int rtl8366rb_get_vlan_4k(struct rtl8366_smi *smi, u32 vid,
 				 struct rtl8366_vlan_4k *vlan4k)
 {
-	struct rtl8366rb_vlan_4k vlan4k_priv;
+	u32 data[3];
 	int err;
-	u32 data;
-	u16 *tableaddr;
+	int i;
 
 	memset(vlan4k, '\0', sizeof(struct rtl8366_vlan_4k));
-	vlan4k_priv.vid = vid;
 
 	if (vid >= RTL8366RB_NUM_VIDS)
 		return -EINVAL;
 
-	tableaddr = (u16 *)&vlan4k_priv;
-
 	/* write VID */
-	data = *tableaddr;
-	err = rtl8366_smi_write_reg(smi, RTL8366RB_VLAN_TABLE_WRITE_BASE, data);
+	err = rtl8366_smi_write_reg(smi, RTL8366RB_VLAN_TABLE_WRITE_BASE,
+				    vid & RTL8366RB_VLAN_VID_MASK);
 	if (err)
 		return err;
 
@@ -444,31 +433,19 @@ static int rtl8366rb_get_vlan_4k(struct rtl8366_smi *smi, u32 vid,
 	if (err)
 		return err;
 
-	err = rtl8366_smi_read_reg(smi, RTL8366RB_VLAN_TABLE_READ_BASE, &data);
-	if (err)
-		return err;
-
-	*tableaddr = data;
-	tableaddr++;
-
-	err = rtl8366_smi_read_reg(smi, RTL8366RB_VLAN_TABLE_READ_BASE + 1,
-				   &data);
-	if (err)
-		return err;
-
-	*tableaddr = data;
-	tableaddr++;
-
-	err = rtl8366_smi_read_reg(smi, RTL8366RB_VLAN_TABLE_READ_BASE + 2,
-				   &data);
-	if (err)
-		return err;
-	*tableaddr = data;
+	for (i = 0; i < 3; i++) {
+		err = rtl8366_smi_read_reg(smi,
+					   RTL8366RB_VLAN_TABLE_READ_BASE + i,
+					   &data[i]);
+		if (err)
+			return err;
+	}
 
 	vlan4k->vid = vid;
-	vlan4k->untag = vlan4k_priv.untag;
-	vlan4k->member = vlan4k_priv.member;
-	vlan4k->fid = vlan4k_priv.fid;
+	vlan4k->untag = (data[1] >> RTL8366RB_VLAN_UNTAG_SHIFT) &
+			RTL8366RB_VLAN_UNTAG_MASK;
+	vlan4k->member = data[1] & RTL8366RB_VLAN_MEMBER_MASK;
+	vlan4k->fid = data[2] & RTL8366RB_VLAN_FID_MASK;
 
 	return 0;
 }
@@ -476,10 +453,9 @@ static int rtl8366rb_get_vlan_4k(struct rtl8366_smi *smi, u32 vid,
 static int rtl8366rb_set_vlan_4k(struct rtl8366_smi *smi,
 				 const struct rtl8366_vlan_4k *vlan4k)
 {
-	struct rtl8366rb_vlan_4k vlan4k_priv;
+	u32 data[3];
 	int err;
-	u32 data;
-	u16 *tableaddr;
+	int i;
 
 	if (vlan4k->vid >= RTL8366RB_NUM_VIDS ||
 	    vlan4k->member > RTL8366RB_PORT_ALL ||
@@ -487,36 +463,19 @@ static int rtl8366rb_set_vlan_4k(struct rtl8366_smi *smi,
 	    vlan4k->fid > RTL8366RB_FIDMAX)
 		return -EINVAL;
 
-	vlan4k_priv.vid = vlan4k->vid;
-	vlan4k_priv.untag = vlan4k->untag;
-	vlan4k_priv.member = vlan4k->member;
-	vlan4k_priv.fid = vlan4k->fid;
+	data[0] = vlan4k->vid & RTL8366RB_VLAN_VID_MASK;
+	data[1] = (vlan4k->member & RTL8366RB_VLAN_MEMBER_MASK) |
+		  ((vlan4k->untag & RTL8366RB_VLAN_UNTAG_MASK) <<
+			RTL8366RB_VLAN_UNTAG_SHIFT);
+	data[2] = vlan4k->fid & RTL8366RB_VLAN_FID_MASK;
 
-	tableaddr = (u16 *)&vlan4k_priv;
-
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, RTL8366RB_VLAN_TABLE_WRITE_BASE, data);
-	if (err)
-		return err;
-
-	tableaddr++;
-
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, RTL8366RB_VLAN_TABLE_WRITE_BASE + 1,
-				    data);
-	if (err)
-		return err;
-
-	tableaddr++;
-
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, RTL8366RB_VLAN_TABLE_WRITE_BASE + 2,
-				    data);
-	if (err)
-		return err;
+	for (i = 0; i < 3; i++) {
+		err = rtl8366_smi_write_reg(smi,
+					    RTL8366RB_VLAN_TABLE_WRITE_BASE + i,
+					    data[i]);
+		if (err)
+			return err;
+	}
 
 	/* write table access control word */
 	err = rtl8366_smi_write_reg(smi, RTL8366RB_TABLE_ACCESS_CTRL_REG,
@@ -528,47 +487,30 @@ static int rtl8366rb_set_vlan_4k(struct rtl8366_smi *smi,
 static int rtl8366rb_get_vlan_mc(struct rtl8366_smi *smi, u32 index,
 				 struct rtl8366_vlan_mc *vlanmc)
 {
-	struct rtl8366rb_vlan_mc vlanmc_priv;
+	u32 data[3];
 	int err;
-	u32 addr;
-	u32 data;
-	u16 *tableaddr;
+	int i;
 
 	memset(vlanmc, '\0', sizeof(struct rtl8366_vlan_mc));
 
 	if (index >= RTL8366RB_NUM_VLANS)
 		return -EINVAL;
 
-	tableaddr = (u16 *)&vlanmc_priv;
+	for (i = 0; i < 3; i++) {
+		err = rtl8366_smi_read_reg(smi,
+					   RTL8366RB_VLAN_MC_BASE(index) + i,
+					   &data[i]);
+		if (err)
+			return err;
+	}
 
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + (index * 3);
-	err = rtl8366_smi_read_reg(smi, addr, &data);
-	if (err)
-		return err;
-
-	*tableaddr = data;
-	tableaddr++;
-
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + 1 + (index * 3);
-	err = rtl8366_smi_read_reg(smi, addr, &data);
-	if (err)
-		return err;
-
-	*tableaddr = data;
-	tableaddr++;
-
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + 2 + (index * 3);
-	err = rtl8366_smi_read_reg(smi, addr, &data);
-	if (err)
-		return err;
-
-	*tableaddr = data;
-
-	vlanmc->vid = vlanmc_priv.vid;
-	vlanmc->priority = vlanmc_priv.priority;
-	vlanmc->untag = vlanmc_priv.untag;
-	vlanmc->member = vlanmc_priv.member;
-	vlanmc->fid = vlanmc_priv.fid;
+	vlanmc->vid = data[0] & RTL8366RB_VLAN_VID_MASK;
+	vlanmc->priority = (data[0] >> RTL8366RB_VLAN_PRIORITY_SHIFT) &
+			   RTL8366RB_VLAN_PRIORITY_MASK;
+	vlanmc->untag = (data[1] >> RTL8366RB_VLAN_UNTAG_SHIFT) &
+			RTL8366RB_VLAN_UNTAG_MASK;
+	vlanmc->member = data[1] & RTL8366RB_VLAN_MEMBER_MASK;
+	vlanmc->fid = data[2] & RTL8366RB_VLAN_FID_MASK;
 
 	return 0;
 }
@@ -576,11 +518,9 @@ static int rtl8366rb_get_vlan_mc(struct rtl8366_smi *smi, u32 index,
 static int rtl8366rb_set_vlan_mc(struct rtl8366_smi *smi, u32 index,
 				 const struct rtl8366_vlan_mc *vlanmc)
 {
-	struct rtl8366rb_vlan_mc vlanmc_priv;
+	u32 data[3];
 	int err;
-	u32 addr;
-	u32 data;
-	u16 *tableaddr;
+	int i;
 
 	if (index >= RTL8366RB_NUM_VLANS ||
 	    vlanmc->vid >= RTL8366RB_NUM_VIDS ||
@@ -590,40 +530,22 @@ static int rtl8366rb_set_vlan_mc(struct rtl8366_smi *smi, u32 index,
 	    vlanmc->fid > RTL8366RB_FIDMAX)
 		return -EINVAL;
 
-	vlanmc_priv.vid = vlanmc->vid;
-	vlanmc_priv.priority = vlanmc->priority;
-	vlanmc_priv.untag = vlanmc->untag;
-	vlanmc_priv.member = vlanmc->member;
-	vlanmc_priv.stag_mbr = 0;
-	vlanmc_priv.stag_idx = 0;
-	vlanmc_priv.fid = vlanmc->fid;
+	data[0] = (vlanmc->vid & RTL8366RB_VLAN_VID_MASK) |
+		  ((vlanmc->priority & RTL8366RB_VLAN_PRIORITY_MASK) <<
+			RTL8366RB_VLAN_PRIORITY_SHIFT);
+	data[1] = (vlanmc->member & RTL8366RB_VLAN_MEMBER_MASK) |
+		  ((vlanmc->untag & RTL8366RB_VLAN_UNTAG_MASK) <<
+			RTL8366RB_VLAN_UNTAG_SHIFT);
+	data[2] = vlanmc->fid & RTL8366RB_VLAN_FID_MASK;
 
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + (index * 3);
+	for (i = 0; i < 3; i++) {
+		err = rtl8366_smi_write_reg(smi,
+					    RTL8366RB_VLAN_MC_BASE(index) + i,
+					    data[i]);
+		if (err)
+			return err;
+	}
 
-	tableaddr = (u16 *)&vlanmc_priv;
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, addr, data);
-	if (err)
-		return err;
-
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + 1 + (index * 3);
-
-	tableaddr++;
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, addr, data);
-	if (err)
-		return err;
-
-	addr = RTL8366RB_VLAN_MEMCONF_BASE + 2 + (index * 3);
-
-	tableaddr++;
-	data = *tableaddr;
-
-	err = rtl8366_smi_write_reg(smi, addr, data);
-	if (err)
-		return err;
 	return 0;
 }
 
@@ -659,13 +581,26 @@ static int rtl8366rb_set_mc_index(struct rtl8366_smi *smi, int port, int index)
 					RTL8366RB_PORT_VLAN_CTRL_SHIFT(port));
 }
 
-static int rtl8366rb_vlan_set_vlan(struct rtl8366_smi *smi, int enable)
+static int rtl8366rb_is_vlan_valid(struct rtl8366_smi *smi, unsigned vlan)
+{
+	unsigned max = RTL8366RB_NUM_VLANS;
+
+	if (smi->vlan4k_enabled)
+		max = RTL8366RB_NUM_VIDS - 1;
+
+	if (vlan == 0 || vlan >= max)
+		return 0;
+
+	return 1;
+}
+
+static int rtl8366rb_enable_vlan(struct rtl8366_smi *smi, int enable)
 {
 	return rtl8366_smi_rmwr(smi, RTL8366RB_SGCR, RTL8366RB_SGCR_EN_VLAN,
 				(enable) ? RTL8366RB_SGCR_EN_VLAN : 0);
 }
 
-static int rtl8366rb_vlan_set_4ktable(struct rtl8366_smi *smi, int enable)
+static int rtl8366rb_enable_vlan4k(struct rtl8366_smi *smi, int enable)
 {
 	return rtl8366_smi_rmwr(smi, RTL8366RB_SGCR,
 				RTL8366RB_SGCR_EN_VLAN_4KTB,
@@ -677,39 +612,9 @@ static int rtl8366rb_sw_reset_mibs(struct switch_dev *dev,
 				  struct switch_val *val)
 {
 	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	int err = 0;
 
-	if (val->value.i == 1)
-		err = rtl8366_smi_rmwr(smi, RTL8366RB_MIB_CTRL_REG, 0,
-				       RTL8366RB_MIB_CTRL_GLOBAL_RESET);
-
-	return err;
-}
-
-static int rtl8366rb_sw_get_vlan_enable(struct switch_dev *dev,
-				       const struct switch_attr *attr,
-				       struct switch_val *val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	u32 data;
-
-	if (attr->ofs == 1) {
-		rtl8366_smi_read_reg(smi, RTL8366RB_SGCR, &data);
-
-		if (data & RTL8366RB_SGCR_EN_VLAN)
-			val->value.i = 1;
-		else
-			val->value.i = 0;
-	} else if (attr->ofs == 2) {
-		rtl8366_smi_read_reg(smi, RTL8366RB_SGCR, &data);
-
-		if (data & RTL8366RB_SGCR_EN_VLAN_4KTB)
-			val->value.i = 1;
-		else
-			val->value.i = 0;
-	}
-
-	return 0;
+	return rtl8366_smi_rmwr(smi, RTL8366RB_MIB_CTRL_REG, 0,
+			        RTL8366RB_MIB_CTRL_GLOBAL_RESET);
 }
 
 static int rtl8366rb_sw_get_blinkrate(struct switch_dev *dev,
@@ -740,17 +645,40 @@ static int rtl8366rb_sw_set_blinkrate(struct switch_dev *dev,
 				val->value.i);
 }
 
-static int rtl8366rb_sw_set_vlan_enable(struct switch_dev *dev,
+static int rtl8366rb_sw_get_learning_enable(struct switch_dev *dev,
 				       const struct switch_attr *attr,
 				       struct switch_val *val)
 {
 	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
 
-	if (attr->ofs == 1)
-		return rtl8366rb_vlan_set_vlan(smi, val->value.i);
-	else
-		return rtl8366rb_vlan_set_4ktable(smi, val->value.i);
+	rtl8366_smi_read_reg(smi, RTL8366RB_SSCR0, &data);
+	val->value.i = !data;
+
+	return 0;
 }
+
+
+static int rtl8366rb_sw_set_learning_enable(struct switch_dev *dev,
+				       const struct switch_attr *attr,
+				       struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 portmask = 0;
+	int err = 0;
+
+	if (!val->value.i)
+		portmask = RTL8366RB_PORT_ALL;
+
+	/* set learning for all ports */
+	REG_WR(smi, RTL8366RB_SSCR0, portmask);
+
+	/* set auto ageing for all ports */
+	REG_WR(smi, RTL8366RB_SSCR1, portmask);
+
+	return 0;
+}
+
 
 static const char *rtl8366rb_speed_str(unsigned speed)
 {
@@ -808,47 +736,6 @@ static int rtl8366rb_sw_get_port_link(struct switch_dev *dev,
 	return 0;
 }
 
-static int rtl8366rb_sw_get_vlan_info(struct switch_dev *dev,
-				     const struct switch_attr *attr,
-				     struct switch_val *val)
-{
-	int i;
-	u32 len = 0;
-	struct rtl8366_vlan_4k vlan4k;
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	char *buf = smi->buf;
-	int err;
-
-	if (val->port_vlan == 0 || val->port_vlan >= RTL8366RB_NUM_VLANS)
-		return -EINVAL;
-
-	memset(buf, '\0', sizeof(smi->buf));
-
-	err = rtl8366rb_get_vlan_4k(smi, val->port_vlan, &vlan4k);
-	if (err)
-		return err;
-
-	len += snprintf(buf + len, sizeof(smi->buf) - len,
-			"VLAN %d: Ports: '", vlan4k.vid);
-
-	for (i = 0; i < RTL8366RB_NUM_PORTS; i++) {
-		if (!(vlan4k.member & (1 << i)))
-			continue;
-
-		len += snprintf(buf + len, sizeof(smi->buf) - len, "%d%s", i,
-				(vlan4k.untag & (1 << i)) ? "" : "t");
-	}
-
-	len += snprintf(buf + len, sizeof(smi->buf) - len,
-			"', members=%04x, untag=%04x, fid=%u",
-			vlan4k.member, vlan4k.untag, vlan4k.fid);
-
-	val->value.s = buf;
-	val->len = len;
-
-	return 0;
-}
-
 static int rtl8366rb_sw_set_port_led(struct switch_dev *dev,
 				    const struct switch_attr *attr,
 				    struct switch_val *val)
@@ -871,7 +758,7 @@ static int rtl8366rb_sw_set_port_led(struct switch_dev *dev,
 		data = val->value.i << (val->port_vlan * 4);
 	}
 
-	return rtl8366_smi_rmwr(smi, RTL8366RB_LED_BLINKRATE_REG, mask, data);
+	return rtl8366_smi_rmwr(smi, reg, mask, data);
 }
 
 static int rtl8366rb_sw_get_port_led(struct switch_dev *dev,
@@ -890,6 +777,159 @@ static int rtl8366rb_sw_get_port_led(struct switch_dev *dev,
 	return 0;
 }
 
+static int rtl8366rb_sw_set_port_disable(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 mask, data;
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	mask = 1 << val->port_vlan ;
+	if (val->value.i)
+		data = mask;
+	else
+		data = 0;
+
+	return rtl8366_smi_rmwr(smi, RTL8366RB_PECR, mask, data);
+}
+
+static int rtl8366rb_sw_get_port_disable(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	rtl8366_smi_read_reg(smi, RTL8366RB_PECR, &data);
+	if (data & (1 << val->port_vlan))
+		val->value.i = 1;
+	else
+		val->value.i = 0;
+
+	return 0;
+}
+
+static int rtl8366rb_sw_set_port_rate_in(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	if (val->value.i > 0 && val->value.i < RTL8366RB_BDTH_SW_MAX)
+		val->value.i = (val->value.i - 1) / RTL8366RB_BDTH_BASE;
+	else
+		val->value.i = RTL8366RB_BDTH_REG_DEFAULT;
+
+	return rtl8366_smi_rmwr(smi, RTL8366RB_IB_REG(val->port_vlan),
+		RTL8366RB_IB_BDTH_MASK | RTL8366RB_IB_PREIFG_MASK,
+		val->value.i |
+		(RTL8366RB_QOS_DEFAULT_PREIFG << RTL8366RB_IB_PREIFG_OFFSET));
+
+}
+
+static int rtl8366rb_sw_get_port_rate_in(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	rtl8366_smi_read_reg(smi, RTL8366RB_IB_REG(val->port_vlan), &data);
+	data &= RTL8366RB_IB_BDTH_MASK;
+	if (data < RTL8366RB_IB_BDTH_MASK)
+		data += 1;
+
+	val->value.i = (int)data * RTL8366RB_BDTH_BASE;
+
+	return 0;
+}
+
+static int rtl8366rb_sw_set_port_rate_out(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	rtl8366_smi_rmwr(smi, RTL8366RB_EB_PREIFG_REG,
+		RTL8366RB_EB_PREIFG_MASK,
+		(RTL8366RB_QOS_DEFAULT_PREIFG << RTL8366RB_EB_PREIFG_OFFSET));
+
+	if (val->value.i > 0 && val->value.i < RTL8366RB_BDTH_SW_MAX)
+		val->value.i = (val->value.i - 1) / RTL8366RB_BDTH_BASE;
+	else
+		val->value.i = RTL8366RB_BDTH_REG_DEFAULT;
+
+	return rtl8366_smi_rmwr(smi, RTL8366RB_EB_REG(val->port_vlan),
+			RTL8366RB_EB_BDTH_MASK, val->value.i );
+
+}
+
+static int rtl8366rb_sw_get_port_rate_out(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
+
+	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
+		return -EINVAL;
+
+	rtl8366_smi_read_reg(smi, RTL8366RB_EB_REG(val->port_vlan), &data);
+	data &= RTL8366RB_EB_BDTH_MASK;
+	if (data < RTL8366RB_EB_BDTH_MASK)
+		data += 1;
+
+	val->value.i = (int)data * RTL8366RB_BDTH_BASE;
+
+	return 0;
+}
+
+static int rtl8366rb_sw_set_qos_enable(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
+
+	if (val->value.i)
+		data = RTL8366RB_QOS_MASK;
+	else
+		data = 0;
+
+	return rtl8366_smi_rmwr(smi, RTL8366RB_SGCR, RTL8366RB_QOS_MASK, data);
+}
+
+static int rtl8366rb_sw_get_qos_enable(struct switch_dev *dev,
+				    const struct switch_attr *attr,
+				    struct switch_val *val)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	u32 data;
+
+	rtl8366_smi_read_reg(smi, RTL8366RB_SGCR, &data);
+	if (data & RTL8366RB_QOS_MASK)
+		val->value.i = 1;
+	else
+		val->value.i = 0;
+
+	return 0;
+}
+
 static int rtl8366rb_sw_reset_port_mibs(struct switch_dev *dev,
 				       const struct switch_attr *attr,
 				       struct switch_val *val)
@@ -901,101 +941,6 @@ static int rtl8366rb_sw_reset_port_mibs(struct switch_dev *dev,
 
 	return rtl8366_smi_rmwr(smi, RTL8366RB_MIB_CTRL_REG, 0,
 				RTL8366RB_MIB_CTRL_PORT_RESET(val->port_vlan));
-}
-
-static int rtl8366rb_sw_get_port_mib(struct switch_dev *dev,
-				    const struct switch_attr *attr,
-				    struct switch_val *val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	int i, len = 0;
-	unsigned long long counter = 0;
-	char *buf = smi->buf;
-
-	if (val->port_vlan >= RTL8366RB_NUM_PORTS)
-		return -EINVAL;
-
-	len += snprintf(buf + len, sizeof(smi->buf) - len,
-			"Port %d MIB counters\n",
-			val->port_vlan);
-
-	for (i = 0; i < ARRAY_SIZE(rtl8366rb_mib_counters); ++i) {
-		len += snprintf(buf + len, sizeof(smi->buf) - len,
-				"%-36s: ", rtl8366rb_mib_counters[i].name);
-		if (!rtl8366rb_get_mib_counter(smi, i, val->port_vlan, &counter))
-			len += snprintf(buf + len, sizeof(smi->buf) - len,
-					"%llu\n", counter);
-		else
-			len += snprintf(buf + len, sizeof(smi->buf) - len,
-					"%s\n", "error");
-	}
-
-	val->value.s = buf;
-	val->len = len;
-	return 0;
-}
-
-static int rtl8366rb_sw_get_vlan_ports(struct switch_dev *dev,
-				      struct switch_val *val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	struct switch_port *port;
-	struct rtl8366_vlan_4k vlan4k;
-	int i;
-
-	if (val->port_vlan == 0 || val->port_vlan >= RTL8366RB_NUM_VLANS)
-		return -EINVAL;
-
-	rtl8366rb_get_vlan_4k(smi, val->port_vlan, &vlan4k);
-
-	port = &val->value.ports[0];
-	val->len = 0;
-	for (i = 0; i < RTL8366RB_NUM_PORTS; i++) {
-		if (!(vlan4k.member & BIT(i)))
-			continue;
-
-		port->id = i;
-		port->flags = (vlan4k.untag & BIT(i)) ?
-					0 : BIT(SWITCH_PORT_FLAG_TAGGED);
-		val->len++;
-		port++;
-	}
-	return 0;
-}
-
-static int rtl8366rb_sw_set_vlan_ports(struct switch_dev *dev,
-				      struct switch_val *val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	struct switch_port *port;
-	u32 member = 0;
-	u32 untag = 0;
-	int i;
-
-	if (val->port_vlan == 0 || val->port_vlan >= RTL8366RB_NUM_VLANS)
-		return -EINVAL;
-
-	port = &val->value.ports[0];
-	for (i = 0; i < val->len; i++, port++) {
-		member |= BIT(port->id);
-
-		if (!(port->flags & BIT(SWITCH_PORT_FLAG_TAGGED)))
-			untag |= BIT(port->id);
-	}
-
-	return rtl8366_set_vlan(smi, val->port_vlan, member, untag, 0);
-}
-
-static int rtl8366rb_sw_get_port_pvid(struct switch_dev *dev, int port, int *val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	return rtl8366_get_pvid(smi, port, val);
-}
-
-static int rtl8366rb_sw_set_port_pvid(struct switch_dev *dev, int port, int val)
-{
-	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
-	return rtl8366_set_pvid(smi, port, val);
 }
 
 static int rtl8366rb_sw_reset_switch(struct switch_dev *dev)
@@ -1017,27 +962,32 @@ static int rtl8366rb_sw_reset_switch(struct switch_dev *dev)
 static struct switch_attr rtl8366rb_globals[] = {
 	{
 		.type = SWITCH_TYPE_INT,
+		.name = "enable_learning",
+		.description = "Enable learning, enable aging",
+		.set = rtl8366rb_sw_set_learning_enable,
+		.get = rtl8366rb_sw_get_learning_enable,
+		.max = 1
+	}, {
+		.type = SWITCH_TYPE_INT,
 		.name = "enable_vlan",
 		.description = "Enable VLAN mode",
-		.set = rtl8366rb_sw_set_vlan_enable,
-		.get = rtl8366rb_sw_get_vlan_enable,
+		.set = rtl8366_sw_set_vlan_enable,
+		.get = rtl8366_sw_get_vlan_enable,
 		.max = 1,
 		.ofs = 1
 	}, {
 		.type = SWITCH_TYPE_INT,
 		.name = "enable_vlan4k",
 		.description = "Enable VLAN 4K mode",
-		.set = rtl8366rb_sw_set_vlan_enable,
-		.get = rtl8366rb_sw_get_vlan_enable,
+		.set = rtl8366_sw_set_vlan_enable,
+		.get = rtl8366_sw_get_vlan_enable,
 		.max = 1,
 		.ofs = 2
 	}, {
-		.type = SWITCH_TYPE_INT,
+		.type = SWITCH_TYPE_NOVAL,
 		.name = "reset_mibs",
 		.description = "Reset all MIB counters",
 		.set = rtl8366rb_sw_reset_mibs,
-		.get = NULL,
-		.max = 1
 	}, {
 		.type = SWITCH_TYPE_INT,
 		.name = "blinkrate",
@@ -1046,6 +996,13 @@ static struct switch_attr rtl8366rb_globals[] = {
 		.set = rtl8366rb_sw_set_blinkrate,
 		.get = rtl8366rb_sw_get_blinkrate,
 		.max = 5
+	}, {
+		.type = SWITCH_TYPE_INT,
+		.name = "enable_qos",
+		.description = "Enable QOS",
+		.set = rtl8366rb_sw_set_qos_enable,
+		.get = rtl8366rb_sw_get_qos_enable,
+		.max = 1
 	},
 };
 
@@ -1058,19 +1015,17 @@ static struct switch_attr rtl8366rb_port[] = {
 		.set = NULL,
 		.get = rtl8366rb_sw_get_port_link,
 	}, {
-		.type = SWITCH_TYPE_INT,
+		.type = SWITCH_TYPE_NOVAL,
 		.name = "reset_mib",
 		.description = "Reset single port MIB counters",
-		.max = 1,
 		.set = rtl8366rb_sw_reset_port_mibs,
-		.get = NULL,
 	}, {
 		.type = SWITCH_TYPE_STRING,
 		.name = "mib",
 		.description = "Get MIB counters for port",
 		.max = 33,
 		.set = NULL,
-		.get = rtl8366rb_sw_get_port_mib,
+		.get = rtl8366_sw_get_port_mib,
 	}, {
 		.type = SWITCH_TYPE_INT,
 		.name = "led",
@@ -1078,6 +1033,27 @@ static struct switch_attr rtl8366rb_port[] = {
 		.max = 15,
 		.set = rtl8366rb_sw_set_port_led,
 		.get = rtl8366rb_sw_get_port_led,
+	}, {
+		.type = SWITCH_TYPE_INT,
+		.name = "disable",
+		.description = "Get/Set port state (enabled or disabled)",
+		.max = 1,
+		.set = rtl8366rb_sw_set_port_disable,
+		.get = rtl8366rb_sw_get_port_disable,
+	}, {
+		.type = SWITCH_TYPE_INT,
+		.name = "rate_in",
+		.description = "Get/Set port ingress (incoming) bandwidth limit in kbps",
+		.max = RTL8366RB_BDTH_SW_MAX,
+		.set = rtl8366rb_sw_set_port_rate_in,
+		.get = rtl8366rb_sw_get_port_rate_in,
+	}, {
+		.type = SWITCH_TYPE_INT,
+		.name = "rate_out",
+		.description = "Get/Set port egress (outgoing) bandwidth limit in kbps",
+		.max = RTL8366RB_BDTH_SW_MAX,
+		.set = rtl8366rb_sw_set_port_rate_out,
+		.get = rtl8366rb_sw_get_port_rate_out,
 	},
 };
 
@@ -1088,16 +1064,11 @@ static struct switch_attr rtl8366rb_vlan[] = {
 		.description = "Get vlan information",
 		.max = 1,
 		.set = NULL,
-		.get = rtl8366rb_sw_get_vlan_info,
+		.get = rtl8366_sw_get_vlan_info,
 	},
 };
 
-/* template */
-static struct switch_dev rtl8366_switch_dev = {
-	.name = "RTL8366S",
-	.cpu_port = RTL8366RB_PORT_NUM_CPU,
-	.ports = RTL8366RB_NUM_PORTS,
-	.vlans = RTL8366RB_NUM_VLANS,
+static const struct switch_dev_ops rtl8366_ops = {
 	.attr_global = {
 		.attr = rtl8366rb_globals,
 		.n_attr = ARRAY_SIZE(rtl8366rb_globals),
@@ -1111,32 +1082,35 @@ static struct switch_dev rtl8366_switch_dev = {
 		.n_attr = ARRAY_SIZE(rtl8366rb_vlan),
 	},
 
-	.get_vlan_ports = rtl8366rb_sw_get_vlan_ports,
-	.set_vlan_ports = rtl8366rb_sw_set_vlan_ports,
-	.get_port_pvid = rtl8366rb_sw_get_port_pvid,
-	.set_port_pvid = rtl8366rb_sw_set_port_pvid,
+	.get_vlan_ports = rtl8366_sw_get_vlan_ports,
+	.set_vlan_ports = rtl8366_sw_set_vlan_ports,
+	.get_port_pvid = rtl8366_sw_get_port_pvid,
+	.set_port_pvid = rtl8366_sw_set_port_pvid,
 	.reset_switch = rtl8366rb_sw_reset_switch,
 };
 
-static int rtl8366rb_switch_init(struct rtl8366rb *rtl)
+static int rtl8366rb_switch_init(struct rtl8366_smi *smi)
 {
-	struct switch_dev *dev = &rtl->dev;
+	struct switch_dev *dev = &smi->sw_dev;
 	int err;
 
-	memcpy(dev, &rtl8366_switch_dev, sizeof(struct switch_dev));
-	dev->priv = rtl;
-	dev->devname = dev_name(rtl->parent);
+	dev->name = "RTL8366RB";
+	dev->cpu_port = RTL8366RB_PORT_NUM_CPU;
+	dev->ports = RTL8366RB_NUM_PORTS;
+	dev->vlans = RTL8366RB_NUM_VIDS;
+	dev->ops = &rtl8366_ops;
+	dev->devname = dev_name(smi->parent);
 
 	err = register_switch(dev, NULL);
 	if (err)
-		dev_err(rtl->parent, "switch registration failed\n");
+		dev_err(smi->parent, "switch registration failed\n");
 
 	return err;
 }
 
-static void rtl8366rb_switch_cleanup(struct rtl8366rb *rtl)
+static void rtl8366rb_switch_cleanup(struct rtl8366_smi *smi)
 {
-	unregister_switch(&rtl->dev);
+	unregister_switch(&smi->sw_dev);
 }
 
 static int rtl8366rb_mii_read(struct mii_bus *bus, int addr, int reg)
@@ -1171,9 +1145,8 @@ static int rtl8366rb_mii_bus_match(struct mii_bus *bus)
 		bus->write == rtl8366rb_mii_write);
 }
 
-static int rtl8366rb_setup(struct rtl8366rb *rtl)
+static int rtl8366rb_setup(struct rtl8366_smi *smi)
 {
-	struct rtl8366_smi *smi = &rtl->smi;
 	int ret;
 
 	ret = rtl8366rb_reset_chip(smi);
@@ -1219,6 +1192,8 @@ static int rtl8366rb_detect(struct rtl8366_smi *smi)
 
 static struct rtl8366_smi_ops rtl8366rb_smi_ops = {
 	.detect		= rtl8366rb_detect,
+	.setup		= rtl8366rb_setup,
+
 	.mii_read	= rtl8366rb_mii_read,
 	.mii_write	= rtl8366rb_mii_write,
 
@@ -1229,13 +1204,15 @@ static struct rtl8366_smi_ops rtl8366rb_smi_ops = {
 	.get_mc_index	= rtl8366rb_get_mc_index,
 	.set_mc_index	= rtl8366rb_set_mc_index,
 	.get_mib_counter = rtl8366rb_get_mib_counter,
+	.is_vlan_valid	= rtl8366rb_is_vlan_valid,
+	.enable_vlan	= rtl8366rb_enable_vlan,
+	.enable_vlan4k	= rtl8366rb_enable_vlan4k,
 };
 
 static int __init rtl8366rb_probe(struct platform_device *pdev)
 {
 	static int rtl8366_smi_version_printed;
 	struct rtl8366rb_platform_data *pdata;
-	struct rtl8366rb *rtl;
 	struct rtl8366_smi *smi;
 	int err;
 
@@ -1250,17 +1227,12 @@ static int __init rtl8366rb_probe(struct platform_device *pdev)
 		goto err_out;
 	}
 
-	rtl = kzalloc(sizeof(*rtl), GFP_KERNEL);
-	if (!rtl) {
-		dev_err(&pdev->dev, "no memory for private data\n");
+	smi = rtl8366_smi_alloc(&pdev->dev);
+	if (!smi) {
 		err = -ENOMEM;
 		goto err_out;
 	}
 
-	rtl->parent = &pdev->dev;
-
-	smi = &rtl->smi;
-	smi->parent = &pdev->dev;
 	smi->gpio_sda = pdata->gpio_sda;
 	smi->gpio_sck = pdata->gpio_sck;
 	smi->ops = &rtl8366rb_smi_ops;
@@ -1272,15 +1244,11 @@ static int __init rtl8366rb_probe(struct platform_device *pdev)
 
 	err = rtl8366_smi_init(smi);
 	if (err)
-		goto err_free_rtl;
+		goto err_free_smi;
 
-	platform_set_drvdata(pdev, rtl);
+	platform_set_drvdata(pdev, smi);
 
-	err = rtl8366rb_setup(rtl);
-	if (err)
-		goto err_clear_drvdata;
-
-	err = rtl8366rb_switch_init(rtl);
+	err = rtl8366rb_switch_init(smi);
 	if (err)
 		goto err_clear_drvdata;
 
@@ -1289,8 +1257,8 @@ static int __init rtl8366rb_probe(struct platform_device *pdev)
  err_clear_drvdata:
 	platform_set_drvdata(pdev, NULL);
 	rtl8366_smi_cleanup(smi);
- err_free_rtl:
-	kfree(rtl);
+ err_free_smi:
+	kfree(smi);
  err_out:
 	return err;
 }
@@ -1305,6 +1273,10 @@ static int rtl8366rb_phy_config_init(struct phy_device *phydev)
 
 static int rtl8366rb_phy_config_aneg(struct phy_device *phydev)
 {
+	/* phy 4 might be connected to a second mac, allow aneg config */
+	if (phydev->addr == RTL8366RB_PHY_WAN)
+		return genphy_config_aneg(phydev);
+
 	return 0;
 }
 
@@ -1323,13 +1295,13 @@ static struct phy_driver rtl8366rb_phy_driver = {
 
 static int __devexit rtl8366rb_remove(struct platform_device *pdev)
 {
-	struct rtl8366rb *rtl = platform_get_drvdata(pdev);
+	struct rtl8366_smi *smi = platform_get_drvdata(pdev);
 
-	if (rtl) {
-		rtl8366rb_switch_cleanup(rtl);
+	if (smi) {
+		rtl8366rb_switch_cleanup(smi);
 		platform_set_drvdata(pdev, NULL);
-		rtl8366_smi_cleanup(&rtl->smi);
-		kfree(rtl);
+		rtl8366_smi_cleanup(smi);
+		kfree(smi);
 	}
 
 	return 0;
@@ -1374,5 +1346,6 @@ MODULE_DESCRIPTION(RTL8366RB_DRIVER_DESC);
 MODULE_VERSION(RTL8366RB_DRIVER_VER);
 MODULE_AUTHOR("Gabor Juhos <juhosg@openwrt.org>");
 MODULE_AUTHOR("Antti Seppälä <a.seppala@gmail.com>");
+MODULE_AUTHOR("Roman Yeryomin <roman@advem.lv>");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("platform:" RTL8366RB_DRIVER_NAME);
