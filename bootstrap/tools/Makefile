@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007 OpenWrt.org
+# Copyright (C) 2006-2010 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -18,6 +18,7 @@ tools-y += m4 autoconf automake bison pkg-config sed mklibs
 tools-y += sstrip ipkg-utils genext2fs libuuid mtd-utils mkimage
 tools-y += firmware-utils patch-cmdline quilt yaffs2
 tools-$(CONFIG_TARGET_orion) += wrt350nv2-builder upslug2
+tools-$(CONFIG_TARGET_x86) += qemu
 ifneq ($(CONFIG_LINUX_2_4)$(CONFIG_LINUX_2_6_25),)
 tools-y += squashfs lzma-old
 else
@@ -39,7 +40,7 @@ endif
 $(curdir)/pkg-config/compile := $(curdir)/sed/install
 $(curdir)/squashfs/compile := $(curdir)/lzma-old/install
 $(curdir)/squashfs4/compile := $(curdir)/lzma/install
-$(curdir)/quilt/compile := $(curdir)/sed/install
+$(curdir)/quilt/compile := $(curdir)/sed/install $(curdir)/autoconf/install
 $(curdir)/dtc/compile := $(curdir)/bison/install
 $(curdir)/autoconf/compile := $(curdir)/m4/install
 $(curdir)/automake/compile := $(curdir)/m4/install $(curdir)/autoconf/install
@@ -47,10 +48,13 @@ $(curdir)/mpc/compile := $(curdir)/gmp/install
 $(curdir)/mpfr/compile := $(curdir)/gmp/install
 $(curdir)/mtd-utils/compile := $(curdir)/libuuid/install
 $(curdir)/mkimage/compile := $(curdir)/sed/install
+$(curdir)/qemu/compile := $(curdir)/libuuid/install
+$(curdir)/upslug2/compile := $(curdir)/automake/install
 
 $(curdir)/builddirs := $(tools-y) $(tools-dep) $(tools-)
 $(curdir)/builddirs-default := $(tools-y)
 
+ifndef DUMP_TARGET_DB
 define PrepareStaging
 	@for dir in $(1); do ( \
 		set -x; \
@@ -81,6 +85,7 @@ $(STAGING_DIR_HOST)/bin/$(1): $(STAGING_DIR)/.prepared
 	}; ln -s "$$$$FILE" "$$@"
 
 endef
+endif
 
 $(eval $(call PrepareCommand,find,gfind find))
 $(eval $(call PrepareCommand,md5sum,md5sum $(SCRIPT_DIR)/md5sum))
