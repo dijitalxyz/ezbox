@@ -23,10 +23,10 @@ define Package/Default
   else
     VERSION:=$(PKG_RELEASE)
   endif
-  ifneq ($(CONFIG_TARGET_adm5120),y)
-    PKGARCH:=$(BOARD)
+  ifneq ($(ARCH_PACKAGES),)
+    PKGARCH:=$(ARCH_PACKAGES)
   else
-    PKGARCH:=$(BOARD)_$(ARCH)
+    PKGARCH:=$(BOARD)
   endif
   PRIORITY:=optional
   DEFAULT:=
@@ -43,7 +43,7 @@ endef
 Build/Patch:=$(Build/Patch/Default)
 ifneq ($(strip $(PKG_UNPACK)),)
   define Build/Prepare/Default
-  	$(PKG_UNPACK)
+	$(SH_FUNC) $(PKG_UNPACK)
 	$(Build/Patch)
   endef
 endif
@@ -113,7 +113,7 @@ MAKE_PATH = .
 
 define Build/Compile/Default
 	$(MAKE_VARS) \
-	$(MAKE) -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/$(MAKE_PATH) \
 		$(MAKE_FLAGS) \
 		$(1);
 endef
