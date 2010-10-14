@@ -1,0 +1,39 @@
+#summary TP-Link TL-WR740N v4.0 无线路由器
+#labels Phase-Implementation
+
+= 简介 =
+
+本页介绍如何移植 ezbox 到 TP-Link TL-WR740N v4.0 无线路由器硬件平台
+
+= 详细说明 =
+
+== 产品信息 ==
+
+== 设备基本信息 ==
+
+== 硬件平台信息 ==
+  * CPU: Atheros AR7240 (400MHz)
+  * SDRAM: Zentel A3S56D40FTP-G5 (32MB)
+  * FLASH: Spansion FL032PIF (4MB)
+
+== 串口针脚定义 ==
+
+== 固件升级方法 ==
+
+== 登录帐号密码 ==
+  * 串口登录 
+  # 登录地址: 连接好串口线后，输入回车 
+  # 用户名: root
+  # 密码: 5up
+
+== 系统信息 ==
+
+== 相似产品 ==
+
+= 常见问题 =
+
+= 参考资料 =
+  # TP-LINK GPL Code Center <a href="http://www.tp-link.com/support/gpl.asp">http://www.tp-link.com/support/gpl.asp</a>
+  # Is tp-link WR741ND v1 supported? <a href="https://forum.openwrt.org/viewtopic.php?pid=102069">https://forum.openwrt.org/viewtopic.php?pid=102069</a>
+  # 资料收集，请有机的兄弟贡献下！ <a href="http://www.right.com.cn/forum/viewthread.php?tid=38224">http://www.right.com.cn/forum/viewthread.php?tid=38224</a>
+  # 全球首发--tplink 941 （ar9132） usb 成功驱动 <a href="http://www.right.com.cn/forum/viewthread.php?tid=38742">http://www.right.com.cn/forum/viewthread.php?tid=38742</a>
