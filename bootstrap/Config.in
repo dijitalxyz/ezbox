@@ -155,6 +155,15 @@ menu "Global build settings"
 		help
 			This removes all ipkg/opkg status data files from the target directory before building the root fs
 
+	config COLLECT_KERNEL_DEBUG
+		bool
+		prompt "Collect kernel debug information"
+		select KERNEL_DEBUG_INFO
+		default n
+		help
+			This collects debugging symbols from the kernel and all compiled modules.
+			Useful for release builds, so that kernel issues can be debugged offline later.
+
 	comment "Kernel build options"
 
 	config KERNEL_DEBUG_FS
@@ -179,6 +188,36 @@ menu "Global build settings"
 		help
 		  This will give you more information in stack traces from kernel oopses
 
+	config KERNEL_DEBUG_KERNEL
+		bool
+		default n
+
+	config KERNEL_DEBUG_INFO
+		bool "Compile the kernel with debug information"
+		default n
+		select KERNEL_DEBUG_KERNEL
+		help
+		  This will compile your kernel and modules with debug information.
+
+	config KERNEL_DEBUG_LL
+		bool
+		default n
+		depends on arm
+		help
+		  ARM low level debugging
+
+	config KERNEL_EARLY_PRINTK
+		bool "Compile the kernel with early printk"
+		default n
+		depends on arm
+		select KERNEL_DEBUG_KERNEL
+		select KERNEL_DEBUG_LL if arm
+		help
+		  Compile the kernel with early printk support.
+		  This is only useful for debugging purposes to send messages
+		  over the serial console in early boot.
+		  Enable this to debug early boot problems.
+
 	comment "Package build options"
 
 	config DEBUG
@@ -191,9 +230,55 @@ menu "Global build settings"
 	config IPV6
 		bool
 		prompt "Enable IPv6 support in packages"
-		default n
+		default y
 		help
 		  Enable IPV6 support in packages (passes --enable-ipv6 to configure scripts).
+
+	config PKG_BUILD_PARALLEL
+		bool
+		prompt "Compile certain packages parallelized"
+		default n
+		help
+		  This adds a -jX option to certain packages that are known to
+		  behave well for parallel build.
+
+		  Note that this may overcommit CPU resources depending on the
+		  -j level of the main make process, the number of package
+		  submake jobs selected below and the number of actual CPUs present.
+		  Example: If the main make is passed a -j4 and the submake -j
+		  is also set to 4, we may end up with 16 parallel make processes
+		  in the worst case.
+
+		  You get maximum build performance, if you set the package build
+		  jobs to the number of CPUs (cores) available and also start the main
+		  make process with -jX, where X is the number of CPUs (cores).
+		  However, make sure you have enough RAM available for
+		  NR_CPUS to the power of two (NR_CPUS^2) make jobs.
+
+		  If you are unsure, select N.
+
+	config PKG_BUILD_JOBS
+		int
+		prompt "Number of package submake jobs (2-512)"
+		range 2 512
+		default 2
+		depends on PKG_BUILD_PARALLEL
+		help
+		  The number of jobs (-jX) to pass to packages submake.
+
+	config PKG_DEFAULT_PARALLEL
+		bool
+		prompt "Always parallelize the default package build rule (Dangerous)"
+		depends on PKG_BUILD_PARALLEL
+		default n
+		help
+		  Always set the default package build rules to parallel build.
+
+		  WARNING: This may break build or kill your cat, as it builds
+		  packages with multiple jobs that are probably not tested in
+		  a parallel build environment.
+
+		  Say N. Only say Y for testing.
 
 	comment "Stripping options"
 
