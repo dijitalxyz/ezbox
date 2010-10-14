@@ -16,7 +16,8 @@ include $(TOPDIR)/include/verbose.mk
 
 TMP_DIR:=$(TOPDIR)/tmp
 
-export SHELL=/usr/bin/env bash -c '. $(TOPDIR)/include/shell.sh; eval "$$2"' --
+GREP_OPTIONS=
+export GREP_OPTIONS
 
 qstrip=$(strip $(subst ",,$(1)))
 #"))
@@ -30,11 +31,13 @@ strip_last=$(patsubst %.$(lastword $(subst .,$(space),$(1))),%,$(1))
 _SINGLE=export MAKEFLAGS=$(space);
 CFLAGS:=
 ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(call qstrip,$(CONFIG_ARCH)))))
+ARCH_PACKAGES:=$(call qstrip,$(CONFIG_TARGET_ARCH_PACKAGES))
 BOARD:=$(call qstrip,$(CONFIG_TARGET_BOARD))
 TARGET_OPTIMIZATION:=$(call qstrip,$(CONFIG_TARGET_OPTIMIZATION))
 TARGET_SUFFIX=$(call qstrip,$(CONFIG_TARGET_SUFFIX))
 BUILD_SUFFIX:=$(call qstrip,$(CONFIG_BUILD_SUFFIX))
 SUBDIR:=$(patsubst $(TOPDIR)/%,%,${CURDIR})
+export SHELL:=/usr/bin/env bash
 
 OPTIMIZE_FOR_CPU=$(subst i386,i486,$(ARCH))
 
@@ -104,7 +107,7 @@ TARGET_PATH:=$(STAGING_DIR_HOST)/bin:$(PATH)
 TARGET_CFLAGS:=$(TARGET_OPTIMIZATION)$(if $(CONFIG_DEBUG), -g3)
 TARGET_CPPFLAGS:=-I$(STAGING_DIR)/usr/include -I$(STAGING_DIR)/include
 TARGET_LDFLAGS:=-L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib
-LIBGCC_S=$(if $(wildcard $(TOOLCHAIN_DIR)/lib/libgcc_s.so),-L$(TOOLCHAIN_DIR)/lib -lgcc_s,$(wildcard $(TOOLCHAIN_DIR)/usr/lib/gcc/*/*/libgcc.a))
+LIBGCC_S=$(if $(wildcard $(TOOLCHAIN_DIR)/lib/libgcc_s.so),-L$(TOOLCHAIN_DIR)/lib -lgcc_s,$(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.a))
 
 ifndef DUMP
   ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
@@ -113,7 +116,7 @@ ifndef DUMP
     TARGET_CFLAGS+= -fhonour-copts
     TARGET_CPPFLAGS+= -I$(TOOLCHAIN_DIR)/usr/include -I$(TOOLCHAIN_DIR)/include
     TARGET_LDFLAGS+= -L$(TOOLCHAIN_DIR)/usr/lib -L$(TOOLCHAIN_DIR)/lib
-    TARGET_PATH:=$(TOOLCHAIN_DIR)/usr/bin:$(TARGET_PATH)
+    TARGET_PATH:=$(TOOLCHAIN_DIR)/bin:$(TARGET_PATH)
   else
     ifeq ($(CONFIG_NATIVE_TOOLCHAIN),)
       TARGET_CROSS:=$(call qstrip,$(CONFIG_TOOLCHAIN_PREFIX))
@@ -145,6 +148,7 @@ endif
 export PATH:=$(TARGET_PATH)
 export STAGING_DIR
 export GCC_HONOUR_COPTS:=0
+export SH_FUNC:=. $(INCLUDE_DIR)/shell.sh;
 
 PKG_CONFIG:=$(STAGING_DIR_HOST)/bin/pkg-config
 
@@ -170,6 +174,7 @@ ifneq ($(CONFIG_CCACHE),)
   # FIXME: move this variable to a better location
   export CCACHE_DIR=$(STAGING_DIR)/ccache
   TARGET_CC:= ccache $(TARGET_CC)
+  TARGET_CXX:= ccache $(TARGET_CXX)
 endif
 
 TARGET_CONFIGURE_OPTS = \
