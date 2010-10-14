@@ -11,7 +11,7 @@ choice
 	default GCC_VERSION_4_3_4 if TARGET_gemini
 	default GCC_VERSION_4_4_1 if ubicom32
 	default GCC_VERSION_4_4_3 if powerpc
-	default GCC_VERSION_4_4_3 if (TARGET_octeon || TARGET_sibyte)
+	default GCC_VERSION_4_4_4 if (TARGET_octeon || TARGET_sibyte)
 	default GCC_VERSION_4_1_2
 	help
 	  Select the version of gcc you wish to use.
@@ -46,6 +46,9 @@ choice
 	config GCC_VERSION_4_5_0
 		bool "gcc 4.5.0"
 
+	config GCC_VERSION_4_5_1
+		bool "gcc 4.5.1"
+
 	config GCC_VERSION_LLVM
 		bool "llvm-gcc 4.2"
 		depends BROKEN
@@ -55,7 +58,6 @@ choice
 
 	config GCC_VERSION_4_4_1_CS
 		bool "gcc 4.4.1 with CodeSourcery enhancements"
-		depends BROKEN
 
 	config GCC_VERSION_4_4_3_CS
 		bool "gcc 4.4.3 with CodeSourcery enhancements"
@@ -83,7 +85,6 @@ config EXTRA_GCC_CONFIG_OPTIONS
 
 config SSP_SUPPORT
 	bool
-	depends !GCC_VERSION_3_4_6
 	prompt "Enable Stack-Smashing Protection support" if TOOLCHAINOPTS
 	default n
 	help
@@ -91,7 +92,7 @@ config SSP_SUPPORT
 
 config TLS_SUPPORT
 	bool
-	depends !GCC_VERSION_3_4_6 && UCLIBC_VERSION_NPTL
+	depends UCLIBC_VERSION_NPTL
 	prompt "Enable Thread-local storage (TLS) support" if TOOLCHAINOPTS
 	default n
 	help
@@ -106,6 +107,7 @@ config INSTALL_LIBSTDCPP
 
 config INSTALL_LIBGCJ
 	bool
+	depends on !(GCC_VERSION_4_1||GCC_VERSION_4_2)
 	prompt "Build/install java compiler and GNU classpath ?" if TOOLCHAINOPTS
 	default n
 	help
