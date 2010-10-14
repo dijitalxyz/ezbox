@@ -8,13 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
-PKG_VERSION:=1.16.2
+PKG_VERSION:=1.17.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.busybox.net/downloads \
 		http://distfiles.gentoo.org/distfiles/
-PKG_MD5SUM:=2ba980f720a5bdce4ec05423519acc35
+PKG_MD5SUM:=7360b7138b899ee7fc885791c740c3c3
+
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -60,8 +62,12 @@ ifdef CONFIG_GCC_VERSION_LLVM
   TARGET_CFLAGS += -fnested-functions
 endif
 
+ifdef CONFIG_GCC_VERSION_4_5_0
+  TARGET_CFLAGS += -fno-tree-pta
+endif
+
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		KBUILD_HAVE_NLS=no \
