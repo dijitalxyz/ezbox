@@ -16,11 +16,7 @@ ifeq ($(DUMP),1)
 else
   export GCC_HONOUR_COPTS=s
 
-  ifeq ($(KERNEL),2.6)
-    LINUX_KMOD_SUFFIX=ko
-  else
-    LINUX_KMOD_SUFFIX=o
-  endif
+  LINUX_KMOD_SUFFIX=ko
 
   ifneq (,$(findstring uml,$(BOARD)))
     KERNEL_CC?=$(HOSTCC)
@@ -68,6 +64,7 @@ define KernelPackage/Defaults
 endef
 
 define ModuleAutoLoad
+	$(SH_FUNC) \
 	export modules=; \
 	add_module() { \
 		mkdir -p $(2)/etc/modules.d; \
