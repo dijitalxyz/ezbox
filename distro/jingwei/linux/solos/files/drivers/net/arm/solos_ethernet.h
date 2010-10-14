@@ -19,8 +19,6 @@ static struct ethtool_cmd vlan_cmd;
 /* Legacy proc command support */
 #define LEGACY_ETHER_PROC 1
 
-/* Disable DMA support */
-#define DMA 0
 
 #ifdef BUFFER_QUEUING 
 static int refill_queue_len=0;

@@ -23,6 +23,8 @@
 
 #include "solos_ethernet.h"
 
+#define DMA 0
+
 struct tasklet_struct port1RxTasklet, port2RxTasklet, port1TxTasklet, port2TxTasklet;
 
 /*****************************************************************************
@@ -163,7 +165,7 @@ static int solos_eth_irq(int irq, void *dev_id, void *regs)
 	struct net_device *dev = dev_id;
 	int status;
 
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	/* Store the dev structure in global pointer to be used by tasklet */
@@ -303,7 +305,7 @@ static void solos_kick_tx_real(struct NetDevPrivate *priv,struct solos_eth_ctxt 
 
 static int solos_eth_tx(struct sk_buff *skb, struct net_device *dev)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	struct phy_device *phydev= ctxt->phy_list[0];
 	
@@ -353,7 +355,7 @@ static int solos_eth_tx(struct sk_buff *skb, struct net_device *dev)
 
 static void solos_do_tx_tasklet_handler(struct net_device *dev)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	u32 status;	
@@ -414,7 +416,7 @@ void DumpPacket(struct sk_buff *skb , char * Header ,char * Footer )
 static void solos_do_rx(struct net_device *dev)
 {
 
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	struct phy_device *phydev=ctxt->phy_list[0];	
 	struct solos_eth_desc *desc = ctxt->rx_desc_ptr;
@@ -525,7 +527,7 @@ static void solos_do_rx(struct net_device *dev)
 
 static void portRefillHandler(struct net_device *dev)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	struct solos_eth_desc *desc = ctxt->refill_desc_ptr;
@@ -664,7 +666,7 @@ void init_skb_qhead(void **qhead, int size, int num_buffs)
 
 static int bf_eth_open( struct net_device *dev )
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	u32 tmp;
@@ -730,7 +732,7 @@ static int bf_eth_open( struct net_device *dev )
 static void *bf_get_stats(struct net_device *dev)
 {
 	int i;
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	return &priv->stats;
 }
 
@@ -758,7 +760,7 @@ struct ioctl_data
 
 int bf_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
     	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 
@@ -833,7 +835,7 @@ int bf_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 
 static void solos_stop_hw(struct net_device *dev)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	int i;
@@ -880,7 +882,7 @@ static void solos_stop_hw(struct net_device *dev)
 
 static int bf_eth_stop( struct net_device *dev )
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 #if 0
 	if ( priv->PhyDevice->bus->vlan_status == 1 )
 	{
@@ -1034,7 +1036,7 @@ EXPORT_SYMBOL(ETH_PROC_GET_HOOK);
 
 int Get_PHY_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	int err;
 
@@ -1064,7 +1066,7 @@ int Get_PHY_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 
 int Set_PHY_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	struct phy_device *phydev;
   
@@ -1125,7 +1127,7 @@ int Set_PHY_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 
 int Get_PHY_link(struct net_device *dev, struct ethtool_cmd *cmd)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	struct phy_device *phydev;
 
@@ -1148,7 +1150,7 @@ void Get_drvinfo(struct net_device *dev, void *info)
 
 static int bf_ether_init_net(struct net_device *dev)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	int tmp = dev->hard_header_len;
@@ -1179,7 +1181,7 @@ static int bf_ether_init_net(struct net_device *dev)
 static inline int solos_mii_read_posted(struct net_device *dev, int phy,
                     int reg, short *result)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	unsigned int status;
@@ -1213,7 +1215,7 @@ static inline int solos_mii_read_posted(struct net_device *dev, int phy,
 static inline int solos_mii_write_posted(struct net_device *dev, int phy,
                      int reg, unsigned short value)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	unsigned int status;
@@ -1253,7 +1255,7 @@ static inline int solos_mii_write_posted(struct net_device *dev, int phy,
 /* Read MII register from specified ethernet PHY */
  int solos_mii_read(struct net_device *dev, int phy, int reg)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 
 	u16 value; 
@@ -1268,7 +1270,7 @@ static inline int solos_mii_write_posted(struct net_device *dev, int phy,
 /* Write MII register to specified Ethernet PHY */
  int solos_mii_write(struct net_device *dev, int phy, int reg, int value)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 //	printk("\n dev :: %s phy %d reg %d val %d",dev->name,phy,reg,value);
 	while (!solos_mii_write_posted(dev, phy, reg, value)) ;
@@ -1298,7 +1300,7 @@ int mdiobus_write(struct mii_bus *bus, int phy_addr, int regnum, int value)
 static void PhyCallback(struct net_device *dev )
 {
 	int phy_addr;
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	struct phy_device *phydev ;
 	unsigned long flags;
@@ -1445,7 +1447,7 @@ int setup_phy_framework(struct mii_bus **mii_bus1,struct net_device *dev,char *n
 
 static void solos_scan_mii(struct net_device *dev,int busid)
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* MacCtxt = &priv->MacDevPtr->MacContext;
 
 	int i,phy_addr;
@@ -1493,7 +1495,7 @@ static inline RESET_GPIO()
 
 int MergeInterfaces( struct net_device *dev )
 {
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	int i;
 
@@ -1518,7 +1520,7 @@ int MergeInterfaces( struct net_device *dev )
 int CreateSplitInterfaces( struct net_device *dev)
 {
 
-	struct NetDevPrivate *priv=(struct NetDevPrivate *) dev->priv;
+	struct NetDevPrivate *priv=(struct NetDevPrivate *)netdev_priv(dev);
 	struct solos_eth_ctxt* ctxt = &priv->MacDevPtr->MacContext;
 	int i;	
 	int status;

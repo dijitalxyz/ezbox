@@ -9,7 +9,7 @@
  * published by the Free Software Foundation.
  *
  */
-#include "board.h"
+#include <mach/board.h>
 /* Board-specific initialisation of the EPB and GPIOs should go here
  * to avoid littering it across the relevant subsystems such as 
  * pcmcia, mtd ... */
