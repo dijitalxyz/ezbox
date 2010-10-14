@@ -25,7 +25,7 @@
 #include <asm/mach/arch.h>
 #include <asm/mach/time.h>
 #include <asm/mach/irq.h>
-#include "board.h"
+#include <mach/board.h>
 
 
 #ifdef CONFIG_SOLOS_SPI

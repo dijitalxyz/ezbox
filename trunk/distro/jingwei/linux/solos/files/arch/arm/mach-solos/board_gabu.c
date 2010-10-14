@@ -14,7 +14,7 @@
 #include <mach/hardware/solosw_gpio_if.h>
 #include <mach/hardware.h>
 
-#include "board.h"
+#include <mach/board.h>
 #include <linux/delay.h> //for mdelay
 
 /* Board-specific initialisation of the EPB and GPIOs should go here
