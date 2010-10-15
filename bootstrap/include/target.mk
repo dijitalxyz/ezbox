@@ -13,6 +13,8 @@ DEVICE_TYPE?=router
 
 # Default packages - the really basic set
 DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg udevtrigger hotplug2
+# ezbox special settings
+DEFAULT_PACKAGES:=ezcfg libc libgcc busybox udevtrigger hotplug2
 # For router targets
 DEFAULT_PACKAGES.router:=dnsmasq iptables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall
 DEFAULT_PACKAGES.bootloader:=
