@@ -23,7 +23,7 @@ Build Instructions
 
 2. Use default config for the target distro
 	1) distro kuafu
-		cp distro/kuafu/defconfig-ar7240 bootstrap/.config
+		cp distro/kuafu/defconfig-ar71xx bootstrap/.config
 
 3. Set environment variables
 	1) Set target device type
