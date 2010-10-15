@@ -8,8 +8,11 @@
 = 详细说明 =
 
 == 产品信息 ==
+  * 产品官方主页 <a href="http://www.tp-link.com.cn/pages/product-detail.asp?d=144">http://www.tp-link.com.cn/pages/product-detail.asp?d=144</a>
 
 == 设备基本信息 ==
+  * 当前软件版本： 3.10.8 Build 100708 Rel.55371n  
+  * 当前硬件版本： WR740N v3/v4 00000000 
 
 == 硬件平台信息 ==
   * CPU: Atheros AR7240 (400MHz)
@@ -17,8 +20,15 @@
   * FLASH: Spansion FL032PIF (4MB)
 
 == 串口针脚定义 ==
+  * CPU pins : AR7240的pin 86为UART RX，pin 87位UART TX
+  * PCB板上TP4与TP5焊孔与串口TX/RX针脚对应
+  * 串口速率 : 115200 bps 
 
 == 固件升级方法 ==
+  * u-boot升级
+  # 连接串口线，在设备启动时看到 Autobooting in 1 seconds 时快速输入"tpl"，进入u-boot环境
+
+  * 管理页面web升级
 
 == 登录帐号密码 ==
   * 串口登录 
@@ -29,6 +39,8 @@
 == 系统信息 ==
 
 == 相似产品 ==
+=== 水星 MW150R ===
+  * 产品官方网页 <a href="http://www.mercurycom.com.cn/product-detail.asp?pd=10">http://www.mercurycom.com.cn/product-detail.asp?pd=10</a>
 
 = 常见问题 =
 
