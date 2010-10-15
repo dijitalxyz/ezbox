@@ -1,5 +1,8 @@
     ezbox embedded-system study platform
 
+==
+Package Content
+==
 1. bootstrap/ :
   The bootstrap/ directory contains build tools to construct a bootstrap system for ezbox.
   The major part of build tools is from openwrt project(https://dev.openwrt.org/wiki)
@@ -10,4 +13,32 @@
 
 3. misc/ :
   This directory stores a lot of nothing, may be removed :-)
+
+==
+Build Instructions
+==
+1. Before building the target system for ezbox, you should select a distro and symbol link the target arch to bootstrap/target/linux directory. Following examples will use distro kuafu and target CPU is ar7240.
+	1) symbol link target
+		ln -s `pwd`/distro/kuafu/linux/ar71xx bootstrap/target/linux/ar71xx
+
+2. Use default config for the target distro
+	1) distro kuafu
+		cp distro/kuafu/defconfig-ar7240 bootstrap/.config
+
+3. Set environment variables
+	1) Set target device type
+		export DEVICE_TYPE=ezbox
+
+	2) Set target arch
+		export ARCH=mips
+
+4. Enter bootstrap/ directory and start build
+	1) Goto bootstrap/ directory
+		cd bootstrap
+
+	2) Generate fresh config file
+		make ARCH=mips oldconfig
+
+	3) Start build
+		make
 
