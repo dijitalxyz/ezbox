@@ -21,10 +21,12 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
 
+PKG_BUILD_DEPENDS:=opkg/host
+
 include $(INCLUDE_DIR)/package.mk
 
 # set to 1 to enable debugging
-DEBUG=
+DEBUG=0
 
 define Package/ezcfg/Default
   SUBMENU:=ezcfg
