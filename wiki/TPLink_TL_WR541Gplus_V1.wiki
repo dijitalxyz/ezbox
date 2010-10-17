@@ -8,7 +8,7 @@
 = 详细说明 =
 
 == 产品信息 ==
-  * 产品官方主页 <a href="http://www.tp-link.com.cn/pages/product-detail.asp?d=144">http://www.tp-link.com.cn/pages/product-detail.asp?d=144</a>
+  * 产品官方主页 <a href="http://www.tp-link.com.cn/pages/product-detail.asp?d=41">http://www.tp-link.com.cn/pages/product-detail.asp?d=41</a>
 
 == 设备基本信息 ==
 
@@ -29,8 +29,8 @@
 == 系统信息 ==
 
 == 相似产品 ==
-=== TP-Link TL-WA501G ===
-  * 产品官方网页 <a href="http://www.mercurycom.com.cn/product-detail.asp?pd=10">http://www.mercurycom.com.cn/product-detail.asp?pd=10</a>
+=== TP-Link TL-WA501G+ ===
+  * 产品官方网页 <a href="http://www.tp-link.com.cn/pages/product-detail.asp?d=91">http://www.tp-link.com.cn/pages/product-detail.asp?d=91</a>
 
 = 常见问题 =
 
