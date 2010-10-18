@@ -1,0 +1,85 @@
+ifndef BOARD_TYPE
+export BOARD_TYPE=ap91fus
+endif
+
+ifndef MACHINE_TYPE
+$(error "You have to define Machine Type to use this Makefile")
+endif
+
+#
+# Include the specific configuration files from the config.boardtype file
+# here.  This removes the need to set environmental variables through a
+# script before building
+#
+
+include scripts/$(BOARD_TYPE)/config.$(BOARD_TYPE)
+
+#
+# Put in safety checks here to ensure all required variables are defined in
+# the configuration file
+#
+
+ifndef TOOLCHAIN
+$(error "Must specify TOOLCHAIN value")
+endif
+
+ifndef TOOLARCH
+$(error "Must specify TOOLARCH value")
+endif
+
+export UBOOTFILE=u-boot$(BUILD_CONFIG).bin
+
+#
+# Other environmental variables that are configured as per the configuration file
+# specified above.  These contain all platform specific configuration items.
+#
+
+export TOPDIR=$(PWD)/..
+export INSTALL_ROOT=$(TOPDIR)/rootfs.build
+export INSTALL_ROOT_FOR_BOARD=$(TOPDIR)/rootfs.$(BOARD_TYPE)
+export IMAGE_ROOT=$(TOPDIR)/rootfs-$(BOARD_TYPE)$(BUILD_CONFIG).optbuild
+export IMAGEPATH=$(TOPDIR)/images/$(BOARD_TYPE)
+temp_BOARD_TYPE = $(strip $(subst fus, , $(BOARD_TYPE)))
+
+export STRIP=$(TOOLPREFIX)strip
+export MAKEARCH=$(MAKE) ARCH=$(TARGETARCH) CROSS_COMPILE=$(TOOLPREFIX)
+
+export TOOLPATH=$(TOPDIR)/build/$(TOOLCHAIN)/$(TOOLARCH)/
+
+export UBOOTDIR=$(TOPDIR)/$(BOARD_TYPE)/boot/u-boot
+
+# Save PATH for later use for compiling host-only tools etc.
+export ORIGINAL_PATH:=$(PATH)
+# Set PATH so we find target compiler when say "gcc", etc.
+# as well as other tools we expect to find.
+export PATH:=$(TOPDIR)/build/util:$(TOOLPATH)/bin:$(TOPDIR)/build:`pwd`:${PATH}
+
+#
+# This is to allow the target file system size to be specified on the command
+# line, if desired
+#
+
+ifndef TARGETFSSIZE
+export TARGETFSSIZE=2621440
+endif
+
+
+#
+# Include the board specific make file
+#
+
+include scripts/$(BOARD_TYPE)/Makefile.$(BOARD_TYPE)
+
+#
+# Common targts
+#
+uboot:
+	cd $(UBOOTDIR) && $(MAKEARCH) mrproper
+ifneq ($(BOARD_TYPE), $(temp_BOARD_TYPE))
+	echo ====Using $(temp_BOARD_TYPE) config for $(BOARD_TYPE) ===
+	cd $(UBOOTDIR) && $(MAKEARCH) $(temp_BOARD_TYPE)_config
+else
+	cd $(UBOOTDIR) && $(MAKEARCH) $(BOARD_TYPE)_config
+endif
+	cd $(UBOOTDIR) && $(MAKEARCH) all
+	cp $(UBOOTDIR)/u-boot.bin ${IMAGEPATH}/${UBOOTFILE}

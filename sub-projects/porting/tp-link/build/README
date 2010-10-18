@@ -1,0 +1,2 @@
+1) Build TP-Link TL-WR740N v4.0 u-boot
+	make BOARD_TYPE=ap91fus MACHINE_TYPE=tpl_tl_wr740n_v4 uboot
