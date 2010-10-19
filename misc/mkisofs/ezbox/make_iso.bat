@@ -2,7 +2,7 @@
 
 REM  ----------------------------------------------------
 REM  Batch file to create bootable ISO in Windows
-REM  usage: make_iso.bat c:\new-slax.iso
+REM  usage: make_iso.bat c:\new-ezbox.iso
 REM  author: Tomas M. <http://www.linux-live.org>
 REM  ----------------------------------------------------
 
@@ -10,7 +10,7 @@ if "%1"=="" goto error1
 cd ..
 set CDLABEL=EZBOX
 
-slax\tools\WIN\mkisofs.exe @slax\tools\WIN\config -o "%1" -A "%CDLABEL%" -V "%CDLABEL%" .
+ezbox\tools\WIN\mkisofs.exe @ezbox\tools\WIN\config -o "%1" -A "%CDLABEL%" -V "%CDLABEL%" .
 echo.
 echo New ISO should be created now.
 goto theend
