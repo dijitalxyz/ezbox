@@ -1,0 +1,16 @@
+					README
+
+        This file contains important instructions regarding the Open source directory.
+
+	Open source directory will contain source code that are licensed under the open community. These codes might vary from OS to bootloaders and different applications and libraries.
+
+	The directories under this directory are as follows:
+
+1. common:      This directory is where common source codes can be  placed.
+2. firmware:    This directory contains any binary or firmware that is necessary for a hardware device to work properly.
+3. bootloader:  This directory contains the bootloader code.
+4. include:     This directory contains the header files that would be included in the source codes.
+5. OS:          This directory contains any operating system sources.
+6. HSL:         This directory contains the host support sources or any porting source codes.
+
+

@@ -1,0 +1,12 @@
+export ANNEX=A
+export FW_VER=1.00.19
+export SUB_VER=00
+export BOOT_VER=1.03
+export HW_VER=0.01
+export WIFI_VER=2.1.38
+export WIFI_TEST=0
+export MODULE=Linksys
+export MODULE_NAME=WAG54G2
+export MODULE_DESC="Wireless ADSL2+ Gateway"
+export VERDOR_NAME="Linksys by Cisco"
+export SIPALG=1

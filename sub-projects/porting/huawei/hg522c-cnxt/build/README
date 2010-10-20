@@ -1,0 +1,2 @@
+1) Build Linksys WAG54G2 AnnexA v1.0 u-boot
+	make uboot
