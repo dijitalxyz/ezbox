@@ -31,7 +31,7 @@ ifndef TFTPPATH
 export TFTPPATH=$(TOPDIR)/tftpboot/$(BOARD_TYPE)/
 endif
 
-export UBOOTFILE=u-boot$(BUILD_CONFIG).bin
+export UBOOTFILE=$(MACHINE_TYPE)-u-boot.bin
 
 #
 # Other environmental variables that are configured as per the configuration file
@@ -47,7 +47,7 @@ export MAKEARCH=$(MAKE) ARCH=$(KERNELARCH) CROSS_COMPILE=$(TOOLPREFIX)
 
 export TOOLPATH=$(TOPDIR)/build/$(TOOLCHAIN)/$(TOOLARCH)/
 
-export UBOOTDIR=$(TOPDIR)/$(BOARD_TYPE)/boot/u-boot
+export UBOOTDIR=$(TOPDIR)/boot/u-boot
 
 # Save PATH for later use for compiling host-only tools etc.
 export ORIGINAL_PATH:=$(PATH)
