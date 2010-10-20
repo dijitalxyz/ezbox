@@ -27,6 +27,10 @@ ifndef TOOLARCH
 $(error "Must specify TOOLARCH value")
 endif
 
+ifndef TFTPPATH
+export TFTPPATH=$(TOPDIR)/tftpboot/$(BOARD_TYPE)/
+endif
+
 export UBOOTFILE=u-boot$(BUILD_CONFIG).bin
 
 #
@@ -35,14 +39,11 @@ export UBOOTFILE=u-boot$(BUILD_CONFIG).bin
 #
 
 export TOPDIR=$(PWD)/..
-export INSTALL_ROOT=$(TOPDIR)/rootfs.build
-export INSTALL_ROOT_FOR_BOARD=$(TOPDIR)/rootfs.$(BOARD_TYPE)
-export IMAGE_ROOT=$(TOPDIR)/rootfs-$(BOARD_TYPE)$(BUILD_CONFIG).optbuild
 export IMAGEPATH=$(TOPDIR)/images/$(BOARD_TYPE)
 temp_BOARD_TYPE = $(strip $(subst fus, , $(BOARD_TYPE)))
 
 export STRIP=$(TOOLPREFIX)strip
-export MAKEARCH=$(MAKE) ARCH=$(TARGETARCH) CROSS_COMPILE=$(TOOLPREFIX)
+export MAKEARCH=$(MAKE) ARCH=$(KERNELARCH) CROSS_COMPILE=$(TOOLPREFIX)
 
 export TOOLPATH=$(TOPDIR)/build/$(TOOLCHAIN)/$(TOOLARCH)/
 
@@ -77,9 +78,9 @@ uboot:
 	cd $(UBOOTDIR) && $(MAKEARCH) mrproper
 ifneq ($(BOARD_TYPE), $(temp_BOARD_TYPE))
 	echo ====Using $(temp_BOARD_TYPE) config for $(BOARD_TYPE) ===
-	cd $(UBOOTDIR) && $(MAKEARCH) $(temp_BOARD_TYPE)_config
+	cd $(UBOOTDIR) && $(MAKEARCH) $(temp_BOARD_TYPE)_$(MACHINE_TYPE)_config
 else
-	cd $(UBOOTDIR) && $(MAKEARCH) $(BOARD_TYPE)_config
+	cd $(UBOOTDIR) && $(MAKEARCH) $(BOARD_TYPE)_$(MACHINE_TYPE)_config
 endif
 	cd $(UBOOTDIR) && $(MAKEARCH) all
 	cp $(UBOOTDIR)/u-boot.bin ${IMAGEPATH}/${UBOOTFILE}
