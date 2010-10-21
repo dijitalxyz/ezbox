@@ -7,12 +7,11 @@
 
 #define CONFIG_MIPS32		1  /* MIPS32 CPU core	*/
 
-#define CONFIG_BOOTDELAY	5	// lsz 081222 //4	/* autoboot after 4 seconds	*/
+#define CONFIG_BOOTDELAY	1	// lsz 081222 //4	/* autoboot after 4 seconds	*/
 
 /* lsz add CONFIG_AUTOBOOT_STOP_STR 090223 */
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT   "Autobooting in %d seconds\n"
-//#define CONFIG_AUTOBOOT_STOP_STR "tpl"
 #define CONFIG_AUTOBOOT_STOP_STR " "
 #undef  CONFIG_AUTOBOOT_DELAY_STR
 #define DEBUG_BOOTKEYS       0

@@ -90,5 +90,16 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 U_BOOT_CMD(
 	reset, 1, 0,	do_reset,
 	"reset   - Perform RESET of the CPU\n",
-	NULL
+	"    - Perform RESET of the CPU\n"
+);
+
+int do_reboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	return do_reset(NULL, 0, 0, NULL);
+}
+
+U_BOOT_CMD(
+	reboot, 1, 0,	do_reboot,
+	"reboot   - Perform REBOOT of the Board\n",
+	"    - Perform REBOOT of the Board\n"
 );
