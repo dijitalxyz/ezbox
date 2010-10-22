@@ -12,6 +12,7 @@ BOARDNAME:=Atheros AR71xx/AR7240/AR913x
 FEATURES:=squashfs jffs2 targz
 CFLAGS:=-Os -pipe -mips32r2 -mtune=mips32r2 -funit-at-a-time
 SUBTARGETS:=generic nand
+INITRAMFS_EXTRA_FILES:=$(TOPDIR)/target/linux/$(BOARD)/image/initramfs-base-files.txt
 
 LINUX_VERSION:=2.6.32.20
 
