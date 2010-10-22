@@ -89,9 +89,9 @@ endef
 define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
-	$(LN) /sbin/ezcd $(1)/init
-	$(LN) /sbin/ezcd $(1)/sbin/ezcm
-	$(LN) /sbin/ezcd $(1)/sbin/nvram
+	$(LN) ./sbin/ezcd $(1)/init
+	$(LN) ezcd $(1)/sbin/ezcm
+	$(LN) ezcd $(1)/sbin/nvram
 	$(CP) ./files/* $(1)/
 endef
 
