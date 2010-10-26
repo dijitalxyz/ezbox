@@ -12,6 +12,11 @@ AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
 	-I$(srcdir)/include
 
+AM_LDFLAGS = -L.
+
+#libezcfg depends on pthread
+LIBS = -lezcfg
+
 sbin_PROGRAMS = \
 	ezcd
 
@@ -23,11 +28,15 @@ ezcd_SOURCES = \
 	src/init.c \
 	src/nvram.c
 
+ezcd_DEPENDENCIES = \
+	libezcfg.so
+
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
-#ezcd_LDFLAGS = $(AM_LDFLAGS) -L$(LIBEZCFG_LIB) -lezcfg
-#ezcd_LIBADD = $(LIBEZCFG_LTLIB)
-ezcd_LDADD = $(LIBEZCFG_LTLIB)
+#ezcd_LDADD = $(LIBEZCFG_LIBS)
 
 # pkgconfigdir = $(libdir)/pkgconfig
 # pkgconfig_DATA = ezcd.pc
+
+libezcfg.so: $(LIBEZCFG_LIB)
+	$(LN_S) $(LIBEZCFG_LIB)/libezcfg.so libezcfg.so
 
