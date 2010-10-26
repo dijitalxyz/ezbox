@@ -149,5 +149,11 @@ int nvram_main(int argc, char **argv)
 			rc = -EZCFG_E_ARGUMENT ;
 		}
 	}
+	else {
+		printf("unknown nvram command: %s\n", argv[1]);
+		nvram_show_usage();
+		rc = -EZCFG_E_ARGUMENT ;
+	}
+
         return rc;
 }
