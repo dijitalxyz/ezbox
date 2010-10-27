@@ -12,5 +12,6 @@ int ezcd_main(int argc, char **argv);
 int ezcm_main(int argc, char **argv);
 int init_main(int argc, char **argv);
 int nvram_main(int argc, char **argv);
+int ubootenv_main(int argc, char **argv);
 
 #endif

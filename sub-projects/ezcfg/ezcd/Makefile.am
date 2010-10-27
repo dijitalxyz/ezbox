@@ -26,7 +26,8 @@ ezcd_SOURCES = \
 	src/ezcd.c \
 	src/ezcm.c \
 	src/init.c \
-	src/nvram.c
+	src/nvram.c \
+	src/ubootenv.c
 
 ezcd_DEPENDENCIES = \
 	libezcfg.so
