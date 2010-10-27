@@ -279,7 +279,7 @@ exit:
 /**
  * ezcfg_api_nvram_set:
  * @name: nvram name
- * @value: buffer to store nvram value
+ * @value: buffer stored nvram value
  *
  **/
 int ezcfg_api_nvram_set(const char *name, const char *value)
@@ -588,7 +588,7 @@ exit:
 
 /**
  * ezcfg_api_nvram_list:
- * @value: buffer to store nvram value
+ * @list: buffer to store nvram value
  * @len: buffer size
  *
  **/

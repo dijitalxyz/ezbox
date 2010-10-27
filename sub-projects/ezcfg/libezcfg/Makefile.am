@@ -87,6 +87,9 @@ libezcfg_la_SOURCES += \
 libezcfg_la_SOURCES += \
 	api/src/nvram.c
 
+libezcfg_la_SOURCES += \
+	api/src/ubootenv.c
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg.pc
 
