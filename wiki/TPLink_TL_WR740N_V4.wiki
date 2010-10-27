@@ -53,3 +53,4 @@
   # Is tp-link WR741ND v1 supported? <a href="https://forum.openwrt.org/viewtopic.php?pid=102069">https://forum.openwrt.org/viewtopic.php?pid=102069</a>
   # 资料收集，请有机的兄弟贡献下！ <a href="http://www.right.com.cn/forum/viewthread.php?tid=38224">http://www.right.com.cn/forum/viewthread.php?tid=38224</a>
   # 全球首发--tplink 941 （ar9132） usb 成功驱动 <a href="http://www.right.com.cn/forum/viewthread.php?tid=38742">http://www.right.com.cn/forum/viewthread.php?tid=38742</a>
+  # tp link系列usb电路芯片适合wr941n wr841n wr741n~~ < a href="http://www.wifi.com.cn/forum/viewthread.php?tid=38214">http://www.wifi.com.cn/forum/viewthread.php?tid=38214</a>
