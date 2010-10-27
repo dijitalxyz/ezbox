@@ -9,6 +9,7 @@
  *  by the Free Software Foundation.
  */
 
+#include <linux/gpio.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 
@@ -21,12 +22,15 @@
 #include "dev-ap91-pci.h"
 #include "dev-gpio-buttons.h"
 #include "dev-leds-gpio.h"
+#include "dev-usb.h"
 
 #define EZBOX_TL_WR740N_V4_GPIO_LED_QSS		0
 #define EZBOX_TL_WR740N_V4_GPIO_LED_SYSTEM	1
 
 #define EZBOX_TL_WR740N_V4_GPIO_BTN_RESET	11
 #define EZBOX_TL_WR740N_V4_GPIO_BTN_QSS		12
+
+#define EZBOX_TL_WR740N_V4_GPIO_USB_POWER	6
 
 #define EZBOX_TL_WR740N_V4_BUTTONS_POLL_INTERVAL	20
 
@@ -109,6 +113,10 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 	u8 *mac = (u8 *) KSEG1ADDR(0x1f01fc00);
 	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
 
+	/* enable power for the USB port */
+	gpio_request(EZBOX_TL_WR740N_V4_GPIO_USB_POWER, "USB power");
+	gpio_direction_output(EZBOX_TL_WR740N_V4_GPIO_USB_POWER, 1);
+
 	ar71xx_add_device_m25p80(&ezbox_tl_wr740n_v4_flash_data);
 
 	ar71xx_add_device_leds_gpio(-1, ARRAY_SIZE(ezbox_tl_wr740n_v4_leds_gpio),
@@ -135,6 +143,8 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 	ar71xx_add_device_mdio(0x0);
 	ar71xx_add_device_eth(1);
 	ar71xx_add_device_eth(0);
+
+	ar71xx_add_device_usb();
 
 	ap91_pci_init(ee, mac);
 }
