@@ -27,8 +27,8 @@ ezcd_SOURCES = \
 	src/ezcm.c \
 	src/nvram.c \
 	src/ubootenv.c \
-	src/pop_etc_inittab.c \
-	src/pop_etc_hotplug_rules.c
+	src/pop/pop_etc_inittab.c \
+	src/pop/pop_etc_hotplug2_rules.c
 
 ezcd_DEPENDENCIES = \
 	libezcfg.so
