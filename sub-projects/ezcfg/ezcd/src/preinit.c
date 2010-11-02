@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : init.c
+ * Module Name  : preinit.c
  *
  * Description  : ezbox initramfs preinit program
  *
@@ -99,11 +99,15 @@ int preinit_main(int argc, char **argv)
 
 	/* /var */
 	mkdir("/var", 0777);
+	mkdir("/var/lock", 0777);
+	mkdir("/var/log", 0777);
+	mkdir("/var/run", 0777);
 
 	/* hotplug2 */
+	pop_etc_hotplug2_rules();
 	mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
-	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2-init.rules --no-persistent --set-coldplug-cmd /sbin/udevtrigger");
-	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2-init.rules --persistent &");
+	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --no-persistent --set-coldplug-cmd /sbin/udevtrigger");
+	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent &");
 
 	/* init shms */
 	mkdir("/dev/shm", 0777);
@@ -148,6 +152,8 @@ int preinit_main(int argc, char **argv)
 		}
 		fclose(file);
 	}
+
+	pop_etc_inittab();
 
 	/* switch to /sbin/init */
 	execv(init_argv[0], init_argv);
