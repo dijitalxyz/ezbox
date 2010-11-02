@@ -206,4 +206,10 @@
 
 #include <cmd_confdefs.h>
 
+#include <config.h>
+#if (CONFIG_MACHINE_TYPE==TPLINK_TL_WR740N_V4)
+#undef CONFIG_BOOTARGS
+#define	CONFIG_BOOTARGS     "console=ttyS0,115200 board=EZBOX-TL-WR740N-v4"
+#endif
+
 #endif	/* __CONFIG_H */
