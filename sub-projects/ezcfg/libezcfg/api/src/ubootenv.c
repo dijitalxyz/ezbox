@@ -42,83 +42,85 @@
 
 #include "ezcfg-api.h"
 
-static bool debug = false;
-
-static void log_fn(struct ezcfg *ezcfg, int priority,
-                   const char *file, int line, const char *fn,
-                   const char *format, va_list args)
-{
-	if (debug) {
-		char buf[1024*8];
-		struct timeval tv;
-		struct timezone tz;
-
-		vsnprintf(buf, sizeof(buf), format, args);
-		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
-		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, line, buf);
-	} else {
-		vsyslog(priority, format, args);
-	}
-}
-
-
-/* Check whether full response is buffered. Return:
- *   -1  if response is malformed
- *    0  if response is not yet fully buffered
- *   >0  actual response length, including last \r\n\r\n
+/**************************************************************************
+ *
+ * ubootenv design spec
+ *
+ * 1. the partition name "u-boot-env" indicate that the partition is a
+ * u-boot environment data block
+ *
+ * 2. the partition name "u-boot-env2" indicate that the partition is a
+ * redunant u-boot environment data block
+ *
+ **************************************************************************
  */
-static int get_response_len(const char *buf, size_t buflen)
-{
-	const char *s, *e;
-	int len = 0;
 
-	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++) {
-		/* Control characters are not allowed but >=128 is. */
-		if (!isprint(* (unsigned char *) s) && *s != '\r' &&
-		    *s != '\n' && * (unsigned char *) s < 128) {
-			len = -1;
-		} else if (s[0] == '\n' && s[1] == '\n') {
-			len = (int) (s - buf) + 2;
-		} else if (s[0] == '\n' && &s[1] < e &&
-		           s[1] == '\r' && s[2] == '\n') {
-			len = (int) (s - buf) + 3;
+/* from u-boot */
+/**************************************************************************
+ *
+ * Support for persistent environment data
+ *
+ * The "environment" is stored as a list of '\0' terminated
+ * "name=value" strings. The end of the list is marked by a double
+ * '\0'. New entries are always added at the end. Deleting an entry
+ * shifts the remaining entries to the front. Replacing an entry is a
+ * combination of deleting the old value and adding the new one.
+ *
+ * The environment is preceeded by a 32 bit CRC over the data part.
+ *
+ **************************************************************************
+ */
+
+#if 0
+#define DBG printf
+#else
+#define DBG(format, args...)
+#endif
+
+static bool uboot_info_initialized = false;
+
+static unsigned long long ubootenv_size = 0;
+static unsigned int ubootenv_erasesize = 0;
+static char ubootenv_dev_name[16] = "";
+
+static unsigned long long ubootenv2_size = 0;
+static unsigned int ubootenv2_erasesize = 0;
+static char ubootenv2_dev_name[16] = "";
+static bool ubootenv_redundant = false;
+
+static void init_uboot_mtd_device_info(void)
+{
+	char line[128];
+	int index;
+	unsigned long long size;
+	int erasesize;
+	char name[64];
+	FILE *fp = fopen("/proc/mtd", "r");
+	if (fp == NULL) {
+		return;
+	}
+	if (fgets(line, sizeof(line), fp) != (char *) NULL) {
+		/* read mtd device info */
+		for (; fgets(line, sizeof(line), fp);) {
+			if (sscanf(line, "mtd%d: %8llx %8x %s\n", &index, &size, &erasesize, name) != 4) {
+				continue;
+			}
+			if (strcmp(name, "\"u-boot-env\"") == 0) {
+				sprintf(ubootenv_dev_name, "/dev/mtd%d", index);
+				ubootenv_size = size;
+				ubootenv_erasesize = erasesize;
+				uboot_info_initialized = true;
+			}
+			if (strcmp(name, "\"u-boot-env2\"") == 0) {
+				sprintf(ubootenv2_dev_name, "/dev/mtd%d", index);
+				ubootenv2_size = size;
+				ubootenv2_erasesize = erasesize;
+				ubootenv_redundant = true;
+			}
 		}
 	}
-
-	return len;
+	fclose(fp);
 }
-
-
-/**
- * Keep reading the input into buffer buf, until \r\n\r\n appears in the
- * buffer (which marks the end of HTTP request). Buffer buf may already
- * have some data. The length of the data is stored in nread.
- * Upon every read operation, increase nread by the number of bytes read.
- **/
-static int read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
-{
-	int n, response_len;
-
-	ASSERT(ezctrl != NULL);
-
-        response_len = 0;
-
-	while (*nread < bufsiz && response_len == 0) {
-		n = ezcfg_socket_read(ezcfg_ctrl_get_socket(ezctrl), buf + *nread, bufsiz - *nread, 0);
-		if (n <= 0) {
-			break;
-		} else {
-			*nread += n;
-			response_len = get_response_len(buf, (size_t) *nread);
-                }
-        }
-
-        return response_len;
-}
-
-
 
 /**
  * ezcfg_api_ubootenv_get:
@@ -131,6 +133,16 @@ int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
 {
 	int rc = 0;
 
+	if (uboot_info_initialized == false) {
+		init_uboot_mtd_device_info();
+	}
+
+	if (ubootenv_redundant == false) {
+
+	} else {
+
+	}
+		
 	return rc;
 }
 
@@ -144,6 +156,16 @@ int ezcfg_api_ubootenv_set(const char *name, const char *value)
 {
 	int rc = 0;
 
+	if (uboot_info_initialized == false) {
+		init_uboot_mtd_device_info();
+	}
+
+	if (ubootenv_redundant == false) {
+
+	} else {
+
+	}
+		
 	return rc;
 }
 
@@ -156,7 +178,62 @@ int ezcfg_api_ubootenv_set(const char *name, const char *value)
 int ezcfg_api_ubootenv_list(char *list, size_t len)
 {
 	int rc = 0;
+	FILE *fp = NULL;
+	char *buf = NULL;
+	char *data = NULL, *end = NULL;
+	char *tmp = NULL;
+	unsigned long crc = 0;
 
+	if (list == NULL || len < 1) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (uboot_info_initialized == false) {
+		init_uboot_mtd_device_info();
+	}
+
+	if (ubootenv_redundant == false) {
+		fp = fopen(ubootenv_dev_name, "r");
+		if (fp == NULL) {
+			rc = -EZCFG_E_RESOURCE;
+			goto func_out;
+		}
+		buf = (char *)malloc(ubootenv_size);
+		if (buf == NULL) {
+			rc = -EZCFG_E_SPACE;
+			goto func_out;
+		}
+		memset(buf, 0, ubootenv_size);
+		fread(buf, ubootenv_size, 1, fp);
+		crc = *(unsigned long *)(buf);
+		data = buf + sizeof(unsigned long);
+
+		/* find \0\0 string */
+		end = data+1;
+		while (end < buf+ubootenv_size && (*(end-1) != '\0' || *end != '\0')) end++;
+		if (end == buf+ubootenv_size) {
+			rc = -EZCFG_E_PARSE;
+			goto func_out;
+		}
+
+		tmp = data;
+		while (len > 1 && tmp != end) {
+			*list = *tmp == '\0' ? '\n' : *tmp ;
+			list++;
+			tmp++;
+			len--;
+		}
+		*list = '\0';
+	} else {
+
+	}
+func_out:
+	if (fp != NULL) {
+		fclose(fp);
+	}
+	if (buf != NULL) {
+		free(buf);
+	}
 	return rc;
 }
 
