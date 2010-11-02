@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_inittab.c
+ * Module Name  : utils.c
  *
- * Description  : ezbox /etc/inittab file generating program
+ * Description  : ezcfg utils functions
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -39,20 +39,33 @@
 
 #include "ezcd.h"
 
-int pop_etc_inittab(int flag)
+char * utils_get_kernel_version(void)
 {
         FILE *file = NULL;
+	char *p = NULL, *q = NULL;
+	static char kver[64];
 
-	/* generate /etc/inittab */
-	file = fopen("/etc/inittab", "w");
+	/* get kernel version */
+	file = fopen("/proc/version", "r");
 	if (file == NULL)
-		return (EXIT_FAILURE);
+		return NULL;
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/ezcd -d");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
+	memset(kver, 0, sizeof(kver));
+	if (fgets(kver, sizeof(kver), file) == NULL)
+		goto func_out;
 
+	q = strstr(kver, "Linux version ");
+	if (q == NULL)
+		goto func_out;
+
+	/* skip "Linux version " */
+	p = q + 14;
+	q = strchr(p, ' ');
+	if (q == NULL)
+		p = NULL;
+	else
+		*q = '\0';
+func_out:
 	fclose(file);
-	return (EXIT_SUCCESS);
+	return (p);
 }

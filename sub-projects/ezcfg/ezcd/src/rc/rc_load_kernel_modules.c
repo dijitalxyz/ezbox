@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_inittab.c
+ * Module Name  : preinit.c
  *
- * Description  : ezbox /etc/inittab file generating program
+ * Description  : ezbox initramfs preinit program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-06-13   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,20 +39,36 @@
 
 #include "ezcd.h"
 
-int pop_etc_inittab(int flag)
+int rc_load_kernel_modules(int flag)
 {
-        FILE *file = NULL;
+	FILE *file;
+	char cmd[64];
+	char buf[32];
 
-	/* generate /etc/inittab */
-	file = fopen("/etc/inittab", "w");
+	file = fopen("/etc/modules", "r");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/ezcd -d");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
-
+	while(fgets(buf, sizeof(buf), file) != NULL)
+	{
+		if(buf[0] != '#')
+		{
+			int len = strlen(buf);
+			while((len > 0) && 
+			      (buf[len] == '\0' || 
+			       buf[len] == '\r' || 
+			       buf[len] == '\n'))
+			{
+				buf[len] = '\0';
+				len --;
+			}
+			if(len > 0)
+			{
+				snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
+				ret = system(cmd);
+			}
+		}
+	}
 	fclose(file);
 	return (EXIT_SUCCESS);
 }

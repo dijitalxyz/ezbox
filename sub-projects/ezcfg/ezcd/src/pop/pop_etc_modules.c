@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_inittab.c
+ * Module Name  : preinit.c
  *
- * Description  : ezbox /etc/inittab file generating program
+ * Description  : ezbox /etc/modules generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-06-13   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,19 +39,25 @@
 
 #include "ezcd.h"
 
-int pop_etc_inittab(int flag)
+int pop_etc_modules(int flag)
 {
-        FILE *file = NULL;
+	FILE *file;
+	char cmd[64];
+	char buf[32];
 
-	/* generate /etc/inittab */
-	file = fopen("/etc/inittab", "w");
+	file = fopen("/etc/modules", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/ezcd -d");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
+	switch (flag) {
+	case RC_BOOT :
+		/* get the kernel module name from kernel cmdline */
+		break;
+	case RC_RESTART :
+	case RC_START :
+		/* get the kernel module name from nvram */
+		break;
+	}
 
 	fclose(file);
 	return (EXIT_SUCCESS);

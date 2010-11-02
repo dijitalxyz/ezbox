@@ -104,7 +104,7 @@ int preinit_main(int argc, char **argv)
 	mkdir("/var/run", 0777);
 
 	/* hotplug2 */
-	pop_etc_hotplug2_rules();
+	pop_etc_hotplug2_rules(RC_BOOT);
 	mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
 	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --no-persistent --set-coldplug-cmd /sbin/udevtrigger");
 	ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent &");
@@ -125,37 +125,14 @@ int preinit_main(int argc, char **argv)
 	}
 
 	/* load preinit kernel modules */
-	file = fopen("/etc/modules", "r");
-	if (file != NULL)
-	{
-		char cmd[64];
-		char buf[32];
-		while(fgets(buf, sizeof(buf), file) != NULL)
-		{
-			if(buf[0] != '#')
-			{
-				int len = strlen(buf);
-				while((len > 0) && 
-				      (buf[len] == '\0' || 
-				       buf[len] == '\r' || 
-				       buf[len] == '\n'))
-				{
-					buf[len] = '\0';
-					len --;
-				}
-				if(len > 0)
-				{
-					snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
-					ret = system(cmd);
-				}
-			}
-		}
-		fclose(file);
-	}
+	pop_etc_modules(RC_BOOT);
+	rc_load_kernel_modules(RC_BOOT);
 
-	pop_etc_inittab();
+	/* setup welcome banner */
+	pop_etc_banner(RC_BOOT);
 
 	/* switch to /sbin/init */
+	pop_etc_inittab(RC_BOOT);
 	execv(init_argv[0], init_argv);
 
 	return (EXIT_SUCCESS);

@@ -45,58 +45,68 @@ int pop_etc_hotplug2_rules(void)
 
 	/* generate /etc/hotplug2.rules */
 	file = fopen("/etc/hotplug2.rules", "w");
-	if (file != NULL)
-	{
-		fprintf(file, "%s\n", "DEVICENAME ~~ (null|full|ptmx|tty|zero|gpio|hvc) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0666");
-		fprintf(file, "\t%s\n", "next");
-		fprintf(file, "%s\n", "}");
+	if (file == NULL)
+		return (EXIT_FAILURE);
 
-		fprintf(file, "%s\n", "DEVICENAME ~~ (tun|tap[0-9]) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/net/%DEVICENAME% 0644");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME ~~ (null|full|ptmx|tty|zero|gpio|hvc) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0666");
+	fprintf(file, "\t%s\n", "next");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVICENAME ~~ (ppp) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0600");
-		fprintf(file, "\t%s\n", "next");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME ~~ (tun|tap[0-9]) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/net/%DEVICENAME% 0644");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVICENAME ~~ (controlC[0-9]|pcmC0D0*|timer) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/snd/%DEVICENAME% 0644");
-		fprintf(file, "\t%s\n", "next");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME ~~ (ppp) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0600");
+	fprintf(file, "\t%s\n", "next");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVICENAME ~~ (lp[0-9]) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0644");
-		fprintf(file, "\t%s\n", "next");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME ~~ (controlC[0-9]|pcmC0D0*|timer) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/snd/%DEVICENAME% 0644");
+	fprintf(file, "\t%s\n", "next");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVPATH is set, SUBSYSTEM ~~ (input) {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/input/%DEVICENAME% 0644");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME ~~ (lp[0-9]) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0644");
+	fprintf(file, "\t%s\n", "next");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVICENAME == device-mapper {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/mapper/control 0600");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVPATH is set, SUBSYSTEM ~~ (input) {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/input/%DEVICENAME% 0644");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "DEVPATH is set {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0644");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVICENAME == device-mapper {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/mapper/control 0600");
+	fprintf(file, "%s\n", "}");
 
-		fprintf(file, "%s\n", "FIRMWARE is set, ACTION == add {");
-		fprintf(file, "\t%s\n", "nothrottle");
-		fprintf(file, "\t%s\n", "load-firmware /lib/firmware");
-		fprintf(file, "\t%s\n", "next");
-		fprintf(file, "%s\n", "}");
+	fprintf(file, "%s\n", "DEVPATH is set {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0644");
+	fprintf(file, "%s\n", "}");
 
+	fprintf(file, "%s\n", "FIRMWARE is set, ACTION == add {");
+	fprintf(file, "\t%s\n", "nothrottle");
+	fprintf(file, "\t%s\n", "load-firmware /lib/firmware");
+	fprintf(file, "\t%s\n", "next");
+	fprintf(file, "%s\n", "}");
+
+	switch (flag) {
+	case RC_BOOT :
+		fprintf(file, "%s\n", "SUBSYSTEM ~~ button {");
+		fprintf(file, "\t%s\n", "exec kill -USR1 1");
+		fprintf(file, "%s\n", "}");
+		break;
+
+	case RC_RESTART :
+	case RC_START :
 		fprintf(file, "%s\n", "SUBSYSTEM ~~ (net|button|usb|platform|ieee1394|block|atm) {");
 		fprintf(file, "\t%s\n", "exec /sbin/hotplug-call %SUBSYSTEM%");
 		fprintf(file, "%s\n", "}");
@@ -105,9 +115,9 @@ int pop_etc_hotplug2_rules(void)
 		fprintf(file, "\t%s\n", "exec /sbin/watchdog -t 5 /dev/watchdog");
 		fprintf(file, "\t%s\n", "next");
 		fprintf(file, "%s\n", "}");
-
-		fclose(file);
+		break;
 	}
 
+	fclose(file);
 	return (EXIT_SUCCESS);
 }

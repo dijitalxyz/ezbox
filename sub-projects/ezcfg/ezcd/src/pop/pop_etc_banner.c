@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_inittab.c
+ * Module Name  : pop_etc_banner.c
  *
- * Description  : ezbox /etc/inittab file generating program
+ * Description  : ezbox /etc/banner file generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -39,19 +39,17 @@
 
 #include "ezcd.h"
 
-int pop_etc_inittab(int flag)
+int pop_etc_banner(int flag)
 {
         FILE *file = NULL;
 
 	/* generate /etc/inittab */
-	file = fopen("/etc/inittab", "w");
+	file = fopen("/etc/banner", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/ezcd -d");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
+	fprintf(file, "%s\n", "Welcome to ezbox :-)");
+	fprintf(file, "%s\n", "---------------------------------------------------");
 
 	fclose(file);
 	return (EXIT_SUCCESS);
