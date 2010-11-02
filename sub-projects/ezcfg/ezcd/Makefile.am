@@ -32,14 +32,14 @@ ezcd_SOURCES = \
 ezcd_SOURCES += \
 	src/pop/pop_etc_banner.c \
 	src/pop/pop_etc_inittab.c \
-	src/pop/pop_etc_hotplug2_rules.c \
+	src/pop/pop_etc_hotplug2_rules.c
 
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c
 
 # kernel modules
 ezcd_SOURCES += \
-	src/pop/pop_etc_modules.c
+	src/pop/pop_etc_modules.c \
 	src/rc/rc_load_kernel_modules.c
 
 ezcd_DEPENDENCIES = \
