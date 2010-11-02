@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-int pop_etc_hotplug2_rules(void)
+int pop_etc_hotplug2_rules(int flag)
 {
         FILE *file = NULL;
 

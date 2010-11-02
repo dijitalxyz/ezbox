@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : preinit.c
+ * Module Name  : pop_etc_modules.c
  *
  * Description  : ezbox /etc/modules generating program
  *

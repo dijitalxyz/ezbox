@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : preinit.c
+ * Module Name  : rc_load_kernel_modules.c
  *
- * Description  : ezbox initramfs preinit program
+ * Description  : ezbox rc load kernel modules program
  *
  * Copyright (C) 2010 by ezbox-project
  *
