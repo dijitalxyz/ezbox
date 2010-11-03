@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_modules.c
+ * Module Name  : rc_load_modules.c
  *
- * Description  : ezbox /etc/modules generating program
+ * Description  : ezbox run load kernel modules service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-06-13   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,26 +39,56 @@
 
 #include "ezcd.h"
 
-int pop_etc_modules(int flag)
+int rc_load_modules(int flag)
 {
 	FILE *file;
-	char cmd[64];
+	char cmdline[64];
 	char buf[32];
+	int ret;
+	char *kver, *cmd;
 
-	file = fopen("/etc/modules", "w");
-	if (file == NULL)
+	kver = utils_get_kernel_version();
+	if (kver == NULL)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_BOOT :
-		/* get the kernel module name from kernel cmdline */
-		break;
-	case RC_RESTART :
 	case RC_START :
-		/* get the kernel module name from nvram */
+		cmd = "insmod";
 		break;
+	case RC_STOP :
+		cmd = "rmmod";
+		break;
+	default :
+		return (EXIT_FAILURE);
 	}
 
+	pop_etc_modules(flag);
+
+	file = fopen("/etc/modules", "r");
+	if (file == NULL)
+		return (EXIT_FAILURE);
+
+	while(fgets(buf, sizeof(buf), file) != NULL)
+	{
+		if(buf[0] != '#')
+		{
+			int len = strlen(buf);
+			while((len > 0) && 
+			      (buf[len] == '\0' || 
+			       buf[len] == '\r' || 
+			       buf[len] == '\n'))
+			{
+				buf[len] = '\0';
+				len --;
+			}
+			if(len > 0)
+			{
+				snprintf(cmdline, sizeof(cmdline), "%s /lib/modules/%s/%s.ko", cmd, kver, buf);
+				ret = system(cmdline);
+			}
+		}
+	}
 	fclose(file);
 	return (EXIT_SUCCESS);
 }

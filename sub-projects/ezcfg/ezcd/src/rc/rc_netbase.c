@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : rc_netbase.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox run network base files service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,34 +36,32 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int rc_netbase(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+	int ret = 0;
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
+	switch (flag) {
+	case RC_BOOT :
+		/* manage network interfaces and configure some networking options */
+		mkdir("/etc/network", 0755);
+		mkdir("/etc/network/if-pre-up.d", 0755);
+		mkdir("/etc/network/if-up.d", 0755);
+		mkdir("/etc/network/if-down.d", 0755);
+		mkdir("/etc/network/if-post-down.d", 0755);
+		break;
+
+	case RC_RESTART :
+	case RC_START :
+		pop_etc_network_interfaces(RC_START);
+		pop_etc_hosts(RC_START);
+		pop_etc_resolv_conf(RC_START);
+		pop_etc_protocols(RC_START);
+		break;
 	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+
+	return (EXIT_SUCCESS);
 }

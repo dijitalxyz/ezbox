@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : rc_network.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox run network service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,31 +39,34 @@
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int rc_loopback(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+	int ret = 0;
+	char cmdline[256];
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		/* bring up loopback interface */
+		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
+		ret = system(cmdline);
+
+		/* add to routing table */
+		snprintf(cmdline, sizeof(cmdline), "%s -f inet route replace 127.0.0.0/8 proto kernel metric 0 dev lo src 127.0.0.1", CMD_IP);
+		ret = system(cmdline);
+		break;
+
+	case RC_STOP :
+		/* bring down loopback interface */
+		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFDOWN);
+		ret = system(cmdline);
+		break;
+
+	case RC_RESTART :
+		ret = rc_loopback(RC_STOP);
+		ret = rc_loopback(RC_START);
+		break;
 	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+
+	return (EXIT_SUCCESS);
 }

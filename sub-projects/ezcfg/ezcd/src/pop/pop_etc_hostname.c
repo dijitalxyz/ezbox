@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : pop_etc_hostname.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox /etc/hostname file generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,31 +39,17 @@
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int pop_etc_hostname(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+        FILE *file = NULL;
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
-	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
+	/* generate /etc/hostname */
+	file = fopen("/etc/hostname", "w");
+	if (file == NULL)
 		return (EXIT_FAILURE);
-	}
+
+	fprintf(file, "%s", "ezbox");
+		
+	fclose(file);
+	return (EXIT_SUCCESS);
 }

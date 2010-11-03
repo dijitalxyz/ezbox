@@ -8,6 +8,17 @@
 
 #define STRUCT_LEN(name)	sizeof(name)/sizeof(name[0])
 
+/* shell command */
+#define CMD_CAT			"/bin/cat"
+#define CMD_EZCD		"/sbin/ezcd"
+#define CMD_HOTPLUG2		"/sbin/hotplug2"
+#define CMD_IFCONFIG		"/sbin/ifconfig"
+#define CMD_IFDOWN		"/sbin/ifdown"
+#define CMD_IFUP		"/sbin/ifup"
+#define CMD_IP			"/bin/ip"
+#define CMD_KILLALL		"/usr/bin/killall"
+#define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
+
 /* rc state */
 enum {
 	RC_BOOT,

@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_boot.c
+ * Module Name  : rc_system.c
  *
- * Description  : ezbox rc boot service program
+ * Description  : ezbox run system services
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -70,12 +70,6 @@ int rc_system(int flag)
 		mkdir("/var/log", 0777);
 		mkdir("/var/run", 0777);
 
-		/* hotplug2 */
-		pop_etc_hotplug2_rules(RC_BOOT);
-		mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
-		ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --no-persistent --set-coldplug-cmd /sbin/udevtrigger");
-		ret = system("/sbin/hotplug2 --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent &");
-
 		/* init shms */
 		mkdir("/dev/shm", 0777);
 
@@ -83,7 +77,10 @@ int rc_system(int flag)
 		mkdir("/dev/pts", 0777);
 		mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
 
-		/* init hotplug */
+		mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
+
+		/* init hotplug2 */
+		rc_hotplug2(RC_BOOT);
 		file = fopen("/proc/sys/kernel/hotplug", "w");
 		if (file != NULL)
 		{
@@ -92,20 +89,46 @@ int rc_system(int flag)
 		}
 
 		/* load preinit kernel modules */
-		pop_etc_modules(RC_BOOT);
-		rc_load_kernel_modules(RC_BOOT);
+		rc_load_modules(RC_BOOT);
 
-		/* setup welcome banner */
-		pop_etc_banner(RC_BOOT);
+		/* start ezcfg daemon */
+		rc_ezcd(RC_BOOT);
 
-		/* setup inittab for /sbin/init */
-		pop_etc_inittab(RC_BOOT);
+		/* setup network base files */
+		rc_netbase(RC_BOOT);
+
 		break;
 
 	case RC_STOP :
 		break;
 
 	case RC_START :
+		/* restart ezcfg daemon */
+		rc_ezcd(RC_RESTART);
+
+		/* restart hotplug2 */
+		rc_hotplug2(RC_RESTART);
+
+		/* re-generate network base files */
+		rc_netbase(RC_RESTART);
+
+		/* load kernel modules */
+		rc_load_modules(RC_START);
+
+		/* misc files for the base system */
+		rc_base_files(RC_START);
+
+		/* build /etc/passwd & /etc/group, 
+		 * also setup root password
+		 */
+		rc_login(RC_START);
+
+		/* bring up loopback interface */
+		rc_loopback(RC_START);
+
+		/* bring up LAN interface link up but not configurate it */
+		rc_lan_if(RC_START);
+
 		break;
 	}
 

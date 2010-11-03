@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : rc_lan_if.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox run network LAN interface service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,34 +36,37 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int rc_lan_if(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+	int ret = 0;
+	char lan_ifname[IFNAMSIZ];
+	char cmdline[256];
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
+	snprintf(lan_ifname, sizeof(lan_ifname), "%s", "eth0");
+
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		/* bring up loopback interface */
+		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, lan_ifname);
+		ret = system(cmdline);
+		break;
+
+	case RC_STOP :
+		/* bring down loopback interface */
+		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, lan_ifname);
+		ret = system(cmdline);
+		break;
+
+	case RC_RESTART :
+		ret = rc_lan_if(RC_STOP);
+		ret = rc_lan_if(RC_START);
+		break;
 	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+
+	return (EXIT_SUCCESS);
 }

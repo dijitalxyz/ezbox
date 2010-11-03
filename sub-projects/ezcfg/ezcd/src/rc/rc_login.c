@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : rc_login.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox run login service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,31 +39,25 @@
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int rc_login(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+	switch (flag) {
+	case RC_BOOT :
+		/* generate /etc/passwd */
+		pop_etc_passwd(RC_BOOT);
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
+		/* generate /etc/group */
+		pop_etc_group(RC_BOOT);
+
+		break;
+
+	case RC_START :
+		rc_login(RC_BOOT);
+
+		/* set root password */
+
+		break;
+
 	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+	return (EXIT_SUCCESS);
 }

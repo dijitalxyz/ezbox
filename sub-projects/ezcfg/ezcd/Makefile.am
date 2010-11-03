@@ -34,21 +34,50 @@ ezcd_SOURCES = \
 # base files
 ezcd_SOURCES += \
 	src/pop/pop_etc_banner.c \
-	src/pop/pop_etc_group.c \
-	src/pop/pop_etc_inittab.c \
-	src/pop/pop_etc_hosts.c \
-	src/pop/pop_etc_hotplug2_rules.c \
-	src/pop/pop_etc_passwd.c \
+	src/pop/pop_etc_hostname.c \
 	src/pop/pop_etc_profile.c \
-	src/pop/pop_etc_protocols.c
+	src/rc/rc_base_files.c
 
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c
 
+# ezcd
+ezcd_SOURCES += \
+	src/rc/rc_ezcd.c
+
+# hotplug2
+ezcd_SOURCES += \
+	src/pop/pop_etc_hotplug2_rules.c \
+	src/rc/rc_hotplug2.c
+
 # kernel modules
 ezcd_SOURCES += \
 	src/pop/pop_etc_modules.c \
-	src/rc/rc_load_kernel_modules.c
+	src/rc/rc_load_modules.c
+
+# init
+ezcd_SOURCES += \
+	src/pop/pop_etc_inittab.c \
+	src/rc/rc_init.c
+
+# login
+ezcd_SOURCES += \
+	src/pop/pop_etc_passwd.c \
+	src/pop/pop_etc_group.c \
+	src/rc/rc_login.c
+
+# netbase
+ezcd_SOURCES += \
+	src/pop/pop_etc_hosts.c \
+	src/pop/pop_etc_network_interfaces.c \
+	src/pop/pop_etc_protocols.c \
+	src/pop/pop_etc_resolv_conf.c \
+	src/rc/rc_netbase.c
+
+# network
+ezcd_SOURCES += \
+	src/rc/rc_loopback.c \
+	src/rc/rc_lan_if.c
 
 ezcd_DEPENDENCIES = \
 	libezcfg.so

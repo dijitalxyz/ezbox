@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : main.c
+ * Module Name  : rc_base_files.c
  *
- * Description  : EZCD main program
+ * Description  : ezbox run base files service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,31 +39,25 @@
 
 #include "ezcd.h"
 
-int main(int argc, char **argv)
+int rc_base_files(int flag)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+	int ret;
+	char cmdline[256];
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
+	switch (flag) {
+	case RC_START :
+		/* set hostname */
+		pop_etc_hostname(RC_START);
+		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
+		system(cmdline);
+
+		/* generate /etc/profile */
+		pop_etc_profile(RC_START);
+
+		/* generate /etc/banner */
+		pop_etc_banner(RC_START);
+		break;
 	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+
+	return (EXIT_SUCCESS);
 }

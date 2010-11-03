@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_load_kernel_modules.c
+ * Module Name  : rc_ezcd.c
  *
- * Description  : ezbox rc load kernel modules program
+ * Description  : ezbox run ezcfg daemon service
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -39,42 +39,25 @@
 
 #include "ezcd.h"
 
-int rc_load_kernel_modules(int flag)
+int rc_ezcd(int flag)
 {
-	FILE *file;
-	char cmd[64];
-	char buf[32];
 	int ret;
-	char *kver;
+	char cmdline[256];
 
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
+	switch (flag) {
+	case RC_START :
+		snprintf(cmdline, sizeof(cmdline), "%s -d", CMD_EZCD);
+		system(cmdline);
+		break;
 
-	file = fopen("/etc/modules", "r");
-	if (file == NULL)
-		return (EXIT_FAILURE);
+	case RC_STOP :
+		snprintf(cmdline, sizeof(cmdline), "%s -q ezcd", CMD_KILLALL);
+		system(cmdline);
+		break;
 
-	while(fgets(buf, sizeof(buf), file) != NULL)
-	{
-		if(buf[0] != '#')
-		{
-			int len = strlen(buf);
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       buf[len] == '\r' || 
-			       buf[len] == '\n'))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-			if(len > 0)
-			{
-				snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
-				ret = system(cmd);
-			}
-		}
+	case RC_RESTART :
+		rc_ezcd(RC_STOP);
+		rc_ezcd(RC_START);
 	}
-	fclose(file);
 	return (EXIT_SUCCESS);
 }

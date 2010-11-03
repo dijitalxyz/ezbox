@@ -41,8 +41,6 @@
 
 int preinit_main(int argc, char **argv)
 {
-	char *init_argv[] = { "/sbin/init", NULL };
-
 	/* unset umask */
 	umask(0);
 
@@ -50,7 +48,8 @@ int preinit_main(int argc, char **argv)
 	rc_system(RC_BOOT);
 
 	/* run init */
-	execv(init_argv[0], init_argv);
+	/* if cmdline has root= switch_root to new root device */
+	rc_init(RC_BOOT);
 
 	return (EXIT_SUCCESS);
 }

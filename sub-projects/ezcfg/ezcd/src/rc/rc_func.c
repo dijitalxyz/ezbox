@@ -41,7 +41,15 @@
 #include "rc_func.h"
 
 struct rc_func rc_functions[] = {
-	//{ "boot", RC_BOOT, rc_boot },
+	{ "base_files", RC_BOOT, rc_base_files },
+	{ "ezcd", RC_BOOT, rc_ezcd },
+	{ "hotplug2", RC_BOOT, rc_hotplug2 },
+	{ "init", RC_BOOT, rc_init },
+	{ "lan_if", RC_BOOT, rc_lan_if },
+	{ "load_modules", RC_BOOT, rc_load_modules },
+	{ "login", RC_BOOT, rc_login },
+	{ "loopback", RC_BOOT, rc_loopback },
+	{ "netbase", RC_BOOT, rc_netbase },
 	{ "system", RC_BOOT, rc_system },
 };
 
