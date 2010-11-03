@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_load_kernel_modules.c
+ * Module Name  : pop_etc_group.c
  *
- * Description  : ezbox rc load kernel modules program
+ * Description  : ezbox /etc/group file generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,42 +39,18 @@
 
 #include "ezcd.h"
 
-int rc_load_kernel_modules(int flag)
+int pop_etc_group(int flag)
 {
-	FILE *file;
-	char cmd[64];
-	char buf[32];
-	int ret;
-	char *kver;
+        FILE *file = NULL;
 
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
-
-	file = fopen("/etc/modules", "r");
+	/* generate /etc/group */
+	file = fopen("/etc/group", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	while(fgets(buf, sizeof(buf), file) != NULL)
-	{
-		if(buf[0] != '#')
-		{
-			int len = strlen(buf);
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       buf[len] == '\r' || 
-			       buf[len] == '\n'))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-			if(len > 0)
-			{
-				snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
-				ret = system(cmd);
-			}
-		}
-	}
+	fprintf(file, "%s\n", "root:x:0:");
+	fprintf(file, "%s\n", "nogroup:x:65534:");
+
 	fclose(file);
 	return (EXIT_SUCCESS);
 }

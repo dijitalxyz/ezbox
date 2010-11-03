@@ -43,7 +43,7 @@ int pop_etc_banner(int flag)
 {
         FILE *file = NULL;
 
-	/* generate /etc/inittab */
+	/* generate /etc/banner */
 	file = fopen("/etc/banner", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);

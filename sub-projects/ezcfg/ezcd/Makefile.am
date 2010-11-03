@@ -26,13 +26,21 @@ ezcd_SOURCES = \
 	src/ezcd.c \
 	src/ezcm.c \
 	src/nvram.c \
+	src/rc.c \
+	src/rc/rc_system.c \
+	src/rc/rc_func.c \
 	src/utils.c
 
 # base files
 ezcd_SOURCES += \
 	src/pop/pop_etc_banner.c \
+	src/pop/pop_etc_group.c \
 	src/pop/pop_etc_inittab.c \
-	src/pop/pop_etc_hotplug2_rules.c
+	src/pop/pop_etc_hosts.c \
+	src/pop/pop_etc_hotplug2_rules.c \
+	src/pop/pop_etc_passwd.c \
+	src/pop/pop_etc_profile.c \
+	src/pop/pop_etc_protocols.c
 
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c

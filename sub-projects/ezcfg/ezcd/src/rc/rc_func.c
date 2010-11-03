@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_load_kernel_modules.c
+ * Module Name  : rc_func.c
  *
- * Description  : ezbox rc load kernel modules program
+ * Description  : ezbox rc service functions program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,43 +38,19 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
-int rc_load_kernel_modules(int flag)
+struct rc_func rc_functions[] = {
+	//{ "boot", RC_BOOT, rc_boot },
+	{ "system", RC_BOOT, rc_system },
+};
+
+struct rc_func * utils_find_rc_func(char *name)
 {
-	FILE *file;
-	char cmd[64];
-	char buf[32];
-	int ret;
-	char *kver;
+	struct rc_func *f;
 
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
+	for (f = rc_functions; f < &rc_functions[STRUCT_LEN(rc_functions)]; f++)
+		if (strcmp(f->name, name) == 0) return f;
 
-	file = fopen("/etc/modules", "r");
-	if (file == NULL)
-		return (EXIT_FAILURE);
-
-	while(fgets(buf, sizeof(buf), file) != NULL)
-	{
-		if(buf[0] != '#')
-		{
-			int len = strlen(buf);
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       buf[len] == '\r' || 
-			       buf[len] == '\n'))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-			if(len > 0)
-			{
-				snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
-				ret = system(cmd);
-			}
-		}
-	}
-	fclose(file);
-	return (EXIT_SUCCESS);
+	return NULL;
 }

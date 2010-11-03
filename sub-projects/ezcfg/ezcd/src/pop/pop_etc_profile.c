@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_inittab.c
+ * Module Name  : pop_etc_profile.c
  *
- * Description  : ezbox /etc/inittab file generating program
+ * Description  : ezbox /etc/profile file generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
@@ -39,21 +39,26 @@
 
 #include "ezcd.h"
 
-int pop_etc_inittab(int flag)
+int pop_etc_profile(int flag)
 {
         FILE *file = NULL;
 
-	/* generate /etc/inittab */
-	file = fopen("/etc/inittab", "w");
+	/* generate /etc/profile */
+	file = fopen("/etc/profile", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/rc system start");
-	fprintf(file, "%s\n", "::shutdown:/sbin/rc system stop");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
-
+	fprintf(file, "%s\n", "#!/bin/sh");
+	fprintf(file, "%s\n", "[ -f /etc/banner ] && cat /etc/banner");
+	fprintf(file, "%s\n", "export PATH=/bin:/sbin:/usr/bin:/usr/sbin");
+	fprintf(file, "%s\n", "export HOME=$(grep -e \"^${USER:-root}:\" /etc/passwd | cut -d \":\" -f 6)");
+	fprintf(file, "%s\n", "export HOME=${HOME:-/root}");
+	fprintf(file, "%s\n", "export PS1='\\u@\\h:\\w\\$ '");
+	fprintf(file, "%s\n", "[ -x /bin/more ] || alias more=less");
+	fprintf(file, "%s\n", "[ -x /usr/bin/vim ] && alias vi=vim || alias vim=vi");
+	fprintf(file, "%s\n", "[ -x /sbin/arp ] || arp() { cat /proc/net/arp; }");
+	fprintf(file, "%s\n", "[ -z /bin/ldd ] || ldd() { LD_TRACE_LOADED_OBJECTS=1 $*; }");
+		
 	fclose(file);
 	return (EXIT_SUCCESS);
 }

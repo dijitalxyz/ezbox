@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_load_kernel_modules.c
+ * Module Name  : rc.c
  *
- * Description  : ezbox rc load kernel modules program
+ * Description  : ezbox rc program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,42 +39,32 @@
 
 #include "ezcd.h"
 
-int rc_load_kernel_modules(int flag)
+int rc_main(int argc, char **argv)
 {
-	FILE *file;
-	char cmd[64];
-	char buf[32];
-	int ret;
-	char *kver;
+	struct rc_func *f = NULL;
+	int flag = RC_BOOT;
+	int ret = EXIT_FAILURE;
 
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
+	/* only accept two arguments */
+	if (argc != 3)
 		return (EXIT_FAILURE);
 
-	file = fopen("/etc/modules", "r");
-	if (file == NULL)
-		return (EXIT_FAILURE);
-
-	while(fgets(buf, sizeof(buf), file) != NULL)
-	{
-		if(buf[0] != '#')
-		{
-			int len = strlen(buf);
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       buf[len] == '\r' || 
-			       buf[len] == '\n'))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-			if(len > 0)
-			{
-				snprintf(cmd, sizeof(cmd), "insmod /lib/modules/%s/%s.ko", kver, buf);
-				ret = system(cmd);
-			}
-		}
+	if (argv[1] != NULL) {
+		f = utils_find_rc_func(argv[1]);
 	}
-	fclose(file);
-	return (EXIT_SUCCESS);
+
+	if (argv[2] != NULL) {
+		if (strcmp(argv[2], "restart") == 0)
+			flag = RC_RESTART;
+		else if (strcmp(argv[2], "start") == 0)
+			flag = RC_START;
+		else if (strcmp(argv[2], "stop") == 0)
+			flag = RC_STOP;
+	}
+
+	if (flag != RC_BOOT && f != NULL) {
+		ret = f->func(flag);
+	}
+
+	return (ret);
 }
