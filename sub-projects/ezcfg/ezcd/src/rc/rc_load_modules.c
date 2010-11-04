@@ -47,10 +47,6 @@ int rc_load_modules(int flag)
 	int ret;
 	char *kver, *cmd;
 
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
-
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
@@ -63,11 +59,17 @@ int rc_load_modules(int flag)
 		return (EXIT_FAILURE);
 	}
 
+	kver = utils_get_kernel_version();
+	if (kver == NULL)
+		return (EXIT_FAILURE);
+
 	pop_etc_modules(flag);
 
 	file = fopen("/etc/modules", "r");
-	if (file == NULL)
+	if (file == NULL) {
+		free(kver);
 		return (EXIT_FAILURE);
+	}
 
 	while(fgets(buf, sizeof(buf), file) != NULL)
 	{
@@ -89,6 +91,7 @@ int rc_load_modules(int flag)
 			}
 		}
 	}
+	free(kver);
 	fclose(file);
 	return (EXIT_SUCCESS);
 }

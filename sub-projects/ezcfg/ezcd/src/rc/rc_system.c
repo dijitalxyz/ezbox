@@ -79,6 +79,10 @@ int rc_system(int flag)
 
 		mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
 
+		/* run in root HOME path */
+		mkdir(ROOT_HOME_PATH, 0755);
+		chdir(ROOT_HOME_PATH);
+
 		/* init hotplug2 */
 		rc_hotplug2(RC_BOOT);
 		file = fopen("/proc/sys/kernel/hotplug", "w");
@@ -100,9 +104,15 @@ int rc_system(int flag)
 		break;
 
 	case RC_STOP :
+		/* run in root HOME path */
+		chdir(ROOT_HOME_PATH);
+
 		break;
 
 	case RC_START :
+		/* run in root HOME path */
+		chdir(ROOT_HOME_PATH);
+
 		/* restart ezcfg daemon */
 		rc_ezcd(RC_RESTART);
 
@@ -128,6 +138,16 @@ int rc_system(int flag)
 
 		/* bring up LAN interface link up but not configurate it */
 		rc_lan_if(RC_START);
+
+		/* bring up WAN interface link up but not configurate it */
+		/* LAN interface alias need it */
+		rc_wan_if(RC_START);
+
+		/* bring up LAN interface link up and configurate it */
+		rc_lan(RC_START);
+
+		/* bring up WAN interface link up and configurate it */
+		rc_wan(RC_START);
 
 		break;
 	}

@@ -51,13 +51,13 @@ int rc_lan_if(int flag)
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
-		/* bring up loopback interface */
+		/* bring up LAN interface, but not config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, lan_ifname);
 		ret = system(cmdline);
 		break;
 
 	case RC_STOP :
-		/* bring down loopback interface */
+		/* bring down LAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, lan_ifname);
 		ret = system(cmdline);
 		break;

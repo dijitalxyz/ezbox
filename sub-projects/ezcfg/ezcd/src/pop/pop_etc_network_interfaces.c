@@ -46,6 +46,9 @@ int pop_etc_network_interfaces(int flag)
 	char lan_ifname[IFNAMSIZ];
 	int lan_ipaddr[4];
 	int lan_netmask[4];
+	char wan_ifname[IFNAMSIZ];
+	int wan_ipaddr[4];
+	int wan_netmask[4];
 
 	file = fopen("/etc/network/interfaces", "w");
 	if (file == NULL)
@@ -63,14 +66,26 @@ int pop_etc_network_interfaces(int flag)
 	lan_netmask[2] = 255;
 	lan_netmask[3] = 0;
 
+	snprintf(wan_ifname, sizeof(wan_ifname), "eth1");
+
+	wan_ipaddr[0] = 10;
+	wan_ipaddr[1] = 10;
+	wan_ipaddr[2] = 10;
+	wan_ipaddr[3] = 10;
+
+	wan_netmask[0] = 255;
+	wan_netmask[1] = 0;
+	wan_netmask[2] = 0;
+	wan_netmask[3] = 0;
+
 	switch (flag) {
 	case RC_BOOT :
 		/* get the kernel module name from kernel cmdline */
 		break;
 	case RC_START :
 		/* set loopback & lan interface auto start */
-		fprintf(file, "auto lo %s\n", lan_ifname);
-		fprintf(file, "\n");
+		//fprintf(file, "auto lo %s\n", lan_ifname);
+		//fprintf(file, "\n");
 
 		/* set loopback */
 		fprintf(file, "iface lo inet loopback\n");
@@ -93,6 +108,25 @@ int pop_etc_network_interfaces(int flag)
 			lan_ipaddr[1] & lan_netmask[1],
 			lan_ipaddr[2] & lan_netmask[2],
 			lan_ipaddr[3] & lan_netmask[3]);
+		fprintf(file, "\n");
+
+		/* set wan interface */
+		fprintf(file, "iface %s inet static\n", wan_ifname);
+		fprintf(file, "\taddress %d.%d.%d.%d\n",
+			wan_ipaddr[0],
+			wan_ipaddr[1],
+			wan_ipaddr[2],
+			wan_ipaddr[3]);
+		fprintf(file, "\tnetmask %d.%d.%d.%d\n",
+			wan_netmask[0],
+			wan_netmask[1],
+			wan_netmask[2],
+			wan_netmask[3]);
+		fprintf(file, "\tnetwork %d.%d.%d.%d\n",
+			wan_ipaddr[0] & wan_netmask[0],
+			wan_ipaddr[1] & wan_netmask[1],
+			wan_ipaddr[2] & wan_netmask[2],
+			wan_ipaddr[3] & wan_netmask[3]);
 		fprintf(file, "\n");
 		break;
 	}

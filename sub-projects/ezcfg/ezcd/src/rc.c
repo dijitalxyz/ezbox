@@ -41,7 +41,7 @@
 
 int rc_main(int argc, char **argv)
 {
-	struct rc_func *f = NULL;
+	rc_func_t *f = NULL;
 	int flag = RC_BOOT;
 	int ret = EXIT_FAILURE;
 

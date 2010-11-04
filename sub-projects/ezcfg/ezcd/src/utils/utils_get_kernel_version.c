@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_network.c
+ * Module Name  : utils_get_kernel_version.c
  *
- * Description  : ezbox run network service
+ * Description  : ezcfg get kernel version function
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-03   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,35 +38,41 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-
-int rc_loopback(int flag)
+/*
+ * Returns kernel version string
+ * It is the caller's duty to free the returned string.
+ */
+char *utils_get_kernel_version(void)
 {
-	int ret = 0;
-	char cmdline[256];
+        FILE *file;
+	char *p = NULL;
+	char *q = NULL;
+	char *v = NULL;
+	char buf[64];
 
-	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		/* bring up loopback interface */
-		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
-		ret = system(cmdline);
+	/* get kernel version */
+	file = fopen("/proc/version", "r");
+	if (file == NULL)
+		return NULL;
 
-		/* add to routing table */
-		snprintf(cmdline, sizeof(cmdline), "%s -f inet route replace 127.0.0.0/8 proto kernel metric 0 dev lo src 127.0.0.1", CMD_IP);
-		ret = system(cmdline);
-		break;
+	memset(buf, 0, sizeof(buf));
+	if (fgets(buf, sizeof(buf), file) == NULL)
+		goto func_out;
 
-	case RC_STOP :
-		/* bring down loopback interface */
-		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFDOWN);
-		ret = system(cmdline);
-		break;
+	q = strstr(buf, "Linux version ");
+	if (q == NULL)
+		goto func_out;
 
-	case RC_RESTART :
-		ret = rc_loopback(RC_STOP);
-		ret = rc_loopback(RC_START);
-		break;
-	}
-
-	return (EXIT_SUCCESS);
+	/* skip "Linux version " */
+	p = q + 14;
+	q = strchr(p, ' ');
+	if (q == NULL)
+		p = NULL;
+	else
+		*q = '\0';
+func_out:
+	fclose(file);
+	if (p != NULL)
+		v = strdup(p);
+	return (v);
 }

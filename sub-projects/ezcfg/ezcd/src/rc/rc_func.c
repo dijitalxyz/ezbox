@@ -40,22 +40,25 @@
 #include "ezcd.h"
 #include "rc_func.h"
 
-struct rc_func rc_functions[] = {
+rc_func_t rc_functions[] = {
 	{ "base_files", RC_BOOT, rc_base_files },
 	{ "ezcd", RC_BOOT, rc_ezcd },
 	{ "hotplug2", RC_BOOT, rc_hotplug2 },
 	{ "init", RC_BOOT, rc_init },
+	{ "lan", RC_BOOT, rc_lan },
 	{ "lan_if", RC_BOOT, rc_lan_if },
 	{ "load_modules", RC_BOOT, rc_load_modules },
 	{ "login", RC_BOOT, rc_login },
 	{ "loopback", RC_BOOT, rc_loopback },
 	{ "netbase", RC_BOOT, rc_netbase },
 	{ "system", RC_BOOT, rc_system },
+	{ "wan", RC_BOOT, rc_wan },
+	{ "wan_if", RC_BOOT, rc_wan_if },
 };
 
-struct rc_func * utils_find_rc_func(char *name)
+rc_func_t *utils_find_rc_func(char *name)
 {
-	struct rc_func *f;
+	rc_func_t *f;
 
 	for (f = rc_functions; f < &rc_functions[STRUCT_LEN(rc_functions)]; f++)
 		if (strcmp(f->name, name) == 0) return f;

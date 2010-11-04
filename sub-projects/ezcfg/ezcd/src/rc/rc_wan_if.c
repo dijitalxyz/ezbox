@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils.c
+ * Module Name  : rc_wan_if.c
  *
- * Description  : ezcfg utils functions
+ * Description  : ezbox run network LAN interface service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-11-04   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,36 +36,37 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 
-char * utils_get_kernel_version(void)
+int rc_wan_if(int flag)
 {
-        FILE *file = NULL;
-	char *p = NULL, *q = NULL;
-	static char kver[64];
+	int ret = 0;
+	char wan_ifname[IFNAMSIZ];
+	char cmdline[256];
 
-	/* get kernel version */
-	file = fopen("/proc/version", "r");
-	if (file == NULL)
-		return NULL;
+	snprintf(wan_ifname, sizeof(wan_ifname), "%s", "eth1");
 
-	memset(kver, 0, sizeof(kver));
-	if (fgets(kver, sizeof(kver), file) == NULL)
-		goto func_out;
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		/* bring up LAN interface, but not config it */
+		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, wan_ifname);
+		ret = system(cmdline);
+		break;
 
-	q = strstr(kver, "Linux version ");
-	if (q == NULL)
-		goto func_out;
+	case RC_STOP :
+		/* bring down LAN interface */
+		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, wan_ifname);
+		ret = system(cmdline);
+		break;
 
-	/* skip "Linux version " */
-	p = q + 14;
-	q = strchr(p, ' ');
-	if (q == NULL)
-		p = NULL;
-	else
-		*q = '\0';
-func_out:
-	fclose(file);
-	return (p);
+	case RC_RESTART :
+		ret = rc_wan_if(RC_STOP);
+		ret = rc_wan_if(RC_START);
+		break;
+	}
+
+	return (EXIT_SUCCESS);
 }

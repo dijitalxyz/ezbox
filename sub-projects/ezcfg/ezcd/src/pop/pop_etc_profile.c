@@ -58,6 +58,7 @@ int pop_etc_profile(int flag)
 	fprintf(file, "%s\n", "[ -x /usr/bin/vim ] && alias vi=vim || alias vim=vi");
 	fprintf(file, "%s\n", "[ -x /sbin/arp ] || arp() { cat /proc/net/arp; }");
 	fprintf(file, "%s\n", "[ -z /bin/ldd ] || ldd() { LD_TRACE_LOADED_OBJECTS=1 $*; }");
+	fprintf(file, "%s\n", "[ -d $HOME ] && cd $HOME");
 		
 	fclose(file);
 	return (EXIT_SUCCESS);

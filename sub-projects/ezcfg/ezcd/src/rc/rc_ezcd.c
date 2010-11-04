@@ -38,11 +38,19 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "utils.h"
+
+#if 0
+#define DBG printf
+#else
+#define DBG(format, arg...)
+#endif
 
 int rc_ezcd(int flag)
 {
 	int ret;
 	char cmdline[256];
+	proc_stat_t *pidList;
 
 	switch (flag) {
 	case RC_START :
@@ -51,8 +59,14 @@ int rc_ezcd(int flag)
 		break;
 
 	case RC_STOP :
-		snprintf(cmdline, sizeof(cmdline), "%s -q ezcd", CMD_KILLALL);
-		system(cmdline);
+		pidList = utils_find_pid_by_name("ezcd");
+		if (pidList) {
+			int i;
+			for (i = 0; pidList[i].pid > 0; i++) {
+				kill(pidList[i].pid, SIGHUP);
+			}
+			free(pidList);
+		}
 		break;
 
 	case RC_RESTART :

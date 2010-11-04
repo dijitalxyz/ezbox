@@ -47,13 +47,19 @@ int rc_init(int flag)
 
 	switch (flag) {
 	case RC_BOOT :
+		/* run in root HOME path */
+		chdir(ROOT_HOME_PATH);
+		/* fall through */
+
 	case RC_START :
 		/* run init */
 		execv(init_argv[0], init_argv);
 		break;
+
 	case RC_STOP :
 		kill(1, SIGKILL);
 		break;
+
 	}
 	return (EXIT_SUCCESS);
 }

@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_loopback.c
+ * Module Name  : rc_wan.c
  *
- * Description  : ezbox run network loopback service
+ * Description  : ezbox run network LAN config service
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-03   0.1       Write it from scratch
+ * 2010-11-04   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,31 +36,35 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 
-int rc_loopback(int flag)
+int rc_wan(int flag)
 {
 	int ret = 0;
+	char wan_ifname[IFNAMSIZ];
 	char cmdline[256];
+
+	snprintf(wan_ifname, sizeof(wan_ifname), "%s", "eth1");
 
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
-		/* bring up loopback interface */
-		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
+		/* bring up LAN interface and config it */
+		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, wan_ifname);
 		ret = system(cmdline);
 		break;
 
 	case RC_STOP :
-		/* bring down loopback interface */
-		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFDOWN);
+		/* bring down LAN interface */
+		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, wan_ifname);
 		ret = system(cmdline);
 		break;
 
 	case RC_RESTART :
-		ret = rc_loopback(RC_STOP);
-		ret = rc_loopback(RC_START);
+		ret = rc_wan(RC_STOP);
+		ret = rc_wan(RC_START);
 		break;
 	}
 
