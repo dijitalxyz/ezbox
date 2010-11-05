@@ -371,4 +371,7 @@ void ezcfg_util_remove_trailing_charlist(char *s, char *l);
 char *ezcfg_util_skip_leading_char(char *s, char c);
 char *ezcfg_util_skip_leading_charlist(char *s, char *l);
 
+/* util/util_crc32.c */
+uint32_t ezcfg_util_crc32(unsigned char *data, int len);
+
 #endif

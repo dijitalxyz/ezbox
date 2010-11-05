@@ -77,18 +77,22 @@
 #define DBG(format, args...)
 #endif
 
-static bool uboot_info_initialized = false;
+typedef struct ubootenv_info_s {
+	/* whether uboot env redund */
+	bool ubootenv_redundant;
 
-static unsigned long long ubootenv_size = 0;
-static unsigned int ubootenv_erasesize = 0;
-static char ubootenv_dev_name[16] = "";
+	/* major uboot env */
+	unsigned long long ubootenv_size;
+	unsigned int ubootenv_erasesize;
+	char ubootenv_dev_name[16];
 
-static unsigned long long ubootenv2_size = 0;
-static unsigned int ubootenv2_erasesize = 0;
-static char ubootenv2_dev_name[16] = "";
-static bool ubootenv_redundant = false;
+	/* redundant uboot env */
+	unsigned long long ubootenv2_size;
+	unsigned int ubootenv2_erasesize;
+	char ubootenv2_dev_name[16];
+} ubootenv_info_t;
 
-static void init_uboot_mtd_device_info(void)
+static void init_ubootenv_info(ubootenv_info_t *info)
 {
 	char line[128];
 	int index;
@@ -106,16 +110,15 @@ static void init_uboot_mtd_device_info(void)
 				continue;
 			}
 			if (strcmp(name, "\"u-boot-env\"") == 0) {
-				sprintf(ubootenv_dev_name, "/dev/mtd%d", index);
-				ubootenv_size = size;
-				ubootenv_erasesize = erasesize;
-				uboot_info_initialized = true;
+				sprintf(info->ubootenv_dev_name, "/dev/mtd%d", index);
+				info->ubootenv_size = size;
+				info->ubootenv_erasesize = erasesize;
 			}
 			if (strcmp(name, "\"u-boot-env2\"") == 0) {
-				sprintf(ubootenv2_dev_name, "/dev/mtd%d", index);
-				ubootenv2_size = size;
-				ubootenv2_erasesize = erasesize;
-				ubootenv_redundant = true;
+				sprintf(info->ubootenv2_dev_name, "/dev/mtd%d", index);
+				info->ubootenv2_size = size;
+				info->ubootenv2_erasesize = erasesize;
+				info->ubootenv_redundant = true;
 			}
 		}
 	}
@@ -132,12 +135,12 @@ static void init_uboot_mtd_device_info(void)
 int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
 {
 	int rc = 0;
+	ubootenv_info_t info;
 
-	if (uboot_info_initialized == false) {
-		init_uboot_mtd_device_info();
-	}
+	memset(&info, 0, sizeof(info));
+	init_ubootenv_info(&info);
 
-	if (ubootenv_redundant == false) {
+	if (info.ubootenv_redundant == false) {
 
 	} else {
 
@@ -155,12 +158,12 @@ int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
 int ezcfg_api_ubootenv_set(const char *name, const char *value)
 {
 	int rc = 0;
+	ubootenv_info_t info;
 
-	if (uboot_info_initialized == false) {
-		init_uboot_mtd_device_info();
-	}
+	memset(&info, 0, sizeof(info));
+	init_ubootenv_info(&info);
 
-	if (ubootenv_redundant == false) {
+	if (info.ubootenv_redundant == false) {
 
 	} else {
 
@@ -183,35 +186,36 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 	char *data = NULL, *end = NULL;
 	char *tmp = NULL;
 	uint32_t crc = 0;
+	ubootenv_info_t info;
 
 	if (list == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-	if (uboot_info_initialized == false) {
-		init_uboot_mtd_device_info();
-	}
+	memset(&info, 0, sizeof(info));
+	init_ubootenv_info(&info);
 
-	if (ubootenv_redundant == false) {
-		fp = fopen(ubootenv_dev_name, "r");
+	if (info.ubootenv_redundant == false) {
+		fp = fopen(info.ubootenv_dev_name, "r");
 		if (fp == NULL) {
 			rc = -EZCFG_E_RESOURCE;
 			goto func_out;
 		}
-		buf = (char *)malloc(ubootenv_size);
+		buf = (char *)malloc(info.ubootenv_size);
 		if (buf == NULL) {
 			rc = -EZCFG_E_SPACE;
 			goto func_out;
 		}
-		memset(buf, 0, ubootenv_size);
-		fread(buf, ubootenv_size, 1, fp);
+		memset(buf, 0, info.ubootenv_size);
+		fread(buf, info.ubootenv_size, 1, fp);
 		crc = *(uint32_t *)(buf);
-		data = buf + sizeof(unsigned long);
+		data = buf + sizeof(uint32_t);
 
 		/* find \0\0 string */
 		end = data+1;
-		while (end < buf+ubootenv_size && (*(end-1) != '\0' || *end != '\0')) end++;
-		if (end == buf+ubootenv_size) {
+		while (end < (buf + info.ubootenv_size) &&
+		       (*(end-1) != '\0' || *end != '\0')) end++;
+		if (end == (buf + info.ubootenv_size)) {
 			rc = -EZCFG_E_PARSE;
 			goto func_out;
 		}
@@ -243,41 +247,39 @@ func_out:
  * @len: buffer size
  *
  **/
-int ezcfg_api_ubootenv_check(char *list, size_t len)
+int ezcfg_api_ubootenv_check(void)
 {
 	int rc = 0;
 	FILE *fp = NULL;
 	char *buf = NULL;
-	char *data = NULL, *end = NULL;
-	char *tmp = NULL;
+	char *data = NULL;
 	uint32_t crc = 0;
+	ubootenv_info_t info;
 
-	if (list == NULL || len < 1) {
-		return -EZCFG_E_ARGUMENT ;
-	}
+	memset(&info, 0, sizeof(info));
+	init_ubootenv_info(&info);
 
-	if (uboot_info_initialized == false) {
-		init_uboot_mtd_device_info();
-	}
-
-	if (ubootenv_redundant == false) {
-		fp = fopen(ubootenv_dev_name, "r");
+	if (info.ubootenv_redundant == false) {
+		fp = fopen(info.ubootenv_dev_name, "r");
 		if (fp == NULL) {
 			rc = -EZCFG_E_RESOURCE;
 			goto func_out;
 		}
-		buf = (char *)malloc(ubootenv_size);
+		buf = (char *)malloc(info.ubootenv_size);
 		if (buf == NULL) {
 			rc = -EZCFG_E_SPACE;
 			goto func_out;
 		}
-		memset(buf, 0, ubootenv_size);
-		fread(buf, ubootenv_size, 1, fp);
-		if (ubootenv_size > len) {
-			rc = -EZCFG_E_SPACE;
+		memset(buf, 0, info.ubootenv_size);
+		fread(buf, info.ubootenv_size, 1, fp);
+		//crc = *(uint32_t *)(buf);
+		data = buf + sizeof(uint32_t);
+		crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+		crc ^= *(uint32_t *)(buf);
+		if (crc != 0) {
+			rc = -EZCFG_E_CRC;
 			goto func_out;
 		}
-		memcpy(list, buf, ubootenv_size);
 	} else {
 
 	}
@@ -290,4 +292,3 @@ func_out:
 	}
 	return rc;
 }
-

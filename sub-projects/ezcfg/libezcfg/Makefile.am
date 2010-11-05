@@ -41,6 +41,7 @@ libezcfg_la_SOURCES += src/thread/worker.c
 
 # ezcfg utils
 libezcfg_la_SOURCES += src/util/util.c
+libezcfg_la_SOURCES += src/util/util_crc32.c
 
 # ezcfg control
 libezcfg_la_SOURCES += src/ctrl/ctrl.c 
