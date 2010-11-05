@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg.c
+ * File Name    : ezcfg.h
  *
  * Description  : interface to configurate ezbox information
  *
@@ -11,8 +11,8 @@
  * ============================================================================
  */
 
-#ifndef _LIBEZCFG_H_
-#define _LIBEZCFG_H_
+#ifndef _EZCFG_H_
+#define _EZCFG_H_
 
 #include <stdarg.h>
 #include <sys/types.h>
@@ -461,7 +461,7 @@ extern "C" {
  */
 
 /*
- * libezcfg.c
+ * common/ezcfg.c
  * ezbox config context
  */
 struct ezcfg;
@@ -477,10 +477,10 @@ struct ezcfg *ezcfg_new(void);
 void ezcfg_delete(struct ezcfg *ezcfg);
 
 /*
- * libezcfg-list.c
+ * commom/list.c
  * ezcfg_list
  *
- * access to libezcfg generated lists
+ * access to ezcfg generated lists
  */
 struct ezcfg_list_entry;
 struct ezcfg_list_entry *ezcfg_list_entry_get_next(struct ezcfg_list_entry *list_entry);

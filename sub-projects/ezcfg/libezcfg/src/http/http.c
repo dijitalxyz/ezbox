@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-http.c
+ * File Name    : http/http.c
  *
  * Description  : implement HTTP/1.1 protocol (RFC 2616)
  *                and it's extension (RFC 2774)
@@ -33,8 +33,8 @@
 #include <sys/un.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 struct http_header {
 	char *name; /* HTTP header name */

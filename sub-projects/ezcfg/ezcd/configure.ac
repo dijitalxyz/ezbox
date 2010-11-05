@@ -25,7 +25,7 @@ AC_PROG_LIBTOOL
 
 # Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
 AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.so is at])
-AC_ARG_VAR([LIBEZCFG_INC], [where libezcfg.h is at])
+AC_ARG_VAR([LIBEZCFG_INC], [where ezcfg.h is at])
 AC_ARG_VAR([LIBEZCFG_API_INC], [where ezcfg-api.h is at])
 
 # Ensure that both or neither are specified.
@@ -55,7 +55,7 @@ fi
 # Still empty? Check for installed libezcfg.
 if test -z "$LIBEZCFG_LIB"; then
 	AC_CHECK_LIB([libezcfg], [ezcfg_new], 
-		[AC_CHECK_HEADERS([libezcfg.h])
+		[AC_CHECK_HEADERS([ezcfg.h])
 			LIBS="-lezcfg $LIBS"],
 	[AC_MSG_ERROR([No libezcfg found.])])
 fi

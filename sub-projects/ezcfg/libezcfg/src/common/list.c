@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-list.c
+ * File Name    : common/list.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -15,8 +15,8 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 /**
  * SECTION:libezcfg-list

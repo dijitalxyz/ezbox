@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-thread.c
+ * File Name    : thread/thread.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -34,8 +34,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 /*
  * ezcfg-thread - ezbox config multi-threads model

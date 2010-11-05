@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezcfg Application Programming Interface
- * Module Name  : nvram.c
+ * Module Name  : api-nvram.c
  *
  * Description  : ezcfg API for nvram manipulate
  *
@@ -37,8 +37,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 #include "ezcfg-api.h"
 

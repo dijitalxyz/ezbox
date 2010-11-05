@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-nvram.c
+ * File Name    : nvram/nvram.c
  *
  * Description  : implement Non-Volatile RAM
  * Warning      : must exclusively use it, say lock NVRAM before using it.
@@ -26,8 +26,8 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 #define NVRAM_VERSOIN_MAJOR 0x01 /* version[0] */
 #define NVRAM_VERSOIN_MINOR 0x00 /* version[1] */

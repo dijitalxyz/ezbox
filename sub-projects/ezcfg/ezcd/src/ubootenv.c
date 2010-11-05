@@ -36,6 +36,7 @@ static void ubootenv_show_usage(void)
 	printf("    get <name>          get u-boot environment parameter by <name>\n");
 	printf("    set <name> <value>  set u-boot environment parameter <name> with <value>\n");
 	printf("    list                list all u-boot environment parameters\n");
+	printf("    check               check u-boot environment parameters' integrity\n");
 	printf("\n");
 }
 
@@ -116,6 +117,35 @@ int ubootenv_main(int argc, char **argv)
 			}
 			else {
 				printf("%s", buf);
+			}
+			free(buf);
+		}
+		else {
+			printf("number of arguments is incorrect.\n");
+			ubootenv_show_usage();
+			rc = -EZCFG_E_ARGUMENT ;
+		}
+	}
+	else if (strcmp(argv[1], "check") == 0) {
+		if (argc == 2) {
+			buf = malloc(UBOOT_ENV_BLOCK_SIZE);
+			if (buf == NULL) {
+				printf("error! not enough memory.\n");
+				return -EZCFG_E_RESOURCE;
+			}
+			memset(buf, 0, UBOOT_ENV_BLOCK_SIZE);
+			rc = ezcfg_api_ubootenv_check(buf, UBOOT_ENV_BLOCK_SIZE);
+			if (rc < 0) {
+				printf("ERROR\n");
+			}
+			else {
+				uint32_t crc;
+				char *p;
+				crc = *((uint32_t *)buf);
+				p = buf+sizeof(uint32_t);
+				printf("crc=[%lx]\n", crc);
+				crc = utils_crc32(p, UBOOT_ENV_BLOCK_SIZE-(sizeof(uint32_t)));
+				printf("mycrc=[%lx]\n", crc);
 			}
 			free(buf);
 		}

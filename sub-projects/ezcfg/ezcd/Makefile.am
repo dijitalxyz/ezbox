@@ -32,6 +32,7 @@ ezcd_SOURCES += src/rc/rc_func.c
 # utils
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
 ezcd_SOURCES += src/utils/utils_find_pid_by_name.c
+ezcd_SOURCES += src/utils/utils_crc32.c
 
 # base files
 ezcd_SOURCES += src/pop/pop_etc_banner.c

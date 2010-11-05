@@ -7,6 +7,7 @@ ezcfg_api_nvram_set_debug
 ezcfg_api_ubootenv_get
 ezcfg_api_ubootenv_set
 ezcfg_api_ubootenv_list
+ezcfg_api_ubootenv_check
 ezcfg_new
 ezcfg_delete
 ezcfg_set_log_fn

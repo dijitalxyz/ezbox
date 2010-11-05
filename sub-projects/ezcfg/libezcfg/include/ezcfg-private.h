@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-private.h
+ * File Name    : ezcfg-private.h
  *
  * Description  : interface to configurate ezbox information
  *
@@ -11,15 +11,15 @@
  * ============================================================================
  */
 
-#ifndef _LIBEZCFG_PRIVATE_H_
-#define _LIBEZCFG_PRIVATE_H_
+#ifndef _EZCFG_PRIVATE_H_
+#define _EZCFG_PRIVATE_H_
 
 #include <syslog.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "libezcfg.h"
+#include "ezcfg.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -62,7 +62,7 @@ static inline void ezcfg_log_close(void)
 	closelog();
 }
 
-/* libezcfg.c */
+/* common/ezcfg.c */
 void ezcfg_log(struct ezcfg *ezcfg,
                int priority, const char *file, int line, const char *fn,
                const char *format, ...)
@@ -72,7 +72,7 @@ struct ezcfg_list_entry *ezcfg_add_property(struct ezcfg *ezcfg, const char *key
 struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg);
 
 
-/* libezcfg-list.c */
+/* common/list.c */
 struct ezcfg_list_node {
 	struct ezcfg_list_node *next, *prev;
 };
@@ -101,11 +101,11 @@ void ezcfg_list_cleanup_entries(struct ezcfg *ezcfg, struct ezcfg_list_node *nam
 struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
 
 
-/* libezcfg-thread.c */
+/* thread/thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 
 
-/* libezcfg-nvram.c */
+/* nvram/nvram.c */
 struct ezcfg_nvram_pair {
 	char *name;
 	char *value;
@@ -133,7 +133,7 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
-/* libezcfg-uuid.c */
+/* uuid/uuid.c */
 struct ezcfg_uuid;
 bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
 struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
@@ -146,7 +146,7 @@ bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len)
 bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
 
-/* libezcfg-socket.c */
+/* socket/socket.c */
 struct ezcfg_socket;
 void ezcfg_socket_delete(struct ezcfg_socket *sp);
 struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path);
@@ -177,7 +177,7 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
 int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);
 int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags);
 
-/* libezcfg-http.c */
+/* http/http.c */
 struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
@@ -208,7 +208,7 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
 int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
 
-/* libezcfg-xml.c */
+/* xml/xml.c */
 struct ezcfg_xml_element;
 struct ezcfg_xml;
 void ezcfg_xml_delete(struct ezcfg_xml *xml);
@@ -238,7 +238,7 @@ struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, 
 bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int index, const char *content);
 char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int index);
 
-/* libezcfg-soap.c */
+/* soap/soap.c */
 struct ezcfg_soap;
 void ezcfg_soap_delete(struct ezcfg_soap *soap);
 struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg);
@@ -260,7 +260,7 @@ char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int
 bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len);
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
 
-/* libezcfg-soap_http.c */
+/* soap/soap_http.c */
 struct ezcfg_soap_http;
 void ezcfg_soap_http_delete(struct ezcfg_soap_http *sh);
 struct ezcfg_soap_http *ezcfg_soap_http_new(struct ezcfg *ezcfg);
@@ -283,7 +283,7 @@ void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
 void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram);
 
-/* libezcfg-irgs.c */
+/* igrs/igrs.c */
 struct ezcfg_igrs_msg_op;
 struct ezcfg_igrs;
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
@@ -317,13 +317,13 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len);
 bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
 
-/* libezcfg-isdp.c */
+/* igrs/isdp.c */
 struct ezcfg_isdp;
 void ezcfg_isdp_delete(struct ezcfg_isdp *isdp);
 struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
 void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
-/* libezcfg-master.c */
+/* thread/master.c */
 struct ezcfg_master;
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
@@ -339,7 +339,7 @@ struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
 char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name);
 
 
-/* libezcfg-worker.c */
+/* thread/worker.c */
 struct ezcfg_worker;
 /* worker inherits master's resource */
 void ezcfg_worker_delete(struct ezcfg_worker *worker);
@@ -349,7 +349,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker);
 void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);
 
 
-/* libezcfg-ctrl.c - daemon runtime setup */
+/* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
 struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
@@ -359,7 +359,7 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl);
 
 
-/* libezcfg-util.c */
+/* util/util.c */
 #define UTIL_PATH_SIZE				1024
 #define UTIL_NAME_SIZE				512
 #define UTIL_LINE_SIZE				16384

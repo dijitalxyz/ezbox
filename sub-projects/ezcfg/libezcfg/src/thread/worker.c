@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-worker.c
+ * File Name    : thread/worker.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -32,8 +32,8 @@
 #include <sys/un.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 /*
  * ezcfg_worker:

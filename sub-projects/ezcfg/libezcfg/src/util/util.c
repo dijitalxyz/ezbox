@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-util.c
+ * File Name    : util/util.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -15,8 +15,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 int ezcfg_util_log_priority(const char *priority)
 {

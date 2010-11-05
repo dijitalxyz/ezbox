@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-igrs.c
+ * File Name    : igrs/igrs.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -32,8 +32,8 @@
 #include <sys/un.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 struct ezcfg_igrs_msg_op {
 	char *name;

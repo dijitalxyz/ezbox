@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-socket.c
+ * File Name    : socket/socket.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -33,8 +33,8 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 /*
  * unified socket address. For IPv6 support, add IPv6 address structure

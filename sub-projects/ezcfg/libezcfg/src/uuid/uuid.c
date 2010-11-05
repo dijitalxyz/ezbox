@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-uuid.c
+ * File Name    : uuid/uuid.c
  *
  * Description  : implement UUID functions (RFC 4122)
  *
@@ -25,8 +25,8 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 /* set the following to the number of 100ns ticks of the actual
    resolution of your system's clock, right now we use 1usec = 10*100ns */

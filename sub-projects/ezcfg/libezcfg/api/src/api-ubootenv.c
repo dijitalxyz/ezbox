@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezcfg Application Programming Interface
- * Module Name  : ubootenv.c
+ * Module Name  : api-ubootenv.c
  *
  * Description  : ezcfg API for u-boot environment parameters manipulate
  *
@@ -37,8 +37,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "libezcfg.h"
-#include "libezcfg-private.h"
+#include "ezcfg.h"
+#include "ezcfg-private.h"
 
 #include "ezcfg-api.h"
 
@@ -182,7 +182,7 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 	char *buf = NULL;
 	char *data = NULL, *end = NULL;
 	char *tmp = NULL;
-	unsigned long crc = 0;
+	uint32_t crc = 0;
 
 	if (list == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -205,7 +205,7 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 		}
 		memset(buf, 0, ubootenv_size);
 		fread(buf, ubootenv_size, 1, fp);
-		crc = *(unsigned long *)(buf);
+		crc = *(uint32_t *)(buf);
 		data = buf + sizeof(unsigned long);
 
 		/* find \0\0 string */
@@ -224,6 +224,60 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 			len--;
 		}
 		*list = '\0';
+	} else {
+
+	}
+func_out:
+	if (fp != NULL) {
+		fclose(fp);
+	}
+	if (buf != NULL) {
+		free(buf);
+	}
+	return rc;
+}
+
+/**
+ * ezcfg_api_ubootenv_check:
+ * @list: buffer to store u-boot env parameter pairs
+ * @len: buffer size
+ *
+ **/
+int ezcfg_api_ubootenv_check(char *list, size_t len)
+{
+	int rc = 0;
+	FILE *fp = NULL;
+	char *buf = NULL;
+	char *data = NULL, *end = NULL;
+	char *tmp = NULL;
+	uint32_t crc = 0;
+
+	if (list == NULL || len < 1) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (uboot_info_initialized == false) {
+		init_uboot_mtd_device_info();
+	}
+
+	if (ubootenv_redundant == false) {
+		fp = fopen(ubootenv_dev_name, "r");
+		if (fp == NULL) {
+			rc = -EZCFG_E_RESOURCE;
+			goto func_out;
+		}
+		buf = (char *)malloc(ubootenv_size);
+		if (buf == NULL) {
+			rc = -EZCFG_E_SPACE;
+			goto func_out;
+		}
+		memset(buf, 0, ubootenv_size);
+		fread(buf, ubootenv_size, 1, fp);
+		if (ubootenv_size > len) {
+			rc = -EZCFG_E_SPACE;
+			goto func_out;
+		}
+		memcpy(list, buf, ubootenv_size);
 	} else {
 
 	}

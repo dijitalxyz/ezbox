@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : libezcfg-nvram_defaults.c
+ * File Name    : nvram/nvram_defaults.c
  *
  * Description  : implement Non-Volatile RAM default settings
  *
@@ -11,8 +11,8 @@
  * ============================================================================
  */
 
-#include "libezcfg-private.h"
-#include "libezcfg.h"
+#include "ezcfg-private.h"
+#include "ezcfg.h"
 
 struct ezcfg_nvram_pair default_nvram_settings[] = {
 	/* System configuration */
