@@ -23,24 +23,13 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <sys/mman.h>
-#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/mount.h>
-#include <sys/un.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <assert.h>
-#include <pthread.h>
 #include <errno.h>
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <dirent.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -87,7 +76,7 @@ static void crc32_calc(uint32_t *crcp, unsigned char *data, int len)
 	}
 }
 
-uint32_t ezcfg_util_crc32(unsigned char *data, int len)
+uint32_t ezcfg_util_crc32(unsigned char *data, size_t len)
 {
 	uint32_t crc32 = CRC32_INITIAL_REMAINDER;
 	crc32_calc(&crc32, data, len);

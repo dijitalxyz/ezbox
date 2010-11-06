@@ -372,6 +372,9 @@ char *ezcfg_util_skip_leading_char(char *s, char c);
 char *ezcfg_util_skip_leading_charlist(char *s, char *l);
 
 /* util/util_crc32.c */
-uint32_t ezcfg_util_crc32(unsigned char *data, int len);
+uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
+
+/* util/util_adler32.c */
+uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
 
 #endif
