@@ -135,6 +135,122 @@ static char *find_nvram_entry_position(char *data, const char *name)
 	return entry;
 }
 
+static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
+{
+	struct ezcfg *ezcfg;
+	int name_len, entry_len, new_entry_len;
+	struct nvram_header *header;
+	char *data, *p, *entry;
+
+	ezcfg = nvram->ezcfg;
+
+	name_len = strlen(name);
+	new_entry_len = name_len + strlen(value) + 2;
+
+	header = (struct nvram_header *)nvram->buffer;
+	data = nvram->buffer + sizeof(struct nvram_header);
+
+	/* first entry */
+	if (nvram->used_space == 0) {
+		if (new_entry_len + 1 > nvram->free_space) {
+			err(ezcfg, "no enough space for nvram entry set\n");
+			return false;
+		}
+		sprintf(data, "%s=%s\0", name, value);
+		nvram->used_space += (new_entry_len + 1);
+		nvram->free_space -= (new_entry_len + 1);
+		return true;
+	}
+
+	p = find_nvram_entry_position(data, name);
+	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
+		/* find nvram entry */
+		entry_len = strlen(p) + 1;
+		if (entry_len == new_entry_len) {
+			/* replace directory */
+			sprintf(p, "%s=%s", name, value);
+			return true;
+		}
+		else {
+			/* original entry is smaller/larger, move backward/forward */
+			memmove(p + new_entry_len, p + entry_len, nvram->used_space - (p - data) - entry_len);
+			sprintf(p, "%s=%s", name, value);
+			nvram->used_space += (new_entry_len - entry_len);
+			nvram->free_space -= (new_entry_len - entry_len);
+			return true;
+		}
+	}
+	else {
+		/* not find nvram entry */
+		if (new_entry_len > nvram->free_space) {
+			err(ezcfg, "no enough space for nvram entry set\n");
+			return false;
+		}
+		/* insert nvram entry */
+		memmove(p + new_entry_len, p, nvram->used_space - (p - data));
+		sprintf(p, "%s=%s", name, value);
+		nvram->used_space += new_entry_len;
+		nvram->free_space -= new_entry_len;
+		return true;
+	}
+}
+
+static bool nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
+{
+	struct ezcfg *ezcfg;
+	char *data, *p;
+	int name_len, entry_len;
+	bool ret = false;
+
+	ezcfg = nvram->ezcfg;
+
+	name_len = strlen(name);
+
+	data = nvram->buffer + sizeof(struct nvram_header);
+
+	p = find_nvram_entry_position(data, name);
+
+	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
+		/* find nvram entry */
+		entry_len = strlen(p) + 1;
+		memmove(p, p + entry_len, nvram->used_space - (p - data) - entry_len);
+		nvram->used_space -= entry_len;
+		nvram->free_space += entry_len;
+		ret = true;
+	}
+	else {
+		/* not find nvram entry */
+		ret = false;
+	}
+
+	return ret;
+}
+
+/* It's user's duty to free the returns string */
+static char *nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, bool *ret)
+{
+	struct ezcfg *ezcfg;
+	char *value = NULL, *p, *data;
+	int name_len;
+
+	ezcfg = nvram->ezcfg;
+	*ret = true;
+	data = nvram->buffer + sizeof(struct nvram_header);
+
+	/* find nvram entry position */
+	p = find_nvram_entry_position(data, name);
+
+	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
+		/* find nvram entry */
+		value = strdup(p + name_len + 1);
+		if (value == NULL) {
+			err(ezcfg, "not enough memory for get nvram node.\n");
+			*ret = false;
+		}
+	}
+	return value;
+}
+
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -145,7 +261,7 @@ static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
-		if (ezcfg_nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
+		if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
 			err(ezcfg, "set nvram entry error.\n");
 			return false;
 		}
@@ -192,10 +308,11 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
-		value = ezcfg_nvram_get_entry_value(nvram, nvp->name);
-		if (value == NULL) {  
-			if (ezcfg_nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
+		value = nvram_get_entry_value(nvram, nvp->name, &ret);
+		if (value == NULL && ret == true) {
+			if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
 				err(ezcfg, "set nvram error.\n");
+				ret = false;
 				goto init_exit;
 			}
 		}
@@ -299,6 +416,9 @@ bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 
 	ezcfg = nvram->ezcfg;
 
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
 	if (nvram->store_path != NULL) {
 		free(nvram->store_path);
 	}
@@ -311,6 +431,10 @@ bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 		free(nvram->buffer);
 	}
 
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	pthread_mutex_destroy(&nvram->mutex);
 	free(nvram);
 	return true;
 }
@@ -330,6 +454,9 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	memset(nvram, 0, sizeof(struct ezcfg_nvram));
 
 	nvram->ezcfg = ezcfg;
+
+	/* initialize nvram mutex */
+	pthread_mutex_init(&nvram->mutex, NULL);
 
 	/* set default settings */
 	nvram->num_default_settings = ezcfg_nvram_get_num_default_nvram_settings();
@@ -440,19 +567,25 @@ bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_spac
 {
 	struct ezcfg *ezcfg;
 	char *buf;
+	bool ret = false;
 
 	ASSERT(nvram != NULL);
 
 	ezcfg = nvram->ezcfg;
 
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
 	if (total_space < sizeof(struct nvram_header) + nvram->used_space) {
-		return false;
+		ret = false;
+		goto func_exit;
 	}
 
 	buf = (char *)realloc(nvram->buffer, total_space);
 	if (buf == NULL) {
 		err(ezcfg, "can not realloc nvram buffer\n");
-		return false;
+		ret = false;
+		goto func_exit;
 	}
 
 	nvram->free_space = total_space-sizeof(struct nvram_header)-nvram->used_space;
@@ -461,7 +594,12 @@ bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_spac
 	}
 	nvram->buffer = buf;
 	nvram->total_space = total_space;
-	return true;
+
+func_exit:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
 }
 
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
@@ -484,97 +622,41 @@ bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nv
 
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
-	struct ezcfg *ezcfg;
-	int name_len, entry_len, new_entry_len;
-	struct nvram_header *header;
-	char *data, *p, *entry;
+	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
 
-	ezcfg = nvram->ezcfg;
-	header = (struct nvram_header *)nvram->buffer;
-	data = nvram->buffer + sizeof(struct nvram_header);
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
 
-	name_len = strlen(name);
-	new_entry_len = name_len + strlen(value) + 2;
+	ret = nvram_set_entry(nvram, name, value);
 
-	/* first entry */
-	if (nvram->used_space == 0) {
-		if (new_entry_len + 1 > nvram->free_space) {
-			err(ezcfg, "no enough space for nvram entry set\n");
-			return false;
-		}
-		sprintf(data, "%s=%s\0", name, value);
-		nvram->used_space += (new_entry_len + 1);
-		nvram->free_space -= (new_entry_len + 1);
-		return true;
-	}
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
 
-	p = find_nvram_entry_position(data, name);
-	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
-		/* find nvram entry */
-		entry_len = strlen(p) + 1;
-		if (entry_len == new_entry_len) {
-			/* replace directory */
-			sprintf(p, "%s=%s", name, value);
-			return true;
-		}
-		else {
-			/* original entry is smaller/larger, move backward/forward */
-			memmove(p + new_entry_len, p + entry_len, nvram->used_space - (p - data) - entry_len);
-			sprintf(p, "%s=%s", name, value);
-			nvram->used_space += (new_entry_len - entry_len);
-			nvram->free_space -= (new_entry_len - entry_len);
-			return true;
-		}
-	}
-	else {
-		/* not find nvram entry */
-		if (new_entry_len > nvram->free_space) {
-			err(ezcfg, "no enough space for nvram entry set\n");
-			return false;
-		}
-		/* insert nvram entry */
-		memmove(p + new_entry_len, p, nvram->used_space - (p - data));
-		sprintf(p, "%s=%s", name, value);
-		nvram->used_space += new_entry_len;
-		nvram->free_space -= new_entry_len;
-		return true;
-	}
+	return ret;
 }
 
 /* It's user's duty to free the returns string */
 char *ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name)
 {
-	struct ezcfg *ezcfg;
-	char *value, *p, *data;
-	int i, name_len;
+	char *value;
+	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 
-	ezcfg = nvram->ezcfg;
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
 
-	name_len = strlen(name);
-	data = nvram->buffer + sizeof(struct nvram_header);
+	value = nvram_get_entry_value(nvram, name, &ret);
 
-	/* find nvram entry position */
-	p = find_nvram_entry_position(data, name);
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
 
-	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
-		/* find nvram entry */
-		value = strdup(p + name_len + 1);
-		if (value == NULL) {
-			err(ezcfg, "not enough memory for get nvram node.\n");
-			return NULL;
-		}
-		return value;
-	}
-
-	/* not found nvram entry */
-	return NULL;
+	return value;
 }
 
 bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)
@@ -582,11 +664,16 @@ bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ez
 	struct ezcfg *ezcfg;
 	char *entry, *p;
 	int entry_len;
+	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
 	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
 	entry = nvram->buffer + sizeof(struct nvram_header);
 
 	/* find all nvram entries */
@@ -599,41 +686,37 @@ bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ez
 		*p = '\0';
 		if (ezcfg_list_entry_add(ezcfg, list, entry, p+1, 1, 0) == NULL) {
 			*p = '=';
-			return false;
+			ret = false;
+			goto func_exit;
 		}
 		*p = '=';
 		entry += entry_len;
 	}
-	return true;
+	ret = true;
+
+func_exit:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
 }
 
 bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
 {
-	struct ezcfg *ezcfg;
-	char *data, *p;
-	int name_len, entry_len;
+	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 
-	ezcfg = nvram->ezcfg;
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
 
-	name_len = strlen(name);
-	data = nvram->buffer + sizeof(struct nvram_header);
+	ret = nvram_unset_entry(nvram, name);
 
-	p = find_nvram_entry_position(data, name);
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
 
-	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
-		/* find nvram entry */
-		entry_len = strlen(p) + 1;
-		memmove(p, p + entry_len, nvram->used_space - (p - data) - entry_len);
-		nvram->used_space -= entry_len;
-		nvram->free_space += entry_len;
-		return true;
-	}
-
-	/* not find nvram entry */
-	return false;
+	return ret;
 }
 
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
@@ -644,6 +727,9 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 	ASSERT(nvram != NULL);
 
 	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
 
 	switch (nvram->backend_type) {
 	case EZCFG_NVRAM_BACKEND_TYPE_NONE :
@@ -666,6 +752,10 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 		ret = false;
 		break;
 	}
+
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
 	return ret;
 }
 
@@ -683,6 +773,9 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		err(ezcfg, "not setting nvram store path.\n");
 		return false;
 	}
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
 
 	switch (nvram->backend_type) {
 	case EZCFG_NVRAM_BACKEND_TYPE_NONE :
@@ -708,6 +801,10 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		ret = false;
 		break;
 	}
+
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
 	return ret;
 }
 
