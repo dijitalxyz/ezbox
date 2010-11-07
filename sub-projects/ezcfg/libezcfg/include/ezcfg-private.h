@@ -333,11 +333,7 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
-bool ezcfg_master_lock_nvram(struct ezcfg_master *master);
-bool ezcfg_master_unlock_nvram(struct ezcfg_master *master);
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
-char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name);
-
 
 /* thread/worker.c */
 struct ezcfg_worker;

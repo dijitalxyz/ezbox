@@ -366,9 +366,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	}
 
 	if (is_soap_http_nvram_request(request_uri) == true) {
-		ezcfg_master_lock_nvram(worker->master);
 		ezcfg_soap_http_handle_nvram_request(sh, nvram);
-		ezcfg_master_unlock_nvram(worker->master);
 
 		/* build SOAP/HTTP binding response */
 		buf[0] = '\0';
