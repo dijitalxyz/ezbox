@@ -106,7 +106,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	/* initialize nvram */
 	ezcfg_nvram_set_backend_type(master->nvram, EZCFG_NVRAM_BACKEND_TYPE_FILE);
 	ezcfg_nvram_set_store_path(master->nvram, EZCFG_NVRAM_STORE_FILE_PATH);
-	ezcfg_nvram_set_total_space(master->nvram, EZCFG_NVRAM_SPACE);
+	ezcfg_nvram_set_total_space(master->nvram, EZCFG_NVRAM_BUFFER_SIZE);
 	ezcfg_nvram_initialize(master->nvram);
 
 	/* initialize socket queue */
@@ -593,7 +593,7 @@ char *ezcfg_master_get_nvram_value(struct ezcfg_master *master, const char *name
 	ezcfg = master->ezcfg;
 
 	ezcfg_master_lock_nvram(master);
-	value = ezcfg_nvram_get_node_value(master->nvram, name);
+	value = ezcfg_nvram_get_entry_value(master->nvram, name);
 	ezcfg_master_unlock_nvram(master);
 	return value;
 }

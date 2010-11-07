@@ -42,7 +42,7 @@ extern "C" {
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
 /* ezcfg nvram definitions */
-#define EZCFG_NVRAM_SPACE	0x20000 /* 128K Bytes */
+#define EZCFG_NVRAM_BUFFER_SIZE            0x10000 /* 64K Bytes */
 #define EZCFG_NVRAM_BACKEND_TYPE_NONE      0
 #define EZCFG_NVRAM_BACKEND_TYPE_FILE      1
 #define EZCFG_NVRAM_BACKEND_TYPE_FLASH     2

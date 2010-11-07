@@ -72,8 +72,8 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	http = sh->http;
 	soap = sh->soap;
 
-	/* get nvram node value, must release value!!! */
-	value = ezcfg_nvram_get_node_value(nvram, name);
+	/* get nvram entry value, must free it!!! */
+	value = ezcfg_nvram_get_entry_value(nvram, name);
 
 	if (value != NULL) {
 		int getnv_index;
@@ -202,7 +202,7 @@ static void build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	result = NULL;
 
 	if (name != NULL && value != NULL) {
-		if (ezcfg_nvram_set_node_value(nvram, name, value) == true) {
+		if (ezcfg_nvram_set_entry(nvram, name, value) == true) {
 			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
 		}
 		else {
@@ -328,11 +328,11 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_
 	soap = sh->soap;
 	result = NULL;
 
-	/* get nvram node value, must release value!!! */
-	value = ezcfg_nvram_get_node_value(nvram, name);
+	/* get nvram entry value, must free it!!! */
+	value = ezcfg_nvram_get_entry_value(nvram, name);
 
 	if (value != NULL) {
-		ezcfg_nvram_unset_node_value(nvram, name);
+		ezcfg_nvram_unset_entry(nvram, name);
 		result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
 		free(value);
 	}
@@ -458,7 +458,7 @@ static void build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 	list = &node;
 	ezcfg_list_init(list);
 
-	if (ezcfg_nvram_get_all_nodes_list(nvram, list) == true) {
+	if (ezcfg_nvram_get_all_entries_list(nvram, list) == true) {
 		int listnv_index, nvnode_index;
 
 		/* clean SOAP structure info */
