@@ -1,31 +1,45 @@
 diff -urNd a/mongoose.c b/mongoose.c
---- a/mongoose.c	2010-11-07 20:23:41.000000000 +0800
-+++ b/mongoose.c	2010-11-08 10:42:16.000000000 +0800
-@@ -173,16 +173,18 @@
- #include <pwd.h>
- #include <unistd.h>
- #include <dirent.h>
--#if !defined(NO_SSL_DL) && !defined(NO_SSL)
-+#if !defined(NO_SSL_DL) && !defined(NO_SSL) && !defined(NO_LSP_DL) && !defined(NO_LSP)
+--- a/mongoose.c	2010-11-08 18:53:49.000000000 +0800
++++ b/mongoose.c	2010-11-08 18:52:09.000000000 +0800
+@@ -176,13 +176,20 @@
+ #if !defined(NO_SSL_DL) && !defined(NO_SSL)
  #include <dlfcn.h>
  #endif
++#if !defined(NO_LSP_DL) && !defined(NO_LSP)
++#include <dlfcn.h>
++#endif
  #include <pthread.h>
  #if defined(__MACH__)
  #define SSL_LIB   "libssl.dylib"
  #define CRYPTO_LIB  "libcrypto.dylib"
 +#define LSP_LIB   "libluasp.dylib"
++#define LUA_LIB   "liblua.dylib"
  #else
  #define SSL_LIB   "libssl.so"
  #define CRYPTO_LIB  "libcrypto.so"
 +#define LSP_LIB   "libluasp.so"
++#define LUA_LIB   "liblua.so"
  #endif
  #define DIRSEP   '/'
  #define IS_DIRSEP_CHAR(c) ((c) == '/')
-@@ -340,6 +342,52 @@
+@@ -340,6 +347,74 @@
  };
  #endif // NO_SSL_DL
  
 +// Snatched from Lua includes.
++typedef int (*lsp_puts_t) (void* ctx, const char *s);
++typedef int (*lsp_putc_t) (void* ctx, int c);
++typedef int (*lsp_write_t) (void* ctx, const char *s, size_t len);
++
++struct lsp_io
++{
++  void* lctx;
++  lsp_puts_t lputs;
++  lsp_putc_t lputc;
++  lsp_write_t lwrite;
++};
++typedef struct lsp_io lsp_io;
++
 +typedef struct lua_State lua_State;
 +
 +#define lua_open() luaL_newstate()
@@ -33,10 +47,12 @@ diff -urNd a/mongoose.c b/mongoose.c
 +#define lua_pop(L,n) lua_settop(L, -(n)-1)
 +
 +#if defined(NO_LSP_DL)
-+extern lua_State *(luaL_newstate)(void);
-+extern void (luaL_openlibs)(lua_State *L);
 +extern int luaopen_lualsp(lua_State *L);
 +extern int luaL_do_lsp_file(lua_State* L,const char* filename);
++extern int luaL_lsp_set_io(lua_State *L,lsp_io *io);
++
++extern lua_State *(luaL_newstate)(void);
++extern void (luaL_openlibs)(lua_State *L);
 +extern const char *(lua_tolstring)(lua_State *L, int idx, size_t *len);
 +extern void (lua_settop)(lua_State *L, int idx);
 +extern void (lua_close)(lua_State *L);
@@ -47,23 +63,30 @@ diff -urNd a/mongoose.c b/mongoose.c
 +  void  (*ptr)(void); // Function pointer
 +};
 +
-+#define luaL_newstate (* (lua_State * (*)(void)) lsp_sw[0].ptr)
-+#define luaL_openlibs (* (void (*)(lua_State *)) lsp_sw[1].ptr)
-+#define luaopen_lualsp (* (int (*)(lua_State *)) lsp_sw[2].ptr)
-+#define luaL_do_lsp_file (* (int (*)(lua_State* ,const char*)) lsp_sw[3].ptr)
-+#define lua_tolstring (* (const char * (*)(lua_State *, int, size_t *)) lsp_sw[4].ptr)
-+#define lua_settop (* (void (*)(lua_State *, int)) lsp_sw[5].ptr)
-+#define lua_close (* (void (*)(lua_State *)) lsp_sw[6].ptr)
++#define luaopen_lualsp (* (int (*)(lua_State *)) lsp_sw[0].ptr)
++#define luaL_do_lsp_file (* (int (*)(lua_State*, const char*)) lsp_sw[1].ptr)
++#define luaL_lsp_set_io (* (int (*)(lua_State *, lsp_io *)) lsp_sw[2].ptr)
++
++#define luaL_newstate (* (lua_State * (*)(void)) lua_sw[0].ptr)
++#define luaL_openlibs (* (void (*)(lua_State *)) lua_sw[1].ptr)
++#define lua_tolstring (* (const char * (*)(lua_State *, int, size_t *)) lua_sw[2].ptr)
++#define lua_settop (* (void (*)(lua_State *, int)) lua_sw[3].ptr)
++#define lua_close (* (void (*)(lua_State *)) lua_sw[4].ptr)
 +
 +// set_lsp_option() function updates this array.
 +// It loads LSP library dynamically and changes NULLs to the actual addresses
 +// of respective functions. The macros above (like luaL_do_lsp_file()) are really
 +// just calling these functions indirectly via the pointer.
 +static struct lsp_func lsp_sw[] = {
-+  {"luaL_newstate", NULL},
-+  {"luaL_openlibs", NULL},
 +  {"luaopen_lualsp", NULL},
 +  {"luaL_do_lsp_file", NULL},
++  {"luaL_lsp_set_io", NULL},
++  {NULL,    NULL}
++};
++
++static struct lsp_func lua_sw[] = {
++  {"luaL_newstate", NULL},
++  {"luaL_openlibs", NULL},
 +  {"lua_tolstring", NULL},
 +  {"lua_settop", NULL},
 +  {"lua_close", NULL},
@@ -74,7 +97,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static const char *month_names[] = {
    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-@@ -381,6 +429,7 @@
+@@ -381,6 +456,7 @@
  
  enum {
    CGI_EXTENSIONS, CGI_ENVIRONMENT, PUT_DELETE_PASSWORDS_FILE, CGI_INTERPRETER,
@@ -82,7 +105,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    PROTECT_URI, AUTHENTICATION_DOMAIN, SSI_EXTENSIONS, ACCESS_LOG_FILE,
    SSL_CHAIN_FILE, ENABLE_DIRECTORY_LISTING, ERROR_LOG_FILE,
    GLOBAL_PASSWORDS_FILE, INDEX_FILES,
-@@ -395,6 +444,7 @@
+@@ -395,6 +471,7 @@
    "E", "cgi_environment", NULL,
    "G", "put_delete_passwords_file", NULL,
    "I", "cgi_interpreter", NULL,
@@ -90,27 +113,55 @@ diff -urNd a/mongoose.c b/mongoose.c
    "P", "protect_uri", NULL,
    "R", "authentication_domain", "mydomain.com",
    "S", "ssi_extensions", ".shtml,.shtm",
-@@ -2953,6 +3003,19 @@
+@@ -1382,6 +1459,16 @@
+   return mg_write(conn, buf, (size_t)len);
+ }
+ 
++int mg_putc(struct mg_connection *conn, int c) {
++  return (int) push(NULL, conn->client.sock, conn->ssl,
++      (const char *) &c, (int64_t) sizeof(int));
++}
++
++int mg_puts(struct mg_connection *conn, const char *s) {
++  return (int) push(NULL, conn->client.sock, conn->ssl,
++      (const char *) s, (int64_t) strlen(s));
++}
++
+ // URL-decode input buffer into destination buffer.
+ // 0-terminate the destination buffer. Return the length of decoded data.
+ // form-url-encoded data differs from URI encoding in a way that it
+@@ -2953,6 +3040,30 @@
  }
  #endif // !NO_CGI
  
++#if !defined(NO_LSP)
 +static void handle_lsp_file_request(struct mg_connection *conn,
 +                                    const char *path) {
 +  lua_State* L=lua_open();
++  lsp_io lio={lctx:conn, lputs:mg_puts, lputc:mg_putc, lwrite:mg_write};
 +  luaL_openlibs(L);
 +  luaopen_lualsp(L);
++  luaL_lsp_set_io(L, &lio);
 +  if(luaL_do_lsp_file(L, path)) {
 +    const char* e=lua_tostring(L,-1);
-+    mg_printf(conn, "%s", e);
++    (void) mg_printf(conn,
++      "HTTP/1.1 200 OK\r\n"
++      "Server: mongoose\r\n"
++      "Content-Type: text/html\r\n"
++      "Connection: close\r\n"
++      "\r\n"
++    );
++    mg_write(conn, e, (size_t)strlen(e));
 +    lua_pop(L,1);
 +  }
 +  lua_close(L);
 +}
++#endif
 +
  // For a given PUT path, create all intermediate subdirectories
  // for given path. Return 0 if the path itself is a directory,
  // or -1 on error, 1 if OK.
-@@ -3226,6 +3289,14 @@
+@@ -3226,6 +3337,14 @@
      } else {
        handle_cgi_request(conn, path);
      }
@@ -125,7 +176,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    } else if (match_extension(path, conn->ctx->config[SSI_EXTENSIONS])) {
      handle_ssi_file_request(conn, path);
    } else if (is_not_modified(conn, &st)) {
-@@ -3573,6 +3644,53 @@
+@@ -3573,6 +3692,54 @@
  }
  #endif // !NO_SSL
  
@@ -167,7 +218,8 @@ diff -urNd a/mongoose.c b/mongoose.c
 +static int set_lsp_option(struct mg_context *ctx) {
 +
 +#if !defined(NO_LSP_DL)
-+  if (!load_lsp_dll(ctx, LSP_LIB, lsp_sw)) {
++  if (!load_lsp_dll(ctx, LSP_LIB, lsp_sw) ||
++      !load_lsp_dll(ctx, LUA_LIB, lua_sw)) {
 +    return 0;
 +  }
 +#endif // NO_LSP_DL
@@ -179,7 +231,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static int set_gpass_option(struct mg_context *ctx) {
    struct mgstat mgstat;
    const char *path = ctx->config[GLOBAL_PASSWORDS_FILE];
-@@ -4039,6 +4157,9 @@
+@@ -4039,6 +4206,9 @@
  #if !defined(NO_SSL)
        !set_ssl_option(ctx) ||
  #endif

@@ -65,7 +65,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) CC="$(TARGET_CC)" LIB="libmongoose.so" linux
+	$(MAKE) -C $(PKG_BUILD_DIR) CC="$(TARGET_CC)" LIB="libmongoose.so" LIB_PATH="$(STAGING_DIR)/usr/lib" linux
 endef
 
 define Build/Install
