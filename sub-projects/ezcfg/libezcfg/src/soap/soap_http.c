@@ -59,9 +59,10 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
-	char *value;
+	char *value = NULL;
 	int body_index, child_index;
 	int n;
+	bool ret;
 	
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
@@ -73,7 +74,7 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	soap = sh->soap;
 
 	/* get nvram entry value, must free it!!! */
-	value = ezcfg_nvram_get_entry_value(nvram, name);
+	ret = ezcfg_nvram_get_entry_value(nvram, name, &value);
 
 	if (value != NULL) {
 		int getnv_index;
@@ -130,7 +131,12 @@ static void build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 		int code_index;
 		int reason_index;
 
-		err(ezcfg, "no nvram [%s]\n", name);
+		if (ret == true) {
+			err(ezcfg, "no nvram [%s]\n", name);
+		}
+		else {
+			err(ezcfg, "get nvram [%s] error\n", name);
+		}
 
 		/* clean SOAP structure info */
 		ezcfg_soap_reset_attributes(soap);
@@ -314,9 +320,10 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
-	char *value, *result;
+	char *value = NULL, *result;
 	int body_index, child_index;
 	int n;
+	bool ret;
 	
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
@@ -329,7 +336,7 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_
 	result = NULL;
 
 	/* get nvram entry value, must free it!!! */
-	value = ezcfg_nvram_get_entry_value(nvram, name);
+	ret = ezcfg_nvram_get_entry_value(nvram, name, &value);
 
 	if (value != NULL) {
 		ezcfg_nvram_unset_entry(nvram, name);
@@ -384,7 +391,12 @@ static void build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_
 		int code_index;
 		int reason_index;
 
-		err(ezcfg, "no nvram [%s]\n", name);
+		if (ret == true) {
+			err(ezcfg, "no nvram [%s]\n", name);
+		}
+		else {
+			err(ezcfg, "get nvram [%s] error\n", name);
+		}
 
 		/* clean SOAP structure info */
 		ezcfg_soap_reset_attributes(soap);

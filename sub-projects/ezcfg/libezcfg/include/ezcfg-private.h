@@ -126,7 +126,7 @@ bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_spac
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nvram_pair *settings, int num_settings);
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value);
-char *ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name);
+bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value);
 bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name);
 bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list);
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);

@@ -227,28 +227,30 @@ static bool nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
 }
 
 /* It's user's duty to free the returns string */
-static char *nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, bool *ret)
+static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
 {
 	struct ezcfg *ezcfg;
-	char *value = NULL, *p, *data;
+	char *p, *data;
 	int name_len;
 
 	ezcfg = nvram->ezcfg;
-	*ret = true;
+
 	data = nvram->buffer + sizeof(struct nvram_header);
+	name_len = strlen(name);
+	*value = NULL;
 
 	/* find nvram entry position */
 	p = find_nvram_entry_position(data, name);
 
 	if (strncmp(p, name, name_len) == 0 && *(p + name_len) == '=') {
 		/* find nvram entry */
-		value = strdup(p + name_len + 1);
-		if (value == NULL) {
+		*value = strdup(p + name_len + 1);
+		if (*value == NULL) {
 			err(ezcfg, "not enough memory for get nvram node.\n");
-			*ret = false;
+			return false;
 		}
 	}
-	return value;
+	return true;
 }
 
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
@@ -278,7 +280,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	uint32_t crc;
 	struct ezcfg_nvram_pair *nvp;
 	char *p, *q;
-	char *name, *value;
+	char *name, *value = NULL;
 	int len, i;
 	bool ret = false;
 
@@ -308,12 +310,14 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
-		value = nvram_get_entry_value(nvram, nvp->name, &ret);
-		if (value == NULL && ret == true) {
-			if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
-				err(ezcfg, "set nvram error.\n");
-				ret = false;
-				goto init_exit;
+		ret = nvram_get_entry_value(nvram, nvp->name, &value);
+		if (value == NULL) {
+			if (ret == true) {
+				if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
+					err(ezcfg, "set nvram error.\n");
+					ret = false;
+					goto init_exit;
+				}
 			}
 		}
 		else {
@@ -622,11 +626,14 @@ bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nv
 
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
+	struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
+
+	ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -640,23 +647,26 @@ bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const ch
 }
 
 /* It's user's duty to free the returns string */
-char *ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name)
+bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
 {
-	char *value;
+	struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
+	ASSERT(value != NULL);
+
+	ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
-	value = nvram_get_entry_value(nvram, name, &ret);
+	ret = nvram_get_entry_value(nvram, name, value);
 
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);
 
-	return value;
+	return ret;
 }
 
 bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)

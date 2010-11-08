@@ -240,7 +240,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 
-	/* get nvram node value */
+	/* get nvram entry value */
 	child_index = ezcfg_soap_get_element_index(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
