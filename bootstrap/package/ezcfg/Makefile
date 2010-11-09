@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=301
+PKG_REV:=343
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -92,7 +92,8 @@ define Package/ezcd/install
 	$(LN) ./sbin/ezcd $(1)/init
 	$(LN) ezcd $(1)/sbin/ezcm
 	$(LN) ezcd $(1)/sbin/nvram
-	$(CP) ./files/* $(1)/
+	$(LN) ezcd $(1)/sbin/rc
+	$(LN) ezcd $(1)/sbin/ubootenv
 endef
 
 $(eval $(call BuildPackage,libezcfg))
