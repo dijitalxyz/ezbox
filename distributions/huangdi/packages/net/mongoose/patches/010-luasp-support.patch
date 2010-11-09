@@ -1,6 +1,6 @@
 diff -urNd a/mongoose.c b/mongoose.c
 --- a/mongoose.c	2010-11-08 18:53:49.000000000 +0800
-+++ b/mongoose.c	2010-11-08 18:52:09.000000000 +0800
++++ b/mongoose.c	2010-11-09 12:08:50.000000000 +0800
 @@ -176,13 +176,20 @@
  #if !defined(NO_SSL_DL) && !defined(NO_SSL)
  #include <dlfcn.h>
@@ -22,7 +22,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  #endif
  #define DIRSEP   '/'
  #define IS_DIRSEP_CHAR(c) ((c) == '/')
-@@ -340,6 +347,74 @@
+@@ -340,6 +347,81 @@
  };
  #endif // NO_SSL_DL
  
@@ -41,6 +41,13 @@ diff -urNd a/mongoose.c b/mongoose.c
 +typedef struct lsp_io lsp_io;
 +
 +typedef struct lua_State lua_State;
++
++struct mg_lsp_ctx
++{
++  int http_header_sent;	// HTTP header sent marker
++  struct mg_connection *conn;
++};
++typedef struct mg_lsp_ctx mg_lsp_ctx;
 +
 +#define lua_open() luaL_newstate()
 +#define lua_tostring(L,i) lua_tolstring(L, (i), NULL)
@@ -97,7 +104,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static const char *month_names[] = {
    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-@@ -381,6 +456,7 @@
+@@ -381,6 +463,7 @@
  
  enum {
    CGI_EXTENSIONS, CGI_ENVIRONMENT, PUT_DELETE_PASSWORDS_FILE, CGI_INTERPRETER,
@@ -105,7 +112,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    PROTECT_URI, AUTHENTICATION_DOMAIN, SSI_EXTENSIONS, ACCESS_LOG_FILE,
    SSL_CHAIN_FILE, ENABLE_DIRECTORY_LISTING, ERROR_LOG_FILE,
    GLOBAL_PASSWORDS_FILE, INDEX_FILES,
-@@ -395,6 +471,7 @@
+@@ -395,6 +478,7 @@
    "E", "cgi_environment", NULL,
    "G", "put_delete_passwords_file", NULL,
    "I", "cgi_interpreter", NULL,
@@ -113,55 +120,76 @@ diff -urNd a/mongoose.c b/mongoose.c
    "P", "protect_uri", NULL,
    "R", "authentication_domain", "mydomain.com",
    "S", "ssi_extensions", ".shtml,.shtm",
-@@ -1382,6 +1459,16 @@
-   return mg_write(conn, buf, (size_t)len);
- }
- 
-+int mg_putc(struct mg_connection *conn, int c) {
-+  return (int) push(NULL, conn->client.sock, conn->ssl,
-+      (const char *) &c, (int64_t) sizeof(int));
-+}
-+
-+int mg_puts(struct mg_connection *conn, const char *s) {
-+  return (int) push(NULL, conn->client.sock, conn->ssl,
-+      (const char *) s, (int64_t) strlen(s));
-+}
-+
- // URL-decode input buffer into destination buffer.
- // 0-terminate the destination buffer. Return the length of decoded data.
- // form-url-encoded data differs from URI encoding in a way that it
-@@ -2953,6 +3040,30 @@
+@@ -2953,6 +3037,68 @@
  }
  #endif // !NO_CGI
  
 +#if !defined(NO_LSP)
++int mg_lsp_putc(void *ctx, int c) {
++  mg_lsp_ctx *lctx = (mg_lsp_ctx *)ctx;
++  struct mg_connection *conn = lctx->conn;
++  char cc = c;
++  int num_written = mg_write(conn, &cc, 1);
++  conn->num_bytes_sent += num_written;
++  return num_written;
++}
++
++int mg_lsp_puts(void *ctx, const char *s) {
++  mg_lsp_ctx *lctx = (mg_lsp_ctx *)ctx;
++  struct mg_connection *conn = lctx->conn;
++  int num_written = mg_write(conn, s, strlen(s));
++  conn->num_bytes_sent += num_written;
++  return num_written;
++}
++
++int mg_lsp_write(void *ctx, const char *s, size_t len) {
++  mg_lsp_ctx *lctx = (mg_lsp_ctx *)ctx;
++  struct mg_connection *conn = lctx->conn;
++  int num_written;
++  if (lctx->http_header_sent == 0) {
++    mg_printf(conn, "HTTP/1.1 200 OK\r\n"
++              "Content-Type: text/html\r\nConnection: %s\r\n\r\n",
++              suggest_connection_header(conn));
++    lctx->http_header_sent = 1;
++  }
++  num_written = mg_write(conn, s, len);
++  conn->num_bytes_sent += num_written;
++  return num_written;
++}
++
 +static void handle_lsp_file_request(struct mg_connection *conn,
 +                                    const char *path) {
-+  lua_State* L=lua_open();
-+  lsp_io lio={lctx:conn, lputs:mg_puts, lputc:mg_putc, lwrite:mg_write};
++  lua_State* L;
++  mg_lsp_ctx lsp_ctx;
++  lsp_io lio;
++
++  lsp_ctx.http_header_sent = 0;
++  lsp_ctx.conn = conn;
++
++  lio.lctx = &lsp_ctx;
++  lio.lputs = mg_lsp_puts;
++  lio.lputc = mg_lsp_putc;
++  lio.lwrite = mg_lsp_write;
++
++  L = lua_open();
++
 +  luaL_openlibs(L);
 +  luaopen_lualsp(L);
 +  luaL_lsp_set_io(L, &lio);
-+  if(luaL_do_lsp_file(L, path)) {
-+    const char* e=lua_tostring(L,-1);
-+    (void) mg_printf(conn,
-+      "HTTP/1.1 200 OK\r\n"
-+      "Server: mongoose\r\n"
-+      "Content-Type: text/html\r\n"
-+      "Connection: close\r\n"
-+      "\r\n"
-+    );
-+    mg_write(conn, e, (size_t)strlen(e));
++  if (luaL_do_lsp_file(L, path)) {
++    const char *e = lua_tostring(L,-1);
++    send_http_error(conn, 500, http_500_error, "%s", e);
 +    lua_pop(L,1);
 +  }
 +  lua_close(L);
++  conn->request_info.status_code = 200;
 +}
 +#endif
 +
  // For a given PUT path, create all intermediate subdirectories
  // for given path. Return 0 if the path itself is a directory,
  // or -1 on error, 1 if OK.
-@@ -3226,6 +3337,14 @@
+@@ -3226,6 +3372,14 @@
      } else {
        handle_cgi_request(conn, path);
      }
@@ -176,7 +204,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    } else if (match_extension(path, conn->ctx->config[SSI_EXTENSIONS])) {
      handle_ssi_file_request(conn, path);
    } else if (is_not_modified(conn, &st)) {
-@@ -3573,6 +3692,54 @@
+@@ -3573,6 +3727,54 @@
  }
  #endif // !NO_SSL
  
@@ -231,7 +259,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static int set_gpass_option(struct mg_context *ctx) {
    struct mgstat mgstat;
    const char *path = ctx->config[GLOBAL_PASSWORDS_FILE];
-@@ -4039,6 +4206,9 @@
+@@ -4039,6 +4241,9 @@
  #if !defined(NO_SSL)
        !set_ssl_option(ctx) ||
  #endif
