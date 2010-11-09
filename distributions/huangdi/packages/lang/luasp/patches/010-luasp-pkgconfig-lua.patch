@@ -4,7 +4,7 @@
  CC	= gcc
 -CFLAGS	= `pkg-config lua5.1 --cflags` -fno-rtti -fno-exceptions -DTHREAD_SAFE
 -LIBS    = `pkg-config lua5.1 --libs`
-+CFLAGS	= `pkg-config lua --cflags` -fno-rtti -fno-exceptions -DTHREAD_SAFE
++CFLAGS	= `pkg-config lua --cflags` -I. -fno-rtti -fno-exceptions -DTHREAD_SAFE
 +LIBS    = `pkg-config lua --libs`
  
  

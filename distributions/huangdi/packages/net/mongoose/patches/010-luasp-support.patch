@@ -1,6 +1,6 @@
 diff -urNd a/mongoose.c b/mongoose.c
 --- a/mongoose.c	2010-11-08 18:53:49.000000000 +0800
-+++ b/mongoose.c	2010-11-09 12:08:50.000000000 +0800
++++ b/mongoose.c	2010-11-09 17:35:45.000000000 +0800
 @@ -176,13 +176,20 @@
  #if !defined(NO_SSL_DL) && !defined(NO_SSL)
  #include <dlfcn.h>
@@ -22,7 +22,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  #endif
  #define DIRSEP   '/'
  #define IS_DIRSEP_CHAR(c) ((c) == '/')
-@@ -340,6 +347,81 @@
+@@ -340,6 +347,89 @@
  };
  #endif // NO_SSL_DL
  
@@ -58,6 +58,9 @@ diff -urNd a/mongoose.c b/mongoose.c
 +extern int luaL_do_lsp_file(lua_State* L,const char* filename);
 +extern int luaL_lsp_set_io(lua_State *L,lsp_io *io);
 +
++extern int luaopen_luajson(lua_State* L);
++extern void luaclose_luajson(void);
++
 +extern lua_State *(luaL_newstate)(void);
 +extern void (luaL_openlibs)(lua_State *L);
 +extern const char *(lua_tolstring)(lua_State *L, int idx, size_t *len);
@@ -74,6 +77,9 @@ diff -urNd a/mongoose.c b/mongoose.c
 +#define luaL_do_lsp_file (* (int (*)(lua_State*, const char*)) lsp_sw[1].ptr)
 +#define luaL_lsp_set_io (* (int (*)(lua_State *, lsp_io *)) lsp_sw[2].ptr)
 +
++#define luaopen_luajson (* (int (*)(lua_State* L)) lsp_sw[3].ptr)
++#define luaclose_luajson (* (void (*)(void)) lsp_sw[4].ptr)
++
 +#define luaL_newstate (* (lua_State * (*)(void)) lua_sw[0].ptr)
 +#define luaL_openlibs (* (void (*)(lua_State *)) lua_sw[1].ptr)
 +#define lua_tolstring (* (const char * (*)(lua_State *, int, size_t *)) lua_sw[2].ptr)
@@ -88,6 +94,8 @@ diff -urNd a/mongoose.c b/mongoose.c
 +  {"luaopen_lualsp", NULL},
 +  {"luaL_do_lsp_file", NULL},
 +  {"luaL_lsp_set_io", NULL},
++  {"luaopen_luajson", NULL},
++  {"luaclose_luajson", NULL},
 +  {NULL,    NULL}
 +};
 +
@@ -104,7 +112,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static const char *month_names[] = {
    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-@@ -381,6 +463,7 @@
+@@ -381,6 +471,7 @@
  
  enum {
    CGI_EXTENSIONS, CGI_ENVIRONMENT, PUT_DELETE_PASSWORDS_FILE, CGI_INTERPRETER,
@@ -112,7 +120,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    PROTECT_URI, AUTHENTICATION_DOMAIN, SSI_EXTENSIONS, ACCESS_LOG_FILE,
    SSL_CHAIN_FILE, ENABLE_DIRECTORY_LISTING, ERROR_LOG_FILE,
    GLOBAL_PASSWORDS_FILE, INDEX_FILES,
-@@ -395,6 +478,7 @@
+@@ -395,6 +486,7 @@
    "E", "cgi_environment", NULL,
    "G", "put_delete_passwords_file", NULL,
    "I", "cgi_interpreter", NULL,
@@ -120,7 +128,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    "P", "protect_uri", NULL,
    "R", "authentication_domain", "mydomain.com",
    "S", "ssi_extensions", ".shtml,.shtm",
-@@ -2953,6 +3037,68 @@
+@@ -2953,6 +3045,71 @@
  }
  #endif // !NO_CGI
  
@@ -175,13 +183,16 @@ diff -urNd a/mongoose.c b/mongoose.c
 +
 +  luaL_openlibs(L);
 +  luaopen_lualsp(L);
++  luaopen_luajson(L);
 +  luaL_lsp_set_io(L, &lio);
 +  if (luaL_do_lsp_file(L, path)) {
 +    const char *e = lua_tostring(L,-1);
 +    send_http_error(conn, 500, http_500_error, "%s", e);
 +    lua_pop(L,1);
 +  }
++  luaclose_luajson();
 +  lua_close(L);
++
 +  conn->request_info.status_code = 200;
 +}
 +#endif
@@ -189,7 +200,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  // For a given PUT path, create all intermediate subdirectories
  // for given path. Return 0 if the path itself is a directory,
  // or -1 on error, 1 if OK.
-@@ -3226,6 +3372,14 @@
+@@ -3226,6 +3383,14 @@
      } else {
        handle_cgi_request(conn, path);
      }
@@ -204,7 +215,7 @@ diff -urNd a/mongoose.c b/mongoose.c
    } else if (match_extension(path, conn->ctx->config[SSI_EXTENSIONS])) {
      handle_ssi_file_request(conn, path);
    } else if (is_not_modified(conn, &st)) {
-@@ -3573,6 +3727,54 @@
+@@ -3573,6 +3738,54 @@
  }
  #endif // !NO_SSL
  
@@ -259,7 +270,7 @@ diff -urNd a/mongoose.c b/mongoose.c
  static int set_gpass_option(struct mg_context *ctx) {
    struct mgstat mgstat;
    const char *path = ctx->config[GLOBAL_PASSWORDS_FILE];
-@@ -4039,6 +4241,9 @@
+@@ -4039,6 +4252,9 @@
  #if !defined(NO_SSL)
        !set_ssl_option(ctx) ||
  #endif

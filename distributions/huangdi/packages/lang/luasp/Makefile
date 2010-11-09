@@ -77,13 +77,14 @@ define Build/Install
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libluasp.so* $(PKG_INSTALL_DIR)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/mod_mongoose/libluasp-mongoose.so* $(PKG_INSTALL_DIR)/usr/lib/
-	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include
-	$(CP) $(PKG_BUILD_DIR)/llsplib.h $(PKG_INSTALL_DIR)/usr/include/
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include/luasp
+	$(CP) $(PKG_BUILD_DIR)/llsplib.h $(PKG_INSTALL_DIR)/usr/include/luasp/
+	$(CP) $(PKG_BUILD_DIR)/luajson/luajson.h $(PKG_INSTALL_DIR)/usr/include/luasp/
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/llsplib.h $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/include/luasp
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/luasp/*.h $(1)/usr/include/luasp/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp.so* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp-mongoose.so* $(1)/usr/lib/
