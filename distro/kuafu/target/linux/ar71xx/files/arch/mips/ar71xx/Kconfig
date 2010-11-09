@@ -271,6 +271,8 @@ config AR71XX_MACH_EZBOX_TL_WR740N_V4
 	select AR71XX_DEV_GPIO_BUTTONS
 	select AR71XX_DEV_LEDS_GPIO
 	select AR71XX_DEV_USB
+	select AR71XX_NVRAM
+	select AR71XX_UBOOT_ENV
 	default n
 
 endmenu
@@ -312,6 +314,9 @@ config AR71XX_DEV_USB
 	def_bool n
 
 config AR71XX_NVRAM
+	def_bool n
+
+config AR71XX_UBOOT_ENV
 	def_bool n
 
 config AR71XX_PCI_ATH9K_FIXUP

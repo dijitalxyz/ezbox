@@ -23,6 +23,8 @@
 #include "dev-gpio-buttons.h"
 #include "dev-leds-gpio.h"
 #include "dev-usb.h"
+#include "nvram.h"
+#include "uboot-env.h"
 
 #define EZBOX_TL_WR740N_V4_GPIO_LED_QSS		0
 #define EZBOX_TL_WR740N_V4_GPIO_LED_SYSTEM	1
@@ -33,6 +35,12 @@
 #define EZBOX_TL_WR740N_V4_GPIO_USB_POWER	6
 
 #define EZBOX_TL_WR740N_V4_BUTTONS_POLL_INTERVAL	20
+
+#define EZBOX_TL_WR740N_V4_UBOOT_ENV_ADDR	0x1f040000
+#define EZBOX_TL_WR740N_V4_UBOOT_ENV_SIZE	0x10000
+
+#define EZBOX_TL_WR740N_V4_NVRAM_ADDR		0x1f3e0000
+#define EZBOX_TL_WR740N_V4_NVRAM_SIZE		0x10000
 
 #ifdef CONFIG_MTD_PARTITIONS
 static struct mtd_partition ezbox_tl_wr740n_v4_partitions[] = {
@@ -110,7 +118,9 @@ static struct gpio_button ezbox_tl_wr740n_v4_gpio_buttons[] __initdata = {
 
 static void __init ezbox_tl_wr740n_v4_setup(void)
 {
-	u8 *mac = (u8 *) KSEG1ADDR(0x1f01fc00);
+	const char *nvram = (char *) KSEG1ADDR(EZBOX_TL_WR740N_V4_NVRAM_ADDR);
+	const char *ubootenv = (char *) KSEG1ADDR(EZBOX_TL_WR740N_V4_UBOOT_ENV_ADDR);
+	u8 *mac[6];
 	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
 
 	/* enable power for the USB port */
@@ -127,8 +137,16 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 					ezbox_tl_wr740n_v4_gpio_buttons);
 
 	ar71xx_eth1_data.has_ar7240_switch = 1;
-	ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 0);
-	ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 1);
+	if (nvram_parse_mac_addr(nvram, EZBOX_TL_WR740N_V4_NVRAM_SIZE,
+	                         "lan_hwaddr=", mac) == 0) {
+		ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 0);
+		ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 1);
+	}
+	else if (ubootenv_parse_mac_addr(ubootenv, EZBOX_TL_WR740N_V4_UBOOT_ENV_SIZE,
+	                         "ethaddr=", mac) == 0) {
+		ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 0);
+		ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 1);
+	}
 
 	/* WAN port */
 	ar71xx_eth0_data.phy_if_mode = PHY_INTERFACE_MODE_RMII;
