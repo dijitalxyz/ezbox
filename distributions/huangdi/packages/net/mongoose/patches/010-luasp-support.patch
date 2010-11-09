@@ -12,12 +12,12 @@ diff -urNd a/mongoose.c b/mongoose.c
  #if defined(__MACH__)
  #define SSL_LIB   "libssl.dylib"
  #define CRYPTO_LIB  "libcrypto.dylib"
-+#define LSP_LIB   "libluasp.dylib"
++#define LSP_LIB   "libluasp-mongoose.dylib"
 +#define LUA_LIB   "liblua.dylib"
  #else
  #define SSL_LIB   "libssl.so"
  #define CRYPTO_LIB  "libcrypto.so"
-+#define LSP_LIB   "libluasp.so"
++#define LSP_LIB   "libluasp-mongoose.so"
 +#define LUA_LIB   "liblua.so"
  #endif
  #define DIRSEP   '/'

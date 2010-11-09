@@ -6,7 +6,7 @@ diff -urNd a/Makefile b/Makefile
  MAC_SHARED=	-flat_namespace -bundle -undefined suppress
  LINFLAGS=	-ldl -pthread $(CFLAGS)
 +LIB_PATH=	/usr/lib
-+LINFLAGS+=	-DNO_LSP_DL -L$(LIB_PATH) -llua -lm -lcrypt -lluasp
++LINFLAGS+=	-DNO_LSP_DL -L$(LIB_PATH) -llua -lm -lcrypt -lluasp-mongoose
  LIB=		_$(PROG).so
  
  linux:

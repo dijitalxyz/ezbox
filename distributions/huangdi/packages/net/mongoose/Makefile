@@ -38,7 +38,7 @@ define Package/libmongoose
   $(call Package/mongoose/Default)
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libpthread +libopenssl +libluasp
+  DEPENDS:=+libpthread +libopenssl +libluasp-mongoose
   TITLE+= (library)
 endef
 

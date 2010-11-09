@@ -27,7 +27,7 @@ define Package/luasp/Default
   SUBMENU:=Lua Server Pages (luasp)
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=Lua Server Pages (luasp) scripting language
+  TITLE:=Lua Server Pages (luasp)
   URL:=http://code.google.com/p/luasp/
 endef
 
@@ -41,7 +41,7 @@ define Package/libluasp
   SECTION:=libs
   CATEGORY:=Libraries
   DEPENDS:=+liblua
-  TITLE+= (library)
+  TITLE+= (library common)
 endef
 
 define Package/libluasp/description
@@ -50,16 +50,33 @@ $(call Package/luasp/Default/description)
   used by other programs.
 endef
 
+define Package/libluasp-mongoose
+  $(call Package/luasp/Default)
+  SECTION:=libs
+  CATEGORY:=Libraries
+  DEPENDS:=+liblua
+  TITLE+= (library mongoose)
+endef
+
+define Package/libluasp-mongoose/description
+$(call Package/luasp/Default/description)
+  This package contains the Lua Server Pages(luasp) support shared library,
+  for mongoose web server.
+endef
+
 define Build/Configure
+	$(CP) ./files/src/mod_mongoose/ $(PKG_BUILD_DIR)/
 endef
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) CC="$(TARGET_CC)"
+	$(MAKE) -C $(PKG_BUILD_DIR)/mod_mongoose CC="$(TARGET_CC)"
 endef
 
 define Build/Install
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libluasp.so* $(PKG_INSTALL_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/mod_mongoose/libluasp-mongoose.so* $(PKG_INSTALL_DIR)/usr/lib/
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include
 	$(CP) $(PKG_BUILD_DIR)/llsplib.h $(PKG_INSTALL_DIR)/usr/include/
 endef
@@ -69,6 +86,7 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/llsplib.h $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp-mongoose.so* $(1)/usr/lib/
 endef
 
 define Package/libluasp/install
@@ -76,4 +94,10 @@ define Package/libluasp/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp.so* $(1)/usr/lib/
 endef
 
+define Package/libluasp-mongoose/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libluasp-mongoose.so* $(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,libluasp))
+$(eval $(call BuildPackage,libluasp-mongoose))
