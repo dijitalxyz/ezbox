@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=343
+PKG_REV:=351
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -28,48 +28,42 @@ include $(INCLUDE_DIR)/package.mk
 # set to 1 to enable debugging
 DEBUG=0
 
-define Package/ezcfg/Default
-  SUBMENU:=ezcfg
+define Package/ezcfg
+  SECTION:=base
+  CATEGORY:=Base system
+  MAINTAINER:=Zeta Labs <zetalabs@gmail.com>
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
+  MENU:=1
 endef
 
-define Package/ezcfg/Default/description
+define Package/ezcfg/description
   ezcfg is an easy to use config utility for ezbox.
   It can be used to configurate your ezbox system.
 endef
 
-define Package/libezcfg
-  $(call Package/ezcfg/Default)
-  SECTION:=libs
-  CATEGORY:=Base system
-  DEPENDS:=+libpthread
-  TITLE+= (library)
+define Package/ezcfg/config
+	source "$(SOURCE)/Config.in"
 endef
 
-define Package/libezcfg/description
-  $(call Package/ezcfg/Default/description)
-  This package contains the ezcfg shared library, used by other
-  programs.
-endef
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_KUAFU),)
+  EZBOX_DISTRO = "kuafu"
+endif
 
-define Package/ezcd
-  $(call Package/ezcfg/Default)
-  SECTION:=base
-  CATEGORY:=Base system
-  DEPENDS:=+libezcfg
-  TITLE+= (binary -- ezbox config daemon (EZCD))
-endef
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_JINGWEI),)
+  EZBOX_DISTRO = "jingwei"
+endif
 
-define Package/ezcd/description
-  $(call Package/ezcfg/Default/description)
-  This package contains the ezcfg utility binary.
-endef
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI),)
+  EZBOX_DISTRO = "huangdi"
+endif
+
+CONFIGURE_ARGS += \
+	--with-ezbox-distro=$(EZBOX_DISTRO)
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
 	$(call Build/Configure/Default, )
-
 endef
 
 define Build/Compile
@@ -81,13 +75,10 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/libezcfg/*.h $(1)/usr/include/libezcfg
 endef
 
-define Package/libezcfg/install
+define Package/ezcfg/install
 	$(INSTALL_DIR) $(1)/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib
-endef
-
-define Package/ezcd/install
 	$(INSTALL_DIR) $(1)/sbin
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
 	$(LN) ./sbin/ezcd $(1)/init
 	$(LN) ezcd $(1)/sbin/ezcm
@@ -96,5 +87,4 @@ define Package/ezcd/install
 	$(LN) ezcd $(1)/sbin/ubootenv
 endef
 
-$(eval $(call BuildPackage,libezcfg))
-$(eval $(call BuildPackage,ezcd))
+$(eval $(call BuildPackage,ezcfg))
