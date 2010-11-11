@@ -24,12 +24,24 @@ AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Configure variables: EZBOX_DISTRO.
-AC_ARG_VAR([EZBOX_DISTRO_DEFINE], ["which distro ezcfg is built for."])
+AC_ARG_WITH([ezbox-distro],
+	AS_HELP_STRING([--with-ezbox-distro=kuafu], [which distro ezcfg is built for]),
+	[], [with_ezbox_distro=kuafu])
+if test "x$with_ezbox_distro" = xkuafu; then
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
+fi
+if test "x$with_ezbox_distro" = xjingwei; then
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_JINGWEI"
+fi
+if test "x$with_ezbox_distro" = xhuangdi; then
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_HUANGDI"
+fi
+AC_SUBST([EZBOX_DISTRO_DEFINE])
 
 # Not specified?
-if test -z "$EZBOX_DISTRO"; then
+if test -z "$EZBOX_DISTRO_DEFINE"; then
 	# Set to kuafu distro
-	EZBOX_DISTRO_DEFINE="-DEZCFG_EZBOX_DISTRO=EZCFG_EZBOX_DISTRO_KUAFU"
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
 # Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
