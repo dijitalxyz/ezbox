@@ -23,6 +23,15 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+# Configure variables: EZBOX_DISTRO.
+AC_ARG_VAR([EZBOX_DISTRO_DEFINE], ["which distro ezcfg is built for."])
+
+# Not specified?
+if test -z "$EZBOX_DISTRO"; then
+	# Set to kuafu distro
+	EZBOX_DISTRO_DEFINE="-DEZCFG_EZBOX_DISTRO=EZCFG_EZBOX_DISTRO_KUAFU"
+fi
+
 # Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
 AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.so is at])
 AC_ARG_VAR([LIBEZCFG_INC], [where ezcfg.h is at])
@@ -154,4 +163,5 @@ AC_MSG_RESULT([
 	libezcfg_lib:		${LIBEZCFG_LIB:-INSTALLED}
 	libezcfg_inc:		${LIBEZCFG_INC:-INSTALLED}
 	libezcfg_api_inc:	${LIBEZCFG_API_INC:-INSTALLED}
+	distro define:		${EZBOX_DISTRO_DEFINE}
 ])

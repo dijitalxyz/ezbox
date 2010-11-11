@@ -79,7 +79,7 @@ ezcd_SOURCES += src/rc/rc_wan.c
 
 ezcd_DEPENDENCIES = libezcfg.so
 
-ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
+ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LIBEZCFG_LIBS)
 
 # pkgconfigdir = $(libdir)/pkgconfig

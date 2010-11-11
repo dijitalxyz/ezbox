@@ -23,7 +23,7 @@ libezcfginclude_HEADERS = \
 
 lib_LTLIBRARIES = libezcfg.la
 
-libezcfg_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(srcdir)/api/include
+libezcfg_la_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) -I$(srcdir)/api/include
 
 libezcfg_la_LDFLAGS = \
 	--version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \

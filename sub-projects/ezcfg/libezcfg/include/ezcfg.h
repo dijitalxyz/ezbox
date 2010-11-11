@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "ezcfg-ezbox_distro.h"
+
 #ifdef EZCFG_DEBUG
 #include <assert.h>
 #define ASSERT(exp) assert(exp)   

@@ -22,6 +22,15 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
+# Configure variables: EZBOX_DISTRO.
+AC_ARG_VAR([EZBOX_DISTRO_DEFINE], ["which distro ezcfg is built for."])
+
+# Not specified?
+if test -z "$EZBOX_DISTRO"; then
+	# Set to kuafu distro
+	EZBOX_DISTRO_DEFINE="-DEZCFG_EZBOX_DISTRO=EZCFG_EZBOX_DISTRO_KUAFU"
+fi
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -102,4 +111,5 @@ AC_MSG_RESULT([
 	compiler:		${CC}
 	cflags:			${CFLAGS}
 	ldflags:		${LDFLAGS}
+	distro define:		${EZBOX_DISTRO_DEFINE}
 ])
