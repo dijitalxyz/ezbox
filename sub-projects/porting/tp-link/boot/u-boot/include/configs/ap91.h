@@ -168,7 +168,7 @@
 #define CONFIG_IPADDR   192.168.1.1
 #define CONFIG_SERVERIP 192.168.1.253
 
-#define CONFIG_ETHADDR 0x00:0x03:0x7f:0x09:0x0b:0xad /* default MAC address */
+#define CONFIG_ETHADDR 0x00:0xaa:0xbb:0xcc:0xdd:0xee /* default MAC address */
 #define CFG_FAULT_ECHO_LINK_DOWN    1
 
 
