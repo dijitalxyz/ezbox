@@ -170,7 +170,6 @@
 
 #define CONFIG_ETHADDR 0x00:0x03:0x7f:0x09:0x0b:0xad /* default MAC address */
 #define CFG_FAULT_ECHO_LINK_DOWN    1
-#define CONFIG_OVERWRITE_ETHADDR_ONCE 1 /* default MAC can be overwritten once */
 
 
 #define CFG_PHY_ADDR 0 
@@ -211,6 +210,10 @@
 #if (CONFIG_MACHINE_TYPE==TPLINK_TL_WR740N_V4)
 #undef CONFIG_BOOTARGS
 #define	CONFIG_BOOTARGS     "console=ttyS0,115200 board=EZBOX-TL-WR740N-v4"
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"serial#=########\0" \
+	"pin#=########\0"
 #endif
 
 #endif	/* __CONFIG_H */

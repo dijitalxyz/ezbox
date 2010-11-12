@@ -184,10 +184,11 @@ int _do_setenv (int flag, int argc, char *argv[])
 #ifndef CONFIG_ENV_OVERWRITE
 
 		/*
-		 * Ethernet Address and serial# can be set only once,
+		 * Ethernet Address, pin# and serial# can be set only once,
 		 * ver is readonly.
 		 */
 		if ( (strcmp (name, "serial#") == 0) ||
+		     (strcmp (name,    "pin#") == 0) ||
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
