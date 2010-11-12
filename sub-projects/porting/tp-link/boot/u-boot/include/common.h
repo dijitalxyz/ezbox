@@ -537,6 +537,8 @@ long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...);
 int	sprintf(char * buf, const char *fmt, ...);
 int	vsprintf(char *buf, const char *fmt, va_list args);
+int	sscanf(const char * buf, const char * fmt, ...);
+int	vsscanf(const char * buf, const char * fmt, va_list args);
 
 /* lib_generic/crc32.c */
 ulong crc32 (ulong, const unsigned char *, uint);
