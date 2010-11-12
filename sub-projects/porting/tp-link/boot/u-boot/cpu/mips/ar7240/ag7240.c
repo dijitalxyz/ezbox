@@ -347,6 +347,30 @@ ag7240_mac_addr_loc(void)
 #endif
 }
 
+static int is_valid_mac(unsigned char mac[6])
+{
+    /* Multicast MAC address */
+    if ((mac[0] & 0x01) == 0x01) {
+        return 0;
+    }
+
+    /* all 0x00 */
+    if (mac[0] == 0x00 && mac[1] == 0x00 && mac[2] == 0x00 &&
+        mac[3] == 0x00 && mac[4] == 0x00 && mac[5] == 0x00) {
+        return 0;
+    }
+
+    /* all 0xFF, covered by multicast MAC address */
+#if 0
+    if (mac[0] == 0xff && mac[1] == 0xff && mac[2] == 0xff &&
+        mac[3] == 0xff && mac[4] == 0xff && mac[5] == 0xff) {
+        return 0;
+    }
+#endif
+
+    return 1;
+}
+
 static void ag7240_get_ethaddr(struct eth_device *dev)
 {
     unsigned char eeprom[12];
@@ -355,9 +379,8 @@ static void ag7240_get_ethaddr(struct eth_device *dev)
 
     ethaddr = ag7240_mac_addr_loc();
 
-    /* Use uboot-env ethaddr if the eeprom address is ivalid */
-    if ((ethaddr[0] == 0xff && ethaddr[5] == 0xff) ||
-        (ethaddr[0] == 0x00 && ethaddr[1] == 0x00 && ethaddr[3] == 0x00)) {
+    /* Use uboot-env ethaddr if the eeprom address is invalid */
+    if (is_valid_mac(ethaddr) == 0) {
         ethaddr = getenv("ethaddr");
         if (ethaddr == NULL) {
             memset(eeprom, 0, sizeof(eeprom));
@@ -389,9 +412,7 @@ static void ag7240_get_ethaddr(struct eth_device *dev)
     }
 
     /* Use fixed address if the above address is invalid */
-    //if (mac[0] != 0x00 || (mac[0] == 0xff && mac[5] == 0xff)) {
-    if ((mac[0] == 0xff && mac[5] == 0xff) ||
-        (mac[0] == 0x00 && mac[1] == 0x00 && mac[3] == 0x00)) {
+    if (is_valid_mac(mac) == 0) {
         mac[0] = 0x00;
         mac[1] = 0x03;
         mac[2] = 0x7f;
