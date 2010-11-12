@@ -16,7 +16,7 @@ ar7240_usb_initial_config(void)
     ar7240_reg_wr_nf(AR7240_USB_PLL_CONFIG, 0x0804081e);
 }
 
-void ar7240_gpio_config()
+void ar7240_gpio_config(void)
 {
     /* Disable clock obs */
     ar7240_reg_wr (AR7240_GPIO_FUNC, (ar7240_reg_rd(AR7240_GPIO_FUNC) & 0xffe7e0ff));

@@ -373,7 +373,9 @@ void athrs26_reg_init_lan(void)
 
     athr26_init_flag1 = 1;
 }
+#if 0
 static unsigned int phy_val_saved = 0;
+#endif
 /******************************************************************************
 *
 * athrs26_phy_is_link_alive - test to see if the specified link is alive
@@ -848,7 +850,7 @@ void s26_wr_phy(unsigned int phy_addr, unsigned int reg_addr, unsigned int write
 }
 
 int
-athrs26_mdc_check()
+athrs26_mdc_check(void)
 {
     int i;
 

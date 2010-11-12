@@ -151,6 +151,9 @@ image_header_t header;
 ulong load_addr = CFG_LOAD_ADDR;		/* Default Load Address */
 
 #if 1	/* changed by lqm, 18Jan08 */
+#if defined(CONFIG_AR7100) || defined(CONFIG_AR7240)
+extern void mips_cache_flush(void);
+#endif
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	ulong	iflag;

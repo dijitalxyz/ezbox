@@ -28,6 +28,13 @@ extern unsigned		in_le32 (volatile unsigned *addr);
 extern void		out_8 (volatile unsigned *addr, char val);
 extern void		out_le16 (volatile unsigned *addr, unsigned short val);
 extern void		out_le32 (volatile unsigned *addr, unsigned int val);
+#else
+extern u8		in_8 (volatile u8 *addr);
+extern u16		in_le16 (volatile u16 *addr);
+extern u32		in_le32 (volatile u32 *addr);
+extern void		out_8 (volatile u8 *addr, u8 val);
+extern void		out_le16 (volatile u16 *addr, u16 val);
+extern void		out_le32 (volatile u32 *addr, u32 val);
 #endif	/* CONFIG_IXP425 */
 
 #if defined(CONFIG_MPC8260)

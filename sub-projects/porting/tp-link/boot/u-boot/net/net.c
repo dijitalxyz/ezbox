@@ -511,7 +511,9 @@ restart:
 	 *	Main packet reception loop.  Loop receiving packets until
 	 *	someone sets `NetState' to a state that terminates.
 	 */
+#if defined(CFG_ATHRS26_PHY) && defined(CFG_ATHRHDR_EN)
 skip_netloop:
+#endif
 	for (;;) {
 		WATCHDOG_RESET();
 #ifdef CONFIG_SHOW_ACTIVITY

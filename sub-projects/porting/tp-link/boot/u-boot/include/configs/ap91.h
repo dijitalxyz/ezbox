@@ -195,7 +195,7 @@
 ** NOTE: **This will change with different flash configurations**
 */
 
-#define WLANCAL                        0xbfff1000
+#define WLANCAL                         0xbfff1000
 #define BOARDCAL                        0xbfff0000
 #define ATHEROS_PRODUCT_ID              138
 #define CAL_SECTOR                      (CFG_MAX_FLASH_SECT - 1)

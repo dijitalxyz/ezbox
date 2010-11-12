@@ -62,10 +62,10 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+extern void dcache_flush_range(u32 start, u32 end);
 void flush_cache (ulong start_addr, ulong size)
 {
-	u32 end, a;
-    int i;
+    u32 end, a;
 
     a = start_addr & ~(CFG_CACHELINE_SIZE - 1);
     size = (size + CFG_CACHELINE_SIZE - 1) & ~(CFG_CACHELINE_SIZE - 1);

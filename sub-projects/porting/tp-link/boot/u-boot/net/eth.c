@@ -53,6 +53,12 @@ extern int rtl8169_initialize(bd_t*);
 extern int scc_initialize(bd_t*);
 extern int skge_initialize(bd_t*);
 extern int tsec_initialize(bd_t*, int, char *);
+#if defined(CONFIG_AR7100)
+extern int ag7100_enet_initialize(bd_t*);
+#endif
+#if defined(CONFIG_AR7240)
+extern int ag7240_enet_initialize(bd_t*);
+#endif
 
 static struct eth_device *eth_devices, *eth_current;
 
@@ -232,10 +238,10 @@ int eth_initialize(bd_t *bis)
 	rtl8169_initialize(bis);
 #endif
 #if defined(CONFIG_AR7100)
-    ag7100_enet_initialize(bis);
+	ag7100_enet_initialize(bis);
 #endif
 #if defined(CONFIG_AR7240)
-    ag7240_enet_initialize(bis);
+	ag7240_enet_initialize(bis);
 #endif
 
 	if (!eth_devices) {

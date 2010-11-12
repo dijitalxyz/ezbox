@@ -27,15 +27,19 @@
 
 static struct pci_controller hose;
 
+#if 0
 static int  ar7240_local_read_config(int where, int size, uint32_t *value);
+#endif
 static int  ar7240_local_write_config(int where, int size, uint32_t value);
 
+#if 0
 static int
 ar7240_local_read_config(int where, int size, uint32_t *value)
 {
     *value = ar7240_reg_rd(AR7240_PCI_CRP + where);
     return 0;
 }
+#endif
 
 static int
 ar7240_local_write_config(int where, int size, uint32_t value)
@@ -93,8 +97,8 @@ void plat_dev_init(void)
     ** Need to setup the PCI device to access the internal registers
     */
 
-    ar7240_pci_write_config(&hose, NULL, 0x10, 0xffff);
-    ar7240_pci_write_config(&hose, NULL, 0x04, 0x6);
+    ar7240_pci_write_config(&hose, (pci_dev_t)NULL, 0x10, 0xffff);
+    ar7240_pci_write_config(&hose, (pci_dev_t)NULL, 0x04, 0x6);
     
     /*
     ** Set pointer to first reg address

@@ -452,9 +452,12 @@ xyzModem_get_hdr(void)
 int 
 xyzModem_stream_open(connection_info_t *info, int *err)
 {
-    int console_chan, stat=0;
+    int stat=0;
     int retries = xyzModem_MAX_RETRIES;
     int crc_retries = xyzModem_MAX_RETRIES_WITH_CRC;
+#ifdef REDBOOT
+    int console_chan;
+#endif
 
 //    ZM_DEBUG(zm_out = zm_out_start);
 #ifdef xyzModem_zmodem

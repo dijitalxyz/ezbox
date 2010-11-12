@@ -60,7 +60,7 @@ int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if !defined(CONFIG_NIOS)
 	if (argc > 2 && argv[2][0] == 'b') {
 		printf ("## Board info at 0x%08lX ...\n", gd->bd);
-		rc = ((ulong (*)(int, int, int, int))addr)(gd->bd, 0, 0, 0);
+		rc = ((ulong (*)(int, int, int, int))addr)((int)(gd->bd), 0, 0, 0);
 	} else {
 		rc = ((ulong (*)(int, char *[]))addr) (--argc, &argv[1]);
 	}
