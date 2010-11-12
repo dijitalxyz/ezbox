@@ -195,7 +195,7 @@ static void ag7240_hw_start(ag7240_mac_t *mac)
 
 static int ag7240_check_link(ag7240_mac_t *mac)
 {
-    u32 link, duplex, speed, fdx;
+    u32 link, duplex, speed;
 
     ag7240_phy_link(mac->mac_unit, link, duplex, speed);
     ag7240_phy_duplex(mac->mac_unit,duplex);
@@ -329,45 +329,69 @@ static void ag7240_halt(struct eth_device *dev)
     while (ag7240_reg_rd(mac, AG7240_DMA_RX_CTRL));
 }
 
+extern flash_info_t flash_info[];
 unsigned char *
 ag7240_mac_addr_loc(void)
 {
-	extern flash_info_t flash_info[];
-
 #ifdef BOARDCAL
     /*
     ** BOARDCAL environmental variable has the address of the cal sector
     */
     
     return ((unsigned char *)BOARDCAL);
-    
 #else
-	/* MAC address is store in the 2nd 4k of last sector */
-	return ((unsigned char *)
-		(KSEG1ADDR(AR7240_SPI_BASE) + (4 * 1024) +
-		flash_info[0].size - (64 * 1024) /* sector_size */ ));
+    /* MAC address is store in the 2nd 4k of last sector */
+    return ((unsigned char *)
+        (KSEG1ADDR(AR7240_SPI_BASE) + (4 * 1024) +
+        flash_info[0].size - (64 * 1024) /* sector_size */ ));
 #endif
 }
 
 static void ag7240_get_ethaddr(struct eth_device *dev)
 {
-    unsigned char *eeprom;
+    unsigned char eeprom[12];
+    unsigned char *ethaddr;
     unsigned char *mac = dev->enetaddr;
 
-    eeprom = ag7240_mac_addr_loc();
+    ethaddr = ag7240_mac_addr_loc();
+
+    /* Use uboot-env ethaddr if the eeprom address is ivalid */
+    if ((ethaddr[0] == 0xff && ethaddr[5] == 0xff) ||
+        (ethaddr[0] == 0x00 && ethaddr[1] == 0x00 && ethaddr[3] == 0x00)) {
+        ethaddr = getenv("ethaddr");
+        if (ethaddr == NULL) {
+            memset(eeprom, 0, sizeof(eeprom));
+        } else if (sscanf(ethaddr, "0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx",
+            &eeprom[0], &eeprom[1], &eeprom[2], &eeprom[3], &eeprom[4], &eeprom[5]) != 6) {
+            memset(eeprom, 0, sizeof(eeprom));
+        } else {
+            u32 t;
+            t = (((u32) eeprom[3]) << 16) + (((u32) eeprom[4]) << 8) + ((u32) eeprom[5]);
+            t += 1;
+            eeprom[6] = eeprom[0];
+            eeprom[7] = eeprom[1];
+            eeprom[8] = eeprom[2];
+            eeprom[9] = (t >> 16) & 0xff;
+            eeprom[10] = (t >> 8) & 0xff;
+            eeprom[11] = t & 0xff;
+        }
+    } else {
+        memcpy(eeprom, ethaddr, sizeof(eeprom));
+    }
 
     if (strcmp(dev->name, "eth0") == 0) {
         memcpy(mac, eeprom, 6);
     } else if (strcmp(dev->name, "eth1") == 0) {
-        eeprom += 6;
-        memcpy(mac, eeprom, 6);
+        memcpy(mac, eeprom+6, 6);
     } else {
         printf("%s: unknown ethernet device %s\n", __func__, dev->name);
         return;
     }
 
     /* Use fixed address if the above address is invalid */
-    if (mac[0] != 0x00 || (mac[0] == 0xff && mac[5] == 0xff)) {
+    //if (mac[0] != 0x00 || (mac[0] == 0xff && mac[5] == 0xff)) {
+    if ((mac[0] == 0xff && mac[5] == 0xff) ||
+        (mac[0] == 0x00 && mac[1] == 0x00 && mac[3] == 0x00)) {
         mac[0] = 0x00;
         mac[1] = 0x03;
         mac[2] = 0x7f;
@@ -376,7 +400,7 @@ static void ag7240_get_ethaddr(struct eth_device *dev)
         mac[5] = 0xad;
         printf("No valid address in Flash. Using fixed address\n");
     } else {
-        printf("Fetching MAC Address from 0x%p\n", __func__, eeprom);
+        printf("Fetching MAC Address from 0x%p\n", __func__, ethaddr);
     }
 }
 
