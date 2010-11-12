@@ -36,6 +36,8 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <sys/ioctl.h>
+#include <mtd/mtd-user.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -71,7 +73,7 @@
  **************************************************************************
  */
 
-#if 0
+#if 1
 #define DBG printf
 #else
 #define DBG(format, args...)
@@ -92,7 +94,7 @@ typedef struct ubootenv_info_s {
 	char ubootenv2_dev_name[16];
 } ubootenv_info_t;
 
-static void init_ubootenv_info(ubootenv_info_t *info)
+static int init_ubootenv_info(ubootenv_info_t *info)
 {
 	char line[128];
 	int index;
@@ -101,7 +103,7 @@ static void init_ubootenv_info(ubootenv_info_t *info)
 	char name[64];
 	FILE *fp = fopen("/proc/mtd", "r");
 	if (fp == NULL) {
-		return;
+		return -EZCFG_E_RESOURCE;
 	}
 	if (fgets(line, sizeof(line), fp) != (char *) NULL) {
 		/* read mtd device info */
@@ -123,6 +125,149 @@ static void init_ubootenv_info(ubootenv_info_t *info)
 		}
 	}
 	fclose(fp);
+	return 0;
+}
+
+static char *find_entry_position(const char *data, char *name)
+{
+	int name_len, entry_len, cmp_len;
+	char *entry;
+
+	entry = data;
+	name_len = strlen(name);
+
+	while (*entry != '\0') {
+		entry_len = strlen(entry) + 1;
+		cmp_len = (entry_len > name_len) ? name_len : entry_len ;
+		if (strncmp(name, entry, cmp_len) == 0 &&
+		    *(entry + cmp_len) == '=') {
+			break;
+		}
+		else {
+			entry += entry_len;
+		}
+	}
+	return entry;
+}
+
+static int read_ubootenv(ubootenv_info_t info, char *buf, size_t len)
+{
+	FILE *fp;
+
+	fp = fopen(info.ubootenv_dev_name, "r");
+	if (fp == NULL) {
+		return -EZCFG_E_RESOURCE;
+	}
+
+	/* read u-boot environment data */
+	fread(buf, info.ubootenv_size, 1, fp);
+	fclose(fp);
+
+	return 0;
+}
+
+static int erase_ubootenv(ubootenv_info_t info)
+{
+	int mtd_fd;
+	mtd_info_t mtd_info;
+	erase_info_t erase_info;
+
+	mtd_fd = open(info.ubootenv_dev_name, O_RDWR);
+	if (mtd_fd < 0) {
+		perror(info.ubootenv_dev_name);
+		return errno;
+	}
+
+	if (ioctl(mtd_fd, MEMGETINFO, &mtd_info) != 0) {
+		perror(info.ubootenv_dev_name);
+		close(mtd_fd);
+		return errno;
+	}
+
+	erase_info.length = mtd_info.erasesize;
+	for (erase_info.start = 0;
+	     erase_info.start < mtd_info.size;
+	     erase_info.start += mtd_info.erasesize) {
+		(void) ioctl(mtd_fd, MEMUNLOCK, &erase_info);
+		if (ioctl(mtd_fd, MEMERASE, &erase_info) != 0) {
+			perror(info.ubootenv_dev_name);
+			close(mtd_fd);
+			return errno;
+		}
+	}
+
+        close(mtd_fd);
+
+	return 0;
+}
+
+typedef struct nv_pair_s {
+	char *name;
+	char *value;
+} nv_pair_t;
+
+static nv_pair_t checklist[] = {
+	{ "ethaddr", "0x00:0xaa:0xbb:0xcc:0xdd:0xee" },
+	{ "serial#", "########" },
+	{ "pin#", "########" },
+	{ NULL, NULL },
+};
+	
+static int check_ubootenv_name(char *tmp, char *name)
+{
+	nv_pair_t *cp;
+	char *value;
+	for (cp = checklist; cp->name != NULL; cp++) {
+		if (strcmp(cp->name, name) == 0) {
+			value = tmp+strlen(name)+1;
+			if (strcmp(cp->value, value) != 0) {
+				return -1;
+			}
+		}
+	}
+	return 0;
+}
+
+static int write_ubootenv(ubootenv_info_t info, const char *buf, size_t len)
+{
+	int mtd_fd, count;
+	mtd_info_t mtd_info;
+	erase_info_t erase_info;
+
+	mtd_fd = open(info.ubootenv_dev_name, O_RDWR);
+	if (mtd_fd < 0) {
+		perror(info.ubootenv_dev_name);
+		return errno;
+	}
+
+	if (ioctl(mtd_fd, MEMGETINFO, &mtd_info) != 0) {
+		perror(info.ubootenv_dev_name);
+		close(mtd_fd);
+		return errno;
+	}
+
+	erase_info.length = mtd_info.erasesize;
+	for (erase_info.start = 0;
+	     erase_info.start < mtd_info.size;
+	     erase_info.start += mtd_info.erasesize) {
+		(void) ioctl(mtd_fd, MEMUNLOCK, &erase_info);
+		if (ioctl(mtd_fd, MEMERASE, &erase_info) != 0) {
+			perror(info.ubootenv_dev_name);
+			close(mtd_fd);
+			return errno;
+		}
+		count = len > erase_info.length ? erase_info.length : len ;
+		if (write(mtd_fd, buf+erase_info.start, count) != count) {
+			perror(info.ubootenv_dev_name);
+			close(mtd_fd);
+			return errno;
+		}
+		len -= count;
+	}
+
+        close(mtd_fd);
+
+	return 0;
 }
 
 /**
@@ -135,17 +280,82 @@ static void init_ubootenv_info(ubootenv_info_t *info)
 int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
 {
 	int rc = 0;
+	char *buf = NULL;
+	char *data = NULL, *end = NULL;
+	char *tmp = NULL;
+	int name_len, entry_len, cmp_len;
+	uint32_t crc = 0;
 	ubootenv_info_t info;
 
-	memset(&info, 0, sizeof(info));
-	init_ubootenv_info(&info);
-
-	if (info.ubootenv_redundant == false) {
-
-	} else {
-
+	/* check if name is valid */
+	if (name == NULL || value == NULL) {
+		return -EZCFG_E_PARSE;
 	}
-		
+	name_len = strlen(name);
+	if (name_len < 1 || len < 1) {
+		return -EZCFG_E_PARSE;
+	}
+
+	memset(&info, 0, sizeof(info));
+	rc = init_ubootenv_info(&info);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	buf = (char *)malloc(info.ubootenv_size);
+	if (buf == NULL) {
+		rc = -EZCFG_E_SPACE;
+		goto func_out;
+	}
+	memset(buf, 0, info.ubootenv_size);
+
+	/* read u-boot environment data */
+	rc = read_ubootenv(info, buf, info.ubootenv_size);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	data = buf + sizeof(uint32_t);
+	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc ^= *(uint32_t *)(buf);
+	if (crc != 0) {
+		rc = -EZCFG_E_CRC;
+		goto func_out;
+	}
+	crc = *(uint32_t *)(buf);
+
+	/* find \0\0 string */
+	end = data+1;
+	while (end < (buf + info.ubootenv_size) &&
+	       (*(end-1) != '\0' || *end != '\0')) end++;
+	if (end == (buf + info.ubootenv_size)) {
+		rc = -EZCFG_E_PARSE;
+		goto func_out;
+	}
+
+	tmp = find_entry_position(data, name);
+	entry_len = strlen(tmp) + 1;
+	cmp_len = (entry_len > name_len) ? name_len : entry_len ;
+	if (*tmp != '\0' &&
+	    strncmp(tmp, name, cmp_len) == 0 &&
+	    *(tmp + cmp_len) == '=') {
+		/* find the entry */
+		entry_len = strlen(tmp) + 1;
+		if ((entry_len - (name_len + 1)) > len) {
+			rc = -EZCFG_E_SPACE;
+			goto func_out;
+		}
+		snprintf(value, len, "%s", tmp + name_len + 1);
+	}
+	else {
+		rc = -EZCFG_E_PARSE;
+		goto func_out;
+	}
+
+func_out:
+	if (buf != NULL) {
+		free(buf);
+	}
 	return rc;
 }
 
@@ -158,17 +368,108 @@ int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
 int ezcfg_api_ubootenv_set(const char *name, const char *value)
 {
 	int rc = 0;
+	char *buf = NULL;
+	char *data = NULL, *end = NULL;
+	char *tmp = NULL;
+	int name_len, entry_len, cmp_len, new_entry_len = 0;
+	uint32_t crc = 0;
 	ubootenv_info_t info;
 
-	memset(&info, 0, sizeof(info));
-	init_ubootenv_info(&info);
-
-	if (info.ubootenv_redundant == false) {
-
-	} else {
-
+	/* check if name is valid */
+	if (name == NULL) {
+		return -EZCFG_E_PARSE;
 	}
-		
+	name_len = strlen(name);
+	if (name_len < 1) {
+		return -EZCFG_E_PARSE;
+	}
+
+	if (value != NULL) {
+		new_entry_len = name_len + strlen(value) + 2;
+	}
+
+	memset(&info, 0, sizeof(info));
+	rc = init_ubootenv_info(&info);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	buf = (char *)malloc(info.ubootenv_size);
+	if (buf == NULL) {
+		rc = -EZCFG_E_SPACE;
+		goto func_out;
+	}
+	memset(buf, 0, info.ubootenv_size);
+
+	/* read u-boot environment data */
+	rc = read_ubootenv(info, buf, info.ubootenv_size);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	data = buf + sizeof(uint32_t);
+	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc ^= *(uint32_t *)(buf);
+	if (crc != 0) {
+		rc = -EZCFG_E_CRC;
+		goto func_out;
+	}
+	crc = *(uint32_t *)(buf);
+
+	/* find \0\0 string */
+	end = data+1;
+	while (end < (buf + info.ubootenv_size) &&
+	       (*(end-1) != '\0' || *end != '\0')) end++;
+	if (end == (buf + info.ubootenv_size)) {
+		rc = -EZCFG_E_PARSE;
+		goto func_out;
+	}
+
+	/* first remove the entry */
+	tmp = find_entry_position(data, name);
+	entry_len = strlen(tmp) + 1;
+	cmp_len = (entry_len > name_len) ? name_len : entry_len ;
+	if (*tmp != '\0' &&
+	    strncmp(tmp, name, cmp_len) == 0 &&
+	    *(tmp + cmp_len) == '=') {
+		/* check if we can rewrite the entry */
+		rc = check_ubootenv_name(tmp, name);
+		if (rc < 0) {
+			goto func_out;
+		}
+		/* unset the entry */
+		memmove(tmp, tmp + entry_len, (end + 1) - (tmp + entry_len));
+		/* end pointer move to new \0\0 place */
+		end -= entry_len;
+	}
+
+	if ((buf + info.ubootenv_size) - end < new_entry_len) {
+		/* not enough space */
+		rc = -EZCFG_E_SPACE;
+		goto func_out;
+	}
+
+	/* then add the new entry */
+	if (value != NULL) {
+		/* add new entry */
+		sprintf(end, "%s=%s", name, value);
+		/* end pointer move to new \0\0 place */
+		end += new_entry_len;
+	}
+
+	/* clean remain part */
+	memset(end, '\0', info.ubootenv_size - (end - data));
+	/* update crc */
+	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	*(uint32_t *)(buf) = crc;
+
+	/* write to u-boot env sect */
+	write_ubootenv(info, buf, info.ubootenv_size);
+
+func_out:
+	if (buf != NULL) {
+		free(buf);
+	}
 	return rc;
 }
 
@@ -181,7 +482,6 @@ int ezcfg_api_ubootenv_set(const char *name, const char *value)
 int ezcfg_api_ubootenv_list(char *list, size_t len)
 {
 	int rc = 0;
-	FILE *fp = NULL;
 	char *buf = NULL;
 	char *data = NULL, *end = NULL;
 	char *tmp = NULL;
@@ -193,48 +493,52 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 	}
 
 	memset(&info, 0, sizeof(info));
-	init_ubootenv_info(&info);
-
-	if (info.ubootenv_redundant == false) {
-		fp = fopen(info.ubootenv_dev_name, "r");
-		if (fp == NULL) {
-			rc = -EZCFG_E_RESOURCE;
-			goto func_out;
-		}
-		buf = (char *)malloc(info.ubootenv_size);
-		if (buf == NULL) {
-			rc = -EZCFG_E_SPACE;
-			goto func_out;
-		}
-		memset(buf, 0, info.ubootenv_size);
-		fread(buf, info.ubootenv_size, 1, fp);
-		crc = *(uint32_t *)(buf);
-		data = buf + sizeof(uint32_t);
-
-		/* find \0\0 string */
-		end = data+1;
-		while (end < (buf + info.ubootenv_size) &&
-		       (*(end-1) != '\0' || *end != '\0')) end++;
-		if (end == (buf + info.ubootenv_size)) {
-			rc = -EZCFG_E_PARSE;
-			goto func_out;
-		}
-
-		tmp = data;
-		while (len > 1 && tmp != end) {
-			*list = *tmp == '\0' ? '\n' : *tmp ;
-			list++;
-			tmp++;
-			len--;
-		}
-		*list = '\0';
-	} else {
-
+	rc = init_ubootenv_info(&info);
+	if (rc < 0) {
+		goto func_out;
 	}
+
+	buf = (char *)malloc(info.ubootenv_size);
+	if (buf == NULL) {
+		rc = -EZCFG_E_SPACE;
+		goto func_out;
+	}
+	memset(buf, 0, info.ubootenv_size);
+
+	/* read u-boot environment data */
+	rc = read_ubootenv(info, buf, info.ubootenv_size);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	data = buf + sizeof(uint32_t);
+	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc ^= *(uint32_t *)(buf);
+	if (crc != 0) {
+		rc = -EZCFG_E_CRC;
+		goto func_out;
+	}
+	crc = *(uint32_t *)(buf);
+
+	/* find \0\0 string */
+	end = data+1;
+	while (end < (buf + info.ubootenv_size) &&
+	       (*(end-1) != '\0' || *end != '\0')) end++;
+	if (end == (buf + info.ubootenv_size)) {
+		rc = -EZCFG_E_PARSE;
+		goto func_out;
+	}
+
+	tmp = data;
+	while (len > 1 && tmp != end) {
+		*list = *tmp == '\0' ? '\n' : *tmp ;
+		list++;
+		tmp++;
+		len--;
+	}
+	*list = '\0';
+
 func_out:
-	if (fp != NULL) {
-		fclose(fp);
-	}
 	if (buf != NULL) {
 		free(buf);
 	}
@@ -250,43 +554,50 @@ func_out:
 int ezcfg_api_ubootenv_check(void)
 {
 	int rc = 0;
-	FILE *fp = NULL;
 	char *buf = NULL;
-	char *data = NULL;
+	char *data = NULL, *end = NULL;
+	char *tmp = NULL;
 	uint32_t crc = 0;
 	ubootenv_info_t info;
 
 	memset(&info, 0, sizeof(info));
-	init_ubootenv_info(&info);
-
-	if (info.ubootenv_redundant == false) {
-		fp = fopen(info.ubootenv_dev_name, "r");
-		if (fp == NULL) {
-			rc = -EZCFG_E_RESOURCE;
-			goto func_out;
-		}
-		buf = (char *)malloc(info.ubootenv_size);
-		if (buf == NULL) {
-			rc = -EZCFG_E_SPACE;
-			goto func_out;
-		}
-		memset(buf, 0, info.ubootenv_size);
-		fread(buf, info.ubootenv_size, 1, fp);
-		//crc = *(uint32_t *)(buf);
-		data = buf + sizeof(uint32_t);
-		crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
-		crc ^= *(uint32_t *)(buf);
-		if (crc != 0) {
-			rc = -EZCFG_E_CRC;
-			goto func_out;
-		}
-	} else {
-
+	rc = init_ubootenv_info(&info);
+	if (rc < 0) {
+		goto func_out;
 	}
+
+	buf = (char *)malloc(info.ubootenv_size);
+	if (buf == NULL) {
+		rc = -EZCFG_E_SPACE;
+		goto func_out;
+	}
+	memset(buf, 0, info.ubootenv_size);
+
+	/* read u-boot environment data */
+	rc = read_ubootenv(info, buf, info.ubootenv_size);
+	if (rc < 0) {
+		goto func_out;
+	}
+
+	data = buf + sizeof(uint32_t);
+	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc ^= *(uint32_t *)(buf);
+	if (crc != 0) {
+		rc = -EZCFG_E_CRC;
+		goto func_out;
+	}
+	crc = *(uint32_t *)(buf);
+
+	/* find \0\0 string */
+	end = data+1;
+	while (end < (buf + info.ubootenv_size) &&
+	       (*(end-1) != '\0' || *end != '\0')) end++;
+	if (end == (buf + info.ubootenv_size)) {
+		rc = -EZCFG_E_PARSE;
+		goto func_out;
+	}
+
 func_out:
-	if (fp != NULL) {
-		fclose(fp);
-	}
 	if (buf != NULL) {
 		free(buf);
 	}
