@@ -37,6 +37,12 @@
 # define SHOW_BOOT_PROGRESS(arg)
 #endif
 
+#if ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_FLASH)) == (CFG_CMD_ENV|CFG_CMD_FLASH))
+#define CMD_SAVEENV
+#elif ((CONFIG_COMMANDS&(CFG_CMD_ENV|CFG_CMD_NAND)) == (CFG_CMD_ENV|CFG_CMD_NAND))
+#define CMD_SAVEENV
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_AMIGAONEG3SE
@@ -250,6 +256,13 @@ void env_relocate (void)
 #endif
 		env_crc_update ();
 		gd->env_valid = 1;
+#ifdef CMD_SAVEENV
+		/*
+		 * Save the default environment to uboot-env, OS will use it
+		 */
+		gd->env_addr = (ulong)&(env_ptr->data);
+		saveenv();
+#endif
 	}
 	else {
 		env_relocate_spec ();
