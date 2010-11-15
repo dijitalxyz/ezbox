@@ -201,11 +201,6 @@ static int erase_ubootenv(ubootenv_info_t info)
 	return 0;
 }
 
-typedef struct nv_pair_s {
-	char *name;
-	char *value;
-} nv_pair_t;
-
 static ezcfg_nv_pair_t default_checklist[] = {
 	{ "ethaddr", "0x00:0xaa:0xbb:0xcc:0xdd:0xee" },
 	{ "serial#", "########" },
