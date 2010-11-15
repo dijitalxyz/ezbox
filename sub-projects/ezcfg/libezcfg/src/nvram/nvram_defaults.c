@@ -14,7 +14,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg.h"
 
-struct ezcfg_nvram_pair default_nvram_settings[] = {
+ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* System configuration */
 	{ "sys_passwd", "admin" },	/* The root password */
 	{ "sys_hostname", "ezbox" },	/* The system host name */

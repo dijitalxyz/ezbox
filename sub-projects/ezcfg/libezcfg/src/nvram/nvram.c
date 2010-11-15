@@ -104,7 +104,7 @@ struct ezcfg_nvram {
 
 	/* default settings */
 	int num_default_settings;
-	struct ezcfg_nvram_pair *default_settings;
+	ezcfg_nv_pair_t *default_settings;
 
 	/* total_space = sizeof(header) + free_space + used_space */
 	int total_space; /* storage space for nvram */
@@ -256,7 +256,7 @@ static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, c
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_nvram_pair *nvp;
+	ezcfg_nv_pair_t *nvp;
 	int i;
 
 	ezcfg = nvram->ezcfg;
@@ -278,7 +278,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	char *data;
 	FILE *fp;
 	uint32_t crc;
-	struct ezcfg_nvram_pair *nvp;
+	ezcfg_nv_pair_t *nvp;
 	char *p, *q;
 	char *name, *value = NULL;
 	int len, i;
@@ -617,7 +617,7 @@ int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
 	return nvram->total_space;
 }
 
-bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nvram_pair *settings, int num_settings)
+bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings)
 {
 	nvram->default_settings = settings;
 	nvram->num_default_settings = num_settings;

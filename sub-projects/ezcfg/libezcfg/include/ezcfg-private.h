@@ -24,6 +24,11 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 typedef void * (*ezcfg_thread_func_t)(void *);
+/* name-value pair struct */
+typedef struct ezcfg_nv_pair_s {
+	char *name;
+	char *value;
+} ezcfg_nv_pair_t;
 
 static inline void __attribute__((always_inline, format(printf, 2, 3)))
 ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
@@ -106,11 +111,7 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 
 
 /* nvram/nvram.c */
-struct ezcfg_nvram_pair {
-	char *name;
-	char *value;
-};
-extern struct ezcfg_nvram_pair default_nvram_settings[];
+extern ezcfg_nv_pair_t default_nvram_settings[];
 int ezcfg_nvram_get_num_default_nvram_settings(void);
 
 struct ezcfg_nvram;
@@ -124,7 +125,7 @@ bool ezcfg_nvram_set_backup_store_path(struct ezcfg_nvram *nvram, const char *pa
 char *ezcfg_nvram_get_backup_store_path(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, struct ezcfg_nvram_pair *settings, int num_settings);
+bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings);
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value);
 bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value);
 bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name);

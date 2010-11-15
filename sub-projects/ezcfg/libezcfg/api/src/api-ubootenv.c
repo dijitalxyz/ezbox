@@ -206,18 +206,23 @@ typedef struct nv_pair_s {
 	char *value;
 } nv_pair_t;
 
-static nv_pair_t checklist[] = {
+static ezcfg_nv_pair_t default_checklist[] = {
 	{ "ethaddr", "0x00:0xaa:0xbb:0xcc:0xdd:0xee" },
 	{ "serial#", "########" },
 	{ "pin#", "########" },
-	{ NULL, NULL },
 };
 	
-static int check_ubootenv_name(char *tmp, char *name)
+static int check_ubootenv_name(char *tmp, char *name, ezcfg_nv_pair_t *checklist, size_t len)
 {
 	nv_pair_t *cp;
 	char *value;
-	for (cp = checklist; cp->name != NULL; cp++) {
+	int i = 0;
+
+	for (i = 0; i < len; i++) {
+		cp = &(checklist[i]);
+		if ((cp->name == NULL) || (cp->value == NULL)){
+			continue;
+		}
 		if (strcmp(cp->name, name) == 0) {
 			value = tmp+strlen(name)+1;
 			if (strcmp(cp->value, value) != 0) {
@@ -225,6 +230,7 @@ static int check_ubootenv_name(char *tmp, char *name)
 			}
 		}
 	}
+
 	return 0;
 }
 
@@ -433,7 +439,7 @@ int ezcfg_api_ubootenv_set(const char *name, const char *value)
 	    strncmp(tmp, name, cmp_len) == 0 &&
 	    *(tmp + cmp_len) == '=') {
 		/* check if we can rewrite the entry */
-		rc = check_ubootenv_name(tmp, name);
+		rc = check_ubootenv_name(tmp, name, default_checklist, ARRAY_SIZE(default_checklist));
 		if (rc < 0) {
 			goto func_out;
 		}
