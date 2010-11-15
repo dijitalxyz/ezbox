@@ -177,6 +177,13 @@ int _do_setenv (int flag, int argc, char *argv[])
 			break;
 	}
 
+	/* all names that the last char is '#' will be preserved */
+	i = strlen(name); if (i > 0) i--;
+	if (name[i] == '#') {
+		printf ("Can't set \"%s\", name with last char is '#' preserved.\n", name);
+		return 1;
+	}
+
 	/*
 	 * Delete any existing definition
 	 */
@@ -187,10 +194,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 		 * Ethernet Address and serial# can be set only once,
 		 * ver is readonly.
 		 */
-		/* all names that the last char is '#' will be preserved */
-		i = strlen(name); if (i > 0) i--;
 		if ( (strcmp (name, "serial#") == 0) ||
-		     (name[i] == '#') ||
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
