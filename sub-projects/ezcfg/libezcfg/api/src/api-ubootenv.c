@@ -209,7 +209,7 @@ static ezcfg_nv_pair_t default_checklist[] = {
 	
 static int check_ubootenv_name(char *tmp, char *name, ezcfg_nv_pair_t *checklist, size_t len)
 {
-	nv_pair_t *cp;
+	ezcfg_nv_pair_t *cp;
 	char *value;
 	int i = 0;
 
