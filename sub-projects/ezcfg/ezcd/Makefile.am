@@ -89,5 +89,6 @@ ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBE
 # pkgconfig_DATA = ezcd.pc
 
 libezcfg.so: $(LIBEZCFG_LIB)
+	-rm -f libezcfg.so
 	$(LN_S) $(LIBEZCFG_LIB)/libezcfg.so libezcfg.so
 
