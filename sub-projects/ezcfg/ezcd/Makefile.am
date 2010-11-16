@@ -77,6 +77,9 @@ ezcd_SOURCES += src/rc/rc_lan.c
 ezcd_SOURCES += src/rc/rc_wan_if.c
 ezcd_SOURCES += src/rc/rc_wan.c
 
+# syslog
+ezcd_SOURCES += src/rc/rc_syslog.c
+
 ezcd_DEPENDENCIES = libezcfg.so
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)

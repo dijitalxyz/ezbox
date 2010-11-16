@@ -146,6 +146,9 @@ int rc_system(int flag)
 		/* bring up LAN interface link up and configurate it */
 		rc_lan(RC_START);
 
+		/* start syslogd/klogd */
+		rc_syslog(RC_START);
+
 		/* bring up WAN interface link up and configurate it */
 		rc_wan(RC_START);
 

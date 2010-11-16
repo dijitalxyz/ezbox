@@ -38,6 +38,24 @@ static void nvram_show_usage(void)
 	printf("\n");
 }
 
+int nvram_match(const char *name, const char *value)
+{
+	int rc = 0;
+	char buf[1024*4];
+
+	if (name == NULL || value == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc < 0) {
+		return rc;
+	}
+	if (strcmp(value, buf) != 0) {
+		return -EZCFG_E_RESULT ;
+	}
+	return 0;
+}
+
 int nvram_main(int argc, char **argv)
 {
 	int rc = 0;

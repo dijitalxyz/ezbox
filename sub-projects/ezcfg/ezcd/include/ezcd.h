@@ -14,6 +14,9 @@ rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 uint32_t utils_crc32(unsigned char *data, int len);
 
+/* nvram function */
+int nvram_match(const char *name, const char *value);
+
 /* command entry point */
 int preinit_main(int argc, char **argv);
 int ezcd_main(int argc, char **argv);
