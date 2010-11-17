@@ -148,6 +148,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #else
 	{ "rc_telnetd_enable", "0" },	/* telnetd disabled */
 #endif
+#if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
+	{ "rc_dnsmasq_enable", "0" },	/* dnsmasq disabled */
+#else
+	{ "rc_dnsmasq_enable", "1" },	/* dnsmasq enabled */
+#endif
 };
 
 /* Public functions */
