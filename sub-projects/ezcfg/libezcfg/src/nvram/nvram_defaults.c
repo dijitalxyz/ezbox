@@ -141,6 +141,13 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ "lan_dhcp_dns", "" },		/* LAN DHCP gateway */
 	{ "lan_dhcp_domain", "wan" },	/* Use WAN domain name first if available (wan|lan) */
 	{ "lan_dhcp_wins", "wan" },	/* Use WAN WINS first if available (wan|lan) */
+	/* rc services controller */
+	{ "rc_syslog_enable", "0" },	/* syslog disabled */
+#if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
+	{ "rc_telnetd_enable", "1" },	/* telnetd enabled */
+#else
+	{ "rc_telnetd_enable", "0" },	/* telnetd disabled */
+#endif
 };
 
 /* Public functions */

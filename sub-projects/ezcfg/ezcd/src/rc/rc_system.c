@@ -149,6 +149,9 @@ int rc_system(int flag)
 		/* start syslogd/klogd */
 		rc_syslog(RC_START);
 
+		/* start telnet service */
+		rc_telnetd(RC_START);
+
 		/* bring up WAN interface link up and configurate it */
 		rc_wan(RC_START);
 

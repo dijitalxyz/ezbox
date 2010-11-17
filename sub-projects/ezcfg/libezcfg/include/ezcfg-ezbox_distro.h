@@ -25,7 +25,7 @@
 #elif defined(CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI)
 #define EZCFG_EZBOX_DISTRO	EZCFG_EZBOX_DISTRO_HUANGDI
 #else
-#error unknown ezbox distro !!!
+#error "unknown ezbox distro !!!"
 #endif
 
 #endif /* _EZCFG_EZBOX_DISTRO_H_ */

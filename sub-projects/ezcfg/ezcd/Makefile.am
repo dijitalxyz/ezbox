@@ -77,8 +77,11 @@ ezcd_SOURCES += src/rc/rc_lan.c
 ezcd_SOURCES += src/rc/rc_wan_if.c
 ezcd_SOURCES += src/rc/rc_wan.c
 
-# syslog
+# syslog service
 ezcd_SOURCES += src/rc/rc_syslog.c
+
+# telnet service
+ezcd_SOURCES += src/rc/rc_telnetd.c
 
 ezcd_DEPENDENCIES = libezcfg.so
 
