@@ -83,6 +83,10 @@ ezcd_SOURCES += src/rc/rc_syslog.c
 # telnet service
 ezcd_SOURCES += src/rc/rc_telnetd.c
 
+# dhcp/dns service
+ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
+ezcd_SOURCES += src/rc/rc_dnsmasq.c
+
 ezcd_DEPENDENCIES = libezcfg.so
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)

@@ -42,7 +42,7 @@
 int rc_syslog(int flag)
 {
 	int rc;
-	rc = nvram_match(EZCFG_NVRAM_RC_SYSLOG_ENABLE_NAME, "1");
+	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}

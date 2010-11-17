@@ -142,16 +142,21 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ "lan_dhcp_domain", "wan" },	/* Use WAN domain name first if available (wan|lan) */
 	{ "lan_dhcp_wins", "wan" },	/* Use WAN WINS first if available (wan|lan) */
 	/* rc services controller */
-	{ "rc_syslog_enable", "0" },	/* syslog disabled */
+	/* syslog disabled */
+	{ NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "0" },
 #if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
-	{ "rc_telnetd_enable", "1" },	/* telnetd enabled */
+	/* telnetd enabled */
+	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1" },
 #else
-	{ "rc_telnetd_enable", "0" },	/* telnetd disabled */
+	/* telnetd disabled */
+	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "0" },
 #endif
 #if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
-	{ "rc_dnsmasq_enable", "0" },	/* dnsmasq disabled */
+	/* dnsmasq disabled */
+	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "0" },
 #else
-	{ "rc_dnsmasq_enable", "1" },	/* dnsmasq enabled */
+	/* dnsmasq enabled */
+	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1" },
 #endif
 };
 

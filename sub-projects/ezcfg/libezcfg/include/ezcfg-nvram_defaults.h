@@ -16,12 +16,24 @@
 
 #include "ezcfg-dnsmasq.h"
 
+#define GLUE2(a, b)      	a ## b
+#define GLUE3(a, b, c)   	a ## b ## c
+#define GLUE4(a, b, c, d)	a ## b ## c ## d
+
+#define NVRAM_PREFIX(service)      	GLUE3(EZCFG_, service, _NVRAM_PREFIX)
+#define SERVICE_OPTION(service, name)	GLUE4(EZCFG_, service, _, name)
+
+#define NVRAM_SERVICE_OPTION(service, name) \
+	NVRAM_PREFIX(service) SERVICE_OPTION(service, name)
+
 /* ezcfg nvram rc control names */
-#define EZCFG_NVRAM_RC_SYSLOG_ENABLE_NAME            "rc_syslog_enable"
-#define EZCFG_NVRAM_RC_TELNETD_ENABLE_NAME           "rc_telnetd_enable"
-#define EZCFG_NVRAM_RC_DNSMASQ_ENABLE_NAME           "rc_dnsmasq_enable"
+#define EZCFG_RC_NVRAM_PREFIX            "rc_"
+#define EZCFG_RC_SYSLOG_ENABLE           "syslog_enable"
+#define EZCFG_RC_TELNETD_ENABLE          "telnetd_enable"
+#define EZCFG_RC_DNSMASQ_ENABLE          "dnsmasq_enable"
 
 /* ezcfg nvram dnsmasq control names */
+#if 0
 #define EZCFG_NVRAM_DNSMASQ_DOMAIN_NEEDED_NAME       "dnsmasq_domain-needed"
 #define EZCFG_NVRAM_DNSMASQ_BOGUS_PRIV_NAME          "dnsmasq_bogus-priv"
 #define EZCFG_NVRAM_DNSMASQ_FILTERWIN2K_NAME         "dnsmasq_filterwin2k"
@@ -81,5 +93,6 @@
 #define EZCFG_NVRAM_DNSMASQ_LOG_DHCP_NAME            "dnsmasq_log-dhcp"
 #define EZCFG_NVRAM_DNSMASQ_CONF_FILE_NAME           "dnsmasq_conf-file"
 #define EZCFG_NVRAM_DNSMASQ_CONF_DIR_NAME            "dnsmasq_conf-dir"
+#endif
 
 #endif

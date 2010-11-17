@@ -42,7 +42,7 @@
 int rc_telnetd(int flag)
 {
 	int rc;
-	rc = nvram_match(EZCFG_NVRAM_RC_TELNETD_ENABLE_NAME, "1");
+	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}

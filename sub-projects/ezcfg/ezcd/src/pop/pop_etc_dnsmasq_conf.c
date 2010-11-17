@@ -50,14 +50,8 @@ int pop_etc_dnsmasq_conf(int flag)
 
 	switch (flag) {
 	case RC_START :
-		if (nvram_match(EZCFG_NVRAM_DNSMASQ_DOMAIN_NEEDED_NAME, "1") == 0) {
-			fprintf(file, "%s\n", EZCFG_DNSMASQ_DOMAIN_NEEDED_NAME);
-		}
-		if (nvram_match(EZCFG_NVRAM_DNSMASQ_BOGUS_PRIV_NAME, "1") == 0) {
-			fprintf(file, "%s\n", EZCFG_DNSMASQ_BOGUS_PRIV_NAME);
-		}
-		if (nvram_match(EZCFG_NVRAM_DNSMASQ_FILTERWIN2K_NAME, "1") == 0) {
-			fprintf(file, "%s\n", EZCFG_DNSMASQ_FILTERWIN2K_NAME);
+		if (nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
+			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));
 		}
 		break;
 	}

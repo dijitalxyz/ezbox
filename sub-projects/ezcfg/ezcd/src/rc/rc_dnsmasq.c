@@ -42,7 +42,7 @@
 int rc_dnsmasq(int flag)
 {
 	int rc;
-	rc = nvram_match(EZCFG_NVRAM_RC_DNSMASQ_ENABLE_NAME, "1");
+	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
