@@ -58,10 +58,13 @@ rc_func_t rc_functions[] = {
 
 rc_func_t *utils_find_rc_func(char *name)
 {
+	int i;
 	rc_func_t *f;
 
-	for (f = rc_functions; f < &rc_functions[STRUCT_LEN(rc_functions)]; f++)
+	for (i = 0; i < ARRAY_SIZE(rc_functions); i++) {
+		f = &rc_functions[i];
 		if (strcmp(f->name, name) == 0) return f;
+	}
 
 	return NULL;
 }

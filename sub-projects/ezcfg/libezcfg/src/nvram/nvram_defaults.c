@@ -36,111 +36,191 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ "process_monitor_interval", "3" },	/* process_monitor check interval, should be 1-10, default is 3 munites, 0 means not start process_monitor */
 	{ "process_monitor_cron_period", "12" },/* cron task for checking process_monitor period, should be 3-30, default is 12 munites, 0 means not setup cron task */
 
+	/*--------------------*/
 	/* LAN H/W parameters */
-	{ "lan_ifname", "eth0" },	/* LAN interface name */
-	{ "lan_ifnames", "" },		/* Enslaved LAN interfaces */
-	{ "lan_hwname", "" },		/* LAN driver names (e.g. et0) */
-	{ "lan_hwaddr", "" },		/* LAN interface MAC address */
-	{ "lan_phymode", "auto" },      /* LAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
+	/*--------------------*/
+	/* LAN interface name */
+	{ NVRAM_SERVICE_OPTION(LAN, IFNAME), "eth0" },
+	/* Enslaved LAN interfaces */
+	{ NVRAM_SERVICE_OPTION(LAN, IFNAMES), "" },
+	/* LAN driver names (e.g. 8139too) */
+	{ NVRAM_SERVICE_OPTION(LAN, HWNAME), "" },
+	/* LAN interface MAC address */
+	{ NVRAM_SERVICE_OPTION(LAN, HWADDR), "" },
+	/* LAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
+	{ NVRAM_SERVICE_OPTION(LAN, PHYMODE), "auto" },
 
 	/* LAN TCP/IP parameters */
-	{ "lan_dhcp", "1" },			/* LAN size DHCP server [1|0] */
-	{ "lan_pppoe", "0" },			/* LAN size PPPoE server [1|0] */
-	{ "lan_ipaddr", "192.168.1.1" },	/* LAN IP address */
-	{ "lan_netmask", "255.255.255.0" },	/* LAN netmask */
-	{ "lan_wins", "" },			/* x.x.x.x x.x.x.x ... */
-	{ "lan_domain", "" },			/* LAN domain name */
-	{ "lan_lease", "86400" },		/* LAN lease time in seconds */
-	{ "lan_stp", "0" },			/* LAN spanning tree protocol */
+	/* LAN size DHCP server [1|0] */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), "1" },
+	/* LAN size PPPoE server [1|0] */
+	{ NVRAM_SERVICE_OPTION(LAN, PPPOED_ENABLE), "0" },
+	/* LAN IP address */
+	{ NVRAM_SERVICE_OPTION(LAN, IPADDR), "192.168.1.1" },
+	/* LAN netmask */
+	{ NVRAM_SERVICE_OPTION(LAN, NETMASK), "255.255.255.0" },
+	/* LAN side WINS server ip list [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(LAN, WINS), "" },
+	/* LAN domain name */
+	{ NVRAM_SERVICE_OPTION(LAN, DOMAIN), "" },
+	/* LAN lease time in seconds */
+	{ NVRAM_SERVICE_OPTION(LAN, LEASE), "86400" },
+	/* LAN spanning tree protocol */
+	{ NVRAM_SERVICE_OPTION(LAN, STP_ENABLE), "0" },
 
 	/* WAN H/W parameters */
-	{ "wan_ifname", "eth1" },	/* WAN interface name */
-	{ "wan_hwname", "" },		/* WAN driver name (e.g. et1) */
-	{ "wan_ifnames", "" },		/* WAN interface names */
-	{ "wan_hwaddr", "" },		/* WAN interface MAC address */
-	{ "wan_clone_hwaddr", "" },	/* WAN interface MAC address */
-	{ "wan_macclone", "0" },	/* WAN interface MAC clone [0|1] */
+	/* WAN interface name */
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "eth1" },
+	/* WAN interface names */
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAMES), "" },
+	/* WAN driver name (e.g. 8139cp) */
+	{ NVRAM_SERVICE_OPTION(WAN, HWNAME), "" },
+	/* WAN interface MAC address */
+	{ NVRAM_SERVICE_OPTION(WAN, HWADDR), "" },
+	/* WAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
+	{ NVRAM_SERVICE_OPTION(WAN, PHYMODE), "auto" },
+	/* WAN interface MAC clone [0|1] */
+	{ NVRAM_SERVICE_OPTION(WAN, MACCLONE_ENABLE), "0" },
+	/* WAN interface MAC clone address */
+	{ NVRAM_SERVICE_OPTION(WAN, CLONE_HWADDR), "" },
 
         /* WAN TCP/IP parameters */
-	{ "wan_proto", "dhcp" },	/* [static|dhcp|pppoe|pptp|l2tp|disabled] */
-	{ "wan_release", "0" },		/* WAN connection release [1|0] */
-	{ "wan_ipaddr", "0.0.0.0" },	/* WAN IP address */
-	{ "wan_netmask", "0.0.0.0" },	/* WAN netmask */
-	{ "wan_gateway", "0.0.0.0" },	/* WAN gateway */
-	{ "wan_dns", "" },		/* x.x.x.x x.x.x.x ... */
-	{ "wan_wins", "" },		/* x.x.x.x x.x.x.x ... */
-	{ "wan_devicename", "ezbox" },
-	{ "wan_hostname", "" },		/* WAN hostname */
-	{ "wan_domain", "" },		/* WAN domain name */
-	{ "wan_lease", "86400" },	/* WAN lease time in seconds */
-	{ "wan_mtu_enable", "0" },	/* WAN MTU [1|0] */
-	{ "wan_mtu", "1500" },		/* Negotiate MTU to the smaller of this value or the peer MRU */
+	/* WAN connection type [static|dhcp|pppoe|pptp|l2tp|disabled] */
+	{ NVRAM_SERVICE_OPTION(WAN, TYPE), "dhcp" },
+	/* WAN connection release [1|0] */
+	{ NVRAM_SERVICE_OPTION(WAN, RELEASE), "0" },
+	/* WAN IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, IPADDR), "0.0.0.0" },
+	/* WAN netmask */
+	{ NVRAM_SERVICE_OPTION(WAN, NETMASK), "0.0.0.0" },
+	/* WAN gateway */
+	{ NVRAM_SERVICE_OPTION(WAN, GATEWAY), "0.0.0.0" },
+	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(WAN, DNS), "" },
+	/* WAN WINS server IP address [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(WAN, WINS), "" },
+	/* WAN hostname */
+	{ NVRAM_SERVICE_OPTION(WAN, HOSTNAME), "" },
+	/* WAN domain name */
+	{ NVRAM_SERVICE_OPTION(WAN, DOMAIN), "" },
+	/* WAN lease time in seconds */
+	{ NVRAM_SERVICE_OPTION(WAN, LEASE), "86400" },
+	/* WAN MTU [1|0] */
+	{ NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), "0" },
+	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	{ NVRAM_SERVICE_OPTION(WAN, MTU), "1500" },
 
 	/* WAN static IP parameters */
-	{ "wan_static_ipaddr", "0.0.0.0" },	/* WAN IP address */
-	{ "wan_static_netmask", "0.0.0.0" },	/* WAN netmask */
-	{ "wan_static_gateway", "0.0.0.0" },	/* WAN gateway */
-	{ "wan_static_dns", "" },		/* x.x.x.x x.x.x.x ... */
+	/* WAN IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), "0.0.0.0" },
+	/* WAN netmask */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), "0.0.0.0" },
+	/* WAN gateway */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), "0.0.0.0" },
+	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS), "" },
 
 	/* WAN DHCP Client parameters */
-	{ "wan_dhcp_gw", "0" },
-	{ "wan_dhcp_gateway", "FF:FF:FF:FF:FF:FF" },
+	/* WAN DHCP gateway set enable [0|1] */
+	{ NVRAM_SERVICE_OPTION(WAN, DHCP_GATEWAY_ENABLE), "0" },
+	/* WAN DHCP gateway MAC address */
+	{ NVRAM_SERVICE_OPTION(WAN, DHCP_GATEWAY_MAC), "FF:FF:FF:FF:FF:FF" },
 
 	/* PPPoE parameters */
-	{ "wan_pppoe_ifname", "ppp0" },	/* PPPoE enslaved interface */
-	{ "wan_pppoe_username", "" },	/* PPP username */
-	{ "wan_pppoe_passwd", "" },	/* PPP password */
-	{ "wan_pppoe_demand", "0" },	/* Dial on demand */
-	{ "wan_pppoe_keepalive", "1" },	/* Restore link automatically */
-	{ "wan_pppoe_ppp_idle", "60" },	/* Dial on demand max idle time (seconds) */
-	{ "wan_pppoe_ppp_lcp_echo_interval", "60" },	/* PPP Redial Period  (seconds) */
-	{ "wan_pppoe_ppp_lcp_echo_failure", "3" },	/* PPP Redial Failure  (times) */
-	{ "wan_pppoe_mru", "1492" },	/* Negotiate MRU to this value */
-	{ "wan_pppoe_mtu", "1492" },	/* Negotiate MTU to the smaller of this value or the peer MRU */
-	{ "wan_pppoe_service", "" },	/* PPPoE service name */
-	{ "wan_pppoe_acname", "" },	/* PPPoE access concentrator name */
+	/* PPPoE enslaved interface */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_IFNAME), "ppp0" },
+	/* Restore link automatically [0|1] */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_KEEP_ENABLE), "1" },
+	/* PPP username */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_USERNAME), "" },
+	/* PPP password */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_PASSWD), "" },
+	/* Dial on demand max idle time (seconds) */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_IDLE), "60" },
+	/* PPP Redial Period (seconds) */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_LCP_ECHO_INTERVAL), "60" },
+	/* PPP Redial Failure (times) */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_LCP_ECHO_FAILURE), "3" },
+	/* Negotiate MRU to this value */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_MRU), "1492" },
+	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_MTU), "1492" },
+	/* PPPoE service name */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_SERVICE), "" },
+	/* PPPoE access concentrator name */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_ACNAME), "" },
 
 	/* PPTP parameters */
-	{ "wan_pptp_ifname", "ppp0" },		/* PPTP enslaved interface */
-	{ "wan_pptp_ipaddr", "0.0.0.0" },	/* PPTP assigned IP address */
-	{ "wan_pptp_netmask", "0.0.0.0" },	/* PPTP assigned netmask */
-	{ "wan_pptp_gateway", "0.0.0.0" },	/* PPTP assigned gateway */
-	{ "wan_pptp_dns", "" },			/* x.x.x.x x.x.x.x ... */
-	{ "wan_pptp_server_ipaddr", "0.0.0.0" },/* PPTP server IP address */
-	{ "wan_pptp_demand", "0" },	/* Dial on demand */
-	{ "wan_pptp_keepalive", "1" },	/* Restore link automatically */
-	{ "wan_pptp_ppp_username", "" },/* PPP username */
-	{ "wan_pptp_ppp_passwd", "" },	/* PPP password */
-	{ "wan_pptp_ppp_idle", "60" },	/* Dial on demand max idle time (seconds) */
-	{ "wan_pptp_ppp_lcp_echo_interval", "60" },	/* PPP Redial Period  (seconds)*/
-	{ "wan_pptp_ppp_lcp_echo_failure", "3" },	/* PPP Redial Failure  (times) */
-	{ "wan_pptp_mru", "1460" },	/* Negotiate MRU to this value */
-	{ "wan_pptp_mtu", "1460" },	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	/* PPTP enslaved interface */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_IFNAME), "ppp0" },
+	/* PPTP assigned IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_IPADDR), "0.0.0.0" },
+	/* PPTP assigned netmask */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_NETMASK), "0.0.0.0" },
+	/* PPTP assigned gateway */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_GATEWAY), "0.0.0.0" },
+	/* PPTP DNS server IP address [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_DNS), "" },
+	/* PPTP server IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_SERVER_IPADDR), "0.0.0.0" },
+	/* Restore link automatically */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_KEEP_ENABLE), "1" },
+	/* PPP username */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_USERNAME), "" },
+	/* PPP password */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_PASSWD), "" },
+	/* Dial on demand max idle time (seconds) */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_IDLE), "60" },
+	/* PPP Redial Period  (seconds)*/
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_LCP_ECHO_INTERVAL), "60" },
+	/* PPP Redial Failure  (times) */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_LCP_ECHO_FAILURE), "3" },
+	/* Negotiate MRU to this value */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_MRU), "1460" },
+	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_MTU), "1460" },
 
 	/* L2TP parameters */
-	{ "wan_l2tp_ifname", "ppp0" },	/* L2TP enslaved interface */
-	{ "wan_l2tp_server_ipaddr", "0.0.0.0" },	/* L2TP server IP address */
-	{ "wan_l2tp_demand", "0" },	/* Dial on demand */
-	{ "wan_l2tp_keepalive", "1" },	/* Restore link automatically */
-	{ "wan_l2tp_ppp_username", "" },/* PPP username */
-	{ "wan_l2tp_ppp_passwd", "" },	/* PPP password */
-	{ "wan_l2tp_ppp_idle", "60" },	/* Dial on demand max idle time (seconds) */
-	{ "wan_l2tp_ppp_lcp_echo_interval", "60" },	/* PPP Redial Period  (seconds) */
-	{ "wan_l2tp_ppp_lcp_echo_failure", "3" },	/* PPP Redial Failure  (times) */
-	{ "wan_l2tp_mru", "1460" },	/* Negotiate MRU to this value */
-	{ "wan_l2tp_mtu", "1460" },	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	/* L2TP enslaved interface */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_IFNAME), "ppp0" },
+	/* L2TP server IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_SERVER_IPADDR), "0.0.0.0" },
+	/* Restore link automatically */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_KEEP_ENABLE), "1" },
+	/* PPP username */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_USERNAME), "" },
+	/* PPP password */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_PASSWD), "" },
+	/* Dial on demand max idle time (seconds) */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_IDLE), "60" },
+	/* PPP Redial Period  (seconds) */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_LCP_ECHO_INTERVAL), "60" },
+	/* PPP Redial Failure  (times) */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_LCP_ECHO_FAILURE), "3" },
+	/* Negotiate MRU to this value */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_MRU), "1460" },
+	/* Negotiate MTU to the smaller of this value or the peer MRU */
+	{ NVRAM_SERVICE_OPTION(WAN, L2TP_MTU), "1460" },
 
 	/* Static Route */
 	{ "static_route", "" },	/* Static routes (ipaddr:netmask:gateway:metric:ifname ...) */
 
 	/* LAN DHCP server */
-	{ "lan_dhcp_start", "192.168.1.101" },	/* First assignable DHCP address */
-	{ "lan_dhcp_end", "192.168.1.150" },	/* Last assignable DHCP address */
-	{ "lan_dhcp_lease", "60" },	/* LAN lease time in minutes */ /* Add */
-	{ "lan_dhcp_gateway", "" },	/* LAN DHCP gateway */
-	{ "lan_dhcp_dns", "" },		/* LAN DHCP gateway */
-	{ "lan_dhcp_domain", "wan" },	/* Use WAN domain name first if available (wan|lan) */
-	{ "lan_dhcp_wins", "wan" },	/* Use WAN WINS first if available (wan|lan) */
+	/* First assignable DHCP address */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START), "192.168.1.100" },
+	/* Last assignable DHCP address */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END), "192.168.1.149" },
+	/* LAN lease time in minutes */ /* Add */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
+	/* LAN DHCP gateway IP address */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_GATEWAY), "" },
+	/* LAN DNS server IP address */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), "" },
+	/* Use WAN domain name first if available (wan|lan) */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DOMAIN), "wan" },
+	/* Use WAN WINS first if available (wan|lan) */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_WINS), "wan" },
+
 	/* rc services controller */
 	/* syslog disabled */
 	{ NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "0" },

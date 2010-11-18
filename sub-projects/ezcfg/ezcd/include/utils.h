@@ -1,8 +1,6 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#define STRUCT_LEN(name)	sizeof(name)/sizeof(name[0])
-
 /* shell command */
 #define CMD_CAT			"/bin/cat"
 #define CMD_EZCD		"/sbin/ezcd"

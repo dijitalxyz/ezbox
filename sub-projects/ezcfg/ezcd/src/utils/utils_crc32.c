@@ -79,7 +79,7 @@ static void crc32_calc(uint32_t *crcp, unsigned char *data, int len)
 {
 	uint32_t crc32_table[256];
 
-	crc32_init_table(crc32_table, STRUCT_LEN(crc32_table));
+	crc32_init_table(crc32_table, ARRAY_SIZE(crc32_table));
 
 	while (len--) {
 		*crcp = (*crcp >> 8) ^ crc32_table[(*crcp & 0xff) ^ *data];
