@@ -173,7 +173,8 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 		return NULL;
 	}
 
-	if (socket_path[0] != '@') {
+	if ((family == AF_LOCAL) &&
+	    (socket_path[0] != '@')) {
 		ezcfg_socket_set_need_unlink(listener, true);
 	}
 

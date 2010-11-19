@@ -128,11 +128,13 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
+	char *addr, *port;
 
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
 
-	if (domain != AF_LOCAL) {
+	if ((domain != AF_LOCAL) &&
+	    (domain != AF_INET)){
 		err(ezcfg, "unknown socket family %d\n", domain);
 		return NULL;
 	}
@@ -171,6 +173,37 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		if (usa->u.sun.sun_path[0] == '@') {
 			usa->u.sun.sun_path[0] = '\0';
 		}
+		break;
+
+	case AF_INET:
+		addr = strdup(socket_path);
+		if (addr == NULL) {
+			err(ezcfg, "can not alloc addr.\n");
+			goto fail_exit;
+		}
+		port = strchr(addr, ':');
+		if (port == NULL) {
+			err(ezcfg, "socket_path format error.\n");
+			free(addr);
+			goto fail_exit;
+		}
+		*port = '\0';
+		port++;
+
+		sp->sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (sp->sock < 0) {
+			err(ezcfg, "socket error\n");
+			goto fail_exit;
+		}
+		usa = &(sp->lsa);
+		usa->domain = AF_INET;
+		usa->u.sin.sin_family = AF_INET;
+		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
+		if (inet_aton(addr, &(usa->u.sin.sin_port)) == 0) {
+			err(ezcfg, "convert IP address error\n");
+			goto fail_exit;
+		}
+		usa->len = sizeof(usa->u.sin);
 		break;
 
 	default:
