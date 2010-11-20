@@ -60,5 +60,5 @@ obj-$(CONFIG_AR71XX_MACH_WRT160NL)	+= mach-wrt160nl.o
 obj-$(CONFIG_AR71XX_MACH_WRT400N)	+= mach-wrt400n.o
 obj-$(CONFIG_AR71XX_MACH_WZR_HP_G300NH)	+= mach-wzr-hp-g300nh.o
 obj-$(CONFIG_AR71XX_MACH_ZCN_1523H)	+= mach-zcn-1523h.o
-obj-$(CONFIG_AR71XX_MACH_EZBOX_TL_WR740N_V4)	+= mach-ezbox-tl-wr740n_v4o
+obj-$(CONFIG_AR71XX_MACH_EZBOX_TL_WR740N_V4)	+= mach-ezbox-tl-wr740n_v4.o
 obj-$(CONFIG_AR71XX_MACH_EZBOX_MW150R_V2)	+= mach-ezbox-mw150r_v2.o
