@@ -214,6 +214,15 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"serial#=########\0" \
 	"pin#=########\0"
+#elif (CONFIG_MACHINE_TYPE==MERCURY_MW150R_V2)
+#undef CONFIG_BOOTARGS
+#define	CONFIG_BOOTARGS     "console=ttyS0,115200 board=EZBOX-MW150R-v2"
+#undef CONFIG_EXTRA_ENV_SETTINGS
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"serial#=########\0" \
+	"pin#=########\0"
+#else
+#error "Unknown Machine Type"
 #endif
 
 #endif	/* __CONFIG_H */

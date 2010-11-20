@@ -1879,6 +1879,12 @@ ap91_tpl_tl_wr740n_v4_config		: 	unconfig
 	@echo "#include <machine_type.h>" >>include/config.h
 	@echo "#define CONFIG_MACHINE_TYPE TPLINK_TL_WR740N_V4" >>include/config.h
 	@./mkconfig -a ap91 mips mips ap91 ar7240 ar7240
+ap91_mercury_mw150r_v2_config		: 	unconfig
+	@ >include/config.h
+	@echo "#define CONFIG_AR7240 1" >>include/config.h
+	@echo "#include <machine_type.h>" >>include/config.h
+	@echo "#define CONFIG_MACHINE_TYPE MERCURY_MW150R_V2" >>include/config.h
+	@./mkconfig -a ap91 mips mips ap91 ar7240 ar7240
 ap93_config		: 	unconfig
 	@ >include/config.h
 	@echo "#define CONFIG_AR7240 1" >>include/config.h
