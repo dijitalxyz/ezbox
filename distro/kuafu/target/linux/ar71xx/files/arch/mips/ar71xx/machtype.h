@@ -61,6 +61,7 @@ enum ar71xx_mach_type {
 	AR71XX_MACH_ZCN_1523H_5, /* Zcomax ZCN-1523H-5-xx */
 	AR71XX_MACH_AP96,	/* Atheros AP96 */
 	AR71XX_MACH_EZBOX_TL_WR740N_V4, /* EZBOX on TL-WR740N v4 */
+	AR71XX_MACH_EZBOX_MW150R_V2, /* EZBOX on MW150R v2 */
 };
 
 #endif /* _AR71XX_MACHTYPE_H */
