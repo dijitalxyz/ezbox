@@ -75,7 +75,7 @@ int ezcm_main(int argc, char **argv)
 	int c = 0;
 	int rc = 0;
 	char buf[32];
-	char msg[4096];
+	char *msg = NULL;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_uuid *uuid = NULL;
@@ -84,7 +84,6 @@ int ezcm_main(int argc, char **argv)
 	time_t t;
 
 	memset(buf, 0, sizeof(buf));
-	memset(msg, 0, sizeof(msg));
 	for (;;) {
 		c = getopt( argc, argv, "Dhm:");
 		if (c == EOF) break;
@@ -153,7 +152,15 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_igrs_set_service_security_id(igrs, NULL);
 	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
 	ezcfg_igrs_build_message(igrs);
-	msg_len = ezcfg_igrs_write_message(igrs, msg, sizeof(msg));
+	msg_len = ezcfg_igrs_get_message_length(igrs) + 1;
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		err(ezcfg, "malloc msg error.\n");
+		rc = 1;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+	msg_len = ezcfg_igrs_write_message(igrs, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
 
@@ -186,6 +193,9 @@ int ezcm_main(int argc, char **argv)
 	}
 	info(ezcfg, "received message=[%s]\n", msg);
 exit:
+	if (msg != NULL)
+		free(msg);
+
 	if (uuid != NULL)
 		ezcfg_uuid_delete(uuid);
 

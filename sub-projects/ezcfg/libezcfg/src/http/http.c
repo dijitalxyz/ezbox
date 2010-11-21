@@ -36,6 +36,11 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+typedef enum {
+	HTTP_REQUEST = 0,
+	HTTP_RESPONSE
+} http_state_t;
+
 struct http_header {
 	char *name; /* HTTP header name */
 	char *value; /* HTTP header value */
@@ -50,6 +55,8 @@ struct status_code_reason_phrase_map {
 
 struct ezcfg_http {
 	struct ezcfg *ezcfg;
+
+	http_state_t state;
 
 	unsigned char num_methods; /* Number of supported methods */
 	const char **method_strings;
@@ -845,6 +852,87 @@ char *ezcfg_http_get_message_body(struct ezcfg_http *http)
 	return http->message_body;
 }
 
+int ezcfg_http_get_start_line_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state == HTTP_REQUEST) {
+		return ezcfg_http_get_request_line_length(http);
+	}
+	else if (http->state == HTTP_RESPONSE) {
+		return ezcfg_http_get_status_line_length(http);
+	}
+	else {
+		err(ezcfg, "unknown http state\n");
+		return -1;
+	}
+}
+
+int ezcfg_http_write_start_line(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state == HTTP_REQUEST) {
+		return ezcfg_http_write_request_line(http, buf, len);
+	}
+	else if (http->state == HTTP_RESPONSE) {
+		return ezcfg_http_write_status_line(http, buf, len);
+	}
+	else {
+		err(ezcfg, "unknown http state\n");
+		return -1;
+	}
+}
+
+int ezcfg_http_get_request_line_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int n, count;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->method_index == 0) {
+		err(ezcfg, "unknown http method\n");
+		return -1;
+	}
+
+	count = 0;
+	n = strlen(http->method_strings[http->method_index]);
+	count += n;
+	count ++; /* SP */
+	n = strlen(http->request_uri);
+	count += n;
+	count ++; /* SP */
+	count += 5; /* "HTTP/" */
+	n = http->version_major;
+	do {
+		count++;
+		n /= 10;
+	} while (n > 0);
+	count++; /* "." */
+	n = http->version_minor;
+	do {
+		count++;
+		n /= 10;
+	} while (n > 0);
+	n = strlen(EZCFG_HTTP_CRLF_STRING);
+	count += n;
+
+	return count;
+}
+
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
@@ -871,6 +959,53 @@ int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len)
 		return -1;
 	}
 	return n;
+}
+
+int ezcfg_http_get_status_line_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int n, count;
+	unsigned short status_code;
+	char *reason_phrase;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	status_code = http->status_code_maps[http->status_code_index].status_code;
+	reason_phrase = http->status_code_maps[http->status_code_index].reason_phrase;
+
+	if (status_code == 0) {
+		err(ezcfg, "unknown http response status code\n");
+		return -1;
+	}
+
+	if (reason_phrase == NULL) {
+		err(ezcfg, "unknown http response status code reason phrase\n");
+		return -1;
+	}
+
+	count = 5; /* "HTTP/" */
+	n = http->version_major;
+	do {
+		count++;
+		n /= 10;
+	} while (n > 0);
+	count++; /* "." */
+	n = http->version_minor;
+	do {
+		count++;
+		n /= 10;
+	} while (n > 0);
+	count++; /* SP */
+	count += 3; /* status_code */
+	count ++; /* SP */
+	n = strlen(reason_phrase);
+	count += n;
+	n = strlen(EZCFG_HTTP_CRLF_STRING);
+	count += n;
+
+	return count;
 }
 
 int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len)
@@ -911,6 +1046,18 @@ int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len)
 	return n;
 }
 
+int ezcfg_http_get_crlf_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	int n;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return strlen(EZCFG_HTTP_CRLF_STRING);
+}
+
 int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
@@ -927,6 +1074,35 @@ int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
 		return -1;
 	}
 	return n;
+}
+
+int ezcfg_http_get_headers_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+	struct http_header *h;
+	int n, count;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->method_index == 0) {
+		err(ezcfg, "unknown http method\n");
+		return -1;
+	}
+
+	h = http->header_head;
+	count = 0;
+	while (h != NULL) {
+		n = strlen(h->name);
+		count += n;
+		n = (h->value ? strlen(h->value) : 0);
+		count += n;
+		n = strlen(EZCFG_HTTP_CRLF_STRING);
+		count += n;
+		h = h->next;
+	}
+	return count;
 }
 
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len)

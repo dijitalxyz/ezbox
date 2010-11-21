@@ -45,6 +45,7 @@ ezcfg_soap_http_get_http
 ezcfg_soap_http_write_message
 ezcfg_igrs_new
 ezcfg_igrs_delete
+ezcfg_igrs_get_message_length
 ezcfg_igrs_set_version_major
 ezcfg_igrs_set_version_minor
 ezcfg_igrs_set_source_device_id

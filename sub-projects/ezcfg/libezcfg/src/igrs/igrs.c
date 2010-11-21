@@ -475,6 +475,44 @@ void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
 	ezcfg = igrs->ezcfg;
 }
 
+int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+        struct ezcfg_http *http;
+	int count = 0, n;
+
+        ASSERT(igrs != NULL);
+        ASSERT(igrs->http != NULL);
+
+        ezcfg = igrs->ezcfg;
+        http = igrs->http;
+
+	n = ezcfg_http_get_start_line_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_headers_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_crlf_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_message_body_len(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+	return count;
+}
+
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types)
 {
 	struct ezcfg *ezcfg;
