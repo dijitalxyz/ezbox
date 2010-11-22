@@ -152,7 +152,14 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_igrs_set_service_security_id(igrs, NULL);
 	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
 	ezcfg_igrs_build_message(igrs);
-	msg_len = ezcfg_igrs_get_message_length(igrs) + 1;
+	msg_len = ezcfg_igrs_get_message_length(igrs);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_igrs_get_message_length error.\n");
+		rc = 1;
+		goto exit;
+	}
+	msg_len++; /* one more for '\0' */
+	info(ezcfg, "msg_len=[%d]\n", msg_len);
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		err(ezcfg, "malloc msg error.\n");
@@ -186,7 +193,7 @@ int ezcm_main(int argc, char **argv)
 	}
 	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
-	if (ezcfg_ctrl_read(ezctrl, msg, sizeof(msg), 0) < 0) {
+	if (ezcfg_ctrl_read(ezctrl, msg, msg_len, 0) < 0) {
 		err(ezcfg, "controller write: %m\n");
 		rc = 5;
 		goto exit;

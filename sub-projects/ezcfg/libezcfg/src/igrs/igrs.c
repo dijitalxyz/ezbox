@@ -479,7 +479,7 @@ int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
 {
 	struct ezcfg *ezcfg;
         struct ezcfg_http *http;
-	int count = 0, n;
+	int count, n;
 
         ASSERT(igrs != NULL);
         ASSERT(igrs->http != NULL);
@@ -487,6 +487,7 @@ int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
         ezcfg = igrs->ezcfg;
         http = igrs->http;
 
+	count = 0;
 	n = ezcfg_http_get_start_line_length(http);
 	if (n < 0) {
 		return -1;

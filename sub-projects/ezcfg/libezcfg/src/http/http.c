@@ -1096,6 +1096,7 @@ int ezcfg_http_get_headers_length(struct ezcfg_http *http)
 	while (h != NULL) {
 		n = strlen(h->name);
 		count += n;
+		count++; /* for ":" */
 		n = (h->value ? strlen(h->value) : 0);
 		count += n;
 		n = strlen(EZCFG_HTTP_CRLF_STRING);
