@@ -1641,6 +1641,85 @@ bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 	return true;
 }
 
+int ezcfg_xml_get_length(struct ezcfg_xml *xml)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element **root;
+	struct elem_attribute *a;
+	int i, n, count;
+
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
+
+	ezcfg = xml->ezcfg;
+	root = xml->root;
+
+	count = 0;
+	for (i = 0; i < xml->num_elements; i++) {
+		if (root[i]->etag_index != i) {
+			if ((root[i]->name)[0] == '\0') {
+				/* special case for content is CharData in middle of element */
+				/* <caption>This is Raphael's "Foligno" Madonna, painted in
+				     <date>1511</date> - <date>1512</date>.
+				   </caption>
+				 */
+				//snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+				n = strlen(root[i]->content);
+				count += n;
+			}
+			else {
+				/* start tag */
+				//snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
+				count++; /* for "<" */
+				n = strlen(root[i]->name);
+				count += n;
+
+				a = root[i]->attr_head;
+				while(a != NULL) {
+					//snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
+					count++; /* for SP */
+					n = strlen(a->name);
+					count += n;
+
+					//snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
+					count += 2; /* for "=\"" */
+					n = strlen(a->value);
+					count += n;
+					count++; /* for \" */
+
+					a = a->next;
+				}
+				if (root[i]->content == NULL && root[i]->etag_index == i+1) {
+					//snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
+					count += 3; /* for "/>\n" */
+
+				}
+				else {
+					//snprintf(buf+strlen(buf), len-strlen(buf), ">");
+					count++; /* for ">" */
+
+					if (root[i]->content != NULL) {
+						//snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
+						n = strlen(root[i]->content);
+						count += n;
+					} else {
+						//snprintf(buf+strlen(buf), len-strlen(buf), "\n");
+						count++; /* for "\n" */
+					}
+				}
+			}
+		}
+		else {
+			/* end tag */
+			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
+			count += 2; /* for "</" */
+			n = strlen(root[i]->name);
+			count += 2; /* for ">\n" */
+		}
+	}
+	return (count);
+}
+
 int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 {
 	struct ezcfg *ezcfg;

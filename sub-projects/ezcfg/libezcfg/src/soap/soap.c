@@ -448,6 +448,17 @@ bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 	return true;
 }
 
+int ezcfg_soap_get_length(struct ezcfg_soap *soap)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(soap != NULL);
+
+	ezcfg = soap->ezcfg;
+
+	return ezcfg_xml_get_length(soap->xml);
+}
+
 int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
@@ -458,5 +469,5 @@ int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len)
 
 	ezcfg = soap->ezcfg;
 
-        return ezcfg_xml_write(soap->xml, buf, len);
+	return ezcfg_xml_write(soap->xml, buf, len);
 }

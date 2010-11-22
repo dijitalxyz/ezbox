@@ -321,6 +321,7 @@ extern "C" {
 #define EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME       "SourceUserId"
 #define EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME  "ServiceSecurityId"
 #define EZCFG_IGRS_TOKEN_ELEMENT_NAME                "Token"
+#define EZCFG_IGRS_INVOKE_ARGS_ELEMENT_NAME          "InvokeArguments"
 
 /* ezcfg igrs soap element attributes */
 #define EZCFG_IGRS_ENVELOPE_ATTR_NS_NAME	"xmlns:SOAP-ENV"
