@@ -290,6 +290,8 @@ struct ezcfg_igrs;
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
 struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
+struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs);
+struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
 unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs);
 unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs);

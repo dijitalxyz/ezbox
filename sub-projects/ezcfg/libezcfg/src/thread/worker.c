@@ -381,35 +381,61 @@ exit:
 static void handle_igrs_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_igrs *igrs;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	struct ezcfg_nvram *nvram;
+	char *request_uri;
+	char *buf;
+	int len, buf_len;
 
 	ASSERT(worker != NULL);
+	ASSERT(worker->proto_data != NULL);
+
+	igrs = worker->proto_data;
 
 	ezcfg = worker->ezcfg;
+	http = ezcfg_igrs_get_http(igrs);
+	soap = ezcfg_igrs_get_soap(igrs);
+	nvram = ezcfg_master_get_nvram(worker->master);
 
-	worker_printf(worker,
-	             "HTTP/1.1 %d %s\r\n"
-	             "\r\n", 200, "OK");
-}
+	buf_len = EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE ;
 
-static void shift_to_next(struct ezcfg_worker *worker, char *buf, int req_len, int *nread)
-{
-	int cl;
-	int over_len, body_len;
-
-	cl = get_content_length(worker);
-	over_len = *nread - req_len;
-	ASSERT(over_len >= 0);
-
-	if (cl == -1) {
-		body_len = 0;
-	} else if (cl < (int64_t) over_len) {
-		body_len = (int) cl;
-	} else {
-		body_len = over_len;
+	buf = calloc(buf_len, sizeof(char));
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for handling IGRS request\n");
+		return;
 	}
 
-	*nread -= req_len + body_len;
-	memmove(buf, buf + req_len + body_len, *nread);
+#if 0
+	request_uri = ezcfg_http_get_request_uri(http);
+	if (request_uri == NULL) {
+		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
+
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 400);
+
+		/* build SOAP/HTTP binding error response */
+		buf[0] = '\0';
+		len = ezcfg_igrs_write_message(igrs, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+		worker_write(worker, buf, len);
+		goto exit;
+	}
+
+	if (is_soap_http_nvram_request(request_uri) == true) {
+		ezcfg_soap_http_handle_nvram_request(sh, nvram);
+
+		/* build SOAP/HTTP binding response */
+		buf[0] = '\0';
+		len = ezcfg_soap_http_write_message(sh, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
+
+		worker_write(worker, buf, len);
+	}
+#endif
+exit:
+	free(buf);
 }
 
 static void process_http_new_connection(struct ezcfg_worker *worker)
@@ -454,7 +480,6 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 			}
 			worker->birth_time = time(NULL);
 			handle_http_request(worker);
-			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
 		/* Do not put garbage in the access log */
@@ -506,14 +531,13 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		unsigned short major, minor;
 		major = ezcfg_soap_http_get_http_version_major(worker->proto_data);
 		minor = ezcfg_soap_http_get_http_version_minor(worker->proto_data);
-		if (major != 1 || minor != 1) {
+		if ((major == 1) && (minor == 1)) {
+			worker->birth_time = time(NULL);
+			handle_soap_http_request(worker);
+		} else {
 			send_soap_http_error(worker, 505,
 			                "SOAP/HTTP binding version not supported",
 			                "%s", "Weird HTTP version");
-		} else {
-			worker->birth_time = time(NULL);
-			handle_soap_http_request(worker);
-			shift_to_next(worker, buf, request_len, &nread);
 		}
 	} else {
 		/* Do not put garbage in the access log */
@@ -560,17 +584,16 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		unsigned short major, minor;
 		major = ezcfg_igrs_get_version_major(worker->proto_data);
 		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
-		if (major != 1 || minor != 0) {
-			send_igrs_error(worker, 505,
-			                "IGRS version not supported",
-			                "%s", "Weird IGRS version");
-		} else {
+		if ((major == 1) && (minor == 0)) {
 			if (nread > request_len) {
 				ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
 			}
 			worker->birth_time = time(NULL);
 			handle_igrs_request(worker);
-			shift_to_next(worker, buf, request_len, &nread);
+		} else {
+			send_igrs_error(worker, 505,
+			                "IGRS version not supported",
+			                "%s", "Weird IGRS version");
 		}
 	} else {
 		/* Do not put garbage in the access log */

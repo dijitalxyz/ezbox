@@ -685,6 +685,30 @@ void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
 	ezcfg = igrs->ezcfg;
 }
 
+struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->http;
+}
+
+struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->soap != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->soap;
+}
+
 int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
 {
 	struct ezcfg *ezcfg;
