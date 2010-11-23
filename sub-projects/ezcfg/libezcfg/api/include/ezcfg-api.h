@@ -12,8 +12,8 @@ int ezcfg_api_nvram_commit(void);
 void ezcfg_api_nvram_set_debug(bool enable_debug);
 
 /* u-boot-env interface */
-int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len);
-int ezcfg_api_ubootenv_set(const char *name, const char *value);
+int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
+int ezcfg_api_ubootenv_set(char *name, char *value);
 int ezcfg_api_ubootenv_list(char *list, size_t len);
 int ezcfg_api_ubootenv_check(void);
 

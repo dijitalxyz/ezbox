@@ -55,6 +55,7 @@ ezcfg_igrs_set_target_service_id
 ezcfg_igrs_set_source_user_id
 ezcfg_igrs_set_sequence_id
 ezcfg_igrs_set_service_security_id
+ezcfg_igrs_set_invoke_args
 ezcfg_igrs_set_message_type
 ezcfg_igrs_build_message
 ezcfg_igrs_write_message

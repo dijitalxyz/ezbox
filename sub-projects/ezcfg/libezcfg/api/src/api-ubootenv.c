@@ -128,7 +128,7 @@ static int init_ubootenv_info(ubootenv_info_t *info)
 	return 0;
 }
 
-static char *find_entry_position(const char *data, char *name)
+static char *find_entry_position(char *data, char *name)
 {
 	int name_len, entry_len, cmp_len;
 	char *entry;
@@ -229,7 +229,7 @@ static int check_ubootenv_name(char *tmp, char *name, ezcfg_nv_pair_t *checklist
 	return 0;
 }
 
-static int write_ubootenv(ubootenv_info_t info, const char *buf, size_t len)
+static int write_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 {
 	int mtd_fd, count;
 	mtd_info_t mtd_info;
@@ -278,7 +278,7 @@ static int write_ubootenv(ubootenv_info_t info, const char *buf, size_t len)
  * @len: buffer size
  *
  **/
-int ezcfg_api_ubootenv_get(const char *name, char *value, size_t len)
+int ezcfg_api_ubootenv_get(char *name, char *value, size_t len)
 {
 	int rc = 0;
 	char *buf = NULL;
@@ -366,7 +366,7 @@ func_out:
  * @value: buffer stored u-boot env parameter value
  *
  **/
-int ezcfg_api_ubootenv_set(const char *name, const char *value)
+int ezcfg_api_ubootenv_set(char *name, char *value)
 {
 	int rc = 0;
 	char *buf = NULL;

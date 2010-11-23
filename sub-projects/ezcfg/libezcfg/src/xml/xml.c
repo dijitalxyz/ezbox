@@ -1498,7 +1498,7 @@ int ezcfg_xml_add_element(
 		sibling = NULL;
 	}
 	else {
-		sibling = root[pi];
+		sibling = root[si];
 	}
 
 	if (parent == NULL) {
@@ -1539,11 +1539,13 @@ int ezcfg_xml_add_element(
 		xml->num_elements++;
 	} else {
 		/* sibling element's next */
-		for (i = xml->num_elements-1; i > 0; i--) {
+		for (i = xml->num_elements-1; i > sibling->etag_index; i--) {
+#if 0
 			/* find sibling element end tag */
 			if (root[i] == sibling) {
 				break;
 			}
+#endif
 			/* move 2 steps */
 			root[i+2] = root[i];
 
@@ -1714,6 +1716,7 @@ int ezcfg_xml_get_length(struct ezcfg_xml *xml)
 			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
 			count += 2; /* for "</" */
 			n = strlen(root[i]->name);
+			count += n;
 			count += 2; /* for ">\n" */
 		}
 	}

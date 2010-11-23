@@ -669,7 +669,7 @@ bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, ch
 	return ret;
 }
 
-bool ezcfg_nvram_get_all_entries_list(const struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)
+bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)
 {
 	struct ezcfg *ezcfg;
 	char *entry, *p;

@@ -64,6 +64,8 @@ struct ezcfg_igrs {
 	char *source_user_id; /* string, max length is 127 */
 	char *service_security_id;
 
+	char *invoke_args;
+
 	char *host; /* Multicast channel and port reserved for ISDP */
 	/* NOTIFY headers */
 	char *cache_control; /* Used in advertisement mechanisms */
@@ -253,6 +255,8 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char buf[1024];
+	char *msg;
+	int msg_len;
 	int n;
 	int body_index, session_index, userinfo_index, child_index;
 
@@ -280,9 +284,10 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	session_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_IGRS_SESSION_ELEMENT_NAME, NULL);
 	ezcfg_soap_add_body_child_attribute(soap, session_index, EZCFG_IGRS_SESSION_ATTR_NS_NAME, EZCFG_IGRS_SESSION_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* SourceCleintId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->source_client_id);
-	child_index = ezcfg_soap_add_body_child(soap, session_index, -1, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
 
 	/* TargetServiceId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->target_service_id);
@@ -303,9 +308,33 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 
 	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_TOKEN_ELEMENT_NAME, "");
 
-	buf[0] = '\0';
-	n = ezcfg_soap_write(soap, buf, sizeof(buf));
-	ezcfg_http_set_message_body(http, buf, n);
+	msg_len = ezcfg_soap_get_length(soap);
+	dbg(ezcfg, "msg_len=[%d]\n", msg_len);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_soap_get_length\n");
+		return false;
+	}
+	msg_len++; /* one more for \0 */
+	if (msg_len <= sizeof(buf)) {
+		msg = buf;
+	}
+	else {
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "msg malloc\n");
+			return false;
+		}
+	}
+
+	memset(msg, '\0', msg_len);
+	n = ezcfg_soap_write(soap, msg, msg_len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_soap_write\n");
+		if (msg != buf) { free(msg); }
+		return false;
+	}
+	ezcfg_http_set_message_body(http, msg, n);
+	if (msg != buf) { free(msg); }
 
 	/* build HTTP request line */
 	ezcfg_http_set_request_method(http, EZCFG_IGRS_METHOD_POST_EXT);
@@ -410,8 +439,7 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 	char *msg;
 	int msg_len;
 	int n;
-	int body_index, session_index, invokeargs_index, child_index;
-	char *args = "FIXME!!!";
+	int body_index, session_index, child_index;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
@@ -438,8 +466,9 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 	ezcfg_soap_add_body_child_attribute(soap, session_index, EZCFG_IGRS_SESSION_ATTR_NS_NAME, EZCFG_IGRS_SESSION_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* SourceCleintId part */
+	child_index = -1;
 	snprintf(buf, sizeof(buf), "%u", igrs->source_client_id);
-	child_index = ezcfg_soap_add_body_child(soap, session_index, -1, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
 
 	/* TargetServiceId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->target_service_id);
@@ -450,7 +479,9 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME, buf);
 
 	/* The specific invocation acknowledgement message */
-	invokeargs_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_INVOKE_ARGS_ELEMENT_NAME, args);
+	if (igrs->invoke_args != NULL) {
+		child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_INVOKE_ARGS_ELEMENT_NAME, igrs->invoke_args);
+	}
 
 	msg_len = ezcfg_soap_get_length(soap);
 	if (msg_len < 0) {
@@ -458,21 +489,26 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 		return false;
 	}
 	msg_len++; /* one more for \0 */
-	msg = (char *)malloc(msg_len);
-	if (msg == NULL) {
-		err(ezcfg, "msg malloc\n");
-		return false;
+	if (msg_len <= sizeof(buf)) {
+		msg = buf;
+	}
+	else {
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "msg malloc\n");
+			return false;
+		}
 	}
 
 	memset(msg, '\0', msg_len);
 	n = ezcfg_soap_write(soap, msg, msg_len);
 	if (n < 0) {
 		err(ezcfg, "ezcfg_soap_write\n");
-		free(msg);
+		if (msg != buf) { free(msg); }
 		return false;
 	}
 	ezcfg_http_set_message_body(http, msg, n);
-	free(msg);
+	if (msg != buf) { free(msg); }
 
 	/* build HTTP request line */
 	ezcfg_http_set_request_method(http, EZCFG_IGRS_METHOD_POST_EXT);
@@ -593,6 +629,10 @@ void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
 
 	if (igrs->service_security_id != NULL) {
 		free(igrs->service_security_id);
+	}
+
+	if (igrs->invoke_args != NULL) {
+		free(igrs->invoke_args);
 	}
 
 	free(igrs);
@@ -887,6 +927,43 @@ char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs)
 	return igrs->service_security_id;
 }
 
+bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args)
+{
+	struct ezcfg *ezcfg;
+	char *s;
+
+	ASSERT(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	if (invoke_args == NULL) {
+		s = NULL;
+	} else {
+		s = strdup(invoke_args);
+		if (s == NULL) {
+			err(ezcfg, "no enough memory for service invoke args\n");
+			return false;
+		}
+	}
+
+	if (igrs->invoke_args != NULL) {
+		free(igrs->invoke_args);
+	}
+	igrs->invoke_args = s;
+	return true;
+}
+
+char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(igrs != NULL);
+
+	ezcfg = igrs->ezcfg;
+
+	return igrs->invoke_args;
+}
+
 bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id)
 {
 	struct ezcfg *ezcfg;
@@ -992,6 +1069,7 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 
 	ezcfg = igrs->ezcfg;
 
+	dbg(ezcfg, "igrs->message_type_index=[%d]\n", igrs->message_type_index);
 	if (igrs->message_type_index == 0) {
 		err(ezcfg, "unknown igrs message type\n");
 		return -1;

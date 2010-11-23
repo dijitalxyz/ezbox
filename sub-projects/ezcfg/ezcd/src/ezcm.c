@@ -62,9 +62,10 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 
 static void ezcm_show_usage(void)
 {
-	printf("Usage: ezcm [-m message]\n");
+	printf("Usage: ezcm -s service_id [-a invoke_args]\n");
 	printf("\n");
-	printf("  -m\tmessage sent to ezcd\n");
+	printf("  -s\ttarget service id\n");
+	printf("  -a\tinvoke arguments\n");
 	printf("  -D\tdebug mode\n");
 	printf("  -h\thelp\n");
 	printf("\n");
@@ -81,14 +82,28 @@ int ezcm_main(int argc, char **argv)
 	struct ezcfg_uuid *uuid = NULL;
 	struct ezcfg_igrs *igrs = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
+	unsigned int service_id;
+	char *invoke_args;
 	time_t t;
 
+	if (argc < 3) {
+		ezcm_show_usage();
+		return 0;
+	}
+
 	memset(buf, 0, sizeof(buf));
+	service_id = 0;
+	invoke_args = NULL;
+
 	for (;;) {
-		c = getopt( argc, argv, "Dhm:");
+		c = getopt(argc, argv, "Dha:m:s:");
 		if (c == EOF) break;
 		switch (c) {
-			case 'm':
+			case 's':
+				service_id = (unsigned int)atoi(optarg);
+				break;
+			case 'a':
+				invoke_args = optarg;
 				break;
 			case 'D':
 				debug = true;
@@ -98,9 +113,13 @@ int ezcm_main(int argc, char **argv)
 				ezcm_show_usage();
 				return 0;
 		}
-        }
+	}
 
-	//conn_fd = ezcd_client_connection(EZCD_SOCKET_PATH, 'a');
+	if (service_id == 0) {
+		printf("service id must larger than 0.\n");
+		return 0;
+	}
+
 	ezcfg = ezcfg_new();
 	if (ezcfg == NULL) {
 		printf("error : %s\n", "ezcfg_new");
@@ -112,9 +131,7 @@ int ezcm_main(int argc, char **argv)
 	ezcfg_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
 
-	dbg(ezcfg, "debug\n");
 	igrs = ezcfg_igrs_new(ezcfg);
-	dbg(ezcfg, "debug\n");
 	if (igrs == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm igrs builder");
 		rc = 2;
@@ -146,11 +163,14 @@ int ezcm_main(int argc, char **argv)
 
 	srand((unsigned)time(&t));
 	ezcfg_igrs_set_source_client_id(igrs, rand());
-	ezcfg_igrs_set_target_service_id(igrs, rand());
+	ezcfg_igrs_set_target_service_id(igrs, service_id);
 	ezcfg_igrs_set_sequence_id(igrs, rand());
 	ezcfg_igrs_set_source_user_id(igrs, "igrs-tester");
 	ezcfg_igrs_set_service_security_id(igrs, NULL);
-	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
+	if (invoke_args != NULL) {
+		ezcfg_igrs_set_invoke_args(igrs, invoke_args);
+	}
+	ezcfg_igrs_set_message_type(igrs, EZCFG_IGRS_MSG_INVOKE_SERVICE_REQUEST);
 	ezcfg_igrs_build_message(igrs);
 	msg_len = ezcfg_igrs_get_message_length(igrs);
 	if (msg_len < 0) {
@@ -179,7 +199,6 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 
-	dbg(ezcfg, "debug\n");
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		err(ezcfg, "controller connect fail: %m\n");
 		rc = 3;
