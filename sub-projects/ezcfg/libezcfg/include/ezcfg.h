@@ -290,6 +290,9 @@ extern "C" {
 #define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/soap-http/listNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/soap-http/commitNvram"
 
+/* ezcfg igrs request/response mode */
+#define EZCFG_IGRS_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
+#define EZCFG_IGRS_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
 /* ezcfg igrs request size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
 /* ezcfg igrs request/response mode */

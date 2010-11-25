@@ -407,33 +407,37 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 		return;
 	}
 
-#if 0
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
-		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
+		err(ezcfg, "no request uri for IGRS action.\n");
 
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
 
-		/* build SOAP/HTTP binding error response */
+		/* build IGRS error response */
 		buf[0] = '\0';
-		len = ezcfg_igrs_write_message(igrs, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
-
+		len = ezcfg_igrs_http_write_message(igrs, buf, buf_len, EZCFG_IGRS_HTTP_MODE_RESPONSE);
 		worker_write(worker, buf, len);
 		goto exit;
 	}
 
-	if (is_soap_http_nvram_request(request_uri) == true) {
-		ezcfg_soap_http_handle_nvram_request(sh, nvram);
+	if (ezcfg_igrs_handle_message(igrs, buf, buf_len) < 0) {
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 400);
 
-		/* build SOAP/HTTP binding response */
+		/* build IGRS error response */
 		buf[0] = '\0';
-		len = ezcfg_soap_http_write_message(sh, buf, buf_len, EZCFG_SOAP_HTTP_MODE_RESPONSE);
-
+		len = ezcfg_igrs_http_write_message(igrs, buf, buf_len, EZCFG_IGRS_HTTP_MODE_RESPONSE);
 		worker_write(worker, buf, len);
 	}
-#endif
+	else {
+		/* build IGRS response */
+		buf[0] = '\0';
+		len = ezcfg_igrs_write_message(igrs, buf, buf_len);
+		worker_write(worker, buf, len);
+	}
 exit:
 	free(buf);
 }

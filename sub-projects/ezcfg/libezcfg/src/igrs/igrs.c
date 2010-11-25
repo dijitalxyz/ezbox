@@ -39,6 +39,7 @@ struct ezcfg_igrs_msg_op {
 	char *name;
 	bool (*build_fn)(struct ezcfg_igrs *igrs);
 	int (*write_fn)(struct ezcfg_igrs *igrs, char *buf, int len);
+	int (*handle_fn)(struct ezcfg_igrs *igrs, char *buf, int len);
 };
 
 struct ezcfg_igrs {
@@ -107,143 +108,149 @@ static const char *igrs_header_strings[] = {
 
 static bool build_create_session_request(struct ezcfg_igrs *igrs);
 static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int len);
+static int handle_create_session_request(struct ezcfg_igrs *igrs, char *buf, int len);
 
 static bool build_invoke_service_request(struct ezcfg_igrs *igrs);
 static int write_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, int len);
+static int handle_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, int len);
 
 static const struct ezcfg_igrs_msg_op default_message_type_ops[] = {
 	/* bad Message Type string */
-	{ NULL, NULL, NULL },
+	{ NULL, NULL, NULL, NULL },
 	/* 9.1 Device Advertisement */
 	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_DEVICE_OFFLINE_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.2 Device Pipe Management */
 	{ EZCFG_IGRS_MSG_CREATE_PIPE_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_AUTHENTICATE_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESULT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_AUTHENTICATE_RESULT_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESULT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_CREATE_PIPE_RESULT_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_DETACH_PIPE_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_DETECTION_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_DEVICE_ONLINE_DETECTION_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.3 Detaild Device Description Document Retrieval */
 	{ EZCFG_IGRS_MSG_GET_DEVICE_DESCRIPTION_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_GET_DEVICE_DESCRIPTION_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.4 Retrieve Detailed Device Description Document Based on Non-Secure Pipe */
 	/* 9.5 Device Group Setup */
 	{ EZCFG_IGRS_MSG_PEER_DEVICE_GROUP_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_QUIT_PEER_DEVICE_GROUP_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_CENTRALISED_DEVICE_GROUP_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_JOIN_CENTRALISED_DEVICE_GROUP_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_JOIN_CENTRALISED_DEVICE_GROUP_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_QUIT_CENTRALISED_DEVICE_GROUP_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_QUIT_CENTRALISED_DEVICE_GROUP_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.6 Device Search */
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_REQUEST_ON_DEVICE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_RESPONSE_ON_DEVICE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.7 Device Online/Offline Event Subscription */
 	{ EZCFG_IGRS_MSG_SUBSCRIBE_DEVICE_EVENT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_RENEW_SUBSCRIPTION_DEVICE_EVENT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SUBSCRIBE_DEVICE_EVENT_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_UNSUBSCRIBE_DEVICE_EVENT_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_NOTIFY_DEVICE_EVENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 9.8 Device Group Search */
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_GROUP_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_DEVICE_GROUP_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.1 Service Online/Offline Advertisement */
 	{ EZCFG_IGRS_MSG_SERVICE_ONLINE_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SERVICE_OFFLINE_ADVERTISEMENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_REGISTER_SERVICE_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_UNREGISTER_SERVICE_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.2 Service Search */
 	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_REQUEST_ON_DEVICE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEARCH_SERVICE_RESPONSE_ON_DEVICE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.3 Service Online/Offline Event Subscription */
 	{ EZCFG_IGRS_MSG_SUBSCRIBE_SERVICE_EVENT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_RENEW_SUBSCRIPTION_SERVICE_EVENT_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SUBSCRIBE_SERVICE_EVENT_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_UNSUBSCRIBE_DEVICE_EVENT_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_NOTIFY_SERVICE_EVENT ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.4 Service Description Document Retrieval */
 	{ EZCFG_IGRS_MSG_GET_SERVICE_DESCRIPTION_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_GET_SERVICE_DESCRIPTION_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.5 Session */
 	{ EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST ,
-	  build_create_session_request, write_create_session_request },
+	  build_create_session_request,
+	  write_create_session_request,
+	  handle_create_session_request	},
 	{ EZCFG_IGRS_MSG_CREATE_SESSION_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_DESTROY_SESSION_NOTIFY ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_APPLY_SESSION_KEY_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_APPLY_SESSION_KEY_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_TRANSFER_SESSION_KEY_REQUEST ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_TRANSFER_SESSION_KEY_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	/* 10.6 Service Invocation */
 	{ EZCFG_IGRS_MSG_INVOKE_SERVICE_REQUEST ,
-	  build_invoke_service_request, write_invoke_service_request },
+	  build_invoke_service_request,
+	  write_invoke_service_request,
+	  handle_invoke_service_request },
 	{ EZCFG_IGRS_MSG_INVOKE_SERVICE_RESPONSE ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 	{ EZCFG_IGRS_MSG_SEND_NOTIFICATION ,
-	  NULL, NULL },
+	  NULL, NULL, NULL },
 };
 
 /**
@@ -430,6 +437,25 @@ static int write_create_session_request(struct ezcfg_igrs *igrs, char *buf, int 
 	return (p-buf);
 }
 
+static int handle_create_session_request(struct ezcfg_igrs *igrs, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+	soap = igrs->soap;
+
+	return 0;
+}
+
 static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 {
 	struct ezcfg *ezcfg;
@@ -602,6 +628,25 @@ static int write_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, int 
 	}
 
 	return (p-buf);
+}
+
+static int handle_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+	soap = igrs->soap;
+
+	return 0;
 }
 
 /**
@@ -1108,6 +1153,32 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 	return -1;
 }
 
+int ezcfg_igrs_handle_message(struct ezcfg_igrs *igrs, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	const struct ezcfg_igrs_msg_op *op;
+
+	ASSERT(igrs != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = igrs->ezcfg;
+
+	dbg(ezcfg, "igrs->message_type_index=[%d]\n", igrs->message_type_index);
+	if (igrs->message_type_index == 0) {
+		err(ezcfg, "unknown igrs message type\n");
+		return -1;
+	}
+
+	op = &(igrs->message_type_ops[igrs->message_type_index]);
+
+	if (op->handle_fn != NULL) {
+		info(ezcfg, "handle %s\n", op->name);
+		return op->handle_fn(igrs, buf, len);
+	}
+	return -1;
+}
+
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name)
 {
         struct ezcfg *ezcfg;
@@ -1154,13 +1225,19 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
 	char *s;
 	int n;
+	char *msg_body;
+	int msg_body_len;
 
 	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
+	soap = igrs->soap;
 
 	if (ezcfg_http_parse_request(http, buf, len) == false) {
 		return false;
@@ -1188,7 +1265,16 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 		err(ezcfg, "igrs message type is unknown\n");
 		return false;
 	}
-	
+
+	msg_body = ezcfg_http_get_message_body(http);
+	msg_body_len = ezcfg_http_get_message_body_len(http);
+
+	if (msg_body != NULL && msg_body_len > 0) {
+		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -1196,13 +1282,19 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
 	char *s;
 	int n;
+	char *msg_body;
+	int msg_body_len;
 
 	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
+	soap = igrs->soap;
 
 	if (ezcfg_http_parse_response(http, buf, len) == false) {
 		return false;
@@ -1230,7 +1322,16 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 		err(ezcfg, "igrs message type is unknown\n");
 		return false;
 	}
-	
+
+	msg_body = ezcfg_http_get_message_body(http);
+	msg_body_len = ezcfg_http_get_message_body_len(http);
+
+	if (msg_body != NULL && msg_body_len > 0) {
+		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -1245,4 +1346,63 @@ char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int
 	http = igrs->http;
 
 	return ezcfg_http_set_message_body(http, body, len);
+}
+
+int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len, int mode)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+
+	char *p;
+	int n;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+
+	p = buf; n = 0;
+	if (mode == EZCFG_IGRS_HTTP_MODE_REQUEST) {
+		n = ezcfg_http_write_request_line(http, p, len);
+		if (n < 0) {
+			err(ezcfg, "ezcfg_http_write_request_line\n");
+			return n;
+		}
+	}
+	else {
+		n = ezcfg_http_write_status_line(http, p, len);
+		if (n < 0) {
+			err(ezcfg, "ezcfg_http_write_status_line\n");
+			return n;
+		}
+	}
+	p += n; len -= n;
+
+	n = ezcfg_http_write_headers(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_headers\n");
+		return n;
+	}
+	p += n; len -= n;
+
+	n = ezcfg_http_write_crlf(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_crlf\n");
+		return n;
+	}
+	p += n; len -= n;
+
+	if (ezcfg_http_get_message_body(http) != NULL) {
+		n = ezcfg_http_write_message_body(http, p, len);
+		if (n < 0) {
+			err(ezcfg, "ezcfg_http_write_message_body\n");
+			return n;
+		}
+		p += n; len -= n;
+	}
+
+	return (p-buf);
 }
