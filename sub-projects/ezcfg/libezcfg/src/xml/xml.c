@@ -35,6 +35,7 @@ struct elem_attribute {
 };
 
 struct ezcfg_xml_element {
+	char *prefix;
 	char *name;
 	struct elem_attribute *attr_head;
 	struct elem_attribute *attr_tail;
@@ -1333,6 +1334,9 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
 	struct elem_attribute *a;
 	ASSERT(elem != NULL);
+	if (elem->prefix) {
+		free(elem->name);
+	}
 	if (elem->name) {
 		free(elem->name);
 	}
@@ -1354,7 +1358,9 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 
 struct ezcfg_xml_element *ezcfg_xml_element_new(
 	struct ezcfg_xml *xml,
-	const char *name, const char *content) {
+	const char *prefix,
+	const char *name,
+	const char *content) {
 
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;

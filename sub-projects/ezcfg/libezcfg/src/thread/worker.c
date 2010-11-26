@@ -384,10 +384,9 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	struct ezcfg_igrs *igrs;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
-	struct ezcfg_nvram *nvram;
 	char *request_uri;
-	char *buf;
-	int len, buf_len;
+	char *msg = NULL;
+	int msg_len;
 
 	ASSERT(worker != NULL);
 	ASSERT(worker->proto_data != NULL);
@@ -397,16 +396,10 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 	http = ezcfg_igrs_get_http(igrs);
 	soap = ezcfg_igrs_get_soap(igrs);
-	nvram = ezcfg_master_get_nvram(worker->master);
 
-	buf_len = EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE ;
-
-	buf = calloc(buf_len, sizeof(char));
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for handling IGRS request\n");
-		return;
-	}
-
+	dbg(ezcfg, "igrs=[%s]\n", igrs);
+	dbg(ezcfg, "http=[%x]\n", http);
+	dbg(ezcfg, "soap=[%x]\n", soap);
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
 		err(ezcfg, "no request uri for IGRS action.\n");
@@ -414,32 +407,73 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
+		ezcfg_http_set_state_response(http);
 
 		/* build IGRS error response */
-		buf[0] = '\0';
-		len = ezcfg_igrs_http_write_message(igrs, buf, buf_len, EZCFG_IGRS_HTTP_MODE_RESPONSE);
-		worker_write(worker, buf, len);
+		msg_len = ezcfg_igrs_http_get_message_length(igrs);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_igrs_get_message_length error.\n");
+			goto exit;
+		}
+		msg_len++; /* one more for '\0' */
+		info(ezcfg, "msg_len=[%d]\n", msg_len);
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_igrs_http_write_message(igrs, msg, msg_len);
+		worker_write(worker, msg, msg_len);
 		goto exit;
 	}
 
-	if (ezcfg_igrs_handle_message(igrs, buf, buf_len) < 0) {
+	if (ezcfg_igrs_handle_message(igrs) < 0) {
+		dbg(ezcfg, "%s(%d)\n", __func__, __LINE__);
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
+		ezcfg_http_set_state_response(http);
 
 		/* build IGRS error response */
-		buf[0] = '\0';
-		len = ezcfg_igrs_http_write_message(igrs, buf, buf_len, EZCFG_IGRS_HTTP_MODE_RESPONSE);
-		worker_write(worker, buf, len);
+		msg_len = ezcfg_igrs_http_get_message_length(igrs);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_igrs_get_message_length error.\n");
+			goto exit;
+		}
+		msg_len++; /* one more for '\0' */
+		info(ezcfg, "msg_len=[%d]\n", msg_len);
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_igrs_http_write_message(igrs, msg, msg_len);
+		worker_write(worker, msg, msg_len);
 	}
 	else {
 		/* build IGRS response */
-		buf[0] = '\0';
-		len = ezcfg_igrs_write_message(igrs, buf, buf_len);
-		worker_write(worker, buf, len);
+		ezcfg_igrs_build_message(igrs);
+		msg_len = ezcfg_igrs_get_message_length(igrs);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_igrs_get_message_length error.\n");
+			goto exit;
+		}
+		msg_len++; /* one more for '\0' */
+		info(ezcfg, "msg_len=[%d]\n", msg_len);
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_igrs_write_message(igrs, msg, msg_len);
+		worker_write(worker, msg, msg_len);
 	}
 exit:
-	free(buf);
+	if (msg != NULL)
+		free(msg);
 }
 
 static void process_http_new_connection(struct ezcfg_worker *worker)
@@ -569,6 +603,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		err(ezcfg, "not enough memory for processing igrs new connection\n");
 		return;
 	}
+	memset(buf, 0, buf_len);
 	nread = 0;
 	request_len = read_request(worker, buf, buf_len, &nread);
 
@@ -580,20 +615,32 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		return; /* Request is too large or format is not correct */
 	}
 
+	/* first setup message body info */
+	dbg(ezcfg, "nread=[%d], request_len=[%d]\n", nread, request_len);
+	if (nread > request_len) {
+		ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+	}
+	dbg(ezcfg, "message_body=[%s]\n", buf + request_len);
+
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[request_len - 1] = '\0';
-	if (ezcfg_igrs_parse_request(worker->proto_data, buf, nread) == true) {
+	if (ezcfg_igrs_parse_request(worker->proto_data, buf, request_len) == true) {
 		unsigned short major, minor;
 		major = ezcfg_igrs_get_version_major(worker->proto_data);
 		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
 		if ((major == 1) && (minor == 0)) {
+#if 0
+			dbg(ezcfg, "nread=[%d], request_len=[%d]\n", nread, request_len);
 			if (nread > request_len) {
 				ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
 			}
+#endif
 			worker->birth_time = time(NULL);
+			dbg(ezcfg, "message_body=[%s]\n", buf + request_len);
 			handle_igrs_request(worker);
+			dbg(ezcfg, "%s(%d)\n", __func__, __LINE__);
 		} else {
 			send_igrs_error(worker, 505,
 			                "IGRS version not supported",
@@ -601,7 +648,8 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		}
 	} else {
 		/* Do not put garbage in the access log */
-		send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
+		dbg(ezcfg, "ezcfg_igrs_parse_request=false\n");
+		send_igrs_error(worker, 400, "Bad Request-1", "Can not parse request: %.*s", nread, buf);
 	}
 
 	/* release buf memory */

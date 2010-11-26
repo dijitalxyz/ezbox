@@ -429,21 +429,27 @@ bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 	ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
+	dbg(ezcfg, "soap=[%x]\n", soap);
 	if (ezcfg_xml_parse(xml, buf, len) == false) {
+		dbg(ezcfg, "ezcfg_xml_parse=false\n");
 		return false;
 	}
 
 	soap->envelope_index = 0;
 
 	if (ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
+		dbg(ezcfg, "%s=%d\n", EZCFG_SOAP_ENVELOPE_ELEMENT_NAME, ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME));
 		return false;
 	}
 
 	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, -1, EZCFG_SOAP_BODY_ELEMENT_NAME);
 
+	dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
 	if (soap->body_index < 1) {
+		dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
 		return false;
 	}
+	dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
 
 	return true;
 }

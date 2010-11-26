@@ -407,6 +407,58 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	return http;
 }
 
+void ezcfg_http_set_state_request(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	info(ezcfg, "http->state=HTTP_REQUEST\n");
+	http->state = HTTP_REQUEST;
+}
+
+void ezcfg_http_set_state_response(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	info(ezcfg, "http->state=HTTP_RESPONSE\n");
+	http->state = HTTP_RESPONSE;
+}
+
+bool ezcfg_http_is_state_request(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state == HTTP_REQUEST)
+		return true;
+	else
+		return false;
+}
+
+bool ezcfg_http_is_state_response(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state = HTTP_RESPONSE)
+		return true;
+	else
+		return false;
+}
+
 void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;

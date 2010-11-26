@@ -182,6 +182,10 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
+void ezcfg_http_set_state_request(struct ezcfg_http *http);
+void ezcfg_http_set_state_response(struct ezcfg_http *http);
+bool ezcfg_http_is_state_request(struct ezcfg_http *http);
+bool ezcfg_http_is_state_response(struct ezcfg_http *http);
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len);
@@ -308,10 +312,20 @@ bool ezcfg_igrs_set_service_security_id(struct ezcfg_igrs *igrs, const char *sec
 char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int client_id);
 unsigned int ezcfg_igrs_get_source_client_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_target_client_id(struct ezcfg_igrs *igrs, unsigned int client_id);
+unsigned int ezcfg_igrs_get_target_client_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_source_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
+unsigned int ezcfg_igrs_get_source_service_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
 unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id);
 unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_acknowledge_id(struct ezcfg_igrs *igrs, unsigned int ack_id);
+unsigned int ezcfg_igrs_get_acknowledge_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_return_code(struct ezcfg_igrs *igrs, unsigned short code);
+unsigned short ezcfg_igrs_get_return_code(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args);
+char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name);
@@ -319,6 +333,8 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len);
 bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
+int ezcfg_igrs_http_get_message_length(struct ezcfg_igrs *igrs);
+int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 
 /* igrs/isdp.c */
 struct ezcfg_isdp;
