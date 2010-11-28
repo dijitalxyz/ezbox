@@ -29,6 +29,7 @@
 #include "ezcfg-private.h"
 
 struct elem_attribute {
+	char *prefix;
 	char *name;
 	char *value;
 	struct elem_attribute *next;
@@ -91,6 +92,25 @@ const char *default_character_encoding_names[] = {
 };
 
 /* Private functions */
+static void delete_attribute(struct elem_attribute *a)
+{
+	ASSERT(a != NULL);
+
+	/* prefix and name point to the same place 
+	 * if prefix is not NULL, free(prefix) 
+	 * else free(name) */
+	if (a->prefix != NULL) {
+		free(a->prefix);
+	}
+	else if (a->name != NULL) {
+		free(a->name);
+	}
+
+	if (a->value != NULL) {
+		free(a->value);
+	}
+}
+
 static void delete_elements(struct ezcfg_xml *xml)
 {
 	int i;
@@ -1077,7 +1097,7 @@ static int parse_element_etag(
 	const int ei) {
 
 	struct ezcfg *ezcfg;
-	char *p, *name;
+	char *p, *q, *name;
 	char *end_tag_end;
 	struct ezcfg_xml_element *elem;
 	char c;
@@ -1113,9 +1133,21 @@ static int parse_element_etag(
 	c = *p;
 	*p = '\0';
 
-	if (strcmp(elem->name, name) != 0) {
-		*p = c;
-		return -1;
+	if (elem->prefix != NULL) {
+		q = elem->prefix + strlen(elem->prefix);
+		*q = ':';
+		if (strcmp(elem->prefix, name) != 0) {
+			*p = c;
+			*q = '\0';
+			return -1;
+		}
+		*q = '\0';
+	}
+	else {
+		if (strcmp(elem->name, name) != 0) {
+			*p = c;
+			return -1;
+		}
 	}
 
 	*p = c;
@@ -1334,22 +1366,24 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 {
 	struct elem_attribute *a;
 	ASSERT(elem != NULL);
-	if (elem->prefix) {
-		free(elem->name);
-	}
-	if (elem->name) {
-		free(elem->name);
-	}
+
+	/* first delete all element's attributes */
 	while (elem->attr_head != NULL) {
 		a = elem->attr_head;
 		elem->attr_head = a->next;
-		if (a->name != NULL) {
-			free(a->name);
-		}
-		if (a->value != NULL) {
-			free(a->value);
-		}
+		delete_attribute(a);
 	}
+
+	/* prefix and name point to the same place 
+	 * if prefix is not NULL, free(prefix) 
+	 * else free(name) */
+	if (elem->prefix != NULL) {
+		free(elem->prefix);
+	}
+	else if (elem->name != NULL) {
+		free(elem->name);
+	}
+
 	if (elem->content != NULL) {
 		free(elem->content);
 	}
@@ -1358,12 +1392,12 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 
 struct ezcfg_xml_element *ezcfg_xml_element_new(
 	struct ezcfg_xml *xml,
-	const char *prefix,
 	const char *name,
 	const char *content) {
 
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
+	char *p;
 
 	ASSERT(xml != NULL);
 	ASSERT(name != NULL);
@@ -1384,6 +1418,15 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
 		ezcfg_xml_element_delete(elem);
 		return NULL;
 	}
+	/* find the prefix */
+	p = strchr(elem->name, ':');
+	if (p != NULL) {
+		elem->prefix = elem->name;
+		*p = '\0';
+		p++;
+		elem->name = p;
+	}
+
 	if (content != NULL) {
 		elem->content = strdup(content);
 		if (elem->content == NULL) {
@@ -1402,6 +1445,7 @@ bool ezcfg_xml_element_add_attribute(
 
 	struct ezcfg *ezcfg;
 	struct elem_attribute *a;
+	char *p;
 
 	ASSERT(xml != NULL);
 	ASSERT(elem != NULL);
@@ -1424,12 +1468,19 @@ bool ezcfg_xml_element_add_attribute(
 		free(a);
 		return false;
 	}
+	/* find the prefix */
+	p = strchr(a->name, ':');
+	if (p != NULL) {
+		a->prefix = a->name;
+		*p = '\0';
+		p++;
+		a->name = p;
+	}
 
 	a->value = strdup(value);
 	if (a->value == NULL) {
 		err(ezcfg, "no memory for element attribute value\n");
-		free(a->name);
-		free(a);
+		delete_attribute(a);
 		return false;
 	}
 
@@ -1450,9 +1501,7 @@ bool ezcfg_xml_element_add_attribute(
 		}
 	} else {
 		err(ezcfg, "not support element attribute position\n");
-		free(a->name);
-		free(a->value);
-		free(a);
+		delete_attribute(a);
 		return false;
 	}
 	return true;
@@ -1679,14 +1728,28 @@ int ezcfg_xml_get_length(struct ezcfg_xml *xml)
 				/* start tag */
 				//snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
 				count++; /* for "<" */
-				n = strlen(root[i]->name);
+				if (root[i]->prefix == NULL) {
+					n = strlen(root[i]->name);
+				}
+				else {
+					n = strlen(root[i]->prefix); /* for prefix */
+					n++; /* for ':' */
+					n += strlen(root[i]->name); /* for name */
+				}
 				count += n;
 
 				a = root[i]->attr_head;
 				while(a != NULL) {
 					//snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
 					count++; /* for SP */
-					n = strlen(a->name);
+					if (a->prefix == NULL) {
+						n = strlen(a->name);
+					}
+					else {
+						n = strlen(a->prefix);
+						n++; /* for ':' */
+						n += strlen(a->name);
+					}
 					count += n;
 
 					//snprintf(buf+strlen(buf), len-strlen(buf), "=\"%s\"", a->value);
@@ -1721,7 +1784,14 @@ int ezcfg_xml_get_length(struct ezcfg_xml *xml)
 			/* end tag */
 			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
 			count += 2; /* for "</" */
-			n = strlen(root[i]->name);
+			if (root[i]->prefix == NULL) {
+				n = strlen(root[i]->name);
+			}
+			else {
+				n = strlen(root[i]->prefix);
+				n++; /* for ':' */
+				n += strlen(root[i]->name);
+			}
 			count += n;
 			count += 2; /* for ">\n" */
 		}
@@ -1764,14 +1834,24 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 			else {
 				/* start tag */
 				//snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
-				n = snprintf(p, l, "<%s", root[i]->name);
+				if (root[i]->prefix == NULL) {
+					n = snprintf(p, l, "<%s", root[i]->name);
+				}
+				else {
+					n = snprintf(p, l, "<%s:%s", root[i]->prefix, root[i]->name);
+				}
 				p += n;
 				l -= n;
 
 				a = root[i]->attr_head;
 				while(a != NULL) {
 					//snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
-					n = snprintf(p, l, " %s", a->name);
+					if (a->prefix == NULL) {
+						n = snprintf(p, l, " %s", a->name);
+					}
+					else {
+						n = snprintf(p, l, " %s:%s", a->prefix, a->name);
+					}
 					p += n;
 					l -= n;
 
@@ -1812,7 +1892,12 @@ int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
 		else {
 			/* end tag */
 			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
-			n = snprintf(p, l, "</%s>\n", root[i]->name);
+			if (root[i]->prefix == NULL) {
+				n = snprintf(p, l, "</%s>\n", root[i]->name);
+			}
+			else {
+				n = snprintf(p, l, "</%s:%s>\n", root[i]->prefix, root[i]->name);
+			}
 			p += n;
 			l -= n;
 		}
@@ -1828,6 +1913,7 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 	int i;
+	char *p;
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
@@ -1838,9 +1924,18 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 
 	ezcfg = xml->ezcfg;
 
+	/* find prefix */
+	p = strchr(name, ':');
+	if (p == NULL) {
+		p = name;
+	}
+	else {
+		p++;
+	}
+
 	for (i = (si == -1) ? pi+1 : si+1 ; i < xml->num_elements; i++) {
 		elem = xml->root[i];
-		if (strcmp(elem->name, name) == 0 && (elem->etag_index != i)) {
+		if (strcmp(elem->name, p) == 0 && (elem->etag_index != i)) {
 			return i;
 		}
 	}

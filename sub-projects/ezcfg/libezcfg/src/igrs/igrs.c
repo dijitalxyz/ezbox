@@ -285,6 +285,9 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 	http = igrs->http;
 	soap = igrs->soap;
 
+	/* clean SOAP structure info */
+	ezcfg_soap_reset_attributes(soap);
+
 	/* build SOAP */
 	ezcfg_soap_set_version_major(soap, 1);
 	ezcfg_soap_set_version_minor(soap, 2);
@@ -350,6 +353,12 @@ static bool build_create_session_request(struct ezcfg_igrs *igrs)
 		if (msg != buf) { free(msg); }
 		return false;
 	}
+
+	/* FIXME: name point to http->request_uri !!!
+	 * never reset http before using name */
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+
 	ezcfg_http_set_message_body(http, msg, n);
 	if (msg != buf) { free(msg); }
 
@@ -483,6 +492,9 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 	http = igrs->http;
 	soap = igrs->soap;
 
+	/* clean SOAP structure info */
+	ezcfg_soap_reset_attributes(soap);
+
 	/* build SOAP */
 	ezcfg_soap_set_version_major(soap, 1);
 	ezcfg_soap_set_version_minor(soap, 2);
@@ -541,6 +553,12 @@ static bool build_invoke_service_request(struct ezcfg_igrs *igrs)
 		if (msg != buf) { free(msg); }
 		return false;
 	}
+
+	/* FIXME: name point to http->request_uri !!!
+	 * never reset http before using name */
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+
 	ezcfg_http_set_message_body(http, msg, n);
 	if (msg != buf) { free(msg); }
 
@@ -658,7 +676,6 @@ static int handle_invoke_service_request(struct ezcfg_igrs *igrs)
 	/* handle request */
 	/* SOAP Body */
 	body_index = ezcfg_soap_get_body_index(soap);
-	dbg(ezcfg, "body_index=[%d]\n", body_index);
 	if (body_index < 1) {
 		err(ezcfg, "ezcfg_soap_get_body_index\n");
 		return body_index;
@@ -666,7 +683,6 @@ static int handle_invoke_service_request(struct ezcfg_igrs *igrs)
 
 	/* Body child Session part */
 	session_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_IGRS_SESSION_ELEMENT_NAME);
-	dbg(ezcfg, "session_index=[%d]\n", session_index);
 	if (session_index < 0) {
 		err(ezcfg, "ezcfg_soap_get_element_index(%s)\n", EZCFG_IGRS_SESSION_ELEMENT_NAME);
 		return session_index;
@@ -753,6 +769,9 @@ static bool build_invoke_service_response(struct ezcfg_igrs *igrs)
 	http = igrs->http;
 	soap = igrs->soap;
 
+	/* clean SOAP structure info */
+	ezcfg_soap_reset_attributes(soap);
+
 	/* build SOAP */
 	ezcfg_soap_set_version_major(soap, 1);
 	ezcfg_soap_set_version_minor(soap, 2);
@@ -815,6 +834,12 @@ static bool build_invoke_service_response(struct ezcfg_igrs *igrs)
 		if (msg != buf) { free(msg); }
 		return false;
 	}
+
+	/* FIXME: name point to http->request_uri !!!
+	 * never reset http before using name */
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+
 	ezcfg_http_set_message_body(http, msg, n);
 	if (msg != buf) { free(msg); }
 
@@ -1583,7 +1608,7 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	soap = igrs->soap;
 
 	ezcfg_http_reset_attributes(http);
-	//ezcfg_soap_reset_attributes(soap);
+	ezcfg_soap_reset_attributes(soap);
 
 	if (igrs->source_user_id != NULL) {
 		free(igrs->source_user_id);
@@ -1593,6 +1618,11 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	if (igrs->service_security_id != NULL) {
 		free(igrs->service_security_id);
 		igrs->service_security_id = NULL;
+	}
+
+	if (igrs->invoke_args != NULL) {
+		free(igrs->invoke_args);
+		igrs->invoke_args = NULL;
 	}
 }
 
@@ -1613,10 +1643,6 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
 	soap = igrs->soap;
-
-	dbg(ezcfg, "igrs=[%x]\n", igrs);
-	dbg(ezcfg, "http=[%x]\n", http);
-	dbg(ezcfg, "soap=[%x]\n", soap);
 
 	if (ezcfg_http_parse_request(http, buf, len) == false) {
 		return false;
@@ -1646,10 +1672,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 	}
 
 	msg_body = ezcfg_http_get_message_body(http);
-	dbg(ezcfg, "msg_body=[%x]\n", msg_body);
-	dbg(ezcfg, "msg_body=[%s]\n", msg_body);
 	msg_body_len = ezcfg_http_get_message_body_len(http);
-	dbg(ezcfg, "msg_body_len=[%d]\n", msg_body_len);
 
 	if (msg_body != NULL && msg_body_len > 0) {
 		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {

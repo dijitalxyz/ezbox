@@ -78,6 +78,7 @@ int ezcm_main(int argc, char **argv)
 	char buf[32];
 	char *msg = NULL;
 	int msg_len;
+	char *p;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_uuid *uuid = NULL;
 	struct ezcfg_igrs *igrs = NULL;
@@ -211,6 +212,14 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 	info(ezcfg, "sent message=[%s]\n\n\n", msg);
+
+	p = realloc(msg, EZCFG_IGRS_MAX_RESPONSE_SIZE);
+	if (p != NULL) {
+		msg = p;
+		msg_len = EZCFG_IGRS_MAX_RESPONSE_SIZE;
+	}
+
+	memset(msg, 0, msg_len);
 
 	if (ezcfg_ctrl_read(ezctrl, msg, msg_len, 0) < 0) {
 		err(ezcfg, "controller write: %m\n");

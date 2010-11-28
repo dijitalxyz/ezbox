@@ -397,9 +397,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	http = ezcfg_igrs_get_http(igrs);
 	soap = ezcfg_igrs_get_soap(igrs);
 
-	dbg(ezcfg, "igrs=[%s]\n", igrs);
-	dbg(ezcfg, "http=[%x]\n", http);
-	dbg(ezcfg, "soap=[%x]\n", soap);
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
 		err(ezcfg, "no request uri for IGRS action.\n");
@@ -429,7 +426,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	}
 
 	if (ezcfg_igrs_handle_message(igrs) < 0) {
-		dbg(ezcfg, "%s(%d)\n", __func__, __LINE__);
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
@@ -620,7 +616,6 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	if (nread > request_len) {
 		ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
 	}
-	dbg(ezcfg, "message_body=[%s]\n", buf + request_len);
 
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
@@ -631,16 +626,8 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		major = ezcfg_igrs_get_version_major(worker->proto_data);
 		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
 		if ((major == 1) && (minor == 0)) {
-#if 0
-			dbg(ezcfg, "nread=[%d], request_len=[%d]\n", nread, request_len);
-			if (nread > request_len) {
-				ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
-			}
-#endif
 			worker->birth_time = time(NULL);
-			dbg(ezcfg, "message_body=[%s]\n", buf + request_len);
 			handle_igrs_request(worker);
-			dbg(ezcfg, "%s(%d)\n", __func__, __LINE__);
 		} else {
 			send_igrs_error(worker, 505,
 			                "IGRS version not supported",

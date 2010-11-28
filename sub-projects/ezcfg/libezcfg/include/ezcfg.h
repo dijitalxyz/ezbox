@@ -295,6 +295,8 @@ extern "C" {
 #define EZCFG_IGRS_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
 /* ezcfg igrs request size */
 #define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
+/* ezcfg igrs response size */
+#define EZCFG_IGRS_MAX_RESPONSE_SIZE   20480
 /* ezcfg igrs request/response mode */
 #define EZCFG_IGRS_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
 #define EZCFG_IGRS_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
