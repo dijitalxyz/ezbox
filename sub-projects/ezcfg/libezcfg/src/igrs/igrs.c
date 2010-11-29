@@ -41,24 +41,24 @@ static const char *igrs_method_strings[] = {
 	/* bad method string */
 	NULL ,
 	/* IGRS used methods */
-	EZCFG_IGRS_METHOD_POST_EXT ,
+	EZCFG_IGRS_HTTP_METHOD_POST_EXT ,
 };
 
 /* for HTTP/1.1 known header */
 static const char *igrs_header_strings[] = {
 	/* bad header string */
 	NULL ,
-	/* IGRS known headers */
-	EZCFG_IGRS_HEADER_HOST ,
-	EZCFG_IGRS_HEADER_CONTENT_TYPE ,
-	EZCFG_IGRS_HEADER_CONTENT_LENGTH ,
-	EZCFG_IGRS_HEADER_MAN ,
-	EZCFG_IGRS_HEADER_01_IGRS_VERSION ,
-	EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE ,
-	EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID ,
-	EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID ,
-	EZCFG_IGRS_HEADER_01_SEQUENCE_ID ,
-	EZCFG_IGRS_HEADER_02_SOAP_ACTION ,
+	/* IGRS known HTTP headers */
+	EZCFG_IGRS_HTTP_HEADER_HOST ,
+	EZCFG_IGRS_HTTP_HEADER_CONTENT_TYPE ,
+	EZCFG_IGRS_HTTP_HEADER_CONTENT_LENGTH ,
+	EZCFG_IGRS_HTTP_HEADER_MAN ,
+	EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION ,
+	EZCFG_IGRS_HTTP_HEADER_01_IGRS_MESSAGE_TYPE ,
+	EZCFG_IGRS_HTTP_HEADER_01_TARGET_DEVICE_ID ,
+	EZCFG_IGRS_HTTP_HEADER_01_SOURCE_DEVICE_ID ,
+	EZCFG_IGRS_HTTP_HEADER_01_SEQUENCE_ID ,
+	EZCFG_IGRS_HTTP_HEADER_02_SOAP_ACTION ,
 };
 
 static const struct ezcfg_igrs_msg_op default_message_type_ops[] = {
@@ -898,7 +898,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 	}
 
 	/* check IGRS version */
-	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION);
 	if (s == NULL) {
 		err(ezcfg, "no igrs version in header\n");
 		return false;
@@ -910,7 +910,7 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 	}
 
 	/* check IGRS message type */
-	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_MESSAGE_TYPE);
 	if (s == NULL) {
 		err(ezcfg, "no igrs message type in header\n");
 		return false;
@@ -955,7 +955,7 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 	}
 
 	/* check IGRS version */
-	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION);
 	if (s == NULL) {
 		err(ezcfg, "no igrs version in header\n");
 		return false;
@@ -967,7 +967,7 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 	}
 
 	/* check IGRS message type */
-	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE);
+	s = ezcfg_http_get_header_value(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_MESSAGE_TYPE);
 	if (s == NULL) {
 		err(ezcfg, "no igrs message type in header\n");
 		return false;
@@ -1059,6 +1059,10 @@ int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 
 	p = buf; n = 0;
 	n = ezcfg_http_write_start_line(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_start_line\n");
+		return n;
+	}
 	p += n; len -= n;
 
 	n = ezcfg_http_write_headers(http, p, len);

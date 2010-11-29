@@ -224,7 +224,8 @@ bool ezcfg_xml_set_max_elements(struct ezcfg_xml *xml, const int max_elements);
 int ezcfg_xml_get_num_elements(struct ezcfg_xml *xml);
 int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len);
 bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len);
-int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len);
+int ezcfg_xml_get_message_length(struct ezcfg_xml *xml);
+int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len);
 void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem);
 struct ezcfg_xml_element *ezcfg_xml_element_new(
         struct ezcfg_xml *xml,
@@ -263,7 +264,8 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, const char *name);
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int index);
 bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len);
-int ezcfg_soap_write(struct ezcfg_soap *soap, char *buf, int len);
+int ezcfg_soap_get_message_length(struct ezcfg_soap *soap);
+int ezcfg_soap_write_message(struct ezcfg_soap *soap, char *buf, int len);
 
 /* soap/soap_http.c */
 struct ezcfg_soap_http;
@@ -285,8 +287,8 @@ bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int le
 bool ezcfg_soap_http_parse_response(struct ezcfg_soap_http *sh, char *buf, int len);
 char *ezcfg_soap_http_set_http_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
-int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len, int mode);
-void ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram);
+int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh);
+int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
 
 /* igrs/igrs.c */
 struct ezcfg_igrs_msg_op;

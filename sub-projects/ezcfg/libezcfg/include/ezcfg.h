@@ -34,7 +34,6 @@ extern "C" {
 
 #define EZCFG_INVALID_SOCKET      -1
 #define EZCFG_BUFFER_SIZE         8192
-#define EZCFG_MAX_REQUEST_SIZE    8192
 
 #define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
 //#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
@@ -111,7 +110,10 @@ extern "C" {
 
 /* ezcfg http definitions */
 #define EZCFG_HTTP_MAX_HEADERS         64 /* must be less than 256 */
-#define EZCFG_HTTP_MAX_REQUEST_SIZE    8192
+#define EZCFG_HTTP_CHUNK_SIZE          20480
+#define EZCFG_HTTP_MAX_CHUNK_NUM       32
+#define EZCFG_HTTP_MAX_REQUEST_SIZE    (EZCFG_HTTP_CHUNK_SIZE * EZCFG_HTTP_MAX_CHUNK_NUM)
+#define EZCFG_HTTP_MAX_RESPONSE_SIZE   EZCFG_HTTP_MAX_REQUEST_SIZE
 /* ezcfg http request/response mode */
 #define EZCFG_HTTP_MODE_REQUEST        0
 #define EZCFG_HTTP_MODE_RESPONSE       1
@@ -271,10 +273,12 @@ extern "C" {
 /* ezcfg SOAP/HTTP request/response mode */
 #define EZCFG_SOAP_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
 #define EZCFG_SOAP_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
+#define EZCFG_SOAP_HTTP_CHUNK_SIZE          20480
+#define EZCFG_SOAP_HTTP_MAX_CHUNK_NUM       32
 /* ezcfg SOAP/HTTP request size */
-#define EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE    20480
+#define EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE    (EZCFG_SOAP_HTTP_CHUNK_SIZE * EZCFG_SOAP_HTTP_MAX_CHUNK_NUM)
 /* ezcfg SOAP/HTTP response size */
-#define EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE    20480
+#define EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE   EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE
 /* ezcfg SOAP/HTTP http methods */
 #define EZCFG_SOAP_HTTP_METHOD_GET          "GET"
 #define EZCFG_SOAP_HTTP_METHOD_POST         "POST"
@@ -293,53 +297,52 @@ extern "C" {
 /* ezcfg igrs request/response mode */
 #define EZCFG_IGRS_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
 #define EZCFG_IGRS_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
-/* ezcfg igrs request size */
-#define EZCFG_IGRS_MAX_REQUEST_SIZE    20480
-/* ezcfg igrs response size */
-#define EZCFG_IGRS_MAX_RESPONSE_SIZE   20480
-/* ezcfg igrs request/response mode */
-#define EZCFG_IGRS_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
-#define EZCFG_IGRS_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
+#define EZCFG_IGRS_HTTP_CHUNK_SIZE          20480
+#define EZCFG_IGRS_HTTP_MAX_CHUNK_NUM       32
+/* ezcfg igrs/HTTP request size */
+#define EZCFG_IGRS_HTTP_MAX_REQUEST_SIZE    (EZCFG_IGRS_HTTP_CHUNK_SIZE * EZCFG_IGRS_HTTP_MAX_CHUNK_NUM)
+/* ezcfg igrs/HTTP response size */
+#define EZCFG_IGRS_HTTP_MAX_RESPONSE_SIZE   EZCFG_IGRS_HTTP_MAX_REQUEST_SIZE
 /* ezcfg igrs http methods */
-#define EZCFG_IGRS_METHOD_POST         "POST"
-#define EZCFG_IGRS_METHOD_POST_EXT     "M-POST"
+#define EZCFG_IGRS_HTTP_METHOD_POST         "POST"
+#define EZCFG_IGRS_HTTP_METHOD_POST_EXT     "M-POST"
 /* ezcfg igrs http headers */
-#define EZCFG_IGRS_HEADER_HOST                 "Host"
-#define EZCFG_IGRS_HEADER_CONTENT_TYPE         "Content-Type"
-#define EZCFG_IGRS_HEADER_CONTENT_LENGTH       "Content-Length"
-#define EZCFG_IGRS_HEADER_MAN                  "Man"
-#define EZCFG_IGRS_HEADER_01_IGRS_VERSION      "01-IGRSVersion"
-#define EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE "01-IGRSMessageType"
-#define EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID  "01-TargetDeviceId"
-#define EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID  "01-SourceDeviceId"
-#define EZCFG_IGRS_HEADER_01_SEQUENCE_ID       "01-SequenceId"
-#define EZCFG_IGRS_HEADER_02_SOAP_ACTION       "02-SoapAction"
+#define EZCFG_IGRS_HTTP_HEADER_HOST                 "Host"
+#define EZCFG_IGRS_HTTP_HEADER_CONTENT_TYPE         "Content-Type"
+#define EZCFG_IGRS_HTTP_HEADER_CONTENT_LENGTH       "Content-Length"
+#define EZCFG_IGRS_HTTP_HEADER_MAN                  "Man"
+#define EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION      "01-IGRSVersion"
+#define EZCFG_IGRS_HTTP_HEADER_01_IGRS_MESSAGE_TYPE "01-IGRSMessageType"
+#define EZCFG_IGRS_HTTP_HEADER_01_TARGET_DEVICE_ID  "01-TargetDeviceId"
+#define EZCFG_IGRS_HTTP_HEADER_01_SOURCE_DEVICE_ID  "01-SourceDeviceId"
+#define EZCFG_IGRS_HTTP_HEADER_01_SEQUENCE_ID       "01-SequenceId"
+#define EZCFG_IGRS_HTTP_HEADER_02_SOAP_ACTION       "02-SoapAction"
 
 /* ezcfg igrs soap element names */
-#define EZCFG_IGRS_ENVELOPE_ELEMENT_NAME             "SOAP-ENV:Envelope"
-#define EZCFG_IGRS_BODY_ELEMENT_NAME                 "SOAP-ENV:Body"
-#define EZCFG_IGRS_SESSION_ELEMENT_NAME              "Session"
-#define EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME     "SourceClientId"
-#define EZCFG_IGRS_TARGET_CLIENT_ID_ELEMENT_NAME     "TargetClientId"
-#define EZCFG_IGRS_SOURCE_SERVICE_ID_ELEMENT_NAME    "SourceServiceId"
-#define EZCFG_IGRS_TARGET_SERVICE_ID_ELEMENT_NAME    "TargetServiceId"
-#define EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME          "SequenceId"
-#define EZCFG_IGRS_ACKNOWLEDGE_ID_ELEMENT_NAME       "AcknowledgeId"
-#define EZCFG_IGRS_RETURN_CODE_ELEMENT_NAME          "ReturnCode"
-#define EZCFG_IGRS_USER_INFO_ELEMENT_NAME            "UserInfo"
-#define EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME       "SourceUserId"
-#define EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME  "ServiceSecurityId"
-#define EZCFG_IGRS_TOKEN_ELEMENT_NAME                "Token"
-#define EZCFG_IGRS_INVOKE_ARGS_ELEMENT_NAME          "InvokeArguments"
+#define EZCFG_IGRS_SOAP_ENVELOPE_ELEMENT_NAME             "SOAP-ENV:Envelope"
+#define EZCFG_IGRS_SOAP_BODY_ELEMENT_NAME                 "SOAP-ENV:Body"
+#define EZCFG_IGRS_SOAP_SESSION_ELEMENT_NAME              "Session"
+#define EZCFG_IGRS_SOAP_SOURCE_CLIENT_ID_ELEMENT_NAME     "SourceClientId"
+#define EZCFG_IGRS_SOAP_TARGET_CLIENT_ID_ELEMENT_NAME     "TargetClientId"
+#define EZCFG_IGRS_SOAP_SOURCE_SERVICE_ID_ELEMENT_NAME    "SourceServiceId"
+#define EZCFG_IGRS_SOAP_TARGET_SERVICE_ID_ELEMENT_NAME    "TargetServiceId"
+#define EZCFG_IGRS_SOAP_SEQUENCE_ID_ELEMENT_NAME          "SequenceId"
+#define EZCFG_IGRS_SOAP_ACKNOWLEDGE_ID_ELEMENT_NAME       "AcknowledgeId"
+#define EZCFG_IGRS_SOAP_RETURN_CODE_ELEMENT_NAME          "ReturnCode"
+#define EZCFG_IGRS_SOAP_USER_INFO_ELEMENT_NAME            "UserInfo"
+#define EZCFG_IGRS_SOAP_SOURCE_USER_ID_ELEMENT_NAME       "SourceUserId"
+#define EZCFG_IGRS_SOAP_SERVICE_SECURITY_ID_ELEMENT_NAME  "ServiceSecurityId"
+#define EZCFG_IGRS_SOAP_TOKEN_ELEMENT_NAME                "Token"
+#define EZCFG_IGRS_SOAP_INVOKE_ARGS_ELEMENT_NAME          "InvokeArguments"
 
 /* ezcfg igrs soap element attributes */
-#define EZCFG_IGRS_ENVELOPE_ATTR_NS_NAME	"xmlns:SOAP-ENV"
-//#define EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE	"http://schemas.xmlsoap.org/soap/envelope/"
-#define EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE	"http://www.w3.org/2002/12/soap-envelope"
-#define EZCFG_IGRS_ENVELOPE_ATTR_ENC_NAME	"SOAP-ENV:encodingStyle"
-#define EZCFG_IGRS_ENVELOPE_ATTR_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
-#define EZCFG_IGRS_SESSION_ATTR_NS_NAME		"xmlns"
-#define EZCFG_IGRS_SESSION_ATTR_NS_VALUE	"http://www.igrs.org/spec1.0"
+#define EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_NAME	"xmlns:SOAP-ENV"
+//#define EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_VALUE	"http://schemas.xmlsoap.org/soap/envelope/"
+#define EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_VALUE	"http://www.w3.org/2002/12/soap-envelope"
+#define EZCFG_IGRS_SOAP_ENVELOPE_ATTR_ENC_NAME	"SOAP-ENV:encodingStyle"
+#define EZCFG_IGRS_SOAP_ENVELOPE_ATTR_ENC_VALUE	"http://schemas.xmlsoap.org/soap/encoding/"
+#define EZCFG_IGRS_SOAP_SESSION_ATTR_NS_NAME		"xmlns"
+#define EZCFG_IGRS_SOAP_SESSION_ATTR_NS_VALUE	"http://www.igrs.org/spec1.0"
 
 /* ezcfg igrs message types */
 /* 9.1 Device Advertisement */

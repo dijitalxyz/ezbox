@@ -31,8 +31,6 @@ libezcfg_la_LDFLAGS = \
 
 libezcfg_la_SOURCES = src/common/ezcfg.c
 libezcfg_la_SOURCES += src/common/list.c
-libezcfg_la_SOURCES += include/ezcfg-private.h
-libezcfg_la_SOURCES += include/ezcfg.h
 
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += src/thread/thread.c
@@ -68,6 +66,9 @@ libezcfg_la_SOURCES += src/soap/soap.c
 
 # ezcfg SOAP-HTTP binding
 libezcfg_la_SOURCES += src/soap/soap_http.c
+
+# ezcfg NVRAM/SOAP-HTTP binding
+libezcfg_la_SOURCES += src/soap/soap_http_nvram.c
 
 # ezcfg IGRS protocol
 libezcfg_la_SOURCES += src/igrs/igrs.c

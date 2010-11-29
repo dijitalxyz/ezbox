@@ -213,10 +213,10 @@ int ezcm_main(int argc, char **argv)
 	}
 	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
-	p = realloc(msg, EZCFG_IGRS_MAX_RESPONSE_SIZE);
+	p = realloc(msg, EZCFG_IGRS_HTTP_CHUNK_SIZE);
 	if (p != NULL) {
 		msg = p;
-		msg_len = EZCFG_IGRS_MAX_RESPONSE_SIZE;
+		msg_len = EZCFG_IGRS_HTTP_CHUNK_SIZE;
 	}
 
 	memset(msg, 0, msg_len);

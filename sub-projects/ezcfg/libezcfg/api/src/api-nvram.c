@@ -171,6 +171,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	ezcfg_http_set_request_uri(http, buf);
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
+	ezcfg_http_set_state_request(http);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
@@ -179,7 +180,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
 	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -344,7 +345,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	/* build HTTP message body */
 	snprintf(msg, sizeof(msg), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 	n = strlen(msg);
-	n += ezcfg_soap_write(soap, msg + n, sizeof(msg) - n);
+	n += ezcfg_soap_write_message(soap, msg + n, sizeof(msg) - n);
 	ezcfg_http_set_message_body(http, msg, n);
 
 	/* build HTTP request line */
@@ -353,6 +354,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	ezcfg_http_set_request_uri(http, buf);
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
+	ezcfg_http_set_state_request(http);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
@@ -361,7 +363,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
 	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -494,6 +496,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	ezcfg_http_set_request_uri(http, buf);
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
+	ezcfg_http_set_state_request(http);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
@@ -502,7 +505,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
 	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -637,6 +640,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	ezcfg_http_set_request_uri(http, buf);
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
+	ezcfg_http_set_state_request(http);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
@@ -645,7 +649,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
 	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -798,6 +802,7 @@ int ezcfg_api_nvram_commit(void)
 	ezcfg_http_set_request_uri(http, buf);
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
+	ezcfg_http_set_state_request(http);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "127.0.0.1");
@@ -806,7 +811,7 @@ int ezcfg_api_nvram_commit(void)
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
 	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg), EZCFG_SOAP_HTTP_MODE_REQUEST);
+	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);

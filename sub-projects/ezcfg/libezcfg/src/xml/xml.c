@@ -1698,7 +1698,7 @@ bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 	return true;
 }
 
-int ezcfg_xml_get_length(struct ezcfg_xml *xml)
+int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
@@ -1799,7 +1799,7 @@ int ezcfg_xml_get_length(struct ezcfg_xml *xml)
 	return (count);
 }
 
-int ezcfg_xml_write(struct ezcfg_xml *xml, char *buf, int len)
+int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;

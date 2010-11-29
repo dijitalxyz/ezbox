@@ -64,45 +64,45 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	ezcfg_soap_set_version_minor(soap, 2);
 
 	/* SOAP Envelope */
-	ezcfg_soap_set_envelope(soap, EZCFG_IGRS_ENVELOPE_ELEMENT_NAME);
-	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_ENVELOPE_ATTR_NS_NAME, EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_ENVELOPE_ATTR_ENC_NAME, EZCFG_IGRS_ENVELOPE_ATTR_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_soap_set_envelope(soap, EZCFG_IGRS_SOAP_ENVELOPE_ELEMENT_NAME);
+	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_soap_add_envelope_attribute(soap, EZCFG_IGRS_SOAP_ENVELOPE_ATTR_ENC_NAME, EZCFG_IGRS_SOAP_ENVELOPE_ATTR_ENC_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* SOAP Body */
-	body_index = ezcfg_soap_set_body(soap, EZCFG_IGRS_BODY_ELEMENT_NAME);
+	body_index = ezcfg_soap_set_body(soap, EZCFG_IGRS_SOAP_BODY_ELEMENT_NAME);
 
 	/* Body child Session part */
-	session_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_IGRS_SESSION_ELEMENT_NAME, NULL);
-	ezcfg_soap_add_body_child_attribute(soap, session_index, EZCFG_IGRS_SESSION_ATTR_NS_NAME, EZCFG_IGRS_SESSION_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	session_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_IGRS_SOAP_SESSION_ELEMENT_NAME, NULL);
+	ezcfg_soap_add_body_child_attribute(soap, session_index, EZCFG_IGRS_SOAP_SESSION_ATTR_NS_NAME, EZCFG_IGRS_SOAP_SESSION_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
 	/* SourceCleintId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->source_client_id);
-	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOAP_SOURCE_CLIENT_ID_ELEMENT_NAME, buf);
 
 	/* TargetServiceId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->target_service_id);
-	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_TARGET_SERVICE_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOAP_TARGET_SERVICE_ID_ELEMENT_NAME, buf);
 
 	/* SequenceId part */
 	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
-	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SEQUENCE_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOAP_SEQUENCE_ID_ELEMENT_NAME, buf);
 
 	/* UserInfo part */
-	userinfo_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_USER_INFO_ELEMENT_NAME, NULL);
+	userinfo_index = ezcfg_soap_add_body_child(soap, session_index, child_index, EZCFG_IGRS_SOAP_USER_INFO_ELEMENT_NAME, NULL);
 
 	snprintf(buf, sizeof(buf), "%s", igrs->source_user_id ? igrs->source_user_id : "NULL");
-	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, -1, EZCFG_IGRS_SOURCE_USER_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, -1, EZCFG_IGRS_SOAP_SOURCE_USER_ID_ELEMENT_NAME, buf);
 
 	snprintf(buf, sizeof(buf), "urn:IGRS:ServiceSecurity:%s", igrs->service_security_id ? igrs->service_security_id : "NULL");
-	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SERVICE_SECURITY_ID_ELEMENT_NAME, buf);
+	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SOAP_SERVICE_SECURITY_ID_ELEMENT_NAME, buf);
 
-	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_TOKEN_ELEMENT_NAME, "");
+	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SOAP_TOKEN_ELEMENT_NAME, "");
 
-	msg_len = ezcfg_soap_get_length(soap);
+	msg_len = ezcfg_soap_get_message_length(soap);
 	dbg(ezcfg, "msg_len=[%d]\n", msg_len);
 	if (msg_len < 0) {
-		err(ezcfg, "ezcfg_soap_get_length\n");
+		err(ezcfg, "ezcfg_soap_get_message_length\n");
 		return false;
 	}
 	msg_len++; /* one more for \0 */
@@ -118,9 +118,9 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	}
 
 	memset(msg, '\0', msg_len);
-	n = ezcfg_soap_write(soap, msg, msg_len);
+	n = ezcfg_soap_write_message(soap, msg, msg_len);
 	if (n < 0) {
-		err(ezcfg, "ezcfg_soap_write\n");
+		err(ezcfg, "ezcfg_soap_write_message\n");
 		if (msg != buf) { free(msg); }
 		return false;
 	}
@@ -134,42 +134,42 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	if (msg != buf) { free(msg); }
 
 	/* build HTTP request line */
-	ezcfg_http_set_request_method(http, EZCFG_IGRS_METHOD_POST_EXT);
+	ezcfg_http_set_request_method(http, EZCFG_IGRS_HTTP_METHOD_POST_EXT);
 	ezcfg_http_set_request_uri(http, "/IGRS");
 	ezcfg_http_set_version_major(http, 1);
 	ezcfg_http_set_version_minor(http, 1);
 
 	/* build HTTP headers */
 	snprintf(buf, sizeof(buf), "%s", "192.168.1.1:3880");
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_HOST , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_HOST , buf);
 
-	snprintf(buf, sizeof(buf), "\"%s\";ns=01", EZCFG_IGRS_SESSION_ATTR_NS_VALUE);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_MAN , buf);
+	snprintf(buf, sizeof(buf), "\"%s\";ns=01", EZCFG_IGRS_SOAP_SESSION_ATTR_NS_VALUE);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_MAN , buf);
 
 	snprintf(buf, sizeof(buf), "IGRS/%d.%d", igrs->version_major, igrs->version_minor);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_IGRS_VERSION , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION , buf);
 
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_IGRS_MESSAGE_TYPE , EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_MESSAGE_TYPE , EZCFG_IGRS_MSG_CREATE_SESSION_REQUEST);
 
 	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->target_device_id);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_TARGET_DEVICE_ID , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_TARGET_DEVICE_ID , buf);
 
 	snprintf(buf, sizeof(buf), "urn:IGRS:Device:DeviceId:%s", igrs->source_device_id);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_SOURCE_DEVICE_ID , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_SOURCE_DEVICE_ID , buf);
 
 	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_01_SEQUENCE_ID , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_SEQUENCE_ID , buf);
 
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_CONTENT_TYPE , "text/xml;charset=utf-8");
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_CONTENT_TYPE , "text/xml;charset=utf-8");
 
 	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_CONTENT_LENGTH , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_CONTENT_LENGTH , buf);
 
-	snprintf(buf, sizeof(buf), "\"%s\";ns=02", EZCFG_IGRS_ENVELOPE_ATTR_NS_VALUE);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_MAN , buf);
+	snprintf(buf, sizeof(buf), "\"%s\";ns=02", EZCFG_IGRS_SOAP_ENVELOPE_ATTR_NS_VALUE);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_MAN , buf);
 
 	snprintf(buf, sizeof(buf), "\"%s\"", EZCFG_IGRS_SOAP_ACTION_CREATE_SESSION_REQUEST);
-	ezcfg_http_add_header(http, EZCFG_IGRS_HEADER_02_SOAP_ACTION , buf);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_02_SOAP_ACTION , buf);
 
 	return true;
 }
