@@ -71,6 +71,8 @@ libezcfg_la_SOURCES += src/soap/soap_http.c
 
 # ezcfg IGRS protocol
 libezcfg_la_SOURCES += src/igrs/igrs.c
+libezcfg_la_SOURCES += src/igrs/igrs_create_session.c
+libezcfg_la_SOURCES += src/igrs/igrs_invoke_service.c
 
 # ezcfg ISDP protocol
 libezcfg_la_SOURCES += src/igrs/isdp.c
