@@ -227,10 +227,11 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
-	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
 	char *result;
 	int body_index, child_index;
 	int n;
+	char *msg = NULL;
+	int msg_len;
 	int rc = 0;
 	
 	ASSERT(sh != NULL);
@@ -276,9 +277,26 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -287,13 +305,16 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 	else {
 		int fault_index;
@@ -331,9 +352,26 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -342,15 +380,21 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 exit:
+	if (msg != NULL)
+		free(msg);
+
 	return rc;
 }
 
@@ -359,11 +403,12 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
-	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
 	char *value = NULL, *result;
 	int body_index, child_index;
 	int n;
 	bool ret;
+	char *msg = NULL;
+	int msg_len;
 	int rc = 0;
 	
 	ASSERT(sh != NULL);
@@ -409,9 +454,26 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, unsetnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -420,13 +482,16 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 	else {
 		int fault_index;
@@ -469,9 +534,26 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_NAME_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -480,15 +562,21 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 exit:
+	if (msg != NULL)
+		free(msg);
+
 	return rc;
 }
 
@@ -499,9 +587,10 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	struct ezcfg_soap *soap;
 	struct ezcfg_list_node node, *list;
 	struct ezcfg_list_entry *entry, *entry_next;
-	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
 	int body_index, child_index;
 	int n;
+	char *msg = NULL;
+	int msg_len;
 	int rc = 0;
 	
 	ASSERT(sh != NULL);
@@ -558,9 +647,26 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 			entry = ezcfg_list_entry_get_next(entry);
 		}
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -569,13 +675,16 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 	else {
 		int fault_index;
@@ -613,9 +722,26 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_OPERATION_FAIL_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -624,13 +750,16 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 
 exit:
@@ -641,6 +770,10 @@ exit:
 		ezcfg_list_entry_delete(entry);
 		entry = entry_next;
 	}
+
+	if (msg != NULL)
+		free(msg);
+
 	return rc;
 }
 
@@ -649,9 +782,10 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
-	char buf[EZCFG_SOAP_HTTP_MAX_RESPONSE_SIZE];
 	int body_index, child_index;
 	int n;
+	char *msg = NULL;
+	int msg_len;
 	int rc = 0;
 	
 	ASSERT(sh != NULL);
@@ -687,9 +821,26 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, commitnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -698,13 +849,16 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 	else {
 		int fault_index;
@@ -742,9 +896,26 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 		/* SOAP Fault Reason Text part */
 		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_OPERATION_FAIL_FAULT_VALUE);
 
-		snprintf(buf, sizeof(buf), "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		n = strlen(buf);
-		n += ezcfg_soap_write_message(soap, buf + n, sizeof(buf) - n);
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 
 		/* FIXME: name point to http->request_uri !!!
 	         * never reset http before using name */
@@ -753,15 +924,21 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 		ezcfg_http_set_status_code(http, 200);
 		ezcfg_http_set_state_response(http);
 
-		ezcfg_http_set_message_body(http, buf, n);
+		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(buf, sizeof(buf), "%s", "application/soap+xml; charset=\"utf-8\"");
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , buf);
+		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , buf);
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
 	}
 exit:
+	if (msg != NULL)
+		free(msg);
+
 	return rc;
 }
 
