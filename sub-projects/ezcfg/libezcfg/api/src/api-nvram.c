@@ -63,7 +63,7 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 	}
 }
 
-
+#if 0
 /* Check whether full response is buffered. Return:
  *   -1  if response is malformed
  *    0  if response is not yet fully buffered
@@ -93,11 +93,11 @@ static int get_response_len(const char *buf, size_t buflen)
 
 /**
  * Keep reading the input into buffer buf, until \r\n\r\n appears in the
- * buffer (which marks the end of HTTP request). Buffer buf may already
+ * buffer (which marks the end of HTTP response). Buffer buf may already
  * have some data. The length of the data is stored in nread.
  * Upon every read operation, increase nread by the number of bytes read.
  **/
-static int read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
+static int http_read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
 {
 	int n, response_len;
 
@@ -118,7 +118,32 @@ static int read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *
         return response_len;
 }
 
+/**
+ * Keep reading the input into buffer buf, until reach max buffer size or error.
+ * Buffer buf may already have some data. The length of the data is stored in nread.
+ * Upon every read operation, increase nread by the number of bytes read.
+ **/
+static int http_read_content(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
+{
+	int n, response_len;
 
+	ASSERT(ezctrl != NULL);
+
+        response_len = 0;
+
+	while (*nread < bufsiz && response_len == 0) {
+		n = ezcfg_socket_read(ezcfg_ctrl_get_socket(ezctrl), buf + *nread, bufsiz - *nread, 0);
+		if (n <= 0) {
+			break;
+		} else {
+			*nread += n;
+			response_len = get_response_len(buf, (size_t) *nread);
+                }
+        }
+
+        return response_len;
+}
+#endif
 
 /**
  * ezcfg_api_nvram_get:
@@ -130,17 +155,20 @@ static int read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *
 int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 {
 	char buf[1024];
-	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	char *msg = NULL;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	struct ezcfg_soap_http *sh = NULL;
 	struct ezcfg_soap *soap = NULL;
 	struct ezcfg_http *http = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, getnv_index;
 	char *res_name, *res_value;
 	int n;
 	int rc = 0;
+	char *p;
+	int header_len;
 
 	if (name == NULL || value == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -179,8 +207,14 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = EZCFG_BUFFER_SIZE;
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+	ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -202,22 +236,29 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	ezcfg_soap_http_reset_attributes(sh);
 
-	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+	sp = ezcfg_ctrl_get_socket(ezctrl);
+	header_len = ezcfg_socket_read_http_header(sp, http, msg, msg_len, &n);
 
-	if (msg_len <= 0) {
+	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
 		goto exit;
-	}
-
-	if (n > msg_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
+	}
+
+	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
+	if (p == NULL) {
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+	msg = p;
+
+	if (n > header_len) {
+		ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	}
 
 	/* get getNvramResponse part */
@@ -274,6 +315,10 @@ exit:
                 ezcfg_delete(ezcfg);
 	}
 
+	if (msg != NULL) {
+		free(msg);
+	}
+
 	return rc;
 }
 
@@ -286,7 +331,7 @@ exit:
 int ezcfg_api_nvram_set(const char *name, const char *value)
 {
 	char buf[1024];
-	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	char *msg;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
@@ -295,6 +340,8 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	struct ezcfg_http *http = NULL;
 	int body_index, child_index, setnv_index;
 	char *result;
+	char *p;
+	int header_len;
 	int n;
 	int rc = 0;
 
@@ -343,9 +390,20 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	child_index = ezcfg_soap_add_body_child(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, value);
 
 	/* build HTTP message body */
-	snprintf(msg, sizeof(msg), "%s\r\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+	msg_len = ezcfg_soap_get_message_length(soap);
+	msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+	msg_len++; /* '\n' */
+	msg_len++; /* '\0' */
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+
+	snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 	n = strlen(msg);
-	n += ezcfg_soap_write_message(soap, msg + n, sizeof(msg) - n);
+	n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
 	ezcfg_http_set_message_body(http, msg, n);
 
 	/* build HTTP request line */
@@ -362,8 +420,15 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = ezcfg_soap_http_get_message_length(sh);
+	p = (char *)realloc(msg, msg_len);
+	if (p == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	msg = p;
+	memset(msg, 0, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -387,20 +452,28 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
 	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+	sp = ezcfg_ctrl_get_socket(ezctrl);
+	header_len = ezcfg_socket_read_http_header(sp, msg, msg_len, &n);
 
-	if (msg_len <= 0) {
+	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 
-	if (n > msg_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
-	}
-
-	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
+	}
+
+	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
+	if (p == NULL) {
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+	msg = p;
+
+	if (n > header_len) {
+		ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	}
 
 	/* get setNvramResponse part */
@@ -444,6 +517,10 @@ exit:
                 ezcfg_delete(ezcfg);
 	}
 
+	if (msg != NULL) {
+		free(msg);
+	}
+
 	return rc;
 }
 
@@ -455,7 +532,7 @@ exit:
 int ezcfg_api_nvram_unset(const char *name)
 {
 	char buf[1024];
-	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	char *msg
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
@@ -529,7 +606,7 @@ int ezcfg_api_nvram_unset(const char *name)
 
 	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
 
 	if (msg_len <= 0) {
 		rc = -EZCFG_E_READ ;
@@ -673,7 +750,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
 
 	if (msg_len <= 0) {
 		rc = -EZCFG_E_READ ;
@@ -835,7 +912,7 @@ int ezcfg_api_nvram_commit(void)
 
 	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = read_response(ezctrl, msg, sizeof(msg), &n);
+	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
 
 	if (msg_len <= 0) {
 		rc = -EZCFG_E_READ ;

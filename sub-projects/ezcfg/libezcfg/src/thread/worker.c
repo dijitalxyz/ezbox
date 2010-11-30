@@ -86,6 +86,7 @@ static void close_connection(struct ezcfg_worker *worker)
 	ezcfg_socket_close_sock(worker->client);
 }
 
+#if 0
 /* Return content length of the request, or -1 constant if
  * Content-Length header is not set.
  */
@@ -266,6 +267,7 @@ static char * http_read_content(struct ezcfg_worker *worker, struct ezcfg_http *
 
 	return buf;
 }
+#endif
 
 static bool error_handler(struct ezcfg_worker *worker)
 {
@@ -507,6 +509,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
 			worker_write(worker, msg, msg_len);
+			goto exit;
 		}
 		else {
 			/* build SOAP/HTTP binding response */
@@ -524,7 +527,9 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
+			info(ezcfg, "msg=[%s]\n", msg);
 			worker_write(worker, msg, msg_len);
+			goto exit;
 		}
 	}
 exit:
@@ -628,7 +633,7 @@ exit:
 
 static void process_http_new_connection(struct ezcfg_worker *worker)
 {
-	int request_len, nread;
+	int header_len, nread;
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
@@ -646,11 +651,11 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 	nread = 0;
-	request_len = http_read_request(worker, http, buf, buf_len, &nread);
+	header_len = ezcfg_socket_read_http_header(worker->client, http, buf, buf_len, &nread);
 
-	ASSERT(nread >= request_len);
+	ASSERT(nread >= header_len);
 
-	if (request_len <= 0) {
+	if (header_len <= 0) {
 		err(ezcfg, "request error\n");
 		free(buf);
 		return; /* Request is too large or format is not correct */
@@ -659,8 +664,8 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
-	//buf[request_len - 1] = '\0';
-	if (ezcfg_http_parse_request(http, buf, request_len) == true) {
+	//buf[header_len - 1] = '\0';
+	if (ezcfg_http_parse_request(http, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_http_get_version_major(http);
@@ -671,14 +676,14 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird HTTP version");
 			goto exit;
 		}
-		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		p = ezcfg_socket_read_http_content(worker->client, http, buf, header_len, &buf_len, &nread);
 		if (p == NULL) {
 			send_http_error(worker, 400, "Bad Request", "");
 			goto exit;
 		}
 		buf = p;
-		if (nread > request_len) {
-			ezcfg_http_set_message_body(http, buf + request_len, nread - request_len);
+		if (nread > header_len) {
+			ezcfg_http_set_message_body(http, buf + header_len, nread - header_len);
 		}
 		worker->birth_time = time(NULL);
 		handle_http_request(worker);
@@ -694,7 +699,7 @@ exit:
 
 static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 {
-	int request_len, nread;
+	int header_len, nread;
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
@@ -714,11 +719,11 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 	nread = 0;
-	request_len = http_read_request(worker, http, buf, buf_len, &nread);
+	header_len = ezcfg_socket_read_http_header(worker->client, http, buf, buf_len, &nread);
 
-	ASSERT(nread >= request_len);
+	ASSERT(nread >= header_len);
 
-	if (request_len <= 0) {
+	if (header_len <= 0) {
 		err(ezcfg, "request error\n");
 		free(buf);
 		return; /* Request is too large or format is not correct */
@@ -727,8 +732,8 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
-	//buf[request_len - 1] = '\0';
-	if (ezcfg_soap_http_parse_request(sh, buf, request_len) == true) {
+	//buf[header_len - 1] = '\0';
+	if (ezcfg_soap_http_parse_request(sh, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_soap_http_get_http_version_major(sh);
@@ -739,15 +744,15 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird HTTP version");
 			goto exit;
 		}
-		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		p = ezcfg_socket_read_http_content(worker->client, http, buf, header_len, &buf_len, &nread);
 		if (p == NULL) {
 			/* Do not put garbage in the access log */
 			send_soap_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 			goto exit;
 		}
 		buf = p;
-		if (nread > request_len) {
-			ezcfg_soap_http_set_message_body(sh, buf + request_len, nread - request_len);
+		if (nread > header_len) {
+			ezcfg_soap_http_set_message_body(sh, buf + header_len, nread - header_len);
 			ezcfg_soap_http_parse_message_body(sh);
 		}
 		worker->birth_time = time(NULL);
@@ -764,7 +769,7 @@ exit:
 
 static void process_igrs_new_connection(struct ezcfg_worker *worker)
 {
-	int request_len, nread;
+	int header_len, nread;
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
@@ -785,27 +790,27 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	}
 	memset(buf, 0, buf_len);
 	nread = 0;
-	request_len = http_read_request(worker, http, buf, buf_len, &nread);
+	header_len = ezcfg_socket_read_http_header(worker->client, http, buf, buf_len, &nread);
 
-	ASSERT(nread >= request_len);
+	ASSERT(nread >= header_len);
 
-	if (request_len <= 0) {
+	if (header_len <= 0) {
 		err(ezcfg, "request error\n");
 		free(buf);
 		return; /* Request is too large or format is not correct */
 	}
 
 	/* first setup message body info */
-	dbg(ezcfg, "nread=[%d], request_len=[%d]\n", nread, request_len);
-	if (nread > request_len) {
-		ezcfg_igrs_set_message_body(igrs, buf + request_len, nread - request_len);
+	dbg(ezcfg, "nread=[%d], header_len=[%d]\n", nread, header_len);
+	if (nread > header_len) {
+		ezcfg_igrs_set_message_body(igrs, buf + header_len, nread - header_len);
 	}
 
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
-	//buf[request_len - 1] = '\0';
-	if (ezcfg_igrs_parse_request(igrs, buf, request_len) == true) {
+	//buf[header_len - 1] = '\0';
+	if (ezcfg_igrs_parse_request(igrs, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_igrs_get_version_major(igrs);
@@ -816,15 +821,15 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird IGRS version");
 			goto exit;
 		}
-		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		p = ezcfg_socket_read_http_content(worker->client, http, buf, header_len, &buf_len, &nread);
 		if (p == NULL) {
 			/* Do not put garbage in the access log */
 			send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 			goto exit;
 		}
 		buf = p;
-		if (nread > request_len) {
-			ezcfg_igrs_set_message_body(igrs, buf + request_len, nread - request_len);
+		if (nread > header_len) {
+			ezcfg_igrs_set_message_body(igrs, buf + header_len, nread - header_len);
 			ezcfg_igrs_parse_message_body(igrs);
 		}
 		worker->birth_time = time(NULL);

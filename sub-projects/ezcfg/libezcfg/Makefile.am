@@ -55,6 +55,9 @@ libezcfg_la_SOURCES += src/uuid/uuid.c
 # ezcfg socket
 libezcfg_la_SOURCES += src/socket/socket.c
 
+# ezcfg HTTP/socket handler
+libezcfg_la_SOURCES += src/socket/socket_http.c
+
 # ezcfg HTTP protocol
 libezcfg_la_SOURCES += src/http/http.c
 
