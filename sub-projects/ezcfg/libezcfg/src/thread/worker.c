@@ -140,12 +140,13 @@ static int get_request_len(const char *buf, size_t buflen)
  * have some data. The length of the data is stored in nread.
  * Upon every read operation, increase nread by the number of bytes read.
  **/
-static int http_read_request(struct ezcfg_worker *worker, char *buf, int bufsiz, int *nread)
+static int http_read_request(struct ezcfg_worker *worker, struct ezcfg_http *http, char *buf, int bufsiz, int *nread)
 {
 	struct ezcfg *ezcfg;
 	int n, request_len;
 
 	ASSERT(worker != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = worker->ezcfg;
 
@@ -165,31 +166,105 @@ static int http_read_request(struct ezcfg_worker *worker, char *buf, int bufsiz,
 }
 
 /**
- * Keep reading the input into buffer buf, until reach bufsiz or error.
+ * Keep reading the input into buffer buf, until reach max buffer size or error.
  * Buffer buf may already have some data. The length of the data is stored in nread.
  * Upon every read operation, increase nread by the number of bytes read.
  **/
-static int http_read_content(struct ezcfg_worker *worker, char *buf, int bufsiz, int *nread)
+static char * http_read_content(struct ezcfg_worker *worker, struct ezcfg_http *http, char *buf, int request_len, int *bufsiz, int *nread)
 {
 	struct ezcfg *ezcfg;
-	int n, count;
+	int n;
+	char *p, *q;
+	int content_length, buf_len, chunk_size;
 
 	ASSERT(worker != NULL);
+	ASSERT(http != NULL);
 
 	ezcfg = worker->ezcfg;
+	buf_len = *bufsiz;
 
-	count = 0;
-	while (*nread < bufsiz) {
-		n = ezcfg_socket_read(worker->client, buf + *nread, bufsiz - *nread, 0);
-		if (n <= 0) {
-			break;
-		} else {
-			*nread += n;
-			count += n;
+	if ((p = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH)) != NULL) {
+		content_length = atoi(p);
+		if ((*nread - request_len) < content_length) {
+			/* need to read more data from socket */
+			buf_len += (content_length - (*nread - request_len));
+			buf = realloc(buf, buf_len);
+			if (buf == NULL) {
+				return NULL;
+			}
+			*bufsiz = buf_len;
+			while (*nread < buf_len) {
+				n = ezcfg_socket_read(worker->client, buf + *nread, *bufsiz - *nread, 0);
+				if (n <= 0) {
+					break;
+				}
+				else {
+					*nread += n;
+				}
+			}
+
+			if ((*nread - request_len) < content_length) {
+				/* can not read all content */
+				return NULL;
+			}
 		}
 	}
+	else if ((p = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_TRANSFER_ENCODING)) != NULL) {
+		if (strcmp(p, "chunked") != 0) {
+			/* unknown Transfer-Encoding */
+			return NULL;
+		}
 
-	return count;
+		do {
+			if (buf_len <= *nread) {
+				buf_len += EZCFG_BUFFER_SIZE;
+			}
+			if (buf_len > EZCFG_HTTP_MAX_REQUEST_SIZE) {
+				/* too large for the request */
+				return NULL;
+			}
+			buf = realloc(buf, buf_len);
+			if (buf == NULL) {
+				return NULL;
+			}
+			*bufsiz = buf_len;
+			while (*nread < *bufsiz) {
+				n = ezcfg_socket_read(worker->client, buf + *nread, *bufsiz - *nread, 0);
+				if (n <= 0) {
+					break;
+				}
+				else {
+					*nread += n;
+				}
+			}
+		} while (*nread == buf_len);
+
+		/* concate chunk data */
+		/* 0-terminate the content */
+		buf[*nread] = '\0';
+		/* point to chunk size */
+		p = buf+request_len;
+		content_length = 0;
+		chunk_size = strtol(p, NULL, 16);
+		while((chunk_size > 0) && (chunk_size <= EZCFG_HTTP_CHUNK_SIZE)) {
+			q = strstr(p, EZCFG_HTTP_CRLF_STRING);
+			if (q == NULL) {
+				return NULL;
+			}
+			q += strlen(EZCFG_HTTP_CRLF_STRING);
+			memmove(buf + request_len + content_length, q, chunk_size);
+			content_length += chunk_size;
+			p = q + chunk_size + strlen(EZCFG_HTTP_CRLF_STRING);
+			chunk_size = strtol(p, NULL, 16);
+		}
+		if ((chunk_size < 0) || (chunk_size > EZCFG_HTTP_CHUNK_SIZE)) {
+			return NULL;
+		}
+		/* update nread */
+		*nread = request_len + content_length;
+	}
+
+	return buf;
 }
 
 static bool error_handler(struct ezcfg_worker *worker)
@@ -562,7 +637,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
-	http = (struct ezcfg_http *)(worker->proto);
+	http = (struct ezcfg_http *)(worker->proto_data);
 	buf_len = EZCFG_HTTP_CHUNK_SIZE;
 
 	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
@@ -571,7 +646,7 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 	nread = 0;
-	request_len = http_read_request(worker, buf, buf_len, &nread);
+	request_len = http_read_request(worker, http, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
 
@@ -588,7 +663,6 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	if (ezcfg_http_parse_request(http, buf, request_len) == true) {
 		unsigned short major, minor;
 		char *p;
-		int content_length;
 		major = ezcfg_http_get_version_major(http);
 		minor = ezcfg_http_get_version_minor(http);
 		if (major != 1 || minor != 1) {
@@ -597,77 +671,12 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird HTTP version");
 			goto exit;
 		}
-		if ((p =ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH)) != NULL) {
-			content_length = atoi(p);
-			if ((nread - request_len) < content_length) {
-				/* need to read more data from socket */
-				buf_len += (content_length - (nread - request_len));
-				p = realloc(buf, buf_len);
-				if (p == NULL) {
-					send_http_error(worker, 400, "Bad Request", "");
-					goto exit;
-				}
-				buf = p;
-				http_read_content(worker, buf, buf_len, &nread);
-				if ((nread - request_len) < content_length) {
-					/* can not read all content */
-					send_http_error(worker, 400, "Bad Request", "");
-					goto exit;
-				}
-			}
+		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		if (p == NULL) {
+			send_http_error(worker, 400, "Bad Request", "");
+			goto exit;
 		}
-		else if ((p =ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_TRANSFER_ENCODING)) != NULL) {
-			int chunk_size;
-			int content_length;
-			char *q;
-
-			if (strcmp(p, "chunked") != 0) {
-				/* unknown Transfer-Encoding */
-				send_http_error(worker, 400, "Bad Request", "");
-				goto exit;
-			}
-
-			while (nread == buf_len) {
-				buf_len += EZCFG_BUFFER_SIZE;
-				if (buf_len > EZCFG_HTTP_MAX_REQUEST_SIZE) {
-					send_http_error(worker, 400, "Bad Request", "");
-					goto exit;
-				}
-				p = realloc(buf, buf_len);
-				if (p == NULL) {
-					send_http_error(worker, 400, "Bad Request", "");
-					goto exit;
-				}
-				buf = p;
-				http_read_content(worker, buf, buf_len, &nread);
-			}
-
-			/* concate chunk data */
-			/* 0-terminate the content */
-			buf[nread] = '\0';
-			/* point to chunk size */
-			p = buf+request_len;
-			content_length = 0;
-			chunk_size = strtol(p, NULL, 16);
-			while((chunk_size > 0) && (chunk_size <= EZCFG_HTTP_CHUNK_SIZE)) {
-				q = strstr(p, EZCFG_HTTP_CRLF_STRING);
-				if (q == NULL) {
-					send_http_error(worker, 400, "Bad Request", "");
-					goto exit;
-				}
-				q += strlen(EZCFG_HTTP_CRLF_STRING);
-				memmove(buf + request_len + content_length, q, chunk_size);
-				content_length += chunk_size;
-				p = q + chunk_size + strlen(EZCFG_HTTP_CRLF_STRING);
-				chunk_size = strtol(p, NULL, 16);
-			}
-			if ((chunk_size < 0) || (chunk_size > EZCFG_HTTP_CHUNK_SIZE)) {
-				send_http_error(worker, 400, "Bad Request", "");
-				goto exit;
-			}
-			/* update nread */
-			nread = request_len + content_length;
-		}
+		buf = p;
 		if (nread > request_len) {
 			ezcfg_http_set_message_body(http, buf + request_len, nread - request_len);
 		}
@@ -689,10 +698,14 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
+	struct ezcfg_soap_http *sh;
+	struct ezcfg_http *http;
 
 	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
+	sh = (struct ezcfg_soap_http *)(worker->proto_data);
+	http = ezcfg_soap_http_get_http(sh);
 	buf_len = EZCFG_SOAP_HTTP_CHUNK_SIZE ;
 
 	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
@@ -701,7 +714,7 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 	nread = 0;
-	request_len = http_read_request(worker, buf, buf_len, &nread);
+	request_len = http_read_request(worker, http, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
 
@@ -711,32 +724,40 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 		return; /* Request is too large or format is not correct */
 	}
 
-	/* first setup message body info */
-	if (nread > request_len) {
-		ezcfg_soap_http_set_http_message_body(worker->proto_data, buf + request_len, nread - request_len);	
-	}
-
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[request_len - 1] = '\0';
-	if (ezcfg_soap_http_parse_request(worker->proto_data, buf, request_len) == true) {
+	if (ezcfg_soap_http_parse_request(sh, buf, request_len) == true) {
 		unsigned short major, minor;
-		major = ezcfg_soap_http_get_http_version_major(worker->proto_data);
-		minor = ezcfg_soap_http_get_http_version_minor(worker->proto_data);
-		if ((major == 1) && (minor == 1)) {
-			worker->birth_time = time(NULL);
-			handle_soap_http_request(worker);
-		} else {
+		char *p;
+		major = ezcfg_soap_http_get_http_version_major(sh);
+		minor = ezcfg_soap_http_get_http_version_minor(sh);
+		if ((major != 1) || (minor != 1)) {
 			send_soap_http_error(worker, 505,
 			                "SOAP/HTTP binding version not supported",
 			                "%s", "Weird HTTP version");
+			goto exit;
 		}
+		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		if (p == NULL) {
+			/* Do not put garbage in the access log */
+			send_soap_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
+			goto exit;
+		}
+		buf = p;
+		if (nread > request_len) {
+			ezcfg_soap_http_set_message_body(sh, buf + request_len, nread - request_len);
+			ezcfg_soap_http_parse_message_body(sh);
+		}
+		worker->birth_time = time(NULL);
+		handle_soap_http_request(worker);
 	} else {
 		/* Do not put garbage in the access log */
 		send_soap_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 
+exit:
 	/* release buf memory */
 	free(buf);
 }
@@ -747,10 +768,14 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
+	struct ezcfg_igrs *igrs;
+	struct ezcfg_http *http;
 
 	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
+	igrs = (struct ezcfg_igrs *)(worker->proto_data);
+	http = ezcfg_igrs_get_http(igrs);
 	buf_len = EZCFG_IGRS_HTTP_CHUNK_SIZE ;
 
 	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
@@ -760,7 +785,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	}
 	memset(buf, 0, buf_len);
 	nread = 0;
-	request_len = http_read_request(worker, buf, buf_len, &nread);
+	request_len = http_read_request(worker, http, buf, buf_len, &nread);
 
 	ASSERT(nread >= request_len);
 
@@ -773,33 +798,47 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	/* first setup message body info */
 	dbg(ezcfg, "nread=[%d], request_len=[%d]\n", nread, request_len);
 	if (nread > request_len) {
-		ezcfg_igrs_set_message_body(worker->proto_data, buf + request_len, nread - request_len);
+		ezcfg_igrs_set_message_body(igrs, buf + request_len, nread - request_len);
 	}
 
 	/* 0-terminate the request: parse http request uses sscanf
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[request_len - 1] = '\0';
-	if (ezcfg_igrs_parse_request(worker->proto_data, buf, request_len) == true) {
+	if (ezcfg_igrs_parse_request(igrs, buf, request_len) == true) {
 		unsigned short major, minor;
-		major = ezcfg_igrs_get_version_major(worker->proto_data);
-		minor = ezcfg_igrs_get_version_minor(worker->proto_data);
-		if ((major == 1) && (minor == 0)) {
-			worker->birth_time = time(NULL);
-			handle_igrs_request(worker);
-		} else {
+		char *p;
+		major = ezcfg_igrs_get_version_major(igrs);
+		minor = ezcfg_igrs_get_version_minor(igrs);
+		if ((major != 1) || (minor != 0)) {
 			send_igrs_error(worker, 505,
 			                "IGRS version not supported",
 			                "%s", "Weird IGRS version");
+			goto exit;
 		}
+		p = http_read_content(worker, http, buf, request_len, &buf_len, &nread);
+		if (p == NULL) {
+			/* Do not put garbage in the access log */
+			send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
+			goto exit;
+		}
+		buf = p;
+		if (nread > request_len) {
+			ezcfg_igrs_set_message_body(igrs, buf + request_len, nread - request_len);
+			ezcfg_igrs_parse_message_body(igrs);
+		}
+		worker->birth_time = time(NULL);
+		handle_igrs_request(worker);
 	} else {
 		/* Do not put garbage in the access log */
 		dbg(ezcfg, "ezcfg_igrs_parse_request=false\n");
 		send_igrs_error(worker, 400, "Bad Request-1", "Can not parse request: %.*s", nread, buf);
 	}
 
+exit:
 	/* release buf memory */
-	free(buf);
+	if (buf != NULL)
+		free(buf);
 }
 
 static void init_protocol_data(struct ezcfg_worker *worker)

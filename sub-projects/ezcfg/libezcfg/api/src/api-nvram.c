@@ -212,7 +212,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	}
 
 	if (n > msg_len) {
-		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
@@ -395,7 +395,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
 	if (n > msg_len) {
-		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
@@ -537,7 +537,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
 	if (n > msg_len) {
-		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
@@ -681,7 +681,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	}
 
 	if (n > msg_len) {
-		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
@@ -843,7 +843,7 @@ int ezcfg_api_nvram_commit(void)
 	}
 
 	if (n > msg_len) {
-		ezcfg_soap_http_set_http_message_body(sh, msg + msg_len, n - msg_len);
+		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
 	}
 
 	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {

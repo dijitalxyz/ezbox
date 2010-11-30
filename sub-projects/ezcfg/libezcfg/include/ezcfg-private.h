@@ -285,7 +285,8 @@ char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *na
 void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh);
 bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int len);
 bool ezcfg_soap_http_parse_response(struct ezcfg_soap_http *sh, char *buf, int len);
-char *ezcfg_soap_http_set_http_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
+bool ezcfg_soap_http_parse_message_body(struct ezcfg_soap_http *sh);
+char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len);
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
@@ -334,6 +335,7 @@ char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name);
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len);
 bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len);
+bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
 int ezcfg_igrs_http_get_message_length(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len);

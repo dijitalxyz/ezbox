@@ -879,19 +879,14 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
 	char *s;
 	int n;
-	char *msg_body;
-	int msg_body_len;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
-	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
-	soap = igrs->soap;
 
 	if (ezcfg_http_parse_request(http, buf, len) == false) {
 		return false;
@@ -920,15 +915,6 @@ bool ezcfg_igrs_parse_request(struct ezcfg_igrs *igrs, char *buf, int len)
 		return false;
 	}
 
-	msg_body = ezcfg_http_get_message_body(http);
-	msg_body_len = ezcfg_http_get_message_body_len(http);
-
-	if (msg_body != NULL && msg_body_len > 0) {
-		if (ezcfg_soap_parse(soap, msg_body, msg_body_len) == false) {
-			return false;
-		}
-	}
-
 	return true;
 }
 
@@ -936,19 +922,14 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
 	char *s;
 	int n;
-	char *msg_body;
-	int msg_body_len;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
-	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
-	soap = igrs->soap;
 
 	if (ezcfg_http_parse_response(http, buf, len) == false) {
 		return false;
@@ -976,6 +957,25 @@ bool ezcfg_igrs_parse_response(struct ezcfg_igrs *igrs, char *buf, int len)
 		err(ezcfg, "igrs message type is unknown\n");
 		return false;
 	}
+
+	return true;
+}
+
+bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char *msg_body;
+	int msg_body_len;
+
+	ASSERT(igrs != NULL);
+	ASSERT(igrs->http != NULL);
+	ASSERT(igrs->soap != NULL);
+
+	ezcfg = igrs->ezcfg;
+	http = igrs->http;
+	soap = igrs->soap;
 
 	msg_body = ezcfg_http_get_message_body(http);
 	msg_body_len = ezcfg_http_get_message_body_len(http);

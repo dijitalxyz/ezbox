@@ -1595,12 +1595,6 @@ int ezcfg_xml_add_element(
 	} else {
 		/* sibling element's next */
 		for (i = xml->num_elements-1; i > sibling->etag_index; i--) {
-#if 0
-			/* find sibling element end tag */
-			if (root[i] == sibling) {
-				break;
-			}
-#endif
 			/* move 2 steps */
 			root[i+2] = root[i];
 
