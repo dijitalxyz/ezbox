@@ -48,7 +48,7 @@ static int set_non_blocking_mode(int sock)
 }
 
 static void close_socket_gracefully(int sock) {
-	char buf[4096];
+	char buf[1024];
 	int n;
 
 	/* Send FIN to the client */
