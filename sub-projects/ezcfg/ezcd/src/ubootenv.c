@@ -25,8 +25,8 @@
 
 #include "ezcd.h"
 
-#define UBOOT_ENV_ENTRY_SIZE	 4*1024 /* 4KB */
-#define UBOOT_ENV_BLOCK_SIZE	64*1024 /* 64KB */
+/* if redantant it should be (sizeof(unsigned long) + 1) */
+#define UBOOTENV_HEADER_SIZE (sizeof(unsigned long))
 
 static void ubootenv_show_usage(void)
 {
@@ -60,7 +60,11 @@ int ubootenv_main(int argc, char **argv)
 		}
 
 		if (strlen(argv[2]) > 0) {
-			buf_len = UBOOT_ENV_ENTRY_SIZE;
+			buf_len = ezcfg_api_ubootenv_size();
+			if (buf_len < UBOOTENV_HEADER_SIZE) {
+				printf("error! ubootenv size is [%d]\n", buf_len);
+				return -EZCFG_E_ARGUMENT ;
+			}
 			buf = (char *)malloc(buf_len);
 			if (buf == NULL) {
 				printf("error! not enough memory.\n");
@@ -107,7 +111,11 @@ int ubootenv_main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1], "list") == 0) {
 		if (argc == 2) {
-			buf_len = UBOOT_ENV_BLOCK_SIZE;
+			buf_len = ezcfg_api_ubootenv_size();
+			if (buf_len < UBOOTENV_HEADER_SIZE) {
+				printf("error! ubootenv size is [%d]\n", buf_len);
+				return -EZCFG_E_ARGUMENT ;
+			}
 			buf = (char *)malloc(buf_len);
 			if (buf == NULL) {
 				printf("error! not enough memory.\n");

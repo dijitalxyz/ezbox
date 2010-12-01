@@ -16,5 +16,6 @@ int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
 int ezcfg_api_ubootenv_set(char *name, char *value);
 int ezcfg_api_ubootenv_list(char *list, size_t len);
 int ezcfg_api_ubootenv_check(void);
+int ezcfg_api_ubootenv_size(void);
 
 #endif

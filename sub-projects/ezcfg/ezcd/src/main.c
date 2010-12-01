@@ -62,6 +62,9 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "ubootenv")) {
 		return ubootenv_main(argc, argv);
 	}
+	else if (!strcmp(name, "upfw")) {
+		return upfw_main(argc, argv);
+	}
 	else {
 		printf("Unkown name [%s]!\n", name);
 		return (EXIT_FAILURE);

@@ -548,8 +548,6 @@ func_out:
 
 /**
  * ezcfg_api_ubootenv_check:
- * @list: buffer to store u-boot env parameter pairs
- * @len: buffer size
  *
  **/
 int ezcfg_api_ubootenv_check(void)
@@ -602,5 +600,23 @@ func_out:
 	if (buf != NULL) {
 		free(buf);
 	}
+	return rc;
+}
+
+/**
+ * ezcfg_api_ubootenv_size:
+ *
+ **/
+int ezcfg_api_ubootenv_size(void)
+{
+	int rc = 0;
+	ubootenv_info_t info;
+
+	memset(&info, 0, sizeof(info));
+	rc = init_ubootenv_info(&info);
+	if (rc >= 0) {
+		rc = info.ubootenv_size;
+	}
+
 	return rc;
 }

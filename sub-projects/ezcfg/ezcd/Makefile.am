@@ -43,6 +43,9 @@ ezcd_SOURCES += src/rc/rc_base_files.c
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c
 
+# upgrade firmware support
+ezcd_SOURCES += src/upfw.c
+
 # ezcd
 ezcd_SOURCES += src/rc/rc_ezcd.c
 
