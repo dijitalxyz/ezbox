@@ -340,18 +340,12 @@ static void accept_new_connection(struct ezcfg_master *master,
 		return;
 	}
 
-	//allowed = check_acl(ctx, &accepted.rsa) == MG_SUCCESS;
 	allowed = true;
 
 	if (allowed == true) {
-		// Put accepted socket structure into the queue
-		info(ezcfg, "accepted socket [%d], listener socket =[%d]\n",
-		     ezcfg_socket_get_sock(accepted),
-		     ezcfg_socket_get_sock(listener));
 		put_socket(master, accepted);
-	} else {
-		info(ezcfg, "%s is not allowed to connect\n",
-		     ezcfg_socket_get_remote_socket_path(accepted));
+	}
+	else {
 		ezcfg_socket_close_sock(accepted);
 	}
 	free(accepted);

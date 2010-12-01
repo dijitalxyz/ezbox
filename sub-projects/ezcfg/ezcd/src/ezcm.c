@@ -46,7 +46,7 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *format, va_list args)
 {
 	if (debug) {
-		char buf[1024*8];
+		char buf[1024];
 		struct timeval tv;
 		struct timezone tz;
 
@@ -180,7 +180,6 @@ int ezcm_main(int argc, char **argv)
 		goto exit;
 	}
 	msg_len++; /* one more for '\0' */
-	info(ezcfg, "msg_len=[%d]\n", msg_len);
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		err(ezcfg, "malloc msg error.\n");
@@ -211,7 +210,6 @@ int ezcm_main(int argc, char **argv)
 		rc = 4;
 		goto exit;
 	}
-	info(ezcfg, "sent message=[%s]\n\n\n", msg);
 
 	p = realloc(msg, EZCFG_IGRS_HTTP_CHUNK_SIZE);
 	if (p != NULL) {
@@ -226,7 +224,6 @@ int ezcm_main(int argc, char **argv)
 		rc = 5;
 		goto exit;
 	}
-	info(ezcfg, "received message=[%s]\n", msg);
 exit:
 	if (msg != NULL)
 		free(msg);

@@ -1902,7 +1902,7 @@ int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 	return (p - buf);
 }
 
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, const char *name)
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, char *name)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;

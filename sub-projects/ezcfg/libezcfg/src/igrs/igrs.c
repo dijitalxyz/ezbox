@@ -789,7 +789,6 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 
 	ezcfg = igrs->ezcfg;
 
-	dbg(ezcfg, "igrs->message_type_index=[%d]\n", igrs->message_type_index);
 	if (igrs->message_type_index == 0) {
 		err(ezcfg, "unknown igrs message type\n");
 		return -1;
@@ -798,7 +797,6 @@ int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 	op = &(igrs->message_type_ops[igrs->message_type_index]);
 
 	if (op->write_fn != NULL) {
-		info(ezcfg, "write %s\n", op->name);
 		return op->write_fn(igrs, buf, len);
 	}
 	return -1;
@@ -813,7 +811,6 @@ int ezcfg_igrs_handle_message(struct ezcfg_igrs *igrs)
 
 	ezcfg = igrs->ezcfg;
 
-	dbg(ezcfg, "igrs->message_type_index=[%d]\n", igrs->message_type_index);
 	if (igrs->message_type_index == 0) {
 		err(ezcfg, "unknown igrs message type\n");
 		return -1;
@@ -822,7 +819,6 @@ int ezcfg_igrs_handle_message(struct ezcfg_igrs *igrs)
 	op = &(igrs->message_type_ops[igrs->message_type_index]);
 
 	if (op->handle_fn != NULL) {
-		info(ezcfg, "handle %s\n", op->name);
 		return op->handle_fn(igrs);
 	}
 	return -1;

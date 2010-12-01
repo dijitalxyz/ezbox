@@ -474,7 +474,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			goto exit;
 		}
 		msg_len++; /* one more for '\0' */
-		info(ezcfg, "msg_len=[%d]\n", msg_len);
 		msg = (char *)malloc(msg_len);
 		if (msg == NULL) {
 			err(ezcfg, "malloc msg error.\n");
@@ -500,7 +499,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 				goto exit;
 			}
 			msg_len++; /* one more for '\0' */
-			info(ezcfg, "msg_len=[%d]\n", msg_len);
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
@@ -519,7 +517,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 				goto exit;
 			}
 			msg_len++; /* one more for '\0' */
-			info(ezcfg, "msg_len=[%d]\n", msg_len);
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
@@ -527,7 +524,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
-			info(ezcfg, "msg=[%s]\n", msg);
 			worker_write(worker, msg, msg_len);
 			goto exit;
 		}
@@ -572,7 +568,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 			goto exit;
 		}
 		msg_len++; /* one more for '\0' */
-		info(ezcfg, "msg_len=[%d]\n", msg_len);
 		msg = (char *)malloc(msg_len);
 		if (msg == NULL) {
 			err(ezcfg, "malloc msg error.\n");
@@ -597,7 +592,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 			goto exit;
 		}
 		msg_len++; /* one more for '\0' */
-		info(ezcfg, "msg_len=[%d]\n", msg_len);
 		msg = (char *)malloc(msg_len);
 		if (msg == NULL) {
 			err(ezcfg, "malloc msg error.\n");
@@ -616,7 +610,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 			goto exit;
 		}
 		msg_len++; /* one more for '\0' */
-		info(ezcfg, "msg_len=[%d]\n", msg_len);
 		msg = (char *)malloc(msg_len);
 		if (msg == NULL) {
 			err(ezcfg, "malloc msg error.\n");
@@ -803,7 +796,6 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	}
 
 	/* first setup message body info */
-	dbg(ezcfg, "nread=[%d], header_len=[%d]\n", nread, header_len);
 	if (nread > header_len) {
 		ezcfg_igrs_set_message_body(igrs, buf + header_len, nread - header_len);
 	}
@@ -839,7 +831,6 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		handle_igrs_request(worker);
 	} else {
 		/* Do not put garbage in the access log */
-		dbg(ezcfg, "ezcfg_igrs_parse_header=false\n");
 		send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 
@@ -953,7 +944,6 @@ void ezcfg_worker_delete(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 
 	if (worker->client != NULL) {
-		info(ezcfg, "delete worker client\n");
 		ezcfg_socket_delete(worker->client);
 	}
 
@@ -999,8 +989,6 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 	master = worker->master;
 
-	info(ezcfg, "enter worker thread.\n");
-
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
 
@@ -1030,6 +1018,4 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 
 	/* Signal master that we're done with connection and exiting */
 	ezcfg_master_stop_worker(master, worker);
-
-	info(ezcfg, "exit worker thread.\n");
 }

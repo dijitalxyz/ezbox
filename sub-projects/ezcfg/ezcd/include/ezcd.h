@@ -2,8 +2,6 @@
 #define _EZCD_H_
 
 #include "ezcfg.h"
-#include "ezcfg-private.h"
-
 #include "ezcfg-api.h"
 
 #include "utils.h"

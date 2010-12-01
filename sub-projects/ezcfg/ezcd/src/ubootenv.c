@@ -44,6 +44,7 @@ int ubootenv_main(int argc, char **argv)
 {
 	int rc = 0;
 	char *buf;
+	int buf_len;
 
 	if (argc < 2) {
 		printf("need more arguments.\n");
@@ -59,13 +60,14 @@ int ubootenv_main(int argc, char **argv)
 		}
 
 		if (strlen(argv[2]) > 0) {
-			buf = malloc(UBOOT_ENV_ENTRY_SIZE);
+			buf_len = UBOOT_ENV_ENTRY_SIZE;
+			buf = (char *)malloc(buf_len);
 			if (buf == NULL) {
 				printf("error! not enough memory.\n");
 				return -EZCFG_E_RESOURCE;
 			}
-			memset(buf, 0, UBOOT_ENV_ENTRY_SIZE);
-			rc = ezcfg_api_ubootenv_get(argv[2], buf, UBOOT_ENV_ENTRY_SIZE);
+			memset(buf, 0, buf_len);
+			rc = ezcfg_api_ubootenv_get(argv[2], buf, buf_len);
 			if (rc < 0) {
 				printf("ERROR\n");
 			}
@@ -105,13 +107,14 @@ int ubootenv_main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1], "list") == 0) {
 		if (argc == 2) {
-			buf = malloc(UBOOT_ENV_BLOCK_SIZE);
+			buf_len = UBOOT_ENV_BLOCK_SIZE;
+			buf = (char *)malloc(buf_len);
 			if (buf == NULL) {
 				printf("error! not enough memory.\n");
 				return -EZCFG_E_RESOURCE;
 			}
-			memset(buf, 0, UBOOT_ENV_BLOCK_SIZE);
-			rc = ezcfg_api_ubootenv_list(buf, UBOOT_ENV_BLOCK_SIZE);
+			memset(buf, 0, buf_len);
+			rc = ezcfg_api_ubootenv_list(buf, buf_len);
 			if (rc < 0) {
 				printf("ERROR\n");
 			}

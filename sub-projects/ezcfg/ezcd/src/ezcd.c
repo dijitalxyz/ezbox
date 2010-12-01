@@ -91,7 +91,7 @@ static void ezcd_show_usage(void)
 static int mem_size_mb(void)
 {
 	FILE *fp;
-	char buf[4096];
+	char buf[1024];
 	long int memsize = -1;
 
 	fp = fopen("/proc/meminfo", "r");

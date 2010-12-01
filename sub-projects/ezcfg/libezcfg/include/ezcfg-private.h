@@ -21,8 +21,6 @@
 
 #include "ezcfg.h"
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 typedef void * (*ezcfg_thread_func_t)(void *);
 /* name-value pair struct */
 typedef struct ezcfg_nv_pair_s {
@@ -30,42 +28,6 @@ typedef struct ezcfg_nv_pair_s {
 	char *value;
 } ezcfg_nv_pair_t;
 
-static inline void __attribute__((always_inline, format(printf, 2, 3)))
-ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
-
-#define ezcfg_log_cond(ezcfg, prio, arg...) \
-  do { \
-    if (ezcfg_get_log_priority(ezcfg) >= prio) \
-      ezcfg_log(ezcfg, prio, __FILE__, __LINE__, __FUNCTION__, ## arg); \
-  } while (0)
-
-/* FIXME: remove it later */
-#define ENABLE_LOGGING	1
-#define ENABLE_DEBUG	1
-
-#ifdef ENABLE_LOGGING
-#  ifdef ENABLE_DEBUG
-#    define dbg(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_DEBUG, ## arg)
-#  else
-#    define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  endif
-#  define info(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_INFO, ## arg)
-#  define err(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_ERR, ## arg)
-#else
-#  define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  define info(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  define err(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#endif
-
-static inline void ezcfg_log_init(const char *program_name)
-{
-	openlog(program_name, LOG_PID | LOG_CONS, LOG_DAEMON);
-}
-
-static inline void ezcfg_log_close(void)
-{
-	closelog();
-}
 
 /* common/ezcfg.c */
 void ezcfg_log(struct ezcfg *ezcfg,
@@ -135,9 +97,7 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
 /* uuid/uuid.c */
-struct ezcfg_uuid;
 bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
-struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
 bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
 char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
@@ -241,7 +201,7 @@ int ezcfg_xml_add_element(
         const int pi,
         const int si,
         struct ezcfg_xml_element *elem);
-int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, const char *name);
+int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, char *name);
 bool ezcfg_xml_element_add_attribute(
         struct ezcfg_xml *xml,
         struct ezcfg_xml_element *elem,
@@ -267,7 +227,7 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name);
 int ezcfg_soap_get_body_index(struct ezcfg_soap *soap);
 int ezcfg_soap_add_body_child(struct ezcfg_soap *soap, int pi, int si, const char *name, const char *content);
 bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const char *name, const char *value, int pos);
-int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, const char *name);
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, char *name);
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int index);
 bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len);
 int ezcfg_soap_get_message_length(struct ezcfg_soap *soap);
@@ -298,9 +258,9 @@ int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len
 
 /* igrs/igrs.c */
 struct ezcfg_igrs_msg_op;
-struct ezcfg_igrs;
+//struct ezcfg_igrs;
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
-struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
+//struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs);
 struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs);
@@ -351,9 +311,7 @@ struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
 void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
 /* thread/master.c */
-struct ezcfg_master;
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
-struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 void ezcfg_master_thread(struct ezcfg_master *master);
@@ -373,9 +331,7 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 
 
 /* ctrl/ctrl.c - daemon runtime setup */
-struct ezcfg_ctrl;
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);

@@ -100,7 +100,6 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SOAP_TOKEN_ELEMENT_NAME, "");
 
 	msg_len = ezcfg_soap_get_message_length(soap);
-	dbg(ezcfg, "msg_len=[%d]\n", msg_len);
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_soap_get_message_length\n");
 		return false;

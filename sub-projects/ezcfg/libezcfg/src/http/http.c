@@ -519,7 +519,6 @@ void ezcfg_http_set_state_request(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	info(ezcfg, "http->state=HTTP_REQUEST\n");
 	http->state = HTTP_REQUEST;
 }
 
@@ -531,7 +530,6 @@ void ezcfg_http_set_state_response(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	info(ezcfg, "http->state=HTTP_RESPONSE\n");
 	http->state = HTTP_RESPONSE;
 }
 

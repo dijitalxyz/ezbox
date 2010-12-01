@@ -15,7 +15,9 @@
 #define _EZCFG_H_
 
 #include <stdarg.h>
-#include <sys/types.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <syslog.h>
 #include <sys/stat.h>
 
 #include "ezcfg-ezbox_distro.h"
@@ -28,9 +30,7 @@
 #define ASSERT(exp) do {} while(0) 
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 #define EZCFG_INVALID_SOCKET      -1
 #define EZCFG_BUFFER_SIZE         8192
@@ -482,6 +482,43 @@ extern "C" {
  */
 struct ezcfg;
 
+static inline void __attribute__((always_inline, format(printf, 2, 3)))
+ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
+
+#define ezcfg_log_cond(ezcfg, prio, arg...) \
+  do { \
+    if (ezcfg_get_log_priority(ezcfg) >= prio) \
+      ezcfg_log(ezcfg, prio, __FILE__, __LINE__, __FUNCTION__, ## arg); \
+  } while (0)
+
+/* FIXME: remove it later */
+#define ENABLE_LOGGING	1
+#define ENABLE_DEBUG	1
+
+#ifdef ENABLE_LOGGING
+#  ifdef ENABLE_DEBUG
+#    define dbg(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_DEBUG, ## arg)
+#  else
+#    define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
+#  endif
+#  define info(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_INFO, ## arg)
+#  define err(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_ERR, ## arg)
+#else
+#  define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
+#  define info(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
+#  define err(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
+#endif
+
+static inline void ezcfg_log_init(const char *program_name)
+{
+	openlog(program_name, LOG_PID | LOG_CONS, LOG_DAEMON);
+}
+
+static inline void ezcfg_log_close(void)
+{
+	closelog();
+}
+
 void ezcfg_set_log_fn(struct ezcfg *ezcfg,
                       void (*log_fn)(struct ezcfg *ezcfg,
                                     int priority, const char *file, int line, const char *fn,
@@ -516,8 +553,21 @@ const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
 	     list_entry != NULL; \
 	     list_entry = ezcfg_list_entry_get_next(list_entry))
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+/* thread/master.c */
+struct ezcfg_master;
+struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 
-#endif
+/* igrs/igrs.c */
+struct ezcfg_igrs;
+struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
+
+/* uuid/uuid.c */
+struct ezcfg_uuid;
+struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
+
+/* ctrl/ctrl.c - daemon runtime setup */
+struct ezcfg_ctrl;
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
+
+#endif /* _EZCFG_H_ */
+

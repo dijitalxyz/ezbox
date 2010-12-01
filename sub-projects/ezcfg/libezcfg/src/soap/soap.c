@@ -377,7 +377,7 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 	return ezcfg_xml_element_add_attribute(xml, elem, name, value, pos);
 }
 
-int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, const char *name)
+int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, char *name)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
@@ -430,21 +430,18 @@ bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 	xml = soap->xml;
 
 	if (ezcfg_xml_parse(xml, buf, len) == false) {
-		dbg(ezcfg, "ezcfg_xml_parse=false\n");
 		return false;
 	}
 
 	soap->envelope_index = 0;
 
 	if (ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME) != 0) {
-		dbg(ezcfg, "%s=%d\n", EZCFG_SOAP_ENVELOPE_ELEMENT_NAME, ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME));
 		return false;
 	}
 
 	soap->body_index = ezcfg_xml_get_element_index(xml, soap->envelope_index, -1, EZCFG_SOAP_BODY_ELEMENT_NAME);
 
 	if (soap->body_index < 1) {
-		dbg(ezcfg, "soap->body_index=[%d]\n", soap->body_index);
 		return false;
 	}
 

@@ -16,14 +16,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/un.h>
+#include <fcntl.h>
+#include <assert.h>
 #include <errno.h>
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
 
 #include "ezcd.h"
+
+static bool debug = false;
+
+static void log_fn(struct ezcfg *ezcfg, int priority,
+                   const char *file, int line, const char *fn,
+                   const char *format, va_list args)
+{
+	if (debug) {
+		char buf[1024];
+		struct timeval tv;
+		struct timezone tz;
+
+		vsnprintf(buf, sizeof(buf), format, args);
+		gettimeofday(&tv, &tz);
+		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
+		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
+		        (int) getpid(), fn, line, buf);
+	} else {
+		vsyslog(priority, format, args);
+        }
+}
 
 static void nvram_show_usage(void)
 {
@@ -41,27 +70,41 @@ static void nvram_show_usage(void)
 int nvram_match(const char *name, const char *value)
 {
 	int rc = 0;
-	char buf[1024*4];
+	char *buf;
+	int buf_len;
 
 	if (name == NULL || value == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
-	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+
+	buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
+	buf = (char *)malloc(buf_len);
+	if (buf == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	rc = ezcfg_api_nvram_get(name, buf, buf_len);
 	if (rc < 0) {
-		return rc;
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
 	}
+
 	if (strcmp(value, buf) != 0) {
-		return -EZCFG_E_RESULT ;
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
 	}
-	return 0;
+exit:
+	if (buf != NULL)
+		free(buf);
+	return rc;
 }
 
 int nvram_main(int argc, char **argv)
 {
 	int rc = 0;
-	char buf[1024*4];
-
-	memset(buf, 0, sizeof(buf));
+	char *buf = NULL;
+	int buf_len;
+	struct ezcfg *ezcfg = NULL;
 
 	if (argc < 2) {
 		printf("need more arguments.\n");
@@ -69,21 +112,38 @@ int nvram_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
+	ezcfg = ezcfg_new();
+	if (ezcfg == NULL) {
+		printf("error : %s\n", "ezcfg_new");
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+	ezcfg_log_init("nvram");
+	ezcfg_set_log_fn(ezcfg, log_fn);
+
 	if (strcmp(argv[1], "get") == 0) {
 		if (argc != 3) {
 			printf("number of arguments is incorrect.\n");
 			nvram_show_usage();
-			return -EZCFG_E_ARGUMENT ;
+			rc = -EZCFG_E_ARGUMENT ;
+			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
-			rc = ezcfg_api_nvram_get(argv[2], buf, sizeof(buf));
+			buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
+			buf = (char *)malloc(buf_len);
+			if (buf == NULL) {
+				return -EZCFG_E_SPACE ;
+			}
+			rc = ezcfg_api_nvram_get(argv[2], buf, buf_len);
 			if (rc < 0) {
 				printf("ERROR\n");
 			}
 			else {
 				printf("%s=%s\n", argv[2], buf);
 			}
+			free(buf);
 		}
 		else {
 			printf("the nvram name is empty.\n");
@@ -95,7 +155,8 @@ int nvram_main(int argc, char **argv)
 		if (argc != 4) {
 			printf("number of arguments is incorrect.\n");
 			nvram_show_usage();
-			return -EZCFG_E_ARGUMENT ;
+			rc = -EZCFG_E_ARGUMENT ;
+			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
@@ -117,7 +178,8 @@ int nvram_main(int argc, char **argv)
 		if (argc != 3) {
 			printf("number of arguments is incorrect.\n");
 			nvram_show_usage();
-			return -EZCFG_E_ARGUMENT ;
+			rc = -EZCFG_E_ARGUMENT ;
+			goto exit;
 		}
 
 		if (strlen(argv[2]) > 0) {
@@ -137,13 +199,19 @@ int nvram_main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1], "list") == 0) {
 		if (argc == 2) {
-			rc = ezcfg_api_nvram_list(buf, sizeof(buf));
+			buf_len = EZCFG_NVRAM_BUFFER_SIZE;
+			buf = (char *)malloc(buf_len);
+			if (buf == NULL) {
+				return -EZCFG_E_SPACE ;
+			}
+			rc = ezcfg_api_nvram_list(buf, buf_len);
 			if (rc < 0) {
 				printf("ERROR\n");
 			}
 			else {
 				printf("%s", buf);
 			}
+			free(buf);
 		}
 		else {
 			printf("number of arguments is incorrect.\n");
@@ -172,6 +240,10 @@ int nvram_main(int argc, char **argv)
 		nvram_show_usage();
 		rc = -EZCFG_E_ARGUMENT ;
 	}
+
+exit:
+	if (ezcfg != NULL)
+		ezcfg_delete(ezcfg);
 
         return rc;
 }

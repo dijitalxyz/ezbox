@@ -91,7 +91,6 @@ void ezcfg_set_log_fn(struct ezcfg *ezcfg,
                                     const char *format, va_list args))
 {
 	ezcfg->log_fn = log_fn;
-	info(ezcfg, "custom logging function %p registered\n", ezcfg);
 }
 
 /**

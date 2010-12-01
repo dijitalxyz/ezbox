@@ -49,7 +49,7 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *format, va_list args)
 {
 	if (debug) {
-		char buf[1024*8];
+		char buf[1024];
 		struct timeval tv;
 		struct timezone tz;
 
@@ -62,88 +62,6 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 		vsyslog(priority, format, args);
 	}
 }
-
-#if 0
-/* Check whether full response is buffered. Return:
- *   -1  if response is malformed
- *    0  if response is not yet fully buffered
- *   >0  actual response length, including last \r\n\r\n
- */
-static int get_response_len(const char *buf, size_t buflen)
-{
-	const char *s, *e;
-	int len = 0;
-
-	for (s = buf, e = s + buflen - 1; len <= 0 && s < e; s++) {
-		/* Control characters are not allowed but >=128 is. */
-		if (!isprint(* (unsigned char *) s) && *s != '\r' &&
-		    *s != '\n' && * (unsigned char *) s < 128) {
-			len = -1;
-		} else if (s[0] == '\n' && s[1] == '\n') {
-			len = (int) (s - buf) + 2;
-		} else if (s[0] == '\n' && &s[1] < e &&
-		           s[1] == '\r' && s[2] == '\n') {
-			len = (int) (s - buf) + 3;
-		}
-	}
-
-	return len;
-}
-
-
-/**
- * Keep reading the input into buffer buf, until \r\n\r\n appears in the
- * buffer (which marks the end of HTTP response). Buffer buf may already
- * have some data. The length of the data is stored in nread.
- * Upon every read operation, increase nread by the number of bytes read.
- **/
-static int http_read_response(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
-{
-	int n, response_len;
-
-	ASSERT(ezctrl != NULL);
-
-        response_len = 0;
-
-	while (*nread < bufsiz && response_len == 0) {
-		n = ezcfg_socket_read(ezcfg_ctrl_get_socket(ezctrl), buf + *nread, bufsiz - *nread, 0);
-		if (n <= 0) {
-			break;
-		} else {
-			*nread += n;
-			response_len = get_response_len(buf, (size_t) *nread);
-                }
-        }
-
-        return response_len;
-}
-
-/**
- * Keep reading the input into buffer buf, until reach max buffer size or error.
- * Buffer buf may already have some data. The length of the data is stored in nread.
- * Upon every read operation, increase nread by the number of bytes read.
- **/
-static int http_read_content(struct ezcfg_ctrl *ezctrl, char *buf, int bufsiz, int *nread)
-{
-	int n, response_len;
-
-	ASSERT(ezctrl != NULL);
-
-        response_len = 0;
-
-	while (*nread < bufsiz && response_len == 0) {
-		n = ezcfg_socket_read(ezcfg_ctrl_get_socket(ezctrl), buf + *nread, bufsiz - *nread, 0);
-		if (n <= 0) {
-			break;
-		} else {
-			*nread += n;
-			response_len = get_response_len(buf, (size_t) *nread);
-                }
-        }
-
-        return response_len;
-}
-#endif
 
 /**
  * ezcfg_api_nvram_get:
@@ -182,7 +100,6 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
         ezcfg_log_init("nvram_get");
         ezcfg_set_log_fn(ezcfg, log_fn);
-        info(ezcfg, "nvram get\n");
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -361,7 +278,6 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
         ezcfg_log_init("nvram_set");
         ezcfg_set_log_fn(ezcfg, log_fn);
-        info(ezcfg, "nvram set\n");
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -565,7 +481,6 @@ int ezcfg_api_nvram_unset(const char *name)
 
         ezcfg_log_init("nvram_unset");
         ezcfg_set_log_fn(ezcfg, log_fn);
-        info(ezcfg, "nvram unset\n");
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -731,7 +646,6 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
         ezcfg_log_init("nvram_list");
         ezcfg_set_log_fn(ezcfg, log_fn);
-        info(ezcfg, "nvram list\n");
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -912,7 +826,6 @@ int ezcfg_api_nvram_commit(void)
 
         ezcfg_log_init("nvram_commit");
         ezcfg_set_log_fn(ezcfg, log_fn);
-        info(ezcfg, "nvram commit\n");
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
