@@ -262,7 +262,7 @@ void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh)
 	ezcfg = sh->ezcfg;
 }
 
-bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int len)
+bool ezcfg_soap_http_parse_header(struct ezcfg_soap_http *sh, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -273,25 +273,7 @@ bool ezcfg_soap_http_parse_request(struct ezcfg_soap_http *sh, char *buf, int le
 	ezcfg = sh->ezcfg;
 	http = sh->http;
 
-	if (ezcfg_http_parse_request(http, buf, len) == false) {
-		return false;
-	}
-
-	return true;
-}
-
-bool ezcfg_soap_http_parse_response(struct ezcfg_soap_http *sh, char *buf, int len)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-
-	ASSERT(sh != NULL);
-	ASSERT(sh->http != NULL);
-
-	ezcfg = sh->ezcfg;
-	http = sh->http;
-
-	if (ezcfg_http_parse_response(http, buf, len) == false) {
+	if (ezcfg_http_parse_header(http, buf, len) == false) {
 		return false;
 	}
 

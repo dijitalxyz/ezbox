@@ -665,7 +665,8 @@ static void process_http_new_connection(struct ezcfg_worker *worker)
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[header_len - 1] = '\0';
-	if (ezcfg_http_parse_request(http, buf, header_len) == true) {
+	ezcfg_http_set_state_request(http);
+	if (ezcfg_http_parse_header(http, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_http_get_version_major(http);
@@ -733,7 +734,8 @@ static void process_soap_http_new_connection(struct ezcfg_worker *worker)
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[header_len - 1] = '\0';
-	if (ezcfg_soap_http_parse_request(sh, buf, header_len) == true) {
+	ezcfg_http_set_state_request(http);
+	if (ezcfg_soap_http_parse_header(sh, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_soap_http_get_http_version_major(sh);
@@ -810,7 +812,8 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
 	 */
 	//buf[header_len - 1] = '\0';
-	if (ezcfg_igrs_parse_request(igrs, buf, header_len) == true) {
+	ezcfg_http_set_state_request(http);
+	if (ezcfg_igrs_parse_header(igrs, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
 		major = ezcfg_igrs_get_version_major(igrs);
@@ -836,8 +839,8 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 		handle_igrs_request(worker);
 	} else {
 		/* Do not put garbage in the access log */
-		dbg(ezcfg, "ezcfg_igrs_parse_request=false\n");
-		send_igrs_error(worker, 400, "Bad Request-1", "Can not parse request: %.*s", nread, buf);
+		dbg(ezcfg, "ezcfg_igrs_parse_header=false\n");
+		send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 
 exit:

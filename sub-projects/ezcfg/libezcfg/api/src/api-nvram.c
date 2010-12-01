@@ -245,7 +245,8 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+	ezcfg_http_set_state_response(http);
+	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -462,7 +463,8 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+	ezcfg_http_set_state_response(http);
+	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -626,7 +628,8 @@ int ezcfg_api_nvram_unset(const char *name)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+	ezcfg_http_set_state_response(http);
+	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -791,7 +794,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+	ezcfg_http_set_state_response(http);
+	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -971,7 +975,8 @@ int ezcfg_api_nvram_commit(void)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+	ezcfg_http_set_state_response(http);
+	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}

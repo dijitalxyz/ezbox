@@ -307,6 +307,157 @@ static unsigned short find_status_code_index(struct ezcfg_http *http, const unsi
 	return 0;
 }
 
+static bool parse_http_request(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+	char *method, *uri, *version, *headers;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	method = buf;
+
+	/* split HTTP Request-Line (RFC2616 section 5.1) */
+	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
+	if (p == NULL) {
+		err(ezcfg, "no HTTP request line\n");
+		return false;
+	}
+
+	headers = p+2; /* skip CRLF */
+	*p = '\0';
+
+	/* get request method string */
+	p = strchr(method, ' ');
+	if (p == NULL)
+		return false;
+
+	/* 0-terminated method string */
+	*p = '\0';
+	http->method_index = find_method_index(http, method);
+	if (http->method_index == 0) {
+		*p = ' ';
+		return false;
+	}
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get uri string */
+	uri = p+1;
+	if (uri[0] != '/' && uri[0] != '*')
+		return false;
+
+	p = strchr(uri, ' ');
+	if (p == NULL)
+		return false;
+
+	/* 0-terminated request uri string */
+	*p = '\0';
+	http->request_uri = strdup(uri);
+	if (http->request_uri == NULL)
+		return false;
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get http version */
+	version = p+1;
+	if (strncmp(version, "HTTP/", 5) != 0)
+		return false;
+
+	p = version+5;
+	if (sscanf(p, "%hd.%hd",
+	           &http->version_major,
+	            &http->version_minor) != 2)
+		return false;
+
+	/* parse http headers */
+	return parse_http_headers(http, headers);
+}
+
+static bool parse_http_response(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+	char *version, *reason_phrase, *headers;
+	unsigned short status_code;
+	int i;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	version = buf;
+
+	/* split HTTP Status-Line (RFC2616 section 6.1) */
+	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
+	if (p == NULL) {
+		err(ezcfg, "no HTTP status line\n");
+		return false;
+	}
+
+	headers = p+2; /* skip CRLF */
+	*p = '\0';
+
+	/* get version string */
+	p = strchr(version, ' ');
+	if (p == NULL) {
+		return false;
+	}
+
+	/* 0-terminated version string */
+	*p = '\0';
+	if (strncmp(version, "HTTP/", 5) != 0) {
+		return false;
+	}
+
+	if (sscanf(version+5, "%hd.%hd",
+	           &http->version_major,
+	           &http->version_minor) != 2) {
+		return false;
+	}
+
+	/* restore the SP charactor */
+	*p = ' ';
+
+	/* get status code string */
+	p++;
+	if (isdigit(p[0]) == 0 ||
+	    isdigit(p[1]) == 0 ||
+	    isdigit(p[2]) == 0 ||
+	    p[3] != ' ') {
+		return false;
+	}
+
+	status_code = (p[0] - '0') * 100
+	            + (p[1] - '0') * 10
+	            + (p[2] - '0');
+
+	/* skip status code string, and get reason phrase string */
+	reason_phrase = p+4;
+
+	i = find_status_code_index(http, status_code);
+	if (i == 0) {
+		return false;
+	}
+
+	if (strcasecmp(reason_phrase, http->status_code_maps[i].reason_phrase) != 0) {
+		return false;
+	}
+
+	http->status_code_index = i;
+
+	/* parse http headers */
+	return parse_http_headers(http, headers);
+}
+
 /**
  * Public functions
  **/
@@ -435,11 +586,9 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 
 }
 
-bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
+bool ezcfg_http_parse_header(struct ezcfg_http *http, char *buf, int len)
 {
 	struct ezcfg *ezcfg;
-	char *p;
-	char *method, *uri, *version, *headers;
 
 	ASSERT(http != NULL);
 	ASSERT(buf != NULL);
@@ -447,143 +596,16 @@ bool ezcfg_http_parse_request(struct ezcfg_http *http, char *buf, int len)
 
 	ezcfg = http->ezcfg;
 
-	method = buf;
-
-	/* split HTTP Request-Line (RFC2616 section 5.1) */
-	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
-	if (p == NULL) {
-		err(ezcfg, "no HTTP request line\n");
+	if (http->state == HTTP_REQUEST) {
+		return parse_http_request(http, buf, len);
+	}
+	else if (http->state == HTTP_RESPONSE) {
+		return parse_http_response(http, buf, len);
+	}
+	else {
+		err(ezcfg, "Unkown HTTP state.\n");
 		return false;
 	}
-
-	headers = p+2; /* skip CRLF */
-	*p = '\0';
-
-	/* get request method string */
-	p = strchr(method, ' ');
-	if (p == NULL)
-		return false;
-
-	/* 0-terminated method string */
-	*p = '\0';
-	http->method_index = find_method_index(http, method);
-	if (http->method_index == 0) {
-		*p = ' ';
-		return false;
-	}
-
-	/* restore the SP charactor */
-	*p = ' ';
-
-	/* get uri string */
-	uri = p+1;
-	if (uri[0] != '/' && uri[0] != '*')
-		return false;
-
-	p = strchr(uri, ' ');
-	if (p == NULL)
-		return false;
-
-	/* 0-terminated request uri string */
-	*p = '\0';
-	http->request_uri = strdup(uri);
-	if (http->request_uri == NULL)
-		return false;
-
-	/* restore the SP charactor */
-	*p = ' ';
-
-	/* get http version */
-	version = p+1;
-	if (strncmp(version, "HTTP/", 5) != 0)
-		return false;
-
-	p = version+5;
-	if (sscanf(p, "%hd.%hd",
-	           &http->version_major,
-	            &http->version_minor) != 2)
-		return false;
-
-	/* parse http headers */
-	return parse_http_headers(http, headers);
-}
-
-bool ezcfg_http_parse_response(struct ezcfg_http *http, char *buf, int len)
-{
-	struct ezcfg *ezcfg;
-	char *p;
-	char *version, *reason_phrase, *headers;
-	unsigned short status_code;
-	int i;
-
-	ASSERT(http != NULL);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	ezcfg = http->ezcfg;
-
-	version = buf;
-
-	/* split HTTP Status-Line (RFC2616 section 6.1) */
-	p = strstr(buf, EZCFG_HTTP_CRLF_STRING);
-	if (p == NULL) {
-		err(ezcfg, "no HTTP status line\n");
-		return false;
-	}
-
-	headers = p+2; /* skip CRLF */
-	*p = '\0';
-
-	/* get version string */
-	p = strchr(version, ' ');
-	if (p == NULL) {
-		return false;
-	}
-
-	/* 0-terminated version string */
-	*p = '\0';
-	if (strncmp(version, "HTTP/", 5) != 0) {
-		return false;
-	}
-
-	if (sscanf(version+5, "%hd.%hd",
-	           &http->version_major,
-	           &http->version_minor) != 2) {
-		return false;
-	}
-
-	/* restore the SP charactor */
-	*p = ' ';
-
-	/* get status code string */
-	p++;
-	if (isdigit(p[0]) == 0 ||
-	    isdigit(p[1]) == 0 ||
-	    isdigit(p[2]) == 0 ||
-	    p[3] != ' ') {
-		return false;
-	}
-
-	status_code = (p[0] - '0') * 100
-	            + (p[1] - '0') * 10
-	            + (p[2] - '0');
-
-	/* skip status code string, and get reason phrase string */
-	reason_phrase = p+4;
-
-	i = find_status_code_index(http, status_code);
-	if (i == 0) {
-		return false;
-	}
-
-	if (strcasecmp(reason_phrase, http->status_code_maps[i].reason_phrase) != 0) {
-		return false;
-	}
-
-	http->status_code_index = i;
-
-	/* parse http headers */
-	return parse_http_headers(http, headers);
 }
 
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http)
