@@ -35,6 +35,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+#include "ezcfg-socket.h"
 
 /* Check whether full HTTP header is buffered. Return:
  *   -1  if HTTP header is malformed
@@ -72,7 +73,7 @@ static int get_http_header_len(const char *buf, size_t buflen)
  * have some data. The length of the data is stored in nread.
  * Upon every read operation, increase nread by the number of bytes read.
  **/
-int ezcfg_socket_read_http_header(struct socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread)
+int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread)
 {
 	struct ezcfg *ezcfg;
 	int n, len;

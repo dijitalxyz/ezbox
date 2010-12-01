@@ -165,10 +165,10 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, getnv_index;
 	char *res_name, *res_value;
-	int n;
-	int rc = 0;
 	char *p;
 	int header_len;
+	int n;
+	int rc = 0;
 
 	if (name == NULL || value == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -245,20 +245,22 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
-	if (p == NULL) {
+	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 	msg = p;
 
-	if (n > header_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	if (ezcfg_soap_http_parse_message_body(sh) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
 	}
 
 	/* get getNvramResponse part */
@@ -303,6 +305,10 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	rc = snprintf(value, len, "%s", res_value);
 exit:
+	if (msg != NULL) {
+		free(msg);
+	}
+
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -313,10 +319,6 @@ exit:
 
         if (ezcfg != NULL) {
                 ezcfg_delete(ezcfg);
-	}
-
-	if (msg != NULL) {
-		free(msg);
 	}
 
 	return rc;
@@ -338,6 +340,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	struct ezcfg_soap_http *sh = NULL;
 	struct ezcfg_soap *soap = NULL;
 	struct ezcfg_http *http = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, setnv_index;
 	char *result;
 	char *p;
@@ -450,10 +453,9 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
 	ezcfg_soap_http_reset_attributes(sh);
 
-	memset(msg, 0, sizeof(msg));
 	n = 0;
 	sp = ezcfg_ctrl_get_socket(ezctrl);
-	header_len = ezcfg_socket_read_http_header(sp, msg, msg_len, &n);
+	header_len = ezcfg_socket_read_http_header(sp, http, msg, msg_len, &n);
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
@@ -466,14 +468,16 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
-	if (p == NULL) {
+	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 	msg = p;
 
-	if (n > header_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	if (ezcfg_soap_http_parse_message_body(sh) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
 	}
 
 	/* get setNvramResponse part */
@@ -505,6 +509,10 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
 exit:
+	if (msg != NULL) {
+		free(msg);
+	}
+
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -515,10 +523,6 @@ exit:
 
         if (ezcfg != NULL) {
                 ezcfg_delete(ezcfg);
-	}
-
-	if (msg != NULL) {
-		free(msg);
 	}
 
 	return rc;
@@ -532,15 +536,18 @@ exit:
 int ezcfg_api_nvram_unset(const char *name)
 {
 	char buf[1024];
-	char *msg
+	char *msg;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	struct ezcfg_soap_http *sh = NULL;
 	struct ezcfg_soap *soap = NULL;
 	struct ezcfg_http *http = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, unsetnv_index;
 	char *result;
+	char *p;
+	int header_len;
 	int n;
 	int rc = 0;
 
@@ -581,8 +588,14 @@ int ezcfg_api_nvram_unset(const char *name)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = EZCFG_BUFFER_SIZE;
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+	ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -604,20 +617,29 @@ int ezcfg_api_nvram_unset(const char *name)
 
 	ezcfg_soap_http_reset_attributes(sh);
 
-	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
+	sp = ezcfg_ctrl_get_socket(ezctrl);
+	header_len = ezcfg_socket_read_http_header(sp, http, msg, msg_len, &n);
 
-	if (msg_len <= 0) {
+	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 
-	if (n > msg_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
+	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
+	if ((p == NULL) || (n <= header_len)){
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+	msg = p;
+
+	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -651,6 +673,10 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
 exit:
+	if (msg != NULL) {
+		free(msg);
+	}
+
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -675,16 +701,18 @@ exit:
 int ezcfg_api_nvram_list(char *list, size_t len)
 {
 	char buf[1024];
-	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	char *msg;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	struct ezcfg_soap_http *sh = NULL;
 	struct ezcfg_soap *soap = NULL;
 	struct ezcfg_http *http = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, listnv_index, nvnode_index;
 	char *res_name, *res_value;
 	char *p;
+	int header_len;
 	int l, n;
 	int rc = 0;
 
@@ -725,8 +753,14 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = EZCFG_BUFFER_SIZE;
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+	ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -748,20 +782,29 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	ezcfg_soap_http_reset_attributes(sh);
 
-	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
+	sp = ezcfg_ctrl_get_socket(ezctrl);
+	header_len = ezcfg_socket_read_http_header(sp, http, msg, msg_len, &n);
 
-	if (msg_len <= 0) {
+	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 
-	if (n > msg_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
+	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
 	}
 
-	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
+	if ((p == NULL) || (n <= header_len)){
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+	msg = p;
+
+	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
@@ -842,15 +885,18 @@ exit:
 int ezcfg_api_nvram_commit(void)
 {
 	char buf[1024];
-	char msg[EZCFG_SOAP_HTTP_MAX_REQUEST_SIZE];
+	char *msg;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	struct ezcfg_soap_http *sh = NULL;
 	struct ezcfg_soap *soap = NULL;
 	struct ezcfg_http *http = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int body_index, child_index, commitnv_index;
 	char *result;
+	char *p;
+	int header_len;
 	int n;
 	int rc = 0;
 
@@ -887,8 +933,14 @@ int ezcfg_api_nvram_commit(void)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	memset(msg, 0, sizeof(msg));
-	msg_len = ezcfg_soap_http_write_message(sh, msg, sizeof(msg));
+	msg_len = EZCFG_BUFFER_SIZE;
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		rc = -EZCFG_E_SPACE ;
+		goto exit;
+	}
+	memset(msg, 0, msg_len);
+	ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
@@ -910,25 +962,34 @@ int ezcfg_api_nvram_commit(void)
 
 	ezcfg_soap_http_reset_attributes(sh);
 
-	memset(msg, 0, sizeof(msg));
 	n = 0;
-	msg_len = http_read_response(ezctrl, msg, sizeof(msg), &n);
+	sp = ezcfg_ctrl_get_socket(ezctrl);
+	header_len = ezcfg_socket_read_http_header(sp, http, msg, msg_len, &n);
 
-	if (msg_len <= 0) {
+	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
 		goto exit;
 	}
 
-	if (n > msg_len) {
-		ezcfg_soap_http_set_message_body(sh, msg + msg_len, n - msg_len);
-	}
-
-	if (ezcfg_soap_http_parse_response(sh, msg, msg_len) == false) {
+	if (ezcfg_soap_http_parse_response(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
 		goto exit;
 	}
 
-	/* get unsetNvramResponse part */
+	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
+	if ((p == NULL) || (n <= header_len)){
+		rc = -EZCFG_E_READ ;
+		goto exit;
+	}
+	msg = p;
+
+	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
+	if (ezcfg_soap_http_parse_message_body(sh) == false) {
+		rc = -EZCFG_E_PARSE ;
+		goto exit;
+	}
+
+	/* get commitNvramResponse part */
 	body_index = ezcfg_soap_get_body_index(soap);
 	commitnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME);
 	if (commitnv_index < 2) {

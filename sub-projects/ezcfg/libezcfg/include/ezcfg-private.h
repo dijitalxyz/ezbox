@@ -179,11 +179,6 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);
 int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags);
 
 
-/* socket/socket_http.c */
-int ezcfg_socket_read_http_header(struct socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread);
-char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int header_len, int *bufsiz, int *nread);
-
-
 /* http/http.c */
 struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);
@@ -218,6 +213,12 @@ int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
 int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
+
+
+/* socket/socket_http.c */
+int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread);
+char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int header_len, int *bufsiz, int *nread);
+
 
 /* xml/xml.c */
 struct ezcfg_xml_element;
