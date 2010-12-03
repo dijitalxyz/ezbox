@@ -9,6 +9,7 @@ ezcfg_api_ubootenv_set
 ezcfg_api_ubootenv_list
 ezcfg_api_ubootenv_check
 ezcfg_api_ubootenv_size
+ezcfg_api_firmware_upgrade
 ezcfg_new
 ezcfg_delete
 ezcfg_set_log_fn

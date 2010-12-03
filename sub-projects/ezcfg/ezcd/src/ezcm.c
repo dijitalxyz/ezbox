@@ -75,7 +75,7 @@ int ezcm_main(int argc, char **argv)
 {
 	int c = 0;
 	int rc = 0;
-	char buf[32];
+	char buf[256];
 	char *msg = NULL;
 	int msg_len;
 	char *p;

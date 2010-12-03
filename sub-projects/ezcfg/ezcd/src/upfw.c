@@ -41,10 +41,8 @@ int upfw_main(int argc, char **argv)
 	int c = 0;
 	int rc = 0;
 	char *file_name = NULL;
-	char *device_node = NULL;
+	char device_node = NULL;
 	char *code_pattern = NULL;
-	char *buf;
-	int buf_len;
 
 	for (;;) {
 		c = getopt(argc, argv, "d:f:p:h");
@@ -69,6 +67,15 @@ int upfw_main(int argc, char **argv)
 	if (file_name == NULL) {
 		upfw_show_usage();
 		return 0;
+	}
+
+	printf("Start to upgrade firmware, please wait...\n");
+	rc = ezcfg_api_firmware_upgrade(file_name, device_node, code_pattern);
+	if (rc < 0) {
+		printf("ERROR\n");
+	}
+	else {
+		printf("OK\n");
 	}
 
         return rc;

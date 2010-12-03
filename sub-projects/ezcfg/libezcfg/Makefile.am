@@ -84,6 +84,7 @@ libezcfg_la_SOURCES += src/igrs/isdp.c
 # ezcfg API wrap
 libezcfg_la_SOURCES += api/src/api-nvram.c
 libezcfg_la_SOURCES += api/src/api-ubootenv.c
+libezcfg_la_SOURCES += api/src/api-firmware.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg.pc

@@ -18,4 +18,7 @@ int ezcfg_api_ubootenv_list(char *list, size_t len);
 int ezcfg_api_ubootenv_check(void);
 int ezcfg_api_ubootenv_size(void);
 
+/* firmware interface */
+int ezcfg_api_firmware_upgrade(char *name, char *device, char *pattern);
+
 #endif
