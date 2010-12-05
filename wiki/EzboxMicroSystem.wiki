@@ -11,5 +11,10 @@ ezbox 最小运行系统（ezbox mu system，ezus）是硬件与系统软件的�
   * ezus 首先设计为一个构建嵌入式实时操作系统的基础框架
 
 = 参考资料 =
-  * 嵌入式系统 Boot Loader 技术内幕<a href="http://www.ibm.com/developerworks/cn/linux/l-btloader/">http://www.ibm.com/developerworks/cn/linux/l-btloader/</a>
-  * FreeRTOS<a href="http://www.freertos.org/">http://www.freertos.org/</a>
+  * Microkernel <a href="http://en.wikipedia.org/wiki/Microkernel">http://en.wikipedia.org/wiki/Microkernel</a>
+  * 嵌入式系统 Boot Loader 技术内幕 <a href="http://www.ibm.com/developerworks/cn/linux/l-btloader/">http://www.ibm.com/developerworks/cn/linux/l-btloader/</a>
+  * The FreeRTOS Project
+ <a href="http://www.freertos.org/">http://www.freertos.org/</a>
+  * Das U-Boot -- the Universal Boot Loader <a href="http://www.denx.de/wiki/U-Boot">http://www.denx.de/wiki/U-Boot</a>
+  * coreboot <a href="http://www.coreboot.org/">http://www.coreboot.org/</a>
+  * RT-Thread | 启动下一代RTOS演化 <a href="http://www.rt-thread.org/">http://www.rt-thread.org/</a>
