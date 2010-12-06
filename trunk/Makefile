@@ -14,6 +14,9 @@ ARCH ?= i386
 # export DEVICE_TYPE=$(DEVICE_TYPE)
 # export ARCH=$(ARCH)
 
+# force LANG to C
+export LANG=C
+
 all: $(DISTRO)
 
 $(DISTRO):
