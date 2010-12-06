@@ -7,8 +7,13 @@ ezbox 使用 buildbot 进行自动编译测试，本页介绍如何设定 buildb
 
 = 详细说明 =
 
-== 申请测试账号 ==
-  * 电子邮件 zetalabs@gmail.com
+== 配置 buildbot-slave ==
+  * master ： buildbot.ezidc.net:9989
+  * 用户名 ： 发布版本的名字，目前支持 kuafu , huangdi
+  * 密码: 与用户名相同
 
 == 编译结果网址 ==
   * <a href="http://buildbot.ezidc.net:8010/">http://buildbot.ezidc.net:8010/</a>
+
+== 申请测试账号 ==
+  * 如果你希望设定单独的自动编译测试帐号，请与 zetalabs@gmail.com 联系
