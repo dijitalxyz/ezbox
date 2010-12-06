@@ -16,6 +16,20 @@ ezbox 使用 buildbot 进行自动编译测试，本页介绍如何设定 buildb
   * 使用 buildbot create-slave 命令创建你的 buildbot-slave 实例
   * debian/ubuntu 用户请修改 /etc/default/buildbot 的配置，然后运行 /etc/init.d/buildbot restart
 
+== 设定编译环境参数 ==
+  * ezbox 自动编译时会检查编译环境参数设定文件，并根据文件中的配置编译对应目标系统的发布版本
+  * BASEDIR/BUILDDIR/default.mk 为编译环境参数设定文件，例如你希望编译ar71xx目标系统的kuafu发布版本，请在 BASEDIR/ezbox-kuafu/目录下编辑如下的default.mk
+{{{
+#
+# default setting for kuafu buildbot
+#
+
+DISTRO=kuafu
+TARGET=ar71xx
+DEVICE_TYPE=ezbox
+ARCH=mips
+}}}
+
 == 设定编译环境信息 ==
   为了方便定位编译出错的根源，请参与自动编译测试的主机管理员设定好一下反馈信息
   * BASEDIR/info/admin 请填入你的名字（或者昵称）以及可以直接与你联系的方法，如电子邮件或QQ等
