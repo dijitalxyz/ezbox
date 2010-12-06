@@ -15,6 +15,7 @@ ARCH ?= i386
 # export ARCH=$(ARCH)
 
 $(DISTRO):
+	rm -rf bootstrap.$(TARGET)
 	cp -af bootstrap bootstrap.$(TARGET)
 	ln -s `pwd`/distro/$(DISTRO)/target/linux/$(TARGET) bootstrap.$(TARGET)/target/linux/$(TARGET)
 	cp distro/$(DISTRO)/feeds.conf bootstrap.$(TARGET)/feeds.conf
