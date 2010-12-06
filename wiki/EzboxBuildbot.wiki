@@ -28,6 +28,7 @@ ezbox 使用 buildbot 进行自动编译测试，本页介绍如何设定 buildb
   * Linux下获取CPU型号及频率可以使用 cat /proc/cpuinfo
   * Linux下所安装的与编译有关的库可以使用发布版本来代替
   * buildbot版本可以使用 buildbot --version 获取
+  * 如果使用虚拟机进行编译测试，请将虚拟机名字和版本，以及虚拟机运行的宿主系统信息一并描述
 
 == 编译结果网址 ==
   * <a href="http://buildbot.ezidc.net:8010/">http://buildbot.ezidc.net:8010/</a>
