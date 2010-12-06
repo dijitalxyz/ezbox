@@ -18,14 +18,17 @@ Package Content
 Build Instructions
 ==
 1. Before building the target system for ezbox, you should select a distro and symbol link the target arch to bootstrap/target/linux directory. Following examples will use distro kuafu and target CPU is ar7240.
-	1) Symbol link target
-		ln -s `pwd`/distro/kuafu/target/linux/ar71xx bootstrap/target/linux/ar71xx
+	1) Copy bootstrap system source tree to a working directory
+		cp -af bootstrap bootstrap.ar71xx
 
-	2) Use distro default packages
-		cp distro/kuafu/feeds.conf bootstrap/feeds.conf
+	2) Symbol link target
+		ln -s `pwd`/distro/kuafu/target/linux/ar71xx bootstrap.ar71xx/target/linux/ar71xx
 
-	3) Use default config for the target distro
-		cp distro/kuafu/configs/defconfig-ar71xx bootstrap/.config
+	3) Use distro default packages
+		cp distro/kuafu/feeds.conf bootstrap.ar71xx/feeds.conf
+
+	4) Use default config for the target distro
+		cp distro/kuafu/configs/defconfig-ar71xx bootstrap.ar71xx/.config
 
 2. Set environment variables
 	1) Set target device type
@@ -34,9 +37,9 @@ Build Instructions
 	2) Set target arch
 		export ARCH=mips
 
-3. Enter bootstrap/ directory and start build
-	1) Goto bootstrap/ directory
-		cd bootstrap
+3. Enter working directory and start build
+	1) Goto bootstrap.ar71xx/ directory
+		cd bootstrap.ar71xx/
 
 	2) Get target distro default packages
 		./scripts/feeds update -a
