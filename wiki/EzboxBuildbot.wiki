@@ -6,11 +6,15 @@
 ezbox 使用 buildbot 进行自动编译测试，本页介绍如何设定 buildbot 参与测试 ezbox 的不同发布版本。
 
 = 详细说明 =
+== 安装 buildbot ==
+  * debian/ubuntu 用户可以使用 apt-get install buildbot
 
 == 配置 buildbot-slave ==
-  * master ： buildbot.ezidc.net:9989
-  * 用户名 ： 发布版本的名字，目前支持 kuafu , huangdi
-  * 密码: 与用户名相同
+  * master：buildbot.ezidc.net:9989
+  * 用户名：发布版本的名字，目前支持 kuafu , huangdi
+  * 密码：与用户名相同
+  * 使用 buildbot create-slave 命令创建你的 buildbot-slave 实例
+  * debian/ubuntu 用户请修改 /etc/default/buildbot 的配置，然后运行 /etc/init.d/buildbot restart
 
 == 编译结果网址 ==
   * <a href="http://buildbot.ezidc.net:8010/">http://buildbot.ezidc.net:8010/</a>
