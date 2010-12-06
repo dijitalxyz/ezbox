@@ -14,6 +14,8 @@ ARCH ?= i386
 # export DEVICE_TYPE=$(DEVICE_TYPE)
 # export ARCH=$(ARCH)
 
+all: $(DISTRO)
+
 $(DISTRO):
 	rm -rf bootstrap.$(TARGET)
 	cp -af bootstrap bootstrap.$(TARGET)
@@ -25,3 +27,4 @@ $(DISTRO):
 	cd bootstrap.$(TARGET) && make ARCH=$(ARCH) oldconfig
 	cd bootstrap.$(TARGET) && make DEVICE_TYPE=$(DEVICE_TYPE) V=99 2>&1 | tee build.log
 
+.PHONY: dummy $(DISTRO)
