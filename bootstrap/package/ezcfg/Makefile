@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=403
+PKG_REV:=414
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -35,6 +35,7 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
+  DEPENDS:= +libpthread
 endef
 
 define Package/ezcfg/description
