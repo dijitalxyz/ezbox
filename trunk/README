@@ -48,5 +48,16 @@ Build Instructions
 		make ARCH=mips oldconfig
 
 	5) Start build, and record output to build.txt
-		make V=99 2>&1 | tee build.txt
+		make DEVICE_TYPE=ezbox V=99 2>&1 | tee build.log
 
+==
+CPU Architecture Settings.
+==
+1. ar71xx
+	export ARCH=mips
+
+2. brcm47xx
+	export ARCH=mipsel
+
+3. x86
+	export ARCH=i386
