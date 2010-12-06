@@ -19,6 +19,7 @@ Build Instructions
 ==
 1. Before building the target system for ezbox, you should select a distro and symbol link the target arch to bootstrap/target/linux directory. Following examples will use distro kuafu and target CPU is ar7240.
 	1) Copy bootstrap system source tree to a working directory
+		rm -rf bootstrap.ar71xx
 		cp -af bootstrap bootstrap.ar71xx
 
 	2) Symbol link target
