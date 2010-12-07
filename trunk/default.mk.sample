@@ -3,22 +3,26 @@
 #
 
 # DISTRO set the ezbox distro to be build
-# support for [kuafu|huangdi|jingwei]
+# support [kuafu|huangdi|jingwei]
 DISTRO := kuafu
 
 # TARGET set the ezbox target running board
+# support [x86|ar71xx|brcm47xx]
 TARGET := ar71xx
 
-# DEVICE_TYPE set the openwrt device type, should always be ezbox
+# DEVICE_TYPE set the openwrt device type
+# Should always be ezbox
 DEVICE_TYPE := ezbox
 
-# ARCH set the CPU arch, please check it with READM
+# ARCH set the CPU arch, please see README to set correct TARGET/ARCH
+# support [i386|mips|mipsel]
 ARCH := mips
 
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 # LOG_FILE :=
 
-# LOG_LEVEL set openwrt build log verbose level, set it to 99 for debug
+# LOG_LEVEL set openwrt build log verbose level
+# Set it to 99 for debugging
 # LOG_LEVEL := 99
 
