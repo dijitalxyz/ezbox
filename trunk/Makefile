@@ -2,22 +2,24 @@
 # ezbox project Makefile
 #
 
+# language settings
+LC_ALL:=C
+LANG:=C
+export LC_ALL LANG
+
+# base dir
 BASE_DIR:=${CURDIR}/..
 
 ifneq ($(wildcard $(BASE_DIR)/default.mk),)
   include $(BASE_DIR)/default.mk
 endif
 
+# build info
 DISTRO ?= huangdi
 TARGET ?= x86
 DEVICE_TYPE ?= ezbox
 ARCH ?= i386
 export DEVICE_TYPE
-
-# language settings
-LC_ALL:=C
-LANG:=C
-export LC_ALL LANG
 
 # log settings
 LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
