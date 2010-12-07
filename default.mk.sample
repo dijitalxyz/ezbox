@@ -1,0 +1,24 @@
+#
+# Sample default.mk for ezbox quick start
+#
+
+# DISTRO set the ezbox distro to be build
+# support for [kuafu|huangdi|jinwei]
+DISTRO := kuafu
+
+# TARGET set the ezbox target running board
+TARGET := ar71xx
+
+# DEVICE_TYPE set the openwrt device type, should always be ezbox
+DEVICE_TYPE := ezbox
+
+# ARCH set the CPU arch, please check it with READM
+ARCH := mips
+
+# LOG_FILE set default build log file name
+# default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
+# LOG_FILE :=
+
+# LOG_LEVEL set openwrt build log level, set it to V=99 for debug
+# LOG_LEVEL := V=99
+
