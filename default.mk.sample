@@ -19,6 +19,6 @@ ARCH := mips
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 # LOG_FILE :=
 
-# LOG_LEVEL set openwrt build log level, set it to V=99 for debug
-# LOG_LEVEL := V=99
+# LOG_LEVEL set openwrt build log verbose level, set it to 99 for debug
+# LOG_LEVEL := 99
 
