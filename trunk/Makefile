@@ -23,7 +23,7 @@ export DEVICE_TYPE
 
 # log settings
 LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
-LOG_LEVEL ?=
+LOG_LEVEL ?= 0
 
 # basic directories
 CUR_DIR:=${CURDIR}
@@ -52,7 +52,7 @@ $(DISTRO): build-info
 	ln -s $(LCDL_DIR) $(WK_DIR)/dl
 	cp distro/$(DISTRO)/configs/defconfig-$(TARGET) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
-	cd $(WK_DIR) && make DEVICE_TYPE=$(DEVICE_TYPE) $(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
+	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
 
 $(DISTRO)-clean:
 	cd $(WK_DIR) && make clean
