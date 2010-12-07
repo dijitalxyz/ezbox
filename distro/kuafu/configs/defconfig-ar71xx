@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# OpenWrt version: Kamikaze (r302)
-# Thu Nov  4 15:02:48 2010
+# OpenWrt version: Kamikaze (r430)
+# Tue Dec  7 13:42:58 2010
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_ar71xx=y
@@ -249,12 +249,6 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 #
 # Base system
 #
-
-#
-# ezcfg
-#
-CONFIG_PACKAGE_ezcd=y
-CONFIG_PACKAGE_libezcfg=y
 # CONFIG_PACKAGE_base-files is not set
 CONFIG_PACKAGE_busybox=y
 
@@ -1029,6 +1023,26 @@ CONFIG_BUSYBOX_CONFIG_LOGREAD=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING is not set
 CONFIG_BUSYBOX_CONFIG_KLOGD=y
 CONFIG_BUSYBOX_CONFIG_LOGGER=y
+CONFIG_PACKAGE_ezcfg=y
+
+#
+# Configuration
+#
+
+#
+# ezcfg Settings
+#
+CONFIG_EZCFG_EZBOX_DISTRO_KUAFU=y
+# CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI is not set
+# CONFIG_EZCFG_EZBOX_DISTRO_JINGWEI is not set
+
+#
+# Utilities
+#
+
+#
+# ezcfg IGRS Utilities
+#
 CONFIG_PACKAGE_hotplug2=y
 CONFIG_PACKAGE_libc=y
 CONFIG_PACKAGE_libgcc=y
