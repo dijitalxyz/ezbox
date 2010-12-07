@@ -15,6 +15,20 @@ Package Content
   This directory stores a lot of nothing, may be removed :-)
 
 ==
+Quick Start
+==
+  The ezbox sample build is a kuafu distro on ar71xx board.
+
+1. Copy the default.mk.sample to BASE_DIR
+	cp default.mk.sample ../default.mk
+
+2. Start to build the kuafu distro
+	make kuafu
+
+3. Check the build log in BASE_DIR
+	cat ../XXX-kuafu-ar71xx-build.log
+
+==
 Build Instructions
 ==
 1. Before building the target system for ezbox, you should select a distro and symbol link the target arch to bootstrap/target/linux directory. Following examples will use distro kuafu and target CPU is ar7240.
