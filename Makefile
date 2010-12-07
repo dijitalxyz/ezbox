@@ -39,12 +39,14 @@ build-info:
 $(DISTRO): build-info
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
+	rm -rf $(WK_DIR)/target/linux/$(TARGET)
 	ln -s $(CUR_DIR)/distro/$(DISTRO)/target/linux/$(TARGET) $(WK_DIR)/target/linux/$(TARGET)
 	cp distro/$(DISTRO)/feeds.conf $(WK_DIR)/feeds.conf
 	cd $(WK_DIR) && ./scripts/feeds update -a
 	cd $(WK_DIR) && ./scripts/feeds install -a
 	sleep 3
 	mkdir -p $(LCDL_DIR)
+	rm -rf $(WK_DIR)/dl
 	ln -s $(LCDL_DIR) $(WK_DIR)/dl
 	cp distro/$(DISTRO)/configs/defconfig-$(TARGET) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
