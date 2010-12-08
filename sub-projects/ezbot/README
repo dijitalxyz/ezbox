@@ -1,0 +1,22 @@
+EzBot v0.0.1
+WALL-E (441538296@qq.com)
+
+OVERVIEW
+========
+EzBot is a simple irc bot for ezbox project (http://code.google.com/p/ezbox/).
+It is derived from MartinchoBot (http://code.google.com/p/martinchobot/).
+
+HOW TO USE IT
+=============
+This module requires Lua 5.1 (http://www.lua.org/), LuaSocket (http://www.cs.princeton.edu/~diego/professional/luasocket/)
+and LuaExpat (http://www.keplerproject.org/luaexpat/).
+First, edit config.lua, change bot name and server. Also, in config.lua is where new plugin definition should be placed.
+Assuming that the lua interpreter is called "lua", then type: "lua ezbox.lua"
+Then, from your irc client, send a message to EzBot, like: /msg EzBot !join #mychannel
+
+And that's it!, the bot will join to #mychannel, ready to accept commands.
+
+CHANGES
+=============
+v0.0.1
+Initial import from MartinchoBot v0.2.2
