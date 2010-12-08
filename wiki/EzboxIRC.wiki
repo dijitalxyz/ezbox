@@ -1,0 +1,30 @@
+#summary ezbox项目IRC在线频道
+#labels Phase-Support
+
+= 简介 =
+
+本页指导用户加入 ezbox 项目 IRC 在线频道，获取最新消息及在线帮助。
+
+
+= 详细说明 =
+
+== IRC 地址 ==
+  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net/ezbox
+  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net/ezbox-cn
+
+== 如何加入 ==
+  * 首先选择一个IRC客户端，推荐安装 firefox+chatzilla
+  * firefox 请到 <a href="http://www.mozilla.com/firefox/">http://www.mozilla.com/firefox/</a> 下载
+  * 安装好 firefox 后，在“附加组件”中添加 chatzilla 以及 chatzilla简体中文语言包
+  * 在firefox的地址栏输入 irc://irc.oftc.net/ezbox 或 irc://irc.oftc.net/ezbox-cn
+  * firefox 将为 chatzilla 打开一个新窗口，你可以在新窗口中看到相关IRC频道的即时信息
+
+== 使用IRC ==
+  * 提问前请首先自己分析问题所在，并把可能获取的详细信息准备好
+  * IRC在线频道是一个自愿服务场所，不要期望你的每一个问题都有人解答
+  * 要显示你的问题相关的详细信息，例如你的编译配置文件，编译过程中的日志信息等，请使用<a href="http://www.pastebin.com">http://www.pastebin.com</a> ，避免在IRC频道中刷屏
+
+== 知名IRC用户列表 ==
+  * zetalabs：ezbox项目发起人，项目管理者
+  * WALLE：ezbox项目核心成员
+  * ......（下一位是你？）
