@@ -26,5 +26,6 @@
 
 == 知名IRC用户列表 ==
   * zetalabs：ezbox项目发起人，项目管理者
+  * EzBot：ezbox项目的聊天机器人
   * WALLE：ezbox项目核心成员
   * ......（下一位是你？）
