@@ -11,3 +11,4 @@
 
 = 参考资料 =
   * Eggdrop <a href="http://www.eggdrop.org/">http://www.eggdrop.org/</a>
+  * MartinchoBot <a href="http://code.google.com/p/martinchobot/">http://code.google.com/p/martinchobot/</a>
