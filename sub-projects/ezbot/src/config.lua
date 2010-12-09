@@ -16,7 +16,7 @@ nickList = {
             "EzBot[8]",
             "EzBot[9]"
             }
-defaulChannels = {"#ezbox-cn"} --channels to join on startup
+defaulChannels = {"#ezbox", "#ezbox-cn"} --channels to join on startup
 username = "EzBot"
 realname = "EzBot"
 
