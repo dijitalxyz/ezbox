@@ -11,13 +11,27 @@
 == IRC 地址 ==
   * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net/ezbox
   * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net/ezbox-cn
+  * 使用SSL连接的国际IRC在线频道地址为：ircs://irc.oftc.net:6697/ezbox
+  * 使用SSL连接中文IRC在线频道地址为：ircs://irc.oftc.net:6697/ezbox-cn
+  * 其他可用地址为：
+  * 使用SSL连接国际IRC在线频道地址为：ircs://irc.oftc.net:9999/ezbox
+  * 使用SSL连接中文IRC在线频道地址为：ircs://irc.oftc.net:9999/ezbox-cn
+  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6668/ezbox
+  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6668/ezbox-cn
+  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6669/ezbox
+  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6669/ezbox-cn
+  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6670/ezbox
+  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6670/ezbox-cn
+  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:7000/ezbox
+  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:7000/ezbox-cn
 
 == 如何加入 ==
   * 首先选择一个IRC客户端，推荐安装 firefox+chatzilla
   * firefox 请到 <a href="http://www.mozilla.com/firefox/">http://www.mozilla.com/firefox/</a> 下载
-  * 安装好 firefox 后，在“附加组件”中添加 chatzilla 以及 chatzilla简体中文语言包
+  * 安装好 firefox 后，在firefox的“工具”->“附加组件”中添加 chatzilla 以及 chatzilla简体中文语言包
   * 在firefox的地址栏输入 irc://irc.oftc.net/ezbox 或 irc://irc.oftc.net/ezbox-cn
   * firefox 将为 chatzilla 打开一个新窗口，你可以在新窗口中看到相关IRC频道的即时信息
+  * 如果无法连接到IRC在线频道，请尝试使用SSL连接的地址连接，或者换上述列表中的其他端口再次连接
 
 == 使用IRC ==
   * 提问前请首先自己分析问题所在，并把可能获取的详细信息准备好
