@@ -686,7 +686,9 @@ void fixup_ezbox_model_name(void)
 	char *cmdline = getenv ("bootargs");
 	char *model = getenv ("model#");
 
-	debug ("before ezbox model name fix-up: %s\n", cmdline);
+#ifdef	DEBUG
+	printf ("before ezbox model name fix-up: %s\n", cmdline);
+#endif
 	buf[0] = '\0';
 	if (model && strcmp(model, "########")) {
 		if (cmdline) {
@@ -698,16 +700,21 @@ void fixup_ezbox_model_name(void)
 					strcpy (buf + (start - cmdline), end);
 				else
 					buf[start - cmdline] = '\0';
+			} else {
+				strcpy (buf, cmdline);
 			}
 			if (buf[0] != '\0')
 				strcat (buf, " ");
 		}
 		strcat (buf, "model=");
 		strcat (buf, model);
+		setenv ("bootargs", buf);
+		cmdline = buf;
 	}
+#ifdef	DEBUG
+	printf ("after ezbox model name fix-up: %s\n", cmdline);
+#endif
 
-	setenv ("bootargs", buf);
-	debug ("after ezbox model name fix-up: %s\n", buf);
 }
 
 #ifdef CONFIG_OF_FLAT_TREE
