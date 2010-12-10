@@ -27,12 +27,11 @@
 
 static void upfw_show_usage(void)
 {
-	printf("Usage: upfw -f <filename> [-d <device>] [-p <pattern>]\n");
+	printf("Usage: upfw -f <filename> [-m <modelname>]\n");
 	printf("\n");
-	printf("  -f <filename> set firmware file name\n");
-	printf("  -d <device>   set firmware stored device node\n");
-	printf("  -p <pattern>  check firmware code pattern\n");
-	printf("  -h            show help info\n");
+	printf("  -f <filename>  set firmware file name\n");
+	printf("  -m <modelname> check firmware model name\n");
+	printf("  -h             show help info\n");
 	printf("\n");
 }
 
@@ -40,22 +39,18 @@ int upfw_main(int argc, char **argv)
 {
 	int c = 0;
 	int rc = 0;
-	char *file_name = NULL;
-	char device_node = NULL;
-	char *code_pattern = NULL;
+	char *fn = NULL;
+	char *model = NULL;
 
 	for (;;) {
-		c = getopt(argc, argv, "d:f:p:h");
+		c = getopt(argc, argv, "f:m:h");
 		if (c == EOF) break;
 		switch (c) {
-			case 'd' :
-				device_node = optarg;
-				break;
 			case 'f' :
-				file_name = optarg;
+				fn = optarg;
 				break;
-			case 'p' :
-				code_pattern = optarg;
+			case 'm' :
+				model = optarg;
 				break;
 			case 'h' :
 			default:
@@ -64,13 +59,13 @@ int upfw_main(int argc, char **argv)
 		}
 	}
 
-	if (file_name == NULL) {
+	if (fn == NULL) {
 		upfw_show_usage();
 		return 0;
 	}
 
 	printf("Start to upgrade firmware, please wait...\n");
-	rc = ezcfg_api_firmware_upgrade(file_name, device_node, code_pattern);
+	rc = ezcfg_api_firmware_upgrade(fn, model);
 	if (rc < 0) {
 		printf("ERROR\n");
 	}

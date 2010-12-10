@@ -19,6 +19,6 @@ int ezcfg_api_ubootenv_check(void);
 int ezcfg_api_ubootenv_size(void);
 
 /* firmware interface */
-int ezcfg_api_firmware_upgrade(char *name, char *device, char *pattern);
+int ezcfg_api_firmware_upgrade(char *name, char *model);
 
 #endif

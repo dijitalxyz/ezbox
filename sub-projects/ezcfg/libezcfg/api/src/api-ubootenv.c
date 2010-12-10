@@ -205,6 +205,7 @@ static ezcfg_nv_pair_t default_checklist[] = {
 	{ "ethaddr", "0x00:0xaa:0xbb:0xcc:0xdd:0xee" },
 	{ "serial#", "########" },
 	{ "pin#", "########" },
+	{ "model#", "########" },
 };
 	
 static int check_ubootenv_name(char *tmp, char *name, ezcfg_nv_pair_t *checklist, size_t len)
@@ -238,13 +239,13 @@ static int write_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 	mtd_fd = open(info.ubootenv_dev_name, O_RDWR);
 	if (mtd_fd < 0) {
 		perror(info.ubootenv_dev_name);
-		return errno;
+		return -EZCFG_E_RESOURCE;
 	}
 
 	if (ioctl(mtd_fd, MEMGETINFO, &mtd_info) != 0) {
 		perror(info.ubootenv_dev_name);
 		close(mtd_fd);
-		return errno;
+		return -EZCFG_E_RESOURCE;
 	}
 
 	erase_info.length = mtd_info.erasesize;
@@ -255,13 +256,13 @@ static int write_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 		if (ioctl(mtd_fd, MEMERASE, &erase_info) != 0) {
 			perror(info.ubootenv_dev_name);
 			close(mtd_fd);
-			return errno;
+			return -EZCFG_E_RESOURCE;
 		}
 		count = len > erase_info.length ? erase_info.length : len ;
 		if (write(mtd_fd, buf+erase_info.start, count) != count) {
 			perror(info.ubootenv_dev_name);
 			close(mtd_fd);
-			return errno;
+			return -EZCFG_E_RESOURCE;
 		}
 		len -= count;
 	}
@@ -465,7 +466,7 @@ int ezcfg_api_ubootenv_set(char *name, char *value)
 	*(uint32_t *)(buf) = crc;
 
 	/* write to u-boot env sect */
-	write_ubootenv(info, buf, info.ubootenv_size);
+	rc = write_ubootenv(info, buf, info.ubootenv_size);
 
 func_out:
 	if (buf != NULL) {
