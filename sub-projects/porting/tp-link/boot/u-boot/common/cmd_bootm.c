@@ -126,6 +126,8 @@ extern boot_os_Fcn do_bootm_linux;
 #ifdef CONFIG_SILENT_CONSOLE
 static void fixup_silent_linux (void);
 #endif
+/* ezbox add @ 20101210 */
+void fixup_ezbox_model_name (void);
 static boot_os_Fcn do_bootm_netbsd;
 static boot_os_Fcn do_bootm_rtems;
 #if (CONFIG_COMMANDS & CFG_CMD_ELF)
@@ -165,6 +167,9 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char	*name, *s;
 	int	(*appl)(int, char *[]);
 	image_header_t *hdr = &header;
+
+	/* ezbox add @ 20101210 */
+	fixup_ezbox_model_name();
 
 	s = getenv ("verify");
 	verify = (s && (*s == 'n')) ? 0 : 1;
@@ -673,6 +678,37 @@ fixup_silent_linux ()
 	debug ("after silent fix-up: %s\n", buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
+
+/* ezbox add @ 20101210 */
+void fixup_ezbox_model_name(void)
+{
+	char buf[256], *start, *end;
+	char *cmdline = getenv ("bootargs");
+	char *model = getenv ("model#");
+
+	debug ("before ezbox model name fix-up: %s\n", cmdline);
+	buf[0] = '\0';
+	if (model && strcmp(model, "########")) {
+		if (cmdline) {
+			/* remove "model=xxxxx" */
+			if ((start = strstr (cmdline, "model=")) != NULL) {
+				end = strchr (start, ' ');
+				strncpy (buf, cmdline, (start - cmdline));
+				if (end)
+					strcpy (buf + (start - cmdline), end);
+				else
+					buf[start - cmdline] = '\0';
+			}
+			if (buf[0] != '\0')
+				strcat (buf, " ");
+		}
+		strcat (buf, "model=");
+		strcat (buf, model);
+	}
+
+	setenv ("bootargs", buf);
+	debug ("after ezbox model name fix-up: %s\n", buf);
+}
 
 #ifdef CONFIG_OF_FLAT_TREE
 extern const unsigned char oftree_dtb[];

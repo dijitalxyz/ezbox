@@ -212,6 +212,7 @@
 #define	CONFIG_BOOTARGS     "console=ttyS0,115200 board=EZBOX-TL-WR740N-v4"
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"model#=########\0" \
 	"serial#=########\0" \
 	"pin#=########\0"
 #elif (CONFIG_MACHINE_TYPE==MERCURY_MW150R_V2)
@@ -219,6 +220,7 @@
 #define	CONFIG_BOOTARGS     "console=ttyS0,115200 board=EZBOX-MW150R-v2"
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"model#=########\0" \
 	"serial#=########\0" \
 	"pin#=########\0"
 #else
