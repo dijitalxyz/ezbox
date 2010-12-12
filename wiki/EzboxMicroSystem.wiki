@@ -11,6 +11,7 @@ ezbox 最小运行系统（ezbox mu system，ezus）是硬件与系统软件的�
   * ezus 首先设计为一个构建嵌入式实时操作系统的基础框架
 
 = 参考资料 =
+  * 从大爆炸到黑洞-史蒂芬·霍金的宇宙观 <a href="http://www.skylook.org/info/info/info_372_1.html">http://www.skylook.org/info/info/info_372_1.html</a>
   * Microkernel <a href="http://en.wikipedia.org/wiki/Microkernel">http://en.wikipedia.org/wiki/Microkernel</a>
   * 嵌入式系统 Boot Loader 技术内幕 <a href="http://www.ibm.com/developerworks/cn/linux/l-btloader/">http://www.ibm.com/developerworks/cn/linux/l-btloader/</a>
   * The FreeRTOS Project <a href="http://www.freertos.org/">http://www.freertos.org/</a>
