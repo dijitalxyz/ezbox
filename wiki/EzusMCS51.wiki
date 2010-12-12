@@ -1,0 +1,14 @@
+#summary ezus在MCS51系列单片机上的移植
+#labels Phase-Implementation
+
+= 简介 =
+
+本页介绍ezus在MCS51系列单片机上的移植
+
+
+= 详细说明 =
+
+= 参考 =
+  * EdSim51 - The 8051 Simulator for
+Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
+  * JMCE - Java Multiple Computer Emulator <a href="http://www.viara.cn/en/jmce/">http://www.viara.cn/en/jmce/</a>
