@@ -9,6 +9,7 @@
 = 详细说明 =
 
 = 参考 =
-  * EdSim51 - The 8051 Simulator for
-Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
+  * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
+  * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
   * JMCE - Java Multiple Computer Emulator <a href="http://www.viara.cn/en/jmce/">http://www.viara.cn/en/jmce/</a>
+  * CMON51 - CMON51 is a monitor program for the 8051 family of microcontrollers.<a href="http://cmon51.sourceforge.net/">http://cmon51.sourceforge.net/</a>
