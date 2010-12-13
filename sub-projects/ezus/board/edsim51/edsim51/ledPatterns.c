@@ -1,9 +1,8 @@
 #include <8051.h>
-void main()
+int main(void)
 {
 	while(1) {
-_asm
-		dec	_P0
-_endasm;
+		P1 -= 1;
 	}
+	return 0;
 }

@@ -3,9 +3,10 @@
 CC ?= sdcc
 PACKIHX ?= packihx
 
-SDCCCFLAGS = --model-small
+SDCCCFLAGS = --model-small --std-c89
 
-ASLINKFLAGS = --code-loc 0x2000 --data-loc 0x30 --xram-loc 0x6000
+#ASLINKFLAGS = --code-loc 0x2000 --data-loc 0x30 --xram-loc 0x6000
+ASLINKFLAGS = --iram-size 0x80
 
 all: ledPatterns.hex
 
