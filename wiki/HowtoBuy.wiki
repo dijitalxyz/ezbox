@@ -1,0 +1,12 @@
+#summary ezbox相关产品的购买方式
+#labels Phase-Support
+
+= 简介 =
+
+本页指导用户如何购买与ezbox相关的产品
+
+= 详细说明 =
+
+== 淘宝网店 ==
+  * ezbox项目在淘宝网设立了专卖店，网址是 <a href="http://shop63898049.taobao.com/">http://shop63898049.taobao.com/</a>
+  * 购买ezbox相关产品可与淘宝帐户 <a href="http://www.taobao.com/webww/?ver=1&&touid=cntaobaozetalabs&siteid=cntaobao&status=2&portalId=&gid=8754704944&itemsId="> zetalabs </a> 联系 
