@@ -1,0 +1,35 @@
+    ezus -- ezbox micro system
+
+==
+Introduction
+==
+  ezus is a Free Software project aimed at providing the infrastructure to
+construct a real-time operating system. It will be used as a bootloader in
+ezbox project.
+
+==
+Background
+==
+  Stephen William Hawking's "A Brief History of Time" and "Black Holes and Baby Universes and Other Essays"
+  Lao Tzu's "The Book of Tao and Teh"
+  Terms in Cosmology: Big Bang Theory, Black Holes, Universe, Time, Space
+  Terms in Ontology: World
+
+==
+Quick Start
+==
+  The ezus sample build is for EdSim51.
+  Before you build, please install SDCC compiler.
+
+1. Copy the default.mk.sample to BASE_DIR
+        cp default.mk.sample ../default.mk
+
+2. Start to build the ezus
+        make
+
+3. Check the build log in BASE_DIR
+        cat ../XXX-edsim51-8051-mcs51-build.log
+
+==
+Build Instructions
+==

@@ -1,0 +1,23 @@
+#
+# Sample default.mk for ezus quick start
+#
+
+# BOARD set the ezus running board
+BOARD := edsim51
+
+# TARGET set the ezus running MCU/SoC
+TARGET := 8051
+
+# ARCH set the CPU arch, please see README to set correct TARGET/ARCH
+ARCH := mcs51
+
+# LOG_FILE set default build log file name
+# default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(BOARD)-$(TARGET)-$(ARCH)-build.log
+# LOG_FILE :=
+
+# LOG_LEVEL set build log verbose level
+# Set it to 99 for debugging
+# LOG_LEVEL := 99
+
+# CC set the cross-compiler
+CC := sdcc
