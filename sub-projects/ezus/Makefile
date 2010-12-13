@@ -15,30 +15,36 @@ ifneq ($(wildcard $(BASE_DIR)/default.mk),)
 endif
 
 # build info
+VENDOR ?= edsim51
 BOARD ?= edsim51
 TARGET ?= 8051
 ARCH ?= mcs51
 export ARCH
 
+CC ?= gcc
+export CC
+
 # log settings
-LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(BOARD)-$(TARGET)-$(ARCH)-build.log
+LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(VENDOR)-$(BOARD)-$(TARGET)-$(ARCH)-build.log
 LOG_LEVEL ?= 0
 
 # basic directories
 CUR_DIR:=${CURDIR}
-WK_DIR:=$(CUR_DIR)/src.$(BOARD)-$(TARGET)-$(ARCH)
-LCDL_DIR:=$(BASE_DIR)/dl
+WK_DIR:=$(CUR_DIR)/build.$(BOARD)/$(VENDOR)/$(BOARD)
 
 all: $(BOARD)
 
+clean: $(BOARD)-clean
+
 build-info:
+	echo "VENDOR="$(VENDOR)
 	echo "BOARD="$(BOARD)
 	echo "TARGET="$(TARGET)
 	echo "ARCH="$(ARCH)
 
 $(BOARD): build-info
 	mkdir -p $(WK_DIR)
-	cp -af src/* $(WK_DIR)/
+	cp -af board/$(VENDOR)/$(BOARD)/* $(WK_DIR)/
 	cd $(WK_DIR) && make 2>&1 | tee $(LOG_FILE)
 
 $(BOARD)-clean:
@@ -46,3 +52,4 @@ $(BOARD)-clean:
 
 .PHONY: $(BOARD) $(BOARD)-clean
 .PHONY: dummy build-info
+.PHONY: all clean
