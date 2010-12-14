@@ -9,21 +9,24 @@
 = 详细说明 =
 
 == IRC 地址 ==
-  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net/ezbox
-  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net/ezbox-cn
-  * 使用SSL连接的国际IRC在线频道地址为：ircs://irc.oftc.net:6697/ezbox
-  * 使用SSL连接中文IRC在线频道地址为：ircs://irc.oftc.net:6697/ezbox-cn
+  * ezbox 项目国际IRC在线频道地址为： <a href="irc://irc.oftc.net/ezbox
+">irc://irc.oftc.net/ezbox</a>
+  * ezbox 项目中文IRC在线频道地址为： <a href="irc://irc.oftc.net/ezbox-cn">irc://irc.oftc.net/ezbox-cn</a>
+  * 使用SSL连接的国际IRC在线频道地址为：<a href="ircs://irc.oftc.net:6697/ezbox">ircs://irc.oftc.net:6697/ezbox</a>
+  * 使用SSL连接中文IRC在线频道地址为：<a href="ircs://irc.oftc.net:6697/ezbox-cn
+">ircs://irc.oftc.net:6697/ezbox-cn</a>
   * 其他可用地址为：
-  * 使用SSL连接国际IRC在线频道地址为：ircs://irc.oftc.net:9999/ezbox
-  * 使用SSL连接中文IRC在线频道地址为：ircs://irc.oftc.net:9999/ezbox-cn
-  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6668/ezbox
-  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6668/ezbox-cn
-  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6669/ezbox
-  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6669/ezbox-cn
-  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:6670/ezbox
-  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:6670/ezbox-cn
-  * ezbox 项目国际IRC在线频道地址为： irc://irc.oftc.net:7000/ezbox
-  * ezbox 项目中文IRC在线频道地址为： irc://irc.oftc.net:7000/ezbox-cn
+  * 使用SSL连接国际IRC在线频道地址为：<a href="ircs://irc.oftc.net:9999/ezbox">ircs://irc.oftc.net:9999/ezbox</a>
+  * 使用SSL连接中文IRC在线频道地址为：<a href="ircs://irc.oftc.net:9999/ezbox-cn">ircs://irc.oftc.net:9999/ezbox-cn</a>
+  * ezbox 项目国际IRC在线频道地址为： <a href="irc://irc.oftc.net:6668/ezbox">irc://irc.oftc.net:6668/ezbox</a>
+  * ezbox 项目中文IRC在线频道地址为： <a href="irc://irc.oftc.net:6668/ezbox-cn">irc://irc.oftc.net:6668/ezbox-cn</a>
+  * ezbox 项目国际IRC在线频道地址为： <a href="irc://irc.oftc.net:6669/ezbox
+">irc://irc.oftc.net:6669/ezbox</a>
+  * ezbox 项目中文IRC在线频道地址为： <a href="irc://irc.oftc.net:6669/ezbox-cn">irc://irc.oftc.net:6669/ezbox-cn</a>
+  * ezbox 项目国际IRC在线频道地址为： <a href="irc://irc.oftc.net:6670/ezbox">irc://irc.oftc.net:6670/ezbox</a>
+  * ezbox 项目中文IRC在线频道地址为： <a href="irc://irc.oftc.net:6670/ezbox-cn">irc://irc.oftc.net:6670/ezbox-cn</a>
+  * ezbox 项目国际IRC在线频道地址为： <a href="irc://irc.oftc.net:7000/ezbox">irc://irc.oftc.net:7000/ezbox</a>
+  * ezbox 项目中文IRC在线频道地址为： <a href="irc://irc.oftc.net:7000/ezbox-cn">irc://irc.oftc.net:7000/ezbox-cn</a>
 
 == 如何加入 ==
   * 首先选择一个IRC客户端，推荐安装 firefox+chatzilla
