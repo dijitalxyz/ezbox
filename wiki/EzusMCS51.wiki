@@ -3,13 +3,16 @@
 
 = 简介 =
 
-本页介绍ezus在MCS51系列单片机上的移植
-
+本页介绍ezus在MCS51系列单片机上的移植，移植测试在EdSim51模拟器上完成
 
 = 详细说明 =
+== 文件说明 ==
+  * board/edsim51/edsim51/bb.c 包含系统启动时的运行代码（bb 是 Big Bang 的缩写)
+  * board/edsim51/edsim51/bh.c 包含系统退出时的运行代码（bh 是 Black Holes 的缩写）
 
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
   * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
   * JMCE - Java Multiple Computer Emulator <a href="http://www.viara.cn/en/jmce/">http://www.viara.cn/en/jmce/</a>
   * CMON51 - CMON51 is a monitor program for the 8051 family of microcontrollers.<a href="http://cmon51.sourceforge.net/">http://cmon51.sourceforge.net/</a>
+  * 嵌入式实时操作系统small RTOS51原理及应用
