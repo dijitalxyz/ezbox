@@ -1,8 +1,7 @@
 #include <8051.h>
-int main(void)
+void black_hole(void)
 {
 	while(1) {
 		P1 -= 1;
 	}
-	return 0;
 }

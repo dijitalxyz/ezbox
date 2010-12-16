@@ -30,7 +30,10 @@ LOG_LEVEL ?= 0
 
 # basic directories
 CUR_DIR:=${CURDIR}
+TOP_DIR:=$(CUR_DIR)
+CORE_DIR:=$(TOP_DIR)/core
 WK_DIR:=$(CUR_DIR)/build.$(BOARD)/$(VENDOR)/$(BOARD)
+export TOP_DIR CORE_DIR WK_DIR
 
 all: $(BOARD)
 
