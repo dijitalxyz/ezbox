@@ -2,10 +2,13 @@
 
 void main(void)
 {
-	if ( is_universe_state_ready() == false ) {
-		black_hole();
-	}
-	else {
-		big_bang();
+	int i;
+	for (i=0; i<100; i++) {
+		if ( i%2 == 0 ) {
+			black_hole();
+		}
+		else {
+			big_bang();
+		}
 	}
 }

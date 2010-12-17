@@ -14,14 +14,14 @@ LD := $(EZLD)
 TOP_DIR ?= ${CURDIR}/../../..
 CORE_DIR ?= $(TOP_DIR)/core
 
-CFLAGS = --model-small
+CFLAGS := --model-small
 CFLAGS += -m$(ARCH)
 CFLAGS += --std-c89
 CFLAGS += --Werror
 CFLAGS += -I.
 #CFLAGS += --nostdlib
 
-LDFLAGS = --iram-size 0x80
+LDFLAGS := --iram-size 0x80
 LDFLAGS += --code-size 0x1000
 LDFLAGS += --code-loc 0x0000
 LDFLAGS += --stack-loc 0x30
@@ -29,18 +29,27 @@ LDFLAGS += --stack-loc 0x30
 #LDFLAGS += --data-loc 0x30
 LDFLAGS += --out-fmt-ihx
 
-OBJECTS = ezus.rel bb.rel bh.rel universe.rel
+C_SOURCES := ezus.c bb.c bh.c
+ASM_SOURCES = universe.s
+
+C_OBJECTS := $(patsubst %.c,%.rel,$(C_SOURCES))
+C_ASM_OBJS := $(patsubst %.c,%.asm,$(C_SOURCES))
+
+ASM_OBJECTS := $(patsubst %.s,%.rel,$(ASM_SOURCES))
 
 all: ezus.hex
 
-ezus.hex: $(OBJECTS)
+ezus.hex: $(C_OBJECTS) $(ASM_OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $^
 	$(PACKIHX) ezus.ihx > ezus.hex
 
 clean:
-	rm -f *.asm
+	rm -f $(C_ASM_OBJS)
 	rm -f *.hex *.ihx *.lnk *.lst *.map *.mem *.rel *.rst *.sym
 
 %.rel : %.c
 	$(CC) $(CFLAGS) -c $<
+
+%.rel : %.s
+	$(AS) -losg $<
 
