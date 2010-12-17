@@ -14,8 +14,14 @@ TARGET := 8051
 # ARCH set the CPU arch, please see README to set correct TARGET/ARCH
 ARCH := mcs51
 
-# CC set the cross-compiler
-CC := sdcc
+# EZCC set the target compiler
+EZCC := sdcc
+
+# EZAS set the target assembler
+EZAS := sdas8051
+
+# EZLD set the target linker
+EZLD := sdld
 
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(BOARD)-$(TARGET)-$(ARCH)-build.log

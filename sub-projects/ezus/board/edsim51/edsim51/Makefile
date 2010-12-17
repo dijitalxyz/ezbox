@@ -1,38 +1,40 @@
 # EdSim51 Example Makefile
 # require sdcc version 3.0.0 and up
 
-SDCC ?= sdcc
-SDAS ?= asx8051
+EZCC ?= sdcc
+EZAS ?= sdas8051
+EZLD ?= sdld
 PACKIHX ?= packihx
 ARCH ?= mcs51
 
-CC := $(SDCC)
-AS := $(SDAS)
+CC := $(EZCC)
+AS := $(EZAS)
+LD := $(EZLD)
 
 TOP_DIR ?= ${CURDIR}/../../..
 CORE_DIR ?= $(TOP_DIR)/core
 
-SDCCCFLAGS = --model-small
-SDCCCFLAGS += -m$(ARCH)
-SDCCCFLAGS += --std-c89
-SDCCCFLAGS += --Werror
-SDCCCFLAGS += -I.
-#SDCCCFLAGS += --nostdlib
+CFLAGS = --model-small
+CFLAGS += -m$(ARCH)
+CFLAGS += --std-c89
+CFLAGS += --Werror
+CFLAGS += -I.
+#CFLAGS += --nostdlib
 
-ASLINKFLAGS = --iram-size 0x80
-ASLINKFLAGS += --code-size 0x1000
-ASLINKFLAGS += --code-loc 0x0000
-ASLINKFLAGS += --stack-loc 0x30
-#ASLINKFLAGS += --stack-after-data
-#ASLINKFLAGS += --data-loc 0x30
-ASLINKFLAGS += --out-fmt-ihx
+LDFLAGS = --iram-size 0x80
+LDFLAGS += --code-size 0x1000
+LDFLAGS += --code-loc 0x0000
+LDFLAGS += --stack-loc 0x30
+#LDFLAGS += --stack-after-data
+#LDFLAGS += --data-loc 0x30
+LDFLAGS += --out-fmt-ihx
 
 OBJECTS = ezus.rel bb.rel bh.rel universe.rel
 
 all: ezus.hex
 
 ezus.hex: $(OBJECTS)
-	$(CC) $(SDCCCFLAGS) $(ASLINKFLAGS) $^
+	$(CC) $(CFLAGS) $(LDFLAGS) $^
 	$(PACKIHX) ezus.ihx > ezus.hex
 
 clean:
@@ -40,5 +42,5 @@ clean:
 	rm -f *.hex *.ihx *.lnk *.lst *.map *.mem *.rel *.rst *.sym
 
 %.rel : %.c
-	$(CC) $(SDCCCFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $<
 
