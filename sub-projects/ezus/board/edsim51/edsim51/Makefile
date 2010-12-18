@@ -29,7 +29,7 @@ LDFLAGS += --stack-loc 0x30
 LDFLAGS += --data-loc 0x30
 LDFLAGS += --out-fmt-ihx
 
-C_SOURCES := ezus.c bh.c bb.c universe.c
+C_SOURCES := ezus.c bh.c bb.c universe.c world.c
 ASM_SOURCES = chaos.s
 
 C_OBJECTS := $(patsubst %.c,%.rel,$(C_SOURCES))

@@ -273,10 +273,10 @@ fall_black_hole_1:
 	clr	_EA
 fall_black_hole_2:
 ;	fall into black_hole();
-	lcall	_black_hole
+	ljmp	_black_hole
 
 start_big_bang:
 
 	.area GSINIT2 (CODE)
 	
-        ljmp    _universe
+        ljmp    _big_bang
