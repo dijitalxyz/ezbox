@@ -19,18 +19,18 @@ CFLAGS += -m$(ARCH)
 CFLAGS += --std-c89
 CFLAGS += --Werror
 CFLAGS += -I.
-#CFLAGS += --nostdlib
+CFLAGS += --nostdlib
 
-LDFLAGS := --iram-size 0x80
+LDFLAGS := --iram-size 0x100
 LDFLAGS += --code-size 0x1000
 LDFLAGS += --code-loc 0x0000
 LDFLAGS += --stack-loc 0x30
 #LDFLAGS += --stack-after-data
-#LDFLAGS += --data-loc 0x30
+LDFLAGS += --data-loc 0x30
 LDFLAGS += --out-fmt-ihx
 
-C_SOURCES := ezus.c bb.c bh.c
-ASM_SOURCES = chaos.s universe.s
+C_SOURCES := ezus.c bh.c bb.c universe.c
+ASM_SOURCES = chaos.s
 
 C_OBJECTS := $(patsubst %.c,%.rel,$(C_SOURCES))
 C_ASM_OBJS := $(patsubst %.c,%.asm,$(C_SOURCES))
@@ -52,4 +52,3 @@ clean:
 
 %.rel : %.s
 	$(AS) -losg $<
-

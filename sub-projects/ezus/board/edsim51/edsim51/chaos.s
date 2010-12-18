@@ -40,7 +40,6 @@
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
-	.globl __start__stack
 	.globl _CY
 	.globl _AC
 	.globl _F0
@@ -248,41 +247,36 @@ _CY	=	0x00d7
 
 __sdcc_gsinit_startup::
 ;	test interrupts enable bit EA
-	jb	_EA,00101$
+	jb	_EA,fall_black_hole_1
 ;	test accumulator ACC
-	jnz	00102$
+	jnz	fall_black_hole_2
 ;	test program status word PSW
 	mov	a,_PSW
-	jnz	00102$
+	jnz	fall_black_hole_2
 ;	test stack pointer SP
 	mov	a,#0x07
-	cjne	a,_SP,00102$
+	cjne	a,_SP,fall_black_hole_2
 ;	test DPL
 	mov	a,_DPL
-	jnz	00102$
+	jnz	fall_black_hole_2
 ;	test DPH
 	mov	a,_DPH
-	jnz	00102$
+	jnz	fall_black_hole_2
 ;	test interrupts IE
 	mov	a,_IE
 ;	skip bit 7, 6 and 5, other bits should be zero
 	anl	a,0x1f
-	jnz	00102$
-	sjmp	00201$
-00101$:
+	jnz	fall_black_hole_2
+	sjmp	start_big_bang
+fall_black_hole_1:
 ;	disable interrupts
 	clr	_EA
-00102$:
+fall_black_hole_2:
 ;	fall into black_hole();
 	lcall	_black_hole
 
-00201$:
-        mov     sp,#__start__stack - 1
+start_big_bang:
 
 	.area GSINIT2 (CODE)
 	
-        lcall   __sdcc_external_startup
-        mov     a,dpl
-        jz      __sdcc_init_data
-        ljmp    __sdcc_program_startup
-__sdcc_init_data:
+        ljmp    _universe

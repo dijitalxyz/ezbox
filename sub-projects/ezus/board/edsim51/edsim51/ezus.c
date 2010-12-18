@@ -1,7 +1,7 @@
 #include <ezus.h>
 
 /* entry point for user appliactions */
-void main(void)
+void my_main(void)
 {
 	return;
 }
