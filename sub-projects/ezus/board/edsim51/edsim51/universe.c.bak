@@ -1,4 +1,13 @@
+#include <8051.h>
+
+extern void black_hole(void);
 unsigned char _sdcc_external_startup (void) __nonbanked
 {
-	return 1;
+	if (PSW != 0x00) {
+		black_hole();
+	}
+	if (SP != 0x0B) {
+		black_hole();
+	}
+	return 0;
 }

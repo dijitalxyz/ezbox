@@ -1,14 +1,7 @@
 #include <ezus.h>
 
+/* entry point for user appliactions */
 void main(void)
 {
-	int i;
-	for (i=0; i<100; i++) {
-		if ( i%2 == 0 ) {
-			black_hole();
-		}
-		else {
-			big_bang();
-		}
-	}
+	return;
 }
