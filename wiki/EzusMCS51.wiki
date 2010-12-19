@@ -41,6 +41,17 @@
   * PCON的位六位五位四位内容不变，其余位都为0
   * 除以上寄存器外，其余的数据寄存器内容都为随机数。
 
+=== 8051单片机的中断系统 ===
+  * 中断源      -- 中断标志 -- 中断向量
+  * -----------------------------------
+  * 上电复位    -- RST      -- 0000H
+  * 外部中断0   -- IE0      -- 0003H
+  * 定时器0溢出 -- TF0      -- 000BH
+  * 外部中断1   -- IE1      -- 0013H
+  * 定时器1溢出 -- TF1      -- 001BH
+  * 串行口中断  -- RI/TI    -- 0023H
+  * -----------------------------------
+
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
   * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
