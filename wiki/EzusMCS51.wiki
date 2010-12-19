@@ -46,4 +46,5 @@
   * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
   * JMCE - Java Multiple Computer Emulator <a href="http://www.viara.cn/en/jmce/">http://www.viara.cn/en/jmce/</a>
   * CMON51 - CMON51 is a monitor program for the 8051 family of microcontrollers.<a href="http://cmon51.sourceforge.net/">http://cmon51.sourceforge.net/</a>
-  * 嵌入式实时操作系统small RTOS51原理及应用
+  * 嵌入式实时操作系统small RTOS51原理及应用 (陈明记 周立功 等编著)
+  * Operating Systems Design and Implementation, Third Edition (By Andrew S. Tanenbaum -  Vrije Universiteit Amsterdam, The Netherlands, Albert S. Woodhull -  Amherst, Massachusetts)
