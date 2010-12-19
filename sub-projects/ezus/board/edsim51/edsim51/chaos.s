@@ -243,9 +243,69 @@ _F0	=	0x00d5
 _AC	=	0x00d6
 _CY	=	0x00d7
 
+;--------------------------------------------------------
+; interrupt vectors
+;--------------------------------------------------------
 	.area GSINIT0 (CODE)
-
+;	0x0000	systerm reset
 __sdcc_gsinit_startup::
+reset_int_vec:
+	ljmp	stay_at_chaos
+
+	.area GSINIT1 (CODE)
+;	0x0003	external interrupt 0
+ext0_int_vec:
+;	disable interrupts
+	clr	_EA
+	ljmp	ext0_int_service
+;	enable interrupts
+	setb	_EA
+	reti
+
+	.area GSINIT2 (CODE)
+;	0x000b	timer 0
+timer0_int_vec:
+;	disable interrupts
+	clr	_EA
+	ljmp	timer0_int_service
+;	enable interrupts
+	setb	_EA
+	reti
+
+	.area GSINIT3 (CODE)
+;	0x0013	external interrupt 1
+ext1_int_vec:
+;	disable interrupts
+	clr	_EA
+	ljmp	ext1_int_service
+;	enable interrupts
+	setb	_EA
+	reti
+
+	.area GSINIT4 (CODE)
+;	0x001b	timer 1
+timer1_int_vec:
+;	disable interrupts
+	clr	_EA
+	ljmp	timer1_int_service
+;	enable interrupts
+	setb	_EA
+	reti
+
+	.area GSINIT5 (CODE)
+;	0x0023	serial port tx/rx
+serial_int_vec:
+;	disable interrupts
+	clr	_EA
+	ljmp	serial_int_service
+;	enable interrupts
+	setb	_EA
+	reti
+
+;--------------------------------------------------------
+; systerm reset interrupt service
+;--------------------------------------------------------
+stay_at_chaos:
 ;	test interrupts enable bit EA
 	jb	_EA,fall_black_hole_1
 ;	test accumulator ACC
@@ -277,6 +337,35 @@ fall_black_hole_2:
 
 start_big_bang:
 
-	.area GSINIT2 (CODE)
-	
         ljmp    _big_bang
+
+;--------------------------------------------------------
+; external 0 interrupt service
+;--------------------------------------------------------
+ext0_int_service:
+	ljmp	reset_int_vec
+
+;--------------------------------------------------------
+; timer 0 interrupt service
+;--------------------------------------------------------
+timer0_int_service:
+	ljmp	reset_int_vec
+
+;--------------------------------------------------------
+; external 1 interrupt service
+;--------------------------------------------------------
+ext1_int_service:
+	ljmp	reset_int_vec
+
+;--------------------------------------------------------
+; timer 1 interrupt service
+;--------------------------------------------------------
+timer1_int_service:
+	ljmp	reset_int_vec
+
+;--------------------------------------------------------
+; serial port tx/rx interrupt service
+;--------------------------------------------------------
+serial_int_service:
+	ljmp	reset_int_vec
+
