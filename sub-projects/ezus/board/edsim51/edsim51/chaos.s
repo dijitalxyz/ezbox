@@ -255,11 +255,9 @@ reset_int_vec:
 	.area GSINIT1 (CODE)
 ;	0x0003	external interrupt 0
 ext0_int_vec:
-;	disable interrupts
-	clr	_EA
 	ljmp	ext0_int_service
-;	enable interrupts
-	setb	_EA
+	reti
+	ljmp	stay_at_chaos
 	reti
 
 	.area GSINIT2 (CODE)
@@ -267,7 +265,8 @@ ext0_int_vec:
 timer0_int_vec:
 ;	disable interrupts
 	clr	_EA
-	ljmp	timer0_int_service
+;	call time interrupt service
+	lcall	_w_time_int_service
 ;	enable interrupts
 	setb	_EA
 	reti
@@ -275,31 +274,25 @@ timer0_int_vec:
 	.area GSINIT3 (CODE)
 ;	0x0013	external interrupt 1
 ext1_int_vec:
-;	disable interrupts
-	clr	_EA
 	ljmp	ext1_int_service
-;	enable interrupts
-	setb	_EA
+	reti
+	ljmp	stay_at_chaos
 	reti
 
 	.area GSINIT4 (CODE)
 ;	0x001b	timer 1
 timer1_int_vec:
-;	disable interrupts
-	clr	_EA
 	ljmp	timer1_int_service
-;	enable interrupts
-	setb	_EA
+	reti
+	ljmp	stay_at_chaos
 	reti
 
 	.area GSINIT5 (CODE)
 ;	0x0023	serial port tx/rx
 serial_int_vec:
-;	disable interrupts
-	clr	_EA
 	ljmp	serial_int_service
-;	enable interrupts
-	setb	_EA
+	reti
+	ljmp	stay_at_chaos
 	reti
 
 ;--------------------------------------------------------
@@ -343,12 +336,6 @@ start_big_bang:
 ; external 0 interrupt service
 ;--------------------------------------------------------
 ext0_int_service:
-	ljmp	reset_int_vec
-
-;--------------------------------------------------------
-; timer 0 interrupt service
-;--------------------------------------------------------
-timer0_int_service:
 	ljmp	reset_int_vec
 
 ;--------------------------------------------------------

@@ -6,5 +6,7 @@
  */
 void init(void)
 {
-	return;
+	while (1){
+
+	};
 }

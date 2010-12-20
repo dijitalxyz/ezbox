@@ -2,14 +2,17 @@
 #include <8051.h>
 
 extern void world(void);
+
 /*
  * universe layer is an extension of the hardware resource
  * and implemented by system programmer.
- * EdSim51 porting export hardware resource to world layer fully
+ * EdSim51 porting exports hardware resource to world layer fully
  * and provides services to world layer.
  */
 void universe(void)
 {
+	/* setup world stack pointer */
+        /* SP = 0x30 - 1; */
 	world();
 }
 

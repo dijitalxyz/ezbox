@@ -1,22 +1,54 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include <8051.h>
 #include <ezus.h>
 
-void w_space_init(void)
+uint8_t w_space_init(void)
 {
-	/* setup stack pointer */
-	SP = 0x30 - 1;
+	return 0;
 }
 
-void w_time_init(void)
+#if 0
+#define TIMER0_COUNT 0x3cb0 /* 15536 (= 65536 - 50000) , 50ms */
+#else
+#define TIMER0_COUNT 0xd8f0 /* 55536 (= 65536 - 10000) , 10ms */
+#endif
+uint8_t w_time_init(void)
 {
-	
+	/* use timer 0 as time tick source */
+	TMOD &= 0xf0;
+	/* Mode 1 : 16-bit mode */
+	TMOD |= 0x01;
+	/* put timer interval */
+	TL0 = (TIMER0_COUNT & 0x00ff);
+	TH0 = (TIMER0_COUNT >> 8);
+	/* low priority */
+	PT0 = 0;
+	/* enable timer 0 interrupt */
+	ET0 = 1;
+	/* global interrupt enable */
+	EA = 1;
+	/* start timer 0 */
+	TR0 = 1;
+
+	return 0;
 }
 
-void w_start_world(void *e)
+void w_time_int_service(void)
+{
+	TF0 = 0;
+	TL0 = TL0 + (TIMER0_COUNT & 0x00ff);
+	TH0 = TH0 + (TIMER0_COUNT >> 8);
+	/* blink LED */
+	P1 -= 1;
+}
+
+uint8_t w_start_world(void *e)
 {
 	if (e == NULL)
-		return;
+		return 1;
+
+	return 0;
 }
 
 /*
