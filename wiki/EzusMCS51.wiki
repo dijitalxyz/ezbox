@@ -20,6 +20,25 @@
   * board/edsim51/edsim51/bh.c 包含系统退出时的运行代码（bh 是 Black Hole 的缩写）
   * core/ 包含系统运行的规则，如任务调度算法、存储分配策略等
 
+== 构建步骤 ==
+  * ezus 在 EdSim51 上的移植使用 SDCC 编译器，以下操作在 Ubuntu/Linux 操作系统下完成
+
+=== 编译 SDCC v3.0.0 ===
+  * 从 <a href="http://sdcc.sourceforge.net/">http://sdcc.sourceforge.net/</a> 处获取最新的 SDCC 源码
+  * 配置 sdcc，只选择mcs51的支持，并且没有使用 SDCC 提供的设备支持库
+{{{
+./configure --disable-gbz80-port --disable-z80-port --disable-ds390-port --disable-ds400-port --disable-pic-port --disable-pic16-port --disable-hc08-port --disable-ucsim --disable-device-lib --enable-libgc
+}}}
+  * 编译 sdcc
+{{{
+make
+}}}
+  * 安装 sdcc，默认安装到 /usr/local 目录下
+{{{
+sudo make install
+}}}
+
+
 == 实现细节 ==
 === 8051单片机的复位状态 ===
 复位就是指通过某种手段使单片机内部某些资源一种固定的初始状态，以确保单片机每次复位后都能在某一固定的环境中从某一固定的入口地址处开始运行，8051复位后片内各特殊功能寄存器状态如下：
