@@ -251,6 +251,9 @@ _CY	=	0x00d7
 ;--------------------------------------------------------
 	.area GSINIT0 (CODE)
 ;	0x0000	systerm reset
+;--------------------------------------------------------
+; C run-time: startup
+;--------------------------------------------------------
 __sdcc_gsinit_startup::
 reset_int_vec:
 	ljmp	stay_at_chaos
@@ -358,4 +361,11 @@ timer1_int_service:
 ;--------------------------------------------------------
 serial_int_service:
 	ljmp	reset_int_vec
+
+;--------------------------------------------------------
+; C run-time: indirect function call
+;--------------------------------------------------------
+__sdcc_call_dptr::
+	clr	a
+	jmp	@a+dptr
 
