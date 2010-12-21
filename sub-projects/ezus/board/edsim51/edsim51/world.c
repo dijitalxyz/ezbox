@@ -29,7 +29,7 @@ uint8_t w_time_init(void)
 	/* enable timer 0 interrupt */
 	ET0 = 1;
 	/* global interrupt enable */
-	/* FIXME: enable at init() */
+	/* FIXME: enable at w_world_start()/init() */
 	/* EA = 1; */
 	/* start timer 0 */
 	TR0 = 1;
@@ -37,33 +37,59 @@ uint8_t w_time_init(void)
 	return 0;
 }
 
+/* current running thread ID */
+uint8_t w_cur_thread_id = 0;
+
+/* thread running state */
+/* 0 : wait; 1 : ready */
+uint8_t w_thread_state = 0x01;
+
+void (* const w_thread_list[W_THREAD_NUM])(void) = {
+	init,
+	thread1
+};
+
+void w_thread_context_switch(void)
+{
+	return ;
+}
+
+void w_schedule_threads(void)
+{
+	uint8_t i;
+	uint8_t mask;
+
+	i = W_THREAD_NUM - 1;
+	mask = (0x01 << i);
+	while (i > 0) {
+		if ((mask & w_thread_state) == 1) {
+			w_thread_context_switch();
+			w_thread_list[i]();
+		}
+		i--;
+	}
+}
+
+#if 0
+void w_world_start()
+{
+	/* global interrupt enable */
+	EA = 1;
+
+	while(1) {
+		w_schedule_threads();
+	}
+}
+#endif
+
 void w_time_int_service(void)
 {
 	TF0 = 0;
 	TL0 = TL0 + (TIMER0_COUNT & 0x00ff);
 	TH0 = TH0 + (TIMER0_COUNT >> 8);
-	/* blink LED */
-	P1 -= 1;
-}
 
-void (* const w_thread_list[W_MAX_THREADS])(void) = {
-	init,
-	thread1
-};
-
-
-void w_start_world(void (* const thread_list[W_MAX_THREADS])(void))
-{
-	int i;
-	while(1) {
-		i = W_MAX_THREADS - 1;
-		while(i >= 0) {
-			if (thread_list[i] != NULL) {
-				thread_list[i]();
-			}
-			i--;
-		}
-	}
+	/* do the schedule */
+	w_schedule_threads();
 }
 
 /*
@@ -81,9 +107,12 @@ void world(void)
 	w_time_init();
 
 	/* start up the user's applications */
+#if 0
 	/* w_start_world() is an ever-last loop routine */
-	/* thread_list define in ezus.c */
-	w_start_world(w_thread_list);
+	w_world_start();
+#endif
+	/* init() is an ever-last loop routine */
+	init();
 
 	/* should not reach here in a normal running */
 }

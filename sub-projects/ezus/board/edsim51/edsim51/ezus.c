@@ -8,12 +8,10 @@
  */
 void init(void)
 {
-	while (1){
-		if (W_P1_0 == 0) {
-			W_P1_0 = 1;
-		}
-		else {
-			W_P1_0 = 0;
-		}
-	};
+	/* global interrupt enable */
+	EA = 1;
+
+	while(1) {
+		w_schedule_threads();
+	}
 }
