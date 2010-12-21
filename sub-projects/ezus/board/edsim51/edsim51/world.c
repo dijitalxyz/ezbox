@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <8051.h>
+
+#include <world.h>
 #include <ezus.h>
 
 uint8_t w_space_init(void)
@@ -27,7 +29,8 @@ uint8_t w_time_init(void)
 	/* enable timer 0 interrupt */
 	ET0 = 1;
 	/* global interrupt enable */
-	EA = 1;
+	/* FIXME: enable at init() */
+	/* EA = 1; */
 	/* start timer 0 */
 	TR0 = 1;
 
@@ -43,12 +46,24 @@ void w_time_int_service(void)
 	P1 -= 1;
 }
 
-uint8_t w_start_world(void *e)
-{
-	if (e == NULL)
-		return 1;
+void (* const w_thread_list[W_MAX_THREADS])(void) = {
+	init,
+	thread1
+};
 
-	return 0;
+
+void w_start_world(void (* const thread_list[W_MAX_THREADS])(void))
+{
+	int i;
+	while(1) {
+		i = W_MAX_THREADS - 1;
+		while(i >= 0) {
+			if (thread_list[i] != NULL) {
+				thread_list[i]();
+			}
+			i--;
+		}
+	}
 }
 
 /*
@@ -66,8 +81,9 @@ void world(void)
 	w_time_init();
 
 	/* start up the user's applications */
-	/* init() is an ever-last loop routine */
-	init();
+	/* w_start_world() is an ever-last loop routine */
+	/* thread_list define in ezus.c */
+	w_start_world(w_thread_list);
 
 	/* should not reach here in a normal running */
 }

@@ -14,6 +14,8 @@ LD := $(EZLD)
 TOP_DIR ?= ${CURDIR}/../../..
 CORE_DIR ?= $(TOP_DIR)/core
 
+ASFLAGS := -plosgff
+
 CFLAGS := --model-small
 CFLAGS += -m$(ARCH)
 CFLAGS += --std-c89
@@ -29,8 +31,11 @@ LDFLAGS += --code-loc 0x0000
 LDFLAGS += --data-loc 0x30
 LDFLAGS += --out-fmt-ihx
 
-C_SOURCES := ezus.c bh.c bb.c universe.c world.c
-ASM_SOURCES = chaos.s
+C_SOURCES := ezus.c bh.c bb.c universe.c world.c _gptrget.c
+ASM_SOURCES = chaos.s crtcall.s
+
+# user define thread routines
+C_SOURCES += thread1.c
 
 C_OBJECTS := $(patsubst %.c,%.rel,$(C_SOURCES))
 C_ASM_OBJS := $(patsubst %.c,%.asm,$(C_SOURCES))
@@ -51,4 +56,4 @@ clean:
 	$(CC) $(CFLAGS) -c $<
 
 %.rel : %.s
-	$(AS) -losg $<
+	$(AS) $(ASFLAGS) $<

@@ -1,3 +1,5 @@
+#include <world.h>
+
 #include <ezus.h>
 
 /*
@@ -7,6 +9,11 @@
 void init(void)
 {
 	while (1){
-
+		if (W_P1_0 == 0) {
+			W_P1_0 = 1;
+		}
+		else {
+			W_P1_0 = 0;
+		}
 	};
 }

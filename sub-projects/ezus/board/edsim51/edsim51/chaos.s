@@ -1,8 +1,11 @@
 ;--------------------------------------------------------------------------
 ;  chaos.s based on crtstart.asm in SDCC 3.0.0 mcs51
 ;
-;  Copyright (C) 2004, Erik Petrich
 ;  Copyright (C) 2010, Zeta Labs
+;
+;  crtstart.asm - C run-time: startup
+;
+;  Copyright (C) 2004, Erik Petrich
 ;
 ;  This library is free software; you can redistribute it and/or modify it
 ;  under the terms of the GNU General Public License as published by the
