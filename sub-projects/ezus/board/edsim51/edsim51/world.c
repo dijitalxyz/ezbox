@@ -2,8 +2,15 @@
 #include <stdint.h>
 #include <8051.h>
 
-#include <world.h>
-#include <ezus.h>
+#include "world.h"
+#include "ezus.h"
+
+/* world global variables */
+/*-------------------------*/
+uint32_t world_uptime_seconds;	/* seconds since world starts */
+uint32_t world_time_ticks;	/* time ticks since last update of world_uptime_seconds */
+uint8_t  world_time_flags;	/* bit 0: whether do w_schedule_threads() within one tick */
+/*-------------------------*/
 
 uint8_t w_space_init(void)
 {
@@ -11,8 +18,10 @@ uint8_t w_space_init(void)
 }
 
 #if 0
+#define HZ	20	/* 20HZ for time interrupt */
 #define TIMER0_COUNT 0x3cb0 /* 15536 (= 65536 - 50000) , 50ms */
 #else
+#define HZ	100	/* 100HZ for time interrupt */
 #define TIMER0_COUNT 0xd8f0 /* 55536 (= 65536 - 10000) , 10ms */
 #endif
 uint8_t w_time_init(void)
@@ -33,6 +42,10 @@ uint8_t w_time_init(void)
 	/* EA = 1; */
 	/* start timer 0 */
 	TR0 = 1;
+
+	world_time_ticks = 0;
+	world_time_flags = 0;
+	world_uptime_seconds = 0;
 
 	return 0;
 }
@@ -82,14 +95,29 @@ void w_world_start()
 }
 #endif
 
+
 void w_time_int_service(void)
 {
 	TF0 = 0;
 	TL0 = TL0 + (TIMER0_COUNT & 0x00ff);
 	TH0 = TH0 + (TIMER0_COUNT >> 8);
 
+	world_time_ticks++;
+	world_time_ticks %= HZ;
+
+	/* ticks has been accumulated to one second */
+	if (world_time_ticks == 0) {
+		world_uptime_seconds++;
+	}
+
 	/* do the schedule */
-	w_schedule_threads();
+	if (world_time_flags & 0x01) {
+		/* we have do w_schedule_threads() within one tick */
+		/* so do nothingh right now. */
+	}
+	else {
+		w_schedule_threads();
+	}
 }
 
 /*

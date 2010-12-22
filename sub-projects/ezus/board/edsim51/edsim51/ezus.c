@@ -1,6 +1,6 @@
-#include <world.h>
+#include "world.h"
 
-#include <ezus.h>
+#include "ezus.h"
 
 /*
  * entry point for user appliactions

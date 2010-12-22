@@ -11,8 +11,6 @@ extern void world(void);
  */
 void universe(void)
 {
-	/* setup world stack pointer */
-        /* SP = 0x30 - 1; */
 	world();
 }
 
