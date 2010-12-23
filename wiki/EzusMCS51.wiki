@@ -71,6 +71,22 @@ sudo make install
   * 串行口中断  -- RI/TI    -- 0023H
   * -----------------------------------
 
+=== 系统启动过程 ===
+  * 硬件上电后，8051从内部ROM的0x0000地址开始执行指令，系统地第一条指令在chaos.s的reset_int_service:标签位置，这是一条长跳转指令，8051将转到stay_at_chaos:标签处的指令
+  * stay_at_chaos:标签表示系统还处在混沌状态，此时需要校验各种寄存器的状态，如果有寄存器状态不符合8051复位状态时，表示系统还没有准备好，此时将跳转到fall_into_black_hole_1:或者fall_into_black_hole_2:标签
+  * 跳入fall_into_black_hole_1:标签的运行轨迹表示，在chaos状态的中断寄存器中的中断使能标志位EA的状态没有符合8051复位状态的中断使能标志位状态，即当前EA=1而不是EA=0
+  * 跳入fall_into_black_hole_2:标签的运行轨迹，下一步将跳转到black_hole()函数执行，此处不用lcall而是ljmp表示black_hole()函数是一个不需要返回的执行轨迹
+  * black_hole()函数在bh.c文件中，通常black_hole()表示系统进入了一个对用户而言不可用的状态，此时需要外界给与一定的指令，系统才会继续运行下去，在此函数中可以加入向上位机传输系统当前状态的信息，并等待上位机给与下一步执行的指令，需要注意的是在black_hole()中应尽量小的破坏当前系统状态，以保证向上位机传输的系统当前状态信息的准确性
+  * 如果在stay_at_chaos:标签中的状态检测符合8051复位状态，此时系统将跳入start_big_bang:标签
+  * 跳入start_big_bang:标签的运行轨迹表示，系统已经准备好了，即将跳入big_bang()函数，此时混沌初开，宇宙即将诞生
+  * big_bang()函数在bb.c文件中，big_bang()函数初始化好当前宇宙运行环境，包括可用空间，计时机制，然后调用universe()函数，开始宇宙的运行。需要注意的是big_bang()仅规定宇宙运行的时空维度，其他宇宙内部结构将在universe()函数中规定。
+  * universe()函数在universe.c文件中，universe 层相当于传统计算机体系结构中的硬件抽象层 HAL，为更高层 world 层提供必要的硬件访问接口，也可以用来构建hypervisor，实现虚拟硬件系统
+  * universe()函数将规定universe内部运行机制，包括I/O操作接口，可用的调度策略的，完成初始化工作后，universe()函数调用world()函数，系统运行轨迹进入世界(world)层面
+  * world()函数在world.c文件中，world 层相当于传统计算机体系结构中的操作系统层(OS)，为用户的应用程序提供必要的访问接口，在edsim51的移植示例中，我们在这一层实现一个可在8051单片机上使用的RTOS
+  * world()函数初始化好本层的空间使用，时钟计时以及用户层线程管理需要的信息后调用init()函数
+  * init()函数在ezus.c文件中，init()函数相当于传统计算机系统结构中的用户层初始进程，即PID=1的init进程
+  * init()函数实现用户层初始线程，负责用户定义线程的调度
+
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
   * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
@@ -79,3 +95,4 @@ sudo make install
   * 嵌入式实时操作系统small RTOS51原理及应用 (陈明记 周立功 等编著)
   * Operating Systems Design and Implementation, Third Edition (By Andrew S. Tanenbaum -  Vrije Universiteit Amsterdam, The Netherlands, Albert S. Woodhull -  Amherst, Massachusetts)
   * 源码开放的嵌入式实时操作系统T-Kernel （日）坂村健 等著，周立功 等译
+  * SDCC Compiler User Guide <a href="http://sdcc.sourceforge.net/doc/sdccman.html/"> http://sdcc.sourceforge.net/doc/sdccman.html/ </a>
