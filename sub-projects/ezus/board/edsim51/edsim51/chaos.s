@@ -43,6 +43,7 @@
 ;--------------------------------------------------------
 ; Public variables in this module
 ;--------------------------------------------------------
+	.globl stay_at_chaos
 	.globl _CY
 	.globl _AC
 	.globl _F0
@@ -245,65 +246,30 @@ _RS1	=	0x00d4
 _F0	=	0x00d5
 _AC	=	0x00d6
 _CY	=	0x00d7
-
 ;--------------------------------------------------------
-; interrupt vectors
+; overlayable register banks
 ;--------------------------------------------------------
-	.area GSINIT0 (CODE)
-;	0x0000	systerm reset
+	.area REG_BANK_0	(REL,OVR,DATA)
+	.ds 8
+	.area REG_BANK_1	(REL,OVR,DATA)
+	.ds 8
+	.area REG_BANK_2	(REL,OVR,DATA)
+	.ds 8
+	.area REG_BANK_3	(REL,OVR,DATA)
+	.ds 8
 ;--------------------------------------------------------
-; C run-time: startup
+; internal ram data
 ;--------------------------------------------------------
-__sdcc_gsinit_startup::
-reset_int_vec:
-	ljmp	stay_at_chaos
-
-	.area GSINIT1 (CODE)
-;	0x0003	external interrupt 0
-ext0_int_vec:
-	ljmp	ext0_int_service
-	reti
-	ljmp	stay_at_chaos
-	reti
-
-	.area GSINIT2 (CODE)
-;	0x000b	timer 0
-timer0_int_vec:
-;	disable interrupts
-	clr	_EA
-;	call time interrupt service
-	lcall	_w_time_int_service
-;	enable interrupts
-	setb	_EA
-	reti
-
-	.area GSINIT3 (CODE)
-;	0x0013	external interrupt 1
-ext1_int_vec:
-	ljmp	ext1_int_service
-	reti
-	ljmp	stay_at_chaos
-	reti
-
-	.area GSINIT4 (CODE)
-;	0x001b	timer 1
-timer1_int_vec:
-	ljmp	timer1_int_service
-	reti
-	ljmp	stay_at_chaos
-	reti
-
-	.area GSINIT5 (CODE)
-;	0x0023	serial port tx/rx
-serial_int_vec:
-	ljmp	serial_int_service
-	reti
-	ljmp	stay_at_chaos
-	reti
+	.area DSEG    (DATA)
+;--------------------------------------------------------
+; overlayable items in internal ram
+;--------------------------------------------------------
+	.area OSEG    (OVR,DATA)
 
 ;--------------------------------------------------------
 ; systerm reset interrupt service
 ;--------------------------------------------------------
+	.area GSINIT0 (CODE)
 stay_at_chaos:
 ;	test interrupts enable bit EA
 	jb	_EA,fall_black_hole_1
@@ -337,30 +303,6 @@ fall_black_hole_2:
 start_big_bang:
 ;	run to big_bang();
         ljmp    _big_bang
-
-;--------------------------------------------------------
-; external 0 interrupt service
-;--------------------------------------------------------
-ext0_int_service:
-	ljmp	reset_int_vec
-
-;--------------------------------------------------------
-; external 1 interrupt service
-;--------------------------------------------------------
-ext1_int_service:
-	ljmp	reset_int_vec
-
-;--------------------------------------------------------
-; timer 1 interrupt service
-;--------------------------------------------------------
-timer1_int_service:
-	ljmp	reset_int_vec
-
-;--------------------------------------------------------
-; serial port tx/rx interrupt service
-;--------------------------------------------------------
-serial_int_service:
-	ljmp	reset_int_vec
 
 ;--------------------------------------------------------
 ; C run-time: indirect function call

@@ -1,12 +1,12 @@
 #include "world.h"
 
-#include "ezus.h"
+#include "init.h"
 
 /*
  * entry point for user appliactions
  * which can only view world layer API
  */
-void init(void)
+void init(void) __using 3
 {
 	/* global interrupt enable */
 	EA = 1;

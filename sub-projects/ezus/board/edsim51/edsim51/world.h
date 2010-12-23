@@ -14,10 +14,8 @@
 #error "W_THREAD_NUM should be less than or equal to W_THREAD_MAX"
 #endif
 
-extern uint8_t w_space_init(void);
-extern uint8_t w_time_init(void);
-extern void w_schedule_threads(void);
-/* extern void w_world_start(void (* const thread_list[W_THREAD_NUM])(void)); */
-extern void w_world_start(void);
+extern uint8_t w_space_init(void) __using 2;
+extern uint8_t w_time_init(void) __using 2;
+extern void w_schedule_threads(void) __using 2;
 
 #endif

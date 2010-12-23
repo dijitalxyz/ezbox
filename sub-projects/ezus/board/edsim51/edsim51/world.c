@@ -3,7 +3,7 @@
 #include <8051.h>
 
 #include "world.h"
-#include "ezus.h"
+#include "init.h"
 
 /* world global variables */
 /*-------------------------*/
@@ -17,7 +17,7 @@ uint8_t world_thread_quantum[W_THREAD_NUM];	/* thread running quantum of ticks *
 
 /*-------------------------*/
 
-uint8_t w_space_init(void)
+uint8_t w_space_init(void) __using 2
 {
 	return 0;
 }
@@ -29,7 +29,7 @@ uint8_t w_space_init(void)
 #define HZ	100	/* 100HZ for time interrupt */
 #define TIMER0_COUNT 0xd8f0 /* 55536 (= 65536 - 10000) , 10ms */
 #endif
-uint8_t w_time_init(void)
+uint8_t w_time_init(void) __using 2
 {
 	/* use timer 0 as time tick source */
 	TMOD &= 0xf0;
@@ -42,9 +42,6 @@ uint8_t w_time_init(void)
 	PT0 = 0;
 	/* enable timer 0 interrupt */
 	ET0 = 1;
-	/* global interrupt enable */
-	/* FIXME: enable at w_world_start()/init() */
-	/* EA = 1; */
 	/* start timer 0 */
 	TR0 = 1;
 
@@ -60,14 +57,14 @@ void (* const world_thread_list[W_THREAD_NUM])(void) = {
 	thread1
 };
 
-void w_thread_context_switch(uint8_t tid)
+void w_thread_context_switch(uint8_t tid) __using 2
 {
 	if (world_cur_thread_id == tid) {
 		return ;
 	}
 }
 
-void w_schedule_threads(void)
+void w_schedule_threads(void) __using 2
 {
 	uint8_t i;
 
@@ -82,7 +79,7 @@ void w_schedule_threads(void)
 	}
 }
 
-void w_time_int_service(void)
+void w_time_int_service(void) __using 2
 {
 	uint8_t i;
 
@@ -111,7 +108,7 @@ void w_time_int_service(void)
 	/* w_schedule_threads(); */
 }
 
-void w_thread_init(void)
+void w_thread_init(void) __using 2
 {
 	uint8_t i;
 
@@ -132,7 +129,7 @@ void w_thread_init(void)
  * EdSim51 porting maps world layer onto universe layer directly
  * and provides services to user applications.
  */
-void world(void)
+void world(void) __using 2
 {
 	/* setup the space of this world */
 	w_space_init();

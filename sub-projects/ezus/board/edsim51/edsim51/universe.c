@@ -9,13 +9,7 @@ extern void world(void);
  * EdSim51 porting exports hardware resource to world layer fully
  * and provides services to world layer.
  */
-void universe(void)
+void universe(void) __using 1
 {
 	world();
-}
-
-void u_start_world(void *e)
-{
-	if (e == NULL)
-		return;
 }
