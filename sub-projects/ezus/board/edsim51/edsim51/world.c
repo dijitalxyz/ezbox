@@ -22,15 +22,9 @@ uint8_t w_space_init(void) __using 2
 	return 0;
 }
 
-#if 0
-#define HZ	20	/* 20HZ for time interrupt */
-#define TIMER0_COUNT 0x3cb0 /* 15536 (= 65536 - 50000) , 50ms */
-#else
-#define HZ	100	/* 100HZ for time interrupt */
-#define TIMER0_COUNT 0xd8f0 /* 55536 (= 65536 - 10000) , 10ms */
-#endif
 uint8_t w_time_init(void) __using 2
 {
+#if 0
 	/* use timer 0 as time tick source */
 	TMOD &= 0xf0;
 	/* Mode 1 : 16-bit mode */
@@ -44,6 +38,7 @@ uint8_t w_time_init(void) __using 2
 	ET0 = 1;
 	/* start timer 0 */
 	TR0 = 1;
+#endif
 
 	world_time_ticks = 0;
 	world_time_flags = 0;
@@ -79,6 +74,7 @@ void w_schedule_threads(void) __using 2
 	}
 }
 
+#if 0
 void w_time_int_service(void) __using 2
 {
 	uint8_t i;
@@ -107,6 +103,7 @@ void w_time_int_service(void) __using 2
 	/* signal scheduler */
 	/* w_schedule_threads(); */
 }
+#endif
 
 void w_thread_init(void) __using 2
 {

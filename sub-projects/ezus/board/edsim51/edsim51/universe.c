@@ -11,5 +11,9 @@ extern void world(void);
  */
 void universe(void) __using 1
 {
+	/* put universe running rules here */
+	/* ... */
+	EA = 1;
+
 	world();
 }
