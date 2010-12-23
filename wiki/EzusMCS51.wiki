@@ -16,9 +16,13 @@
   * 世界（World）：宇宙在人脑中的主观影像。
 
 == 文件及目录说明 ==
-  * board/edsim51/edsim51/bb.c 包含系统启动时的运行代码（bb 是 Big Bang 的缩写)
-  * board/edsim51/edsim51/bh.c 包含系统退出时的运行代码（bh 是 Black Hole 的缩写）
-  * core/ 包含系统运行的规则，如任务调度算法、存储分配策略等
+  * board/edsim51/edsim51/ezus.s 包含系统启动时执行的第一条指令，另外，依据8051的中断向量定义，在此文件中同时构建了8051的中断向量表（0x0003 ~ 0x0023）
+  * board/edsim51/edsim51/chaos.s 包含系统初始状态检测代码，在此文件中系统运行轨迹将分为两支：系统运行状态未准备好，运行轨迹将进入黑洞状态（bh.c文件中的black_hole()函数）；系统运行状态已准备好，运行轨迹将进入大爆炸状态（bb.c文件中的big_bang()函数）
+  * board/edsim51/edsim51/bh.c 包含系统运行状态没有准备好时，或系统退出时的运行代码（bh 是 Black Hole 的缩写）
+  * board/edsim51/edsim51/bb.c 包含系统大爆炸时的运行代码（bb 是 Big Bang 的缩写)，此处将初始化宇宙的时空度量
+  * board/edsim51/edsim51/universe.c 包含宇宙形成时的运行代码，此处将规定宇宙运行的规则
+  * board/edsim51/edsim51/world.c 包含世界形成的运行代码
+  * board/edsim51/edsim51/init.c 包含用户初始线程的运行代码
 
 == 构建步骤 ==
   * ezus 在 EdSim51 上的移植使用 SDCC 编译器，以下操作在 Ubuntu/Linux 操作系统下完成
@@ -72,7 +76,7 @@ sudo make install
   * -----------------------------------
 
 === 系统启动过程 ===
-  * 硬件上电后，8051从内部ROM的0x0000地址开始执行指令，系统的第一条指令在chaos.s的reset_int_service:标签位置，这是一条长跳转指令，8051将转到stay_at_chaos:标签处的指令
+  * 硬件上电后，8051从内部ROM的0x0000地址开始执行指令，系统的第一条指令在ezus.s的system_reset:标签位置，这是一条长跳转指令，8051将转到stay_at_chaos:标签处的指令
   * stay_at_chaos:标签表示系统还处在混沌状态，此时需要校验各种寄存器的状态，如果有寄存器状态不符合8051复位状态，表示系统还没有准备好，此时将跳转到fall_into_black_hole_1:或者fall_into_black_hole_2:标签
   * 跳入fall_into_black_hole_1:标签的运行轨迹表示，在chaos状态的中断寄存器中的中断使能标志位EA的状态没有符合8051复位状态的中断使能标志位状态，即当前EA=1而不是EA=0
   * 跳入fall_into_black_hole_2:标签的运行轨迹，下一步将跳转到black_hole()函数执行，此处不用lcall而是使用ljmp表示black_hole()函数是一个不需要返回的执行轨迹
@@ -84,7 +88,7 @@ sudo make install
   * universe()函数将规定universe内部运行机制，包括I/O操作接口，可用的调度策略的，完成初始化工作后，universe()函数调用world()函数，系统运行轨迹进入世界(world)层面
   * world()函数在world.c文件中，world 层相当于传统计算机体系结构中的操作系统层(OS)，为用户的应用程序提供必要的访问接口，在edsim51的移植示例中，我们在这一层实现一个可在8051单片机上使用的RTOS
   * world()函数初始化好本层的空间使用，时钟计时以及用户层线程管理需要的信息后调用init()函数
-  * init()函数在ezus.c文件中，init()函数相当于传统计算机系统结构中的用户层初始进程，即PID=1的init进程
+  * init()函数在init.c文件中，init()函数相当于传统计算机系统结构中的用户层初始进程，即PID=1的init进程
   * init()函数实现用户层初始线程，负责用户定义线程的调度
 
 = 参考 =
