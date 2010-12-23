@@ -72,10 +72,10 @@ sudo make install
   * -----------------------------------
 
 === 系统启动过程 ===
-  * 硬件上电后，8051从内部ROM的0x0000地址开始执行指令，系统地第一条指令在chaos.s的reset_int_service:标签位置，这是一条长跳转指令，8051将转到stay_at_chaos:标签处的指令
-  * stay_at_chaos:标签表示系统还处在混沌状态，此时需要校验各种寄存器的状态，如果有寄存器状态不符合8051复位状态时，表示系统还没有准备好，此时将跳转到fall_into_black_hole_1:或者fall_into_black_hole_2:标签
+  * 硬件上电后，8051从内部ROM的0x0000地址开始执行指令，系统的第一条指令在chaos.s的reset_int_service:标签位置，这是一条长跳转指令，8051将转到stay_at_chaos:标签处的指令
+  * stay_at_chaos:标签表示系统还处在混沌状态，此时需要校验各种寄存器的状态，如果有寄存器状态不符合8051复位状态，表示系统还没有准备好，此时将跳转到fall_into_black_hole_1:或者fall_into_black_hole_2:标签
   * 跳入fall_into_black_hole_1:标签的运行轨迹表示，在chaos状态的中断寄存器中的中断使能标志位EA的状态没有符合8051复位状态的中断使能标志位状态，即当前EA=1而不是EA=0
-  * 跳入fall_into_black_hole_2:标签的运行轨迹，下一步将跳转到black_hole()函数执行，此处不用lcall而是ljmp表示black_hole()函数是一个不需要返回的执行轨迹
+  * 跳入fall_into_black_hole_2:标签的运行轨迹，下一步将跳转到black_hole()函数执行，此处不用lcall而是使用ljmp表示black_hole()函数是一个不需要返回的执行轨迹
   * black_hole()函数在bh.c文件中，通常black_hole()表示系统进入了一个对用户而言不可用的状态，此时需要外界给与一定的指令，系统才会继续运行下去，在此函数中可以加入向上位机传输系统当前状态的信息，并等待上位机给与下一步执行的指令，需要注意的是在black_hole()中应尽量小的破坏当前系统状态，以保证向上位机传输的系统当前状态信息的准确性
   * 如果在stay_at_chaos:标签中的状态检测符合8051复位状态，此时系统将跳入start_big_bang:标签
   * 跳入start_big_bang:标签的运行轨迹表示，系统已经准备好了，即将跳入big_bang()函数，此时混沌初开，宇宙即将诞生
