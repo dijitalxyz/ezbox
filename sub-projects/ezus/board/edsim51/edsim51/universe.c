@@ -3,6 +3,9 @@
 
 #include "universe.h"
 
+__code void init(void);
+__code void thread1(void);
+
 /*
  * universe layer is an extension of the hardware resource
  * and implemented by system programmer.
@@ -11,34 +14,20 @@
  */
 void universe(void) __using 1
 {
-#if 0
-	universe_t u;
-#endif
-#if 1
-	__code world_rules_t wr = {
+	__code const world_rules_t wr = {
 		w_space_init,
 		w_time_init,
+		{init, thread1},
 		w_thread_init,
+		w_thread_context_switch,
 		w_thread_schedule,
 		w_startup
 	};
 
 	__data world_data_t wd;
-#endif
 
 	/* put universe running rules here */
 	/* worlds[0] is the default world, it must be there */
-#if 0
-	wp = &u.worlds[0];
-#else
-#endif
-#if 0
-	wp->space_init = w_space_init;
-	wp->time_init = w_time_init;
-	wp->thread_init = w_thread_init;
-	wp->thread_schedule = w_thread_schedule;
-	wp->startup = w_startup;
-#endif
 
 	/* ... */
 	EA = 1;
