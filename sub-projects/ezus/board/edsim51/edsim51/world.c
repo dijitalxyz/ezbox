@@ -17,12 +17,12 @@ uint8_t world_thread_quantum[W_THREAD_NUM];	/* thread running quantum of ticks *
 
 /*-------------------------*/
 
-uint8_t w_space_init(void) __using 2
+__code void w_space_init(__data world_data_t *dp) __using 2
 {
-	return 0;
+	dp->wid = 0;
 }
 
-uint8_t w_time_init(void) __using 2
+__code void w_time_init(__data world_data_t *dp) __using 2
 {
 #if 0
 	/* use timer 0 as time tick source */
@@ -40,11 +40,8 @@ uint8_t w_time_init(void) __using 2
 	TR0 = 1;
 #endif
 
-	world_time_ticks = 0;
-	world_time_flags = 0;
-	world_uptime_seconds = 0;
-
-	return 0;
+	dp->time_ticks = 0;
+	dp->uptime_seconds = 0;
 }
 
 void (* const world_thread_list[W_THREAD_NUM])(void) = {
@@ -56,21 +53,6 @@ void w_thread_context_switch(uint8_t tid) __using 2
 {
 	if (world_cur_thread_id == tid) {
 		return ;
-	}
-}
-
-void w_schedule_threads(void) __using 2
-{
-	uint8_t i;
-
-	i = W_THREAD_NUM - 1;
-	while (i > 0) {
-		if (world_thread_quantum[i] > 0) {
-			w_thread_context_switch(i);
-			/* after context switch, SP point to i-th thread */
-			return;
-		}
-		i--;
 	}
 }
 
@@ -105,9 +87,11 @@ void w_time_int_service(void) __using 2
 }
 #endif
 
-void w_thread_init(void) __using 2
+__code void w_thread_init(__data world_data_t *dp) __using 2
 {
 	uint8_t i;
+
+	dp->wid = 1;
 
 	world_cur_thread_id = 0;
 
@@ -120,22 +104,64 @@ void w_thread_init(void) __using 2
 	}
 }
 
+__code void w_thread_schedule(__data world_data_t *dp) __using 2
+{
+	uint8_t i;
+
+	dp->wid = 0;
+
+	i = W_THREAD_NUM - 1;
+	while (i > 0) {
+		if (world_thread_quantum[i] > 0) {
+			w_thread_context_switch(i);
+			/* after context switch, SP point to i-th thread */
+			return;
+		}
+		i--;
+	}
+}
+
+__code void w_startup(__code world_rules_t *rp,
+                      __data world_data_t *dp) __using 2
+{
+	dp->wid = 0;
+
+	/* setup the space of this world */
+	rp->space_init(dp);
+
+	/* setup the time of this world */
+	rp->time_init(dp);
+
+	/* setup threads in this world */
+	rp->thread_init(dp);
+
+	/* start up the user's applications */
+	rp->thread_schedule(dp);
+#if 0
+	/* init() is an ever-lasting loop routine */
+	init(wid);
+#endif
+
+	/* should not reach here in a normal running */
+}
+
 /*
  * world layer is defined by user's requirement
  * and implemented by system programmer.
  * EdSim51 porting maps world layer onto universe layer directly
  * and provides services to user applications.
  */
-void world(void) __using 2
+#if 0
+void world(uint8_t wid) __using 2
 {
 	/* setup the space of this world */
-	w_space_init();
+	w_space_init(wid);
 
 	/* setup the time of this world */
-	w_time_init();
+	w_time_init(wid);
 
 	/* setup threads in this world */
-	w_thread_init();
+	w_thread_init(wid);
 
 	/* start up the user's applications */
 	/* init() is an ever-lasting loop routine */
@@ -143,3 +169,4 @@ void world(void) __using 2
 
 	/* should not reach here in a normal running */
 }
+#endif

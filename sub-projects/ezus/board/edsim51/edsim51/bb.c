@@ -26,10 +26,10 @@ void external0_interrupt_handler(void) __interrupt 0 __using 1
 }
 
 /* assuming system clock frequency of 12MHz, 1 step for 1us */
-/* timer0 set to mode 2, 250us interrupt */
-#define TIMER0_COUNT 	0x38 /* 56 (= 256 - 250) , 250us */
-#define U_HZ		4000
-uint16_t universe_time_ticks;
+/* timer0 set to mode 1, 50ms interrupt */
+#define TIMER0_COUNT 	0x3cb0 /* 15536 (= 65536 - 50000) , 50ms */
+#define U_HZ		20
+uint8_t  universe_time_ticks;
 uint32_t universe_uptime_seconds;
 
 void timer0_interrupt_handler(void) __interrupt 1 __using 0
@@ -37,12 +37,14 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 	/* disable interrupt enable bit */
 	EA = 0;
 
+	/* clear timer overflow flag */
 	TF0 = 0;
-#if 0
+
+	/* reset TL0/TH0 */
 	TL0 = TL0 + (TIMER0_COUNT & 0x00ff);
 	TH0 = TH0 + (TIMER0_COUNT >> 8);
-#endif
 
+	/* increase universe tick counter */
 	universe_time_ticks++;
         universe_time_ticks %= U_HZ;
 
@@ -50,6 +52,8 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 	if (universe_time_ticks == 0) {
 		universe_uptime_seconds++;
 	}
+
+	/* arrange universe scheduling for worlds */
 
 	/* enable interrupt enable bit */
 	EA = 1;
@@ -88,14 +92,20 @@ void big_bang(void) __using 0
 	/* setup universe time tick */
         /* use timer 0 as time tick source */
 	TMOD &= 0xf0;
-	/* Mode 2 : 8-bit auto-reload timer mode */
-	TMOD |= 0x02;
-	/* put timer interval in TH */
-	TH0 = TIMER0_COUNT;
+
+	/* Mode 1 : 16-bit timer mode */
+	TMOD |= 0x01;
+
+	/* put timer interval in TL/TH */
+	TL0 = (TIMER0_COUNT & 0x00ff);
+	TH0 = (TIMER0_COUNT >> 8);
+
 	/* low priority */
 	PT0 = 0;
+
 	/* enable timer 0 interrupt */
 	ET0 = 1;
+
 	/* start timer 0 */
 	TR0 = 1;
 
