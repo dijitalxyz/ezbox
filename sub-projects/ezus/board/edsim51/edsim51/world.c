@@ -39,16 +39,16 @@ __code void w_time_init(__data world_data_t *dp) __using 2
 	dp->uptime_seconds = 0;
 }
 
+#if 0
 __code void (* w_threads[W_THREAD_NUM])(void) = {
 	init,
 	thread1
 };
+#endif
 
 __code void w_thread_init(__data world_data_t *dp) __using 2
 {
 	uint8_t i;
-
-	dp->wid = 1;
 
 	dp->cur_thread_id = 0;
 
@@ -75,24 +75,33 @@ __code void w_thread_schedule(__code const world_rules_t *rp,
 {
 	__data uint8_t i;
 
-	dp->wid = 0;
-
 	i = W_THREAD_NUM - 1;
 	while (i > 0) {
 		if ((dp->thread_quantum)[i] > 0) {
-			(rp->thread_context_switch)(rp, dp, i);
-			/* after context switch, SP point to i-th thread */
+			if (dp->cur_thread_id < i) {
+				/*
+				 * the priority of current running thread is lower
+				 * than target thread, switch thread context
+				 */
+				(rp->thread_context_switch)(rp, dp, i);
+				/*
+				 * after context switch, SP point to i-th thread
+				 * tag i-th thread as current running thread
+				 */
+				dp->cur_thread_id = i;
+			}
 			return;
 		}
 		i--;
 	}
+	/* running default thread */
+	(rp->thread_context_switch)(rp, dp, 0);
+	dp->cur_thread_id = 0;
 }
 
 __code void w_startup(__code const world_rules_t *rp,
                       __data world_data_t *dp) __using 2
 {
-	dp->wid = 0;
-
 	/* setup the space of this world */
 	rp->space_init(dp);
 
@@ -102,35 +111,13 @@ __code void w_startup(__code const world_rules_t *rp,
 	/* setup threads in this world */
 	rp->thread_init(dp);
 
-	/* start up the user's applications */
-#if 1
-	rp->thread_schedule(rp, dp);
-#endif
-
-#if 0
-	/* init() is an ever-lasting loop routine */
-	init(wid);
-#endif
-
-	/* should not reach here in a normal running */
-}
-
-#if 0
-void world(uint8_t wid) __using 2
-{
-	/* setup the space of this world */
-	w_space_init(wid);
-
-	/* setup the time of this world */
-	w_time_init(wid);
-
-	/* setup threads in this world */
-	w_thread_init(wid);
+	/* enable interrupts */
+	EA = 1;
 
 	/* start up the user's applications */
-	/* init() is an ever-lasting loop routine */
-	init();
-
+	while (1) {
+		rp->thread_schedule(rp, dp);
+	}
+	
 	/* should not reach here in a normal running */
 }
-#endif

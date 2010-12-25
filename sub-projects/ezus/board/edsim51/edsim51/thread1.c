@@ -1,13 +1,13 @@
-#include <8051.h>
+#include "world.h"
 
 void thread1(void) __using 3
 {
 	while (1){
-		if (P1_1 == 0) {
-			P1_1 = 1;
+		if (W_P1_1 == 0) {
+			W_P1_1 = 1;
 		}
 		else {
-			P1_1 = 0;
+			W_P1_1 = 0;
 		}
 	};
 }

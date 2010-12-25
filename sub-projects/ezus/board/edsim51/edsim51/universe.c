@@ -2,9 +2,7 @@
 #include <8051.h>
 
 #include "universe.h"
-
-__code void init(void);
-__code void thread1(void);
+#include "init.h"
 
 /*
  * universe layer is an extension of the hardware resource
@@ -17,7 +15,10 @@ void universe(void) __using 1
 	__code const world_rules_t wr = {
 		w_space_init,
 		w_time_init,
-		{init, thread1},
+		{
+			init, /* default thread */
+			thread1
+		},
 		w_thread_init,
 		w_thread_context_switch,
 		w_thread_schedule,
@@ -26,11 +27,12 @@ void universe(void) __using 1
 
 	__data world_data_t wd;
 
-	/* put universe running rules here */
-	/* worlds[0] is the default world, it must be there */
+	/*
+	 * put universe running rules here
+	 * worlds[0] is the default world, it must be there
+	 */
 
 	/* ... */
-	EA = 1;
 
 	wr.startup(&wr, &wd);
 }
