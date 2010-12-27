@@ -37,8 +37,10 @@ system_reset:
 	ljmp	_external0_interrupt_handler
 	.ds	5
 ;	0x000b	timer 0 interrupt
+;	disable interrupts
+	clr	_EA
 	ljmp	_timer0_interrupt_handler
-	.ds	5
+	.ds	3
 ;	0x0013	external 1 interrupt
 	ljmp	_extenal1_interrupt_handler
 	.ds	5

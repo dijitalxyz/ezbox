@@ -301,6 +301,8 @@ fall_black_hole_2:
 	ljmp	_black_hole
 
 start_big_bang:
+;	clean universe space and time
+
 ;	run to big_bang();
         ljmp    _big_bang
 

@@ -1,4 +1,4 @@
-#include "world.h"
+#include "ezus.h"
 
 void thread1(void) __using 3
 {

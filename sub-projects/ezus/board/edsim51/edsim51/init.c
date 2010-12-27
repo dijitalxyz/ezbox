@@ -1,4 +1,4 @@
-#include "world.h"
+#include "ezus.h"
 
 #include "init.h"
 
@@ -8,5 +8,14 @@
  */
 void init(void) __using 3
 {
-	/* idle thread, do nothing */
+	/* init thread, do nothing */
+	while (1) {
+		if (W_P1_0 == 0) {
+			W_P1_0 = 1;
+		}
+		else {
+			W_P1_0 = 0;
+		}
+		/* w_thread_schedule(&wr, &wd); */
+	}
 }
