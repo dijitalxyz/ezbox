@@ -10,12 +10,14 @@ void init(void) __using 3
 {
 	/* init thread, do nothing */
 	while (1) {
+#if 0
 		if (W_P1_0 == 0) {
 			W_P1_0 = 1;
 		}
 		else {
 			W_P1_0 = 0;
 		}
-		/* w_thread_schedule(&wr, &wd); */
+#endif
+		w_thread_schedule();
 	}
 }

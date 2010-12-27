@@ -30,21 +30,21 @@ typedef struct world_data_s {
 } world_data_t;
 
 typedef struct world_rules_s {
-	__code void (* space_init)(__data world_data_t *dp) __reentrant;
-	__code void (* time_init)(__data world_data_t *dp) __reentrant;
+	__code void (* space_init)(void) __reentrant;
+	__code void (* time_init)(void) __reentrant;
 	__code void (* threads[W_THREAD_NUM])(void) __reentrant;
-	__code void (* thread_init)(__data world_data_t *dp) __reentrant;
-	__code void (* thread_context_switch)(__data world_data_t *dp) __reentrant;
-	__code void (* thread_schedule)(__data world_data_t *dp) __reentrant;
-	__code void (* startup)(__data world_data_t *dp) __reentrant;
+	__code void (* thread_init)(void) __reentrant;
+	__code void (* thread_context_switch)(void) __reentrant;
+	__code void (* thread_schedule)(void) __reentrant;
+	__code void (* startup)(void) __reentrant;
 } world_rules_t;
 
-extern __code void w_space_init(__data world_data_t *dp) __using 2;
-extern __code void w_time_init(__data world_data_t *dp) __using 2;
+extern __code void w_space_init(void) __using 2;
+extern __code void w_time_init(void) __using 2;
 extern __code void (* w_threads[W_THREAD_NUM])(void);
-extern __code void w_thread_init(__data world_data_t *dp) __using 2;
-extern __code void w_thread_context_switch(__data world_data_t *dp) __using 2;
-extern __code void w_thread_schedule(__data world_data_t *dp) __using 2;
-extern __code void w_startup(__data world_data_t *dp) __using 2;
+extern __code void w_thread_init(void) __using 2;
+extern __code void w_thread_context_switch(void) __using 2;
+extern __code void w_thread_schedule(void) __using 2;
+extern __code void w_startup(void) __using 2;
 
 #endif

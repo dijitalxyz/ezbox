@@ -38,12 +38,12 @@ __code void (* w_threads[W_THREAD_NUM])(void) = {
 __data volatile world_data_t wd;
 
 
-__code void w_space_init(__data world_data_t *dp) __using 2
+__code void w_space_init(void) __using 2
 {
-	dp->wid = 0;
+	wd.wid = 0;
 }
 
-__code void w_time_init(__data world_data_t *dp) __using 2
+__code void w_time_init(void) __using 2
 {
 #if 0
 	/* use timer 0 as time tick source */
@@ -61,36 +61,33 @@ __code void w_time_init(__data world_data_t *dp) __using 2
 	TR0 = 1;
 #endif
 
-	dp->time_ticks = 0;
-	dp->uptime_seconds = 0;
+	wd.time_ticks = 0;
+	wd.uptime_seconds = 0;
 }
 
-__code void w_thread_init(__data world_data_t *dp) __using 2
+__code void w_thread_init(void) __using 2
 {
-	uint8_t i;
-
-	dp->cur_thread_id = 0;
-
-	dp->thread_quantum[0] = 10;	/* 10 ticks for init() */
-
-	i = W_THREAD_NUM - 1;
-	while (i > 0) {
-		dp->thread_quantum[i] = 10;	/* 10 ticks for a thread running */
-		i--;
+	wd.cur_thread_id = 0;
+	while(wd.cur_thread_id < W_THREAD_NUM) {
+		/* 10 ticks for a thread running */
+		wd.thread_quantum[wd.cur_thread_id] = 10;
+		wd.cur_thread_id++ ;
 	}
+	wd.cur_thread_id = 0;
+	wd.next_thread_id = 0;
 }
 
-__code void w_thread_schedule(__data world_data_t *dp) __using 2
+__code void w_thread_schedule(void) __using 2
 {
-	dp->next_thread_id = W_THREAD_NUM - 1;
-	while (dp->next_thread_id > 0) {
-		if ((dp->thread_quantum)[dp->next_thread_id] > 0) {
-			if (dp->cur_thread_id < dp->next_thread_id) {
+	wd.next_thread_id = W_THREAD_NUM - 1;
+	while (wd.next_thread_id > 0) {
+		if ((wd.thread_quantum)[wd.next_thread_id] > 0) {
+			if (wd.cur_thread_id < wd.next_thread_id) {
 				/*
 				 * the priority of current running thread is lower
 				 * than target thread, switch thread context
 				 */
-				w_thread_context_switch(dp);
+				w_thread_context_switch();
 				/*
 				 * after context switch, SP point to i-th thread
 				 * tag i-th thread as current running thread
@@ -98,31 +95,34 @@ __code void w_thread_schedule(__data world_data_t *dp) __using 2
 			}
 			return;
 		}
-		dp->next_thread_id--;
+		wd.next_thread_id--;
 	}
 	/* running default thread */
-	/* dp->next_thread_id == 0 now */
-	w_thread_context_switch(dp);
+	/* wd.next_thread_id == 0 now */
+	w_thread_context_switch();
 }
 
-__code void w_startup(__data world_data_t *dp) __using 2
+__code void w_startup(void) __using 2
 {
 	/* setup the space of this world */
-	w_space_init(dp);
+	w_space_init();
 
 	/* setup the time of this world */
-	w_time_init(dp);
+	w_time_init();
 
 	/* setup threads in this world */
-	w_thread_init(dp);
+	w_thread_init();
 
 	/* enable interrupts */
 	EA = 1;
 
 	/* start up the user's applications */
+	init();
+#if 0
 	while (1) {
-		w_thread_schedule(dp);
+		w_thread_schedule();
 	}
+#endif
 	
 	/* should not reach here in a normal running */
 }

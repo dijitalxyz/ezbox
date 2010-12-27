@@ -18,5 +18,5 @@ void universe(void) __using 1
 
 	/* ... */
 
-	w_startup(&wd);
+	w_startup();
 }
