@@ -9,6 +9,7 @@ void thread1(void) __using 3
 		else {
 			W_P1_1 = 0;
 		}
+		w_thread_wait(10);
 	};
 }
 

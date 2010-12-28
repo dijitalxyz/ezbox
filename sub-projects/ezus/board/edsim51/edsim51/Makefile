@@ -36,6 +36,7 @@ LDFLAGS += --out-fmt-ihx
 C_SOURCES := bh.c bb.c time.c universe.c
 C_SOURCES += world.c
 C_SOURCES += thread_init.c thread_context_switch.c thread_schedule.c
+C_SOURCES += thread_wait.c
 C_SOURCES += _gptrget.c _moduint.c _modulong.c
 C_SOURCES += init.c
 ASM_SOURCES = ezus.s chaos.s

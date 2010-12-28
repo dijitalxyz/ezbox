@@ -19,14 +19,38 @@
 #error "W_THREAD_NUM should be less than or equal to W_THREAD_MAX"
 #endif
 
+#define W_IRAM_SIZE	0x80
+
+#define W_INIT_CRITICAL() \
+do { \
+	wd.thread_spb[0] = SP; \
+	wd.crit_sum = 0; \
+	EA = 1; \
+} while(0)
+
+#define W_LOCK_CRITICAL() \
+do { \
+	EA = 0; \
+	wd.crit_sum++; \
+} while(0)
+
+#define W_UNLOCK_CRITICAL() \
+do { \
+	wd.crit_sum--; \
+	if (wd.crit_sum == 0) EA = 1; \
+} while(0)
+
+
 typedef struct world_data_s {
 	uint8_t	wid;
+	uint8_t crit_sum;		/* critical area entrances */
 	uint8_t time_ticks;		/* time ticks since last update
 	                    		   of world_uptime_seconds */
 	uint32_t uptime_seconds;	/* seconds since world starts */
 	uint8_t cur_thread_id;		/* current running thread ID */
 	uint8_t next_thread_id;		/* next will run thread ID */
 	uint8_t thread_tts[W_THREAD_NUM];	/* thread time to start in ticks */
+	uint8_t thread_spb[W_THREAD_NUM+1];	/* thread stack pointer base */
 } world_data_t;
 
 typedef struct world_rules_s {
@@ -47,4 +71,5 @@ extern __code void w_thread_context_switch(void) __using 2;
 extern __code void w_thread_schedule(void) __using 2;
 extern __code void w_startup(void) __using 2;
 
+extern __code void w_thread_wait(uint8_t ticks) __using 2;
 #endif

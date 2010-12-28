@@ -36,11 +36,16 @@ __code void (* w_threads[W_THREAD_NUM])(void) = {
 #endif
 
 __data volatile world_data_t wd;
+__data volatile uint8_t w_critical_sum;
 
 
 __code void w_space_init(void) __using 2
 {
+	uint8_t i; 
 	wd.wid = 0;
+	for (i = 0; i <= W_THREAD_NUM; i++) {
+		wd.thread_spb[i] = (W_IRAM_SIZE - 1);
+	}
 }
 
 __code void w_time_init(void) __using 2
@@ -76,9 +81,8 @@ __code void w_startup(void) __using 2
 	/* setup threads in this world */
 	w_thread_init();
 
-	/* enable interrupts */
-	/* FIXME: do it in init() */
-	/* EA = 1; */
+	/* initialize critical area counter */
+	W_INIT_CRITICAL();
 
 	/* start up the user's applications */
 	init();

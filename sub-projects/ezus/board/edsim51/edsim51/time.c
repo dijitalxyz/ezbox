@@ -11,9 +11,8 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 {
 	uint8_t i;
 
-	/* disable interrupt enable bit */
-	/* do it at interrupt vector area */
-	/* EA = 0; */
+	/* enter critical area */
+	W_LOCK_CRITICAL();
 
 	/* clear timer overflow flag */
 	TF0 = 0;
@@ -38,8 +37,7 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 		}
 	}
 
-	/* enable interrupt enable bit */
-	/* do it at thread_context_switch() */
-	/* EA = 1; */
+	/* exit critical area */
+	W_UNLOCK_CRITICAL();
 }
 
