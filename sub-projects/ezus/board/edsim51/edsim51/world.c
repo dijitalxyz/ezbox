@@ -65,43 +65,6 @@ __code void w_time_init(void) __using 2
 	wd.uptime_seconds = 0;
 }
 
-__code void w_thread_init(void) __using 2
-{
-	wd.cur_thread_id = 0;
-	while(wd.cur_thread_id < W_THREAD_NUM) {
-		/* 10 ticks for a thread running */
-		wd.thread_quantum[wd.cur_thread_id] = 10;
-		wd.cur_thread_id++ ;
-	}
-	wd.cur_thread_id = 0;
-	wd.next_thread_id = 0;
-}
-
-__code void w_thread_schedule(void) __using 2
-{
-	wd.next_thread_id = W_THREAD_NUM - 1;
-	while (wd.next_thread_id > 0) {
-		if ((wd.thread_quantum)[wd.next_thread_id] > 0) {
-			if (wd.cur_thread_id < wd.next_thread_id) {
-				/*
-				 * the priority of current running thread is lower
-				 * than target thread, switch thread context
-				 */
-				w_thread_context_switch();
-				/*
-				 * after context switch, SP point to i-th thread
-				 * tag i-th thread as current running thread
-				 */
-			}
-			return;
-		}
-		wd.next_thread_id--;
-	}
-	/* running default thread */
-	/* wd.next_thread_id == 0 now */
-	w_thread_context_switch();
-}
-
 __code void w_startup(void) __using 2
 {
 	/* setup the space of this world */
@@ -114,15 +77,11 @@ __code void w_startup(void) __using 2
 	w_thread_init();
 
 	/* enable interrupts */
-	EA = 1;
+	/* FIXME: do it in init() */
+	/* EA = 1; */
 
 	/* start up the user's applications */
 	init();
-#if 0
-	while (1) {
-		w_thread_schedule();
-	}
-#endif
-	
+
 	/* should not reach here in a normal running */
 }

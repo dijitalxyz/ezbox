@@ -26,7 +26,7 @@ typedef struct world_data_s {
 	uint32_t uptime_seconds;	/* seconds since world starts */
 	uint8_t cur_thread_id;		/* current running thread ID */
 	uint8_t next_thread_id;		/* next will run thread ID */
-	uint8_t thread_quantum[W_THREAD_NUM];	/* thread running quantum of ticks */
+	uint8_t thread_tts[W_THREAD_NUM];	/* thread time to start in ticks */
 } world_data_t;
 
 typedef struct world_rules_s {

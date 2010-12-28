@@ -69,8 +69,6 @@ void big_bang(void) __using 0
 	TR0 = 1;
 
 	/* initialize universe time */
-	wd.time_ticks = 0;
-	wd.uptime_seconds = 0;
 
 	/* ready to start universe */
 	universe();

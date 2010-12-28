@@ -8,16 +8,11 @@
  */
 void init(void) __using 3
 {
-	/* init thread, do nothing */
+	/* enable interrupts */
+	EA = 1;
+
+	/* init thread, do scheduling */
 	while (1) {
-#if 0
-		if (W_P1_0 == 0) {
-			W_P1_0 = 1;
-		}
-		else {
-			W_P1_0 = 0;
-		}
-#endif
 		w_thread_schedule();
 	}
 }

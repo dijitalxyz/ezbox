@@ -31,11 +31,10 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 		wd.uptime_seconds++;
 	}
 
-	/* arrange universe scheduling for worlds */
-	wd.thread_quantum[wd.cur_thread_id]--;
+	/* thread time to start(tts) decrease 1 ticks */
 	for (i = 0; i < W_THREAD_NUM; i++) {
-		if (i != wd.cur_thread_id) {
-			wd.thread_quantum[i] = 10;
+		if (wd.thread_tts[i] != 0) {
+			wd.thread_tts[i]--;
 		}
 	}
 

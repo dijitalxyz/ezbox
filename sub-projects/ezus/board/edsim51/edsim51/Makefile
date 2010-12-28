@@ -33,9 +33,12 @@ LDFLAGS += --code-loc 0x0000
 LDFLAGS += --data-loc 0x30
 LDFLAGS += --out-fmt-ihx
 
-C_SOURCES := bh.c bb.c time.c universe.c world.c thread_context_switch.c init.c
+C_SOURCES := bh.c bb.c time.c universe.c
+C_SOURCES += world.c
+C_SOURCES += thread_init.c thread_context_switch.c thread_schedule.c
 C_SOURCES += _gptrget.c _moduint.c _modulong.c
-ASM_SOURCES = ezus.s chaos.s #thread_context_switch.s
+C_SOURCES += init.c
+ASM_SOURCES = ezus.s chaos.s
 
 # user define thread routines
 C_SOURCES += thread1.c

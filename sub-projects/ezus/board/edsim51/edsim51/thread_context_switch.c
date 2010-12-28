@@ -1,6 +1,7 @@
 #include "ezus.h"
 #include "init.h"
 
+/* this is an atomic operation */
 __code void w_thread_context_switch(void) __using 2
 {
 	if (wd.next_thread_id == 0) {
