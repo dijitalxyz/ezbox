@@ -15,7 +15,7 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 	W_LOCK_CRITICAL();
 
 	/* clear timer overflow flag */
-	TF0 = 0;
+	/* TF0 = 0; */
 
 	/* reset TL0/TH0 */
 	TL0 = TL0 + (W_TIMER0_COUNT & 0x00ff);

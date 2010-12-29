@@ -36,15 +36,13 @@ __code void (* w_threads[W_THREAD_NUM])(void) = {
 #endif
 
 __data volatile world_data_t wd;
-__data volatile uint8_t w_critical_sum;
-
 
 __code void w_space_init(void) __using 2
 {
 	uint8_t i; 
 	wd.wid = 0;
 	for (i = 0; i <= W_THREAD_NUM; i++) {
-		wd.thread_spb[i] = (W_IRAM_SIZE - 1);
+		wd.thread_spb[i] = (__idata volatile uint8_t *)W_SP_TOP;
 	}
 }
 

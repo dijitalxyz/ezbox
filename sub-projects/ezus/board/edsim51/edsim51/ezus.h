@@ -6,6 +6,7 @@
 /* global defines for ezus */
 
 /* global varialbes for ezus */
+extern __data unsigned char bp;
 extern __data volatile world_data_t wd;
 
 #endif

@@ -8,8 +8,10 @@
  */
 void init(void) __using 3
 {
-	/* init thread, do scheduling */
+	/* init thread, do nothing */
 	while (1) {
-		w_thread_schedule();
+		W_PCON |= W_PCON_IDL;
+		/* do scheduling once */
+		w_thread_wait(1);
 	}
 }

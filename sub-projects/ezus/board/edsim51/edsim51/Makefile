@@ -22,22 +22,31 @@ CFLAGS += --std-c89
 CFLAGS += --Werror
 CFLAGS += -I.
 CFLAGS += --nostdlib
+CFLAGS += --stack-auto
+CFLAGS += --nooverlay
+# CFLAGS += --fverbose-asm
 
-# iram-size = 0x100 -0x30 = 0xD0
-LDFLAGS := --iram-size 0xD0
+# iram-size = 0x80 -0x30 = 0x50
+LDFLAGS := --iram-size 0x80
+
 LDFLAGS += --code-size 0x1000
 LDFLAGS += --code-loc 0x0000
-#LDFLAGS += --stack-loc 0x30
-#LDFLAGS += --stack-after-data
-#LDFLAGS += --stack-auto
-LDFLAGS += --data-loc 0x30
+
+# data-loc should be 0x80 - sizeof(world_data_t) - bp
+# data-loc = 0x80 - 0x0e -0x01 = 0x71
+LDFLAGS += --data-loc 0x71
+
+LDFALGS += --stack-size 0x41
+# LDFLAGS += --no-pack-iram
+LDFLAGS += --stack-loc 0x30
+
 LDFLAGS += --out-fmt-ihx
 
 C_SOURCES := bh.c bb.c time.c universe.c
 C_SOURCES += world.c
 C_SOURCES += thread_init.c thread_context_switch.c thread_schedule.c
 C_SOURCES += thread_wait.c
-C_SOURCES += _gptrget.c _moduint.c _modulong.c
+C_SOURCES += _bp.c _gptrget.c _moduint.c _modulong.c
 C_SOURCES += init.c
 ASM_SOURCES = ezus.s chaos.s
 

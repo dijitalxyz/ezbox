@@ -15,4 +15,3 @@ __code void w_thread_wait(uint8_t ticks) __using 2
 	/* exit critical area */
 	W_UNLOCK_CRITICAL();
 }
-

@@ -12,6 +12,11 @@
 #define W_P1_0	P1_0
 #define W_P1_1	P1_1
 
+/* mapping to 8051 PCON register */
+#define W_PCON		PCON
+#define W_PCON_IDL	0x01
+#define W_PCON_PD	0x02
+
 #define W_THREAD_MAX	8
 #define W_THREAD_NUM	2
 
@@ -20,10 +25,12 @@
 #endif
 
 #define W_IRAM_SIZE	0x80
+#define W_SP_BOTTOM	0x30
+#define W_SP_TOP	(W_IRAM_SIZE - sizeof(wd) - sizeof(bp))
 
 #define W_INIT_CRITICAL() \
 do { \
-	wd.thread_spb[0] = SP; \
+	wd.thread_spb[0] = (__idata volatile uint8_t *)(W_SP_BOTTOM) - 1; \
 	wd.crit_sum = 0; \
 	EA = 1; \
 } while(0)
@@ -50,7 +57,7 @@ typedef struct world_data_s {
 	uint8_t cur_thread_id;		/* current running thread ID */
 	uint8_t next_thread_id;		/* next will run thread ID */
 	uint8_t thread_tts[W_THREAD_NUM];	/* thread time to start in ticks */
-	uint8_t thread_spb[W_THREAD_NUM+1];	/* thread stack pointer base */
+	__idata volatile uint8_t * thread_spb[W_THREAD_NUM+1];	/* thread stack pointer base */
 } world_data_t;
 
 typedef struct world_rules_s {
@@ -63,6 +70,10 @@ typedef struct world_rules_s {
 	__code void (* startup)(void) __reentrant;
 } world_rules_t;
 
+/* global variables */
+extern __data unsigned char bp;
+
+/* global functions */
 extern __code void w_space_init(void) __using 2;
 extern __code void w_time_init(void) __using 2;
 extern __code void (* w_threads[W_THREAD_NUM])(void);

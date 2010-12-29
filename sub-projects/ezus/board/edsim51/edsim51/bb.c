@@ -46,7 +46,7 @@ void big_bang(void) __using 0
 {
 	/* setup universe space stack pointer */
 	/* We can do it here since no acall/lcall has been happenned before */
-	SP = 0x30 - 1;
+	SP = W_SP_BOTTOM - 1;
 
 	/* setup universe time tick */
         /* use timer 0 as time tick source */
