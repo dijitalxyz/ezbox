@@ -33,15 +33,22 @@ LDFLAGS += --code-size 0x1000
 LDFLAGS += --code-loc 0x0000
 
 # data-loc should be 0x80 - sizeof(world_data_t) - bp
-# data-loc = 0x80 - 0x0e -0x01 = 0x71
-LDFLAGS += --data-loc 0x71
+# data-loc = 0x80 - 0x17 -0x01 = 0x68
+LDFLAGS += --data-loc 0x68
 
-LDFALGS += --stack-size 0x41
+LDFALGS += --stack-size 0x38
 # LDFLAGS += --no-pack-iram
 LDFLAGS += --stack-loc 0x30
 
+LDFLAGS += --idata-loc 0x80
+
+# LDFLAGS += --bit-loc 0x20
+LDFLAGS += -Wl "-b BSEG = 0x0020"
+
 LDFLAGS += --out-fmt-ihx
 
+
+# source code files
 C_SOURCES := bh.c bb.c time.c universe.c
 C_SOURCES += world.c
 C_SOURCES += thread_init.c thread_context_switch.c thread_schedule.c
@@ -52,6 +59,8 @@ ASM_SOURCES = ezus.s chaos.s
 
 # user define thread routines
 C_SOURCES += thread1.c
+C_SOURCES += thread2.c
+C_SOURCES += thread3.c
 
 C_OBJECTS := $(patsubst %.c,%.rel,$(C_SOURCES))
 C_ASM_OBJS := $(patsubst %.c,%.asm,$(C_SOURCES))

@@ -21,29 +21,29 @@ __code const world_rules_t wr = {
 	w_time_init,
 	{
 		init, /* default thread */
-		thread1
+		thread1,
+		thread2,
+		thread3
 	},
 	w_thread_init,
 	w_thread_context_switch,
 	w_thread_schedule,
 	w_startup
 };
-
-__code void (* w_threads[W_THREAD_NUM])(void) = {
-	init,
-	thread1
-};
 #endif
+
+__code void (* __code w_threads[W_THREAD_NUM])(void) = {
+	init,
+	thread1,
+	thread2,
+	thread3
+};
 
 __data volatile world_data_t wd;
 
 __code void w_space_init(void) __using 2
 {
-	uint8_t i; 
 	wd.wid = 0;
-	for (i = 0; i <= W_THREAD_NUM; i++) {
-		wd.thread_spb[i] = (__idata volatile uint8_t *)W_SP_TOP;
-	}
 }
 
 __code void w_time_init(void) __using 2
@@ -79,11 +79,21 @@ __code void w_startup(void) __using 2
 	/* setup threads in this world */
 	w_thread_init();
 
+	/* initialize interrupt handler */
+	W_INIT_INTERRUPT();
+
 	/* initialize critical area counter */
 	W_INIT_CRITICAL();
 
 	/* start up the user's applications */
+	wd.thread_spb[0] = (__idata volatile uint8_t *)(W_SP) + 1; \
 	init();
 
 	/* should not reach here in a normal running */
+}
+
+__code void world(void) __using 2
+{
+	/* start default world running */
+	w_startup();
 }

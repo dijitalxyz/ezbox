@@ -1,9 +1,7 @@
 #include <stdint.h>
 #include <8051.h>
 
-#include "ezus.h"
-
-extern void universe(void);
+#include "universe.h"
 
 /*
  * interrupt number defined in SDCC
@@ -19,25 +17,8 @@ Interrupt #     Description     Vector Address
 n                               0x0003 + 8*n
 */
 
-void external0_interrupt_handler(void) __interrupt 0 __using 1
-{
-
-}
-
-/* assuming system clock frequency of 12MHz, 1 step for 1us */
-/* timer0 set to mode 1, 50ms interrupt */
-
-void extenal1_interrupt_handler(void) __interrupt 2 __using 1
-{
-
-}
-
-void timer1_interrupt_handler(void) __interrupt 3 __using 1
-{
-
-}
-
-void serial_interrupt_handler(void) __interrupt 4 __using 1
+/* serial port is used to communicate with up PC */
+void serial_interrupt_handler(void) __interrupt 4 __using 0
 {
 
 }
@@ -46,7 +27,7 @@ void big_bang(void) __using 0
 {
 	/* setup universe space stack pointer */
 	/* We can do it here since no acall/lcall has been happenned before */
-	SP = W_SP_BOTTOM - 1;
+	SP = U_SP_BOTTOM - 1;
 
 	/* setup universe time tick */
         /* use timer 0 as time tick source */
@@ -56,8 +37,8 @@ void big_bang(void) __using 0
 	TMOD |= 0x01;
 
 	/* put timer interval in TL/TH */
-	TL0 = (W_TIMER0_COUNT & 0x00ff);
-	TH0 = (W_TIMER0_COUNT >> 8);
+	TL0 = (U_TIMER0_COUNT & 0x00ff);
+	TH0 = (U_TIMER0_COUNT >> 8);
 
 	/* low priority */
 	PT0 = 0;

@@ -8,10 +8,13 @@
  */
 void init(void) __using 3
 {
+	/* enable interrupt */
+	W_EA = 1;
+
 	/* init thread, do nothing */
 	while (1) {
 		W_PCON |= W_PCON_IDL;
-		/* do scheduling once */
-		w_thread_wait(1);
+		/* do scheduling at once */
+		w_thread_wait(0);
 	}
 }

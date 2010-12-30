@@ -29,9 +29,13 @@ __code void w_thread_schedule(void) __using 2
 		}
 		i--;
 	}
-	/* running default thread */
-#if 0
-	wd.next_thread_id = 0;
-	w_thread_context_switch();
+	/* running default init thread */
+#if 1
+	W_LOCK_CRITICAL();
+	if (wd.cur_thread_id != 0) {
+		wd.next_thread_id = 0;
+		w_thread_context_switch();
+	}
+	W_UNLOCK_CRITICAL();
 #endif
 }

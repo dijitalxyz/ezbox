@@ -7,12 +7,12 @@
 /* timer0 set to mode 1, 50ms interrupt */
 
 /* timer0 interrupt will cause thread context switch */
-void timer0_interrupt_handler(void) __interrupt 1 __using 0
+void timer0_interrupt_handler(void) __interrupt 1 __using 1
 {
 	uint8_t i;
 
-	/* enter critical area */
-	W_LOCK_CRITICAL();
+	/* enter interrupt handler */
+	W_ENTER_INTERRUPT();
 
 	/* clear timer overflow flag */
 	/* TF0 = 0; */
@@ -37,7 +37,6 @@ void timer0_interrupt_handler(void) __interrupt 1 __using 0
 		}
 	}
 
-	/* exit critical area */
-	W_UNLOCK_CRITICAL();
+	/* exit interrupt handler */
+	W_EXIT_INTERRUPT();
 }
-
