@@ -89,7 +89,13 @@ sudo make install
   * world()函数在world.c文件中，world 层相当于传统计算机体系结构中的操作系统层(OS)，为用户的应用程序提供必要的访问接口，在edsim51的移植示例中，我们在这一层实现一个可在8051单片机上使用的RTOS
   * world()函数初始化好本层的空间使用，时钟计时以及用户层线程管理需要的信息后调用init()函数
   * init()函数在init.c文件中，init()函数相当于传统计算机系统结构中的用户层初始进程，即PID=1的init进程
-  * init()函数实现用户层初始线程，负责用户定义线程的调度
+  * init()函数实现用户层初始线程，通常是一个空闲线程
+
+===系统存储空间分配===
+  * chaos, black hole及big bang相关的运行代码使用bank 0
+  * universe层相关的运行代码使用bank 1
+  * world层相关的运行代码使用bank 2
+  * 用户层线程运行代码使用bank 3
 
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
