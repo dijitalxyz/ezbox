@@ -31,9 +31,11 @@ LOG_LEVEL ?= 0
 # basic directories
 CUR_DIR:=${CURDIR}
 TOP_DIR:=$(CUR_DIR)
-CORE_DIR:=$(TOP_DIR)/core
+INC_DIR:$(TOP_DIR)/include
+UV_DIR:=$(TOP_DIR)/universe
+WD_DIR:=$(TOP_DIR)/world
 WK_DIR:=$(CUR_DIR)/build.$(BOARD)/$(VENDOR)/$(BOARD)
-export TOP_DIR CORE_DIR WK_DIR
+export TOP_DIR INC_DIR UV_DIR WD_DIR WK_DIR
 
 all: $(BOARD)
 
