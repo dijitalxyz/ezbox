@@ -99,7 +99,13 @@ sudo make install
 
 ===重要的宏===
   * W_SP_BOTTOM : world层栈底位置，init线程用户栈起始位置，定义为0x30
-  * W_SP_TOP : world层栈顶位置，实际指向data区起始位置，及可用栈空间+1的位置，定义为(W_IRAM_SIZE - W_DATA_SIZE)
+  * W_SP_TOP : world层栈顶位置，实际指向data区起始位置，即可用栈空间+1的位置，定义为(W_IRAM_SIZE - W_DATA_SIZE)
+
+===线程切换===
+  * 线程切换发生在两种情况，第一：线程调用 thread_wait() 函数主动放弃控制进行线程调度；第二：中断发生后，如时钟中断发生时，有高优先级的线程准备就绪，在时钟中断处理结束，准备中断返回时，会调用thread_context_switch()进行线程切换
+  * 线程切换时需要保存当前运行线程的运行现场，这就要求保存通用寄存器 R0-R7，数据指针寄存器 DPL 和 DPH，寄存器 B，累加器 ACC，程序状态字 PSW
+  * 此外，在SDCC中，线程切换还需要保存用_bp，（ * _bp is the stack frame pointer and is used to compute the offset into the stack for parameters and local variables. * ）
+
 
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
