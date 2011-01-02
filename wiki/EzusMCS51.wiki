@@ -97,6 +97,10 @@ sudo make install
   * world层相关的运行代码使用bank 2
   * 用户层线程运行代码使用bank 3
 
+===重要的宏===
+  * W_SP_BOTTOM : world层栈底位置，init线程用户栈起始位置，定义为0x30
+  * W_SP_TOP : world层栈顶位置，实际指向data区起始位置，及可用栈空间+1的位置，定义为(W_IRAM_SIZE - W_DATA_SIZE)
+
 = 参考 =
   * Intel MCS-51 <a href="http://en.wikipedia.org/wiki/Intel_MCS-51">http://en.wikipedia.org/wiki/Intel_MCS-51</a>
   * EdSim51 - The 8051 Simulator for Teachers and Students <a href="http://www.edsim51.com/">http://www.edsim51.com/</a>
