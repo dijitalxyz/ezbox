@@ -11,7 +11,7 @@ BOARD:=s3c24xx
 BOARDNAME:=Samsung S3C24xx
 FEATURES:=jffs2
 CFLAGS:=-O2 -pipe -march=armv4t -mtune=arm920t -funit-at-a-time
-SUBTARGETS:=openmoko-gta02
+SUBTARGETS:=generic openmoko-gta02
 
 LINUX_VERSION:=2.6.32.27
 

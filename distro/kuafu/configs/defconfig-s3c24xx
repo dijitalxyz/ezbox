@@ -1,12 +1,15 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (unknown)
-# Sun Jan  2 14:00:37 2011
+# Sun Jan  2 20:32:43 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_s3c24xx=y
-CONFIG_TARGET_s3c24xx_openmoko_gta02=y
-CONFIG_TARGET_s3c24xx_openmoko_gta02_openmoko-gta02-minimal=y
+CONFIG_TARGET_s3c24xx_generic=y
+# CONFIG_TARGET_s3c24xx_openmoko_gta02 is not set
+CONFIG_TARGET_s3c24xx_generic_Generic=y
+# CONFIG_TARGET_s3c24xx_generic_SMDK2410 is not set
+# CONFIG_TARGET_s3c24xx_openmoko_gta02_openmoko-gta02-minimal is not set
 # CONFIG_TARGET_s3c24xx_openmoko_gta02_openmoko-gta02-full is not set
 CONFIG_HAS_SUBTARGETS=y
 CONFIG_TARGET_BOARD="s3c24xx"
@@ -20,6 +23,10 @@ CONFIG_DEFAULT_libc=y
 CONFIG_DEFAULT_libgcc=y
 CONFIG_DEFAULT_udevtrigger=y
 CONFIG_LINUX_2_6=y
+CONFIG_AUDIO_SUPPORT=y
+CONFIG_DISPLAY_SUPPORT=y
+CONFIG_GPIO_SUPPORT=y
+CONFIG_USB_SUPPORT=y
 CONFIG_USES_JFFS2=y
 CONFIG_arm=y
 CONFIG_ARCH="arm"
@@ -100,7 +107,7 @@ CONFIG_EXTERNAL_KERNEL_TREE=""
 CONFIG_KERNEL_GIT_CLONE_URI=""
 CONFIG_KERNEL_GIT_LOCAL_REPOSITORY=""
 CONFIG_TARGET_OPTIONS=y
-CONFIG_TARGET_OPTIMIZATION="-O2 -pipe -march=i486 -funit-at-a-time"
+CONFIG_TARGET_OPTIMIZATION="-O2 -pipe -march=armv4t -mtune=arm920t -funit-at-a-time"
 CONFIG_SOFT_FLOAT=y
 # CONFIG_EXTERNAL_TOOLCHAIN is not set
 CONFIG_NEED_TOOLCHAIN=y
@@ -1098,6 +1105,7 @@ CONFIG_PACKAGE_kmod-nls-base=y
 #
 # Network Devices
 #
+# CONFIG_PACKAGE_kmod-gigaset is not set
 # CONFIG_PACKAGE_kmod-hfcmulti is not set
 # CONFIG_PACKAGE_kmod-libphy is not set
 # CONFIG_PACKAGE_kmod-macvlan is not set
@@ -1135,16 +1143,22 @@ CONFIG_PACKAGE_kmod-nls-base=y
 #
 # Other modules
 #
+# CONFIG_PACKAGE_kmod-bluetooth is not set
 # CONFIG_PACKAGE_kmod-crc-ccitt is not set
 # CONFIG_PACKAGE_kmod-crc-itu-t is not set
 # CONFIG_PACKAGE_kmod-crc16 is not set
 # CONFIG_PACKAGE_kmod-crc7 is not set
 # CONFIG_PACKAGE_kmod-eeprom-93cx6 is not set
+# CONFIG_PACKAGE_kmod-gpio-dev is not set
 # CONFIG_PACKAGE_kmod-hid is not set
 CONFIG_PACKAGE_kmod-input-core=y
 # CONFIG_PACKAGE_kmod-input-evdev is not set
+# CONFIG_PACKAGE_kmod-input-gpio-buttons is not set
+# CONFIG_PACKAGE_kmod-input-gpio-encoder is not set
+# CONFIG_PACKAGE_kmod-input-gpio-keys is not set
 # CONFIG_PACKAGE_kmod-input-joydev is not set
 CONFIG_PACKAGE_kmod-input-polldev=y
+# CONFIG_PACKAGE_kmod-leds-gpio is not set
 # CONFIG_PACKAGE_kmod-ledtrig-morse is not set
 # CONFIG_PACKAGE_kmod-ledtrig-netdev is not set
 # CONFIG_PACKAGE_kmod-libcrc32c is not set
@@ -1165,19 +1179,40 @@ CONFIG_PACKAGE_kmod-input-polldev=y
 # CONFIG_PACKAGE_kmod-mmc-spi is not set
 # CONFIG_PACKAGE_kmod-spi-bitbang is not set
 # CONFIG_PACKAGE_kmod-spi-dev is not set
+# CONFIG_PACKAGE_kmod-spi-gpio is not set
+# CONFIG_PACKAGE_kmod-spi-gpio-old is not set
 
 #
 # Sound Support
 #
 # CONFIG_PACKAGE_kmod-pcspkr is not set
+# CONFIG_PACKAGE_kmod-sound-core is not set
 
 #
 # USB Support
 #
+# CONFIG_PACKAGE_kmod-usb-acm is not set
+# CONFIG_PACKAGE_kmod-usb-atm is not set
+# CONFIG_PACKAGE_kmod-usb-cm109 is not set
+# CONFIG_PACKAGE_kmod-usb-core is not set
+# CONFIG_PACKAGE_kmod-usb-hid is not set
+# CONFIG_PACKAGE_kmod-usb-net is not set
+# CONFIG_PACKAGE_kmod-usb-ohci is not set
+# CONFIG_PACKAGE_kmod-usb-phidget is not set
+# CONFIG_PACKAGE_kmod-usb-printer is not set
+# CONFIG_PACKAGE_kmod-usb-serial is not set
+# CONFIG_PACKAGE_kmod-usb-storage is not set
+# CONFIG_PACKAGE_kmod-usb-storage-extras is not set
+# CONFIG_PACKAGE_kmod-usb-test is not set
+# CONFIG_PACKAGE_kmod-usb-uhci is not set
+# CONFIG_PACKAGE_kmod-usb-video is not set
+# CONFIG_PACKAGE_kmod-usb-yealink is not set
+# CONFIG_PACKAGE_kmod-usb2 is not set
 
 #
 # Video Support
 #
+# CONFIG_PACKAGE_kmod-video-core is not set
 
 #
 # Virtualization Support
