@@ -7,7 +7,7 @@
 DISTRO := kuafu
 
 # TARGET set the ezbox target running board
-# support [x86|ar71xx|brcm47xx]
+# support [x86|ar71xx|brcm47xx|s3c24xx]
 TARGET := ar71xx
 
 # DEVICE_TYPE set the openwrt device type
@@ -15,7 +15,7 @@ TARGET := ar71xx
 DEVICE_TYPE := ezbox
 
 # ARCH set the CPU arch, please see README to set correct TARGET/ARCH
-# support [i386|mips|mipsel]
+# support [i386|mips|mipsel|arm]
 ARCH := mips
 
 # LOG_FILE set default build log file name
