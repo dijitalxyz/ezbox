@@ -1,0 +1,23 @@
+#summary 如何搭建 ezbox 开发环境.
+#labels Phase-Support
+
+= 简介 =
+
+本页指导用户如何搭建 ezbox 的开发环境。
+ 
+= 详细说明 =
+
+ezbox 的开发在ubuntu/Linux发行版本中完成，工作机器使用MS Windows操作系统或Mac OS操作系统的用户可以使用虚拟机来搭建 ezbox 的开发环境。
+
+== MS Windows 用户 ==
+  * 到 <a href="http://www.virtualbox.org/"> www.virtualbox.org </a>下载最新的 virtualbox 安装程序
+  * 安装 virtualbox
+  * 在virtualbox 中新建一个虚拟电脑，操作系统选择 Linux，版本选择 Ubuntu，内存大小选择512M或更多，创建新的虚拟硬盘，容量在8G或以上
+  * 网络配置2张网卡，网卡1使用NAT模式，透过主机系统的网络连接与互联网相连，网卡2使用host-only模式，用于与主机系统进行网络通信
+  * 在新建的虚拟电脑中使用.iso文件安装 Ubuntu/Linux 操作系统
+  * 配置虚拟电脑中的Ubuntu系统的网络连接，使虚拟电脑的Ubuntu系统可以上网以及与主机Windows系统进行网络通信
+  * 安装开发使用的工具软件
+  * 下载 ezbox 开发代码
+  * 编译目标 ezbox 系统固件
+
+= 参考资料 =
