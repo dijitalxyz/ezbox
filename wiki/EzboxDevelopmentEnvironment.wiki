@@ -19,11 +19,17 @@ ezbox 的开发在ubuntu/Linux发行版本中完成，工作机器使用MS Windo
   * 后续步骤参考 Ubuntu/Linux 用户的操作步骤
 
 == Ubuntu/Linux 用户 ==
-  所有操作在 Ubuntu 10.4 netbook edition (Lucid) 上完成，Ubuntu 其他版本操作类似
+  所有操作在 Ubuntu 10.04 netbook edition (Lucid) 上完成，Ubuntu 其他版本操作类似
 
   * 安装开发使用的工具软件
 {{{
 ezbox@ezbox-laptop:~$ sudo apt-get install build-essential bison flex zlib1g-dev libncurses5-dev subversion quilt git-core
+}}}
+
+  * 修正 /bin/sh 链接到 /bin/bash
+{{{
+ezbox@ezbox-laptop:~$ sudo rm -f /bin/sh
+ezbox@ezbox-laptop:~$ sudo ln -sf bash /bin/sh
 }}}
 
   * 在用户目录中建立开发使用的工作目录
