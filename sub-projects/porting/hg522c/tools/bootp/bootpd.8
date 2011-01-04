@@ -1,0 +1,327 @@
+.\" Copyright (c) 1988, 1989, 1991 Carnegie Mellon University
+.\"
+.\"	$Header: $
+.\"
+.\" Mon Nov 12 19:23:27 1995  Martin Schulze  <joey@finlandia.infodrom.north.de>
+.\"	minor changes, dumpfile is in /tmp, made it linux man(7) conform
+.TH BOOTPD 8 "12 November 1995" "Version 2.4.3" "Carnegie Mellon University"
+.SH NAME
+bootpd, bootpgw \- Internet Boot Protocol server/gateway
+.SH SYNOPSIS
+.B bootpd
+.RB [ " \-v " ]
+[
+.B \-i
+.B \-s
+.B \-t
+.I timeout
+.B \-d
+.I level
+.B \-c
+.I chdir\-path
+]
+[
+.I bootptab
+[
+.I dumpfile
+] ]
+.br
+.B bootpgw
+.RB [ " \-v " ]
+[
+.B \-i
+.B \-s
+.B \-t
+.I timeout
+.B \-d
+.IR level " ] " server
+.SH DESCRIPTION
+.B Bootpd
+implements an Internet Bootstrap Protocol (BOOTP) server as defined in
+RFC951, RFC1532, and RFC1533. This server also provides some extension
+to support the static part of Dynamic Host Configuration Protocol (DHCP)
+as specified in RFC1533. DHCP is used by Windows NT and 95.
+.B Bootpgw
+implements a simple BOOTP gateway which can be used to forward
+requests and responses between clients on one subnet and a
+BOOTP server (i.e.
+.BR bootpd )
+on another subnet. While either
+.B bootpd
+or
+.B bootpgw
+will forward BOOTREPLY packets, only
+.B bootpgw
+will forward BOOTREQUEST packets.
+.PP
+One host on each network segment is normally configured to run either
+.B bootpd
+or
+.B bootpgw
+from
+.B inetd
+by including one of the following lines in the file
+.IR /etc/inetd.conf :
+.IP
+bootps dgram udp wait root /usr/sbin/bootpd bootpd bootptab
+.br
+bootps dgram udp wait root /usr/sbin/bootpgw bootpgw server
+.PP
+This mode of operation is referred to as "inetd mode" and causes
+.B bootpd
+(or
+.BR bootpgw )
+to be started only when a boot request arrives.  If it does not
+receive another packet within fifteen minutes of the last one
+it received, it will exit to conserve system resources.  The
+.B \-t
+option controls this timeout (see OPTIONS below).
+.PP
+It is also possible to run
+.B bootpd
+(or
+.BR bootpgw )
+in "standalone mode" (without
+.BR inetd )
+by simply invoking it from a shell like any other regular command.
+Standalone mode is particularly useful when
+.B bootpd
+is used with a large configuration database, where the start up
+delay might otherwise prevent timely response to client requests.
+(Automatic start up in standalone mode can be done by invoking
+.B bootpd
+from within
+.IR /etc/rc.local ,
+for example.)
+Standalone mode is less useful for
+.B bootgw
+which
+has very little start up delay because
+it does not read a configuration file.
+.PP
+Either program automatically detects whether it was invoked from inetd
+or from a shell and automatically selects the appropriate mode.
+The 
+.B \-s
+or
+.B \-i
+option may be used to force standalone or inetd mode respectively
+(see OPTIONS).
+.SH OPTIONS
+.TP
+.BI \-t \ timeout
+Specifies the
+.I timeout
+value (in minutes) that a
+.B bootpd
+or
+.B bootpgw
+process will wait for a BOOTP packet before exiting.
+If no packets are received for
+.I timeout
+seconds, then the program will exit.
+A timeout value of zero means "run forever".
+In standalone mode, this option is forced to zero.
+.TP
+.BI \-d \ debug\-level
+Sets the
+.I debug\-level
+variable that controls the amount of debugging messages generated.
+For example, -d4 or -d 4 will set the debugging level to 4.
+For compatibility with older versions of
+.BR bootpd ,
+omitting the numeric parameter (i.e. just -d) will
+simply increment the debug level by one.
+.TP
+.BI \-c \ chdir\-path
+Sets the current directory used by
+.B bootpd
+while checking the existence and size of client boot files.  This is
+useful when client boot files are specified as relative pathnames, and
+.B bootpd
+needs to use the same current directory as the TFTP server
+(typically
+.IR /tftpboot ).
+This option is not recognized by
+.BR bootpgw .
+.TP
+.B \-i
+Force inetd mode.  This option is obsolete, but remains for
+compatibility with older versions of
+.BR bootpd .
+.TP
+.B \-s
+Force standalone mode.  This option is obsolete, but remains for
+compatibility with older versions of
+.BR bootpd .
+.TP
+.B \-v
+Print version and exit.
+.TP
+.I bootptab
+Specifies the name of the configuration file from which
+.I bootpd
+loads its database of known clients and client options
+.RB ( bootpd
+only). Default is
+.IR /etc/bootptab .
+.TP
+.I dumpfile
+Specifies the name of the file that
+.B bootpd
+will dump its internal database into when it receives a
+.B SIGUSR1
+signal
+.RB ( bootpd
+only).  This option is only recognized if
+.B bootpd
+was compiled with the -DDEBUG flag.
+.TP
+.I server
+Specifies the name of a BOOTP server to which
+.B bootpgw
+will forward all BOOTREQUEST packets it receives
+.RB ( bootpgw
+only).
+.SH OPERATION
+.PP
+Both
+.B bootpd
+and
+.B bootpgw
+operate similarly in that both listen for any packets sent to the
+.B bootps
+port, and both simply forward any BOOTREPLY packets.
+They differ in their handling of BOOTREQUEST packets.
+.PP
+When
+.B bootpgw
+is started, it determines the address of a BOOTP server
+whose name is provided as a command line parameter.  When
+.B bootpgw
+receives a BOOTREQUEST packet, it sets the "gateway address"
+and "hop count" fields in the packet and forwards the packet
+to the BOOTP server at the address determined earlier.
+Requests are forwarded only if they indicate that
+the client has been waiting for at least three seconds.
+.PP
+When
+.B bootpd
+is started it reads a configuration file, (normally
+.IR /etc/bootptab )
+that initializes the internal database of known clients and client
+options.  This internal database is reloaded
+from the configuration file when
+.B bootpd
+receives a hangup signal (SIGHUP) or when it discovers that the
+configuration file has changed.  Note that any changes to the configuration
+file should be atomic to avoid race conditions.
+.PP
+When
+.B bootpd
+receives a BOOTREQUEST packet, it
+.\" checks the modification time of the
+.\" configuration file and reloads the database if necessary.  Then it
+looks for a database entry matching the client request.
+If the client is known,
+.B bootpd
+composes a BOOTREPLY packet using the database entry found above,
+and sends the reply to the client (possibly using a gateway).
+If the client is unknown, the request is discarded
+(with a notice if debug > 0).
+.PP
+If
+.B bootpd
+is compiled with the -DDEBUG option, receipt of a
+.B SIGUSR1
+signal causes it to dump its internal database to the file
+.I /tmp/bootpd.dump
+or the dumpfile specified as a command line parameter.
+.PP
+During initialization, both programs
+determine the UDP port numbers to be used by calling
+.BR getservbyname (3)
+(which normally uses
+.IR /etc/services ).
+Two service names (and port numbers) are used:
+.IP
+bootps \- BOOTP Server listening port
+.br
+bootpc \- BOOTP Client destination port
+.LP
+If the port numbers cannot
+be determined using
+.I getservbyname
+then the values default to boopts=67 and bootpc=68.
+.SH FILES
+.TP 
+.I /etc/bootptab
+Database file read by
+.BR bootpd .
+.TP
+.I /tmp/bootpd.dump
+Debugging dump file created by
+.BR bootpd .
+.TP
+.I /etc/services
+Internet service numbers.
+.TP
+.I /tftpboot
+Current directory typically used by the TFTP server and
+.BR bootpd .
+
+.SH BUGS
+Individual host entries must not exceed 1024 characters.
+
+.SH CREDITS
+.PP
+This distribution is currently maintained by
+Walter L. Wimer <walt+@cmu.edu>.
+.PP
+The original BOOTP server was created by
+Bill Croft at Stanford University in January 1986.
+.PP
+The current version of
+.B bootpd
+is primarily the work of David Kovar,
+Drew D. Perkins, and Walter L. Wimer,
+at Carnegie Mellon University.
+.TP
+Enhancements and bug\-fixes have been contributed by:
+(in alphabetical order)
+.br
+Danny Backx <db@sunbim.be>
+.br
+John Brezak <brezak@ch.hp.com>
+.br
+Frank da Cruz <fdc@cc.columbia.edu>
+.br
+David R. Linn <drl@vuse.vanderbilt.edu>
+.br
+Jim McKim <mckim@lerc.nasa.gov>
+.br
+Pauline Middelink <middelin@calvin.polyware.iaf.nl>
+.br
+Martin Schulze <joey@infodrom.north.de>
+.br
+Gordon W. Ross <gwr@mc.com>
+.br
+Jason Zions <jazz@hal.com>
+.SH "SEE ALSO"
+.LP
+.BR bootptab (5),
+.BR services (5),
+.BR inetd (8),
+.BR inetd.conf (5),
+.BR tftpd (8).
+.LP
+DARPA Internet Request For Comments:
+.TP 10
+RFC951
+Bootstrap Protocol
+.TP 10
+RFC1532
+Clarifications and Extensions for the Bootstrap Protocol
+.TP 10
+RFC1533
+DHCP Options and BOOTP Vendor Extensions

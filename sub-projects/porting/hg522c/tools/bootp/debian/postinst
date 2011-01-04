@@ -1,0 +1,6 @@
+#!/bin/sh -e
+# $Id: postinst,v 1.1 1999/03/14 04:26:30 herbert Exp $
+
+update-inetd --group BOOT --add "#bootps		dgram	udp	wait	root	/usr/sbin/bootpd	bootpd -i -t 120"
+
+#DEBHELPER#

@@ -1,1 +1,8 @@
 This directory contains the tools for porting ezbox to HG522-C Conexant platform.
+
+hg522c-upload usage:
+./hg522c-upload HG522V100R001C02B029SP01_GDCT.y 192.168.1.1
+
+hg522c-bootpd usage:
+sudo ./hg522c-bootpd -d 9 bootptab bootpd.dump
+

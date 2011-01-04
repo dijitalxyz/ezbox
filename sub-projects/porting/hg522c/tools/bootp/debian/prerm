@@ -1,0 +1,6 @@
+#!/bin/sh -e
+# $Id: prerm,v 1.1 1999/03/14 04:26:30 herbert Exp $
+
+update-inetd --disable bootp
+
+#DEBHELPER#

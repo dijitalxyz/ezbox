@@ -1,0 +1,155 @@
+bootp (2.4.3-18) unstable; urgency=low
+
+  * Standards Version is 3.8.2
+  * DH compatibility level is 7
+  * Fix debian-rules-ignores-make-clean-error
+  * Fix dh-clean-k-is-deprecated
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Thu, 02 Jul 2009 09:10:04 +1000
+
+bootp (2.4.3-17) unstable; urgency=low
+
+  * Acknowledge NMU. Closes: #416670.
+  * Synchronise with ubuntu.
+  * Fixed bootpd man page typos. Closes: #383118.
+    Patch by A. Costa <agcosta@gis.net>
+  * Fixed the following lintian message:
+    - bootp source: debian-rules-sets-DH_COMPAT line 7
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sat, 19 May 2007 16:58:24 +1000
+
+bootp (2.4.3-16.1) unstable; urgency=low
+
+  * Non-maintainer upload during BSP.
+  * Depend on update-inetd for postrm.
+  * conditional call of update-inetd in postrm. (Closes: #416670)
+
+ -- Martin Zobel-Helas <zobel@debian.org>  Thu, 17 May 2007 12:10:15 +0200
+
+bootp (2.4.3-16ubuntu1) feisty; urgency=low
+
+  * debian/control: Add update-inetd to bootp's dependencies
+     (Closes Ubuntu: #76008).
+
+ -- Lionel Porcheron <lionel@alveonet.org>  Sat, 16 Dec 2006 15:46:30 +0100
+
+bootp (2.4.3-16) unstable; urgency=low
+
+  * Set Standards-Version to 3.7.2.
+  * Set DH_COMPAT to 5.
+  * Fixed "diff-contains-substvars debian/substvars".
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sun, 25 Jun 2006 15:36:34 +1000
+
+bootp (2.4.3-15) unstable; urgency=low
+
+  * Fixed "it says it does DHCPOFFER, but doesn't", closes: #282915.
+    Patch thanks to Petr Olivka <petr.olivka@vsb.cz>.
+  * Set DH_COMPAT to 4.
+  * Added watch file.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sat, 18 Feb 2006 09:12:21 +1100
+
+bootp (2.4.3-14) unstable; urgency=low
+
+  * Set Standards-Version to 3.6.2 and added homepage to description.
+  * Fixed lintian warning "maintainer-script-needs-depends-on-netbase
+    {postinst,prerm,postrm}".
+  * Fixed lintian warning "package-uses-deprecated-debhelper-compat-
+    version 1".
+  * Fixed lintian error "duplicate-conffile /etc/bootptab".
+  * Fixed linda error "DH_COMPAT is greater than the major version
+    of debhelper depended on".
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Thu, 24 Nov 2005 18:58:37 +1100
+
+bootp (2.4.3-13) unstable; urgency=low
+
+  * New maintainer's email address.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sun, 06 Feb 2005 21:56:46 +1100
+
+bootp (2.4.3-12) unstable; urgency=low
+
+  * New maintainer.
+
+ -- Anibal Monsalve Salazar <A.Monsalve.Salazar@IEEE.org>  Thu, 20 May 2004 08:57:34 +1000
+
+bootp (2.4.3-11) unstable; urgency=low
+
+  * Removed build-stamp/install-stamp.
+  * Included errnor.h/string.h in report.c (closes: #219123).
+  * Use fd_set instead int for select.
+  * Removed reference to netstd.
+
+ -- Herbert Xu <herbert@debian.org>  Wed,  5 Nov 2003 19:52:40 +1100
+
+bootp (2.4.3-10) unstable; urgency=low
+
+  * Ensure that vendor area is at least 64 bytes long (closes: #189256).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 16 Apr 2003 20:23:53 +1000
+
+bootp (2.4.3-9) unstable; urgency=low
+
+  * Documented ms tag in manual page.
+  * Eliminated baroque padding in response packets (closes: #184300).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 28 Mar 2003 19:26:06 +1100
+
+bootp (2.4.3-8) unstable; urgency=low
+
+  * Added note about modifying configuration files (closes: #136057).
+
+ -- Herbert Xu <herbert@debian.org>  Sun,  7 Apr 2002 18:12:41 +1000
+
+bootp (2.4.3-7) unstable; urgency=low
+
+  * Compile with ETC_ETHERS (closes: #112223).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 16 Sep 2001 15:47:28 +1000
+
+bootp (2.4.3-6) unstable; urgency=low
+
+  * Make directed broadcasts if possible (closes: #108691).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 30 Aug 2001 21:15:43 +1000
+
+bootp (2.4.3-5) unstable; urgency=low
+
+  * Fixed typo in bootpd (closes: #83618).
+  * Added build-time dependencies (closes: #70171).
+  * Compile with -g and without -fomit-frame-pointer -pipe.  Omitting the
+    frame pointer makes the code 10% larger.
+  * Fixed the unaligned access properly.
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 27 Apr 2001 22:35:58 +1000
+
+bootp (2.4.3-4) unstable; urgency=low
+
+  * Fixed unaligned trap on Alpha (David Huggins-Daines, closes #64552).
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 24 May 2000 11:41:50 +1000
+
+bootp (2.4.3-3) frozen unstable; urgency=low
+
+  * Use int32_t/u_int32_t instead of locally defined int32/u_int32 which
+    always turns out to be long.  This is needed for bootpd to work on 64 bit
+    platforms like the Alpha.
+  * Made compliant with policy 3.1.1.
+
+ -- Herbert Xu <herbert@debian.org>  Sat, 22 Apr 2000 19:41:18 +1000
+
+bootp (2.4.3-2) unstable; urgency=low
+
+  * Better hostname comparison (fixes #37543).
+  * Dump file is now in /var/run.
+
+ -- Herbert Xu <herbert@debian.org>  Tue,  7 Sep 1999 23:19:34 +1000
+
+bootp (2.4.3-1) unstable; urgency=low
+
+  * Split from netstd.
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 15 Mar 1999 12:18:40 +1100
+

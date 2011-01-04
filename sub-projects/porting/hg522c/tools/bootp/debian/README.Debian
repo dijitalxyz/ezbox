@@ -1,0 +1,8 @@
+bootp for Debian
+----------------
+
+bootp is no longer maintained actively upstream.  It is recommended for you to
+use the dhcp package if at all possible.
+
+Herbert <herbert@debian.org>
+$Id: README.Debian,v 1.1 1999/02/06 07:11:19 herbert Exp $

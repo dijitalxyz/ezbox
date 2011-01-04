@@ -1,0 +1,10 @@
+#!/bin/sh -e
+# $Id: postrm,v 1.1 1999/03/14 04:26:30 herbert Exp $
+
+if [ "$1" = remove -o "$1" = purge ]; then
+    if [ -f /usr/sbin/update-inetd ]; then
+	update-inetd --remove "bootps		dgram	udp	wait	root	/usr/sbin/bootpd	bootpd -i -t 120"
+    fi
+fi
+
+#DEBHELPER#
