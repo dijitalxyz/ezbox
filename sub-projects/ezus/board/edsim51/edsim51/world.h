@@ -64,17 +64,17 @@ do { \
 
 #define W_ENTER_INTERRUPT() \
 do { \
+	wd.int_sum++; \
 	W_EA = 0; \
 	wd.crit_sum++; \
-	wd.int_sum++; \
 } while(0)
 
 #define W_EXIT_INTERRUPT() \
 do { \
-	wd.int_sum--; \
 	wd.crit_sum--; \
-	if (wd.int_sum == 0) w_thread_schedule(); \
 	if (wd.crit_sum == 0) W_EA = 1; \
+	wd.int_sum--; \
+	if (wd.int_sum == 0) w_thread_schedule(); \
 } while(0)
 
 typedef struct world_data_s {
