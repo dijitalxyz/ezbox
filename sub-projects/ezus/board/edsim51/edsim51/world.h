@@ -26,9 +26,11 @@
 #error "W_THREAD_NUM should be less than or equal to W_THREAD_MAX"
 #endif
 
+/* + 4 is for thread_context_switch static variables */
+#define W_DATA_SIZE	(sizeof(wd) + sizeof(bp) + 4)
 #define W_IRAM_SIZE	0x80
 #define W_SP_BOTTOM	0x30
-#define W_SP_TOP	(W_IRAM_SIZE - sizeof(wd) - sizeof(bp))
+#define W_SP_TOP	(W_IRAM_SIZE - W_DATA_SIZE)
 #define W_SP		SP
 
 /* for critical area */
@@ -70,8 +72,8 @@ do { \
 #define W_EXIT_INTERRUPT() \
 do { \
 	wd.int_sum--; \
-	if (wd.crit_sum == 0) w_thread_schedule(); \
 	wd.crit_sum--; \
+	if (wd.int_sum == 0) w_thread_schedule(); \
 	if (wd.crit_sum == 0) W_EA = 1; \
 } while(0)
 
