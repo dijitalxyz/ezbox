@@ -1,0 +1,36 @@
+BSDmakefile
+Config.in
+feeds.conf.default
+LICENSE
+Makefile
+README
+rules.mk
+include/
+scripts/
+toolchain/
+tools/
+#########################
+# target/ directory
+#########################
+target/Config.in
+target/Makefile
+target/imagebuilder/
+target/sdk/
+target/toolchain/
+#########################
+# target/linux/ directory
+#########################
+target/linux/Makefile
+target/linux/generic/
+#########################
+# package/ directory
+#########################
+package/Makefile
+package/base-files/
+package/busybox/
+package/hotplug2/
+package/kernel/
+package/libtool/
+package/ocf-crypto-headers/
+package/opkg/
+package/udevtrigger/
