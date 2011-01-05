@@ -11,7 +11,13 @@ PKG_BUILD_DIR ?= $(BUILD_DIR)/$(PKG_NAME)$(if $(PKG_VERSION),-$(PKG_VERSION))
 PKG_INSTALL_DIR ?= $(PKG_BUILD_DIR)/ipkg-install
 PKG_MD5SUM ?= unknown
 PKG_BUILD_PARALLEL ?=
-PKG_JOBS ?= $(if $(PKG_BUILD_PARALLEL)$(CONFIG_PKG_DEFAULT_PARALLEL),$(if $(CONFIG_PKG_BUILD_PARALLEL),-j$(CONFIG_PKG_BUILD_JOBS)))
+
+ifeq ($(strip $(PKG_BUILD_PARALLEL)),0)
+PKG_JOBS?=-j1
+else
+PKG_JOBS?=$(if $(PKG_BUILD_PARALLEL)$(CONFIG_PKG_DEFAULT_PARALLEL),\
+	$(if $(CONFIG_PKG_BUILD_PARALLEL),-j$(CONFIG_PKG_BUILD_JOBS),-j1),-j1)
+endif
 
 include $(INCLUDE_DIR)/prereq.mk
 include $(INCLUDE_DIR)/host.mk
@@ -69,10 +75,6 @@ define Download/default
   MD5SUM:=$(PKG_MD5SUM)
 endef
 
-define sep
-
-endef
-
 define Build/Exports/Default
   $(1) : export ACLOCAL_INCLUDE=$$(foreach p,$$(wildcard $$(STAGING_DIR)/usr/share/aclocal $$(STAGING_DIR)/usr/share/aclocal-* $$(STAGING_DIR)/host/share/aclocal $$(STAGING_DIR)/host/share/aclocal-*),-I $$(p))
   $(1) : export STAGING_PREFIX=$$(STAGING_DIR)/usr
@@ -126,8 +128,11 @@ define Build/DefaultTargets
 		$(call $(hook),$(TMP_DIR)/stage-$(PKG_NAME),$(TMP_DIR)/stage-$(PKG_NAME)/host)$(sep)\
 	)
 	if [ -d $(TMP_DIR)/stage-$(PKG_NAME) ]; then \
-		(cd $(TMP_DIR)/stage-$(PKG_NAME); find ./ > $(STAGING_DIR)/packages/$(STAGING_FILES_LIST)); \
-		$(CP) $(TMP_DIR)/stage-$(PKG_NAME)/* $(STAGING_DIR)/; \
+		(cd $(TMP_DIR)/stage-$(PKG_NAME); find ./ > $(TMP_DIR)/stage-$(PKG_NAME).files); \
+		$(call locked, \
+			mv $(TMP_DIR)/stage-$(PKG_NAME).files $(STAGING_DIR)/packages/$(STAGING_FILES_LIST) && \
+			$(CP) $(TMP_DIR)/stage-$(PKG_NAME)/* $(STAGING_DIR)/; \
+		,staging-dir); \
 	fi
 	rm -rf $(TMP_DIR)/stage-$(PKG_NAME)
 	touch $$@

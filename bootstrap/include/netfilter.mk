@@ -77,7 +77,8 @@ $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_MATCH_RECENT, $(P_X
 
 $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_IP_NF_TARGET_CONNMARK, $(P_V4)ipt_CONNMARK))
 ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.35)),1)
-  $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_TARGET_CONNMARK, $(P_XT)xt_connmark))
+  $(eval $(if $(NF_KMOD),$(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_TARGET_CONNMARK, $(P_XT)xt_connmark)))
+  $(eval $(if $(NF_KMOD),,$(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_TARGET_CONNMARK, $(P_XT)xt_CONNMARK)))
 else
   $(eval $(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_TARGET_CONNMARK, $(P_XT)xt_CONNMARK))
 endif
@@ -135,8 +136,13 @@ $(eval $(call nf_add,IPT_IPOPT,CONFIG_NETFILTER_XT_TARGET_CLASSIFY, $(P_XT)xt_CL
 $(eval $(call nf_add,IPT_IPOPT,CONFIG_IP_NF_MATCH_DSCP, $(P_V4)ipt_dscp))
 $(eval $(call nf_add,IPT_IPOPT,CONFIG_IP_NF_TARGET_ECN, $(P_V4)ipt_ECN))
 $(eval $(call nf_add,IPT_IPOPT,CONFIG_IP_NF_TARGET_MARK, $(P_V4)ipt_MARK))
+
+# XXX: 2.6.35+ has xt_MARK.ko merged into xt_mark.ko, userspace is still separate
 ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.35)),1)
-  $(eval $(call nf_add,IPT_IPOPT,CONFIG_NETFILTER_XT_TARGET_MARK, $(P_XT)xt_mark))
+  # kernel: xt_mark.ko
+  $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPOPT,CONFIG_NETFILTER_XT_TARGET_MARK, $(P_XT)xt_mark)))
+  # userland: xt_MARK.so
+  $(eval $(if $(NF_KMOD),,$(call nf_add,IPT_IPOPT,CONFIG_NETFILTER_XT_TARGET_MARK, $(P_XT)xt_MARK)))
 else
   $(eval $(call nf_add,IPT_IPOPT,CONFIG_NETFILTER_XT_TARGET_MARK, $(P_XT)xt_MARK))
 endif
