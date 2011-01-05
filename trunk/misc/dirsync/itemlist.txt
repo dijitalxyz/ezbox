@@ -1,6 +1,4 @@
-BSDmakefile
 Config.in
-feeds.conf.default
 LICENSE
 Makefile
 README
