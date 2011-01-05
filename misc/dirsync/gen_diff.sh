@@ -27,8 +27,13 @@ do
   if [ $FIRST_CHAR = "#" ] ; then
     echo "it's a comment"
   else
-    DIFF_FILE=${LINE//\//-}
-    diff -urNd $SRC_DIR/$LINE $DST_DIR/$LINE > $DIFF_DIR/$DIFF_FILE.diff
+    DIFF_FILE=${LINE//\//-}.diff
+    diff -urNd $SRC_DIR/$LINE $DST_DIR/$LINE > $DIFF_DIR/$DIFF_FILE
+    LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
+    # remove empty diff file
+    if [ $LINE_COUNT -lt 1 ] ; then
+      rm -f $DIFF_DIR/$DIFF_FILE
+    fi
   fi
 done < $ITEM_LIST
 
