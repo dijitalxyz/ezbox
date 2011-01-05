@@ -114,6 +114,7 @@ my %update_method = (
 		'update'	=> ""},
 	'src-git' => {
 		'init'		=> "git clone --depth 1 '%s' '%s'",
+		'init_branch'	=> "git clone --depth 1 --branch '%s' '%s' '%s'",
 		'update'	=> "git pull",
 		'controldir'	=> ".git"},
 	'src-bzr' => {
@@ -123,7 +124,11 @@ my %update_method = (
 	'src-hg' => {
 		'init'		=> "hg clone '%s' '%s'",
 		'update'	=> "hg pull --update",
-		'controldir'	=> ".hg"}
+		'controldir'	=> ".hg"},
+	'src-darcs' => {
+		'init'    => "darcs get '%s' '%s'",
+		'update'  => "darcs pull -a",
+		'controldir' => "_darcs"},
 );
 
 # src-git: pull broken
@@ -139,10 +144,15 @@ sub update_feed_via($$$$) {
 	my $localpath = "./feeds/$name";
 	my $safepath = $localpath;
 	$safepath =~ s/'/'\\''/;
+	my ($base, $branch) = split(/;/, $src, 2);
 
 	if( $relocate || !$m->{'update'} || !-d "$localpath/$m->{'controldir'}" ) {
 		system("rm -rf '$safepath'");
-		system(sprintf($m->{'init'}, $src, $safepath)) == 0 or return 1;
+		if ($m->{'init_branch'} and $branch) {
+			system(sprintf($m->{'init_branch'}, $branch, $base, $safepath)) == 0 or return 1;
+		} else {
+			system(sprintf($m->{'init'}, $src, $safepath)) == 0 or return 1;
+		}
 	} else {
 		system("cd '$safepath'; $m->{'update'}") == 0 or return 1;
 	}
@@ -278,6 +288,7 @@ my %install_method = (
 	'src-git' => \&install_generic,
 	'src-bzr' => \&install_generic,
 	'src-hg' => \&install_generic,
+	'src-darcs' => \&install_generic,
 );
 
 my %feed;
@@ -402,6 +413,7 @@ sub install {
 					next if $p->{vdepends};
 					if( $p->{name} ) {
 						install_package($feed, $p->{name}) == 0 or $ret = 1;
+						get_feed($f->[1]);
 					}
 				}
 			}
@@ -568,7 +580,7 @@ Commands:
 
 	update -a|<feedname(s)>: Update packages and lists of feeds in feeds.conf .
 	Options:
-	    -a :           Update all feeds listed within feeds.conf. Otherwise the spezified feeds will be updated.
+	    -a :           Update all feeds listed within feeds.conf. Otherwise the specified feeds will be updated.
 	    -i :           Recreate the index only. No feed update from repository is performed.
 
 	clean:             Remove downloaded/generated files.
