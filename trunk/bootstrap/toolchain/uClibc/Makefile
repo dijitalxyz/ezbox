@@ -14,10 +14,10 @@ PKG_VERSION:=$(call qstrip,$(CONFIG_UCLIBC_VERSION))
 ifeq ($(CONFIG_UCLIBC_VERSION_0_9_32),y)
   PKG_SOURCE_URL:=git://git.busybox.net/uClibc
   PKG_SOURCE_PROTO:=git
-  PKG_SOURCE_VERSION:=ef487a35f428da6240003dca23b9d29908e2285e
+  PKG_SOURCE_VERSION:=4ac7ad3543dd6d7780e71af80fa5c45414451719
   PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-  LIBC_SO_VERSION:=$(PKG_VERSION)-git
+  LIBC_SO_VERSION:=$(PKG_VERSION)-rc1-git
 else
   PKG_SOURCE_URL:=http://www.uclibc.org/downloads
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -27,8 +27,6 @@ PATCH_DIR:=./patches-$(PKG_VERSION)
 CONFIG_DIR:=./config-$(PKG_VERSION)
 
 PKG_MD5SUM_0.9.30.1 = 1a4b84e5536ad8170563ffa88c34679c
-PKG_MD5SUM_0.9.30.2 = e759ec855500082ac3e671dd6cacfdb0
-PKG_MD5SUM_0.9.30.3 = 73a4bf4a0fa508b01a7a3143574e3d21
 PKG_MD5SUM_0.9.31   = 52fb8a494758630c8d3ddd7f1e0daafd
 PKG_MD5SUM=$(PKG_MD5SUM_$(PKG_VERSION))
 
@@ -70,6 +68,12 @@ GEN_CONFIG=$(SCRIPT_DIR)/kconfig.pl -n \
 define Host/Prepare
 	$(call Host/SetToolchainInfo)
 	$(call Host/Prepare/Default)
+	$(if $(strip $(QUILT)), \
+		cd $(HOST_BUILD_DIR); \
+		if $(QUILT_CMD) next >/dev/null 2>&1; then \
+			$(QUILT_CMD) push -a; \
+		fi
+	)
 	ln -snf $(PKG_NAME)-$(PKG_VERSION) $(BUILD_DIR_TOOLCHAIN)/$(PKG_NAME)
 	$(GEN_CONFIG) > $(HOST_BUILD_DIR)/.config
 	$(SED) 's,^KERNEL_HEADERS=.*,KERNEL_HEADERS=\"$(BUILD_DIR_TOOLCHAIN)/linux-dev/include\",g' \
@@ -97,19 +101,24 @@ endef
 define Host/Configure
 endef
 
+CPU_CFLAGS = \
+	-funsigned-char -fno-builtin -fno-asm \
+	--std=gnu99 -ffunction-sections -fdata-sections \
+	$(TARGET_CFLAGS)
+
 UCLIBC_MAKE = PATH='$(TARGET_PATH)' $(MAKE) -C $(HOST_BUILD_DIR) \
 	$(TARGET_CONFIGURE_OPTS) \
 	DEVEL_PREFIX=/ \
 	RUNTIME_PREFIX=/ \
 	HOSTCC="$(HOSTCC)" \
-	CPU_CFLAGS="$(TARGET_CFLAGS)" \
+	CPU_CFLAGS="$(CPU_CFLAGS)" \
 	ARCH="$(CONFIG_ARCH)" \
 	LIBGCC="$(subst libgcc.a,libgcc_initial.a,$(shell $(TARGET_CC) -print-libgcc-file-name))" \
 	DOSTRIP=""
 
 define Host/Compile
 	$(SED) 's,^CROSS=.*,CROSS=$(TARGET_CROSS),g' $(HOST_BUILD_DIR)/Rules.mak
-	$(UCLIBC_MAKE) PREFIX= all
+	$(UCLIBC_MAKE) $(TOOLCHAIN_JOBS) PREFIX= all
 	$(UCLIBC_MAKE) PREFIX="$(TOOLCHAIN_DIR)/" install_runtime install_dev
 	$(CP) $(HOST_BUILD_DIR)/libc/libc_so.a $(TOOLCHAIN_DIR)/lib/
 	$(CP) $(HOST_BUILD_DIR)/libpthread/*/libpthread_so.a $(TOOLCHAIN_DIR)/lib/
