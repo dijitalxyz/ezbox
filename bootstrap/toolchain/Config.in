@@ -91,6 +91,7 @@ config EABI_SUPPORT
 	depends arm||armeb
 	prompt "Enable EABI support" if TOOLCHAINOPTS
 	default n if TARGET_gemini
+	default n if TARGET_cns21xx
 	default y
 	help
 	  Enable ARM EABI support
@@ -98,6 +99,7 @@ config EABI_SUPPORT
 menuconfig EXTRA_TARGET_ARCH
 	bool
 	prompt "Enable an extra toolchain target architecture" if TOOLCHAINOPTS
+	depends !sparc
 	default y	if powerpc64
 	default n
 	help
