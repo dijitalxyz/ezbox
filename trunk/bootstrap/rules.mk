@@ -28,6 +28,10 @@ merge=$(subst $(space),,$(1))
 confvar=$(call merge,$(foreach v,$(1),$(if $($(v)),y,n)))
 strip_last=$(patsubst %.$(lastword $(subst .,$(space),$(1))),%,$(1))
 
+define sep
+
+endef
+
 _SINGLE=export MAKEFLAGS=$(space);
 CFLAGS:=
 ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(call qstrip,$(CONFIG_ARCH)))))
@@ -46,6 +50,8 @@ ifeq ($(ARCH),powerpc)
 else
   FPIC:=-fpic
 endif
+
+HOST_FPIC:=-fPIC
 
 ARCH_SUFFIX:=
 ifneq ($(findstring -mips32r2,$(TARGET_OPTIMIZATION)),)
@@ -160,7 +166,7 @@ HOST_LDFLAGS:=-L$(STAGING_DIR_HOST)/lib
 
 TARGET_CC:=$(TARGET_CROSS)gcc
 TARGET_CXX:=$(if $(CONFIG_INSTALL_LIBSTDCPP),$(TARGET_CROSS)g++,no)
-PATCH:=$(SCRIPT_DIR)/patch-kernel.sh
+KPATCH:=$(SCRIPT_DIR)/patch-kernel.sh
 SED:=$(STAGING_DIR_HOST)/bin/sed -i -e
 CP:=cp -fpR
 LN:=ln -sf
@@ -247,11 +253,33 @@ define include_mk
 $(eval -include $(if $(DUMP),,$(STAGING_DIR)/mk/$(strip $(1))))
 endef
 
+# Execute commands under flock
+# $(1) => The shell expression.
+# $(2) => The lock name. If not given, the global lock will be used.
+define locked
+	SHELL= \
+	$(STAGING_DIR_HOST)/bin/flock \
+		$(TMP_DIR)/.$(if $(2),$(strip $(2)),global).flock \
+		-c '$(subst ','\'',$(1))'
+endef
+
 # file extension
 ext=$(word $(words $(subst ., ,$(1))),$(subst ., ,$(1)))
 
 all:
 FORCE: ;
 .PHONY: FORCE
+
+val.%:
+	@$(if $(filter undefined,$(origin $*)),\
+		echo "$* undefined" >&2, \
+		echo '$(subst ','"'"',$($*))' \
+	)
+
+var.%:
+	@$(if $(filter undefined,$(origin $*)),\
+		echo "$* undefined" >&2, \
+		echo "$*='"'$(subst ','"'\"'\"'"',$($*))'"'" \
+	)
 
 endif #__rules_inc

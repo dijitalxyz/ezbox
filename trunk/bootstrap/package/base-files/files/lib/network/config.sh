@@ -3,6 +3,12 @@
 
 # DEBUG="echo"
 
+do_sysctl() {
+	[ -n "$2" ] && \
+		sysctl -n -e -w "$1=$2" >/dev/null || \
+		sysctl -n -e "$1"
+}
+
 find_config() {
 	local iftype device iface ifaces ifn
 	for ifn in $interfaces; do
@@ -164,14 +170,10 @@ prepare_interface() {
 			local macaddr
 			config_get macaddr "$config" macaddr
 			[ -x /usr/sbin/brctl ] && {
-				# Remove IPv6 link local addr before adding the iface to the bridge
-				local llv6="$(ifconfig "$iface")"
-				case "$llv6" in
-					*fe80:*/64*)
-						llv6="${llv6#* fe80:}"
-						ifconfig "$iface" del "fe80:${llv6%% *}"
-					;;
-				esac
+				# Disable IPv6 for bridge ports
+				do_sysctl net.ipv6.conf.$iface.disable_ipv6 1
+				[ "${iface##wlan}" != "$iface" ] && \
+					do_sysctl net.ipv6.conf.mon.$iface.disable_ipv6 1
 
 				ifconfig "br-$config" 2>/dev/null >/dev/null && {
 					local newdevs devices
@@ -228,16 +230,17 @@ setup_interface_static() {
 	config_get ip6addr "$config" ip6addr
 	[ -z "$ipaddr" -o -z "$netmask" ] && [ -z "$ip6addr" ] && return 1
 
-	local gateway ip6gw dns bcast
+	local gateway ip6gw dns bcast metric
 	config_get gateway "$config" gateway
 	config_get ip6gw "$config" ip6gw
 	config_get dns "$config" dns
 	config_get bcast "$config" broadcast
+	config_get metric "$config" metric
 
 	[ -z "$ipaddr" ] || $DEBUG ifconfig "$iface" "$ipaddr" netmask "$netmask" broadcast "${bcast:-+}"
 	[ -z "$ip6addr" ] || $DEBUG ifconfig "$iface" add "$ip6addr"
-	[ -z "$gateway" ] || $DEBUG route add default gw "$gateway" dev "$iface"
-	[ -z "$ip6gw" ] || $DEBUG route -A inet6 add default gw "$ip6gw" dev "$iface"
+	[ -z "$gateway" ] || $DEBUG route add default gw "$gateway" ${metric:+metric $metric} dev "$iface"
+	[ -z "$ip6gw" ] || $DEBUG route -A inet6 add default gw "$ip6gw" ${metric:+metric $metric} dev "$iface"
 	[ -z "$dns" ] || add_dns "$config" $dns
 
 	config_get type "$config" TYPE
@@ -344,13 +347,15 @@ setup_interface() {
 			local pidfile="/var/run/dhcp-${iface}.pid"
 			service_kill udhcpc "$pidfile"
 
-			local ipaddr netmask hostname proto1 clientid broadcast
+			local ipaddr netmask hostname proto1 clientid vendorid broadcast reqopts
 			config_get ipaddr "$config" ipaddr
 			config_get netmask "$config" netmask
 			config_get hostname "$config" hostname
 			config_get proto1 "$config" proto
 			config_get clientid "$config" clientid
+			config_get vendorid "$config" vendorid
 			config_get_bool broadcast "$config" broadcast 0
+			config_get reqopts "$config" reqopts
 
 			[ -z "$ipaddr" ] || \
 				$DEBUG ifconfig "$iface" "$ipaddr" ${netmask:+netmask "$netmask"}
@@ -364,7 +369,9 @@ setup_interface() {
 				${ipaddr:+-r $ipaddr} \
 				${hostname:+-H $hostname} \
 				${clientid:+-c $clientid} \
+				${vendorid:+-V $vendorid} \
 				-b -p "$pidfile" $broadcast \
+				${reqopts:+-O $reqopts} \
 				${dhcpopts:- -O rootpath -R &}
 		;;
 		none)
@@ -408,6 +415,9 @@ unbridge() {
 
 		for brdev in $(brctl show | awk '$2 ~ /^[0-9].*\./ { print $1 }'); do
 			brctl delif "$brdev" "$dev" 2>/dev/null >/dev/null
+			do_sysctl net.ipv6.conf.$dev.disable_ipv6 0
+			[ "${dev##wlan}" != "$dev" ] && \
+				do_sysctl net.ipv6.conf.mon.$dev.disable_ipv6 0
 		done
 	}
 }
