@@ -6,6 +6,13 @@ Please use the new mainline SPI-GPIO driver, as of 2.6.29.
 
 
 
+---
+ drivers/spi/Kconfig              |    9 +
+ drivers/spi/Makefile             |    1 
+ drivers/spi/spi_gpio_old.c       |  251 +++++++++++++++++++++++++++++++++++++++
+ include/linux/spi/spi_gpio_old.h |   73 +++++++++++
+ 4 files changed, 334 insertions(+)
+
 --- /dev/null
 +++ b/include/linux/spi/spi_gpio_old.h
 @@ -0,0 +1,73 @@
@@ -167,25 +174,25 @@ Please use the new mainline SPI-GPIO driver, as of 2.6.29.
 +static u32 spi_gpio_txrx_mode0(struct spi_device *spi,
 +			       unsigned nsecs, u32 word, u8 bits)
 +{
-+	return bitbang_txrx_be_cpha0(spi, nsecs, 0, word, bits);
++	return bitbang_txrx_be_cpha0(spi, nsecs, 0, 0, word, bits);
 +}
 +
 +static u32 spi_gpio_txrx_mode1(struct spi_device *spi,
 +			       unsigned nsecs, u32 word, u8 bits)
 +{
-+	return bitbang_txrx_be_cpha1(spi, nsecs, 0, word, bits);
++	return bitbang_txrx_be_cpha1(spi, nsecs, 0, 0, word, bits);
 +}
 +
 +static u32 spi_gpio_txrx_mode2(struct spi_device *spi,
 +			       unsigned nsecs, u32 word, u8 bits)
 +{
-+	return bitbang_txrx_be_cpha0(spi, nsecs, 1, word, bits);
++	return bitbang_txrx_be_cpha0(spi, nsecs, 1, 0, word, bits);
 +}
 +
 +static u32 spi_gpio_txrx_mode3(struct spi_device *spi,
 +			       unsigned nsecs, u32 word, u8 bits)
 +{
-+	return bitbang_txrx_be_cpha1(spi, nsecs, 1, word, bits);
++	return bitbang_txrx_be_cpha1(spi, nsecs, 1, 0, word, bits);
 +}
 +
 +static void spi_gpio_chipselect(struct spi_device *dev, int on)
