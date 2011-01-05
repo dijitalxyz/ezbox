@@ -14,19 +14,16 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 tools-$(CONFIG_GCC_VERSION_4_3)$(CONFIG_GCC_VERSION_4_4)$(CONFIG_GCC_VERSION_4_5) += gmp mpfr
 tools-$(CONFIG_GCC_VERSION_4_5) += mpc libelf
 endif
-tools-y += m4 autoconf automake bison pkg-config sed mklibs
-tools-y += sstrip ipkg-utils genext2fs libuuid mtd-utils mkimage
-tools-y += firmware-utils patch-cmdline quilt yaffs2
-tools-$(CONFIG_TARGET_orion) += wrt350nv2-builder upslug2
+tools-y += m4 libtool autoconf automake flex bison pkg-config sed mklibs
+tools-y += sstrip ipkg-utils genext2fs e2fsprogs mtd-utils mkimage
+tools-y += firmware-utils patch-cmdline quilt yaffs2 flock
+tools-y += mm-macros xorg-macros missing-macros xz
+tools-$(CONFIG_TARGET_orion_generic) += wrt350nv2-builder upslug2
 tools-$(CONFIG_TARGET_x86) += qemu
-ifneq ($(CONFIG_LINUX_2_4)$(CONFIG_LINUX_2_6_25),)
-tools-y += squashfs lzma-old
-else
 ifneq ($(CONFIG_TARGET_ar71xx),)
-tools-y += squashfs lzma-old
+tools-y += lzma-old squashfs 
 endif
-tools-y += squashfs4 lzma
-endif
+tools-y += lzma squashfs4
 tools-$(CONFIG_CCACHE) += ccache
 
 ifdef CONFIG_GCC_USE_GRAPHITE
@@ -37,19 +34,30 @@ ifdef CONFIG_GCC_USE_GRAPHITE
 endif
 
 # builddir dependencies
+$(curdir)/bison/compile := $(curdir)/flex/install
 $(curdir)/pkg-config/compile := $(curdir)/sed/install
+$(curdir)/libtool/compile := $(curdir)/sed/install
 $(curdir)/squashfs/compile := $(curdir)/lzma-old/install
 $(curdir)/squashfs4/compile := $(curdir)/lzma/install
 $(curdir)/quilt/compile := $(curdir)/sed/install $(curdir)/autoconf/install
 $(curdir)/dtc/compile := $(curdir)/bison/install
-$(curdir)/autoconf/compile := $(curdir)/m4/install
-$(curdir)/automake/compile := $(curdir)/m4/install $(curdir)/autoconf/install
+$(curdir)/autoconf/compile := $(curdir)/m4/install $(curdir)/libtool/install
+$(curdir)/automake/compile := $(curdir)/m4/install $(curdir)/autoconf/install $(curdir)/pkg-config/install
+$(curdir)/gmp/compile := $(curdir)/automake/install
 $(curdir)/mpc/compile := $(curdir)/gmp/install
 $(curdir)/mpfr/compile := $(curdir)/gmp/install
-$(curdir)/mtd-utils/compile := $(curdir)/libuuid/install
+$(curdir)/ppl/compile := $(curdir)/gmp/install
+$(curdir)/cloog/compile := $(curdir)/ppl/install
+$(curdir)/mtd-utils/compile := $(curdir)/e2fsprogs/install
 $(curdir)/mkimage/compile := $(curdir)/sed/install
-$(curdir)/qemu/compile := $(curdir)/libuuid/install
+$(curdir)/qemu/compile := $(curdir)/e2fsprogs/install
 $(curdir)/upslug2/compile := $(curdir)/automake/install
+$(curdir)/mm-macros/compile := $(curdir)/automake/install
+$(curdir)/xorg-macros/compile := $(curdir)/automake/install
+$(curdir)/missing-macros/compile := $(curdir)/automake/install
+$(curdir)/e2fsprogs/compile := $(curdir)/automake/install
+$(curdir)/qemu/compile := $(curdir)/automake/install
+$(curdir)/libelf/compile := $(curdir)/automake/install
 
 $(curdir)/builddirs := $(tools-y) $(tools-dep) $(tools-)
 $(curdir)/builddirs-default := $(tools-y)
@@ -100,5 +108,5 @@ $(curdir)//compile = $(STAGING_DIR)/.prepared $(STAGING_DIR_HOST)/.prepared $($(
 $(curdir)/ := .config prereq
 $(curdir)//install = $(1)/compile
 
-$(eval $(call stampfile,$(curdir),tools,install,,CONFIG_CCACHE CONFIG_powerpc CONFIG_GCC_VERSION_4_3 CONFIG_GCC_USE_GRAPHITE CONFIG_TARGET_orion))
+$(eval $(call stampfile,$(curdir),tools,install,,CONFIG_CCACHE CONFIG_powerpc CONFIG_GCC_VERSION_4_3 CONFIG_GCC_USE_GRAPHITE CONFIG_TARGET_orion_generic))
 $(eval $(call subdir,$(curdir)))
