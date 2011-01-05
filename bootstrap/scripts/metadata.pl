@@ -163,7 +163,7 @@ sub target_config_features(@) {
 		/pcmcia/ and $ret .= "\tselect PCMCIA_SUPPORT\n";
 		/squashfs/ and $ret .= "\tselect USES_SQUASHFS\n";
 		/jffs2/ and $ret .= "\tselect USES_JFFS2\n";
-		/ext2/ and $ret .= "\tselect USES_EXT2\n";
+		/ext4/ and $ret .= "\tselect USES_EXT4\n";
 		/targz/ and $ret .= "\tselect USES_TARGZ\n";
 		/cpiogz/ and $ret .= "\tselect USES_CPIOGZ\n";
 		/ubifs/ and $ret .= "\tselect USES_UBIFS\n";
@@ -196,9 +196,7 @@ sub print_target($) {
 	my $target = shift;
 	my $features = target_config_features(@{$target->{features}});
 	my $help = $target->{desc};
-	my $kernel = $target->{kernel};
 	my $confstr;
-	$kernel =~ tr/./_/;
 
 	chomp $features;
 	$features .= "\n";
@@ -214,7 +212,6 @@ sub print_target($) {
 	$confstr = <<EOF;
 config TARGET_$target->{conf}
 	bool "$target->{name}"
-	select LINUX_$kernel
 	select LINUX_$v
 EOF
 	}
