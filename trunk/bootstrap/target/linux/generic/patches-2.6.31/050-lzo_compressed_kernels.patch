@@ -11,6 +11,29 @@
 +	int *pos,
 +	void(*error)(char *x));
 +#endif
+--- /dev/null
++++ b/include/linux/decompress/unlzo_mm.h
+@@ -0,0 +1,20 @@
++#ifndef UNLZO_MM_H
++#define UNLZO_MM_H
++
++#ifdef STATIC
++
++/* Code active when included from pre-boot environment: */
++#define INIT
++
++#elif defined(CONFIG_DECOMPRESS_LZO_NEEDED)
++
++/* Make it available to non initramfs/initrd code */
++#define INIT
++#include <linux/module.h>
++#else
++
++/* Compile for initramfs/initrd code only */
++#define INIT __init
++#endif
++
++#endif
 --- a/init/Kconfig
 +++ b/init/Kconfig
 @@ -115,10 +115,13 @@ config HAVE_KERNEL_BZIP2
@@ -57,7 +80,7 @@
  config SWAP
 --- /dev/null
 +++ b/lib/decompress_unlzo.c
-@@ -0,0 +1,208 @@
+@@ -0,0 +1,209 @@
 +/*
 + * LZO decompressor for the Linux kernel. Code borrowed from the lzo
 + * implementation by Markus Franz Xaver Johannes Oberhumer.
@@ -99,6 +122,7 @@
 +
 +#include <linux/types.h>
 +#include <linux/lzo.h>
++#include <linux/decompress/unlzo_mm.h>
 +#include <linux/decompress/mm.h>
 +
 +#include <linux/compiler.h>
