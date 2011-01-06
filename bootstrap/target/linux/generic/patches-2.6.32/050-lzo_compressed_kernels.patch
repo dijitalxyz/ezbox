@@ -110,7 +110,7 @@
 +#define LZO_BLOCK_SIZE        (256*1024l)
 +#define HEADER_HAS_FILTER      0x00000800L
 +
-+STATIC inline int INIT parse_header(u8 *input, u8 *skip)
++STATIC int INIT parse_header(u8 *input, u8 *skip)
 +{
 +	int l;
 +	u8 *parse = input;
@@ -147,7 +147,7 @@
 +	return 1;
 +}
 +
-+STATIC inline int INIT unlzo(u8 *input, int in_len,
++STATIC int INIT unlzo(u8 *input, int in_len,
 +				int (*fill) (void *, unsigned int),
 +				int (*flush) (void *, unsigned int),
 +				u8 *output, int *posp,
