@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (unknown)
-# Wed Jan  5 12:39:55 2011
+# Thu Jan  6 17:19:57 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_cx9461x=y
@@ -18,9 +18,7 @@ CONFIG_DEFAULT_hotplug2=y
 CONFIG_DEFAULT_libc=y
 CONFIG_DEFAULT_libgcc=y
 CONFIG_DEFAULT_udevtrigger=y
-CONFIG_LINUX_2_6=y
 CONFIG_AUDIO_SUPPORT=y
-CONFIG_DISPLAY_SUPPORT=y
 CONFIG_GPIO_SUPPORT=y
 CONFIG_USB_SUPPORT=y
 CONFIG_USES_JFFS2=y
@@ -59,6 +57,7 @@ CONFIG_TARGET_ROOTFS_CPIOGZ=y
 #
 # General build options
 #
+CONFIG_DISPLAY_SUPPORT=y
 CONFIG_BUILD_PATENTED=y
 CONFIG_LARGEFILE=y
 CONFIG_SHADOW_PASSWORDS=y
@@ -114,9 +113,7 @@ CONFIG_EABI_SUPPORT=y
 #
 # Binary tools
 #
-# CONFIG_BINUTILS_VERSION_2_18 is not set
 # CONFIG_BINUTILS_VERSION_2_19_1 is not set
-# CONFIG_BINUTILS_VERSION_2_20 is not set
 CONFIG_BINUTILS_VERSION_2_20_1=y
 # CONFIG_BINUTILS_VERSION_CS is not set
 CONFIG_EXTRA_BINUTILS_CONFIG_OPTIONS=""
@@ -127,19 +124,13 @@ CONFIG_BINUTILS_VERSION="2.20.1"
 #
 # CONFIG_GCC_VERSION_4_1_2 is not set
 # CONFIG_GCC_VERSION_4_2_4 is not set
-# CONFIG_GCC_VERSION_4_3_3 is not set
-# CONFIG_GCC_VERSION_4_3_4 is not set
 # CONFIG_GCC_VERSION_4_3_5 is not set
-# CONFIG_GCC_VERSION_4_4_1 is not set
-# CONFIG_GCC_VERSION_4_4_2 is not set
-# CONFIG_GCC_VERSION_4_4_3 is not set
-# CONFIG_GCC_VERSION_4_4_4 is not set
-CONFIG_GCC_VERSION_4_5_0=y
-# CONFIG_GCC_VERSION_4_5_1 is not set
+# CONFIG_GCC_VERSION_4_4_5 is not set
+CONFIG_GCC_VERSION_4_5_2=y
+# CONFIG_GCC_VERSION_4_5_1_LINARO is not set
 # CONFIG_GCC_VERSION_LLVM is not set
 # CONFIG_GCC_VERSION_4_3_3_CS is not set
 # CONFIG_GCC_VERSION_4_4_1_CS is not set
-# CONFIG_GCC_VERSION_4_4_3_CS is not set
 CONFIG_GCC_USE_GRAPHITE=y
 # CONFIG_GCC_USE_SYSTEM_PPL_CLOOG is not set
 CONFIG_EXTRA_GCC_CONFIG_OPTIONS=""
@@ -154,8 +145,6 @@ CONFIG_INSTALL_LIBSTDCPP=y
 # CONFIG_USE_GLIBC is not set
 CONFIG_USE_UCLIBC=y
 # CONFIG_UCLIBC_VERSION_0_9_30_1 is not set
-# CONFIG_UCLIBC_VERSION_0_9_30_2 is not set
-# CONFIG_UCLIBC_VERSION_0_9_30_3 is not set
 # CONFIG_UCLIBC_VERSION_0_9_31 is not set
 CONFIG_UCLIBC_VERSION_0_9_32=y
 # CONFIG_UCLIBC_ENABLE_DEBUG is not set
@@ -165,7 +154,7 @@ CONFIG_UCLIBC_VERSION_0_9_32=y
 #
 # CONFIG_GDB is not set
 # CONFIG_INSIGHT is not set
-CONFIG_GCC_VERSION="4.5.0"
+CONFIG_GCC_VERSION="4.5.2"
 CONFIG_GCC_VERSION_4=y
 CONFIG_GCC_VERSION_4_5=y
 CONFIG_UCLIBC_VERSION="0.9.32"
@@ -1019,6 +1008,7 @@ CONFIG_PACKAGE_udevtrigger=y
 # CONFIG_PACKAGE_kmod-block2mtd is not set
 # CONFIG_PACKAGE_kmod-dm is not set
 # CONFIG_PACKAGE_kmod-loop is not set
+# CONFIG_PACKAGE_kmod-md-mod is not set
 # CONFIG_PACKAGE_kmod-nbd is not set
 # CONFIG_PACKAGE_kmod-scsi-core is not set
 # CONFIG_PACKAGE_kmod-scsi-generic is not set
@@ -1101,6 +1091,7 @@ CONFIG_PACKAGE_kmod-nls-base=y
 #
 # Network Devices
 #
+# CONFIG_PACKAGE_kmod-dummy is not set
 # CONFIG_PACKAGE_kmod-gigaset is not set
 # CONFIG_PACKAGE_kmod-hfcmulti is not set
 # CONFIG_PACKAGE_kmod-libphy is not set
@@ -1155,8 +1146,10 @@ CONFIG_PACKAGE_kmod-input-core=y
 # CONFIG_PACKAGE_kmod-input-joydev is not set
 CONFIG_PACKAGE_kmod-input-polldev=y
 # CONFIG_PACKAGE_kmod-leds-gpio is not set
+# CONFIG_PACKAGE_kmod-ledtrig-gpio is not set
 # CONFIG_PACKAGE_kmod-ledtrig-morse is not set
 # CONFIG_PACKAGE_kmod-ledtrig-netdev is not set
+# CONFIG_PACKAGE_kmod-ledtrig-usbdev is not set
 # CONFIG_PACKAGE_kmod-libcrc32c is not set
 # CONFIG_PACKAGE_kmod-mmc is not set
 # CONFIG_PACKAGE_kmod-pwm is not set
@@ -1222,3 +1215,4 @@ CONFIG_PACKAGE_kmod-input-polldev=y
 # Wireless Drivers
 #
 # CONFIG_PACKAGE_kmod-lib80211 is not set
+# CONFIG_PACKAGE_kmod-net-zd1201 is not set
