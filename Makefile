@@ -30,7 +30,9 @@ CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(TARGET)
 LCDL_DIR:=$(BASE_DIR)/dl
 
-all: $(DISTRO)-distclean $(DISTRO)
+all: $(DISTRO)-all
+
+$(DISTRO)-all: $(DISTRO)-distclean $(DISTRO)
 
 build-info:
 	echo "DISTRO="$(DISTRO)
@@ -60,5 +62,5 @@ $(DISTRO)-clean:
 $(DISTRO)-distclean:
 	rm -rf $(WK_DIR)
 
-.PHONY: $(DISTRO) $(DISTRO)-clean $(DISTRO)-distclean
-.PHONY: dummy build-info
+.PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
+.PHONY: all dummy build-info
