@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nxlib
-PKG_VERSION:=20100410
-PKG_REV:=6a3e586142572897ef08f38be41e8ced772c587d
+PKG_VERSION:=20101209
+PKG_REV:=bd5ee778d12baa7687715cbad5cb42597651e2eb
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -40,6 +40,8 @@ define Package/nxlib/description
 endef
 
 define Build/Configure
+	touch $(PKG_BUILD_DIR)/Makefile
+	mv $(PKG_BUILD_DIR)/Makefile $(PKG_BUILD_DIR)/Makefile.orig
 	$(CP) ./files/nxlib-Makefile $(PKG_BUILD_DIR)/Makefile
 	$(CP) ./files/X11/*.h $(PKG_BUILD_DIR)/X11/
 endef
