@@ -19,6 +19,7 @@ DISTRO ?= huangdi
 TARGET ?= x86
 DEVICE_TYPE ?= ezbox
 ARCH ?= i386
+RT_TYPE ?= none
 export DEVICE_TYPE
 
 # log settings
@@ -29,18 +30,21 @@ LOG_LEVEL ?= 0
 CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(TARGET)
 LCDL_DIR:=$(BASE_DIR)/dl
+RT_DIR:=$(CUR_DIR)/rt/$(RT_TYPE)
+SCRIPTS_DIR:=$(CUR_DIR)/scripts
 
 all: $(DISTRO)-all
 
 $(DISTRO)-all: $(DISTRO)-distclean $(DISTRO)
 
 build-info:
-	echo "DISTRO="$(DISTRO)
-	echo "TARGET="$(TARGET)
-	echo "DEVICE_TYPE="$(DEVICE_TYPE)
-	echo "ARCH="$(ARCH)
+	echo "DISTRO=$(DISTRO)"
+	echo "TARGET=$(TARGET)"
+	echo "DEVICE_TYPE=$(DEVICE_TYPE)"
+	echo "ARCH=$(ARCH)"
+	echo "RT_TYPE=$(RT_TYPE)"
 
-$(DISTRO): build-info
+prepare-build:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
 	rm -rf $(WK_DIR)/target/linux/$(TARGET)
@@ -52,6 +56,14 @@ $(DISTRO): build-info
 	mkdir -p $(LCDL_DIR)
 	rm -rf $(WK_DIR)/dl
 	ln -s $(LCDL_DIR) $(WK_DIR)/dl
+
+clean-build:
+	rm -rf $(WK_DIR)
+
+prepare-rt-kernel:
+	[ ! -d $(RT_DIR)/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET)/patches-list.txt
+
+$(DISTRO): build-info prepare-build prepare-rt-kernel
 	cp distro/$(DISTRO)/configs/defconfig-$(TARGET) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
@@ -63,4 +75,4 @@ $(DISTRO)-distclean:
 	rm -rf $(WK_DIR)
 
 .PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
-.PHONY: all dummy build-info
+.PHONY: all dummy build-info prepare-build clean-build
