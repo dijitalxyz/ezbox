@@ -26,9 +26,15 @@ export DEVICE_TYPE
 LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 LOG_LEVEL ?= 0
 
+ifeq ($(RT_TYPE),none)
+SUFFIX:=$(TARGET)
+else
+SUFFIX:=$(TARGET)-$(RT_TYPE)
+endif
+
 # basic directories
 CUR_DIR:=${CURDIR}
-WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(TARGET)
+WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
 LCDL_DIR:=$(BASE_DIR)/dl
 RT_DIR:=$(CUR_DIR)/rt/$(RT_TYPE)
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
@@ -64,7 +70,7 @@ prepare-rt-kernel:
 	[ ! -d $(RT_DIR)/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET)/patches-list.txt
 
 $(DISTRO): build-info prepare-build prepare-rt-kernel
-	cp distro/$(DISTRO)/configs/defconfig-$(TARGET) $(WK_DIR)/.config
+	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
 
