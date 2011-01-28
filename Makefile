@@ -69,6 +69,13 @@ clean-build:
 prepare-rt-kernel:
 	[ ! -d $(RT_DIR)/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET)/patches-list.txt
 
+quick-build:
+	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
+	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
+
+quick-clean:
+	cd $(WK_DIR) && make clean
+
 $(DISTRO): build-info prepare-build prepare-rt-kernel
 	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
@@ -82,3 +89,4 @@ $(DISTRO)-distclean:
 
 .PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
 .PHONY: all dummy build-info prepare-build clean-build
+.PHONY: quick-build quick-clean
