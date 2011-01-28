@@ -18,6 +18,10 @@ DEVICE_TYPE := ezbox
 # support [i386|mips|mipsel|arm]
 ARCH := mips
 
+# RT_TYPE set the real-time Linux type
+# support [none|rtai|xenomai]
+# RT_TYPE := none
+
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 # LOG_FILE :=
