@@ -67,7 +67,8 @@ clean-build:
 	rm -rf $(WK_DIR)
 
 prepare-rt-kernel:
-	[ ! -d $(RT_DIR)/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET) $(RT_DIR)/linux/$(TARGET)/patches-list.txt
+	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
+	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
 
 quick-build:
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
