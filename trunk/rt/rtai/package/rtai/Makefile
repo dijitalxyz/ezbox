@@ -42,32 +42,50 @@ $(call Package/rtai/Default/description)
  This package contains the RTAI kernel modules.
 endef
 
-TARGET_CFLAGS += -I$(LINUX_DIR)/arch/$(LINUX_KARCH)/include
+#TARGET_CFLAGS += -I$(LINUX_DIR)/arch/$(LINUX_KARCH)/include
 
 CONFIGURE_ARGS += --with-linux-dir=$(LINUX_DIR)
-# CONFIGURE_ARGS += --disable-leds
+CONFIGURE_ARGS += --disable-leds
 
 #define Build/Configure
 #endef
 
-#define Build/Compile
-#endef
+define Build/Compile
+	$(MAKE) -C $(PKG_BUILD_DIR) \
+		CC="$(TARGET_CC)" \
+		DESTDIR="$(PKG_INSTALL_DIR)" \
+		ARCH="$(ARCH)" \
+		CROSS_COMPILE="$(CROSS_COMPILE)" \
+		all
+endef
+
+define Build/Install
+	$(MAKE) -C $(PKG_BUILD_DIR) \
+		CC="$(TARGET_CC)" \
+		DESTDIR="$(PKG_INSTALL_DIR)" \
+		ARCH="$(ARCH)" \
+		CROSS_COMPILE="$(CROSS_COMPILE)" \
+		install
+endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lua{,lib,conf}.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lauxlib.h $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/lnum_config.h $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblua.{a,so*} $(1)/usr/lib/
-	ln -sf liblua.so.$(PKG_VERSION) $(1)/usr/lib/liblualib.so
-	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_BUILD_DIR)/etc/lua.pc $(1)/usr/lib/pkgconfig/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblxrt.a $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblxrt.la $(1)/usr/lib/
+	$(SED) 's,$(PKG_INSTALL_DIR),,g' $(1)/usr/lib/liblxrt.la
 endef
 
 define Package/rtai/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lua $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/calibration
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/modules
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/calibration/* $(1)/usr/calibration/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/modules/*.ko $(1)/usr/modules/
 endef
 
 $(eval $(call BuildPackage,rtai))
