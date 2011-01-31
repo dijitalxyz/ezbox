@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (unknown)
-# Fri Jan 28 16:35:18 2011
+# Sat Jan 29 21:56:50 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1175,6 +1175,15 @@ CONFIG_PACKAGE_libncurses=y
 CONFIG_PACKAGE_libpng=y
 CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_zlib=y
+
+#
+# Real-Time
+#
+
+#
+# RTAI
+#
+CONFIG_PACKAGE_rtai=y
 
 #
 # Kernel modules
