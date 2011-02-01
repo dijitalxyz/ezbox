@@ -36,7 +36,7 @@ endif
 CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
 LCDL_DIR:=$(BASE_DIR)/dl
-RT_DIR:=$(CUR_DIR)/rt/$(RT_TYPE)
+RT_DIR:=$(CUR_DIR)/realtime/$(RT_TYPE)
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
 
 all: $(DISTRO)-all
@@ -66,7 +66,7 @@ prepare-build:
 clean-build:
 	rm -rf $(WK_DIR)
 
-prepare-rt-kernel:
+prepare-realtime-kernel:
 	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
 	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
 
@@ -77,7 +77,7 @@ quick-build:
 quick-clean:
 	cd $(WK_DIR) && make clean
 
-$(DISTRO): build-info prepare-build prepare-rt-kernel
+$(DISTRO): build-info prepare-build prepare-realtime-kernel
 	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
