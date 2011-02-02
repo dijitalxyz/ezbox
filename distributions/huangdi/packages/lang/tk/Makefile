@@ -25,8 +25,9 @@ include $(INCLUDE_DIR)/package.mk
 define Package/tk
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=TCL Lang
+  TITLE:=TK graphical user interface toolkit
   URL:=http://www.tcl.tk
+  DEPENDS:=+tcl
 endef
 
 define Package/tk/description
