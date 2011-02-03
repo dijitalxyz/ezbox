@@ -6,8 +6,8 @@
  int XLocaleOfIM() { DPRINTF("XLocaleOfIM called\n"); return 0; }
 +
 +/* required for fltk 2.0.x */
-+int XFreeDeviceList() { printf("XFreeDeviceList called\n"); return 0; }
-+int XOpenDevice() { printf("XOpenDevice called\n"); return 0; }
-+int XListInputDevices() { printf("XListInputDevices called\n"); return 0; }
-+int XSelectExtensionEvent() { printf("XSelectExtensionEvent called\n"); return 0; }
-+int XGetExtensionVersion() { printf("XGetExtensionVersion called\n"); return 0; }
++int XFreeDeviceList() { DPRINTF("XFreeDeviceList called\n"); return 0; }
++int XOpenDevice() { DPRINTF("XOpenDevice called\n"); return 0; }
++int XListInputDevices() { DPRINTF("XListInputDevices called\n"); return 0; }
++int XSelectExtensionEvent() { DPRINTF("XSelectExtensionEvent called\n"); return 0; }
++int XGetExtensionVersion() { DPRINTF("XGetExtensionVersion called\n"); return 0; }
