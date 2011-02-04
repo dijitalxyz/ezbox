@@ -66,6 +66,10 @@ define Build/Install
 	$(CP) $(PKG_BUILD_DIR)/nxlib.h $(PKG_INSTALL_DIR)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/X11/*.h $(PKG_INSTALL_DIR)/usr/include/X11/
 	$(CP) $(PKG_BUILD_DIR)/X11/*.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/
+	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libX11.so
+	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXext.so
+	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXi.so
+	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXinerama.so
 endef
 
 define Build/InstallDev
