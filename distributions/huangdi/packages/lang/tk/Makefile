@@ -27,7 +27,7 @@ define Package/tk
   CATEGORY:=Languages
   TITLE:=TK graphical user interface toolkit
   URL:=http://www.tcl.tk
-  DEPENDS:=+tcl nxlib
+  DEPENDS:=+tcl +nxlib
 endef
 
 define Package/tk/description

@@ -1,14 +1,11 @@
 --- tk8.5.8.orig/unix/tcl.m4	2011-02-04 00:21:37.238734836 +0800
 +++ tk8.5.8/unix/tcl.m4	2011-02-04 00:24:34.262737922 +0800
-@@ -2413,26 +2413,26 @@
- 	XLIBSW=nope
- 	dirs="/usr/unsupported/lib /usr/local/lib /usr/X386/lib /usr/X11R6/lib /usr/X11R5/lib /usr/lib/X11R5 /usr/lib/X11R4 /usr/openwin/lib /usr/X11/lib /usr/sww/X11/lib"
+@@ -2415,16 +2415,16 @@
  	for i in $dirs ; do
--	    if test -r $i/libX11.a -o -r $i/libX11.so -o -r $i/libX11.sl -o -r $i/libX11.dylib; then
-+	    if test -r $i/libNX11.a -o -r $i/libNX11.so -o -r $i/libNX11.sl -o -r $i/libNX11.dylib; then
+ 	    if test -r $i/libX11.a -o -r $i/libX11.so -o -r $i/libX11.sl -o -r $i/libX11.dylib; then
  		AC_MSG_RESULT([$i])
 -		XLIBSW="-L$i -lX11"
-+		XLIBSW="-L$i -lNX11 -lnano-X"
++		XLIBSW="-L$i -lX11 -lnano-X"
  		x_libraries="$i"
  		break
  	    fi
@@ -16,20 +13,19 @@
      else
  	if test "$x_libraries" = ""; then
 -	    XLIBSW=-lX11
-+	    XLIBSW="-lNX11 -lnano-X"
++	    XLIBSW="-lX11 -lnano-X"
  	else
 -	    XLIBSW="-L$x_libraries -lX11"
-+	    XLIBSW="-L$x_libraries -lNX11 -lnano-X"
++	    XLIBSW="-L$x_libraries -lX11 -lnano-X"
  	fi
      fi
      if test "$XLIBSW" = nope ; then
- 	AC_CHECK_LIB(Xwindow, XCreateWindow, XLIBSW=-lXwindow)
+@@ -2432,7 +2432,7 @@
      fi
      if test "$XLIBSW" = nope ; then
--	AC_MSG_RESULT([could not find any!  Using -lX11.])
+ 	AC_MSG_RESULT([could not find any!  Using -lX11.])
 -	XLIBSW=-lX11
-+	AC_MSG_RESULT([could not find any!  Using -lNX11.])
-+	XLIBSW="-lNX11 -lnano-X"
++	XLIBSW="-lX11 -lnano-X"
      fi
  ])
  
