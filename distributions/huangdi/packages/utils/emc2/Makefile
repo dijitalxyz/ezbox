@@ -19,7 +19,7 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_VERSION:=$(PKG_REV)
 
 PKG_INSTALL:=1
-#PKG_FIXUP:=libtool
+PKG_FIXUP:=libtool
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -27,7 +27,7 @@ define Package/emc2
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=EMC (the Enhanced Machine Control)
-  DEPENDS:=+rtai
+  DEPENDS:=+rtai +glib2 +tcl +tk
   URL:=http://www.linuxcnc.org/
 endef
 
@@ -37,26 +37,38 @@ define Package/emc2/description
   and lathes.
 endef
 
+CONFIGURE_VARS += \
+	ac_cv_lib_readline_readline=yes
+
 define Build/Configure
-	touch $(PKG_BUILD_DIR)/Makefile
-	mv $(PKG_BUILD_DIR)/Makefile $(PKG_BUILD_DIR)/Makefile.orig
+	(cd $(PKG_BUILD_DIR)/src; autoreconf --install --symlink );
+	$(call Build/Configure/Default, \
+		--disable-simulator \
+		--disable-gtk \
+		--disable-build-documentation \
+		--disable-python \
+		--with-realtime="$(STAGING_DIR)/usr" \
+		--with-module-dir="/usr/modules" \
+		--with-x="no" \
+		, AR="$(TARGET_CROSS)ar" LIBS="-lX11 -lnano-X" \
+		,src)
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		CC=$(TARGET_CC) \
-		AR=$(TARGET_CROSS)ar \
-		MWIN_INCLUDE=$(STAGING_DIR)/usr/include/microwin \
-		MWIN_LIB=$(STAGING_DIR)/usr/lib
+	$(MAKE) -C $(PKG_BUILD_DIR)/src \
+		BUILD_VERBOSE=1 \
+		TARGET_LDFLAGS="$(TARGET_LDFLAGS)" \
+		CC="$(TARGET_CC)" \
+		AR="$(TARGET_CROSS)ar"
 endef
 
 define Build/Install
-	$(MAKE) -C $(PKG_BUILD_DIR) \
-		INSTALL_DIR=$(PKG_INSTALL_DIR)/usr/lib \
-		CC=$(TARGET_CC) \
-		AR=$(TARGET_CROSS)ar \
-		MWIN_INCLUDE=$(STAGING_DIR)/usr/include/microwin \
-		MWIN_LIB=$(STAGING_DIR)/usr/lib \
+	$(MAKE) -C $(PKG_BUILD_DIR)/src \
+		BUILD_VERBOSE=1 \
+		DESTDIR="$(PKG_INSTALL_DIR)" \
+		TARGET_LDFLAGS="$(TARGET_LDFLAGS)" \
+		CC="$(TARGET_CC)" \
+		AR="$(TARGET_CROSS)ar" \
 		install
 endef
 
@@ -68,7 +80,13 @@ endef
 
 define Package/emc2/install
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/usr/bin $(1)/etc
+	$(INSTALL_DIR) $(1)/usr/modules/emc2
+	$(INSTALL_DIR) $(1)/usr/share
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/etc/* $(1)/etc/
+	$(CP) $(PKG_INSTALL_DIR)/usr/modules/emc2/*.ko $(1)/usr/modules/emc2/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/* $(1)/usr/share/
 endef
 
 $(eval $(call BuildPackage,emc2))
