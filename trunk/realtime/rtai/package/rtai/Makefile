@@ -71,10 +71,14 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/modules
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblxrt.a $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblxrt.la $(1)/usr/lib/
-	$(SED) 's,$(PKG_INSTALL_DIR),,g' $(1)/usr/lib/liblxrt.la
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
+	$(SED) 's,$(STAGING_DIR),,g' $(1)/usr/lib/liblxrt.la
+	$(CP) $(PKG_INSTALL_DIR)/usr/modules/* $(1)/usr/modules/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rtai-config $(1)/usr/bin/
+	$(SED) 's,DESTDIR,$(STAGING_DIR),g' $(1)/usr/bin/rtai-config
 endef
 
 define Package/rtai/install
@@ -82,10 +86,14 @@ define Package/rtai/install
 	$(INSTALL_DIR) $(1)/usr/calibration
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/modules
+	$(INSTALL_DIR) $(1)/usr/share/rtai
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/calibration/* $(1)/usr/calibration/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/modules/*.ko $(1)/usr/modules/
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/rtai/* $(1)/usr/share/rtai/
+	$(SED) 's,DESTDIR,,g' $(1)/usr/bin/rtai-config
+	$(SED) 's,$(KERNEL_BUILD_DIR),/usr/src,g' $(1)/usr/bin/rtai-config
 endef
 
 $(eval $(call BuildPackage,rtai))
