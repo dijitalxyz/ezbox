@@ -50,6 +50,7 @@ define Build/Configure
 	mv $(PKG_BUILD_DIR)/Makefile $(PKG_BUILD_DIR)/Makefile.orig
 	$(CP) ./files/nxlib-Makefile $(PKG_BUILD_DIR)/Makefile
 	mkdir -p $(PKG_BUILD_DIR)/X11/extensions
+	mv $(PKG_BUILD_DIR)/X11/shape.h $(PKG_BUILD_DIR)/X11/shape.h.orig
 	$(CP) ./files/X11/*.h $(PKG_BUILD_DIR)/X11/
 	$(CP) ./files/X11/extensions/*.h $(PKG_BUILD_DIR)/X11/extensions/
 endef
@@ -73,13 +74,6 @@ define Build/Install
 		install
 	$(CP) $(PKG_BUILD_DIR)/nxlib.h $(PKG_INSTALL_DIR)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/X11/* $(PKG_INSTALL_DIR)/usr/include/X11/
-	$(LN) ../shape.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/shape.h
-	$(LN) ../Xfuncproto.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xfuncproto.h
-	$(LN) ../X.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/X.h
-	$(LN) ../Xlib.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xlib.h
-	$(LN) ../Xmd.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xmd.h
-	$(LN) ../Xosdefs.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xosdefs.h
-	$(LN) ../Xutil.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xutil.h
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libX11.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXext.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXi.so
