@@ -27,7 +27,9 @@ define Package/emc2
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=EMC (the Enhanced Machine Control)
-  DEPENDS:=+rtai +glib2 +tcl +tk
+  DEPENDS:=+rtai +glib2 +tcl +tk +gtk2 \
+  +FEATURE_drawing-backend_nxlib:nxlib \
+  +FEATURE_drawing-backend_libX11:libX11
   URL:=http://www.linuxcnc.org/
 endef
 
@@ -44,15 +46,22 @@ define Build/Configure
 	(cd $(PKG_BUILD_DIR)/src; autoreconf --install --symlink );
 	$(call Build/Configure/Default, \
 		--disable-simulator \
-		--disable-gtk \
+		--enable-gtk \
 		--disable-build-documentation \
 		--disable-python \
 		--with-realtime="$(STAGING_DIR)/usr" \
 		--with-module-dir="/usr/modules" \
 		--with-x="no" \
-		, AR="$(TARGET_CROSS)ar" LIBS="-lX11 -lnano-X" \
+		, AR="$(TARGET_CROSS)ar" \
 		,src)
 endef
+
+GTK2_EXTRA_LIBS:= -lpng -lz -lpixman-1 -lexpat
+
+TARGET_LDFLAGS += \
+	$(GTK2_EXTRA_LIBS) \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lX11 -lnano-X, \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11, ))
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
