@@ -48,8 +48,8 @@ and font handling for GTK+-2.x.
 endef
 
 CONFIGURE_ARGS += \
-	$(if $(CONFIG_PACKAGE_nxlib), --with-x, --without-x) \
-	$(if $(CONFIG_PACKAGE_libX11), --with-x, --without-x)
+	$(if $(CONFIG_PACKAGE_nxlib), --with-x, \
+	$(if $(CONFIG_PACKAGE_libX11), --with-x, --without-x))
 
 CONFIGURE_VARS += \
 	CXX="$(TARGET_CC)"

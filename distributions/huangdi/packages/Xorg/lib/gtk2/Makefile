@@ -66,8 +66,8 @@ define Build/Configure
 		--without-libjasper \
 		--without-xinput \
 		$(if $(CONFIG_FEATURE_drawing-backend_DirectFB),--with-gdktarget=directfb,) \
-		$(if $(CONFIG_FEATURE_drawing-backend_nxlib),--with-x --with-gdktarget=x11,--without-x) \
-		$(if $(CONFIG_FEATURE_drawing-backend_libX11),--with-x --with-gdktarget=x11,--without-x) \
+		$(if $(CONFIG_FEATURE_drawing-backend_nxlib),--with-x --with-gdktarget=x11, \
+		$(if $(CONFIG_FEATURE_drawing-backend_libX11),--with-x --with-gdktarget=x11,--without-x)) \
 		$(if $(CONFIG_PACKAGE_gtk2-cups),--enable-cups=auto,--disable-cups), \
 		gio_can_sniff=no \
 	)
