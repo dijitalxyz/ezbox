@@ -48,7 +48,7 @@ CONFIGURE_ARGS+= \
 	--disable-win32 \
 	--enable-xlib-xrender=no \
 	$(if $(CONFIG_FEATURE_drawing-backend_DirectFB), --enable-directfb, --disable-directfb) \
-	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --enable-xlib --with-x, --disable-xlib --without-x)
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --enable-xlib --with-x, --disable-xlib --without-x) \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --enable-xlib --with-x, --disable-xlib --without-x)
 
 define Build/InstallDev
