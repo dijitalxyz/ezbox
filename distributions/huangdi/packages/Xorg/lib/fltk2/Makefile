@@ -20,6 +20,7 @@ PKG_SOURCE_URL:=http://svn.easysw.com/public/fltk/fltk/trunk
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
 
 PKG_FIXUP:=libtool
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -29,7 +30,7 @@ define Package/fltk2
   SUBMENU:=framework
   TITLE:=Fltk2
   URL:=http://fltk.org/
-  DEPENDS:=+nxlib +libstdcpp
+  DEPENDS:=+nxlib +libstdcpp +libfreetype
 endef
 
 define Package/fltk2/description
@@ -42,7 +43,7 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR) all
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) all
 endef
 
 define Build/Install
