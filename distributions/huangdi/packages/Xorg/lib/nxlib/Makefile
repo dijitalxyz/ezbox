@@ -29,8 +29,14 @@ define Package/nxlib
   CATEGORY:=Xorg
   SUBMENU:=libraries
   TITLE:=NXLIB X11 Emulation Library for Nano-X.
-  DEPENDS:=+microwin
+  DEPENDS:=+microwin @FEATURE_drawing-backend_nxlib @DISPLAY_SUPPORT
   URL:=http://www.microwindows.org/
+endef
+
+define Feature/nxlib
+  TARGET_NAME:=drawing-backend
+  TARGET_TITLE:=Drawing Backend
+  NAME:=nxlib
 endef
 
 define Package/nxlib/description
@@ -83,4 +89,5 @@ define Package/nxlib/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 endef
 
+$(eval $(call Feature,nxlib))
 $(eval $(call BuildPackage,nxlib))
