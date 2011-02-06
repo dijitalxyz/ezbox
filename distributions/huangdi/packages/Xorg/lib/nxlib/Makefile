@@ -74,6 +74,12 @@ define Build/Install
 	$(CP) $(PKG_BUILD_DIR)/nxlib.h $(PKG_INSTALL_DIR)/usr/include/
 	$(CP) $(PKG_BUILD_DIR)/X11/* $(PKG_INSTALL_DIR)/usr/include/X11/
 	$(LN) ../shape.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/shape.h
+	$(LN) ../Xfuncproto.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xfuncproto.h
+	$(LN) ../X.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/X.h
+	$(LN) ../Xlib.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xlib.h
+	$(LN) ../Xmd.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xmd.h
+	$(LN) ../Xosdefs.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xosdefs.h
+	$(LN) ../Xutil.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/Xutil.h
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libX11.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXext.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXi.so
