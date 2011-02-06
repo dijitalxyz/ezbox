@@ -49,7 +49,9 @@ define Build/Configure
 	touch $(PKG_BUILD_DIR)/Makefile
 	mv $(PKG_BUILD_DIR)/Makefile $(PKG_BUILD_DIR)/Makefile.orig
 	$(CP) ./files/nxlib-Makefile $(PKG_BUILD_DIR)/Makefile
+	mkdir -p $(PKG_BUILD_DIR)/X11/extensions
 	$(CP) ./files/X11/*.h $(PKG_BUILD_DIR)/X11/
+	$(CP) ./files/X11/extensions/*.h $(PKG_BUILD_DIR)/X11/extensions/
 endef
 
 define Build/Compile
@@ -61,7 +63,7 @@ define Build/Compile
 endef
 
 define Build/Install
-	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include/X11/extensions $(PKG_INSTALL_DIR)/usr/lib
+	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include/X11 $(PKG_INSTALL_DIR)/usr/lib
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		INSTALL_DIR=$(PKG_INSTALL_DIR)/usr/lib \
 		CC=$(TARGET_CC) \
@@ -70,8 +72,8 @@ define Build/Install
 		MWIN_LIB=$(STAGING_DIR)/usr/lib \
 		install
 	$(CP) $(PKG_BUILD_DIR)/nxlib.h $(PKG_INSTALL_DIR)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/X11/*.h $(PKG_INSTALL_DIR)/usr/include/X11/
-	$(CP) $(PKG_BUILD_DIR)/X11/*.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/
+	$(CP) $(PKG_BUILD_DIR)/X11/* $(PKG_INSTALL_DIR)/usr/include/X11/
+	$(LN) ../shape.h $(PKG_INSTALL_DIR)/usr/include/X11/extensions/shape.h
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libX11.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXext.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXi.so

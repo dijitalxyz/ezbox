@@ -290,16 +290,22 @@ struct _XLockPtrs {
 
 /* in XlibInt.c */
 extern void (*_XCreateMutex_fn)(
+#if NeedFunctionPrototypes
     LockInfoPtr /* lock */
+#endif
 );
 extern void (*_XFreeMutex_fn)(
+#if NeedFunctionPrototypes
     LockInfoPtr /* lock */
+#endif
 );
 extern void (*_XLockMutex_fn)(
+#if NeedFunctionPrototypes
     LockInfoPtr	/* lock */
 #if defined(XTHREADS_WARN) || defined(XTHREADS_FILE_LINE)
     , char * /* file */
     , int /* line */
+#endif
 #endif
 );
 extern void (*_XUnlockMutex_fn)(

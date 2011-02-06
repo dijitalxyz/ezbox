@@ -40,18 +40,26 @@ typedef struct {
 _XFUNCPROTOBEGIN
 
 Bool XineramaQueryExtension (
+#if NeedFunctionPrototypes
    Display *dpy,
    int     *event_base,
    int     *error_base
+#endif
 );
 
 Status XineramaQueryVersion(
+#if NeedFunctionPrototypes
    Display *dpy,
    int     *major_versionp,
    int     *minor_versionp
+#endif
 );
 
-Bool XineramaIsActive(Display *dpy);
+Bool XineramaIsActive(
+#if NeedFunctionPrototypes
+   Display *dpy
+#endif
+);
 
 
 /* 
@@ -64,8 +72,10 @@ Bool XineramaIsActive(Display *dpy);
 
 XineramaScreenInfo * 
 XineramaQueryScreens(
+#if NeedFunctionPrototypes
    Display *dpy,
    int     *number
+#endif
 );
 
 _XFUNCPROTOEND
