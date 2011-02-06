@@ -1,0 +1,10 @@
+--- nxlib/stub.c	2011-02-06 20:54:07.695724419 +0800
++++ nxlib/stub.c	2011-02-06 20:57:35.514724099 +0800
+@@ -173,3 +173,7 @@
+ 
+ /* required for emc2 2.4.x */
+ int XineramaQueryExtension() { DPRINTF("XineramaQueryExtension called\n"); return 0; }
++
++/* required for pango 1.26.0 */
++int XExtendedMaxRequestSize() { DPRINTF("XExtendedMaxRequestSize called\n"); return 0; }
++int XInitImage() { DPRINTF("XInitImage called\n"); return 0; }
