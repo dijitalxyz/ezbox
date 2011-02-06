@@ -30,7 +30,9 @@ define Package/fltk2
   SUBMENU:=framework
   TITLE:=Fltk2
   URL:=http://fltk.org/
-  DEPENDS:=+nxlib +libstdcpp +libfreetype
+  DEPENDS:=@DISPLAY_SUPPORT +libstdcpp +libfreetype \
+  +FEATURE_drawing-backend_nxlib:nxlib \
+  +FEATURE_drawing-backend_libX11:libXi
 endef
 
 define Package/fltk2/description
