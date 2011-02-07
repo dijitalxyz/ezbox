@@ -28,6 +28,7 @@ define Package/emc2
   CATEGORY:=Utilities
   TITLE:=EMC (the Enhanced Machine Control)
   DEPENDS:=+rtai +glib2 +tcl +tk +gtk2 \
+  +libreadline +libncurses \
   +FEATURE_drawing-backend_nxlib:nxlib \
   +FEATURE_drawing-backend_libX11:libX11
   URL:=http://www.linuxcnc.org/
