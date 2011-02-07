@@ -29,7 +29,7 @@ define Package/microwin
   CATEGORY:=Xorg
   SUBMENU:=server
   TITLE:=Nano-X Window System
-  DEPENDS:=+libpthread +libpng +libfreetype
+  DEPENDS:=+libpthread +libpng +libfreetype +libjpeg
   URL:=http://www.microwindows.org/
 endef
 
