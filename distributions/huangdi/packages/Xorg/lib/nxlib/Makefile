@@ -78,6 +78,7 @@ define Build/Install
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXext.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXi.so
 	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXinerama.so
+	$(LN) libNX11.so $(PKG_INSTALL_DIR)/usr/lib/libXrender.so
 endef
 
 define Build/InstallDev
