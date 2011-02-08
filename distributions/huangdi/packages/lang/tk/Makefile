@@ -27,7 +27,10 @@ define Package/tk
   CATEGORY:=Languages
   TITLE:=TK graphical user interface toolkit
   URL:=http://www.tcl.tk
-  DEPENDS:=+tcl +nxlib
+  DEPENDS:=+tcl +fontconfig +libfreetype \
+  +FEATURE_drawing-backend_nxlib:nxlib \
+  +FEATURE_drawing-backend_libX11:libX11 \
+  +FEATURE_drawing-backend_libX11:libXft
 endef
 
 define Package/tk/description
@@ -44,7 +47,14 @@ CONFIGURE_VARS += \
 	tk_cv_strtod_unbroken=ok
 
 CONFIGURE_ARGS += \
-	--enable-threads
+	--x-includes=$(STAGING_DIR)/usr/include \
+	--x-libraries=$(STAGING_DIR)/usr/lib \
+	--enable-threads \
+	--disable-xss \
+	$(if $(FEATURE_drawing-backend_nxlib), --disable-xft, \
+	$(if $(FEATURE_drawing-backend_libX11), --enable-xft, --disable-xft)) \
+	$(if $(FEATURE_drawing-backend_nxlib), --with-x="yes", \
+	$(if $(FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
 
 MAKE_PATH := unix
 
