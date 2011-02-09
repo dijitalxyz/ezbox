@@ -53,6 +53,9 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtcl*.{a,so*} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/tclConfig.sh $(1)/usr/lib/
+	$(SED) 's,-I/usr/include,-I$(STAGING_DIR)/usr/include,g' $(1)/usr/lib/tclConfig.sh
+	$(SED) 's,-L/usr/lib,-L$(STAGING_DIR)/usr/lib,g' $(1)/usr/lib/tclConfig.sh
 endef
 
 define Package/tcl/install

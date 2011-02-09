@@ -52,6 +52,8 @@ define Build/Configure
 		--disable-python \
 		--with-realtime="$(STAGING_DIR)/usr" \
 		--with-module-dir="/usr/modules" \
+		--with-tclConfig="$(STAGING_DIR)/usr/lib/tclConfig.sh" \
+		--with-tkConfig="$(STAGING_DIR)/usr/lib/tkConfig.sh" \
 		--with-x="no" \
 		, AR="$(TARGET_CROSS)ar" \
 		,src)

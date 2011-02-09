@@ -47,13 +47,14 @@ endef
 CONFIGURE_PATH := unix
 
 CONFIGURE_VARS += \
-	tk_cv_strtod_unbroken=ok
+	ac_cv_c_tclconfig=$(STAGING_DIR)/usr/lib
 
 CONFIGURE_ARGS += \
 	--x-includes=$(STAGING_DIR)/usr/include \
 	--x-libraries=$(STAGING_DIR)/usr/lib \
 	--enable-threads \
 	--disable-xss \
+	--with-tcl=$(STAGING_DIR)/usr/bin \
 	$(if $(FEATURE_drawing-backend_nxlib), --disable-xft, \
 	$(if $(FEATURE_drawing-backend_libX11), --enable-xft, --disable-xft)) \
 	$(if $(FEATURE_drawing-backend_nxlib), --with-x="yes", \
@@ -67,6 +68,9 @@ define Build/InstallDev
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libtk*.{a,so*} $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/tkConfig.sh $(1)/usr/lib/
+	$(SED) 's,-I/usr/include,-I$(STAGING_DIR)/usr/include,g' $(1)/usr/lib/tkConfig.sh
+	$(SED) 's,-L/usr/lib,-L$(STAGING_DIR)/usr/lib,g' $(1)/usr/lib/tkConfig.sh
 endef
 
 define Package/tk/install
