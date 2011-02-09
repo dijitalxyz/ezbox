@@ -24,6 +24,9 @@ include $(INCLUDE_DIR)/package.mk
 TARGET_LDFLAGS+=\
 	-Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+
 STAMP_CONFIGURED:=$(STAMP_CONFIGURED)_$(call confvar,CONFIG_PACKAGE_gtk2 CONFIG_PACKAGE_gtk2-cups)
 
 # We can _either_ compile gtk2 with directfb-support _or_ against libX11 (libX11 is preferred when both libs are selected)

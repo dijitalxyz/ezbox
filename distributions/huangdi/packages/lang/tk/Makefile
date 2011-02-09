@@ -22,6 +22,9 @@ PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+
 define Package/tk
   SECTION:=lang
   CATEGORY:=Languages

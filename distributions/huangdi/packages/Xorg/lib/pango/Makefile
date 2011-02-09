@@ -27,6 +27,9 @@ TARGET_LDFLAGS+= \
 	-L$(STAGING_DIR)/usr/lib/libiconv/lib \
 	-L$(STAGING_DIR)/usr/lib/libintl/lib
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+
 define Package/pango
   SECTION:=xorg-libraries
   CATEGORY:=Xorg
