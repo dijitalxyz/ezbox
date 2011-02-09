@@ -51,6 +51,9 @@ CONFIGURE_ARGS+= \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --enable-xlib --with-x, \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --enable-xlib --with-x, --disable-xlib --without-x))
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.{so*,a,la} $(1)/usr/lib/
