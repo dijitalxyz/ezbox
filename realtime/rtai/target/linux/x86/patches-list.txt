@@ -1,2 +1,3 @@
 patches-2.6.32/1100-hal-linux-2.6.32.27-x86-2.7-03.patch
 config-default
+generic/config-default
