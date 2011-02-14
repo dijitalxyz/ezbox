@@ -331,9 +331,9 @@ PSP                      = N
 # TTMOUSE       TomTom GO and ONE (/dev/ts)
 ####################################################################
 GPMMOUSE                 = N
-SERMOUSE                 = Y
+SERMOUSE                 = N
 SUNMOUSE                 = N
-NOMOUSE                  = N
+NOMOUSE                  = Y
 IPAQMOUSE                = N
 ZAURUSMOUSE              = N
 TUXMOUSE                 = N
@@ -351,12 +351,12 @@ TTMOUSE		             = N
 PSPMOUSE                 = N
 
 # keyboard or null kbd driver
-TTYKBD                   = Y
+TTYKBD                   = N
 SCANKBD                  = N
 PIPEKBD                  = N
 IPAQKBD                  = N
 LIRCKBD                  = N
-NOKBD                    = N
+NOKBD                    = Y
 
 endif
 
