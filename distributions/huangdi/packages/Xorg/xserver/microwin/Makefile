@@ -24,12 +24,20 @@ PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
+NANOX_CONFIG=generic
+ifeq ($(CONFIG_NANOX_MACHINE_VIRTUALBOX),y)
+  NANOX_CONFIG=virtualbox
+endif
+ifeq ($(CONFIG_NANOX_MACHINE_COLINUX),y)
+  NANOX_CONFIG=colinux
+endif
+
 define Package/microwin
   SECTION:=xorg-server
   CATEGORY:=Xorg
   SUBMENU:=server
   TITLE:=Nano-X Window System
-  DEPENDS:=+libpthread +libpng +libfreetype +libjpeg
+  DEPENDS:=+libpthread +libpng +libfreetype +libjpeg @DISPLAY_SUPPORT
   URL:=http://www.microwindows.org/
 endef
 
@@ -39,8 +47,12 @@ define Package/microwin/description
   to smaller devices.
 endef
 
+define Package/microwin/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define Build/Configure
-	$(CP) ./files/defconfig $(PKG_BUILD_DIR)/src/config
+	$(CP) ./files/configs/defconfig-$(NANOX_CONFIG) $(PKG_BUILD_DIR)/src/config
 endef
 
 define Build/Compile
