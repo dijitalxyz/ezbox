@@ -61,6 +61,8 @@ endef
 define Package/tcl/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/tcl* $(1)/usr/lib
+	$(RM) $(1)/usr/lib/tclConfig.sh
 
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin
