@@ -27,8 +27,10 @@ define Package/emc2
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=EMC (the Enhanced Machine Control)
-  DEPENDS:=+rtai +glib2 +tcl +tk +gtk2 \
+  DEPENDS:=+rtai +glib2 +tcl +tk \
   +libreadline +libncurses \
+  +FEATURE_gui-toolkit_FLTK2:fltk2 \
+  +FEATURE_gui-toolkit_GTK2:gtk2 \
   +FEATURE_drawing-backend_nxlib:nxlib \
   +FEATURE_drawing-backend_libX11:libX11
   URL:=http://www.linuxcnc.org/
@@ -47,7 +49,8 @@ define Build/Configure
 	(cd $(PKG_BUILD_DIR)/src; autoreconf --install --symlink );
 	$(call Build/Configure/Default, \
 		--disable-simulator \
-		--enable-gtk \
+		$(if $(CONFIG_FEATURE_gui-toolkit_FLTK2), --enable-fltk2, --disable-fltk2) \
+		$(if $(CONFIG_FEATURE_gui-toolkit_GTK2), --enable-gtk, --disable-gtk) \
 		--disable-build-documentation \
 		--disable-python \
 		--with-realtime="$(STAGING_DIR)/usr" \
@@ -59,10 +62,14 @@ define Build/Configure
 		,src)
 endef
 
-GTK2_EXTRA_LIBS:= -lpng -lz -lpixman-1 -lexpat
+TARGET_EXTRA_LIBS:= -lpng -lz -lexpat
+FLTK2_EXTRA_LIBS:= 
+GTK2_EXTRA_LIBS:= -lpixman-1
 
 TARGET_LDFLAGS += \
-	$(GTK2_EXTRA_LIBS) \
+	$(TARGET_EXTRA_LIBS) \
+	$(if $(CONFIG_FEATURE_gui-toolkit_FLTK2), $(FLK2_EXTRA_LIBS), ) \
+	$(if $(CONFIG_FEATURE_gui-toolkit_GTK2), $(GTK2_EXTRA_LIBS), ) \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lX11 -lnano-X, \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11, ))
 

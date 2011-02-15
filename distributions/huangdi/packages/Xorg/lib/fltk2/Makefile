@@ -35,6 +35,12 @@ define Package/fltk2
   +FEATURE_drawing-backend_libX11:libXi
 endef
 
+define Feature/FLTK2
+  TARGET_NAME:=gui-toolkit
+  TARGET_TITLE:=GUI Tool Kit
+  NAME:=FLTK 2.0
+endef
+
 define Package/fltk2/description
     FLTK (pronounced <fulltick>) is a cross-platform C++ GUI toolkit for UNIX/Linux (X11), Microsoft Windows, and MacOS X. FLTK provides modern GUI functionality without the bloat and supports 3D graphics via OpenGL and its built-in GLUT emulation.
 endef
@@ -67,4 +73,5 @@ define Package/fltk2/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 endef
 
+$(eval $(call Feature,FLTK2))
 $(eval $(call BuildPackage,fltk2))

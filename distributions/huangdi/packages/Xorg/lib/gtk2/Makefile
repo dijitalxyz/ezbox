@@ -51,6 +51,12 @@ define Package/gtk2
   URL:=http://www.gtk.org/
 endef
 
+define Feature/GTK2
+  TARGET_NAME:=gui-toolkit
+  TARGET_TITLE:=GUI Tool Kit
+  NAME:=GTK+ 2.x
+endef
+
 define Package/gtk2-cups
   SECTION:=xorg-framework
   CATEGORY:=Xorg
@@ -133,5 +139,6 @@ define Package/gtk2-cups/install
 		$(1)/usr/lib/gtk-2.0/2.10.0/printbackends/
 endef
 
+$(eval $(call Feature,GTK2))
 $(eval $(call BuildPackage,gtk2))
 $(eval $(call BuildPackage,gtk2-cups))
