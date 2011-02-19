@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Kamikaze (unknown)
-# Sun Feb 20 01:05:32 2011
+# Sun Feb 20 01:42:00 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -994,6 +994,7 @@ CONFIG_BUSYBOX_CONFIG_LOGREAD=y
 CONFIG_BUSYBOX_CONFIG_KLOGD=y
 CONFIG_BUSYBOX_CONFIG_LOGGER=y
 CONFIG_PACKAGE_dnsmasq=y
+CONFIG_PACKAGE_dropbear=y
 CONFIG_PACKAGE_ezcfg=y
 
 #
@@ -1041,6 +1042,7 @@ CONFIG_PACKAGE_uuidgen=y
 # database
 #
 # CONFIG_PACKAGE_sqlite3-cli is not set
+# CONFIG_PACKAGE_dropbearconvert is not set
 CONFIG_PACKAGE_emc2=y
 # CONFIG_PACKAGE_jpeg-tools is not set
 # CONFIG_PACKAGE_ldconfig is not set
@@ -1152,6 +1154,9 @@ CONFIG_PACKAGE_freeswitch-mod-voipcodecs=y
 # CONFIG_PACKAGE_freeswitch-sounds-en is not set
 # CONFIG_PACKAGE_freeswitch-sounds-moh is not set
 CONFIG_PACKAGE_freeswitch-tools=y
+# CONFIG_PACKAGE_genl is not set
+CONFIG_PACKAGE_ip=y
+# CONFIG_PACKAGE_tc is not set
 
 #
 # Libraries
@@ -1502,7 +1507,6 @@ CONFIG_PACKAGE_fltk2=y
 #
 # libraries
 #
-# CONFIG_PACKAGE_cairo is not set
 CONFIG_PACKAGE_nxlib=y
 
 #
