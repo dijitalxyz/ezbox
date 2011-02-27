@@ -7,6 +7,7 @@
 #include "utils.h"
 
 /* utils function declaration */
+char *utils_get_kernel_modules(void);
 char *utils_get_kernel_version(void);
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);

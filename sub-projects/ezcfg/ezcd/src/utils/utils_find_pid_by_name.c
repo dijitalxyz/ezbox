@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_kernel_version.c
+ * Module Name  : utils_find_pid_by_name.c
  *
- * Description  : ezcfg get kernel version function
+ * Description  : ezcfg find PID by process name function
  *
  * Copyright (C) 2010 by ezbox-project
  *

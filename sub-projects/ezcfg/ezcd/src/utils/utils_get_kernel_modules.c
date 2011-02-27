@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_modules.c
+ * Module Name  : utils_get_kernel_modules.c
  *
- * Description  : ezbox /etc/modules generating program
+ * Description  : ezcfg get kernel modules function
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2011-02-27   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,44 +38,39 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-
-int pop_etc_modules(int flag)
+/*
+ * Returns kernel modules string
+ * It is the caller's duty to free the returned string.
+ */
+char *utils_get_kernel_modules(void)
 {
-	FILE *file;
-	char cmd[64];
-	char buf[32];
-	char *kmod = NULL;
-	char *p, *q;
+        FILE *file;
+	char *p = NULL;
+	char *q = NULL;
+	char *v = NULL;
+	char buf[64];
 
-	file = fopen("/etc/modules", "w");
+	/* get kernel version */
+	file = fopen("/proc/cmdline", "r");
 	if (file == NULL)
-		return (EXIT_FAILURE);
+		return NULL;
 
-	switch (flag) {
-	case RC_BOOT :
-		/* get the kernel module name from kernel cmdline */
-		kmod = utils_get_kernel_modules();
-		if (kmod != NULL) {
-			p = kmod;
-			while(p != NULL) {
-				q = strchr(p, ',');
-				if (q != NULL)
-					*q = '\0';
-				fprintf(file, "%s\n", p);
-				if (q != NULL)
-					p = q+1;
-				else
-					p = NULL;
-			}
-			free(kmod);
-		}
-		break;
-	case RC_RESTART :
-	case RC_START :
-		/* get the kernel module name from nvram */
-		break;
-	}
+	memset(buf, 0, sizeof(buf));
+	if (fgets(buf, sizeof(buf), file) == NULL)
+		goto func_out;
 
+	q = strstr(buf, "modules=");
+	if (q == NULL)
+		goto func_out;
+
+	/* skip "modules=" */
+	p = q + 8;
+	q = strchr(p, ' ');
+	if (q != NULL)
+		*q = '\0';
+func_out:
 	fclose(file);
-	return (EXIT_SUCCESS);
+	if (p != NULL)
+		v = strdup(p);
+	return (v);
 }
