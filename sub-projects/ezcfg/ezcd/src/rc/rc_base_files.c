@@ -56,6 +56,9 @@ int rc_base_files(int flag)
 
 		/* generate /etc/banner */
 		pop_etc_banner(RC_START);
+
+		/* generate /etc/mtab */
+		pop_etc_mtab(RC_START);
 		break;
 	}
 

@@ -48,7 +48,7 @@ char *utils_get_kernel_modules(void)
 	char *p = NULL;
 	char *q = NULL;
 	char *v = NULL;
-	char buf[64];
+	char buf[1024];
 
 	/* get kernel version */
 	file = fopen("/proc/cmdline", "r");

@@ -139,8 +139,8 @@ static char *find_entry_position(char *data, char *name)
 	while (*entry != '\0') {
 		entry_len = strlen(entry) + 1;
 		cmp_len = (entry_len > name_len) ? name_len : entry_len ;
-		if (strncmp(name, entry, cmp_len) == 0 &&
-		    *(entry + cmp_len) == '=') {
+		if ((strncmp(name, entry, cmp_len) == 0) &&
+		    (*(entry + cmp_len) == '=')) {
 			break;
 		}
 		else {

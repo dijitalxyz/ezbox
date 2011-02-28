@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_ezcd.c
+ * Module Name  : pop_etc_ezcfg_conf.c
  *
- * Description  : ezbox run ezcfg daemon service
+ * Description  : ezbox /etc/ezcfg.conf generating program
  *
  * Copyright (C) 2010 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,42 +38,26 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
-#if 0
-#define DBG printf
-#else
-#define DBG(format, arg...)
-#endif
-
-int rc_ezcd(int flag)
+int pop_etc_ezcfg_conf(int flag)
 {
-	int ret;
-	char cmdline[256];
-	proc_stat_t *pidList;
+	FILE *file;
 
 	switch (flag) {
 	case RC_BOOT :
-	case RC_START :
-		pop_etc_ezcfg_conf(flag);
-		snprintf(cmdline, sizeof(cmdline), "%s -d", CMD_EZCD);
-		system(cmdline);
-		break;
-
-	case RC_STOP :
-		pidList = utils_find_pid_by_name("ezcd");
-		if (pidList) {
-			int i;
-			for (i = 0; pidList[i].pid > 0; i++) {
-				kill(pidList[i].pid, SIGHUP);
-			}
-			free(pidList);
-		}
+		/* use default config for boot stage */
 		break;
 
 	case RC_RESTART :
-		rc_ezcd(RC_STOP);
-		rc_ezcd(RC_START);
+	case RC_START :
+		/* get ezcd config from nvram */
+		file = fopen("/etc/ezcfg.conf", "w");
+		if (file == NULL)
+			return (EXIT_FAILURE);
+
+		fclose(file);
+		break;
 	}
+
 	return (EXIT_SUCCESS);
 }

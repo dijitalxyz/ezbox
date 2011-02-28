@@ -42,6 +42,7 @@
 int rc_system(int flag)
 {
         FILE *file = NULL;
+	char cmdline[1024];
 	int ret = 0;
 
 	switch (flag) {
@@ -61,14 +62,18 @@ int rc_system(int flag)
 		/* /etc */
 		mkdir("/etc", 0755);
 
-		/* /tmp */
-		mkdir("/tmp", 0777);
-
 		/* /var */
 		mkdir("/var", 0777);
 		mkdir("/var/lock", 0777);
 		mkdir("/var/log", 0777);
 		mkdir("/var/run", 0777);
+		mkdir("/var/tmp", 0777);
+
+		/* /tmp */
+		//mkdir("/tmp", 0777);
+		snprintf(cmdline, sizeof(cmdline), "%s -rf /tmp", CMD_RM);
+		system(cmdline);
+		symlink("/var/tmp", "/tmp");
 
 		/* init shms */
 		mkdir("/dev/shm", 0777);
@@ -94,6 +99,21 @@ int rc_system(int flag)
 
 		/* load preinit kernel modules */
 		rc_load_modules(RC_BOOT);
+
+		/* prepare nvram storage path */
+		mount("/dev/sda2", "/var", "ext4", MS_MGC_VAL, NULL);
+		snprintf(cmdline, sizeof(cmdline), "%s a+rwx /var", CMD_CHMOD);
+		system(cmdline);
+		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/lock", CMD_RM);
+		system(cmdline);
+		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/run", CMD_RM);
+		system(cmdline);
+		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/tmp", CMD_RM);
+		system(cmdline);
+		mkdir("/var/lock", 0777);
+		mkdir("/var/log", 0777);
+		mkdir("/var/run", 0777);
+		mkdir("/var/tmp", 0777);
 
 		/* start ezcfg daemon */
 		rc_ezcd(RC_BOOT);

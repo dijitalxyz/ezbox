@@ -3,12 +3,14 @@
 
 /* shell command */
 #define CMD_CAT			"/bin/cat"
+#define CMD_CHMOD		"/bin/chmod"
 #define CMD_EZCD		"/sbin/ezcd"
 #define CMD_HOTPLUG2		"/sbin/hotplug2"
 #define CMD_IFCONFIG		"/sbin/ifconfig"
 #define CMD_IFDOWN		"/sbin/ifdown"
 #define CMD_IFUP		"/sbin/ifup"
 #define CMD_KILLALL		"/usr/bin/killall"
+#define CMD_RM  		"/bin/rm"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 
 /* root HOME path */

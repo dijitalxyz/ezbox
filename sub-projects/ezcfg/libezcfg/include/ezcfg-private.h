@@ -81,10 +81,10 @@ bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
 bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int type);
 bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int type);
-bool ezcfg_nvram_set_store_path(struct ezcfg_nvram *nvram, const char *path);
-char *ezcfg_nvram_get_store_path(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_set_backup_store_path(struct ezcfg_nvram *nvram, const char *path);
-char *ezcfg_nvram_get_backup_store_path(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const char *path);
+char *ezcfg_nvram_get_storage_path(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_backup_storage_path(struct ezcfg_nvram *nvram, const char *path);
+char *ezcfg_nvram_get_backup_storage_path(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings);
@@ -355,5 +355,8 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 
 /* util/util_adler32.c */
 uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
+
+/* util/util_conf.c */
+char *ezcfg_util_get_conf_string(char *path, char *keyword);
 
 #endif

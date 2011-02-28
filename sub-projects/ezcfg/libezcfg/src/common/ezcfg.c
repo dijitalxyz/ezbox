@@ -166,7 +166,7 @@ struct ezcfg *ezcfg_new(void)
 		ezcfg->log_fn = log_stderr;
 		ezcfg->log_priority = LOG_DEBUG;
 		ezcfg_list_init(&ezcfg->properties_list);
-		config_file = strdup(SYSCONFDIR "/ezcfg/ezcfg.conf");
+		config_file = strdup(EZCFG_CONFIG_FILE_PATH);
 		if (config_file == NULL) {
 			goto fail_exit;
 		}

@@ -38,6 +38,7 @@ ezcd_SOURCES += src/utils/utils_crc32.c
 # base files
 ezcd_SOURCES += src/pop/pop_etc_banner.c
 ezcd_SOURCES += src/pop/pop_etc_hostname.c
+ezcd_SOURCES += src/pop/pop_etc_mtab.c
 ezcd_SOURCES += src/pop/pop_etc_profile.c
 ezcd_SOURCES += src/rc/rc_base_files.c
 
@@ -48,6 +49,7 @@ ezcd_SOURCES += src/ubootenv.c
 ezcd_SOURCES += src/upfw.c
 
 # ezcd
+ezcd_SOURCES += src/pop/pop_etc_ezcfg_conf.c
 ezcd_SOURCES += src/rc/rc_ezcd.c
 
 # hotplug2
