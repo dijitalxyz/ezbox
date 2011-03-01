@@ -57,6 +57,8 @@ struct nvram_header {
 	unsigned char magic[4];
 	unsigned char version[4];
 	unsigned char coding[4];
+	int32_t size;
+	int32_t used;
 	uint32_t crc;
 };
 
@@ -305,6 +307,11 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	}
 
 	header = (struct nvram_header *)nvram->buffer;
+	if ((nvram->total_space - header->size) != 0) {
+		err(ezcfg, "nvram size is not matched\n");
+		goto init_exit;
+	}
+
 	data = nvram->buffer + sizeof(struct nvram_header);
 
 	/* do CRC-32 calculation */
@@ -313,6 +320,10 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 		err(ezcfg, "nvram crc is error.\n");
 		goto init_exit;
 	}
+
+	/* fill nvram space info */
+	nvram->used_space = header->used;
+	nvram->free_space = nvram->total_space - sizeof(struct nvram_header) - nvram->used_space;
 
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
@@ -365,6 +376,8 @@ static void generate_nvram_header(struct ezcfg_nvram *nvram)
 	for (i=0; i<4; i++) {
 		header->version[i] = default_version[i];
 	}
+	header->size = nvram->total_space;
+	header->used = nvram->used_space;
 
 	memset(data + nvram->used_space, '\0', nvram->free_space);
 	header->crc = ezcfg_util_crc32(data, nvram->used_space + nvram->free_space);
