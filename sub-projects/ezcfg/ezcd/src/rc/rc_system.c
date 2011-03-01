@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
 int rc_system(int flag)
 {

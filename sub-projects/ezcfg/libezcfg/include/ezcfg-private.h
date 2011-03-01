@@ -30,10 +30,6 @@ typedef struct ezcfg_nv_pair_s {
 
 
 /* common/ezcfg.c */
-void ezcfg_log(struct ezcfg *ezcfg,
-               int priority, const char *file, int line, const char *fn,
-               const char *format, ...)
-               __attribute__((format(printf, 6, 7)));
 const char *ezcfg_get_rules_path(struct ezcfg *ezcfg);
 struct ezcfg_list_entry *ezcfg_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
 struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg);
@@ -320,8 +316,6 @@ void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
 /* thread/master.c */
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
-void ezcfg_master_stop(struct ezcfg_master *master);
-void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);

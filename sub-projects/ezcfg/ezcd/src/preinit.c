@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
 int preinit_main(int argc, char **argv)
 {

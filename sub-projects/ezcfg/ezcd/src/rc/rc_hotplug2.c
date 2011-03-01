@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int rc_hotplug2(int flag)
 {

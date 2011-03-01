@@ -488,6 +488,11 @@
  */
 struct ezcfg;
 
+void ezcfg_log(struct ezcfg *ezcfg,
+               int priority, const char *file, int line, const char *fn,
+               const char *format, ...)
+               __attribute__((format(printf, 6, 7)));
+
 static inline void __attribute__((always_inline, format(printf, 2, 3)))
 ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
 
@@ -514,6 +519,7 @@ ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
 #  define info(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
 #  define err(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
 #endif
+
 
 static inline void ezcfg_log_init(const char *program_name)
 {
@@ -562,6 +568,8 @@ const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
 /* thread/master.c */
 struct ezcfg_master;
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
+void ezcfg_master_stop(struct ezcfg_master *master);
+void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 
 /* igrs/igrs.c */
 struct ezcfg_igrs;

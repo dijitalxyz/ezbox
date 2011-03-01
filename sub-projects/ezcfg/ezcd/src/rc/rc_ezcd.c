@@ -39,6 +39,7 @@
 
 #include "ezcd.h"
 #include "utils.h"
+#include "pop_func.h"
 
 #if 0
 #define DBG printf

@@ -38,10 +38,10 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int rc_base_files(int flag)
 {
-	int ret;
 	char cmdline[256];
 
 	switch (flag) {

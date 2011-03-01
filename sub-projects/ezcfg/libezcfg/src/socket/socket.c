@@ -101,7 +101,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
-	char *addr, *port;
+	char *addr = NULL, *port;
 
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
@@ -157,7 +157,6 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		port = strchr(addr, ':');
 		if (port == NULL) {
 			err(ezcfg, "socket_path format error.\n");
-			free(addr);
 			goto fail_exit;
 		}
 		*port = '\0';
@@ -172,11 +171,13 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		usa->domain = AF_INET;
 		usa->u.sin.sin_family = AF_INET;
 		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
-		if (inet_aton(addr, &(usa->u.sin.sin_port)) == 0) {
+		usa->u.sin.sin_addr.s_addr = inet_addr(addr);
+		if (usa->u.sin.sin_addr.s_addr == 0) {
 			err(ezcfg, "convert IP address error\n");
 			goto fail_exit;
 		}
 		usa->len = sizeof(usa->u.sin);
+		free(addr);
 		break;
 
 	default:
@@ -188,6 +189,10 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	return sp;
 
 fail_exit:
+	if (addr != NULL) {
+		free(addr);
+	}
+
 	if (sp != NULL) {
 		if (sp->sock >= 0) {
 			close(sp->sock);

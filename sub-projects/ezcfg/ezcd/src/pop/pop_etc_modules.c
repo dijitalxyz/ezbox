@@ -42,8 +42,6 @@
 int pop_etc_modules(int flag)
 {
 	FILE *file;
-	char cmd[64];
-	char buf[32];
 	char *kmod = NULL;
 	char *p, *q;
 
