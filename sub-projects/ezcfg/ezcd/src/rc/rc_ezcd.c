@@ -48,7 +48,6 @@
 
 int rc_ezcd(int flag)
 {
-	int ret;
 	char cmdline[256];
 	proc_stat_t *pidList;
 
@@ -58,6 +57,8 @@ int rc_ezcd(int flag)
 		pop_etc_ezcfg_conf(flag);
 		snprintf(cmdline, sizeof(cmdline), "%s -d", CMD_EZCD);
 		system(cmdline);
+		/* sleep 1 second to make sure ezcd is up */
+		sleep(1);
 		break;
 
 	case RC_STOP :
@@ -69,6 +70,8 @@ int rc_ezcd(int flag)
 			}
 			free(pidList);
 		}
+		/* sleep 1 second to make sure ezcd is down */
+		sleep(1);
 		break;
 
 	case RC_RESTART :

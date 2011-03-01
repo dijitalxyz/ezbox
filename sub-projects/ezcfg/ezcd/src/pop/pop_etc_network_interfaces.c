@@ -39,78 +39,141 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
-int pop_etc_network_interfaces(int flag)
+static int set_loopback_interface(FILE *file)
 {
-	FILE *file;
+	fprintf(file, "iface lo inet loopback\n");
+	fprintf(file, "\n");
+	return (EXIT_SUCCESS);
+}
+
+static int set_lan_interface(FILE *file)
+{
 	char lan_ifname[IFNAMSIZ];
 	int lan_ipaddr[4];
 	int lan_netmask[4];
+	char buf[128];
+	int rc;
+
+	/* setup lan interface */
+	rc = ezcfg_api_nvram_get("lan_ifname", lan_ifname, sizeof(lan_ifname));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	rc = ezcfg_api_nvram_get("lan_ipaddr", buf, sizeof(buf));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	if (sscanf(buf, "%d.%d.%d.%d",
+	       &lan_ipaddr[0],
+	       &lan_ipaddr[1],
+	       &lan_ipaddr[2],
+	       &lan_ipaddr[3]) != 4)
+		return (EXIT_FAILURE);
+
+	rc = ezcfg_api_nvram_get("lan_netmask", buf, sizeof(buf));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	if (sscanf(buf, "%d.%d.%d.%d",
+	       &lan_netmask[0],
+	       &lan_netmask[1],
+	       &lan_netmask[2],
+	       &lan_netmask[3]) != 4)
+		return (EXIT_FAILURE);
+
+	fprintf(file, "iface %s inet static\n", lan_ifname);
+	fprintf(file, "\taddress %d.%d.%d.%d\n",
+		lan_ipaddr[0],
+		lan_ipaddr[1],
+		lan_ipaddr[2],
+		lan_ipaddr[3]);
+	fprintf(file, "\tnetmask %d.%d.%d.%d\n",
+		lan_netmask[0],
+		lan_netmask[1],
+		lan_netmask[2],
+		lan_netmask[3]);
+	fprintf(file, "\tnetwork %d.%d.%d.%d\n",
+		lan_ipaddr[0] & lan_netmask[0],
+		lan_ipaddr[1] & lan_netmask[1],
+		lan_ipaddr[2] & lan_netmask[2],
+		lan_ipaddr[3] & lan_netmask[3]);
+	fprintf(file, "\n");
+	return (EXIT_SUCCESS);
+}
+
+static int set_wan_interface(FILE *file)
+{
 	char wan_ifname[IFNAMSIZ];
 	int wan_ipaddr[4];
 	int wan_netmask[4];
+	int wan_gateway[4];
+	int wan_type;
+	char buf[128];
+	int rc;
 
-	file = fopen("/etc/network/interfaces", "w");
-	if (file == NULL)
+	/* setup wan interface */
+	wan_type = utils_get_wan_type();
+	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
-	snprintf(lan_ifname, sizeof(lan_ifname), "eth0");
+	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	if (rc < 0)
+		return (EXIT_FAILURE);
 
-	lan_ipaddr[0] = 192;
-	lan_ipaddr[1] = 168;
-	lan_ipaddr[2] = 1;
-	lan_ipaddr[3] = 1;
+	switch(wan_type) {
+	case WAN_TYPE_DHCP :
+		fprintf(file, "iface %s inet dhcp\n", wan_ifname);
+#if 0
+		fprintf(file, "\tpre-up %s %s up\n", CMD_IFCONFIG, wan_ifname);
+		fprintf(file, "\tpost-down %s %s 0.0.0.0\n", CMD_IFCONFIG, wan_ifname);
+		fprintf(file, "\tpost-down %s %s down\n", CMD_IFCONFIG, wan_ifname);
+#endif
+		fprintf(file, "\n");
 
-	lan_netmask[0] = 255;
-	lan_netmask[1] = 255;
-	lan_netmask[2] = 255;
-	lan_netmask[3] = 0;
-
-	snprintf(wan_ifname, sizeof(wan_ifname), "eth1");
-
-	wan_ipaddr[0] = 10;
-	wan_ipaddr[1] = 10;
-	wan_ipaddr[2] = 10;
-	wan_ipaddr[3] = 10;
-
-	wan_netmask[0] = 255;
-	wan_netmask[1] = 0;
-	wan_netmask[2] = 0;
-	wan_netmask[3] = 0;
-
-	switch (flag) {
-	case RC_BOOT :
-		/* get the kernel module name from kernel cmdline */
+		/* also make udhcpc script symbol link */
+		snprintf(buf, sizeof(buf), "%s -p %s", CMD_MKDIR, UDHCPC_SCRIPT_PATH);
+		system(buf);
+		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_PATH);
+		system(buf);
+		symlink("/sbin/udhcpc.script", UDHCPC_SCRIPT_PATH);
 		break;
-	case RC_START :
-		/* set loopback & lan interface auto start */
-		//fprintf(file, "auto lo %s\n", lan_ifname);
-		//fprintf(file, "\n");
 
-		/* set loopback */
-		fprintf(file, "iface lo inet loopback\n");
-		fprintf(file, "\n");
+	case WAN_TYPE_STATIC :
+		rc = ezcfg_api_nvram_get("wan_static_ipaddr", buf, sizeof(buf));
+		if (rc < 0)
+			return (EXIT_FAILURE);
 
-		/* set lan interface */
-		fprintf(file, "iface %s inet static\n", lan_ifname);
-		fprintf(file, "\taddress %d.%d.%d.%d\n",
-			lan_ipaddr[0],
-			lan_ipaddr[1],
-			lan_ipaddr[2],
-			lan_ipaddr[3]);
-		fprintf(file, "\tnetmask %d.%d.%d.%d\n",
-			lan_netmask[0],
-			lan_netmask[1],
-			lan_netmask[2],
-			lan_netmask[3]);
-		fprintf(file, "\tnetwork %d.%d.%d.%d\n",
-			lan_ipaddr[0] & lan_netmask[0],
-			lan_ipaddr[1] & lan_netmask[1],
-			lan_ipaddr[2] & lan_netmask[2],
-			lan_ipaddr[3] & lan_netmask[3]);
-		fprintf(file, "\n");
+		if (sscanf(buf, "%d.%d.%d.%d",
+		       &wan_ipaddr[0],
+		       &wan_ipaddr[1],
+		       &wan_ipaddr[2],
+		       &wan_ipaddr[3]) != 4)
+			return (EXIT_FAILURE);
 
-		/* set wan interface */
+		rc = ezcfg_api_nvram_get("wan_static_netmask", buf, sizeof(buf));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
+		if (sscanf(buf, "%d.%d.%d.%d",
+		       &wan_netmask[0],
+		       &wan_netmask[1],
+		       &wan_netmask[2],
+		       &wan_netmask[3]) != 4)
+			return (EXIT_FAILURE);
+
+		rc = ezcfg_api_nvram_get("wan_static_gateway", buf, sizeof(buf));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
+		if (sscanf(buf, "%d.%d.%d.%d",
+		       &wan_gateway[0],
+		       &wan_gateway[1],
+		       &wan_gateway[2],
+		       &wan_gateway[3]) != 4)
+			return (EXIT_FAILURE);
+
 		fprintf(file, "iface %s inet static\n", wan_ifname);
 		fprintf(file, "\taddress %d.%d.%d.%d\n",
 			wan_ipaddr[0],
@@ -127,7 +190,46 @@ int pop_etc_network_interfaces(int flag)
 			wan_ipaddr[1] & wan_netmask[1],
 			wan_ipaddr[2] & wan_netmask[2],
 			wan_ipaddr[3] & wan_netmask[3]);
+		fprintf(file, "\tgateway %d.%d.%d.%d\n",
+			wan_gateway[0],
+			wan_gateway[1],
+			wan_gateway[2],
+			wan_gateway[3]);
 		fprintf(file, "\n");
+		break;
+
+	case WAN_TYPE_PPPOE :
+		fprintf(file, "iface %s inet manual\n", wan_ifname);
+		fprintf(file, "\n");
+		break;
+	}
+	return (EXIT_SUCCESS);
+}
+
+int pop_etc_network_interfaces(int flag)
+{
+	FILE *file;
+
+	file = fopen("/etc/network/interfaces", "w");
+	if (file == NULL)
+		return (EXIT_FAILURE);
+
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		/* set loopback & lan interface auto start */
+		//fprintf(file, "auto lo %s\n", lan_ifname);
+		//fprintf(file, "\n");
+
+		/* set loopback */
+		set_loopback_interface(file);
+
+		/* set lan interface */
+		set_lan_interface(file);
+
+		/* set wan interface */
+		set_wan_interface(file);
+
 		break;
 	}
 

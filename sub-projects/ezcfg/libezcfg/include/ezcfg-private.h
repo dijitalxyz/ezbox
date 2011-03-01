@@ -166,11 +166,17 @@ char *ezcfg_http_get_message_body(struct ezcfg_http *http);
 int ezcfg_http_get_message_body_len(struct ezcfg_http *http);
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name);
 void ezcfg_http_dump(struct ezcfg_http *http);
+int ezcfg_http_get_request_line_length(struct ezcfg_http *http);
 int ezcfg_http_write_request_line(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_get_status_line_length(struct ezcfg_http *http);
 int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_get_start_line_length(struct ezcfg_http *http);
+int ezcfg_http_write_start_line(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_get_crlf_length(struct ezcfg_http *http);
 int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len);
-bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
+int ezcfg_http_get_headers_length(struct ezcfg_http *http);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
+bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
 
 
@@ -263,6 +269,7 @@ void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
 //struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs);
+int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs);
 struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
 unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs);
@@ -296,6 +303,7 @@ bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args
 char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
+int ezcfg_igrs_handle_message(struct ezcfg_igrs *igrs);
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name);
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_parse_header(struct ezcfg_igrs *igrs, char *buf, int len);

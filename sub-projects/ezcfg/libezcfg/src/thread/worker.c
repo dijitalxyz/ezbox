@@ -446,7 +446,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	char *request_uri;
 	char *msg = NULL;
 	int msg_len;
-	int len;
 
 	ASSERT(worker != NULL);
 	ASSERT(worker->proto_data != NULL);

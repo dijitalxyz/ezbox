@@ -31,6 +31,7 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <pthread.h>
 
 #include "ezcfg.h"

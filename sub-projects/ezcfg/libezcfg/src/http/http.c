@@ -555,7 +555,7 @@ bool ezcfg_http_is_state_response(struct ezcfg_http *http)
 
 	ezcfg = http->ezcfg;
 
-	if (http->state = HTTP_RESPONSE)
+	if (http->state == HTTP_RESPONSE)
 		return true;
 	else
 		return false;
@@ -877,48 +877,6 @@ char *ezcfg_http_get_message_body(struct ezcfg_http *http)
 	return http->message_body;
 }
 
-int ezcfg_http_get_start_line_length(struct ezcfg_http *http)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(http != NULL);
-
-	ezcfg = http->ezcfg;
-
-	if (http->state == HTTP_REQUEST) {
-		return ezcfg_http_get_request_line_length(http);
-	}
-	else if (http->state == HTTP_RESPONSE) {
-		return ezcfg_http_get_status_line_length(http);
-	}
-	else {
-		err(ezcfg, "unknown http state\n");
-		return -1;
-	}
-}
-
-int ezcfg_http_write_start_line(struct ezcfg_http *http, char *buf, int len)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(http != NULL);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	ezcfg = http->ezcfg;
-
-	if (http->state == HTTP_REQUEST) {
-		return ezcfg_http_write_request_line(http, buf, len);
-	}
-	else if (http->state == HTTP_RESPONSE) {
-		return ezcfg_http_write_status_line(http, buf, len);
-	}
-	else {
-		err(ezcfg, "unknown http state\n");
-		return -1;
-	}
-}
-
 int ezcfg_http_get_request_line_length(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
@@ -1071,10 +1029,51 @@ int ezcfg_http_write_status_line(struct ezcfg_http *http, char *buf, int len)
 	return n;
 }
 
+int ezcfg_http_get_start_line_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state == HTTP_REQUEST) {
+		return ezcfg_http_get_request_line_length(http);
+	}
+	else if (http->state == HTTP_RESPONSE) {
+		return ezcfg_http_get_status_line_length(http);
+	}
+	else {
+		err(ezcfg, "unknown http state\n");
+		return -1;
+	}
+}
+
+int ezcfg_http_write_start_line(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	if (http->state == HTTP_REQUEST) {
+		return ezcfg_http_write_request_line(http, buf, len);
+	}
+	else if (http->state == HTTP_RESPONSE) {
+		return ezcfg_http_write_status_line(http, buf, len);
+	}
+	else {
+		err(ezcfg, "unknown http state\n");
+		return -1;
+	}
+}
+
 int ezcfg_http_get_crlf_length(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
-	int n;
 
 	ASSERT(http != NULL);
 

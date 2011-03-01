@@ -144,7 +144,7 @@ static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const c
 	struct ezcfg *ezcfg;
 	int name_len, entry_len, new_entry_len;
 	struct nvram_header *header;
-	char *data, *p, *entry;
+	char *data, *p;
 
 	ezcfg = nvram->ezcfg;
 
@@ -160,7 +160,8 @@ static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const c
 			err(ezcfg, "no enough space for nvram entry set\n");
 			return false;
 		}
-		sprintf(data, "%s=%s\0", name, value);
+		sprintf(data, "%s=%s", name, value);
+		*(data + new_entry_len + 1) = '\0';
 		nvram->used_space += (new_entry_len + 1);
 		nvram->free_space -= (new_entry_len + 1);
 		return true;
@@ -288,9 +289,8 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	FILE *fp;
 	uint32_t crc;
 	ezcfg_nv_pair_t *nvp;
-	char *p, *q;
-	char *name, *value = NULL;
-	int len, i;
+	char *value = NULL;
+	int i;
 	bool ret = false;
 
 	ezcfg = nvram->ezcfg;
@@ -315,7 +315,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram)
 	data = nvram->buffer + sizeof(struct nvram_header);
 
 	/* do CRC-32 calculation */
-	crc = ezcfg_util_crc32(data, nvram->total_space - sizeof(struct nvram_header));
+	crc = ezcfg_util_crc32((unsigned char *)data, nvram->total_space - sizeof(struct nvram_header));
 	if (header->crc != crc) {
 		err(ezcfg, "nvram crc is error.\n");
 		goto init_exit;
@@ -380,13 +380,15 @@ static void generate_nvram_header(struct ezcfg_nvram *nvram)
 	header->used = nvram->used_space;
 
 	memset(data + nvram->used_space, '\0', nvram->free_space);
-	header->crc = ezcfg_util_crc32(data, nvram->used_space + nvram->free_space);
+	header->crc = ezcfg_util_crc32((unsigned char *)data, nvram->used_space + nvram->free_space);
 }
 
+#if 0
 static void nvram_header_copy(struct nvram_header *dest, const struct nvram_header *src)
 {
 	memcpy(dest, src, sizeof(struct nvram_header));
 }
+#endif
 
 static bool nvram_commit_to_file(struct ezcfg_nvram *nvram)
 {
@@ -434,7 +436,6 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram)
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
-	int i;
 
 	ASSERT(nvram != NULL);
 

@@ -10,11 +10,16 @@
 #define CMD_IFDOWN		"/sbin/ifdown"
 #define CMD_IFUP		"/sbin/ifup"
 #define CMD_KILLALL		"/usr/bin/killall"
+#define CMD_MKDIR  		"/bin/mkdir"
+#define CMD_MV  		"/bin/mv"
 #define CMD_RM  		"/bin/rm"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
+
+/* udhcpc script path */
+#define UDHCPC_SCRIPT_PATH	"/usr/share/udhcpc/default.script"
 
 typedef struct rc_func_s {
 	char *name;
@@ -29,10 +34,18 @@ typedef struct proc_stat_s {
 
 /* rc state */
 enum {
-	RC_BOOT,
+	RC_BOOT = 0,
 	RC_RESTART,
 	RC_STOP,
 	RC_START,
+};
+
+/* WAN type */
+enum {
+	WAN_TYPE_UNKNOWN = 0,
+	WAN_TYPE_DHCP,
+	WAN_TYPE_STATIC,
+	WAN_TYPE_PPPOE,
 };
 
 #endif

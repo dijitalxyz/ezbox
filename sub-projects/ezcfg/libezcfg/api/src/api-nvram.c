@@ -251,7 +251,7 @@ exit:
 int ezcfg_api_nvram_set(const char *name, const char *value)
 {
 	char buf[1024];
-	char *msg;
+	char *msg = NULL;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
@@ -454,7 +454,7 @@ exit:
 int ezcfg_api_nvram_unset(const char *name)
 {
 	char buf[1024];
-	char *msg;
+	char *msg = NULL;
 	int msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;

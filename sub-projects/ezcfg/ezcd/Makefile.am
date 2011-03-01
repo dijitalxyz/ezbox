@@ -10,7 +10,10 @@ SUBDIRS = .
 
 AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
-	-I$(srcdir)/include
+	-I$(srcdir)/include \
+        -DSYSCONFDIR=\""$(sysconfdir)"\" \
+        -DEZCFG_DEBUG \
+        -Wall
 
 AM_LDFLAGS = -L.
 
@@ -32,6 +35,7 @@ ezcd_SOURCES += src/rc/rc_func.c
 # utils
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
+ezcd_SOURCES += src/utils/utils_get_wan_type.c
 ezcd_SOURCES += src/utils/utils_find_pid_by_name.c
 ezcd_SOURCES += src/utils/utils_crc32.c
 
@@ -44,6 +48,9 @@ ezcd_SOURCES += src/rc/rc_base_files.c
 
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c
+
+# udhcpc script support
+ezcd_SOURCES += src/udhcpc_script.c
 
 # upgrade firmware support
 ezcd_SOURCES += src/upfw.c

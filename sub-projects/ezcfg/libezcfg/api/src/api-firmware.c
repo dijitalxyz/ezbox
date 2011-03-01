@@ -448,7 +448,7 @@ int ezcfg_api_firmware_upgrade(char *name, char *model)
 		goto func_out;
 	}
 	p = (char *)&(fw_hdr->model_len);
-	crc = ezcfg_util_crc32(p, fw_hdr->len - (p - fw_buf));
+	crc = ezcfg_util_crc32((unsigned char *)p, fw_hdr->len - (p - fw_buf));
 	crc ^= fw_hdr->crc;
 	if (crc != 0) {
 		rc = -EZCFG_E_CRC;

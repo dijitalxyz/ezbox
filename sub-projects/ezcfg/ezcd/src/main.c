@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
 int main(int argc, char **argv)
 {
@@ -61,6 +62,10 @@ int main(int argc, char **argv)
 	}
 	else if (!strcmp(name, "ubootenv")) {
 		return ubootenv_main(argc, argv);
+	}
+	else if (!strcmp(name, "udhcpc.script") ||
+	         !strcmp(argv[0], UDHCPC_SCRIPT_PATH)) {
+		return udhcpc_script_main(argc, argv);
 	}
 	else if (!strcmp(name, "upfw")) {
 		return upfw_main(argc, argv);

@@ -39,34 +39,94 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "utils.h"
+
+static int start_wan(void)
+{
+	char wan_ifname[IFNAMSIZ];
+	char buf[256];
+	int wan_type;
+	int rc;
+
+	wan_type = utils_get_wan_type();
+	if (wan_type == WAN_TYPE_UNKNOWN)
+		return (EXIT_FAILURE);
+
+	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	switch (wan_type) {
+	case WAN_TYPE_DHCP :
+		/* prepare for check */
+		snprintf(buf, sizeof(buf), "%s /etc/resolv.conf /etc/resolv.conf.bak", CMD_MV);
+		system(buf);
+
+		/* start DHCP client process */
+		snprintf(buf, sizeof(buf), "%s %s &", CMD_IFUP, wan_ifname);
+		system(buf);
+
+		break;
+	}
+
+	return (EXIT_SUCCESS);
+}
+
+static int stop_wan(void)
+{
+	char wan_ifname[IFNAMSIZ];
+	char buf[256];
+	int wan_type;
+	int rc;
+
+	wan_type = utils_get_wan_type();
+	if (wan_type == WAN_TYPE_UNKNOWN)
+		return (EXIT_FAILURE);
+
+	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	switch (wan_type) {
+	case WAN_TYPE_DHCP :
+		/* stop DHCP client process */
+		snprintf(buf, sizeof(buf), "%s %s", CMD_IFDOWN, wan_ifname);
+		system(buf);
+
+		break;
+	}
+
+	return (EXIT_SUCCESS);
+}
 
 int rc_wan(int flag)
 {
 	int ret = 0;
 	char wan_ifname[IFNAMSIZ];
-	char cmdline[256];
-
-	snprintf(wan_ifname, sizeof(wan_ifname), "%s", "eth1");
+	char buf[256];
+	int wan_type;
+	int rc;
 
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
-		/* bring up LAN interface and config it */
-		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, wan_ifname);
-		ret = system(cmdline);
+		/* bring up WAN interface and config it */
+		ret = start_wan();
 		break;
 
 	case RC_STOP :
-		/* bring down LAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, wan_ifname);
-		ret = system(cmdline);
+		/* bring down WAN interface and deconfig it */
+		ret = stop_wan();
 		break;
 
 	case RC_RESTART :
 		ret = rc_wan(RC_STOP);
+		if (ret != EXIT_SUCCESS)
+			return ret;
+
 		ret = rc_wan(RC_START);
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return ret;
 }

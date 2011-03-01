@@ -23,6 +23,7 @@ int ezcm_main(int argc, char **argv);
 int nvram_main(int argc, char **argv);
 int rc_main(int argc, char **argv);
 int ubootenv_main(int argc, char **argv);
+int udhcpc_script_main(int argc, char **argv);
 int upfw_main(int argc, char **argv);
 
 #endif

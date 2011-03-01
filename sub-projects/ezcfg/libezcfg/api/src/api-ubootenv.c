@@ -166,6 +166,7 @@ static int read_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 	return 0;
 }
 
+#if 0
 static int erase_ubootenv(ubootenv_info_t info)
 {
 	int mtd_fd;
@@ -200,6 +201,7 @@ static int erase_ubootenv(ubootenv_info_t info)
 
 	return 0;
 }
+#endif
 
 static ezcfg_nv_pair_t default_checklist[] = {
 	{ "ethaddr", "0x00:0xaa:0xbb:0xcc:0xdd:0xee" },
@@ -318,7 +320,7 @@ int ezcfg_api_ubootenv_get(char *name, char *value, size_t len)
 	}
 
 	data = buf + sizeof(uint32_t);
-	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc = ezcfg_util_crc32((unsigned char *)data, info.ubootenv_size - sizeof(uint32_t));
 	crc ^= *(uint32_t *)(buf);
 	if (crc != 0) {
 		rc = -EZCFG_E_CRC;
@@ -410,7 +412,7 @@ int ezcfg_api_ubootenv_set(char *name, char *value)
 	}
 
 	data = buf + sizeof(uint32_t);
-	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc = ezcfg_util_crc32((unsigned char *)data, info.ubootenv_size - sizeof(uint32_t));
 	crc ^= *(uint32_t *)(buf);
 	if (crc != 0) {
 		rc = -EZCFG_E_CRC;
@@ -462,7 +464,7 @@ int ezcfg_api_ubootenv_set(char *name, char *value)
 	/* clean remain part */
 	memset(end, '\0', info.ubootenv_size - (end - data));
 	/* update crc */
-	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc = ezcfg_util_crc32((unsigned char *)data, info.ubootenv_size - sizeof(uint32_t));
 	*(uint32_t *)(buf) = crc;
 
 	/* write to u-boot env sect */
@@ -514,7 +516,7 @@ int ezcfg_api_ubootenv_list(char *list, size_t len)
 	}
 
 	data = buf + sizeof(uint32_t);
-	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc = ezcfg_util_crc32((unsigned char *)data, info.ubootenv_size - sizeof(uint32_t));
 	crc ^= *(uint32_t *)(buf);
 	if (crc != 0) {
 		rc = -EZCFG_E_CRC;
@@ -556,7 +558,6 @@ int ezcfg_api_ubootenv_check(void)
 	int rc = 0;
 	char *buf = NULL;
 	char *data = NULL, *end = NULL;
-	char *tmp = NULL;
 	uint32_t crc = 0;
 	ubootenv_info_t info;
 
@@ -580,7 +581,7 @@ int ezcfg_api_ubootenv_check(void)
 	}
 
 	data = buf + sizeof(uint32_t);
-	crc = ezcfg_util_crc32(data, info.ubootenv_size - sizeof(uint32_t));
+	crc = ezcfg_util_crc32((unsigned char *)data, info.ubootenv_size - sizeof(uint32_t));
 	crc ^= *(uint32_t *)(buf);
 	if (crc != 0) {
 		rc = -EZCFG_E_CRC;
