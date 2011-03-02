@@ -574,14 +574,23 @@ void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 /* igrs/igrs.c */
 struct ezcfg_igrs;
 struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
+bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
+bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
 
 /* uuid/uuid.c */
 struct ezcfg_uuid;
 struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
+bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
 
 /* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
+void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
+int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
 
 #endif /* _EZCFG_H_ */
 

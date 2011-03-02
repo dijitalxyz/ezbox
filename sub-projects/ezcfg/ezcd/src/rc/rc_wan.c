@@ -58,10 +58,6 @@ static int start_wan(void)
 
 	switch (wan_type) {
 	case WAN_TYPE_DHCP :
-		/* prepare for check */
-		snprintf(buf, sizeof(buf), "%s /etc/resolv.conf /etc/resolv.conf.bak", CMD_MV);
-		system(buf);
-
 		/* start DHCP client process */
 		snprintf(buf, sizeof(buf), "%s %s &", CMD_IFUP, wan_ifname);
 		system(buf);
@@ -102,10 +98,6 @@ static int stop_wan(void)
 int rc_wan(int flag)
 {
 	int ret = 0;
-	char wan_ifname[IFNAMSIZ];
-	char buf[256];
-	int wan_type;
-	int rc;
 
 	switch (flag) {
 	case RC_BOOT :

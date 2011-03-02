@@ -42,14 +42,50 @@
 int pop_etc_resolv_conf(int flag)
 {
         FILE *file = NULL;
+	char buf[128];
+	char *p, *token, *savep;
+	int rc;
 
-	/* generate /etc/resolv.conf */
-	file = fopen("/etc/resolv.conf", "w");
-	if (file == NULL)
-		return (EXIT_FAILURE);
+	switch(flag) {
+	case RC_BOOT :
+	case RC_START :
+	case RC_RESTART :
+		/* generate /etc/resolv.conf */
+		file = fopen("/etc/resolv.conf", "w");
+		if (file == NULL) {
+			rc = EXIT_FAILURE;
+			goto exit_func;
+		}
 
-	fprintf(file, "nameserver %s\n", "192.168.1.1");
+		rc = ezcfg_api_nvram_get("wan_domain", buf, sizeof(buf));
+		if ((rc == 0) && (*buf != '\0')) {
+			fprintf(file, "domain %s\n", buf);
+		}
 
-	fclose(file);
-	return (EXIT_SUCCESS);
+		rc = ezcfg_api_nvram_get("wan_dns", buf, sizeof(buf));
+		if (rc < 0) {
+			rc = EXIT_FAILURE;
+			goto exit_func;
+		}
+
+		for (p = buf; ; p = NULL) {
+			token = strtok_r(p, " ", &savep);
+			if (token == NULL)
+				break;
+			fprintf(file, "nameserver %s\n", token);
+		}
+		rc = EXIT_SUCCESS;
+		break;
+
+	case RC_STOP :
+		unlink("/etc/resolv.conf");
+		rc = EXIT_SUCCESS;
+		break;
+	}
+
+exit_func:
+	if (file != NULL)
+		fclose(file);
+
+	return rc;
 }

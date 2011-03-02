@@ -13,6 +13,7 @@ extern int rc_loopback(int flag);
 extern int rc_netbase(int flag);
 extern int rc_syslog(int flag);
 extern int rc_system(int flag);
+extern int rc_telnetd(int flag);
 extern int rc_wan(int flag);
 extern int rc_wan_if(int flag);
 

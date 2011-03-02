@@ -68,10 +68,13 @@ struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 
 
-/* nvram/nvram.c */
+/* nvram/nvram-defaults.c */
 extern ezcfg_nv_pair_t default_nvram_settings[];
+extern char *default_nvram_unsets[];
 int ezcfg_nvram_get_num_default_nvram_settings(void);
+int ezcfg_nvram_get_num_default_nvram_unsets(void);
 
+/* nvram/nvram.c */
 struct ezcfg_nvram;
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
@@ -93,12 +96,9 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
 /* uuid/uuid.c */
-bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
 bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
 char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
 bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len);
 bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
@@ -270,8 +270,6 @@ struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types);
 unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs);
 unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
-bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
 unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type);
 bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
 char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs);
@@ -333,10 +331,6 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 
 
 /* ctrl/ctrl.c - daemon runtime setup */
-void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
-int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
-int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
 struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl);
 
 

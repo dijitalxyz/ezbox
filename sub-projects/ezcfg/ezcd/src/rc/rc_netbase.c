@@ -39,11 +39,10 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int rc_netbase(int flag)
 {
-	int ret = 0;
-
 	switch (flag) {
 	case RC_BOOT :
 		/* manage network interfaces and configure some networking options */

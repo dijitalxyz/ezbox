@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 static int udhcpc_deconfig(void)
 {
@@ -62,8 +63,10 @@ static int udhcpc_bound(void)
 	char *bcast;
 	char *router;
 	char *domain;
+	char *dns;
 	char *p, *savep, *token;
-	int status, i;
+	//FILE *file;
+	int status, i, rc;
 
 	iface = getenv("interface");
 	ipaddr = getenv("ip");
@@ -81,13 +84,18 @@ static int udhcpc_bound(void)
 	         bcast == NULL ? "" : bcast);
 	system(buf);
 
+	rc = ezcfg_api_nvram_set("wan_ipaddr", ipaddr);
+	if (subnet != NULL) {
+		rc = ezcfg_api_nvram_set("wan_netmask", subnet);
+	}
+
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
 		status = system(buf);
 		while((WIFEXITED(status) == true) &&
-		      (WEXITSTATUS(status) != 0)) {
+		      (WEXITSTATUS(status) == 0)) {
 			status = system(buf);
 		}
 
@@ -99,25 +107,44 @@ static int udhcpc_bound(void)
 			         CMD_ROUTE, token, iface, i);
 			system(buf);
 		}
+
+		rc = ezcfg_api_nvram_set("wan_gateway", router);
 	}
 
-	domain = getenv("domain");
-	if (domain != NULL) {
-		FILE *file;
+#if 0
+	snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
+	file = fopen(buf, "w");
+	if (file != NULL) {
+		domain = getenv("domain");
+		if (domain != NULL) {
+        		printf("adding domain %s to %s\n", domain, buf);
+			fprintf(file, "domain %s\n", domain);
+		}
 
-		snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
-		file = fopen(buf, "w");
-		if (file != NULL) {
-			for (p = domain; ; p = NULL) {
+		dns = getenv("dns");
+		if (dns != NULL) {
+			for (p = dns; ; p = NULL) {
 				token = strtok_r(p, " ", &savep);
 				if (token == NULL)
 					break;
         			printf("adding dns %s to %s\n", token, buf);
 				fprintf(file, "nameserver %s\n", token);
 			}
-			fclose(file);
 		}
+		fclose(file);
 	}
+#endif
+	domain = getenv("domain");
+	if (domain != NULL) {
+		rc = ezcfg_api_nvram_set("wan_domain", domain);
+	}
+
+	dns = getenv("dns");
+	if (dns != NULL) {
+		rc = ezcfg_api_nvram_set("wan_dns", dns);
+	}
+
+	pop_etc_resolv_conf(RC_RESTART);
 
 	return (EXIT_SUCCESS);
 }
@@ -131,8 +158,10 @@ static int udhcpc_renew(void)
 	char *bcast;
 	char *router;
 	char *domain;
+	char *dns;
 	char *p, *savep, *token;
-	int status, i;
+	//FILE *file;
+	int status, i, rc;
 
 	iface = getenv("interface");
 	ipaddr = getenv("ip");
@@ -150,13 +179,18 @@ static int udhcpc_renew(void)
 	         bcast == NULL ? "" : bcast);
 	system(buf);
 
+	rc = ezcfg_api_nvram_set("wan_ipaddr", ipaddr);
+	if (subnet != NULL) {
+		rc = ezcfg_api_nvram_set("wan_netmask", subnet);
+	}
+
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
 		status = system(buf);
 		while((WIFEXITED(status) == true) &&
-		      (WEXITSTATUS(status) != 0)) {
+		      (WEXITSTATUS(status) == 0)) {
 			status = system(buf);
 		}
 
@@ -168,25 +202,44 @@ static int udhcpc_renew(void)
 			         CMD_ROUTE, token, iface, i);
 			system(buf);
 		}
+
+		rc = ezcfg_api_nvram_set("wan_gateway", router);
 	}
 
-	domain = getenv("domain");
-	if (domain != NULL) {
-		FILE *file;
+#if 0
+	snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
+	file = fopen(buf, "w");
+	if (file != NULL) {
+		domain = getenv("domain");
+		if (domain != NULL) {
+        		printf("adding domain %s to %s\n", domain, buf);
+			fprintf(file, "domain %s\n", domain);
+		}
 
-		snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
-		file = fopen(buf, "w");
-		if (file != NULL) {
-			for (p = domain; ; p = NULL) {
+		dns = getenv("dns");
+		if (dns != NULL) {
+			for (p = dns; ; p = NULL) {
 				token = strtok_r(p, " ", &savep);
 				if (token == NULL)
 					break;
         			printf("adding dns %s to %s\n", token, buf);
 				fprintf(file, "nameserver %s\n", token);
 			}
-			fclose(file);
 		}
+		fclose(file);
 	}
+#endif
+	domain = getenv("domain");
+	if (domain != NULL) {
+		rc = ezcfg_api_nvram_set("wan_domain", domain);
+	}
+
+	dns = getenv("dns");
+	if (dns != NULL) {
+		rc = ezcfg_api_nvram_set("wan_dns", dns);
+	}
+
+	pop_etc_resolv_conf(RC_RESTART);
 
 	return (EXIT_SUCCESS);
 }
@@ -211,15 +264,19 @@ int udhcpc_script_main(int argc, char **argv)
 	}
 
 	if (strcmp(argv[1], "deconfig") == 0) {
+		printf("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_deconfig();
 	}
 	else if (strcmp(argv[1], "bound") == 0) {
+		printf("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_bound();
 	}
 	else if (strcmp(argv[1], "renew") == 0) {
+		printf("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_renew();
 	}
 	else if (strcmp(argv[1], "nak") == 0) {
+		printf("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_nak();
 	}
 	else {

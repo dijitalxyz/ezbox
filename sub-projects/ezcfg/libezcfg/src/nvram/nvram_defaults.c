@@ -240,8 +240,28 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 };
 
+char *default_nvram_unsets[] = {
+	/* WAN IP address */
+	NVRAM_SERVICE_OPTION(WAN, IPADDR),
+	/* WAN netmask */
+	NVRAM_SERVICE_OPTION(WAN, NETMASK),
+	/* WAN gateway */
+	NVRAM_SERVICE_OPTION(WAN, GATEWAY),
+	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
+	NVRAM_SERVICE_OPTION(WAN, DNS),
+	/* WAN domain name */
+	NVRAM_SERVICE_OPTION(WAN, DOMAIN),
+	/* WAN lease time in seconds */
+	NVRAM_SERVICE_OPTION(WAN, LEASE),
+};
+
 /* Public functions */
 int ezcfg_nvram_get_num_default_nvram_settings(void)
 {
 	return ARRAY_SIZE(default_nvram_settings);
+}
+
+int ezcfg_nvram_get_num_default_nvram_unsets(void)
+{
+	return ARRAY_SIZE(default_nvram_unsets);
 }

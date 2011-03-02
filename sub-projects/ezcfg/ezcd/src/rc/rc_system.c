@@ -44,7 +44,6 @@ int rc_system(int flag)
 {
         FILE *file = NULL;
 	char cmdline[1024];
-	int ret = 0;
 
 	switch (flag) {
 	case RC_BOOT :
