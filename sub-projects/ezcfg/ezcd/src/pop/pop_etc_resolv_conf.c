@@ -44,7 +44,7 @@ int pop_etc_resolv_conf(int flag)
         FILE *file = NULL;
 	char buf[128];
 	char *p, *token, *savep;
-	int rc;
+	int rc = EXIT_FAILURE;
 
 	switch(flag) {
 	case RC_BOOT :
