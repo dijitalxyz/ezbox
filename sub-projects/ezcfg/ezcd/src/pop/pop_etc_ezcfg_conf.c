@@ -42,18 +42,36 @@
 int pop_etc_ezcfg_conf(int flag)
 {
 	FILE *file;
+	char buf[256];
+	int rc;
 
 	switch (flag) {
 	case RC_BOOT :
 		/* use default config for boot stage */
 		break;
 
-	case RC_RESTART :
 	case RC_START :
+	case RC_RELOAD :
+	case RC_RESTART :
 		/* get ezcd config from nvram */
 		file = fopen("/etc/ezcfg.conf", "w");
 		if (file == NULL)
 			return (EXIT_FAILURE);
+
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BUFFER_SIZE), buf, sizeof(buf));
+		if (rc == 0) {
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_BUFFER_SIZE), buf);
+		}
+
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BACKEND_TYPE), buf, sizeof(buf));
+		if (rc == 0) {
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_BACKEND_TYPE), buf);
+		}
+
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_STORAGE_PATH), buf, sizeof(buf));
+		if (rc == 0) {
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_STORAGE_PATH), buf);
+		}
 
 		fclose(file);
 		break;

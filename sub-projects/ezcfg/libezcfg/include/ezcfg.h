@@ -36,10 +36,6 @@
 #define EZCFG_BUFFER_SIZE         8192
 
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
-#define EZCFG_CONFIG_KEY_NVRAM_BUFFER_SIZE	"nvram.buffer_size"
-#define EZCFG_CONFIG_KEY_NVRAM_BACKEND_TYPE	"nvram.backend_type"
-#define EZCFG_CONFIG_KEY_NVRAM_STORAGE_PATH	"nvram.storage_path"
-
 
 #define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
 //#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
@@ -51,6 +47,7 @@
 
 /* ezcfg nvram definitions */
 #define EZCFG_NVRAM_BUFFER_SIZE            0x10000 /* 64K Bytes */
+#define EZCFG_NVRAM_BUFFER_SIZE_STRING     "65536" /* 64K Bytes */
 #define EZCFG_NVRAM_BACKEND_NONE           0
 #define EZCFG_NVRAM_BACKEND_FILE           1
 #define EZCFG_NVRAM_BACKEND_FLASH          2

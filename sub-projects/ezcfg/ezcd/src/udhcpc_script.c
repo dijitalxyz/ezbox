@@ -84,9 +84,9 @@ static int udhcpc_bound(void)
 	         bcast == NULL ? "" : bcast);
 	system(buf);
 
-	rc = ezcfg_api_nvram_set("wan_ipaddr", ipaddr);
+	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
 	if (subnet != NULL) {
-		rc = ezcfg_api_nvram_set("wan_netmask", subnet);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
 	}
 
 	router = getenv("router");
@@ -108,7 +108,7 @@ static int udhcpc_bound(void)
 			system(buf);
 		}
 
-		rc = ezcfg_api_nvram_set("wan_gateway", router);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
 	}
 
 #if 0
@@ -136,12 +136,12 @@ static int udhcpc_bound(void)
 #endif
 	domain = getenv("domain");
 	if (domain != NULL) {
-		rc = ezcfg_api_nvram_set("wan_domain", domain);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
 	}
 
 	dns = getenv("dns");
 	if (dns != NULL) {
-		rc = ezcfg_api_nvram_set("wan_dns", dns);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DNS), dns);
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);
@@ -179,9 +179,9 @@ static int udhcpc_renew(void)
 	         bcast == NULL ? "" : bcast);
 	system(buf);
 
-	rc = ezcfg_api_nvram_set("wan_ipaddr", ipaddr);
+	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
 	if (subnet != NULL) {
-		rc = ezcfg_api_nvram_set("wan_netmask", subnet);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
 	}
 
 	router = getenv("router");
@@ -203,7 +203,7 @@ static int udhcpc_renew(void)
 			system(buf);
 		}
 
-		rc = ezcfg_api_nvram_set("wan_gateway", router);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
 	}
 
 #if 0
@@ -231,12 +231,12 @@ static int udhcpc_renew(void)
 #endif
 	domain = getenv("domain");
 	if (domain != NULL) {
-		rc = ezcfg_api_nvram_set("wan_domain", domain);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
 	}
 
 	dns = getenv("dns");
 	if (dns != NULL) {
-		rc = ezcfg_api_nvram_set("wan_dns", dns);
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DNS), dns);
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);

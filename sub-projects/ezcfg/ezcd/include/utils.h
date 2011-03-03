@@ -36,9 +36,10 @@ typedef struct proc_stat_s {
 /* rc state */
 enum {
 	RC_BOOT = 0,
-	RC_RESTART,
-	RC_STOP,
 	RC_START,
+	RC_STOP,
+	RC_RESTART,
+	RC_RELOAD,
 };
 
 /* WAN type */

@@ -105,15 +105,15 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	}
 
 	/* initialize nvram */
-	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_CONFIG_KEY_NVRAM_BACKEND_TYPE);
+	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_NVRAM_BACKEND_TYPE);
 	ezcfg_nvram_set_backend_type(master->nvram, (p == NULL) ? EZCFG_NVRAM_BACKEND_FILE : atoi(p));
 	if (p != NULL) free(p);
 
-	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_CONFIG_KEY_NVRAM_STORAGE_PATH);
+	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_NVRAM_STORAGE_PATH);
 	ezcfg_nvram_set_storage_path(master->nvram, (p == NULL) ? EZCFG_NVRAM_STORAGE_PATH : p);
 	if (p != NULL) free(p);
 
-	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_CONFIG_KEY_NVRAM_BUFFER_SIZE);
+	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_NVRAM_BUFFER_SIZE);
 	ezcfg_nvram_set_total_space(master->nvram, (p == NULL) ? EZCFG_NVRAM_BUFFER_SIZE : atoi(p));
 	if (p != NULL) free(p);
 

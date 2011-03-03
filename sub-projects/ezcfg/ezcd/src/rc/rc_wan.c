@@ -52,7 +52,7 @@ static int start_wan(void)
 	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 
@@ -79,7 +79,7 @@ static int stop_wan(void)
 	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 

@@ -57,11 +57,11 @@ static int set_lan_interface(FILE *file)
 	int rc;
 
 	/* setup lan interface */
-	rc = ezcfg_api_nvram_get("lan_ifname", lan_ifname, sizeof(lan_ifname));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IFNAME), lan_ifname, sizeof(lan_ifname));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get("lan_ipaddr", buf, sizeof(buf));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 
@@ -72,7 +72,7 @@ static int set_lan_interface(FILE *file)
 	       &lan_ipaddr[3]) != 4)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get("lan_netmask", buf, sizeof(buf));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, NETMASK), buf, sizeof(buf));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 
@@ -118,7 +118,7 @@ static int set_wan_interface(FILE *file)
 	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get("wan_ifname", wan_ifname, sizeof(wan_ifname));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
 	if (rc < 0)
 		return (EXIT_FAILURE);
 
@@ -141,7 +141,7 @@ static int set_wan_interface(FILE *file)
 		break;
 
 	case WAN_TYPE_STATIC :
-		rc = ezcfg_api_nvram_get("wan_static_ipaddr", buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), buf, sizeof(buf));
 		if (rc < 0)
 			return (EXIT_FAILURE);
 
@@ -152,7 +152,7 @@ static int set_wan_interface(FILE *file)
 		       &wan_ipaddr[3]) != 4)
 			return (EXIT_FAILURE);
 
-		rc = ezcfg_api_nvram_get("wan_static_netmask", buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), buf, sizeof(buf));
 		if (rc < 0)
 			return (EXIT_FAILURE);
 
@@ -163,7 +163,7 @@ static int set_wan_interface(FILE *file)
 		       &wan_netmask[3]) != 4)
 			return (EXIT_FAILURE);
 
-		rc = ezcfg_api_nvram_get("wan_static_gateway", buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), buf, sizeof(buf));
 		if (rc < 0)
 			return (EXIT_FAILURE);
 

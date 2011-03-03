@@ -57,12 +57,12 @@ int pop_etc_resolv_conf(int flag)
 			goto exit_func;
 		}
 
-		rc = ezcfg_api_nvram_get("wan_domain", buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DOMAIN), buf, sizeof(buf));
 		if ((rc == 0) && (*buf != '\0')) {
 			fprintf(file, "domain %s\n", buf);
 		}
 
-		rc = ezcfg_api_nvram_get("wan_dns", buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DNS), buf, sizeof(buf));
 		if (rc < 0) {
 			rc = EXIT_FAILURE;
 			goto exit_func;

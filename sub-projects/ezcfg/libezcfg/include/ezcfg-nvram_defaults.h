@@ -14,6 +14,7 @@
 #ifndef _EZCFG_NVRAM_DEFAULTS_H_
 #define _EZCFG_NVRAM_DEFAULTS_H_
 
+#include "ezcfg-ezcfg.h"
 #include "ezcfg-lan.h"
 #include "ezcfg-wan.h"
 #include "ezcfg-rc.h"

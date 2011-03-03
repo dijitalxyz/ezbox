@@ -37,6 +37,16 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ "process_monitor_cron_period", "12" },/* cron task for checking process_monitor period, should be 3-30, default is 12 munites, 0 means not setup cron task */
 
 	/*--------------------*/
+	/* EZCFG parameters */
+	/*--------------------*/
+	/* EZCFG NVRAM buffer size */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BUFFER_SIZE), EZCFG_NVRAM_BUFFER_SIZE_STRING },
+	/* EZCFG NVRAM backend type */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BACKEND_TYPE), "1" }, /* 0: none, 1: file, 2: flash, 3: hdd */
+	/* EZCFG NVRAM storage path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_STORAGE_PATH), EZCFG_NVRAM_STORAGE_PATH },
+
+	/*--------------------*/
 	/* LAN H/W parameters */
 	/*--------------------*/
 	/* LAN interface name */
