@@ -45,6 +45,7 @@
 #define EZCI_PRIORITY                  -2
 
 static int ezcd_exit;
+static int ezcd_state;
 static bool debug = false;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
@@ -72,8 +73,10 @@ static void signal_handler(int sig_num)
 		do {
 			/* nothing */
 		} while (waitpid(-1, &sig_num, WNOHANG) > 0);
+	} else if (sig_num == SIGUSR1) {
+		ezcd_state = RC_RELOAD;
 	} else {
-		ezcd_exit = sig_num;
+		ezcd_exit = 1;
 	}
 }
 
@@ -165,9 +168,11 @@ int ezcd_main(int argc, char **argv)
 		dup2(fd, STDERR_FILENO);
 
 	ezcd_exit = 0;
+	ezcd_state = RC_BOOT;
 	signal(SIGCHLD, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
+	signal(SIGUSR1, signal_handler);
 
 	if (!debug) {
 		dup2(fd, STDIN_FILENO);
@@ -214,6 +219,7 @@ int ezcd_main(int argc, char **argv)
 		rc = 3;
 		goto exit;
 	}
+	ezcd_state = RC_START;
 
 	if (threads_max <= 0) {
 		int memsize = mem_size_mb();
@@ -239,6 +245,10 @@ int ezcd_main(int argc, char **argv)
 
 	while (ezcd_exit == 0) {
 		sleep(1);
+		if (ezcd_state == RC_RELOAD) {
+			ezcfg_master_reload(master);
+			ezcd_state = RC_START;
+		}
 	}
 	rc = 0;
 

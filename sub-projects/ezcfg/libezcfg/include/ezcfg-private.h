@@ -78,12 +78,10 @@ int ezcfg_nvram_get_num_default_nvram_unsets(void);
 struct ezcfg_nvram;
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram);
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg);
-bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int type);
-bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int type);
-bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const char *path);
-char *ezcfg_nvram_get_storage_path(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_set_backup_storage_path(struct ezcfg_nvram *nvram, const char *path);
-char *ezcfg_nvram_get_backup_storage_path(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int index, const int type);
+bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int index, const int type);
+bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int index, const char *path);
+char *ezcfg_nvram_get_storage_path(struct ezcfg_nvram *nvram, const int index);
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space);
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings);
@@ -92,6 +90,7 @@ bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, ch
 bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name);
 bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_list_node *list);
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 

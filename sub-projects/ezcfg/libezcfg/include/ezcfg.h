@@ -566,6 +566,7 @@ const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
 struct ezcfg_master;
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
+void ezcfg_master_reload(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 
 /* igrs/igrs.c */

@@ -86,7 +86,6 @@ static void ezcfg_master_delete(struct ezcfg_master *master)
 static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
-	char *p;	
 
 	ASSERT(ezcfg != NULL);
 
@@ -105,6 +104,8 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	}
 
 	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(master->nvram, EZCFG_CONFIG_FILE_PATH);
+#if 0
 	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_NVRAM_BACKEND_TYPE);
 	ezcfg_nvram_set_backend_type(master->nvram, (p == NULL) ? EZCFG_NVRAM_BACKEND_FILE : atoi(p));
 	if (p != NULL) free(p);
@@ -116,6 +117,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_NVRAM_BUFFER_SIZE);
 	ezcfg_nvram_set_total_space(master->nvram, (p == NULL) ? EZCFG_NVRAM_BUFFER_SIZE : atoi(p));
 	if (p != NULL) free(p);
+#endif
 
 	ezcfg_nvram_initialize(master->nvram);
 
@@ -475,6 +477,12 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 	ASSERT(master->num_threads == 0);
 	ezcfg_master_delete(master);
+}
+
+void ezcfg_master_reload(struct ezcfg_master *master)
+{
+	if (master == NULL)
+		return;
 }
 
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)

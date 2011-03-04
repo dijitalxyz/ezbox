@@ -21,6 +21,7 @@ ezcfg_uuid_generate
 ezcfg_uuid_export_str
 ezcfg_master_start
 ezcfg_master_stop
+ezcfg_master_reload
 ezcfg_master_set_threads_max
 ezcfg_soap_new
 ezcfg_soap_delete
