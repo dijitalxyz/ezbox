@@ -64,6 +64,24 @@ struct nvram_header {
 	uint32_t crc;
 };
 
+struct nvram_storage {
+	/* storage backend type, mapping to nvram header->magic
+	 * 0 -> NONE : in memory only
+	 * 1 -> FILE : store on file-system a file
+	 * 2 -> FLSH : store on flash chip
+	 */
+	int backend_type;
+
+	/* nvram content coding type, mapping to nvram header->coding
+	 * 0 -> NONE : plain text
+	 * 1 -> GZIP : store with gzip compress
+	 */
+	int coding_type;
+
+	/* nvram storage device/file path */
+	char *path;
+};
+
 /**************************************************************************
  *
  * NVRAM storage format
@@ -87,21 +105,8 @@ struct ezcfg_nvram {
 	pthread_mutex_t mutex; /* Protects nvram operations */
 	char *buffer; /* NVRAM in memory buffer */
 
-	/* storage backend type, mapping to nvram header->magic
-	 * 0 -> NONE : in memory only
-	 * 1 -> FILE : store on file-system a file
-	 * 2 -> FLSH : store on flash chip
-	 */
-	int backend_type[NVRAM_STORAGE_NUM];
-
-	/* nvram content coding type, mapping to nvram header->coding
-	 * 0 -> NONE : plain text
-	 * 1 -> GZIP : store with gzip compress
-	 */
-	int coding_type[NVRAM_STORAGE_NUM];
-
-	/* nvram storage device/file path */
-	char *storage_path[NVRAM_STORAGE_NUM];
+	/* storage info */
+	struct nvram_storage storage[NVRAM_STORAGE_NUM];
 
 	/* default settings */
 	int num_default_settings;
@@ -304,7 +309,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 
 	ezcfg = nvram->ezcfg;
 
-	fp = fopen(nvram->storage_path[index], "r");
+	fp = fopen(nvram->storage[index].path, "r");
 	if (fp == NULL) {
 		err(ezcfg, "can't open file for nvram init\n");
 		return false;
@@ -385,10 +390,10 @@ static void generate_nvram_header(struct ezcfg_nvram *nvram, const int index)
 	data = nvram->buffer + sizeof(struct nvram_header);
 
 	for (i=0; i<4; i++) {
-		header->magic[i] = default_magics[nvram->backend_type[index]][i];
+		header->magic[i] = default_magics[nvram->storage[index].backend_type][i];
 	}
 	for (i=0; i<4; i++) {
-		header->coding[i] = default_codings[nvram->coding_type[index]][i];
+		header->coding[i] = default_codings[nvram->storage[index].coding_type][i];
 	}
 	for (i=0; i<4; i++) {
 		header->version[i] = default_version[i];
@@ -418,7 +423,7 @@ static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int index)
 	/* generate nvram header info */
 	generate_nvram_header(nvram, index);
 
-	fp = fopen(nvram->storage_path[index], "w");
+	fp = fopen(nvram->storage[index].path, "w");
 	if (fp == NULL) {
 		err(ezcfg, "can't open file for nvram commit\n");
 		ret = false;
@@ -463,8 +468,8 @@ bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 	pthread_mutex_lock(&nvram->mutex);
 
 	for (i = 0; i < NVRAM_STORAGE_NUM; i++) {
-		if (nvram->storage_path[i] != NULL) {
-			free(nvram->storage_path[i]);
+		if (nvram->storage[i].path != NULL) {
+			free(nvram->storage[i].path);
 		}
 	}
 
@@ -520,7 +525,7 @@ bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int index, co
 
 	ezcfg = nvram->ezcfg;
 
-	nvram->backend_type[index] = type;
+	nvram->storage[index].backend_type = type;
 
 	return true;
 }
@@ -535,7 +540,7 @@ bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int index, con
 
 	ezcfg = nvram->ezcfg;
 
-	nvram->coding_type[index] = type;
+	nvram->storage[index].coding_type = type;
 
 	return true;
 }
@@ -557,10 +562,10 @@ bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int index, co
 		return false;
 	}
 
-	if (nvram->storage_path[index]) {
-		free(nvram->storage_path[index]);
+	if (nvram->storage[index].path) {
+		free(nvram->storage[index].path);
 	}
-	nvram->storage_path[index] = p;
+	nvram->storage[index].path = p;
 
 	return true;
 }
@@ -574,7 +579,7 @@ char *ezcfg_nvram_get_storage_path(struct ezcfg_nvram *nvram, const int index)
 
 	ezcfg = nvram->ezcfg;
 
-	return nvram->storage_path[index];
+	return nvram->storage[index].path;
 }
 
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space)
@@ -753,7 +758,7 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 	pthread_mutex_lock(&nvram->mutex);
 
 	for (i = 0; i < NVRAM_STORAGE_NUM; i++) {
-		switch (nvram->backend_type[i]) {
+		switch (nvram->storage[i].backend_type) {
 		case EZCFG_NVRAM_BACKEND_NONE :
 			info(ezcfg, "nvram in memory only, do nothing\n");
 			ret = true;
@@ -782,17 +787,56 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 	return ret;
 }
 
-bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *path)
+bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path)
 {
+	char *p;
+
 	ASSERT(nvram != NULL);
 
-	if (path == NULL) {
+	if (conf_path == NULL) {
 		/* set default settings */
 		ezcfg_nvram_set_backend_type(nvram, 0, EZCFG_NVRAM_BACKEND_FILE);
+		ezcfg_nvram_set_coding_type(nvram, 0, EZCFG_NVRAM_CODING_NONE);
 		ezcfg_nvram_set_storage_path(nvram, 0, EZCFG_NVRAM_STORAGE_PATH);
 		ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_BUFFER_SIZE);
 		return true;
 	}
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_NVRAM_BACKEND_TYPE);
+	if (p == NULL) {
+		ezcfg_nvram_set_backend_type(nvram, 0, EZCFG_NVRAM_BACKEND_FILE);
+	}
+	else {
+		ezcfg_nvram_set_backend_type(nvram, 0, atoi(p));
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_NVRAM_CODING_TYPE);
+	if (p == NULL) {
+		ezcfg_nvram_set_coding_type(nvram, 0, EZCFG_NVRAM_CODING_NONE);
+	}
+	else {
+		ezcfg_nvram_set_coding_type(nvram, 0, atoi(p));
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_NVRAM_STORAGE_PATH);
+	if (p == NULL) {
+		ezcfg_nvram_set_storage_path(nvram, 0, EZCFG_NVRAM_STORAGE_PATH);
+	}
+	else {
+		ezcfg_nvram_set_storage_path(nvram, 0, p);
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_NVRAM_BUFFER_SIZE);
+	if (p == NULL) {
+        	ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_BUFFER_SIZE);
+	}
+	else {
+		ezcfg_nvram_set_total_space(nvram, atoi(p));
+		free(p);
+	}
+
 	return true;
 }
 
@@ -808,8 +852,8 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 
 	/* check whether the storage info set correctly */
 	for (i = 0; i < NVRAM_STORAGE_NUM; i++) {
-		if (nvram->backend_type[i] != EZCFG_NVRAM_BACKEND_NONE &&
-		    nvram->storage_path[i] == NULL) {
+		if (nvram->storage[i].backend_type != EZCFG_NVRAM_BACKEND_NONE &&
+		    nvram->storage[i].path == NULL) {
 			err(ezcfg, "not setting nvram storage path.\n");
 			return false;
 		}
@@ -820,7 +864,7 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 
 	/* break the loop when init is OK */
 	for (i = 0; (ret == false) && (i < NVRAM_STORAGE_NUM); i++) {
-		switch (nvram->backend_type[i]) {
+		switch (nvram->storage[i].backend_type) {
 		case EZCFG_NVRAM_BACKEND_NONE :
 			ret = nvram_init_by_defaults(nvram);
 			break;

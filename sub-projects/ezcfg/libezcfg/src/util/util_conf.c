@@ -34,7 +34,7 @@
  * Returns string from config file
  * It is the caller's duty to free the returned string.
  */
-char *ezcfg_util_get_conf_string(char *path, char *keyword)
+char *ezcfg_util_get_conf_string(const char *path, const char *keyword)
 {
 	FILE *file;
 	char *p = NULL;

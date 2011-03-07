@@ -90,7 +90,7 @@ bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, ch
 bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name);
 bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_list_node *list);
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *path);
+bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
@@ -327,6 +327,6 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
 
 /* util/util_conf.c */
-char *ezcfg_util_get_conf_string(char *path, char *keyword);
+char *ezcfg_util_get_conf_string(const char *path, const char *keyword);
 
 #endif

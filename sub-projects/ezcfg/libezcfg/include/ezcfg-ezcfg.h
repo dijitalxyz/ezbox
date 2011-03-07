@@ -19,6 +19,7 @@
 
 #define EZCFG_EZCFG_NVRAM_BUFFER_SIZE     "nvram.buffer_size"
 #define EZCFG_EZCFG_NVRAM_BACKEND_TYPE    "nvram.backend_type"
+#define EZCFG_EZCFG_NVRAM_CODING_TYPE     "nvram.coding_type"
 #define EZCFG_EZCFG_NVRAM_STORAGE_PATH    "nvram.storage_path"
 
 #endif

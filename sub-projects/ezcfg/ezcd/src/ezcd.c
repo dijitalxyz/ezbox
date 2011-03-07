@@ -73,9 +73,11 @@ static void signal_handler(int sig_num)
 		do {
 			/* nothing */
 		} while (waitpid(-1, &sig_num, WNOHANG) > 0);
-	} else if (sig_num == SIGUSR1) {
+	}
+	else if (sig_num == SIGUSR1) {
 		ezcd_state = RC_RELOAD;
-	} else {
+	}
+	else {
 		ezcd_exit = 1;
 	}
 }

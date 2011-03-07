@@ -52,6 +52,8 @@
 #define EZCFG_NVRAM_BACKEND_FILE           1
 #define EZCFG_NVRAM_BACKEND_FLASH          2
 #define EZCFG_NVRAM_BACKEND_HDD            3
+#define EZCFG_NVRAM_CODING_NONE            0
+#define EZCFG_NVRAM_CODING_GZIP            1
 #define EZCFG_NVRAM_STORAGE_PATH           "/var/ezcfg/nvram.bin"
 
 /* ezcfg supported protocols */
