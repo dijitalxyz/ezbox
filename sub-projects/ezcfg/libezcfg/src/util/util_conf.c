@@ -34,6 +34,7 @@
  * Returns string from config file
  * It is the caller's duty to free the returned string.
  */
+#if 0
 char *ezcfg_util_get_conf_string(const char *path, const char *keyword)
 {
 	FILE *file;
@@ -64,6 +65,81 @@ char *ezcfg_util_get_conf_string(const char *path, const char *keyword)
 			}
 		}
 	}
+func_out:
+	fclose(file);
+	return v;
+}
+#endif
+
+/*
+ * Returns string from config file
+ * It is the caller's duty to free the returned string.
+ */
+char *ezcfg_util_get_conf_string(const char *path,
+	const char *section, const int index, const char *keyword)
+{
+	FILE *file;
+	char *p = NULL;
+	char *v = NULL;
+	char line[128];
+	int i;
+	int section_len;
+	int keyword_len;
+
+	if ((path == NULL) || (section == NULL) ||(keyword == NULL))
+		return NULL;
+
+	if (index < 0)
+		return NULL;
+
+	section_len = strlen(section);
+	if (section_len < 1)
+		return NULL;
+
+	keyword_len = strlen(keyword);
+	if (keyword_len < 1)
+		return NULL;
+
+	if ((section_len > (sizeof(line) - 3)) ||
+	    (keyword_len > (sizeof(line) - 2)))
+		return NULL;
+
+	/* get string from config file */
+	file = fopen(path, "r");
+	if (file == NULL)
+		return NULL;
+
+	i = -1; /* initialize index counter */
+
+	/* find the index-th section part */
+	while (fgets(line, sizeof(line), file) != NULL) {
+		if ((line[0] == '[') &&
+		    (strncmp(line+1, section, section_len) == 0) &&
+		    (line[section_len] == ']')) {
+			i++;
+			if (i == index)
+				break;
+		}
+	}
+
+	if (i == index) {
+		/* find target section */
+		while (fgets(line, sizeof(line), file) != NULL) {
+			if (line[0] == '[') {
+				/* reach the next section */
+				goto func_out;
+			}
+			if (strncmp(line, keyword, keyword_len) == 0) {
+				p = line+keyword_len;
+				if (*p == '=') {
+					p++;
+					v = strdup(p);
+					goto func_out;
+				}
+			}
+		}
+	}
+
 func_out:
 	fclose(file);
 	return v;

@@ -42,14 +42,13 @@
 int pop_etc_ezcfg_conf(int flag)
 {
 	FILE *file;
+	char name[64];
 	char buf[256];
 	int rc;
+	int i;
 
 	switch (flag) {
 	case RC_BOOT :
-		/* use default config for boot stage */
-		break;
-
 	case RC_START :
 	case RC_RELOAD :
 	case RC_RESTART :
@@ -58,19 +57,45 @@ int pop_etc_ezcfg_conf(int flag)
 		if (file == NULL)
 			return (EXIT_FAILURE);
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BUFFER_SIZE), buf, sizeof(buf));
-		if (rc == 0) {
-			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_BUFFER_SIZE), buf);
-		}
+		for(i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_BACKEND_TYPE), buf, sizeof(buf));
-		if (rc == 0) {
-			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_BACKEND_TYPE), buf);
-		}
+			fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_NVRAM);
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, NVRAM_STORAGE_PATH), buf, sizeof(buf));
-		if (rc == 0) {
-			fprintf(file, "%s=%s\n", SERVICE_OPTION(EZCFG, NVRAM_STORAGE_PATH), buf);
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_NVRAM,
+			         i, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_BUFFER_SIZE, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_NVRAM,
+			         i, EZCFG_EZCFG_KEYWORD_BACKEND_TYPE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_BACKEND_TYPE, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_NVRAM,
+			         i, EZCFG_EZCFG_KEYWORD_CODING_TYPE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_CODING_TYPE, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_NVRAM,
+			         i, EZCFG_EZCFG_KEYWORD_STORAGE_PATH);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_STORAGE_PATH, buf);
+			}
 		}
 
 		fclose(file);

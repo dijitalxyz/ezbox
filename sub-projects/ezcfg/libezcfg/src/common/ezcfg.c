@@ -179,7 +179,7 @@ struct ezcfg *ezcfg_new(void)
 		if (config_file == NULL) {
 			goto fail_exit;
 		}
-		fp = fopen(config_file, "re");
+		fp = fopen(config_file, "r");
 		if (fp != NULL) {
 			char line[UTIL_LINE_SIZE];
 			int line_nr = 0;

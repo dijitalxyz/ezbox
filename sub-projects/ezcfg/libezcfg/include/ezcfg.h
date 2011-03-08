@@ -49,12 +49,19 @@
 #define EZCFG_NVRAM_BUFFER_SIZE            0x10000 /* 64K Bytes */
 #define EZCFG_NVRAM_BUFFER_SIZE_STRING     "65536" /* 64K Bytes */
 #define EZCFG_NVRAM_BACKEND_NONE           0
+#define EZCFG_NVRAM_BACKEND_NONE_STRING    "0"
 #define EZCFG_NVRAM_BACKEND_FILE           1
+#define EZCFG_NVRAM_BACKEND_FILE_STRING    "1"
 #define EZCFG_NVRAM_BACKEND_FLASH          2
+#define EZCFG_NVRAM_BACKEND_FLASH_STRING   "2"
 #define EZCFG_NVRAM_BACKEND_HDD            3
+#define EZCFG_NVRAM_BACKEND_HDD_STRING     "3"
 #define EZCFG_NVRAM_CODING_NONE            0
+#define EZCFG_NVRAM_CODING_NONE_STRING     "0"
 #define EZCFG_NVRAM_CODING_GZIP            1
+#define EZCFG_NVRAM_CODING_GZIP_STRING     "1"
 #define EZCFG_NVRAM_STORAGE_PATH           "/var/ezcfg/nvram.bin"
+#define EZCFG_NVRAM_STORAGE_NUM            2
 
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0

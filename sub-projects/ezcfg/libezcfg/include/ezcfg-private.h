@@ -327,6 +327,6 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
 
 /* util/util_conf.c */
-char *ezcfg_util_get_conf_string(const char *path, const char *keyword);
+char *ezcfg_util_get_conf_string(const char *path, const char *section, const int index, const char *keyword);
 
 #endif

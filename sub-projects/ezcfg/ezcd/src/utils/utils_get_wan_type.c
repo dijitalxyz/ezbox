@@ -49,7 +49,7 @@ int utils_get_wan_type(void)
 	char buf[64];
 	int rc;
 
-	rc = ezcfg_api_nvram_get("wan_type", buf, sizeof(buf));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, TYPE), buf, sizeof(buf));
 	if (rc < 0) {
 		rc = WAN_TYPE_UNKNOWN;
 	}
