@@ -53,10 +53,32 @@ int pop_etc_ezcfg_conf(int flag)
 	case RC_RELOAD :
 	case RC_RESTART :
 		/* get ezcd config from nvram */
-		file = fopen("/etc/ezcfg.conf", "w");
+		file = fopen(EZCFG_CONFIG_FILE_PATH, "w");
 		if (file == NULL)
 			return (EXIT_FAILURE);
 
+		/* setup ezcfg common info */
+		fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_COMMON);
+
+		snprintf(name, sizeof(name), "%s%s.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_COMMON,
+		         EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_LOG_LEVEL, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_COMMON,
+		         EZCFG_EZCFG_KEYWORD_RULES_PATH);
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_RULES_PATH, buf);
+		}
+
+		/* setup nvram storage info */
 		for(i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
 
 			fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_NVRAM);
@@ -96,6 +118,7 @@ int pop_etc_ezcfg_conf(int flag)
 			if (rc >= 0) {
 				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_STORAGE_PATH, buf);
 			}
+			fprintf(file, "\n");
 		}
 
 		fclose(file);

@@ -39,6 +39,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/*--------------------*/
 	/* EZCFG parameters */
 	/*--------------------*/
+	/* EZCFG common log level */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_LOG_LEVEL), EZCFG_COMMON_LOG_LEVEL_ERR_STRING }, /* err | info | debug */
+	/* EZCFG common rules path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_RULES_PATH), EZCFG_COMMON_RULES_PATH },
 	/* EZCFG NVRAM buffer size */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_BUFFER_SIZE), EZCFG_NVRAM_BUFFER_SIZE_STRING },
 	/* EZCFG NVRAM backend type */
@@ -46,6 +50,15 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_CODING_TYPE), EZCFG_NVRAM_CODING_NONE_STRING }, /* 0: none, 1: gzip */
 	/* EZCFG NVRAM storage path */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_STORAGE_PATH), EZCFG_NVRAM_STORAGE_PATH },
+#if (1 < EZCFG_NVRAM_STORAGE_NUM)
+	/* EZCFG NVRAM buffer size */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_1_BUFFER_SIZE), EZCFG_NVRAM_BUFFER_SIZE_STRING },
+	/* EZCFG NVRAM backend type */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_1_BACKEND_TYPE), EZCFG_NVRAM_BACKEND_FILE_STRING }, /* 0: none, 1: file, 2: flash, 3: hdd */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_1_CODING_TYPE), EZCFG_NVRAM_CODING_NONE_STRING }, /* 0: none, 1: gzip */
+	/* EZCFG NVRAM storage path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_1_STORAGE_PATH), EZCFG_NVRAM_BACKUP_STORAGE_PATH },
+#endif
 
 	/*--------------------*/
 	/* LAN H/W parameters */

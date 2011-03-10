@@ -156,7 +156,8 @@ struct ezcfg *ezcfg_new(void)
 	struct ezcfg *ezcfg = NULL;
 	char *config_file = NULL;
 	const char *env;
-	FILE *fp;
+	//FILE *fp;
+	char *p;
 
 	ezcfg = calloc(1, sizeof(struct ezcfg));
 	if (ezcfg) {
@@ -179,6 +180,26 @@ struct ezcfg *ezcfg_new(void)
 		if (config_file == NULL) {
 			goto fail_exit;
 		}
+
+		/* find log_level keyword */
+		p = ezcfg_util_get_conf_string(config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
+		if (p != NULL) {
+			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
+			free(p);
+		}
+
+		/* find rules_path keyword */
+		p = ezcfg_util_get_conf_string(config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
+		if (p != NULL) {
+			if (ezcfg->rules_path != NULL) {
+				free(ezcfg->rules_path);
+			}
+			//ezcfg->rules_path = strdup(val);
+			ezcfg->rules_path = p;
+			ezcfg_util_remove_trailing_char(ezcfg->rules_path, '/');
+			//free(p);
+		}
+#if 0
 		fp = fopen(config_file, "r");
 		if (fp != NULL) {
 			char line[UTIL_LINE_SIZE];
@@ -255,8 +276,9 @@ struct ezcfg *ezcfg_new(void)
 			}
 			fclose(fp);
 		}
+#endif
 
-		env = getenv("EZCFG_LOG");
+		env = getenv("EZCFG_LOG_LEVEL");
 		if (env != NULL)
 			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(env));
 

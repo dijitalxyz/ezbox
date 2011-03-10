@@ -26,11 +26,11 @@ int ezcfg_util_log_priority(const char *priority)
 	prio = strtol(priority, &endptr, 10);
 	if (endptr[0] == '\0' || isspace(endptr[0]))
 		return prio;
-	if (strncmp(priority, "err", 3) == 0)
+	if (strncmp(priority, EZCFG_COMMON_LOG_LEVEL_ERR_STRING, strlen(EZCFG_COMMON_LOG_LEVEL_ERR_STRING)) == 0)
 		return LOG_ERR;
-	if (strncmp(priority, "info", 4) == 0)
+	if (strncmp(priority, EZCFG_COMMON_LOG_LEVEL_INFO_STRING, strlen(EZCFG_COMMON_LOG_LEVEL_ERR_STRING)) == 0)
 		return LOG_INFO;
-	if (strncmp(priority, "debug", 5) == 0)
+	if (strncmp(priority, EZCFG_COMMON_LOG_LEVEL_DEBUG_STRING, strlen(EZCFG_COMMON_LOG_LEVEL_ERR_STRING)) == 0)
 		return LOG_DEBUG;
 	return 0;
 }

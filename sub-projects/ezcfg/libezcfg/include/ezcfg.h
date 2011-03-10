@@ -45,6 +45,12 @@
 //#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 
+/* ezcfg common definitions */
+#define EZCFG_COMMON_LOG_LEVEL_ERR_STRING     "err"
+#define EZCFG_COMMON_LOG_LEVEL_INFO_STRING    "info"
+#define EZCFG_COMMON_LOG_LEVEL_DEBUG_STRING   "debug"
+#define EZCFG_COMMON_RULES_PATH               SYSCONFDIR "/ezcfg.rules"
+
 /* ezcfg nvram definitions */
 #define EZCFG_NVRAM_BUFFER_SIZE            0x10000 /* 64K Bytes */
 #define EZCFG_NVRAM_BUFFER_SIZE_STRING     "65536" /* 64K Bytes */
@@ -61,6 +67,7 @@
 #define EZCFG_NVRAM_CODING_GZIP            1
 #define EZCFG_NVRAM_CODING_GZIP_STRING     "1"
 #define EZCFG_NVRAM_STORAGE_PATH           "/var/ezcfg/nvram.bin"
+#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    "/var/ezcfg/nvram_backup.bin"
 #define EZCFG_NVRAM_STORAGE_NUM            2
 
 /* ezcfg supported protocols */
