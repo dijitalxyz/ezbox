@@ -78,6 +78,8 @@ int pop_etc_ezcfg_conf(int flag)
 			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_RULES_PATH, buf);
 		}
 
+		fprintf(file, "\n");
+
 		/* setup nvram storage info */
 		for(i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
 
