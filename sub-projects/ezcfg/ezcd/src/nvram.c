@@ -64,6 +64,7 @@ static void nvram_show_usage(void)
 	printf("    unset <name>        remove nvram <name> and its <value>\n");
 	printf("    list                list all nvram\n");
 	printf("    commit              save nvram to storage device\n");
+	printf("    info                show nvram version and usage information\n");
 	printf("\n");
 }
 
@@ -205,6 +206,28 @@ int nvram_main(int argc, char **argv)
 				return -EZCFG_E_SPACE ;
 			}
 			rc = ezcfg_api_nvram_list(buf, buf_len);
+			if (rc < 0) {
+				printf("ERROR\n");
+			}
+			else {
+				printf("%s", buf);
+			}
+			free(buf);
+		}
+		else {
+			printf("number of arguments is incorrect.\n");
+			nvram_show_usage();
+			rc = -EZCFG_E_ARGUMENT ;
+		}
+	}
+	else if (strcmp(argv[1], "info") == 0) {
+		if (argc == 2) {
+			buf_len = EZCFG_NVRAM_BUFFER_SIZE;
+			buf = (char *)malloc(buf_len);
+			if (buf == NULL) {
+				return -EZCFG_E_SPACE ;
+			}
+			rc = ezcfg_api_nvram_info(buf, buf_len);
 			if (rc < 0) {
 				printf("ERROR\n");
 			}

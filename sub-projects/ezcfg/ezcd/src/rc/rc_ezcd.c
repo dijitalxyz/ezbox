@@ -81,7 +81,7 @@ int rc_ezcd(int flag)
 		if (pidList) {
 			int i;
 			for (i = 0; pidList[i].pid > 0; i++) {
-				kill(pidList[i].pid, SIGHUP);
+				kill(pidList[i].pid, SIGTERM);
 			}
 			free(pidList);
 		}
@@ -98,6 +98,14 @@ int rc_ezcd(int flag)
 		/* re-generate ezcfg config file */
 		pop_etc_ezcfg_conf(flag);
 		/* send signal to ezcd to reload config */
+		pidList = utils_find_pid_by_name("ezcd");
+		if (pidList) {
+			int i;
+			for (i = 0; pidList[i].pid > 0; i++) {
+				kill(pidList[i].pid, SIGHUP);
+			}
+			free(pidList);
+		}
 		break;
 	}
 	return (EXIT_SUCCESS);

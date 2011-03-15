@@ -942,6 +942,234 @@ exit:
 	return rc;
 }
 
+static int build_nvram_info_response(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char buf[256];
+	int body_index, child_index;
+	int infonv_index, nvnode_index;
+	int n;
+	char *msg = NULL;
+	int msg_len;
+	int rc = 0;
+	
+	ASSERT(sh != NULL);
+	ASSERT(sh->http != NULL);
+	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
+
+	ezcfg = sh->ezcfg;
+	http = sh->http;
+	soap = sh->soap;
+
+	/* clean SOAP structure info */
+	ezcfg_soap_reset_attributes(soap);
+
+	/* build SOAP */
+	ezcfg_soap_set_version_major(soap, 1);
+	ezcfg_soap_set_version_minor(soap, 2);
+
+	/* SOAP Envelope */
+	ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+	ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* SOAP Body */
+	body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+	/* Body child infoNvram part */
+	infonv_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_NVRAM_INFONV_RESPONSE_ELEMENT_NAME, NULL);
+	ezcfg_soap_add_body_child_attribute(soap, infonv_index, EZCFG_SOAP_NVRAM_ATTR_NS_NAME, EZCFG_SOAP_NVRAM_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* nvram info part */
+
+	/* nvram version */
+	nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+	if (nvnode_index < 0) {
+		err(ezcfg, "add nvram node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%s", "version");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram name node fail\n");
+		goto exit;
+	}
+	buf[0] = '\0';
+	ezcfg_nvram_get_version_string(nvram, buf, sizeof(buf));
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram value node fail\n");
+		goto exit;
+	}
+
+	/* nvram buffer total size */
+	nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+	if (nvnode_index < 0) {
+		err(ezcfg, "add nvram node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%s", "total_space");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram name node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%d", ezcfg_nvram_get_total_space(nvram));
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram value node fail\n");
+		goto exit;
+	}
+
+	/* nvram buffer free space */
+	nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+	if (nvnode_index < 0) {
+		err(ezcfg, "add nvram node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%s", "free_space");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram name node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%d", ezcfg_nvram_get_free_space(nvram));
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram value node fail\n");
+		goto exit;
+	}
+
+	/* nvram buffer used space */
+	nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+	if (nvnode_index < 0) {
+		err(ezcfg, "add nvram node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%s", "used_space");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram name node fail\n");
+		goto exit;
+	}
+	snprintf(buf, sizeof(buf), "%d", ezcfg_nvram_get_used_space(nvram));
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "add nvram value node fail\n");
+		goto exit;
+	}
+
+	/* nvram storage info */
+	for (n = 0; n < EZCFG_NVRAM_STORAGE_NUM; n++) {
+		/* storage info backend */
+		nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+		if (nvnode_index < 0) {
+			err(ezcfg, "add nvram node fail\n");
+			goto exit;
+		}
+		snprintf(buf, sizeof(buf), "storage[%d].backend", n);
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram name node fail\n");
+			goto exit;
+		}
+		buf[0] = '\0';
+		ezcfg_nvram_get_storage_backend_string(nvram, n, buf, sizeof(buf));
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram value node fail\n");
+			goto exit;
+		}
+
+		/* storage info coding */
+		nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+		if (nvnode_index < 0) {
+			err(ezcfg, "add nvram node fail\n");
+			goto exit;
+		}
+		snprintf(buf, sizeof(buf), "storage[%d].coding", n);
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram name node fail\n");
+			goto exit;
+		}
+		buf[0] = '\0';
+		ezcfg_nvram_get_storage_coding_string(nvram, n, buf, sizeof(buf));
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram value node fail\n");
+			goto exit;
+		}
+
+		/* storage info path */
+		nvnode_index = ezcfg_soap_add_body_child(soap, infonv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+		if (nvnode_index < 0) {
+			err(ezcfg, "add nvram node fail\n");
+			goto exit;
+		}
+		snprintf(buf, sizeof(buf), "storage[%d].path", n);
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram name node fail\n");
+			goto exit;
+		}
+		buf[0] = '\0';
+		ezcfg_nvram_get_storage_path_string(nvram, n, buf, sizeof(buf));
+		child_index = ezcfg_soap_add_body_child(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "add nvram value node fail\n");
+			goto exit;
+		}
+	}
+
+	msg_len = ezcfg_soap_get_message_length(soap);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_soap_get_message_length\n");
+		rc = -1;
+		goto exit;
+	}
+	msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+	msg_len++; /* one more for '\n' */
+	msg_len++; /* one more for '\0' */
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		err(ezcfg, "malloc error.\n");
+		rc = -1;
+		goto exit;
+	}
+
+	memset(msg, 0, msg_len);
+	snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+	n = strlen(msg);
+	n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
+
+	/* FIXME: name point to http->request_uri !!!
+         * never reset http before using name */
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+	ezcfg_http_set_status_code(http, 200);
+	ezcfg_http_set_state_response(http);
+
+	ezcfg_http_set_message_body(http, msg, n);
+
+	snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
+
+	snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+	/* set return value */
+	rc = 0;
+
+exit:
+	if (msg != NULL)
+		free(msg);
+
+	return rc;
+}
+
 /**
  * Public functions
  **/
@@ -1003,6 +1231,10 @@ int ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcf
 	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/commitNvram] */
 		ret = build_nvram_commit_response(sh, nvram);
+	}
+	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_INFO_URI) == 0) {
+		/* nvram get uri=[/ezcfg/nvram/soap-http/infoNvram] */
+		ret = build_nvram_info_response(sh, nvram);
 	}
 	return ret;
 }

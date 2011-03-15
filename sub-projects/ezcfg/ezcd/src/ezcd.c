@@ -74,7 +74,7 @@ static void signal_handler(int sig_num)
 			/* nothing */
 		} while (waitpid(-1, &sig_num, WNOHANG) > 0);
 	}
-	else if (sig_num == SIGUSR1) {
+	else if (sig_num == SIGHUP) {
 		ezcd_state = RC_RELOAD;
 	}
 	else {
@@ -174,7 +174,7 @@ int ezcd_main(int argc, char **argv)
 	signal(SIGCHLD, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
-	signal(SIGUSR1, signal_handler);
+	signal(SIGHUP, signal_handler);
 
 	if (!debug) {
 		dup2(fd, STDIN_FILENO);

@@ -134,7 +134,7 @@ int rc_system(int flag)
 		chdir(ROOT_HOME_PATH);
 
 		/* restart ezcfg daemon */
-		rc_ezcd(RC_RESTART);
+		rc_ezcd(RC_RELOAD);
 
 		/* restart hotplug2 */
 		rc_hotplug2(RC_RESTART);

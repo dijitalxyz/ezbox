@@ -467,8 +467,19 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 void ezcfg_master_reload(struct ezcfg_master *master)
 {
+	struct ezcfg *ezcfg;
+
 	if (master == NULL)
 		return;
+
+	ezcfg = master->ezcfg;
+	pthread_mutex_lock(&master->mutex);
+
+	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(master->nvram, EZCFG_CONFIG_FILE_PATH);
+	ezcfg_nvram_initialize(master->nvram);
+
+	pthread_mutex_unlock(&master->mutex);
 }
 
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)

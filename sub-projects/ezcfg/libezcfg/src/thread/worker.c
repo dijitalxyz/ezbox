@@ -428,6 +428,9 @@ static bool is_soap_http_nvram_request(const char *uri)
 	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_LIST_URI) == 0) {
 		return true;
 	}
+	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_INFO_URI) == 0) {
+		return true;
+	}
 	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI) == 0) {
 		return true;
 	}

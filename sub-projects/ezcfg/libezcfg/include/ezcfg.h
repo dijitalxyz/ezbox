@@ -114,6 +114,8 @@
 #define EZCFG_SOAP_NVRAM_LISTNV_RESPONSE_ELEMENT_NAME    "nvns:listNvramResponse"
 #define EZCFG_SOAP_NVRAM_COMMITNV_ELEMENT_NAME           "nvns:commitNvram"
 #define EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME  "nvns:commitNvramResponse"
+#define EZCFG_SOAP_NVRAM_INFONV_ELEMENT_NAME             "nvns:infoNvram"
+#define EZCFG_SOAP_NVRAM_INFONV_RESPONSE_ELEMENT_NAME    "nvns:infoNvramResponse"
 #define EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME               "nvns:name"
 #define EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME              "nvns:value"
 #define EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME             "nvns:result"
@@ -311,6 +313,7 @@
 #define EZCFG_SOAP_HTTP_NVRAM_SET_URI               "/ezcfg/nvram/soap-http/setNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_UNSET_URI             "/ezcfg/nvram/soap-http/unsetNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/soap-http/listNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_INFO_URI              "/ezcfg/nvram/soap-http/infoNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/soap-http/commitNvram"
 
 /* ezcfg igrs request/response mode */

@@ -568,18 +568,6 @@ bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int index, co
 	return true;
 }
 
-char *ezcfg_nvram_get_storage_path(struct ezcfg_nvram *nvram, const int index)
-{
-	struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
-
-	ezcfg = nvram->ezcfg;
-
-	return nvram->storage[index].path;
-}
-
 bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space)
 {
 	struct ezcfg *ezcfg;
@@ -628,6 +616,118 @@ int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
 	ezcfg = nvram->ezcfg;
 
 	return nvram->total_space;
+}
+
+int ezcfg_nvram_get_free_space(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(nvram != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	return nvram->free_space;
+}
+
+int ezcfg_nvram_get_used_space(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(nvram != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	return nvram->free_space;
+}
+
+bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t len)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(nvram != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = nvram->ezcfg;
+
+	snprintf(buf, len, "%d.%d.%d.%d", 
+	         default_version[0],
+	         default_version[1],
+	         default_version[2],
+	         default_version[3]);
+
+	return true;
+}
+
+bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	ASSERT(nvram != NULL);
+	ASSERT(index >= 0);
+	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = nvram->ezcfg;
+
+	i = nvram->storage[index].backend;
+
+	snprintf(buf, len, "%c%c%c%c", 
+	         default_magics[i][0],
+	         default_magics[i][1],
+	         default_magics[i][2],
+	         default_magics[i][3]);
+
+	return true;
+}
+
+bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	ASSERT(nvram != NULL);
+	ASSERT(index >= 0);
+	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = nvram->ezcfg;
+
+	i = nvram->storage[index].coding;
+
+	snprintf(buf, len, "%c%c%c%c", 
+	         default_codings[i][0],
+	         default_codings[i][1],
+	         default_codings[i][2],
+	         default_codings[i][3]);
+
+	return true;
+}
+
+bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+{
+	struct ezcfg *ezcfg;
+	int i;
+
+	ASSERT(nvram != NULL);
+	ASSERT(index >= 0);
+	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = nvram->ezcfg;
+
+	i = nvram->storage[index].path;
+
+	buf[0] = '\0';
+	if (nvram->storage[index].path != NULL) {
+		snprintf(buf, len, "%s", nvram->storage[index].path);
+	}
+
+	return true;
 }
 
 bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings)
@@ -788,6 +888,7 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path)
 {
 	char *p;
+	int nvram_buffer_size;
 
 	ASSERT(nvram != NULL);
 
@@ -829,11 +930,58 @@ bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_p
 	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 0, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
 	if (p == NULL) {
         	ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_BUFFER_SIZE);
+		nvram_buffer_size = EZCFG_NVRAM_BUFFER_SIZE;
 	}
 	else {
-		ezcfg_nvram_set_total_space(nvram, atoi(p));
+		nvram_buffer_size = atoi(p);
+		ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
 		free(p);
 	}
+
+	/* setup backup nvram storage */
+#if (1 < EZCFG_NVRAM_STORAGE_NUM)
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_BACKEND_TYPE);
+	if (p == NULL) {
+		ezcfg_nvram_set_backend_type(nvram, 1, EZCFG_NVRAM_BACKEND_FILE);
+	}
+	else {
+		ezcfg_nvram_set_backend_type(nvram, 1, atoi(p));
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_CODING_TYPE);
+	if (p == NULL) {
+		ezcfg_nvram_set_coding_type(nvram, 1, EZCFG_NVRAM_CODING_NONE);
+	}
+	else {
+		ezcfg_nvram_set_coding_type(nvram, 1, atoi(p));
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_STORAGE_PATH);
+	if (p == NULL) {
+		ezcfg_nvram_set_storage_path(nvram, 1, EZCFG_NVRAM_BACKUP_STORAGE_PATH);
+	}
+	else {
+		ezcfg_nvram_set_storage_path(nvram, 1, p);
+		free(p);
+	}
+
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
+	if (p == NULL) {
+		if (nvram_buffer_size < EZCFG_NVRAM_BUFFER_SIZE) {
+			nvram_buffer_size = EZCFG_NVRAM_BUFFER_SIZE;
+		}
+        	ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
+	}
+	else {
+		if (nvram_buffer_size < atoi(p)) {
+			nvram_buffer_size = atoi(p);
+		}
+		ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
+		free(p);
+	}
+#endif
 
 	return true;
 }
