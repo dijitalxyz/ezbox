@@ -710,7 +710,6 @@ bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int 
 bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
 {
 	struct ezcfg *ezcfg;
-	int i;
 
 	ASSERT(nvram != NULL);
 	ASSERT(index >= 0);
@@ -719,8 +718,6 @@ bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int in
 	ASSERT(len > 0);
 
 	ezcfg = nvram->ezcfg;
-
-	i = nvram->storage[index].path;
 
 	buf[0] = '\0';
 	if (nvram->storage[index].path != NULL) {
