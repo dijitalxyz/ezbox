@@ -43,6 +43,8 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_LOG_LEVEL), EZCFG_COMMON_LOG_LEVEL_ERR_STRING }, /* err | info | debug */
 	/* EZCFG common rules path */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_RULES_PATH), EZCFG_COMMON_RULES_PATH },
+	/* EZCFG common socket number */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), "1" },
 	/* EZCFG NVRAM buffer size */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_BUFFER_SIZE), EZCFG_NVRAM_BUFFER_SIZE_STRING },
 	/* EZCFG NVRAM backend type */
@@ -59,6 +61,14 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG NVRAM storage path */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_1_STORAGE_PATH), EZCFG_NVRAM_BACKUP_STORAGE_PATH },
 #endif
+	/* EZCFG socket domain */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_DOMAIN), "inet" },
+	/* EZCFG socket type */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_TYPE), "stream" },
+	/* EZCFG socket protocol */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_PROTOCOL), "0" },
+	/* EZCFG socket address */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), "192.168.1.1:80" },
 
 	/*--------------------*/
 	/* LAN H/W parameters */

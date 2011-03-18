@@ -44,22 +44,25 @@
 struct ezcfg_master {
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
-	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 	int threads_max; /* MAX number of threads */
 	int num_threads; /* Number of threads */
 	int num_idle; /* Number of idle threads */
 
-	pthread_mutex_t mutex; /* Protects (max|num)_threads */
-	pthread_rwlock_t rwlock; /* Protects options, callbacks */
-	pthread_cond_t thr_cond; /* Condvar for thread sync */
+	pthread_mutex_t thread_mutex; /* Protects (max|num)_threads */
+	pthread_rwlock_t thread_rwlock; /* Protects options, callbacks */
+	pthread_cond_t thread_sync_cond; /* Condvar for thread sync */
 
 	struct ezcfg_socket *listening_sockets;
+	pthread_mutex_t ls_mutex; /* Protects listening_sockets */
+
 	struct ezcfg_socket *queue; /* Accepted sockets */
 	int sq_len; /* Length of the socket queue */
 	int sq_head; /* Head of the socket queue */
 	int sq_tail; /* Tail of the socket queue */
-	pthread_cond_t empty_cond; /* Socket queue empty condvar */
-	pthread_cond_t full_cond;  /* Socket queue full condvar */
+	pthread_cond_t sq_empty_cond; /* Socket queue empty condvar */
+	pthread_cond_t sq_full_cond;  /* Socket queue full condvar */
+
+	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 };
 
 static void ezcfg_master_delete(struct ezcfg_master *master)
@@ -122,11 +125,12 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	signal(SIGPIPE, SIG_IGN);
 
 	/* initialize thread mutex */
-	pthread_rwlock_init(&master->rwlock, NULL);
-	pthread_mutex_init(&master->mutex, NULL);
-	pthread_cond_init(&master->thr_cond, NULL);
-	pthread_cond_init(&master->empty_cond, NULL);
-	pthread_cond_init(&master->full_cond, NULL);
+	pthread_mutex_init(&master->thread_mutex, NULL);
+	pthread_rwlock_init(&master->thread_rwlock, NULL);
+	pthread_cond_init(&master->thread_sync_cond, NULL);
+	pthread_mutex_init(&master->ls_mutex, NULL);
+	pthread_cond_init(&master->sq_empty_cond, NULL);
+	pthread_cond_init(&master->sq_full_cond, NULL);
 
 	/* set ezcfg library context */
 	master->ezcfg = ezcfg;
@@ -176,11 +180,17 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 		ezcfg_socket_set_need_unlink(listener, true);
 	}
 
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&master->ls_mutex);
+
 	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {
 		err(ezcfg, "insert listener socket fail: %m\n");
 		ezcfg_socket_delete(listener);
-		return NULL;
+		listener = NULL;
 	}
+
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&master->ls_mutex);
 
 	return listener;
 }
@@ -252,17 +262,20 @@ static void ezcfg_master_finish(struct ezcfg_master *master)
 	//close_all_listening_sockets(master);
 
 	/* Wait until all threads finish */
-	pthread_mutex_lock(&master->mutex);
+	pthread_mutex_lock(&master->thread_mutex);
 	while (master->num_threads > 0)
-		pthread_cond_wait(&master->thr_cond, &master->mutex);
+		pthread_cond_wait(&master->thread_sync_cond, &master->thread_mutex);
 	master->threads_max = 0;
-	pthread_mutex_unlock(&master->mutex);
+	pthread_mutex_unlock(&master->thread_mutex);
 
-	pthread_rwlock_destroy(&master->rwlock);
-	pthread_mutex_destroy(&master->mutex);
-	pthread_cond_destroy(&master->thr_cond);
-	pthread_cond_destroy(&master->empty_cond);
-	pthread_cond_destroy(&master->full_cond);
+	pthread_cond_destroy(&master->sq_empty_cond);
+	pthread_cond_destroy(&master->sq_full_cond);
+
+	pthread_mutex_destroy(&master->ls_mutex);
+
+	pthread_cond_destroy(&master->thread_sync_cond);
+	pthread_rwlock_destroy(&master->thread_rwlock);
+	pthread_mutex_destroy(&master->thread_mutex);
 
         /* signal ezcd_stop() that we're done */
         master->stop_flag = 2;
@@ -289,11 +302,11 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	ezcfg = master->ezcfg;
 	stacksize = 0;
 
-	pthread_mutex_lock(&master->mutex);
+	pthread_mutex_lock(&master->thread_mutex);
 
 	// If the queue is full, wait
 	while (master->sq_head - master->sq_tail >= master->sq_len) {
-		pthread_cond_wait(&master->full_cond, &master->mutex);
+		pthread_cond_wait(&master->sq_full_cond, &master->thread_mutex);
 	}
 	ASSERT(master->sq_head - master->sq_tail < master->sq_len);
 
@@ -317,8 +330,8 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 		}
 	}
 
-	pthread_cond_signal(&master->empty_cond);
-	pthread_mutex_unlock(&master->mutex);
+	pthread_cond_signal(&master->sq_empty_cond);
+	pthread_mutex_unlock(&master->thread_mutex);
 }
 
 static void accept_new_connection(struct ezcfg_master *master,
@@ -366,9 +379,15 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 		max_fd = -1;
 
 		/* Add listening sockets to the read set */
+		/* lock mutex before handling listening_sockets */
+		pthread_mutex_lock(&master->ls_mutex);
+
 		for (sp = master->listening_sockets; sp != NULL; sp = ezcfg_socket_list_next(&sp)) {
 			add_to_set(ezcfg_socket_get_sock(sp), &read_set, &max_fd);
 		}
+
+		/* unlock mutex before handling listening_sockets */
+		pthread_mutex_unlock(&master->ls_mutex);
 
 		tv.tv_sec = 1;
 		tv.tv_usec = 0;
@@ -377,6 +396,9 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 			/* do nothing */
 			do {} while(0);
 		} else {
+			/* lock mutex before handling listening_sockets */
+			pthread_mutex_lock(&master->ls_mutex);
+
 			for (sp = master->listening_sockets;
 			     sp != NULL;
 			     sp = ezcfg_socket_list_next(&sp)) {
@@ -384,6 +406,9 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 					accept_new_connection(master, sp);
 				}
 			}
+
+			/* unlock mutex before handling listening_sockets */
+			pthread_mutex_unlock(&master->ls_mutex);
 		}
 	}
 
@@ -473,13 +498,29 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 		return;
 
 	ezcfg = master->ezcfg;
-	pthread_mutex_lock(&master->mutex);
+	pthread_mutex_lock(&master->thread_mutex);
 
 	/* initialize nvram */
 	ezcfg_nvram_fill_storage_info(master->nvram, EZCFG_CONFIG_FILE_PATH);
 	ezcfg_nvram_initialize(master->nvram);
 
-	pthread_mutex_unlock(&master->mutex);
+	/* initialize listening_sockets */
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&master->ls_mutex);
+
+#if 0
+	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {
+		err(ezcfg, "insert listener socket fail: %m\n");
+		ezcfg_socket_delete(listener);
+		listener = NULL;
+	}
+#endif
+
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&master->ls_mutex);
+
+
+	pthread_mutex_unlock(&master->thread_mutex);
 }
 
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)
@@ -514,15 +555,15 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 
 	ezcfg = master->ezcfg;
 
-	pthread_mutex_lock(&master->mutex);
+	pthread_mutex_lock(&master->thread_mutex);
 	/* If the queue is empty, wait. We're idle at this point. */
 	master->num_idle++;
 	while (master->sq_head == master->sq_tail) {
 		ts.tv_nsec = 0;
 		ts.tv_sec = time(NULL) + 5;
-		if (pthread_cond_timedwait(&master->empty_cond, &master->mutex, &ts) != 0) {
+		if (pthread_cond_timedwait(&master->sq_empty_cond, &master->thread_mutex, &ts) != 0) {
 			// Timeout! release the mutex and return
-			pthread_mutex_unlock(&master->mutex);
+			pthread_mutex_unlock(&master->thread_mutex);
 			return false;
 		}
 	}
@@ -540,8 +581,8 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 		master->sq_tail -= master->sq_len;
 		master->sq_head -= master->sq_len;
 	}
-	pthread_cond_signal(&master->full_cond);
-	pthread_mutex_unlock(&master->mutex);
+	pthread_cond_signal(&master->sq_full_cond);
+	pthread_mutex_unlock(&master->thread_mutex);
 
 	return true;
 }
@@ -555,17 +596,17 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 
 	ezcfg = master->ezcfg;
 
-	pthread_mutex_lock(&master->mutex);
+	pthread_mutex_lock(&master->thread_mutex);
 
 	/* clean worker resource */
 	ezcfg_worker_delete(worker);
 
 	master->num_threads--;
 	master->num_idle--;
-	pthread_cond_signal(&master->thr_cond);
+	pthread_cond_signal(&master->thread_sync_cond);
 	ASSERT(master->num_threads >= 0);
 
-	pthread_mutex_unlock(&master->mutex);
+	pthread_mutex_unlock(&master->thread_mutex);
 }
 
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)
