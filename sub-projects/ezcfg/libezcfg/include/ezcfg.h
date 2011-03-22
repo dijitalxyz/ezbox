@@ -70,12 +70,27 @@
 #define EZCFG_NVRAM_BACKUP_STORAGE_PATH    "/var/ezcfg/nvram_backup.bin"
 #define EZCFG_NVRAM_STORAGE_NUM            2
 
+/* ezcfg socket domain string */
+#define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
+#define EZCFG_SOCKET_DOMAIN_INET_STRING    "inet"
+#define EZCFG_SOCKET_DOMAIN_INET6_STRING   "inet6"
+
+/* ezcfg socket type string */
+#define EZCFG_SOCKET_TYPE_STREAM_STRING    "stream"
+#define EZCFG_SOCKET_TYPE_DGRAM_STRING     "dgram"
+#define EZCFG_SOCKET_TYPE_RAW_STRING       "raw"
+
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0
 #define EZCFG_PROTO_HTTP	1
 #define EZCFG_PROTO_SOAP_HTTP	2
 #define EZCFG_PROTO_IGRS	3
 #define EZCFG_PROTO_ISDP	4
+#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
+#define EZCFG_SOCKET_PROTO_HTTP_STRING            "1"
+#define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "2"
+#define EZCFG_SOCKET_PROTO_IGRS_STRING            "3"
+#define EZCFG_SOCKET_PROTO_ISDP_STRING            "4"
 
 
 /* ezcfg xml definitions */
@@ -626,7 +641,7 @@ bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
 
 /* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path);
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path);
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);

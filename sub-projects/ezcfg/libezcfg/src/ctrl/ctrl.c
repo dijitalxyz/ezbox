@@ -50,7 +50,7 @@ void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 	free(ezctrl);
 }
 
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *local_socket_path, const char *remote_socket_path)
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path)
 {
 	struct ezcfg_ctrl *ezctrl;
 
@@ -65,7 +65,7 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 	}
 	ezctrl->ezcfg = ezcfg;
 
-	ezctrl->socket = ezcfg_socket_new(ezcfg, family, proto, local_socket_path);
+	ezctrl->socket = ezcfg_socket_new(ezcfg, family, SOCK_STREAM, proto, local_socket_path);
 	if (ezctrl->socket == NULL) {
 		err(ezcfg, "controller add socket[%s] fail: %m\n", local_socket_path);
 		goto fail_exit;

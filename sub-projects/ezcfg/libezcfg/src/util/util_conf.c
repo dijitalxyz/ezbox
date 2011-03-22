@@ -85,6 +85,7 @@ char *ezcfg_util_get_conf_string(const char *path,
 	int i;
 	int section_len;
 	int keyword_len;
+	FILE *fp;
 
 	if ((path == NULL) || (section == NULL) ||(keyword == NULL))
 		return NULL;
@@ -106,8 +107,9 @@ char *ezcfg_util_get_conf_string(const char *path,
 
 	/* get string from config file */
 	file = fopen(path, "r");
-	if (file == NULL)
+	if (file == NULL) {
 		return NULL;
+	}
 
 	i = -1; /* initialize index counter */
 
@@ -115,10 +117,11 @@ char *ezcfg_util_get_conf_string(const char *path,
 	while (fgets(line, sizeof(line), file) != NULL) {
 		if ((line[0] == '[') &&
 		    (strncmp(line+1, section, section_len) == 0) &&
-		    (line[section_len] == ']')) {
+		    (line[section_len+1] == ']')) {
 			i++;
-			if (i == index)
-				break;
+		}
+		if (i == index) {
+			break;
 		}
 	}
 
@@ -133,6 +136,7 @@ char *ezcfg_util_get_conf_string(const char *path,
 				p = line+keyword_len;
 				if (*p == '=') {
 					p++;
+					ezcfg_util_remove_trailing_charlist(p, EZCFG_EZCFG_TRAILING_CHARLIST);
 					v = strdup(p);
 					goto func_out;
 				}

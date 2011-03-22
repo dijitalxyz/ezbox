@@ -97,11 +97,12 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
  * Create ezcfg unified socket.
  * Returns: a new ezcfg socket
  **/
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const unsigned char proto, const char *socket_path)
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path)
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
 	char *addr = NULL, *port;
+	int sock_protocol = -1;
 
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
@@ -130,9 +131,12 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	sp->ezcfg = ezcfg;
 	sp->proto = proto;
 
+	/* FIXME: should change sock_protocol w/r proto */
+	sock_protocol = 0;
+
 	switch (domain) {
 	case AF_LOCAL:
-		sp->sock = socket(AF_LOCAL, SOCK_STREAM, 0);
+		sp->sock = socket(AF_LOCAL, type, sock_protocol);
 		if (sp->sock < 0) {
 			err(ezcfg, "socket error\n");
 			goto fail_exit;
@@ -162,7 +166,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		*port = '\0';
 		port++;
 
-		sp->sock = socket(AF_INET, SOCK_STREAM, 0);
+		sp->sock = socket(AF_INET, type, sock_protocol);
 		if (sp->sock < 0) {
 			err(ezcfg, "socket error\n");
 			goto fail_exit;
@@ -280,7 +284,44 @@ struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size)
 }
 
 /**
- * ezcfg_socket_delete_list:
+ * ezcfg_socket_list_delete_socket:
+ * Delete a special socket from socket list.
+ * Returns: new list header store in list.
+ * Returns: true if delete sp in list, otherwise false.
+ **/
+bool ezcfg_socket_list_delete_socket(struct ezcfg_socket **list, struct ezcfg_socket *sp)
+{
+	struct ezcfg_socket *prev, *cur;
+
+	ASSERT(list != NULL);
+
+	if (sp == NULL) {
+		return true;
+	}
+
+	cur = *list;
+	if (sp == cur) {
+		*list = cur->next;
+		ezcfg_socket_delete(cur);
+		return true;
+	}
+
+	prev = cur;
+	cur = cur->next;
+	while (cur != NULL) {
+		if (sp == cur) {
+			prev->next = cur->next;
+			ezcfg_socket_delete(cur);
+			return true;
+		}
+		prev = cur;
+		cur = cur->next;
+	}
+	return false;
+}
+
+/**
+ * ezcfg_socket_list_delete:
  * Delete ezcfg socket list linked with sp.
  * Returns:
  **/
@@ -342,6 +383,12 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sun, usa->len);
 		break;
+
+	case AF_INET:
+		err = bind(sp->sock,
+		           (struct sockaddr *)&usa->u.sin, usa->len);
+		break;
+
 	default:
 		err(ezcfg, "unknown family [%d]\n", usa->domain);
 		return -EINVAL;
@@ -378,6 +425,11 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 	case AF_LOCAL:
 		err = listen(sp->sock, backlog);
 		break;
+
+	case AF_INET:
+		err = listen(sp->sock, backlog);
+		break;
+
 	default:
 		err(ezcfg, "unknown family [%d]\n", usa->domain);
 		return -EINVAL;
@@ -447,6 +499,17 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	switch(domain) {
 	case AF_LOCAL:
 		accepted->rsa.len = sizeof(accepted->rsa.u.sun);
+		accepted->sock = accept(listener->sock,
+		                        &(accepted->rsa.u.sa),
+		                        &(accepted->rsa.len));
+		if (accepted->sock == -1) {
+			free(accepted);
+			return NULL;
+		}
+		break;
+
+	case AF_INET:
+		accepted->rsa.len = sizeof(accepted->rsa.u.sin);
 		accepted->sock = accept(listener->sock,
 		                        &(accepted->rsa.u.sa),
 		                        &(accepted->rsa.len));

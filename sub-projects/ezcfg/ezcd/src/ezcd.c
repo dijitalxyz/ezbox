@@ -216,6 +216,7 @@ int ezcd_main(int argc, char **argv)
 	info(ezcfg, "version %s\n", VERSION);
 
 	master = ezcfg_master_start(ezcfg);
+	info(ezcfg, "%s[%d]\n", __func__, __LINE__);
 	if (master == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcd master");
 		rc = 3;
@@ -243,11 +244,19 @@ int ezcd_main(int argc, char **argv)
 	if (fp != NULL) {
 		fprintf(fp, "<6>ezcd: starting version " VERSION "\n");
 		fclose(fp);
-        }
+	}
 
 	while (ezcd_exit == 0) {
 		sleep(1);
 		if (ezcd_state == RC_RELOAD) {
+			/* show reload info */
+			info(ezcfg, "reload\n");
+			fp = fopen("/dev/kmsg", "w");
+			if (fp != NULL) {
+				fprintf(fp, "<6>ezcd: reload\n");
+				fclose(fp);
+			}
+
 			ezcfg_master_reload(master);
 			ezcd_state = RC_START;
 		}

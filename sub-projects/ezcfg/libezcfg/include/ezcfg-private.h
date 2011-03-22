@@ -110,7 +110,7 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 /* socket/socket.c */
 struct ezcfg_socket;
 void ezcfg_socket_delete(struct ezcfg_socket *sp);
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int family, const unsigned char proto, const char *socket_path);
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int family, const int type, const int proto, const char *socket_path);
 struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
 struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
@@ -128,6 +128,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
 int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
 void ezcfg_socket_list_delete(struct ezcfg_socket **list);
+bool ezcfg_socket_list_delete_socket(struct ezcfg_socket **list, struct ezcfg_socket *sp);
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
 int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int pos, struct ezcfg_socket *sp);

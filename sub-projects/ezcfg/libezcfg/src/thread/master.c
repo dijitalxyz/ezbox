@@ -142,7 +142,7 @@ fail_exit:
 }
 
 /**
- * ezcfg_master_add_socket:
+ * master_add_socket:
  * @ezcfg: ezcfg master context
  * @socket_path: unix socket path
  *
@@ -156,9 +156,11 @@ fail_exit:
  * the given path. The permissions adjustment of a socket file, as
  * well as the later cleanup, needs to be done by the caller.
  *
+ * caller must lock the ls_mutex
+ *
  * Returns: socket, or NULL, in case of an error
  **/
-static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master, int family, unsigned char proto, const char *socket_path)
+static struct ezcfg_socket *master_add_socket(struct ezcfg_master *master, int family, int type, int proto, const char *socket_path)
 {
 	struct ezcfg_socket *listener;
 	struct ezcfg *ezcfg;
@@ -169,7 +171,7 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 	ASSERT(socket_path != NULL);
 
 	/* initialize unix domain socket */
-	listener = ezcfg_socket_new(ezcfg, family, proto, socket_path);
+	listener = ezcfg_socket_new(ezcfg, family, type, proto, socket_path);
 	if (listener == NULL) {
 		err(ezcfg, "init socket fail: %m\n");
 		return NULL;
@@ -180,23 +182,17 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
 		ezcfg_socket_set_need_unlink(listener, true);
 	}
 
-	/* lock mutex before handling listening_sockets */
-	pthread_mutex_lock(&master->ls_mutex);
-
 	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {
 		err(ezcfg, "insert listener socket fail: %m\n");
 		ezcfg_socket_delete(listener);
 		listener = NULL;
 	}
 
-	/* unlock mutex after handling listening_sockets */
-	pthread_mutex_unlock(&master->ls_mutex);
-
 	return listener;
 }
 
 /**
- * ezcfg_master_new_from_socket:
+ * master_new_from_socket:
  * @ezcfg: ezcfg library context
  * @socket_path: unix socket path
  *
@@ -212,7 +208,7 @@ static struct ezcfg_socket *ezcfg_master_add_socket(struct ezcfg_master *master,
  *
  * Returns: a new ezcfg master, or #NULL, in case of an error
  **/
-static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, const char *socket_path)
+static struct ezcfg_master *master_new_from_socket(struct ezcfg *ezcfg, const char *socket_path)
 {
 	struct ezcfg_master *master = NULL;
 	struct ezcfg_socket *sp = NULL;
@@ -226,7 +222,7 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 		return NULL;
 	}
 
-	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_IGRS, socket_path);
+	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, socket_path);
 	if (sp == NULL) {
 		err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
 		goto fail_exit;
@@ -234,13 +230,13 @@ static struct ezcfg_master *ezcfg_master_new_from_socket(struct ezcfg *ezcfg, co
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto fail_exit;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
 		err(ezcfg, "enable socket [%s] listening fail: %m\n", socket_path);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto fail_exit;
 	}
 
@@ -334,7 +330,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 	pthread_mutex_unlock(&master->thread_mutex);
 }
 
-static void accept_new_connection(struct ezcfg_master *master,
+static bool accept_new_connection(struct ezcfg_master *master,
                                   const struct ezcfg_socket *listener) {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *accepted;
@@ -348,7 +344,7 @@ static void accept_new_connection(struct ezcfg_master *master,
 	accepted = ezcfg_socket_new_accepted_socket(listener);
 	if (accepted == NULL) {
 		err(ezcfg, "new accepted socket fail.\n");
-		return;
+		return false;
 	}
 
 	allowed = true;
@@ -360,6 +356,7 @@ static void accept_new_connection(struct ezcfg_master *master,
 		ezcfg_socket_close_sock(accepted);
 	}
 	free(accepted);
+	return true;
 }
 
 void ezcfg_master_thread(struct ezcfg_master *master) 
@@ -369,6 +366,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 	struct ezcfg_socket *sp;
 	struct timeval tv;
 	int max_fd;
+	int retval;
 
 	ASSERT(master != NULL);
 
@@ -389,13 +387,20 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 		/* unlock mutex before handling listening_sockets */
 		pthread_mutex_unlock(&master->ls_mutex);
 
-		tv.tv_sec = 1;
+		/* wait up to five seconds. */
+		tv.tv_sec = 5;
 		tv.tv_usec = 0;
 
-		if (select(max_fd + 1, &read_set, NULL, NULL, &tv) < 0) {
-			/* do nothing */
+		retval = select(max_fd + 1, &read_set, NULL, NULL, &tv);
+		if (retval == -1) {
+			perror("select()");
+			err(ezcfg, "select() %m\n");
+		}
+		else if (retval == 0) {
+			/* no data arrived, do nothing */
 			do {} while(0);
-		} else {
+		}
+		else {
 			/* lock mutex before handling listening_sockets */
 			pthread_mutex_lock(&master->ls_mutex);
 
@@ -409,6 +414,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 
 			/* unlock mutex before handling listening_sockets */
 			pthread_mutex_unlock(&master->ls_mutex);
+			/* some error happened */
 		}
 	}
 
@@ -425,13 +431,20 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* There must be a ctrl socket */
-	master = ezcfg_master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
+	master = master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
 	if (master == NULL) {
 		err(ezcfg, "can not initialize control socket");
 		return NULL;
 	}
 
-	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, EZCFG_NVRAM_SOCK_PATH);
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&master->ls_mutex);
+
+	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_NVRAM_SOCK_PATH);
+
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&master->ls_mutex);
+
 	if (sp == NULL) {
 		err(ezcfg, "can not add nvram socket");
 		goto start_thread;
@@ -439,18 +452,27 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto start_thread;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
 		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto start_thread;
 	}
 
+	ezcfg_socket_set_close_on_exec(sp);
+
 #if 0
-	sp = ezcfg_master_add_socket(master, AF_LOCAL, EZCFG_PROTO_IGRS, EZCFG_MASTER_SOCK_PATH);
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&master->ls_mutex);
+
+	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, EZCFG_MASTER_SOCK_PATH);
+
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&master->ls_mutex);
+
 	if (sp == NULL) {
 		err(ezcfg, "can not add master socket");
 		goto start_thread;
@@ -458,15 +480,17 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
 		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_MASTER_SOCK_PATH);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto start_thread;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
 		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_MASTER_SOCK_PATH);
-		ezcfg_socket_close_sock(sp);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 		goto start_thread;
 	}
+
+	ezcfg_socket_set_close_on_exec(sp);
 #endif
 
 start_thread:
@@ -493,11 +517,15 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 void ezcfg_master_reload(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
+	char *p;
+	int i;
+	int socket_number = -1;
 
 	if (master == NULL)
 		return;
 
 	ezcfg = master->ezcfg;
+
 	pthread_mutex_lock(&master->thread_mutex);
 
 	/* initialize nvram */
@@ -507,6 +535,88 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	/* initialize listening_sockets */
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&master->ls_mutex);
+
+	/* first get the socket number */
+	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
+	if (p != NULL) {
+		socket_number = atoi(p);
+		free(p);
+	}
+	for (i = 0; i < socket_number; i++) {
+		int domain, type, proto;
+		struct ezcfg_socket *sp;
+
+		/* initialize */
+		domain = -1;
+		type = -1;
+		proto = EZCFG_PROTO_UNKNOWN;
+		sp = NULL;
+
+		/* socket domain */
+		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
+		if (p != NULL) {
+			if (strcmp(p, EZCFG_SOCKET_DOMAIN_LOCAL_STRING) == 0) {
+				domain = AF_LOCAL;
+			}
+			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET_STRING) == 0) {
+				domain = AF_INET;
+			}
+			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET6_STRING) == 0) {
+				domain = AF_INET6;
+			}
+			free(p);
+		}
+
+		/* socket type */
+		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_TYPE);
+		if (p != NULL) {
+			if (strcmp(p, EZCFG_SOCKET_TYPE_STREAM_STRING) == 0) {
+				type = SOCK_STREAM;
+			}
+			else if (strcmp(p, EZCFG_SOCKET_TYPE_DGRAM_STRING) == 0) {
+				type = SOCK_DGRAM;
+			}
+			else if (strcmp(p, EZCFG_SOCKET_TYPE_RAW_STRING) == 0) {
+				type = SOCK_RAW;
+			}
+			free(p);
+		}
+
+		/* socket protocol */
+		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
+		if (p != NULL) {
+			proto = atoi(p);
+			free(p);
+		}
+
+		/* socket address */
+		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_ADDRESS);
+		if (p != NULL) {
+			if ((domain >=0) && (type >= 0) && (proto != EZCFG_PROTO_UNKNOWN)) {
+				sp = master_add_socket(master, domain, type, proto, p);
+			}
+			free(p);
+
+			if (sp == NULL) {
+				err(ezcfg, "add socket [%s] fail: %m\n", p);
+				continue;
+			}
+
+			if (ezcfg_socket_enable_receiving(sp) < 0) {
+				err(ezcfg, "enable socket [%s] receiving fail: %m\n", p);
+				ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+				continue;
+			}
+
+			if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
+				err(ezcfg, "enable socket [%s] listening fail: %m\n", p);
+				ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+				continue;
+			}
+
+			ezcfg_socket_set_close_on_exec(sp);
+		}
+	}
 
 #if 0
 	if (ezcfg_socket_list_insert(&(master->listening_sockets), listener) < 0) {

@@ -42,7 +42,7 @@ void ezcfg_util_remove_trailing_char(char *s, char c)
 	if (s == NULL)
 		return;
 	len = strlen(s);
-	while (len > 0 && s[len-1] == c)
+	while ((len > 0) && (s[len-1] == c))
 		s[--len] = '\0';
 }
 
@@ -53,7 +53,7 @@ void ezcfg_util_remove_trailing_charlist(char *s, char *l)
 	if (s == NULL || l == NULL)
 		return;
 	len = strlen(s);
-	while (len > 0 && strchr(l, s[len-1]) != NULL)
+	while ((len > 0) && (strchr(l, s[len-1]) != NULL))
 		s[--len] = '\0';
 }
 
