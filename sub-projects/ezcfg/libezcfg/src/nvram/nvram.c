@@ -637,7 +637,7 @@ int ezcfg_nvram_get_used_space(struct ezcfg_nvram *nvram)
 
 	ezcfg = nvram->ezcfg;
 
-	return nvram->free_space;
+	return nvram->used_space;
 }
 
 bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t len)
