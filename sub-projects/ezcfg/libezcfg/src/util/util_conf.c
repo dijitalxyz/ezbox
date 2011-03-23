@@ -85,7 +85,6 @@ char *ezcfg_util_get_conf_string(const char *path,
 	int i;
 	int section_len;
 	int keyword_len;
-	FILE *fp;
 
 	if ((path == NULL) || (section == NULL) ||(keyword == NULL))
 		return NULL;

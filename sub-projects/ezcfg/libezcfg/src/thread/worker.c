@@ -43,6 +43,7 @@
  */
 struct ezcfg_worker {
 	struct ezcfg *ezcfg;
+	struct ezcfg_worker *next; /* Linkage */
 	struct ezcfg_master *master;
 	struct ezcfg_socket *client;
 	unsigned char proto;
@@ -979,6 +980,24 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	worker->proto_data = NULL;
 	return worker;
 
+}
+
+struct ezcfg_worker *ezcfg_worker_get_next(const struct ezcfg_worker *worker)
+{
+	ASSERT(worker != NULL);
+	return worker->next;
+}
+
+bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *next)
+{
+	ASSERT(worker != NULL);
+	worker->next = next;
+	return true;
+}
+
+void ezcfg_worker_close_connection(struct ezcfg_worker *worker)
+{
+	close_connection(worker);
 }
 
 void ezcfg_worker_thread(struct ezcfg_worker *worker) 

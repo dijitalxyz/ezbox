@@ -143,6 +143,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		}
 		usa = &(sp->lsa);
 		usa->domain = AF_LOCAL;
+		usa->type = type;
 		usa->u.sun.sun_family = AF_LOCAL;
 		strcpy(usa->u.sun.sun_path, socket_path);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
@@ -173,6 +174,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		}
 		usa = &(sp->lsa);
 		usa->domain = AF_INET;
+		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
 		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
 		usa->u.sin.sin_addr.s_addr = inet_addr(addr);
@@ -354,6 +356,35 @@ int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp
 	return 0;
 }
 
+bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_socket *cur;
+	struct usa *usa = NULL, *usa2 = NULL;
+
+	ASSERT(list != NULL);
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+
+	cur = *list;
+	usa = &(sp->lsa);
+	while (cur != NULL) {
+		usa2 = &(cur->lsa);
+		if ((sp->proto == cur->proto) &&
+		    (usa->domain == usa2->domain) &&
+		    (usa->type == usa2->type) &&
+		    (usa->len == usa2->len)) {
+			if (memcmp(&(usa->u.sa), &(usa2->u.sa), usa->len) == 0) {
+				info(ezcfg, "find match socket\n");
+				return true;
+			}
+		}
+		cur = cur->next;
+	}
+	return false;
+}
+
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list)
 {
 	ASSERT(list != NULL);
@@ -419,6 +450,7 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 	ASSERT(backlog > 0);
 
 	ezcfg = sp->ezcfg;
+	sp->backlog = backlog;
 	usa = &(sp->lsa);
 
 	switch(usa->domain) {
@@ -441,6 +473,50 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 
 	/* enable receiving of sender credentials */
 	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+	return 0;
+}
+
+/**
+ * ezcfg_socket_enable_again:
+ * @sp: the listening socket which will re-enable
+ * Makes the @sp listening to the event source.
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
+{
+	int err = 0;
+	struct usa *usa = NULL;
+	struct ezcfg *ezcfg;
+	int sock_protocol = -1;
+
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+	usa = &(sp->lsa);
+
+	ezcfg_socket_close_sock(sp);
+
+	/* FIXME: should change sock_protocol w/r sp->proto */
+	sock_protocol = 0;
+	sp->sock = socket(usa->domain, usa->type, sock_protocol);
+	if (sp->sock < 0) {
+		return -1;
+	}
+
+	err = ezcfg_socket_enable_receiving(sp);
+	if (err < 0) {
+		return err;
+	}
+
+	if (sp->backlog > 0) {
+		err = ezcfg_socket_enable_listening(sp, sp->backlog);
+		if (err < 0) {
+			return err;
+		}
+	}
+
+        ezcfg_socket_set_close_on_exec(sp);
+
 	return 0;
 }
 

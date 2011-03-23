@@ -126,10 +126,12 @@ int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
+int ezcfg_socket_enable_again(struct ezcfg_socket *sp);
 int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
 void ezcfg_socket_list_delete(struct ezcfg_socket **list);
 bool ezcfg_socket_list_delete_socket(struct ezcfg_socket **list, struct ezcfg_socket *sp);
 int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
+bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp);
 struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
 int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int pos, struct ezcfg_socket *sp);
 int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int pos, const struct ezcfg_socket *sp);
@@ -305,6 +307,9 @@ struct ezcfg_worker;
 /* worker inherits master's resource */
 void ezcfg_worker_delete(struct ezcfg_worker *worker);
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
+void ezcfg_worker_close_connection(struct ezcfg_worker *worker);
+struct ezcfg_worker *ezcfg_worker_get_next(const struct ezcfg_worker *worker);
+bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *next);
 void ezcfg_worker_thread(struct ezcfg_worker *worker);
 /* worker call this to notify master */
 void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);

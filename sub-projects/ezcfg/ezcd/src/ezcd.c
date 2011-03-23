@@ -69,6 +69,13 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 
 static void signal_handler(int sig_num)
 {
+	FILE *fp;
+	fp = fopen("/dev/kmsg", "w");
+	if (fp != NULL) {
+		fprintf(fp, "<6>ezcd: catch siganl [%d]\n", sig_num);
+		fclose(fp);
+	}
+
 	if (sig_num == SIGCHLD) {
 		do {
 			/* nothing */
@@ -216,12 +223,13 @@ int ezcd_main(int argc, char **argv)
 	info(ezcfg, "version %s\n", VERSION);
 
 	master = ezcfg_master_start(ezcfg);
-	info(ezcfg, "%s[%d]\n", __func__, __LINE__);
 	if (master == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcd master");
 		rc = 3;
 		goto exit;
 	}
+
+	info(ezcfg, "start\n");
 	ezcd_state = RC_START;
 
 	if (threads_max <= 0) {
@@ -264,6 +272,16 @@ int ezcd_main(int argc, char **argv)
 	rc = 0;
 
 exit:
+	if (ezcfg != NULL) {
+		info(ezcfg, "stop\n");
+	}
+
+	fp = fopen("/dev/kmsg", "w");
+	if (fp != NULL) {
+		fprintf(fp, "<6>ezcd: stop\n");
+		fclose(fp);
+	}
+
 	ezcfg_master_stop(master);
 	ezcfg_delete(ezcfg);
 	ezcfg_log_close();

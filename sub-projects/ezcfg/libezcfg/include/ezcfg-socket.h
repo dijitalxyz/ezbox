@@ -27,6 +27,7 @@
 struct usa {
 	socklen_t len;
 	int domain;
+	int type;
 	union {
 		struct sockaddr sa;
 		struct sockaddr_un sun;
@@ -43,7 +44,8 @@ struct ezcfg_socket {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *next;	/* Linkage                      */
 	int		sock;		/* Listening socket             */
-	unsigned char	proto;		/* communication protocol 	*/
+	int		proto;		/* Communication protocol 	*/
+	int		backlog;	/* Listening queue length 	*/
 	struct usa	lsa;		/* Local socket address         */
 	struct usa	rsa;		/* Remote socket address        */
 	bool		need_unlink;	/* Need to unlink socket node 	*/
