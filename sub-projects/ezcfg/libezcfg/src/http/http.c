@@ -1243,3 +1243,86 @@ int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len)
 	return http->message_body_len;
 }
 
+int ezcfg_http_get_message_length(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	int n, count;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	count = 0;
+	n = ezcfg_http_get_start_line_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_headers_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_crlf_length(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+
+	n = ezcfg_http_get_message_body_len(http);
+	if (n < 0) {
+		return -1;
+	}
+	count += n;
+	return count;
+}
+
+int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len)
+{
+	struct ezcfg *ezcfg;
+
+	char *p;
+	int n;
+
+	ASSERT(http != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len > 0);
+
+	ezcfg = http->ezcfg;
+
+	p = buf; n = 0;
+	n = ezcfg_http_write_start_line(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_start_line\n");
+		return n;
+	}
+	p += n; len -= n;
+
+	n = ezcfg_http_write_headers(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_headers\n");
+		return n;
+	}
+	p += n; len -= n;
+
+	n = ezcfg_http_write_crlf(http, p, len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_http_write_crlf\n");
+		return n;
+	}
+	p += n; len -= n;
+
+	if (ezcfg_http_get_message_body(http) != NULL) {
+		n = ezcfg_http_write_message_body(http, p, len);
+		if (n < 0) {
+			err(ezcfg, "ezcfg_http_write_message_body\n");
+			return n;
+		}
+		p += n; len -= n;
+	}
+
+	return (p-buf);
+}

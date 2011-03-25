@@ -63,8 +63,17 @@ libezcfg_la_SOURCES += src/socket/socket_http.c
 # ezcfg HTTP protocol
 libezcfg_la_SOURCES += src/http/http.c
 
+# ezcfg HTML/HTTP index handling
+libezcfg_la_SOURCES += src/http/http_html_index.c
+
+# ezcfg HTML/HTTP admin handling
+libezcfg_la_SOURCES += src/http/http_html_admin.c
+
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c
+
+# ezcfg HTML handling
+libezcfg_la_SOURCES += src/html/html.c
 
 # ezcfg SOAP protocol
 libezcfg_la_SOURCES += src/soap/soap.c

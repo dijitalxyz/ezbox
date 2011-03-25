@@ -181,6 +181,16 @@ int ezcfg_http_get_headers_length(struct ezcfg_http *http);
 int ezcfg_http_write_headers(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
+int ezcfg_http_get_message_length(struct ezcfg_http *http);
+int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len);
+
+
+/* http/http_html_index.c */
+int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+
+
+/* http/http_html_admin.c */
+int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
 
 /* socket/socket_http.c */
@@ -218,6 +228,33 @@ bool ezcfg_xml_element_add_attribute(
 struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, const int index);
 bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int index, const char *content);
 char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int index);
+
+/* html/html.c */
+struct ezcfg_html;
+void ezcfg_html_delete(struct ezcfg_html *html);
+struct ezcfg_html *ezcfg_html_new(struct ezcfg *ezcfg);
+void ezcfg_html_reset_attributes(struct ezcfg_html *html);
+unsigned short ezcfg_html_get_version_major(struct ezcfg_html *html);
+unsigned short ezcfg_html_get_version_minor(struct ezcfg_html *html);
+bool ezcfg_html_set_version_major(struct ezcfg_html *html, unsigned short major);
+bool ezcfg_html_set_version_minor(struct ezcfg_html *html, unsigned short minor);
+int ezcfg_html_get_max_nodes(struct ezcfg_html *html);
+bool ezcfg_html_set_max_nodes(struct ezcfg_html *html, const int max_nodes);
+int ezcfg_html_set_root(struct ezcfg_html *html, const char *name);
+bool ezcfg_html_add_root_attribute(struct ezcfg_html *html, const char *name, const char *value, int pos);
+int ezcfg_html_set_head(struct ezcfg_html *html, const char *name);
+int ezcfg_html_get_head_index(struct ezcfg_html *html);
+int ezcfg_html_add_head_child(struct ezcfg_html *html, int pi, int si, const char *name, const char *content);
+bool ezcfg_html_add_head_child_attribute(struct ezcfg_html *html, int ei, const char *name, const char *value, int pos);
+int ezcfg_html_set_body(struct ezcfg_html *html, const char *name);
+int ezcfg_html_get_body_index(struct ezcfg_html *html);
+int ezcfg_html_add_body_child(struct ezcfg_html *html, int pi, int si, const char *name, const char *content);
+bool ezcfg_html_add_body_child_attribute(struct ezcfg_html *html, int ei, const char *name, const char *value, int pos);
+int ezcfg_html_get_element_index(struct ezcfg_html *html, const int pi, const int si, char *name);
+char *ezcfg_html_get_element_content_by_index(struct ezcfg_html *html, const int index);
+bool ezcfg_html_parse(struct ezcfg_html *html, char *buf, int len);
+int ezcfg_html_get_message_length(struct ezcfg_html *html);
+int ezcfg_html_write_message(struct ezcfg_html *html, char *buf, int len);
 
 /* soap/soap.c */
 struct ezcfg_soap;

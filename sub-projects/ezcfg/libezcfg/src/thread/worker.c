@@ -402,17 +402,150 @@ static void send_igrs_error(struct ezcfg_worker *worker, int status,
 	}
 }
 
+static bool is_http_html_admin_request(const char *uri)
+{
+	if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 static void handle_http_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
+	char *request_uri;
+	char *msg = NULL;
+	int msg_len;
 
 	ASSERT(worker != NULL);
+	ASSERT(worker->proto_data != NULL);
+
+	http = worker->proto_data;
 
 	ezcfg = worker->ezcfg;
+	nvram = ezcfg_master_get_nvram(worker->master);
 
-	worker_printf(worker,
-	             "HTTP/1.1 %d %s\r\n"
-	             "\r\n", 200, "OK");
+	request_uri = ezcfg_http_get_request_uri(http);
+	if (request_uri == NULL) {
+		err(ezcfg, "no request uri for HTTP GET method.\n");
+
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 400);
+		ezcfg_http_set_state_response(http);
+
+		/* build HTTP error response */
+		msg_len = ezcfg_http_get_message_length(http);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_http_get_message_length error.\n");
+			goto exit;
+		}
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_http_write_message(http, msg, msg_len);
+		worker_write(worker, msg, msg_len);
+		goto exit;
+	}
+
+	if (is_http_html_admin_request(request_uri) == true) {
+		if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 400);
+			ezcfg_http_set_state_response(http);
+
+			/* build HTTP error response */
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+			worker_write(worker, msg, msg_len);
+			goto exit;
+		}
+		else {
+			/* build HTTP response */
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+			worker_write(worker, msg, msg_len);
+			goto exit;
+		}
+	}
+	else {
+		/* will always return index page if not find the uri */
+		if (ezcfg_http_handle_index_request(http, nvram) < 0) {
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 400);
+			ezcfg_http_set_state_response(http);
+
+			/* build HTTP error response */
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+			worker_write(worker, msg, msg_len);
+			goto exit;
+		}
+		else {
+			/* build HTTP response */
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+			worker_write(worker, msg, msg_len);
+			goto exit;
+		}
+	}
+exit:
+	if (msg != NULL)
+		free(msg);
 }
 
 static bool is_soap_http_nvram_request(const char *uri)
@@ -473,7 +606,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 		/* build SOAP/HTTP binding error response */
 		msg_len = ezcfg_soap_http_get_message_length(sh);
 		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_soap_get_message_length error.\n");
+			err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
 			goto exit;
 		}
 		msg_len++; /* one more for '\0' */
@@ -498,7 +631,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			/* build SOAP/HTTP error response */
 			msg_len = ezcfg_soap_http_get_message_length(sh);
 			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_soap_get_message_length error.\n");
+				err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
 				goto exit;
 			}
 			msg_len++; /* one more for '\0' */
@@ -516,7 +649,7 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 			/* build SOAP/HTTP binding response */
 			msg_len = ezcfg_soap_http_get_message_length(sh);
 			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_soap_get_message_length error.\n");
+				err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
 				goto exit;
 			}
 			msg_len++; /* one more for '\0' */

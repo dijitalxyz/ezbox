@@ -1,10 +1,10 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : soap/soap_http.c
+ * File Name    : soap/soap_http_nvram.c
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2010-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-09-07   0.1       Write it from scratch
@@ -49,6 +49,7 @@ static int build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 
 	ezcfg = sh->ezcfg;
@@ -414,6 +415,7 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 
 	ezcfg = sh->ezcfg;
@@ -1198,8 +1200,11 @@ int ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcf
 
 	if (strncmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI, strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI)) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/getNvram?name=xxx] */
-		name = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI) + 6;
-		ret = build_nvram_get_response(sh, nvram, name);
+		name = request_uri + strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI);
+		if (strncmp(name, "?name=", 6) == 0) {
+			name += 6; /* skip "?name=" */
+			ret = build_nvram_get_response(sh, nvram, name);
+		}
 	}
 	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_SET_URI) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/setNvram] */
