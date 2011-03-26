@@ -28,6 +28,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
+#include "ezcfg-html.h"
 
 /**
  * Private functions
@@ -63,13 +64,18 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	ezcfg_html_set_version_minor(html, 1);
 
 	/* HTML root */
-	ezcfg_html_set_root(html, EZCFG_HTML_ROOT_ELEMENT_NAME);
+	ezcfg_html_set_root(html, EZCFG_HTML_HTML_ELEMENT_NAME);
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);
 
+	/* HTML Meta charset */
+	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CONTENT_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, "text/html; charset=UTF-8", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_TITLE_ELEMENT_NAME, "Welcome");
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, "Welcome");
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
@@ -154,7 +160,7 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 	ezcfg_html_set_version_minor(html, 1);
 
 	/* HTML root */
-	ezcfg_html_set_root(html, EZCFG_HTML_ROOT_ELEMENT_NAME);
+	ezcfg_html_set_root(html, EZCFG_HTML_HTML_ELEMENT_NAME);
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);

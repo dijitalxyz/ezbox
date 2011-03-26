@@ -1721,13 +1721,13 @@ int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 			else {
 				/* start tag */
 				//snprintf(buf+strlen(buf), len-strlen(buf), "<%s", root[i]->name);
-				count++; /* for "<" */
+				count += 1; /* for "<" */
 				if (root[i]->prefix == NULL) {
 					n = strlen(root[i]->name);
 				}
 				else {
 					n = strlen(root[i]->prefix); /* for prefix */
-					n++; /* for ':' */
+					n += 1; /* for ':' */
 					n += strlen(root[i]->name); /* for name */
 				}
 				count += n;
@@ -1735,13 +1735,13 @@ int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 				a = root[i]->attr_head;
 				while(a != NULL) {
 					//snprintf(buf+strlen(buf), len-strlen(buf), " %s", a->name);
-					count++; /* for SP */
+					count += 1; /* for SP */
 					if (a->prefix == NULL) {
 						n = strlen(a->name);
 					}
 					else {
 						n = strlen(a->prefix);
-						n++; /* for ':' */
+						n += 1; /* for ':' */
 						n += strlen(a->name);
 					}
 					count += n;
@@ -1750,44 +1750,47 @@ int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 					count += 2; /* for "=\"" */
 					n = strlen(a->value);
 					count += n;
-					count++; /* for \" */
+					count += 1; /* for \" */
 
 					a = a->next;
 				}
 				if (root[i]->content == NULL && root[i]->etag_index == i+1) {
-					//snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
-					count += 3; /* for "/>\n" */
-
+					//snprintf(buf+strlen(buf), len-strlen(buf), "/>");
+					count += 2; /* for "/>" */
 				}
 				else {
 					//snprintf(buf+strlen(buf), len-strlen(buf), ">");
-					count++; /* for ">" */
+					count += 1; /* for ">" */
 
 					if (root[i]->content != NULL) {
 						//snprintf(buf+strlen(buf), len-strlen(buf), "%s", root[i]->content);
 						n = strlen(root[i]->content);
 						count += n;
-					} else {
-						//snprintf(buf+strlen(buf), len-strlen(buf), "\n");
-						count++; /* for "\n" */
 					}
 				}
 			}
 		}
 		else {
 			/* end tag */
-			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
-			count += 2; /* for "</" */
-			if (root[i]->prefix == NULL) {
-				n = strlen(root[i]->name);
+			if (root[i]->content == NULL && root[i-1]->etag_index == i) {
+				/* add new-line */
+				//snprintf(p, l, "\n");
+				count += 1; /* for "\n" */
 			}
 			else {
-				n = strlen(root[i]->prefix);
-				n++; /* for ':' */
-				n += strlen(root[i]->name);
+				//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
+				count += 2; /* for "</" */
+				if (root[i]->prefix == NULL) {
+					n = strlen(root[i]->name);
+				}
+				else {
+					n = strlen(root[i]->prefix);
+					n += 1; /* for ':' */
+					n += strlen(root[i]->name);
+				}
+				count += n;
+				count += 2; /* for ">\n" */
 			}
-			count += n;
-			count += 2; /* for ">\n" */
 		}
 	}
 	return (count);
@@ -1857,8 +1860,8 @@ int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 					a = a->next;
 				}
 				if (root[i]->content == NULL && root[i]->etag_index == i+1) {
-					//snprintf(buf+strlen(buf), len-strlen(buf), "/>\n");
-					n = snprintf(p, l, "/>\n");
+					//snprintf(buf+strlen(buf), len-strlen(buf), "/>");
+					n = snprintf(p, l, "/>");
 					p += n;
 					l -= n;
 
@@ -1874,26 +1877,29 @@ int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 						n = snprintf(p, l, "%s", root[i]->content);
 						p += n;
 						l -= n;
-					} else {
-						//snprintf(buf+strlen(buf), len-strlen(buf), "\n");
-						n = snprintf(p, l, "\n");
-						p += n;
-						l -= n;
 					}
 				}
 			}
 		}
 		else {
 			/* end tag */
-			//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
-			if (root[i]->prefix == NULL) {
-				n = snprintf(p, l, "</%s>\n", root[i]->name);
+			if (root[i]->content == NULL && root[i-1]->etag_index == i) {
+				/* add new-line */
+				n = snprintf(p, l, "\n");
+				p += n;
+				l -= n;
 			}
 			else {
-				n = snprintf(p, l, "</%s:%s>\n", root[i]->prefix, root[i]->name);
+				//snprintf(buf+strlen(buf), len-strlen(buf), "</%s>\n", root[i]->name);
+				if (root[i]->prefix == NULL) {
+					n = snprintf(p, l, "</%s>\n", root[i]->name);
+				}
+				else {
+					n = snprintf(p, l, "</%s:%s>\n", root[i]->prefix, root[i]->name);
+				}
+				p += n;
+				l -= n;
 			}
-			p += n;
-			l -= n;
 		}
 	}
 	if (p == buf+len) {

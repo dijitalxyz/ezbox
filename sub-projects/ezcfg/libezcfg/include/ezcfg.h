@@ -297,14 +297,6 @@
 #define EZCFG_HTTP_REASON_PHRASE_507          "Insufficient Storage"
 
 
-/* ezcfg html element names */
-#define EZCFG_HTML_ROOT_ELEMENT_NAME        "HTML"
-#define EZCFG_HTML_HEAD_ELEMENT_NAME        "HEAD"
-#define EZCFG_HTML_TITLE_ELEMENT_NAME       "TITLE"
-#define EZCFG_HTML_BODY_ELEMENT_NAME        "BODY"
-#define EZCFG_HTML_P_ELEMENT_NAME           "P"
-
-
 /* ezcfg HTTP html request/response mode */
 #define EZCFG_HTTP_HTML_HOME_INDEX_URI      "/"
 #define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"

@@ -28,6 +28,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
+#include "ezcfg-html.h"
 
 /**
  * Private functions
@@ -64,7 +65,7 @@ static int build_admin_response(struct ezcfg_http *http, struct ezcfg_nvram *nvr
 	ezcfg_html_set_version_minor(html, 2);
 
 	/* HTML root */
-	ezcfg_html_set_root(html, EZCFG_HTML_ROOT_ELEMENT_NAME);
+	ezcfg_html_set_root(html, EZCFG_HTML_HTML_ELEMENT_NAME);
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);

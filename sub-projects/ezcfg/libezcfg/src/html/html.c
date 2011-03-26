@@ -27,24 +27,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-
-struct ezcfg_html {
-	struct ezcfg *ezcfg;
-	struct ezcfg_xml *xml;
-
-	/* HTML version info */
-	unsigned short version_major;
-	unsigned short version_minor;
-
-	/* HTML root element */
-	int root_index; /* HTML root element index in xml-root */
-
-	/* HTML Head Section */
-	int head_index; /* HTML HEAD element index in xml-root */
-
-	/* HTML Body Section */
-	int body_index; /* HTML BODY element index in xml->root */
-};
+#include "ezcfg-html.h"
 
 /**
  * Public functions
@@ -542,7 +525,7 @@ bool ezcfg_html_parse(struct ezcfg_html *html, char *buf, int len)
 
 	html->root_index = 0;
 
-	if (ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_HTML_ROOT_ELEMENT_NAME) != 0) {
+	if (ezcfg_xml_get_element_index(xml, -1, -1, EZCFG_HTML_HTML_ELEMENT_NAME) != 0) {
 		return false;
 	}
 
