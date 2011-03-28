@@ -36,6 +36,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-socket.h"
+#include "ezcfg-http.h"
 
 /* Check whether full HTTP header is buffered. Return:
  *   -1  if HTTP header is malformed

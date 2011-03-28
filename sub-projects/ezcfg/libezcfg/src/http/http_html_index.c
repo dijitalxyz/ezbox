@@ -41,6 +41,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	int head_index, body_index, child_index;
 	char *msg = NULL;
 	int msg_len;
+	char buf[1024];
 	int n;
 	int rc = 0;
 	
@@ -71,8 +72,29 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 	/* HTML Meta charset */
 	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	/* HTML http-equiv content-type */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CONTENT_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, "text/html; charset=UTF-8", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, buf, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* HTML Meta Cache-control */
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	/* HTML http-equiv cache-control */
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* HTML Meta expires */
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	/* HTML http-equiv expires */
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_EXPIRES, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* HTML Meta pragma */
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	/* HTML http-equiv pragma */
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_PRAGMA_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
 
 	/* HTML Title */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, "Welcome");
@@ -117,6 +139,22 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 		rc = -1;
 		goto exit;
 	}
+
+	/* HTML http-equiv content-type */
+	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf);
+
+	/* HTML http-equiv cache-control */
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE);
+
+	/* HTML http-equiv expires */
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0");
+
+	/* HTML http-equiv pragma */
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE);
+
+	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH , buf);
 
 	/* set return value */
 	rc = 0;

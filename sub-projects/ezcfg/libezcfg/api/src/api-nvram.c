@@ -39,6 +39,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+#include "ezcfg-soap_http.h"
 
 #include "ezcfg-api.h"
 

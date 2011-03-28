@@ -120,7 +120,7 @@ static int build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 			goto exit;
 		}
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, sizeof(msg), "%u", ezcfg_http_get_message_body_len(http));
@@ -204,7 +204,7 @@ static int build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 			goto exit;
 		}
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -308,7 +308,7 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -383,7 +383,7 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -486,7 +486,7 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -566,7 +566,7 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -679,7 +679,7 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -754,7 +754,7 @@ static int build_nvram_list_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -853,7 +853,7 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -928,7 +928,7 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 
 		ezcfg_http_set_message_body(http, msg, n);
 
-		snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
@@ -1155,8 +1155,13 @@ static int build_nvram_info_response(struct ezcfg_soap_http *sh, struct ezcfg_nv
 	ezcfg_http_set_state_response(http);
 
 	ezcfg_http_set_message_body(http, msg, n);
+	if (ezcfg_http_set_message_body(http, msg, n) == NULL) {
+		err(ezcfg, "ezcfg_http_set_message_body\n");
+		rc = -1;
+		goto exit;
+	}
 
-	snprintf(msg, msg_len, "%s", "application/soap+xml; charset=\"utf-8\"");
+	snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
 	snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));

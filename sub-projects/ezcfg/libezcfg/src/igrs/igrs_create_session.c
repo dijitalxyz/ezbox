@@ -159,7 +159,8 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	snprintf(buf, sizeof(buf), "%u", igrs->sequence_id);
 	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_01_SEQUENCE_ID , buf);
 
-	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_CONTENT_TYPE , "text/xml;charset=utf-8");
+	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_XML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_CONTENT_TYPE , buf);
 
 	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
 	ezcfg_http_add_header(http, EZCFG_IGRS_HTTP_HEADER_CONTENT_LENGTH , buf);

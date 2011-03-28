@@ -2,6 +2,7 @@
 #define _EZCD_H_
 
 #include "ezcfg.h"
+#include "ezcfg-igrs.h"
 #include "ezcfg-api.h"
 
 #include "utils.h"
