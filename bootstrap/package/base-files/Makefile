@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007-2010 OpenWrt.org
+# Copyright (C) 2007-2011 OpenWrt.org
 # Copyright (C) 2010 Vertical Communications
 #
 # This is free software, licensed under the GNU General Public License v2.
@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=64
+PKG_RELEASE:=68
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -45,7 +45,6 @@ define Package/base-files
 endef
 
 define Package/base-files/conffiles
-/etc/banner
 /etc/hosts
 /etc/inittab
 /etc/group
@@ -197,7 +196,6 @@ endef
 define Package/libpthread
 $(call Package/libc/Default)
   TITLE:=POSIX thread library
-  DEPENDS:= +librt
 endef
 
 define Package/libpthread/config
@@ -224,6 +222,7 @@ endef
 define Package/librt
 $(call Package/libc/Default)
   TITLE:=POSIX.1b RealTime extension library
+  DEPENDS:=+libpthread
 endef
 
 define Package/librt/config
@@ -317,7 +316,7 @@ define ImageConfigOptions
 	echo 'pi_netmask=$(if $(CONFIG_TARGET_PREINIT_NETMASK),$(CONFIG_TARGET_PREINIT_NETMASK),"255.255.255.0")' >>$(1)/lib/preinit/00_preinit.conf
 	echo 'pi_broadcast=$(if $(CONFIG_TARGET_PREINIT_BROADCAST),$(CONFIG_TARGET_PREINIT_BROADCAST),"192.168.1.255")' >>$(1)/lib/preinit/00_preinit.conf
 	echo 'pi_preinit_net_messages="$(CONFIG_TARGET_PREINIT_SHOW_NETMSG)"' >>$(1)/lib/preinit/00_preinit.conf
-	echo 'pi_preinit_no_failsafe_netmsg="$(CONFIG_TARGET_SUPPRESS_FAILSAFE_NETMSG)"' >>$(1)/lib/preinit/00_preinit.conf
+	echo 'pi_preinit_no_failsafe_netmsg="$(CONFIG_TARGET_PREINIT_SUPPRESS_FAILSAFE_NETMSG)"' >>$(1)/lib/preinit/00_preinit.conf
 endef
 endif
 
@@ -325,12 +324,76 @@ define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 endef
 
-define Build/Compile/Default
-endef
+LIBGCC_A=$(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc_pic.a)
+LIBGCC_MAP=$(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.map)
+LIBGCC_SO=$(wildcard $(TOOLCHAIN_DIR)/lib/libgcc_s.so.*)
+ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
+  ifneq ($(if $(CONFIG_USE_UCLIBC),$(CONFIG_GCC_VERSION_LINARO)),)
+    BUILD_LIBGCC:=$(if $(CONFIG_avr32)$(CONFIG_m68k)$(CONFIG_powerpc),,$(PKG_BUILD_DIR)/libgcc_s.so.*)
+  endif
+endif
 
-define Build/Compile
-	$(call Build/Compile/Default)
+ifneq ($(BUILD_LIBGCC),)
+  define Build/Compile/uClibc
+	$(SCRIPT_DIR)/relink-lib.sh \
+		"$(TARGET_CROSS)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libc_so.a)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libc_so.a)" \
+		"$(patsubst $(TOOLCHAIN_DIR)/lib/%,$(PKG_BUILD_DIR)/%,$(wildcard $(TOOLCHAIN_DIR)/lib/libuClibc-*.so))" \
+		-Wl,-init,__uClibc_init -Wl,-soname=libc.so.0 \
+		$(BUILD_LIBGCC)
+	$(SCRIPT_DIR)/relink-lib.sh \
+		"$(TARGET_CROSS)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libcrypt-*.so)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libcrypt_pic.a)" \
+		"$(patsubst $(TOOLCHAIN_DIR)/lib/%,$(PKG_BUILD_DIR)/%,$(wildcard $(TOOLCHAIN_DIR)/lib/libcrypt-*.so))" \
+		$(BUILD_LIBGCC) \
+		-Wl,-soname=libcrypt.so.0
+	$(SCRIPT_DIR)/relink-lib.sh \
+		"$(TARGET_CROSS)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libm-*.so)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libm_pic.a)" \
+		"$(patsubst $(TOOLCHAIN_DIR)/lib/%,$(PKG_BUILD_DIR)/%,$(wildcard $(TOOLCHAIN_DIR)/lib/libm-*.so))" \
+		$(BUILD_LIBGCC) \
+		-Wl,-soname=libm.so.0
+	$(SCRIPT_DIR)/relink-lib.sh \
+		"$(TARGET_CROSS)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libpthread-*.so)" \
+		"$(wildcard $(TOOLCHAIN_DIR)/lib/libpthread_so.a)" \
+		"$(patsubst $(TOOLCHAIN_DIR)/lib/%,$(PKG_BUILD_DIR)/%,$(wildcard $(TOOLCHAIN_DIR)/lib/libpthread-*.so))" \
+		-Wl,-z,nodelete,-z,initfirst,-init=__pthread_initialize_minimal_internal \
+		-ldl -lc $(BUILD_LIBGCC) \
+		-Wl,-soname=libpthread.so.0
+  endef
+  define Build/Compile/libgcc
+	$(SCRIPT_DIR)/relink-lib.sh \
+		"$(TARGET_CROSS)" \
+		"$(LIBGCC_SO)" \
+		"$(LIBGCC_A)" \
+		"$(patsubst $(TOOLCHAIN_DIR)/lib/%,$(PKG_BUILD_DIR)/%,$(LIBGCC_SO))" \
+		-Wl,--version-script=$(LIBGCC_MAP) -Wl,-soname=libgcc_s.so.1
+  endef
+else
+  define Build/Compile/uClibc
+	$(CP) \
+		$(TOOLCHAIN_DIR)/lib/libuClibc-*.so \
+		$(TOOLCHAIN_DIR)/lib/libcrypt-*.so \
+		$(TOOLCHAIN_DIR)/lib/libm-*.so \
+		$(TOOLCHAIN_DIR)/lib/libpthread-*.so \
+		$(PKG_BUILD_DIR)/
+  endef
+  ifneq ($(LIBGCC_SO),)
+    define Build/Compile/libgcc
+	$(CP) $(LIBGCC_SO) $(PKG_BUILD_DIR)/
+    endef
+  endif
+endif
+
+define Build/Compile/Default
+	$(call Build/Compile/libgcc)
+	$(call Build/Compile/$(LIBC))
 endef
+Build/Compile = $(Build/Compile/Default)
 
 define Package/base-files/install
 	$(CP) ./files/* $(1)/
@@ -399,7 +462,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 
   define Package/libgcc/install
 	$(INSTALL_DIR) $(1)/lib
-	$(CP) $(TOOLCHAIN_DIR)/lib/libgcc_s.so.* $(1)/lib/
+	$(CP) $(PKG_BUILD_DIR)/libgcc_s.so.* $(1)/lib/
   endef
 
   define Package/libssp/install
@@ -417,6 +480,7 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   use_nsswitch=$(if $(CONFIG_USE_GLIBC)$(CONFIG_EGLIBC_OPTION_EGLIBC_NSSWITCH),libnss_dns libnss_files)
 
   define Package/glibc/install
+	$(CP) ./glibc-files/* $(1)/
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/ld*.so.* \
@@ -444,12 +508,18 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 		$(TOOLCHAIN_DIR)/lib/libc.so.* \
 		$(TOOLCHAIN_DIR)/lib/libuClibc-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
-	for file in libcrypt libdl libm libnsl libresolv libutil; do \
+	for file in libcrypt libdl libm libutil; do \
 		$(CP) \
 			$(TOOLCHAIN_DIR)/lib/$$$$file.so.* \
 			$(TOOLCHAIN_DIR)/lib/$$$$file-$(LIBC_SO_VERSION).so \
 			$(1)/lib/; \
 	done
+
+	$(CP) \
+		$(PKG_BUILD_DIR)/libuClibc-* \
+		$(PKG_BUILD_DIR)/libm-* \
+		$(PKG_BUILD_DIR)/libcrypt-* \
+		$(1)/lib/
   endef
 
   define Package/libc/install
@@ -459,9 +529,9 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
   define Package/libc/install_lib
 	$(CP) $(filter-out %/libdl_pic.a %/libpthread_pic.a %/libresolv_pic.a,$(wildcard $(TOOLCHAIN_DIR)/lib/lib*.a)) $(1)/lib/
 	$(if $(wildcard $(TOOLCHAIN_DIR)/lib/libc_so.a),$(CP) $(TOOLCHAIN_DIR)/lib/libc_so.a $(1)/lib/libc_pic.a)
-	$(if $(wildcard $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.map), \
-		$(CP) $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc_pic.a $(1)/lib/libgcc_s_pic.a; \
-		$(CP) $(TOOLCHAIN_DIR)/lib/gcc/*/*/libgcc.map $(1)/lib/libgcc_s_pic.map \
+	$(if $(LIBGCC_MAP), \
+		$(CP) $(LIBGCC_A) $(1)/lib/libgcc_s_pic.a; \
+		$(CP) $(LIBGCC_MAP) $(1)/lib/libgcc_s_pic.map \
 	)
   endef
 
@@ -469,7 +539,10 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 	$(INSTALL_DIR) $(1)/lib
 	$(CP) \
 		$(TOOLCHAIN_DIR)/lib/libpthread.so.* \
-		$(TOOLCHAIN_DIR)/lib/libpthread-$(LIBC_SO_VERSION).so \
+		$(if $(BUILD_LIBGCC),\
+			$(PKG_BUILD_DIR)/libpthread-$(LIBC_SO_VERSION).so, \
+			$(TOOLCHAIN_DIR)/lib/libpthread-$(LIBC_SO_VERSION).so \
+		) \
 		$(1)/lib/
   endef
 
