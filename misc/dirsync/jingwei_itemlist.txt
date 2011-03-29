@@ -1,0 +1,20 @@
+#########################
+# distro/jingwei/ directory
+#########################
+target/linux/x86/
+#########################
+# distributions/jingwei/ directory
+#########################
+packages/libs/freetype/
+packages/libs/jpeg/
+packages/libs/libiconv/
+packages/libs/libpng/
+packages/libs/libreadline/
+packages/libs/ncurses/
+packages/libs/openssl/
+packages/libs/sqlite3/
+packages/libs/zlib/
+packages/net/freeswitch/
+packages/Xorg/app/dillo/
+packages/Xorg/lib/fltk2/
+packages/Xorg/xserver/microwin/
