@@ -10,14 +10,14 @@ curdir:=tools
 
 # subdirectories to descend into
 tools-y :=
-ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
-tools-$(CONFIG_GCC_VERSION_4_3)$(CONFIG_GCC_VERSION_4_4)$(CONFIG_GCC_VERSION_4_5) += gmp mpfr
+ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN)$(CONFIG_GCC_LLVM),)
+tools-y += gmp mpfr
 tools-$(CONFIG_GCC_VERSION_4_5) += mpc libelf
 endif
 tools-y += m4 libtool autoconf automake flex bison pkg-config sed mklibs
 tools-y += sstrip ipkg-utils genext2fs e2fsprogs mtd-utils mkimage
 tools-y += firmware-utils patch-cmdline quilt yaffs2 flock
-tools-y += mm-macros xorg-macros missing-macros xz
+tools-y += mm-macros xorg-macros xfce-macros missing-macros xz cmake
 tools-$(CONFIG_TARGET_orion_generic) += wrt350nv2-builder upslug2
 tools-$(CONFIG_TARGET_x86) += qemu
 ifneq ($(CONFIG_TARGET_ar71xx),)
@@ -44,7 +44,7 @@ $(curdir)/dtc/compile := $(curdir)/bison/install
 $(curdir)/autoconf/compile := $(curdir)/m4/install $(curdir)/libtool/install
 $(curdir)/automake/compile := $(curdir)/m4/install $(curdir)/autoconf/install $(curdir)/pkg-config/install
 $(curdir)/gmp/compile := $(curdir)/automake/install
-$(curdir)/mpc/compile := $(curdir)/gmp/install
+$(curdir)/mpc/compile := $(curdir)/mpfr/install $(curdir)/gmp/install
 $(curdir)/mpfr/compile := $(curdir)/gmp/install
 $(curdir)/ppl/compile := $(curdir)/gmp/install
 $(curdir)/cloog/compile := $(curdir)/ppl/install
@@ -54,9 +54,9 @@ $(curdir)/qemu/compile := $(curdir)/e2fsprogs/install
 $(curdir)/upslug2/compile := $(curdir)/automake/install
 $(curdir)/mm-macros/compile := $(curdir)/automake/install
 $(curdir)/xorg-macros/compile := $(curdir)/automake/install
+$(curdir)/xfce-macros/compile := $(curdir)/automake/install
 $(curdir)/missing-macros/compile := $(curdir)/automake/install
 $(curdir)/e2fsprogs/compile := $(curdir)/automake/install
-$(curdir)/qemu/compile := $(curdir)/automake/install
 $(curdir)/libelf/compile := $(curdir)/automake/install
 
 $(curdir)/builddirs := $(tools-y) $(tools-dep) $(tools-)
@@ -108,5 +108,5 @@ $(curdir)//compile = $(STAGING_DIR)/.prepared $(STAGING_DIR_HOST)/.prepared $($(
 $(curdir)/ := .config prereq
 $(curdir)//install = $(1)/compile
 
-$(eval $(call stampfile,$(curdir),tools,install,,CONFIG_CCACHE CONFIG_powerpc CONFIG_GCC_VERSION_4_3 CONFIG_GCC_USE_GRAPHITE CONFIG_TARGET_orion_generic))
+$(eval $(call stampfile,$(curdir),tools,install,,CONFIG_CCACHE CONFIG_powerpc CONFIG_GCC_VERSION_4_5 CONFIG_GCC_USE_GRAPHITE CONFIG_TARGET_orion_generic))
 $(eval $(call subdir,$(curdir)))
