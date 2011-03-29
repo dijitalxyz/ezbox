@@ -1,2 +1,1 @@
-CONFIG_CMDLINE=""
-CONFIG_MIPS_FPU_EMU=y
+CONFIG_CMDLINE="rootfstype=squashfs,jffs2 noinitrd console=ttyS0,115200"

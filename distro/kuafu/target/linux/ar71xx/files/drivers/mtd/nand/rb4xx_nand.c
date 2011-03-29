@@ -1,7 +1,7 @@
 /*
  *  NAND flash driver for the MikroTik RouterBoard 4xx series
  *
- *  Copyright (C) 2008-2010 Gabor Juhos <juhosg@openwrt.org>
+ *  Copyright (C) 2008-2011 Gabor Juhos <juhosg@openwrt.org>
  *  Copyright (C) 2008 Imre Kaloz <kaloz@openwrt.org>
  *
  *  This file was based on the driver for Linux 2.6.22 published by
@@ -60,7 +60,7 @@ static struct mtd_partition rb4xx_nand_partitions[] = {
 	{
 		.name	= "kernel",
 		.offset	= (256 * 1024),
-		.size	= (4 * 1024 * 1024) - (256 * 1024),
+		.size	= (6 * 1024 * 1024) - (256 * 1024),
 	},
 	{
 		.name	= "rootfs",
@@ -71,7 +71,7 @@ static struct mtd_partition rb4xx_nand_partitions[] = {
 
 static int rb4xx_nand_dev_ready(struct mtd_info *mtd)
 {
-	return gpio_get_value(RB4XX_NAND_GPIO_READY);
+	return gpio_get_value_cansleep(RB4XX_NAND_GPIO_READY);
 }
 
 static void rb4xx_nand_write_cmd(unsigned char cmd)
@@ -88,9 +88,12 @@ static void rb4xx_nand_cmd_ctrl(struct mtd_info *mtd, int cmd,
 				unsigned int ctrl)
 {
 	if (ctrl & NAND_CTRL_CHANGE) {
-		gpio_set_value(RB4XX_NAND_GPIO_CLE, (ctrl & NAND_CLE) ? 1 : 0);
-		gpio_set_value(RB4XX_NAND_GPIO_ALE, (ctrl & NAND_ALE) ? 1 : 0);
-		gpio_set_value(RB4XX_NAND_GPIO_NCE, (ctrl & NAND_NCE) ? 0 : 1);
+		gpio_set_value_cansleep(RB4XX_NAND_GPIO_CLE,
+					(ctrl & NAND_CLE) ? 1 : 0);
+		gpio_set_value_cansleep(RB4XX_NAND_GPIO_ALE,
+					(ctrl & NAND_ALE) ? 1 : 0);
+		gpio_set_value_cansleep(RB4XX_NAND_GPIO_NCE,
+					(ctrl & NAND_NCE) ? 0 : 1);
 	}
 
 	if (cmd != NAND_CMD_NONE)
@@ -210,7 +213,9 @@ static int __init rb4xx_nand_probe(struct platform_device *pdev)
 	info->chip.read_byte	= rb4xx_nand_read_byte;
 	info->chip.write_buf	= rb4xx_nand_write_buf;
 	info->chip.read_buf	= rb4xx_nand_read_buf;
-//	info->chip.verify_buf	= rb4xx_nand_verify_buf;
+#if 0
+	info->chip.verify_buf	= rb4xx_nand_verify_buf;
+#endif
 
 	info->chip.chip_delay	= 25;
 	info->chip.ecc.mode	= NAND_ECC_SOFT;
@@ -244,21 +249,21 @@ static int __init rb4xx_nand_probe(struct platform_device *pdev)
 
 	return 0;
 
- err_release_nand:
+err_release_nand:
 	nand_release(&info->mtd);
- err_set_drvdata:
+err_set_drvdata:
 	platform_set_drvdata(pdev, NULL);
- err_free_info:
+err_free_info:
 	kfree(info);
- err_free_gpio_nce:
+err_free_gpio_nce:
 	gpio_free(RB4XX_NAND_GPIO_NCE);
- err_free_gpio_cle:
+err_free_gpio_cle:
 	gpio_free(RB4XX_NAND_GPIO_CLE);
- err_free_gpio_ale:
+err_free_gpio_ale:
 	gpio_free(RB4XX_NAND_GPIO_ALE);
- err_free_gpio_ready:
+err_free_gpio_ready:
 	gpio_free(RB4XX_NAND_GPIO_READY);
- err:
+err:
 	return ret;
 }
 

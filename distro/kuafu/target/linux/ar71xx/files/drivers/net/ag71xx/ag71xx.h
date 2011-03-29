@@ -89,7 +89,7 @@ struct ag71xx_desc {
 
 struct ag71xx_buf {
 	struct sk_buff		*skb;
-	struct ag71xx_desc 	*desc;
+	struct ag71xx_desc	*desc;
 	dma_addr_t		dma_addr;
 	u32			pad;
 };
@@ -162,7 +162,7 @@ struct ag71xx {
 
 	unsigned int		link;
 	unsigned int		speed;
-	int 			duplex;
+	int			duplex;
 
 	struct work_struct	restart_work;
 	struct timer_list	oom_timer;
@@ -190,12 +190,12 @@ static inline struct ag71xx_platform_data *ag71xx_get_pdata(struct ag71xx *ag)
 
 static inline int ag71xx_desc_empty(struct ag71xx_desc *desc)
 {
-	return ((desc->ctrl & DESC_EMPTY) != 0);
+	return (desc->ctrl & DESC_EMPTY) != 0;
 }
 
 static inline int ag71xx_desc_pktlen(struct ag71xx_desc *desc)
 {
-	return (desc->ctrl & DESC_PKTLEN_M);
+	return desc->ctrl & DESC_PKTLEN_M;
 }
 
 /* Register offsets */
@@ -432,7 +432,7 @@ static inline u32 ag71xx_mii_ctrl_rr(struct ag71xx *ag)
 	return __raw_readl(ag->mii_ctrl);
 }
 
-static void inline ag71xx_mii_ctrl_set_if(struct ag71xx *ag,
+static inline void ag71xx_mii_ctrl_set_if(struct ag71xx *ag,
 					  unsigned int mii_if)
 {
 	u32 t;
@@ -443,7 +443,7 @@ static void inline ag71xx_mii_ctrl_set_if(struct ag71xx *ag,
 	ag71xx_mii_ctrl_wr(ag, t);
 }
 
-static void inline ag71xx_mii_ctrl_set_speed(struct ag71xx *ag,
+static inline void ag71xx_mii_ctrl_set_speed(struct ag71xx *ag,
 					     unsigned int speed)
 {
 	u32 t;

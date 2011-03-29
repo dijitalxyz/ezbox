@@ -29,12 +29,12 @@
 #define DIR825B1_GPIO_LED_BLUE_USB		0
 #define DIR825B1_GPIO_LED_ORANGE_POWER		1
 #define DIR825B1_GPIO_LED_BLUE_POWER		2
-#define DIR825B1_GPIO_LED_BLUE_POWERSAVE	4
+#define DIR825B1_GPIO_LED_BLUE_WPS		4
 #define DIR825B1_GPIO_LED_ORANGE_PLANET		6
 #define DIR825B1_GPIO_LED_BLUE_PLANET		11
 
 #define DIR825B1_GPIO_BTN_RESET			3
-#define DIR825B1_GPIO_BTN_POWERSAVE		8
+#define DIR825B1_GPIO_BTN_WPS			8
 
 #define DIR825B1_GPIO_RTL8366_SDA		5
 #define DIR825B1_GPIO_RTL8366_SCK		7
@@ -54,21 +54,21 @@ static struct mtd_partition dir825b1_partitions[] = {
 		.offset		= 0,
 		.size		= 0x040000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "config",
 		.offset		= 0x040000,
 		.size		= 0x010000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "firmware",
 		.offset		= 0x050000,
 		.size		= 0x610000,
-	} , {
+	}, {
 		.name		= "caldata",
 		.offset		= 0x660000,
 		.size		= 0x010000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "unknown",
 		.offset		= 0x670000,
 		.size		= 0x190000,
@@ -79,8 +79,8 @@ static struct mtd_partition dir825b1_partitions[] = {
 
 static struct flash_platform_data dir825b1_flash_data = {
 #ifdef CONFIG_MTD_PARTITIONS
-        .parts          = dir825b1_partitions,
-        .nr_parts       = ARRAY_SIZE(dir825b1_partitions),
+	.parts          = dir825b1_partitions,
+	.nr_parts       = ARRAY_SIZE(dir825b1_partitions),
 #endif
 };
 
@@ -98,8 +98,8 @@ static struct gpio_led dir825b1_leds_gpio[] __initdata = {
 		.gpio		= DIR825B1_GPIO_LED_BLUE_POWER,
 		.active_low	= 1,
 	}, {
-		.name		= "dir825b1:blue:powersave",
-		.gpio		= DIR825B1_GPIO_LED_BLUE_POWERSAVE,
+		.name		= "dir825b1:blue:wps",
+		.gpio		= DIR825B1_GPIO_LED_BLUE_WPS,
 		.active_low	= 1,
 	}, {
 		.name		= "dir825b1:orange:planet",
@@ -120,19 +120,25 @@ static struct gpio_button dir825b1_gpio_buttons[] __initdata = {
 		.threshold	= 3,
 		.gpio		= DIR825B1_GPIO_BTN_RESET,
 		.active_low	= 1,
-	} , {
-		.desc		= "powersave",
+	}, {
+		.desc		= "wps",
 		.type		= EV_KEY,
-		.code		= BTN_1,
+		.code		= KEY_WPS_BUTTON,
 		.threshold	= 3,
-		.gpio		= DIR825B1_GPIO_BTN_POWERSAVE,
+		.gpio		= DIR825B1_GPIO_BTN_WPS,
 		.active_low	= 1,
 	}
 };
 
+static struct rtl8366s_initval dir825b1_rtl8366s_initvals[] = {
+	{ .reg = 0x06, .val = 0x0108 },
+};
+
 static struct rtl8366s_platform_data dir825b1_rtl8366s_data = {
-	.gpio_sda        = DIR825B1_GPIO_RTL8366_SDA,
-	.gpio_sck        = DIR825B1_GPIO_RTL8366_SCK,
+	.gpio_sda	= DIR825B1_GPIO_RTL8366_SDA,
+	.gpio_sck	= DIR825B1_GPIO_RTL8366_SCK,
+	.num_initvals	= ARRAY_SIZE(dir825b1_rtl8366s_initvals),
+	.initvals	= dir825b1_rtl8366s_initvals,
 };
 
 static struct platform_device dir825b1_rtl8366s_device = {
@@ -156,7 +162,7 @@ static void __init dir825b1_setup(void)
 	ar71xx_eth0_data.duplex = DUPLEX_FULL;
 	ar71xx_eth0_pll_data.pll_1000 = 0x11110000;
 
-	ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 2);
+	ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 2);
 	ar71xx_eth1_data.mii_bus_dev = &dir825b1_rtl8366s_device.dev;
 	ar71xx_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_RGMII;
 	ar71xx_eth1_data.phy_mask = 0x10;
@@ -177,6 +183,9 @@ static void __init dir825b1_setup(void)
 	ar71xx_add_device_usb();
 
 	platform_device_register(&dir825b1_rtl8366s_device);
+
+	ap94_pci_setup_wmac_led_pin(0, 5);
+	ap94_pci_setup_wmac_led_pin(1, 5);
 
 	ap94_pci_init((u8 *) KSEG1ADDR(DIR825B1_CAL_LOCATION_0),
 		      (u8 *) KSEG1ADDR(DIR825B1_MAC_LOCATION_0),
