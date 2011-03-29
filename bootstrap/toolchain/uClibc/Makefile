@@ -1,7 +1,5 @@
-
-
 #
-# Copyright (C) 2006-2010 OpenWrt.org
+# Copyright (C) 2006-2011 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -11,13 +9,13 @@ include $(INCLUDE_DIR)/target.mk
 
 PKG_NAME:=uClibc
 PKG_VERSION:=$(call qstrip,$(CONFIG_UCLIBC_VERSION))
-ifeq ($(CONFIG_UCLIBC_VERSION_0_9_32),y)
+ifeq ($(PKG_VERSION),0.9.32)
   PKG_SOURCE_URL:=git://git.busybox.net/uClibc
   PKG_SOURCE_PROTO:=git
-  PKG_SOURCE_VERSION:=4ac7ad3543dd6d7780e71af80fa5c45414451719
+  PKG_SOURCE_VERSION:=9112a2398ec58b32cd1a1c6feae195bd8f9a46a2
   PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-  LIBC_SO_VERSION:=$(PKG_VERSION)-rc1-git
+  LIBC_SO_VERSION:=$(PKG_VERSION)-rc2-git
 else
   PKG_SOURCE_URL:=http://www.uclibc.org/downloads
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -26,8 +24,6 @@ endif
 PATCH_DIR:=./patches-$(PKG_VERSION)
 CONFIG_DIR:=./config-$(PKG_VERSION)
 
-PKG_MD5SUM_0.9.30.1 = 1a4b84e5536ad8170563ffa88c34679c
-PKG_MD5SUM_0.9.31   = 52fb8a494758630c8d3ddd7f1e0daafd
 PKG_MD5SUM=$(PKG_MD5SUM_$(PKG_VERSION))
 
 HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(PKG_NAME)-$(PKG_VERSION)
@@ -66,7 +62,6 @@ GEN_CONFIG=$(SCRIPT_DIR)/kconfig.pl -n \
 	$(CONFIG_DIR)/$(ARCH)$(if $(wildcard $(CONFIG_DIR)/$(ARCH).$(BOARD)),.$(BOARD))
 
 define Host/Prepare
-	$(call Host/SetToolchainInfo)
 	$(call Host/Prepare/Default)
 	$(if $(strip $(QUILT)), \
 		cd $(HOST_BUILD_DIR); \
@@ -79,9 +74,6 @@ define Host/Prepare
 	$(SED) 's,^KERNEL_HEADERS=.*,KERNEL_HEADERS=\"$(BUILD_DIR_TOOLCHAIN)/linux-dev/include\",g' \
 		-e 's,^.*UCLIBC_HAS_FPU.*,UCLIBC_HAS_FPU=$(if $(CONFIG_SOFT_FLOAT),n,y),g' \
 		-e 's,^.*UCLIBC_HAS_SOFT_FLOAT.*,UCLIBC_HAS_SOFT_FLOAT=$(if $(CONFIG_SOFT_FLOAT),y,n),g' \
-		-e 's,^.*UCLIBC_HAS_LFS.*,UCLIBC_HAS_LFS=$(if $(CONFIG_LARGEFILE),y,n),g' \
-		-e 's,^.*CONFIG_ARM_EABI.*,CONFIG_ARM_EABI=$(if $(CONFIG_EABI_SUPPORT),y,n),g' \
-		-e 's,^.*CONFIG_ARM_OABI.*,CONFIG_ARM_OABI=$(if $(CONFIG_EABI_SUPPORT),n,y),g' \
 		-e 's,^.*UCLIBC_HAS_SHADOW.*,UCLIBC_HAS_SHADOW=$(if $(CONFIG_SHADOW_PASSWORDS),y,n),g' \
 		$(HOST_BUILD_DIR)/.config
 	$(MAKE) -C $(HOST_BUILD_DIR) oldconfig KBUILD_HAVE_NLS= HOSTCFLAGS="-DKBUILD_NO_NLS"
@@ -131,9 +123,13 @@ define Host/Compile
 		  done \
 		done \
 	)
+	rm -f \
+		$(TOOLCHAIN_DIR)/lib/libresolv*.so* \
+		$(TOOLCHAIN_DIR)/lib/libnsl*.so*
 endef
 
 define Host/Install
+	$(call Host/SetToolchainInfo)
 	$(UCLIBC_MAKE) PREFIX= utils
 	$(INSTALL_DIR) $(TOOLCHAIN_DIR)/bin
 	$(INSTALL_BIN) \
