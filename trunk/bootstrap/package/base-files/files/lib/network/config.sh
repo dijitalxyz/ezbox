@@ -170,11 +170,6 @@ prepare_interface() {
 			local macaddr
 			config_get macaddr "$config" macaddr
 			[ -x /usr/sbin/brctl ] && {
-				# Disable IPv6 for bridge ports
-				do_sysctl net.ipv6.conf.$iface.disable_ipv6 1
-				[ "${iface##wlan}" != "$iface" ] && \
-					do_sysctl net.ipv6.conf.mon.$iface.disable_ipv6 1
-
 				ifconfig "br-$config" 2>/dev/null >/dev/null && {
 					local newdevs devices
 					config_get devices "$config" device
@@ -183,6 +178,7 @@ prepare_interface() {
 					done
 					uci_set_state network "$config" device "$newdevs"
 					$DEBUG ifconfig "$iface" 0.0.0.0
+					$DEBUG do_sysctl "net.ipv6.conf.$iface.disable_ipv6" 1
 					$DEBUG brctl addif "br-$config" "$iface"
 					# Bridge existed already. No further processing necesary
 				} || {
@@ -192,6 +188,7 @@ prepare_interface() {
 					$DEBUG brctl setfd "br-$config" 0
 					$DEBUG ifconfig "br-$config" up
 					$DEBUG ifconfig "$iface" 0.0.0.0
+					$DEBUG do_sysctl "net.ipv6.conf.$iface.disable_ipv6" 1
 					$DEBUG brctl addif "br-$config" "$iface"
 					$DEBUG brctl stp "br-$config" $stp
 					# Creating the bridge here will have triggered a hotplug event, which will
@@ -360,9 +357,14 @@ setup_interface() {
 			[ -z "$ipaddr" ] || \
 				$DEBUG ifconfig "$iface" "$ipaddr" ${netmask:+netmask "$netmask"}
 
+			# additional request options
+			local opt dhcpopts
+			for opt in $reqopts; do
+				append dhcpopts "-O $opt"
+			done
+
 			# don't stay running in background if dhcp is not the main proto on the interface (e.g. when using pptp)
-			local dhcpopts
-			[ ."$proto1" != ."$proto" ] && dhcpopts="-n -q"
+			[ "$proto1" != "$proto" ] && append dhcpopts "-n -q" || append dhcpopts "-O rootpath -R &"
 			[ "$broadcast" = 1 ] && broadcast="-O broadcast" || broadcast=
 
 			$DEBUG eval udhcpc -t 0 -i "$iface" \
@@ -371,8 +373,7 @@ setup_interface() {
 				${clientid:+-c $clientid} \
 				${vendorid:+-V $vendorid} \
 				-b -p "$pidfile" $broadcast \
-				${reqopts:+-O $reqopts} \
-				${dhcpopts:- -O rootpath -R &}
+				${dhcpopts}
 		;;
 		none)
 			setup_interface_none "$iface" "$config"
@@ -415,9 +416,7 @@ unbridge() {
 
 		for brdev in $(brctl show | awk '$2 ~ /^[0-9].*\./ { print $1 }'); do
 			brctl delif "$brdev" "$dev" 2>/dev/null >/dev/null
-			do_sysctl net.ipv6.conf.$dev.disable_ipv6 0
-			[ "${dev##wlan}" != "$dev" ] && \
-				do_sysctl net.ipv6.conf.mon.$dev.disable_ipv6 0
+			do_sysctl "net.ipv6.conf.$dev.disable_ipv6" 0
 		done
 	}
 }
