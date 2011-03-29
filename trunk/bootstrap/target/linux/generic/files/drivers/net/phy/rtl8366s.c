@@ -251,14 +251,22 @@ static int rtl8366s_reset_chip(struct rtl8366_smi *smi)
 
 static int rtl8366s_hw_init(struct rtl8366_smi *smi)
 {
+	struct rtl8366s_platform_data *pdata;
 	int err;
+
+	pdata = smi->parent->platform_data;
+	if (pdata->num_initvals && pdata->initvals) {
+		unsigned i;
+
+		dev_info(smi->parent, "applying initvals\n");
+		for (i = 0; i < pdata->num_initvals; i++)
+			REG_WR(smi, pdata->initvals[i].reg,
+			       pdata->initvals[i].val);
+	}
 
 	/* set maximum packet length to 1536 bytes */
 	REG_RMW(smi, RTL8366S_SGCR, RTL8366S_SGCR_MAX_LENGTH_MASK,
 		RTL8366S_SGCR_MAX_LENGTH_1536);
-
-	/* enable all ports */
-	REG_WR(smi, RTL8366S_PECR, 0);
 
 	/* enable learning for all ports */
 	REG_WR(smi, RTL8366S_SSCR0, 0);
@@ -455,8 +463,8 @@ static int rtl8366s_set_vlan_4k(struct rtl8366_smi *smi,
 	int i;
 
 	if (vlan4k->vid >= RTL8366S_NUM_VIDS ||
-	    vlan4k->member > RTL8366S_PORT_ALL ||
-	    vlan4k->untag > RTL8366S_PORT_ALL ||
+	    vlan4k->member > RTL8366S_VLAN_MEMBER_MASK ||
+	    vlan4k->untag > RTL8366S_VLAN_UNTAG_MASK ||
 	    vlan4k->fid > RTL8366S_FIDMAX)
 		return -EINVAL;
 
@@ -524,8 +532,8 @@ static int rtl8366s_set_vlan_mc(struct rtl8366_smi *smi, u32 index,
 	if (index >= RTL8366S_NUM_VLANS ||
 	    vlanmc->vid >= RTL8366S_NUM_VIDS ||
 	    vlanmc->priority > RTL8366S_PRIORITYMAX ||
-	    vlanmc->member > RTL8366S_PORT_ALL ||
-	    vlanmc->untag > RTL8366S_PORT_ALL ||
+	    vlanmc->member > RTL8366S_VLAN_MEMBER_MASK ||
+	    vlanmc->untag > RTL8366S_VLAN_UNTAG_MASK ||
 	    vlanmc->fid > RTL8366S_FIDMAX)
 		return -EINVAL;
 
@@ -603,6 +611,12 @@ static int rtl8366s_is_vlan_valid(struct rtl8366_smi *smi, unsigned vlan)
 		return 0;
 
 	return 1;
+}
+
+static int rtl8366s_enable_port(struct rtl8366_smi *smi, int port, int enable)
+{
+	return rtl8366_smi_rmwr(smi, RTL8366S_PECR, (1 << port),
+				(enable) ? 0 : (1 << port));
 }
 
 static int rtl8366s_sw_reset_mibs(struct switch_dev *dev,
@@ -802,7 +816,15 @@ static int rtl8366s_sw_reset_switch(struct switch_dev *dev)
 	if (err)
 		return err;
 
-	return rtl8366_reset_vlan(smi);
+	err = rtl8366_reset_vlan(smi);
+	if (err)
+		return err;
+
+	err = rtl8366_enable_vlan(smi, 1);
+	if (err)
+		return err;
+
+	return rtl8366_enable_all_ports(smi, 1);
 }
 
 static struct switch_attr rtl8366s_globals[] = {
@@ -883,6 +905,13 @@ static struct switch_attr rtl8366s_vlan[] = {
 		.max = 1,
 		.set = NULL,
 		.get = rtl8366_sw_get_vlan_info,
+	}, {
+		.type = SWITCH_TYPE_INT,
+		.name = "fid",
+		.description = "Get/Set vlan FID",
+		.max = RTL8366S_FIDMAX,
+		.set = rtl8366_sw_set_vlan_fid,
+		.get = rtl8366_sw_get_vlan_fid,
 	},
 };
 
@@ -1025,6 +1054,7 @@ static struct rtl8366_smi_ops rtl8366s_smi_ops = {
 	.is_vlan_valid	= rtl8366s_is_vlan_valid,
 	.enable_vlan	= rtl8366s_enable_vlan,
 	.enable_vlan4k	= rtl8366s_enable_vlan4k,
+	.enable_port	= rtl8366s_enable_port,
 };
 
 static int __devinit rtl8366s_probe(struct platform_device *pdev)

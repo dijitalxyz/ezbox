@@ -274,9 +274,6 @@ static int rtl8366rb_hw_init(struct rtl8366_smi *smi)
 	REG_RMW(smi, RTL8366RB_SGCR, RTL8366RB_SGCR_MAX_LENGTH_MASK,
 		RTL8366RB_SGCR_MAX_LENGTH_1536);
 
-	/* enable all ports */
-	REG_WR(smi, RTL8366RB_PECR, 0);
-
 	/* enable learning for all ports */
 	REG_WR(smi, RTL8366RB_SSCR0, 0);
 
@@ -458,8 +455,8 @@ static int rtl8366rb_set_vlan_4k(struct rtl8366_smi *smi,
 	int i;
 
 	if (vlan4k->vid >= RTL8366RB_NUM_VIDS ||
-	    vlan4k->member > RTL8366RB_PORT_ALL ||
-	    vlan4k->untag > RTL8366RB_PORT_ALL ||
+	    vlan4k->member > RTL8366RB_VLAN_MEMBER_MASK ||
+	    vlan4k->untag > RTL8366RB_VLAN_UNTAG_MASK ||
 	    vlan4k->fid > RTL8366RB_FIDMAX)
 		return -EINVAL;
 
@@ -525,8 +522,8 @@ static int rtl8366rb_set_vlan_mc(struct rtl8366_smi *smi, u32 index,
 	if (index >= RTL8366RB_NUM_VLANS ||
 	    vlanmc->vid >= RTL8366RB_NUM_VIDS ||
 	    vlanmc->priority > RTL8366RB_PRIORITYMAX ||
-	    vlanmc->member > RTL8366RB_PORT_ALL ||
-	    vlanmc->untag > RTL8366RB_PORT_ALL ||
+	    vlanmc->member > RTL8366RB_VLAN_MEMBER_MASK ||
+	    vlanmc->untag > RTL8366RB_VLAN_UNTAG_MASK ||
 	    vlanmc->fid > RTL8366RB_FIDMAX)
 		return -EINVAL;
 
@@ -605,6 +602,12 @@ static int rtl8366rb_enable_vlan4k(struct rtl8366_smi *smi, int enable)
 	return rtl8366_smi_rmwr(smi, RTL8366RB_SGCR,
 				RTL8366RB_SGCR_EN_VLAN_4KTB,
 				(enable) ? RTL8366RB_SGCR_EN_VLAN_4KTB : 0);
+}
+
+static int rtl8366rb_enable_port(struct rtl8366_smi *smi, int port, int enable)
+{
+	return rtl8366_smi_rmwr(smi, RTL8366RB_PECR, (1 << port),
+				(enable) ? 0 : (1 << port));
 }
 
 static int rtl8366rb_sw_reset_mibs(struct switch_dev *dev,
@@ -956,7 +959,15 @@ static int rtl8366rb_sw_reset_switch(struct switch_dev *dev)
 	if (err)
 		return err;
 
-	return rtl8366_reset_vlan(smi);
+	err = rtl8366_reset_vlan(smi);
+	if (err)
+		return err;
+
+	err = rtl8366_enable_vlan(smi, 1);
+	if (err)
+		return err;
+
+	return rtl8366_enable_all_ports(smi, 1);
 }
 
 static struct switch_attr rtl8366rb_globals[] = {
@@ -1214,6 +1225,7 @@ static struct rtl8366_smi_ops rtl8366rb_smi_ops = {
 	.is_vlan_valid	= rtl8366rb_is_vlan_valid,
 	.enable_vlan	= rtl8366rb_enable_vlan,
 	.enable_vlan4k	= rtl8366rb_enable_vlan4k,
+	.enable_port	= rtl8366rb_enable_port,
 };
 
 static int __devinit rtl8366rb_probe(struct platform_device *pdev)
