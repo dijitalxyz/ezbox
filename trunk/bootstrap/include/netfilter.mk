@@ -107,12 +107,6 @@ $(eval $(call nf_add,IPT_FILTER,CONFIG_IP_NF_MATCH_STRING, $(P_V4)ipt_string))
 $(eval $(call nf_add,IPT_FILTER,CONFIG_NETFILTER_XT_MATCH_STRING, $(P_XT)xt_string))
 
 
-# imq
-
-$(eval $(call nf_add,IPT_IMQ,CONFIG_IP_NF_TARGET_IMQ, $(P_V4)ipt_IMQ))
-$(eval $(call nf_add,IPT_IMQ,CONFIG_NETFILTER_XT_TARGET_IMQ, $(P_XT)xt_IMQ))
-
-
 # ipopt
 
 $(eval $(call nf_add,IPT_IPOPT,CONFIG_IP_NF_TARGET_DSCP, $(P_V4)ipt_DSCP))
@@ -183,6 +177,7 @@ $(eval $(call nf_add,IPT_IPSEC,CONFIG_NETFILTER_XT_MATCH_POLICY, $(P_XT)xt_polic
 # IPv6
 
 # kernel only
+$(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_NF_DEFRAG_IPV6, $(P_V6)nf_defrag_ipv6),))
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_NF_CONNTRACK_IPV6, $(P_V6)nf_conntrack_ipv6),))
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_IPTABLES, $(P_V6)ip6_tables),))
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_FILTER, $(P_V6)ip6table_filter),))
@@ -200,7 +195,6 @@ $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_OWNER, $(P_V6)ip6t_owner))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_OPTS, $(P_V6)ip6t_hbh))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_RT, $(P_V6)ip6t_rt))
 
-$(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_IMQ, $(P_V6)ip6t_IMQ))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_LOG, $(P_V6)ip6t_LOG))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_REJECT, $(P_V6)ip6t_REJECT))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_TARGET_ROUTE, $(P_V6)ip6t_ROUTE))
@@ -236,10 +230,6 @@ $(eval $(call nf_add,IPT_NATHELPER,CONFIG_IP_NF_IRC, $(P_V4)ip_conntrack_irc))
 $(eval $(call nf_add,IPT_NATHELPER,CONFIG_IP_NF_NAT_IRC, $(P_V4)ip_nat_irc))
 $(eval $(call nf_add,IPT_NATHELPER,CONFIG_NF_CONNTRACK_IRC, $(P_XT)nf_conntrack_irc))
 $(eval $(call nf_add,IPT_NATHELPER,CONFIG_NF_NAT_IRC, $(P_V4)nf_nat_irc))
-$(eval $(call nf_add,IPT_NATHELPER,CONFIG_IP_NF_TFTP, $(P_V4)ip_conntrack_tftp))
-$(eval $(call nf_add,IPT_NATHELPER,CONFIG_IP_NF_NAT_TFTP, $(P_V4)ip_nat_tftp))
-$(eval $(call nf_add,IPT_NATHELPER,CONFIG_NF_CONNTRACK_TFTP, $(P_XT)nf_conntrack_tftp))
-$(eval $(call nf_add,IPT_NATHELPER,CONFIG_NF_NAT_TFTP, $(P_V4)nf_nat_tftp))
 
 
 # nathelper-extra
@@ -272,6 +262,10 @@ $(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_NF_CONNTRACK_SIP, $(P_XT)nf_conn
 $(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_NF_NAT_SIP, $(P_V4)nf_nat_sip))
 $(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_IP_NF_NAT_SNMP_BASIC, $(P_V4)ip_nat_snmp_basic))
 $(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_NF_NAT_SNMP_BASIC, $(P_V4)nf_nat_snmp_basic))
+$(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_IP_NF_TFTP, $(P_V4)ip_conntrack_tftp))
+$(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_IP_NF_NAT_TFTP, $(P_V4)ip_nat_tftp))
+$(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_NF_CONNTRACK_TFTP, $(P_XT)nf_conntrack_tftp))
+$(eval $(call nf_add,IPT_NATHELPER_EXTRA,CONFIG_NF_NAT_TFTP, $(P_V4)nf_nat_tftp))
 
 
 # queue
@@ -331,7 +325,6 @@ IPT_BUILTIN += $(IPT_CONNTRACK-y)
 IPT_BUILTIN += $(IPT_CONNTRACK_EXTRA-y)
 IPT_BUILTIN += $(IPT_EXTRA-y)
 IPT_BUILTIN += $(IPT_FILTER-y)
-IPT_BUILTIN += $(IPT_IMQ-y)
 IPT_BUILTIN += $(IPT_IPOPT-y)
 IPT_BUILTIN += $(IPT_IPRANGE-y)
 IPT_BUILTIN += $(IPT_IPSEC-y)
