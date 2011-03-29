@@ -15,7 +15,7 @@ define KernelPackage/usb-core
   SUBMENU:=$(USB_MENU)
   TITLE:=Support for USB
   DEPENDS:=@USB_SUPPORT +kmod-nls-base
-  KCONFIG:=CONFIG_USB
+  KCONFIG:=CONFIG_USB CONFIG_XPS_USB_HCD_XILINX=n CONFIG_USB_FHCI_HCD=n
   FILES:=$(LINUX_DIR)/drivers/usb/core/usbcore.ko
   AUTOLOAD:=$(call AutoLoad,20,usbcore,1)
 endef
@@ -57,7 +57,7 @@ define KernelPackage/usb-eth-gadget
 	CONFIG_USB_ETH_EEM=y
   DEPENDS:=+kmod-usb-gadget
   FILES:=$(LINUX_DIR)/drivers/usb/gadget/g_ether.ko
-  AUTOLOAD:=$(call AutoLoad,52,usb-eth-gadget)
+  AUTOLOAD:=$(call AutoLoad,52,g_ether)
   $(call AddDepends/usb)
 endef
 
@@ -107,14 +107,12 @@ define KernelPackage/musb-hdrc
   TITLE:=Support for Mentor Graphics silicon dual role USB
   KCONFIG:= \
 	CONFIG_USB_MUSB_HDRC \
-	CONFIG_NOP_USB_XCEIV \
-	CONFIG_USB_TUSB6010=y \
 	CONFIG_MUSB_PIO_ONLY=n \
 	CONFIG_USB_MUSB_OTG=y \
 	CONFIG_USB_MUSB_DEBUG=y
   DEPENDS:=@TARGET_omap24xx
-  FILES:=$(LINUX_DIR)/drivers/usb/otg/nop-usb-xceiv.ko $(LINUX_DIR)/drivers/usb/musb/musb_hdrc.ko
-  AUTOLOAD:=$(call AutoLoad,54,nop-usb-xceiv musb_hdrc)
+  FILES:=$(LINUX_DIR)/drivers/usb/musb/musb_hdrc.ko
+  AUTOLOAD:=$(call AutoLoad,46,musb_hdrc)
   $(call AddDepends/usb)
 endef
 
@@ -125,6 +123,38 @@ endef
 $(eval $(call KernelPackage,musb-hdrc))
 
 
+define KernelPackage/nop-usb-xceiv
+  TITLE:=Support for USB OTG NOP transceiver
+  KCONFIG:= \
+	CONFIG_NOP_USB_XCEIV
+  DEPENDS:=@TARGET_omap24xx
+  FILES:=$(LINUX_DIR)/drivers/usb/otg/nop-usb-xceiv.ko
+  AUTOLOAD:=$(call AutoLoad,45,nop-usb-xceiv)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/nop-usb-xceiv/description
+  Support for USB OTG NOP transceiver
+endef
+
+$(eval $(call KernelPackage,nop-usb-xceiv))
+
+
+define KernelPackage/tusb6010
+  TITLE:=Support for TUSB 6010
+  KCONFIG:= \
+	CONFIG_USB_TUSB6010=y
+  DEPENDS:=+kmod-musb-hdrc +kmod-nop-usb-xceiv
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/tusb6010/description
+  TUSB6010 support
+endef
+
+$(eval $(call KernelPackage,tusb6010))
+
+
 define KernelPackage/usb-tahvo
   TITLE:=Support for Tahvo (Nokia n810) USB
   KCONFIG:= \
@@ -132,9 +162,9 @@ define KernelPackage/usb-tahvo
 	CONFIG_CBUS_TAHVO_USB_HOST_BY_DEFAULT=n \
 	CONFIG_USB_OHCI_HCD_OMAP1=y \
 	CONFIG_USB_GADGET_DEBUG_FS=n
-  DEPENDS:=@TARGET_omap24xx +kmod-usb-ohci +kmod-musb-hdrc +kmod-usb-gadget
+  DEPENDS:=@TARGET_omap24xx +kmod-tusb6010 +kmod-usb-gadget
   FILES:=$(LINUX_DIR)/drivers/cbus/tahvo-usb.ko
-  AUTOLOAD:=$(call AutoLoad,55,tahvo-usb)
+  AUTOLOAD:=$(call AutoLoad,45,tahvo-usb)
   $(call AddDepends/usb)
 endef
 
@@ -167,7 +197,8 @@ $(eval $(call KernelPackage,usb-isp116x-hcd))
 define KernelPackage/usb2
   TITLE:=Support for USB2 controllers
   KCONFIG:=CONFIG_USB_EHCI_HCD \
-    CONFIG_USB_EHCI_AR71XX=y
+    CONFIG_USB_EHCI_AR71XX=y \
+    CONFIG_USB_EHCI_FSL=n
   FILES:=$(LINUX_DIR)/drivers/usb/host/ehci-hcd.ko
   AUTOLOAD:=$(call AutoLoad,40,ehci-hcd,1)
   $(call AddDepends/usb)
@@ -345,6 +376,21 @@ endef
 $(eval $(call KernelPackage,usb-serial-mct))
 
 
+define KernelPackage/usb-serial-mos7720
+  TITLE:=Support for Moschip MOS7720 devices
+  KCONFIG:=CONFIG_USB_SERIAL_MOS7720
+  FILES:=$(LINUX_DIR)/drivers/usb/serial/mos7720.ko
+  AUTOLOAD:=$(call AutoLoad,65,mos7720)
+  $(call AddDepends/usb-serial)
+endef
+
+define KernelPackage/usb-serial-mos7720/description
+ Kernel support for Moschip MOS7720 USB-to-Serial converters
+endef
+
+$(eval $(call KernelPackage,usb-serial-mos7720))
+
+
 define KernelPackage/usb-serial-pl2303
   TITLE:=Support for Prolific PL2303 devices
   KCONFIG:=CONFIG_USB_SERIAL_PL2303
@@ -498,7 +544,7 @@ $(eval $(call KernelPackage,usb-serial-keyspan))
 
 define KernelPackage/usb-serial-wwan
   TITLE:=Support for GSM and CDMA modems
-  DEPENDS:= @LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37
+  DEPENDS:= @LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38
   KCONFIG:=CONFIG_USB_SERIAL_WWAN
   FILES:=$(LINUX_DIR)/drivers/usb/serial/usb_wwan.ko
   AUTOLOAD:=$(call AutoLoad,61,usb_wwan)
@@ -514,7 +560,7 @@ $(eval $(call KernelPackage,usb-serial-wwan))
 
 define KernelPackage/usb-serial-option
   TITLE:=Support for Option HSDPA modems
-  DEPENDS:=+LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37:kmod-usb-serial-wwan
+  DEPENDS:=+LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38:kmod-usb-serial-wwan
   KCONFIG:=CONFIG_USB_SERIAL_OPTION
   FILES:=$(LINUX_DIR)/drivers/usb/serial/option.ko
   AUTOLOAD:=$(call AutoLoad,65,option)
