@@ -64,6 +64,14 @@ endif
 $(curdir)/rootfs-prepare: $(TMP_DIR)/.build
 	@-$(MAKE) package/preconfig
 	@if [ -d $(TOPDIR)/files ]; then \
+		( cd $(TOPDIR)/files; find -type f ) | \
+			( cd $(TARGET_DIR); while :; do \
+				read FILE; \
+				[ -z "$$FILE" ] && break; \
+				[ -L "$$FILE" ] || continue; \
+				echo "Removing symlink $(TARGET_DIR)/$$FILE"; \
+				rm -f "$$FILE"; \
+			done; ); \
 		$(CP) $(TOPDIR)/files/. $(TARGET_DIR); \
 	fi
 	@mkdir -p $(TARGET_DIR)/etc/rc.d
@@ -77,11 +85,12 @@ $(curdir)/rootfs-prepare: $(TMP_DIR)/.build
 	@-find $(TARGET_DIR) -name CVS   | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name .svn  | $(XARGS) rm -rf
 	@-find $(TARGET_DIR) -name '.#*' | $(XARGS) rm -f
+	rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.postinst
 	$(if $(CONFIG_CLEAN_IPKG),rm -rf $(TARGET_DIR)/usr/lib/opkg)
 	$(call mklibs)
 
 $(curdir)/index: FORCE
-	@(cd $(PACKAGE_DIR); $(SCRIPT_DIR)/ipkg-make-index.sh . > Packages && \
+	@(cd $(PACKAGE_DIR); $(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
 		gzip -9c Packages > Packages.gz \
 	)
 
