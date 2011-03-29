@@ -1,6 +1,7 @@
 #########################
 # distro/kuafu/ directory
 #########################
+package/switch/
 target/linux/ar71xx/
 target/linux/brcm47xx/
 target/linux/s3c24xx/
@@ -8,4 +9,3 @@ target/linux/x86/
 #########################
 # distributions/kuafu/ directory
 #########################
-packages/net/switch/
