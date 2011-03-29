@@ -168,6 +168,7 @@ sub target_config_features(@) {
 		/cpiogz/ and $ret .= "\tselect USES_CPIOGZ\n";
 		/ubifs/ and $ret .= "\tselect USES_UBIFS\n";
 		/fpu/ and $ret .= "\tselect HAS_FPU\n";
+		/spe_fpu/ and $ret .= "\tselect HAS_SPE_FPU\n";
 		/ramdisk/ and $ret .= "\tselect USES_INITRAMFS\n";
 		/powerpc64/ and $ret .= "\tselect powerpc64\n";
 		/nommu/ and $ret .= "\tselect NOMMU\n";
@@ -737,7 +738,7 @@ sub gen_package_mk() {
 				if ($idx) {
 					my $depline;
 					next if $pkg->{src} eq $pkg_dep->{src}.$suffix;
-					next if $dep{$pkg->{src}."->".$idx};
+					next if $dep{$condition.":".$pkg->{src}."->".$idx};
 					next if $dep{$pkg->{src}."->($dep)".$idx} and $pkg_dep->{vdepends};
 					my $depstr;
 
