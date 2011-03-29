@@ -2,12 +2,12 @@
 
 SRC_DIR=$1
 DST_DIR=$2
+ITEM_LIST=$3
 
 DIFF_DIR="diff"
-ITEM_LIST="itemlist.txt"
 
 usage() {
-  echo "usage: ./gen_dir.sh <source dir> <dest dir>"
+  echo "usage: ./gen_dir.sh <source dir> <dest dir> <item-list file>"
 }
 
 if [ "x$SRC_DIR" = "x" ] ; then
@@ -16,6 +16,11 @@ if [ "x$SRC_DIR" = "x" ] ; then
 fi
 
 if [ "x$DST_DIR" = "x" ] ; then
+  usage
+  exit 0
+fi
+
+if [ "x$ITEM_LIST" = "x" ] ; then
   usage
   exit 0
 fi

@@ -1,0 +1,36 @@
+#########################
+# distro/huangdi/ directory
+#########################
+target/linux/x86/
+#########################
+# distributions/huangdi/ directory
+#########################
+packages/lang/lua/
+packages/lang/tcl/
+packages/libs/curl/
+packages/libs/expat/
+packages/libs/freetype/
+packages/libs/gettext/
+packages/libs/gettext-full/
+packages/libs/glib2/
+packages/libs/jpeg/
+packages/libs/libiconv/
+packages/libs/libpng/
+packages/libs/libreadline/
+packages/libs/lzo/
+packages/libs/ncurses/
+packages/libs/openssl/
+packages/libs/sqlite3/
+packages/libs/tiff/
+packages/libs/zlib/
+packages/net/bind/
+packages/net/dnsmasq/
+packages/net/dropbear/
+packages/net/freeswitch/
+packages/net/iproute2/
+packages/net/openvpn/
+packages/utils/e2fsprogs/
+packages/Xorg/app/dillo/
+packages/Xorg/lib/fltk2/
+packages/Xorg/xorg/app/fontconfig/
+packages/Xorg/xserver/microwin/
