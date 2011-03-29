@@ -55,6 +55,22 @@ endef
 $(eval $(call KernelPackage,bluetooth))
 
 
+define KernelPackage/bluetooth-hci-h4p
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=HCI driver with H4 Nokia extensions
+  DEPENDS:=@TARGET_omap24xx +kmod-bluetooth
+  KCONFIG:=CONFIG_BT_HCIH4P
+  FILES:=$(LINUX_DIR)/drivers/bluetooth/hci_h4p/hci_h4p.ko
+  AUTOLOAD:=$(call AutoLoad,91,hci_h4p)
+endef
+
+define KernelPackage/bluetooth-hci-h4p/description
+  HCI driver with H4 Nokia extensions
+endef
+
+$(eval $(call KernelPackage,bluetooth-hci-h4p))
+
+
 define KernelPackage/cpu-msr
   SUBMENU:=$(OTHER_MENU)
   TITLE:=x86 CPU MSR support
@@ -167,15 +183,9 @@ define KernelPackage/gpio-cs5535
   SUBMENU:=$(OTHER_MENU)
   TITLE:=AMD CS5535/CS5536 GPIO driver
   DEPENDS:=@TARGET_x86
-  KCONFIG:=CONFIG_CS5535_GPIO \
-	   CONFIG_GPIO_CS5535
-ifeq ($(CONFIG_LINUX_2_6_32),y)
+  KCONFIG:=CONFIG_CS5535_GPIO
   FILES:=$(LINUX_DIR)/drivers/char/cs5535_gpio.ko
   AUTOLOAD:=$(call AutoLoad,50,cs5535_gpio)
-else
-  FILES:=$(LINUX_DIR)/drivers/gpio/cs5535-gpio.ko
-  AUTOLOAD:=$(call AutoLoad,50,cs5535-gpio)
-endif
 endef
 
 define KernelPackage/gpio-cs5535/description
@@ -183,6 +193,24 @@ define KernelPackage/gpio-cs5535/description
 endef
 
 $(eval $(call KernelPackage,gpio-cs5535))
+
+
+define KernelPackage/gpio-cs5535-new
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=AMD CS5535/CS5536 GPIO driver with improved sysfs support
+  DEPENDS:=@TARGET_x86
+ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.33)),1) 
+  KCONFIG:=CONFIG_GPIO_CS5535 CONFIG_PCI CONFIG_GPIOLIB
+  FILES:=$(LINUX_DIR)/drivers/gpio/cs5535-gpio.ko
+  AUTOLOAD:=$(call AutoLoad,50,cs5535-gpio)
+endif
+endef
+
+define KernelPackage/gpio-cs5535-new/description
+ This package contains the new AMD CS5535/CS5536 GPIO driver
+endef
+
+$(eval $(call KernelPackage,gpio-cs5535-new))
 
 
 define KernelPackage/gpio-dev
@@ -510,6 +538,21 @@ endef
 $(eval $(call KernelPackage,leds-wrap))
 
 
+define KernelPackage/ledtrig-heartbeat
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=LED Heartbeat Trigger
+  KCONFIG:=CONFIG_LEDS_TRIGGER_HEARTBEAT
+  FILES:=$(LINUX_DIR)/drivers/leds/ledtrig-heartbeat.ko
+  AUTOLOAD:=$(call AutoLoad,50,ledtrig-heartbeat)
+endef
+
+define KernelPackage/ledtrig-gpio/description
+ Kernel module that allows LEDs to blink like heart beat
+endef
+
+$(eval $(call KernelPackage,ledtrig-heartbeat))
+
+
 define KernelPackage/ledtrig-gpio
   SUBMENU:=$(OTHER_MENU)
   TITLE:=LED GPIO Trigger
@@ -651,6 +694,21 @@ endef
 $(eval $(call KernelPackage,mmc-atmelmci,1))
 
 
+define KernelPackage/oprofile
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=OProfile profiling support
+  KCONFIG:=CONFIG_OPROFILE
+  FILES:=$(LINUX_DIR)/arch/$(LINUX_KARCH)/oprofile/oprofile.$(LINUX_KMOD_SUFFIX)
+  DEPENDS:=@KERNEL_PROFILING
+endef
+
+define KernelPackage/oprofile/description
+  Kernel module for support for oprofile system profiling.
+endef
+
+$(eval $(call KernelPackage,oprofile))
+
+
 define KernelPackage/rfkill
   SUBMENU:=$(OTHER_MENU)
   TITLE:=RF switch subsystem support
@@ -770,6 +828,22 @@ endef
 $(eval $(call KernelPackage,wdt-omap))
 
 
+define KernelPackage/wdt-orion
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Marvell Orion Watchdog timer
+  DEPENDS:=@TARGET_orion
+  KCONFIG:=CONFIG_ORION_WATCHDOG
+  FILES:=$(LINUX_DIR)/drivers/$(WATCHDOG_DIR)/orion_wdt.ko
+  AUTOLOAD:=$(call AutoLoad,50,orion_wdt)
+endef
+
+define KernelPackage/wdt-orion/description
+  Kernel module for Marvell orion watchdog timer.
+endef
+
+$(eval $(call KernelPackage,wdt-orion))
+
+
 define KernelPackage/wdt-sc520
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Natsemi SC520 Watchdog support
@@ -834,7 +908,6 @@ $(eval $(call KernelPackage,pwm-gpio))
 define KernelPackage/rtc-core
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Real Time Clock class support
-  DEPENDS:=@LINUX_2_6
   KCONFIG:=CONFIG_RTC_CLASS
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-core.$(LINUX_KMOD_SUFFIX)
   AUTOLOAD:=$(call AutoLoad,29,rtc-core)
@@ -861,3 +934,20 @@ define KernelPackage/rtc-pcf8563/description
 endef
 
 $(eval $(call KernelPackage,rtc-pcf8563))
+
+
+define KernelPackage/n810bm
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Nokia N810 battery management driver
+  DEPENDS:=@TARGET_omap24xx
+  KCONFIG:=CONFIG_N810BM
+  FILES:=$(LINUX_DIR)/drivers/cbus/n810bm.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD:=$(call AutoLoad,01,n810bm)
+endef
+
+define KernelPackage/n810bm/description
+  Nokia N810 battery management driver.
+  Controls battery power management and battery charging.
+endef
+
+$(eval $(call KernelPackage,n810bm))

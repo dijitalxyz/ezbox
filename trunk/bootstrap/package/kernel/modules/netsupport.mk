@@ -177,7 +177,7 @@ IPSEC-m:= \
 define KernelPackage/ipsec
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=IPsec related modules (IPv4 and IPv6)
-  DEPENDS:=+kmod-crypto-core +kmod-crypto-des +kmod-crypto-hmac +kmod-crypto-md5 +kmod-crypto-sha1
+  DEPENDS:=+kmod-crypto-core +kmod-crypto-des +kmod-crypto-hmac +kmod-crypto-md5 +kmod-crypto-sha1 +kmod-crypto-deflate +kmod-crypto-cbc
   KCONFIG:= \
 	CONFIG_NET_KEY \
 	CONFIG_XFRM_USER \
@@ -370,8 +370,14 @@ $(eval $(call KernelPackage,ip6-tunnel))
 define KernelPackage/gre
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=GRE support
-  KCONFIG:=CONFIG_NET_IPGRE
-  FILES=$(LINUX_DIR)/net/ipv4/ip_gre.ko
+  KCONFIG:=CONFIG_NET_IPGRE CONFIG_NET_IPGRE_DEMUX
+ ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.37)),1)
+  FILES:=$(LINUX_DIR)/net/ipv4/ip_gre.ko $(LINUX_DIR)/net/ipv4/gre.ko
+  AUTOLOAD:=$(call AutoLoad,39,gre ip_gre)
+ else
+  FILES:=$(LINUX_DIR)/net/ipv4/ip_gre.ko
+  AUTOLOAD:=$(call AutoLoad,39,ip_gre)
+ endif
 endef
 
 define KernelPackage/gre/description
@@ -467,12 +473,25 @@ endef
 
 $(eval $(call KernelPackage,pppoa))
 
+
+define KernelPackage/pptp
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=PPtP support
+  DEPENDS:=kmod-ppp +kmod-gre @LINUX_2_6_37||LINUX_2_6_38
+  KCONFIG:=CONFIG_PPTP
+  FILES:=$(LINUX_DIR)/drivers/net/pptp.ko
+  AUTOLOAD:=$(call AutoLoad,41,pptp)
+endef
+
+$(eval $(call KernelPackage,pptp))
+	
+
 define KernelPackage/pppol2tp
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=PPPoL2TP support
-  DEPENDS:=kmod-ppp +kmod-pppoe +LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37:kmod-l2tp
+  DEPENDS:=kmod-ppp +kmod-pppoe +LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38:kmod-l2tp
   KCONFIG:=CONFIG_PPPOL2TP
-  ifneq ($(CONFIG_LINUX_2_6_35)$(CONFIG_LINUX_2_6_36)$(CONFIG_LINUX_2_6_37),)
+  ifneq ($(CONFIG_LINUX_2_6_35)$(CONFIG_LINUX_2_6_36)$(CONFIG_LINUX_2_6_37)$(CONFIG_LINUX_2_6_38),)
     FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ppp.ko
     AUTOLOAD:=$(call AutoLoad,40,l2tp_ppp)
   else
@@ -551,6 +570,8 @@ define KernelPackage/sched
 	CONFIG_NET_ACT_MIRRED \
 	CONFIG_NET_ACT_IPT \
 	CONFIG_NET_ACT_POLICE \
+	CONFIG_NET_ACT_CONNMARK \
+	CONFIG_NET_ACT_SKBEDIT \
 	CONFIG_NET_EMATCH=y \
 	CONFIG_NET_EMATCH_CMP \
 	CONFIG_NET_EMATCH_NBYTE \
@@ -630,7 +651,7 @@ $(eval $(call KernelPackage,pktgen))
 
 define KernelPackage/l2tp
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
-  DEPENDS:=@LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37
+  DEPENDS:=@LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38
   TITLE:=Layer Two Tunneling Protocol (L2TP)
   KCONFIG:=CONFIG_L2TP \
 	CONFIG_L2TP_V3=y \
