@@ -31,4 +31,3 @@ package/kernel/
 package/libtool/
 package/ocf-crypto-headers/
 package/opkg/
-package/udevtrigger/
