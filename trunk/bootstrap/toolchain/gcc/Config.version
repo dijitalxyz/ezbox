@@ -1,32 +1,35 @@
+config GCC_DEFAULT_VERSION
+	bool
+
+config GCC_DEFAULT_VERSION_4_3_3_CS
+	select GCC_DEFAULT_VERSION
+	bool
+
+config GCC_DEFAULT_VERSION_4_3_5
+	select GCC_DEFAULT_VERSION
+	default y if (avr32 || powerpc64 || TARGET_coldfire || TARGET_etrax)
+	bool
+
+config GCC_DEFAULT_VERSION_4_4_5
+	select GCC_DEFAULT_VERSION
+	default y if (powerpc || ubicom32)
+	bool
+
+config GCC_DEFAULT_VERSION_LINARO
+	default y if !(GCC_DEFAULT_VERSION)
+	bool
+
+
 config GCC_VERSION
 	string
-	default "4.1.2"     if GCC_VERSION_4_1_2
-	default "4.2.4"     if GCC_VERSION_4_2_4
 	default "4.3.3+cs"  if GCC_VERSION_4_3_3_CS
 	default "4.3.5"     if GCC_VERSION_4_3_5
 	default "4.4.1+cs"  if GCC_VERSION_4_4_1_CS
 	default "4.4.5"	    if GCC_VERSION_4_4_5
 	default "4.5.2"	    if GCC_VERSION_4_5_2
-	default "4.5.1+l"   if GCC_VERSION_4_5_1_LINARO
+	default "linaro"    if GCC_VERSION_LINARO
 	default "llvm"	    if GCC_VERSION_LLVM
-	default "4.1.2"
-
-config GCC_VERSION_4
-	bool
-	default y	if GCC_VERSION_4_1
-	default y	if GCC_VERSION_4_2
-	default y	if GCC_VERSION_4_3
-	default y	if GCC_VERSION_4_4
-	default y	if GCC_VERSION_4_5
-
-config GCC_VERSION_4_1
-	bool
-	default y	if GCC_VERSION_4_1_2
-
-config GCC_VERSION_4_2
-	bool
-	default y	if GCC_VERSION_4_2_4
-	default y	if GCC_VERSION_LLVM
+	default "linaro"
 
 config GCC_VERSION_4_3
 	bool
@@ -41,28 +44,25 @@ config GCC_VERSION_4_4
 config GCC_VERSION_4_5
 	bool
 	default y       if GCC_VERSION_4_5_2
-	default y       if GCC_VERSION_4_5_1_LINARO
+	default y       if GCC_VERSION_LINARO
 
 if !TOOLCHAINOPTS
 
 	config GCC_VERSION_4_3_3_CS
-		default y if (mips || mipsel) && !(TARGET_octeon || TARGET_sibyte)
-		default y if (arm || armeb) && !(TARGET_gemini || TARGET_cns21xx || TARGET_omap35xx)
+		default y if GCC_DEFAULT_VERSION_4_3_3_CS
+		bool
 
 	config GCC_VERSION_4_3_5
-		default y if avr32
-		default y if powerpc64
-		default y if TARGET_etrax
-		default y if TARGET_coldfire
-		default y if TARGET_gemini
-		default y if TARGET_cns21xx
+		default y if GCC_DEFAULT_VERSION_4_3_5
+		bool
 
 	config GCC_VERSION_4_4_5
-		default y if (TARGET_octeon || TARGET_sibyte || TARGET_omap35xx)
-		default y if powerpc
-		default y if ubicom32
+		default y if GCC_DEFAULT_VERSION_4_4_5
+		bool
 
-	config GCC_VERSION_4_5_1_LINARO
-		default y if sparc
+	config GCC_VERSION_LINARO
+		default y if GCC_DEFAULT_VERSION_LINARO
+		bool
+
 
 endif

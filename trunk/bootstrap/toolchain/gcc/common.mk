@@ -36,24 +36,18 @@ ifdef CONFIG_GCC_VERSION_LLVM
   PKG_SOURCE_SUBDIR:=$(GCC_DIR)
   HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GCC_DIR)
 else
-ifdef CONFIG_GCC_VERSION_4_5_1_LINARO
-    PKG_REV:=4.5-2010.12-0
+ifeq ($(CONFIG_GCC_VERSION),"linaro")
+    PKG_REV:=4.5-2011.02-0
     PKG_VERSION:=4.5.2
-    PKG_SOURCE_URL:=http://launchpad.net/gcc-linaro/4.5/4.5-2010.12-0/+download/
+    PKG_SOURCE_URL:=http://launchpad.net/gcc-linaro/4.5/4.5-2011.02-0/+download/
     PKG_SOURCE:=$(PKG_NAME)-linaro-$(PKG_REV).tar.bz2
-    PKG_MD5SUM:=a01e511fd1a3b42b54d239b393f740fe
+    PKG_MD5SUM:=d93199c1296e053f57fcc7888b54d488
     GCC_DIR:=gcc-linaro-$(PKG_REV)
     HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GCC_DIR)
 else
   PKG_SOURCE_URL:=@GNU/gcc/gcc-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 
-  ifeq ($(PKG_VERSION),4.1.2)
-    PKG_MD5SUM:=a4a3eb15c96030906d8494959eeda23c
-  endif
-  ifeq ($(PKG_VERSION),4.2.4)
-    PKG_MD5SUM:=d79f553e7916ea21c556329eacfeaa16
-  endif
   ifeq ($(PKG_VERSION),4.3.3)
     PKG_MD5SUM:=cc3c5565fdb9ab87a05ddb106ba0bd1f
   endif
@@ -113,7 +107,7 @@ GCC_CONFIGURE:= \
 		--disable-multilib \
 		--disable-nls \
 		$(GRAPHITE_CONFIGURE) \
-		$(if $(CONFIG_GCC_USE_GRAPHITE),--with-host-libstdcxx="-lstdc++ -lm") \
+		$(if $(CONFIG_GCC_USE_GRAPHITE),--with-host-libstdcxx=-lstdc++) \
 		$(SOFT_FLOAT_CONFIG_OPTION) \
 		$(call qstrip,$(CONFIG_EXTRA_GCC_CONFIG_OPTIONS)) \
 		$(if $(CONFIG_mips64)$(CONFIG_mips64el),--with-arch=mips64 --with-abi=64) \
@@ -126,7 +120,7 @@ ifneq ($(CONFIG_GCC_VERSION_4_4)$(CONFIG_GCC_VERSION_4_5),)
   endif
 endif
 
-ifneq ($(CONFIG_GCC_VERSION_4_3)$(CONFIG_GCC_VERSION_4_4)$(CONFIG_GCC_VERSION_4_5),)
+ifeq ($(CONFIG_GCC_LLVM),)
   GCC_BUILD_TARGET_LIBGCC:=y
   GCC_CONFIGURE+= \
 		--with-gmp=$(TOPDIR)/staging_dir/host \
@@ -171,6 +165,10 @@ endif
 
 ifdef CONFIG_powerpc
   TARGET_CFLAGS := $(patsubst -Os,-O2,$(TARGET_CFLAGS))
+endif
+
+ifneq ($(GCC_ARCH),)
+  GCC_CONFIGURE+= --with-arch=$(GCC_ARCH)
 endif
 
 GCC_MAKE:= \
