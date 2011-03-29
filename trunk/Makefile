@@ -56,7 +56,7 @@ prepare-build:
 	cp -af bootstrap/* $(WK_DIR)/
 	rm -rf $(WK_DIR)/target/linux/$(TARGET)
 	ln -s $(DISTRO_DIR)/target/linux/$(TARGET) $(WK_DIR)/target/linux/$(TARGET)
-	[ ! -d $(DISTRO_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(DISTRO_DIR)/package $(DISTRO_DIR)/package-list.txt
+	[ ! -d $(DISTRO_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(DISTRO_DIR)/package $(DISTRO_DIR)/package/package-list.txt
 	cp $(DISTRO_DIR)/feeds.conf $(WK_DIR)/feeds.conf
 	cd $(WK_DIR) && ./scripts/feeds update -a
 	cd $(WK_DIR) && ./scripts/feeds install -a
