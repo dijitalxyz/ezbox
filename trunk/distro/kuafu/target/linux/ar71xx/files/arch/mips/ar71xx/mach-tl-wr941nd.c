@@ -24,6 +24,7 @@
 #define TL_WR941ND_GPIO_LED_SYSTEM	2
 #define TL_WR941ND_GPIO_LED_QSS_RED	4
 #define TL_WR941ND_GPIO_LED_QSS_GREEN	5
+#define TL_WR941ND_GPIO_LED_WLAN	9
 
 #define TL_WR941ND_GPIO_BTN_RESET	3
 #define TL_WR941ND_GPIO_BTN_QSS		7
@@ -37,20 +38,20 @@ static struct mtd_partition tl_wr941nd_partitions[] = {
 		.offset		= 0,
 		.size		= 0x020000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "kernel",
 		.offset		= 0x020000,
 		.size		= 0x140000,
-	} , {
+	}, {
 		.name		= "rootfs",
 		.offset		= 0x160000,
 		.size		= 0x290000,
-	} , {
+	}, {
 		.name		= "art",
 		.offset		= 0x3f0000,
 		.size		= 0x010000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "firmware",
 		.offset		= 0x020000,
 		.size		= 0x3d0000,
@@ -60,8 +61,8 @@ static struct mtd_partition tl_wr941nd_partitions[] = {
 
 static struct flash_platform_data tl_wr941nd_flash_data = {
 #ifdef CONFIG_MTD_PARTITIONS
-        .parts          = tl_wr941nd_partitions,
-        .nr_parts       = ARRAY_SIZE(tl_wr941nd_partitions),
+	.parts		= tl_wr941nd_partitions,
+	.nr_parts	= ARRAY_SIZE(tl_wr941nd_partitions),
 #endif
 };
 
@@ -76,6 +77,10 @@ static struct gpio_led tl_wr941nd_leds_gpio[] __initdata = {
 	}, {
 		.name		= "tl-wr941nd:green:qss",
 		.gpio		= TL_WR941ND_GPIO_LED_QSS_GREEN,
+	}, {
+		.name		= "tl-wr941nd:green:wlan",
+		.gpio		= TL_WR941ND_GPIO_LED_WLAN,
+		.active_low	= 1,
 	}
 };
 

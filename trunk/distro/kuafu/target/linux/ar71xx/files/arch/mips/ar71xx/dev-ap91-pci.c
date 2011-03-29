@@ -18,7 +18,9 @@
 #include "dev-ap91-pci.h"
 #include "pci-ath9k-fixup.h"
 
-static struct ath9k_platform_data ap91_wmac_data;
+static struct ath9k_platform_data ap91_wmac_data = {
+	.led_pin = -1,
+};
 static char ap91_wmac_mac[6];
 
 static struct ar71xx_pci_irq ap91_pci_irqs[] __initdata = {
@@ -31,13 +33,24 @@ static struct ar71xx_pci_irq ap91_pci_irqs[] __initdata = {
 
 static int ap91_pci_plat_dev_init(struct pci_dev *dev)
 {
-	switch(PCI_SLOT(dev->devfn)) {
+	switch (PCI_SLOT(dev->devfn)) {
 	case 0:
 		dev->dev.platform_data = &ap91_wmac_data;
 		break;
 	}
 
 	return 0;
+}
+
+__init void ap91_pci_setup_wmac_led_pin(int pin)
+{
+	ap91_wmac_data.led_pin = pin;
+}
+
+__init void ap91_pci_setup_wmac_gpio(u32 mask, u32 val)
+{
+	ap91_wmac_data.gpio_mask = mask;
+	ap91_wmac_data.gpio_val = val;
 }
 
 void __init ap91_pci_init(u8 *cal_data, u8 *mac_addr)

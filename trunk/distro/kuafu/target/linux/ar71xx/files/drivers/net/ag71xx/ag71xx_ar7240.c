@@ -219,17 +219,17 @@ static inline void ar7240sw_init(struct ar7240sw *as, struct mii_bus *mii)
 
 static inline u16 mk_phy_addr(u32 reg)
 {
-	return (0x17 & ((reg >> 4) | 0x10));
+	return 0x17 & ((reg >> 4) | 0x10);
 }
 
 static inline u16 mk_phy_reg(u32 reg)
 {
-	return ((reg << 1) & 0x1e);
+	return (reg << 1) & 0x1e;
 }
 
 static inline u16 mk_high_addr(u32 reg)
 {
-	return ((reg >> 7) & 0x1ff);
+	return (reg >> 7) & 0x1ff;
 }
 
 static u32 __ar7240sw_reg_read(struct ar7240sw *as, u32 reg)
@@ -249,7 +249,7 @@ static u32 __ar7240sw_reg_read(struct ar7240sw *as, u32 reg)
 	lo = (u32) mdiobus_read(mii, phy_addr, phy_reg);
 	hi = (u32) mdiobus_read(mii, phy_addr, phy_reg + 1);
 
-	return ((hi << 16) | lo);
+	return (hi << 16) | lo;
 }
 
 static void __ar7240sw_reg_write(struct ar7240sw *as, u32 reg, u32 val)
@@ -352,7 +352,7 @@ static u16 ar7240sw_phy_read(struct ar7240sw *as, unsigned phy_addr,
 		return 0xffff;
 
 	t = ar7240sw_reg_read(as, AR7240_REG_MDIO_CTRL);
-	return (t & AR7240_MDIO_CTRL_DATA_M);
+	return t & AR7240_MDIO_CTRL_DATA_M;
 }
 
 static int ar7240sw_phy_write(struct ar7240sw *as, unsigned phy_addr,
@@ -414,7 +414,7 @@ static int ar7240sw_reset(struct ar7240sw *as)
 			   AR7240_MASK_CTRL_SOFT_RESET);
 
 	ret = ar7240sw_reg_wait(as, AR7240_REG_MASK_CTRL,
-			        AR7240_MASK_CTRL_SOFT_RESET, 0, 1000);
+				AR7240_MASK_CTRL_SOFT_RESET, 0, 1000);
 	return ret;
 }
 
@@ -518,7 +518,7 @@ static int ar7240_set_addr(struct ar7240sw *as, u8 *addr)
 
 static int
 ar7240_set_vid(struct switch_dev *dev, const struct switch_attr *attr,
-                struct switch_val *val)
+		struct switch_val *val)
 {
 	struct ar7240sw *as = sw_to_ar7240(dev);
 	as->vlan_id[val->port_vlan] = val->value.i;
@@ -527,7 +527,7 @@ ar7240_set_vid(struct switch_dev *dev, const struct switch_attr *attr,
 
 static int
 ar7240_get_vid(struct switch_dev *dev, const struct switch_attr *attr,
-                struct switch_val *val)
+		struct switch_val *val)
 {
 	struct ar7240sw *as = sw_to_ar7240(dev);
 	val->value.i = as->vlan_id[val->port_vlan];
@@ -613,7 +613,7 @@ ar7240_set_ports(struct switch_dev *dev, struct switch_val *val)
 
 static int
 ar7240_set_vlan(struct switch_dev *dev, const struct switch_attr *attr,
-                struct switch_val *val)
+		struct switch_val *val)
 {
 	struct ar7240sw *as = sw_to_ar7240(dev);
 	as->vlan = !!val->value.i;
@@ -622,7 +622,7 @@ ar7240_set_vlan(struct switch_dev *dev, const struct switch_attr *attr,
 
 static int
 ar7240_get_vlan(struct switch_dev *dev, const struct switch_attr *attr,
-                struct switch_val *val)
+		struct switch_val *val)
 {
 	struct ar7240sw *as = sw_to_ar7240(dev);
 	val->value.i = as->vlan;
@@ -770,7 +770,8 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 
 	ver = (ctrl >> AR7240_MASK_CTRL_VERSION_S) & AR7240_MASK_CTRL_VERSION_M;
 	if (ver != 1) {
-		pr_err("%s: unsupported chip, ctrl=%08x\n", ag->dev->name, ctrl);
+		pr_err("%s: unsupported chip, ctrl=%08x\n",
+			ag->dev->name, ctrl);
 		return NULL;
 	}
 
@@ -790,11 +791,11 @@ static struct ar7240sw *ar7240_probe(struct ag71xx *ag)
 	swdev->ops = &ar7240_ops;
 
 	if (register_switch(&as->swdev, ag->dev) < 0) {
-	    kfree(as);
-	    return NULL;
+		kfree(as);
+		return NULL;
 	}
 
-	printk("%s: Found an AR7240 built-in switch\n", ag->dev->name);
+	pr_info("%s: Found an AR7240 built-in switch\n", ag->dev->name);
 
 	/* initialize defaults */
 	for (i = 0; i < AR7240_MAX_VLANS; i++)
@@ -824,7 +825,7 @@ void ag71xx_ar7240_stop(struct ag71xx *ag)
 {
 }
 
-int __init ag71xx_ar7240_init(struct ag71xx *ag)
+int __devinit ag71xx_ar7240_init(struct ag71xx *ag)
 {
 	struct ar7240sw *as;
 
@@ -838,7 +839,7 @@ int __init ag71xx_ar7240_init(struct ag71xx *ag)
 	return 0;
 }
 
-void __exit ag71xx_ar7240_cleanup(struct ag71xx *ag)
+void __devexit ag71xx_ar7240_cleanup(struct ag71xx *ag)
 {
 	struct ar7240sw *as = ag->phy_priv;
 

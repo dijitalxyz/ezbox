@@ -342,14 +342,14 @@ define Image/Build/CyberTAN
 	rm $(KDIR)/image.tmp
 endef
 
-wndr3700_mtdlayout=mtdparts=spi0.0:320k(u-boot)ro,128k(u-boot-env)ro,1024k(kernel),6656k(rootfs),64k(art)ro,7680k@0x70000(firmware)
-define Image/Build/WNDR3700
-	$(call PatchKernelLzma,$(2),$(3) $(wndr3700_mtdlayout))
+define Image/Build/Netgear
+	$(call PatchKernelLzma,$(2),$(3) $($(4)))
 	$(call MkImageLzma,$(KDIR)/vmlinux-$(2).bin.lzma,$(KDIR)/vmlinux-$(2).uImage)
 	mkdir -p $(KDIR)/wndr3700/image
 	$(STAGING_DIR_HOST)/bin/wndr3700 \
 		$(KDIR)/vmlinux-$(2).uImage \
-		$(KDIR)/wndr3700/image/uImage
+		$(KDIR)/wndr3700/image/uImage \
+		$(5)
 	$(STAGING_DIR_HOST)/bin/mksquashfs-lzma \
 		$(KDIR)/wndr3700 $(KDIR)/vmlinux-$(2).uImage.squashfs.tmp \
 		-nopad -noappend -root-owned -be
@@ -361,25 +361,58 @@ define Image/Build/WNDR3700
 		$(KDIR)/vmlinux-$(2).uImage.squashfs.tmp2
 	$(STAGING_DIR_HOST)/bin/wndr3700 \
 		$(KDIR)/vmlinux-$(2).uImage.squashfs.tmp2 \
-		$(KDIR)/vmlinux-$(2).uImage.squashfs
+		$(KDIR)/vmlinux-$(2).uImage.squashfs \
+		$(5)
 	-rm -f $(KDIR)/vmlinux-$(2).uImage.squashfs.tmp*
 	( \
 		dd if=$(KDIR)/vmlinux-$(2).uImage.squashfs bs=1024k conv=sync; \
 		dd if=$(KDIR)/root.$(1) bs=64k; \
 	) > $(call imgname,$(1),$(2))-sysupgrade.bin
 	$(STAGING_DIR_HOST)/bin/mkdniimg \
-		-B WNDR3700 -v OpenWrt.$(REVISION) \
+		-B $(6) -v OpenWrt.$(REVISION) \
 		-i $(call imgname,$(1),$(2))-sysupgrade.bin \
 		-o $(call imgname,$(1),$(2))-factory.img
+	$(STAGING_DIR_HOST)/bin/mkdniimg \
+		-B $(6) -v OpenWrt.$(REVISION) -r "NA" \
+		-i $(call imgname,$(1),$(2))-sysupgrade.bin \
+		-o $(call imgname,$(1),$(2))-factory-NA.img
 endef
 
-define Image/Build/WNDR3700/initramfs
-	$(call PatchKernelLzma,$(2),$(3) $(wndr3700_mtdlayout))
+define Image/Build/Netgear/initramfs
+	$(call PatchKernelLzma,$(2),$(3) $($(4)))
 	$(call MkImageLzma,$(KDIR)/vmlinux-$(2).bin.lzma,$(KDIR)/vmlinux-$(2).uImage)
 	$(STAGING_DIR_HOST)/bin/wndr3700 \
 		$(KDIR)/vmlinux-$(2).uImage \
-		$(call imgname,$(1),$(2))-uImage.bin
+		$(call imgname,$(1),$(2))-uImage.bin \
+		$(5)
 endef
+
+ifdef CONFIG_PACKAGE_uboot-ar71xx-nbg460n_550n_550nh
+  define Image/Build/ZyXEL
+	$(call PatchKernelLzma,$(2),$(3))
+	if [ `stat -c%s "$(KDIR)/vmlinux-$(2).bin.lzma"` -gt 917504 ]; then \
+		echo "Warning: $(KDIR)/vmlinux-$(2).bin.lzma is too big"; \
+	else if [ `stat -c%s $(KDIR)/root.$(1)` -gt 2752512 ]; then \
+		echo "Warning: $(KDIR)/root.$(1) is too big"; \
+	else if [ ! -f $(BIN_DIR)/$(IMG_PREFIX)-$(2)-u-boot.bin ]; then \
+		echo "Warning: $(IMG_PREFIX)-$(2)-u-boot.bin not found"; \
+	else \
+		mkimage -A mips -O linux -T kernel -a 0x80060000 -C lzma -e \
+			0x80060000 \
+			-n 'MIPS OpenWrt Linux-$(LINUX_VERSION)' \
+			-d $(KDIR)/vmlinux-$(2).bin.lzma $(KDIR)/vmlinux-$(2).uImage; \
+		( \
+			dd if=$(KDIR)/vmlinux-$(2).uImage bs=896k conv=sync; \
+			dd if=$(KDIR)/root.$(1); \
+		) > $(call imgname,$(1),$(2))-sysupgrade.bin; \
+		$(STAGING_DIR_HOST)/bin/mkzynfw \
+			-B $(4) \
+			-b $(BIN_DIR)/$(IMG_PREFIX)-$(2)-u-boot.bin \
+			-r $(call imgname,$(1),$(2))-sysupgrade.bin:0x10000 \
+			-o $(call imgname,$(1),$(2))-factory.bin; \
+	fi; fi; fi
+  endef
+endif
 
 define Image/Build/Zcomax
 	$(call PatchKernelLzma,$(2),$(3))
@@ -470,6 +503,14 @@ define Image/Build/Profile/EAP7660D
 	$(call Image/Build/Template/$(fs_128k)/$(1),PB4X,eap7660d,board=EAP7660D)
 endef
 
+define Image/Build/Profile/JA76PF
+	$(call Image/Build/Template/$(fs_64k)/$(1),PB4X,ja76pf,board=JA76PF)
+endef
+
+define Image/Build/Profile/JWAP003
+	$(call Image/Build/Template/$(fs_64k)/$(1),PB4X,jwap003,board=JWAP003)
+endef
+
 define Image/Build/Profile/FR54RTR
 	$(call Image/Build/Template/$(fs_64k)/$(1),Cameo7240,fr-54rtr,board=DIR-600-A1,"AP91-AR7240-RT-090223-01")
 endef
@@ -484,6 +525,7 @@ endef
 
 define Image/Build/Profile/TEW652BRP
 	$(call Image/Build/Template/$(fs_squash)/$(1),Cameo,tew-652brp,board=TEW-632BRP,"AP81-AR9130-RT-080609-05")
+	$(call Image/Build/Template/$(fs_squash)/$(1),Cameo,tew-652brp-recovery,board=TEW-632BRP,"AP81-AR9130-RT-070614-02")
 endef
 
 define Image/Build/Profile/A02RBW300N
@@ -514,6 +556,10 @@ define Image/Build/Profile/UBNTNANOM
 	$(call Image/Build/Template/$(fs_64k)/$(1),UBNTXM,ubnt-nano-m,board=UBNT-NM,XM,UBNTXM,ar7240)
 endef
 
+define Image/Build/Profile/UBNTUNIFI
+	$(call Image/Build/Template/$(fs_64k)/$(1),UBNTXM,ubnt-unifi,board=UBNT-XM,XM,UBNTXM,ar7240)
+endef
+
 define Image/Build/Profile/UBNT
 	$(call Image/Build/Profile/UBNTRS,$(1))
 	$(call Image/Build/Profile/UBNTRSPRO,$(1))
@@ -521,6 +567,7 @@ define Image/Build/Profile/UBNT
 	$(call Image/Build/Profile/UBNTBULLETM,$(1))
 	$(call Image/Build/Profile/UBNTROCKETM,$(1))
 	$(call Image/Build/Profile/UBNTNANOM,$(1))
+	$(call Image/Build/Profile/UBNTUNIFI,$(1))
 endef
 
 define Image/Build/Profile/MZKW04NU
@@ -531,6 +578,14 @@ define Image/Build/Profile/MZKW300NH
 	$(call Image/Build/Template/$(fs_64k)/$(1),Planex,mzk-w300nh,board=MZK-W300NH)
 endef
 
+define Image/Build/Profile/NBG_460N_550N_550NH
+	$(call Image/Build/Template/$(fs_64k)/$(1),ZyXEL,nbg460n_550n_550nh,board=NBG460N,NBG-460N)
+endef
+
+define Image/Build/Profile/TLMR3220V1
+	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-mr3220-v1,board=TL-MR3220,TL-MR3220v1)
+endef
+
 define Image/Build/Profile/TLMR3420V1
 	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-mr3420-v1,board=TL-MR3420,TL-MR3420v1)
 endef
@@ -539,8 +594,16 @@ define Image/Build/Profile/TLWA901NDV1
 	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-wa901nd-v1,board=TL-WA901ND,TL-WA901NDv1)
 endef
 
+define Image/Build/Profile/TLWA901NDV2
+	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-wa901nd-v2,board=TL-WA901ND-v2,TL-WA901NDv2)
+endef
+
 define Image/Build/Profile/TLWR741NDV1
 	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-wr741nd-v1,board=TL-WR741ND,TL-WR741NDv1)
+endef
+
+define Image/Build/Profile/TLWR740NV1
+	$(call Image/Build/Template/$(fs_4k)/$(1),TPLINK,tl-wr740n-v1,board=TL-WR741ND,TL-WR740Nv1)
 endef
 
 define Image/Build/Profile/TLWR841NV15
@@ -575,8 +638,11 @@ define Image/Build/Profile/TLWR1043NDV1
 	$(call Image/Build/Template/$(fs_squash)/$(1),TPLINK,tl-wr1043nd-v1,board=TL-WR1043ND,TL-WR1043NDv1)
 endef
 
+wndr3700_mtdlayout=mtdparts=spi0.0:320k(u-boot)ro,128k(u-boot-env)ro,1024k(kernel),6656k(rootfs),64k(art)ro,7680k@0x70000(firmware)
+wndr3700v2_mtdlayout=mtdparts=spi0.0:320k(u-boot)ro,128k(u-boot-env)ro,1024k(kernel),14848k(rootfs),64k(art)ro,15872k@0x70000(firmware)
 define Image/Build/Profile/WNDR3700
-	$(call Image/Build/Template/$(fs_64k)/$(1),WNDR3700,wndr3700,board=WNDR3700)
+	$(call Image/Build/Template/$(fs_64k)/$(1),Netgear,wndr3700,board=WNDR3700,wndr3700_mtdlayout,3700,WNDR3700)
+	$(call Image/Build/Template/$(fs_64k)/$(1),Netgear,wndr3700v2,board=WNDR3700v2,wndr3700v2_mtdlayout,3701,WNDR3700v2)
 endef
 
 define Image/Build/Profile/AP96
@@ -616,16 +682,22 @@ define Image/Build/Profile/Default
 	$(call Image/Build/Profile/DIR825B1,$(1))
 	$(call Image/Build/Profile/EAP7660D,$(1))
 	$(call Image/Build/Profile/FR54RTR,$(1))
+	$(call Image/Build/Profile/JA76PF,$(1))
+	$(call Image/Build/Profile/JWAP003,$(1))
 	$(call Image/Build/Profile/MZKW04NU,$(1))
 	$(call Image/Build/Profile/MZKW300NH,$(1))
+	$(call Image/Build/Profile/NBG_460N_550N_550NH,$(1))
 	$(call Image/Build/Profile/PB42,$(1))
 	$(call Image/Build/Profile/PB44,$(1))
 	$(call Image/Build/Profile/PB92,$(1))
 	$(call Image/Build/Profile/TEW632BRP,$(1))
 	$(call Image/Build/Profile/TEW652BRP,$(1))
+	$(call Image/Build/Profile/TLMR3220V1,$(1))
 	$(call Image/Build/Profile/TLMR3420V1,$(1))
 	$(call Image/Build/Profile/TLWA901NDV1,$(1))
+	$(call Image/Build/Profile/TLWA901NDV2,$(1))
 	$(call Image/Build/Profile/TLWR741NDV1,$(1))
+	$(call Image/Build/Profile/TLWR740NV1,$(1))
 	$(call Image/Build/Profile/TLWR841NV15,$(1))
 	$(call Image/Build/Profile/TLWR841NDV3,$(1))
 	$(call Image/Build/Profile/TLWR841NDV5,$(1))

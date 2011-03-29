@@ -30,7 +30,6 @@ config AR71XX_MACH_AP96
 
 config AR71XX_MACH_DIR_600_A1
 	bool "D-Link DIR-600 rev. A1 support"
-	select AR71XX_DEV_AP91_ETH
 	select AR71XX_DEV_AP91_PCI if PCI
 	select AR71XX_DEV_M25P80
 	select AR71XX_DEV_GPIO_BUTTONS
@@ -53,6 +52,23 @@ config AR71XX_MACH_DIR_825_B1
 	select AR71XX_DEV_AP94_PCI if PCI
 	select AR71XX_DEV_GPIO_BUTTONS
 	select AR71XX_DEV_LEDS_GPIO
+	select AR71XX_DEV_USB
+	default n
+
+config AR71XX_MACH_JA76PF
+	bool "jjPlus JA76PF board support"
+	select AR71XX_DEV_M25P80
+	select AR71XX_DEV_GPIO_BUTTONS
+	select AR71XX_DEV_PB42_PCI if PCI
+	select AR71XX_DEV_LEDS_GPIO
+	select AR71XX_DEV_USB
+	default n
+
+config AR71XX_MACH_JWAP003
+	bool "jjPlus JWAP003 board support"
+	select AR71XX_DEV_M25P80
+	select AR71XX_DEV_GPIO_BUTTONS
+	select AR71XX_DEV_PB42_PCI if PCI
 	select AR71XX_DEV_USB
 	default n
 
@@ -132,7 +148,6 @@ config AR71XX_MACH_RB4XX
 
 config AR71XX_MACH_RB750
 	bool "MikroTik RouterBOARD 750 support"
-	select AR71XX_DEV_AP91_ETH
 	default n
 
 config AR71XX_MACH_WNDR3700
@@ -177,8 +192,8 @@ config AR71XX_MACH_NBG460N
 	select AR71XX_DEV_LEDS_GPIO
 	default n
 
-config AR71XX_MACH_TL_MR3420
-	bool "TP-LINK TL-MR3420 support"
+config AR71XX_MACH_TL_MR3X20
+	bool "TP-LINK TL-MR3220/3420 support"
 	select AR71XX_DEV_M25P80
 	select AR71XX_DEV_AP91_PCI if PCI
 	select AR71XX_DEV_GPIO_BUTTONS
@@ -190,7 +205,14 @@ config AR71XX_MACH_TL_WA901ND
 	bool "TP-LINK TL-WA901ND support"
 	select AR71XX_DEV_M25P80
 	select AR71XX_DEV_AP91_PCI if PCI
-	select AR71XX_DEV_DSA
+	select AR71XX_DEV_GPIO_BUTTONS
+	select AR71XX_DEV_LEDS_GPIO
+	default n
+
+config AR71XX_MACH_TL_WA901ND_V2
+	bool "TP-LINK TL-WA901ND v2 support"
+	select AR71XX_DEV_M25P80
+	select AR71XX_DEV_AR913X_WMAC
 	select AR71XX_DEV_GPIO_BUTTONS
 	select AR71XX_DEV_LEDS_GPIO
 	default n
@@ -293,10 +315,6 @@ config AR71XX_DEV_M25P80
 
 config AR71XX_DEV_AP91_PCI
 	select AR71XX_PCI_ATH9K_FIXUP
-	def_bool n
-
-config AR71XX_DEV_AP91_ETH
-	select AR71XX_DEV_DSA
 	def_bool n
 
 config AR71XX_DEV_AP94_PCI

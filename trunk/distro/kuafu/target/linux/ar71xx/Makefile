@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2008-2010 OpenWrt.org
+# Copyright (C) 2008-2011 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -10,11 +10,11 @@ ARCH:=mips
 BOARD:=ar71xx
 BOARDNAME:=Atheros AR71xx/AR7240/AR913x
 FEATURES:=squashfs jffs2 targz
-CFLAGS:=-Os -pipe -mips32r2 -mtune=mips32r2 -funit-at-a-time
+CFLAGS:=-Os -pipe -mips32r2 -mtune=mips32r2 -fno-caller-saves
 SUBTARGETS:=generic nand
 INITRAMFS_EXTRA_FILES:=$(TOPDIR)/target/linux/$(BOARD)/image/initramfs-base-files.txt
 
-LINUX_VERSION:=2.6.32.20
+LINUX_VERSION:=2.6.37.4
 
 include $(INCLUDE_DIR)/target.mk
 

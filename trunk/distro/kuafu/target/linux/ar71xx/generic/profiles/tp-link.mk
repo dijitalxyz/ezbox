@@ -5,9 +5,20 @@
 # See /LICENSE for more information.
 #
 
+define Profile/TLMR3220V1
+	NAME:=TP-LINK TL-MR3220 v1
+	PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev
+endef
+
+define Profile/TLMR3220V1/Description
+	Package set optimized for the TP-LINK TL-MR3220 v1.
+endef
+
+$(eval $(call Profile,TLMR3220V1))
+
 define Profile/TLMR3420V1
 	NAME:=TP-LINK TL-MR3420 v1
-	PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb2
+	PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev
 endef
 
 define Profile/TLMR3420V1/Description
@@ -27,6 +38,17 @@ endef
 
 $(eval $(call Profile,TLWA901NDV1))
 
+define Profile/TLWA901NDV2
+	NAME:=TP-LINK TL-WA901ND v2
+	PACKAGES:=kmod-ath9k wpad-mini
+endef
+
+define Profile/TLWA901NDV2/Description
+	Package set optimized for the TP-LINK TL-WA901ND v2.
+endef
+
+$(eval $(call Profile,TLWA901NDV2))
+
 define Profile/TLWR741NDV1
 	NAME:=TP-LINK TL-WR741ND v1
 	PACKAGES:=kmod-ath9k wpad-mini
@@ -37,6 +59,17 @@ define Profile/TLWR741NDV1/Description
 endef
 
 $(eval $(call Profile,TLWR741NDV1))
+
+define Profile/TLWR740NV1
+	NAME:=TP-LINK TL-WR740N v1
+	PACKAGES:=kmod-ath9k wpad-mini
+endef
+
+define Profile/TLWR740NV1/Description
+	Package set optimized for the TP-LINK TL-WR740N v1.
+endef
+
+$(eval $(call Profile,TLWR740NV1))
 
 define Profile/TLWR841NV15
 	NAME:=TP-LINK TL-WR841N v1.5
@@ -117,7 +150,7 @@ $(eval $(call Profile,TLWR941NDV4))
 
 define Profile/TLWR1043NDV1
 	NAME:=TP-LINK TL-WR1043ND v1
-	PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb2
+	PACKAGES:=kmod-ath9k wpad-mini kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev
 endef
 
 define Profile/TLWR1043NDV1/Description

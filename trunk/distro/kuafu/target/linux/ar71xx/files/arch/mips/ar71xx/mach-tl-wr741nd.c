@@ -16,7 +16,6 @@
 #include "machtype.h"
 #include "devices.h"
 #include "dev-m25p80.h"
-#include "dev-ap91-eth.h"
 #include "dev-ap91-pci.h"
 #include "dev-gpio-buttons.h"
 #include "dev-leds-gpio.h"
@@ -36,20 +35,20 @@ static struct mtd_partition tl_wr741nd_partitions[] = {
 		.offset		= 0,
 		.size		= 0x020000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "kernel",
 		.offset		= 0x020000,
 		.size		= 0x140000,
-	} , {
+	}, {
 		.name		= "rootfs",
 		.offset		= 0x160000,
 		.size		= 0x290000,
-	} , {
+	}, {
 		.name		= "art",
 		.offset		= 0x3f0000,
 		.size		= 0x010000,
 		.mask_flags	= MTD_WRITEABLE,
-	} , {
+	}, {
 		.name		= "firmware",
 		.offset		= 0x020000,
 		.size		= 0x3d0000,
@@ -59,8 +58,8 @@ static struct mtd_partition tl_wr741nd_partitions[] = {
 
 static struct flash_platform_data tl_wr741nd_flash_data = {
 #ifdef CONFIG_MTD_PARTITIONS
-        .parts          = tl_wr741nd_partitions,
-        .nr_parts       = ARRAY_SIZE(tl_wr741nd_partitions),
+	.parts		= tl_wr741nd_partitions,
+	.nr_parts	= ARRAY_SIZE(tl_wr741nd_partitions),
 #endif
 };
 
@@ -125,6 +124,8 @@ static void __init tl_wr741nd_setup(void)
 	ar71xx_add_device_mdio(0x0);
 	ar71xx_add_device_eth(1);
 	ar71xx_add_device_eth(0);
+
+	ap91_pci_setup_wmac_led_pin(1);
 
 	ap91_pci_init(ee, mac);
 }
