@@ -16,7 +16,8 @@ PKG_SOURCE_URL:=http://www.ijg.org/files/ \
         ftp://ftp.uu.net/graphics/jpeg/
 PKG_MD5SUM:=dbd5f3b47ed13132f04c685d608a7547
 
-PKG_FIXUP = libtool
+PKG_FIXUP:=libtool
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -53,21 +54,24 @@ HOST_CONFIGURE_ARGS += \
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	# replace the old upstream libtool stuff with our own
-	ln -sf $(STAGING_DIR)/host/bin/libtool $(PKG_BUILD_DIR)/
-	ln -sf $(STAGING_DIR)/host/share/libtool/config.sub $(PKG_BUILD_DIR)/
-	ln -sf $(STAGING_DIR)/host/share/libtool/config.guess $(PKG_BUILD_DIR)/
-	ln -sf $(STAGING_DIR)/host/share/libtool/ltmain.sh $(PKG_BUILD_DIR)/
-	ln -sf /bin/true $(PKG_BUILD_DIR)/ltconfig
+	(cd $(PKG_BUILD_DIR); \
+		rm -f ltconfig ltmain.sh libtool; \
+		ln -s `which true` ltconfig; \
+		ln -s $(STAGING_DIR)/host/bin/libtool libtool; \
+	)
 endef
 
 define Build/Compile
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/{include,lib,bin,man/man1}
-	$(MAKE) -C $(PKG_BUILD_DIR) \
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		LIBTOOL="./libtool --tag=CC" \
 		prefix="$(PKG_INSTALL_DIR)/usr" \
 		exec_prefix="$(PKG_INSTALL_DIR)/usr" \
-		all install install-headers install-lib
+		all
+	$(MAKE) -C $(PKG_BUILD_DIR) \
+		prefix="$(PKG_INSTALL_DIR)/usr" \
+		exec_prefix="$(PKG_INSTALL_DIR)/usr" \
+		install install-headers install-lib
 endef
 
 define Build/InstallDev

@@ -129,8 +129,8 @@ include $(INCLUDE_DIR)/package.mk
 define Package/freeswitch/Default
   SECTION:=net
   CATEGORY:=Network
+  SUBMENU:=Telephony
   URL:=http://www.freeswitch.org/
-  MAINTAINER:=Daniel Dickinson <openwrt@cshore.neomailbox.net>
 endef
 
 

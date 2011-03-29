@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2007 OpenWrt.org
+# Copyright (C) 2007-2011 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,27 +8,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=glib2
-PKG_VERSION:=2.22.2
-PKG_RELEASE:=1
+PKG_VERSION:=2.26.1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=glib-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/glib-$(PKG_VERSION)
-PKG_SOURCE_URL:=@GNOME/glib/2.22
-PKG_MD5SUM:=846a86c74b74d5b16826aa5508940f9b
+PKG_SOURCE_URL:=@GNOME/glib/2.26
+PKG_MD5SUM:=17535accceef55bcb17a74d73f9c2aef
 
-PKG_FIXUP:=libtool
-PKG_BUILD_DEPENDS:=glib2/host
+PKG_FIXUP:=autoreconf
+PKG_BUILD_DEPENDS:=glib2/host libpthread zlib
+HOST_BUILD_DEPENDS:=gettext/host libiconv/host
 PKG_INSTALL:=1
 
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/glib-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/glib2
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libiconv +libintl
+  DEPENDS:=$(ICONV_DEPENDS) $(INTL_DEPENDS)
   TITLE:=glib 2.0
   URL:=http://www.gtk.org/
 endef
@@ -37,15 +39,6 @@ define Package/glib2/description
   The GLib library of C routines
 endef
 
-TARGET_CFLAGS+= \
-	$(FPIC) \
-	-I$(STAGING_DIR)/usr/lib/libiconv/include \
-	-I$(STAGING_DIR)/usr/lib/libintl/include
-
-TARGET_LDFLAGS+= \
-	-L$(STAGING_DIR)/usr/lib/libiconv/lib \
-	-L$(STAGING_DIR)/usr/lib/libintl/lib
-
 define Build/Configure
 	$(call Build/Configure/Default, \
 		--enable-shared \
@@ -53,11 +46,14 @@ define Build/Configure
 		--enable-debug=no \
 		--disable-selinux \
         --disable-fam \
+        $(if $(ICONV_FULL),--with-libiconv=gnu) \
 		, \
 		glib_cv_stack_grows=no \
 		glib_cv_uscore=no \
 		ac_cv_path_GLIB_GENMARSHAL=$(STAGING_DIR_HOST)/bin/glib-genmarshal \
 		ac_cv_func_mmap_fixed_mapped=yes \
+		ac_cv_func_posix_getpwuid_r=yes \
+		ac_cv_func_posix_getgrgid_r=yes \
 	);
 endef
 

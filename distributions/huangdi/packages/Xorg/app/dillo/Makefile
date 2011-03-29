@@ -20,6 +20,7 @@ PKG_SOURCE_URL:=http://hg.dillo.org/dillo
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/dillo
   SECTION:=xorg-app
@@ -27,7 +28,7 @@ define Package/dillo
   SUBMENU:=app
   TITLE:=Dillo2
   URL:=http://fltk.org/
-  DEPENDS:=+libstdcpp +libpthread +zlib +fltk2 +libjpeg +libiconv +libpng
+  DEPENDS:=+libstdcpp +libpthread +zlib +fltk2 +libjpeg +libpng $(ICONV_DEPENDS)
 endef
 
 define Package/dillo/description
@@ -39,8 +40,8 @@ define Package/dillo/description
   Note: This is the fltk2 based dillo.
 endef
 
-EXTRA_CPPFLAGS+=-I$(STAGING_DIR)/usr/lib/libiconv/include
-EXTRA_LDFLAGS+=-L$(STAGING_DIR)/usr/lib/libiconv/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
+EXTRA_CPPFLAGS+=-I$(ICONV_PREFIX)/include
+EXTRA_LDFLAGS+=-L$(ICONV_PREFIX)/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); ./autogen.sh );
@@ -52,8 +53,8 @@ define Build/Install
 endef
 
 define Package/dillo/install
-	$(INSTALL_DIR) $(1)/etc/dillo $(1)/usr/share/applications $(1)/usr/share/icons
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/dillo/* $(1)/etc/dillo
+	$(INSTALL_DIR) $(1)/etc $(1)/usr/share/applications $(1)/usr/share/icons
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/* $(1)/etc/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dillo $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dpid $(1)/usr/bin

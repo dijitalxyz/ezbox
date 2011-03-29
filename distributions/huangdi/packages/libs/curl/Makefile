@@ -34,6 +34,7 @@ endef
 
 define Package/curl
   $(call Package/curl/Default)
+  SUBMENU:=File Transfer
   DEPENDS:=+libcurl
   TITLE:=A client-side URL transfer utility
 endef
@@ -77,6 +78,7 @@ CONFIGURE_ARGS += \
 	--without-nss \
 	--without-libssh2 \
 	--with-zlib="$(STAGING_DIR)/usr" \
+	$(call autoconf_bool,CONFIG_IPV6,ipv6) \
 
 CONFIGURE_VARS += \
 	LDFLAGS="$$$$LDFLAGS -lcrypto -lssl -lz" \

@@ -11,6 +11,7 @@ PKG_NAME:=gettext
 PKG_RELEASE:=2
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
 
 define Package/libintl
   SECTION:=libs
@@ -30,11 +31,27 @@ define Build/Compile
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/include/libintl.h $(1)/usr/include/
+	$(INSTALL_DIR) $(1)/usr/lib/libintl-stub/include
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/include/libintl.h $(1)/usr/lib/libintl-stub/include/
 
 	$(INSTALL_DIR) $(1)/usr/share/aclocal
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/m4/* $(1)/usr/share/aclocal/
+endef
+
+define Host/Prepare
+	mkdir -p $(HOST_BUILD_DIR)
+endef
+
+define Host/Compile
+
+endef
+
+define Host/Install
+	$(INSTALL_DIR) $(STAGING_DIR_HOST)/include
+	$(INSTALL_DATA) ./src/include/libintl.h $(STAGING_DIR_HOST)/include/
+
+	$(INSTALL_DIR) $(STAGING_DIR_HOST)/share/aclocal
+	$(INSTALL_DATA) ./src/m4/* $(STAGING_DIR_HOST)/share/aclocal/
 endef
 
 define Package/libintl/install
@@ -42,4 +59,5 @@ define Package/libintl/install
 	touch $(1)/tmp/.libintl-placeholder
 endef
 
+$(eval $(call HostBuild))
 $(eval $(call BuildPackage,libintl))
