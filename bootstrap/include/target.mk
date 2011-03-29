@@ -12,9 +12,9 @@ __target_inc=1
 DEVICE_TYPE?=router
 
 # Default packages - the really basic set
-DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg udevtrigger hotplug2
+DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg hotplug2
 # ezbox special settings
-DEFAULT_PACKAGES:=ezcfg libc libgcc busybox udevtrigger hotplug2
+DEFAULT_PACKAGES:=ezcfg libc libgcc busybox hotplug2
 # For router targets
 DEFAULT_PACKAGES.router:=dnsmasq iptables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall
 DEFAULT_PACKAGES.bootloader:=
@@ -159,17 +159,17 @@ ifeq ($(DUMP),1)
     # remove duplicates
     FEATURES:=$(sort $(FEATURES))
   endif
-  DEFAULT_CFLAGS_i386=-O2 -pipe -march=i486 -funit-at-a-time
-  DEFAULT_CFLAGS_x86_64=-O2 -pipe -march=athlon64 -funit-at-a-time
-  DEFAULT_CFLAGS_m68k=-Os -pipe -mcfv4e -funit-at-a-time
-  DEFAULT_CFLAGS_mips=-Os -pipe -mips32 -mtune=mips32 -funit-at-a-time
+  DEFAULT_CFLAGS_i386=-O2 -pipe -march=i486 -fno-caller-saves
+  DEFAULT_CFLAGS_x86_64=-O2 -pipe -march=athlon64 -fno-caller-saves
+  DEFAULT_CFLAGS_m68k=-Os -pipe -mcfv4e -fno-caller-saves
+  DEFAULT_CFLAGS_mips=-Os -pipe -mips32 -mtune=mips32 -fno-caller-saves
   DEFAULT_CFLAGS_mipsel=$(DEFAULT_CFLAGS_mips)
-  DEFAULT_CFLAGS_mips64=-Os -pipe -mips64 -mtune=mips64 -mabi=64 -funit-at-a-time
+  DEFAULT_CFLAGS_mips64=-Os -pipe -mips64 -mtune=mips64 -mabi=64 -fno-caller-saves
   DEFAULT_CFLAGS_mips64el=$(DEFAULT_CFLAGS_mips64)
-  DEFAULT_CFLAGS_sparc=-Os -pipe -mcpu=ultrasparc -funit-at-a-time
-  DEFAULT_CFLAGS_arm=-Os -pipe -march=armv5te -mtune=xscale -funit-at-a-time
+  DEFAULT_CFLAGS_sparc=-Os -pipe -mcpu=ultrasparc -fno-caller-saves
+  DEFAULT_CFLAGS_arm=-Os -pipe -march=armv5te -mtune=xscale -fno-caller-saves
   DEFAULT_CFLAGS_armeb=$(DEFAULT_CFLAGS_arm)
-  DEFAULT_CFLAGS=$(if $(DEFAULT_CFLAGS_$(ARCH)),$(DEFAULT_CFLAGS_$(ARCH)),-Os -pipe -funit-at-a-time)
+  DEFAULT_CFLAGS=$(if $(DEFAULT_CFLAGS_$(ARCH)),$(DEFAULT_CFLAGS_$(ARCH)),-Os -pipe -fno-caller-saves)
 endif
 
 define BuildTargets/DumpCurrent

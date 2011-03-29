@@ -39,8 +39,10 @@ define autoreconf
 				touch NEWS AUTHORS COPYING ChangeLog; \
 				$(AM_TOOL_PATHS) $(STAGING_DIR_HOST)/bin/autoreconf -v -f -i -s \
 					-B $(STAGING_DIR_HOST)/share/aclocal \
-					$(patsubst %,-B %,$(5)) \
+					$(patsubst %,-I %,$(5)) \
 					$(patsubst %,-I %,$(4)) $(4) || true; \
+				[ -e $(p)/config.rpath ] || \
+						ln -s $(SCRIPT_DIR)/config.rpath $(p)/config.rpath;
 			fi; \
 		) \
 	);
