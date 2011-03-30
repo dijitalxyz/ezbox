@@ -53,8 +53,8 @@ define Build/Install
 endef
 
 define Package/dillo/install
-	$(INSTALL_DIR) $(1)/etc $(1)/usr/share/applications $(1)/usr/share/icons
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/* $(1)/etc/
+	$(INSTALL_DIR) $(1)/etc/dillo $(1)/usr/share/applications $(1)/usr/share/icons
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/dillo/* $(1)/etc/dillo
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dillo $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dpid $(1)/usr/bin

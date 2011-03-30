@@ -15,7 +15,7 @@
 +AC_MSG_RESULT(yes)
 +     LIBFLTK_CXXFLAGS="-I. -I/usr/include/freetype2 -Wno-non-virtual-dtor"
 +     LIBFLTK_CFLAGS="-I."
-+     LIBFLTK_LIBS="-L./lib -Wl,-rpath,/usr/local/lib -lfltk2_images -lfltk2_images -lfltk2 -lX11 -lXi -lXft -lpthread -lm -lXext -lsupc++"
++     LIBFLTK_LIBS="-L./lib -Wl,-rpath,/usr/local/lib -lfltk2_images -lfltk2_images -lfltk2 -lX11 -lXi -lpthread -lm -lXext -lsupc++"
  
  
  dnl ----------------
