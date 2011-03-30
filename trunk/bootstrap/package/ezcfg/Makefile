@@ -24,6 +24,7 @@ PKG_INSTALL:=1
 PKG_BUILD_DEPENDS:=opkg/host
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 # set to 1 to enable debugging
 DEBUG=0
