@@ -8,8 +8,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=emc2
-PKG_VERSION:=20110131
-PKG_REV:=7bc299e60228754e3460baecdb020e77ac37399a
+PKG_VERSION:=20110329
+PKG_REV:=2cde0fe800ccd34b48c3df454085640eac8018a6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -22,6 +22,7 @@ PKG_INSTALL:=1
 PKG_FIXUP:=libtool
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/nls.mk
 
 define Package/emc2
   SECTION:=utils
@@ -29,6 +30,7 @@ define Package/emc2
   TITLE:=EMC (the Enhanced Machine Control)
   DEPENDS:=+rtai +glib2 +tcl +tk \
   +libreadline +libncurses \
+  +USE_UCLIBC:librpc \
   +FEATURE_gui-toolkit_FLTK2:fltk2 \
   +FEATURE_gui-toolkit_GTK2:gtk2 \
   +FEATURE_drawing-backend_nxlib:nxlib \
@@ -62,7 +64,7 @@ define Build/Configure
 		,src)
 endef
 
-TARGET_EXTRA_LIBS:= -lpng -lz -lexpat
+TARGET_EXTRA_LIBS:= -lpng -lz -lexpat -lintl $(LIBRPC)
 FLTK2_EXTRA_LIBS:= 
 GTK2_EXTRA_LIBS:= -lpixman-1
 
@@ -76,6 +78,8 @@ TARGET_LDFLAGS += \
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
 		BUILD_VERBOSE=1 \
+		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
+		TARGET_CXXFLAGS="$(TARGET_CFLAGS)" \
 		TARGET_LDFLAGS="$(TARGET_LDFLAGS)" \
 		CC="$(TARGET_CC)" \
 		AR="$(TARGET_CROSS)ar"
@@ -85,6 +89,8 @@ define Build/Install
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
 		BUILD_VERBOSE=1 \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
+		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
+		TARGET_CXXFLAGS="$(TARGET_CFLAGS)" \
 		TARGET_LDFLAGS="$(TARGET_LDFLAGS)" \
 		CC="$(TARGET_CC)" \
 		AR="$(TARGET_CROSS)ar" \
