@@ -29,5 +29,6 @@ package/busybox/
 package/hotplug2/
 package/kernel/
 package/libtool/
+package/librpc/
 package/ocf-crypto-headers/
 package/opkg/
