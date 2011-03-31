@@ -29,6 +29,12 @@ config EZCFG_EZBOX_DISTRO_JINGWEI
 	help
 	  ezbox Jingwei distro is for VoIP service gateway.
 
+config EZCFG_EZBOX_DISTRO_QIAOCHUI
+	bool "Qiaochui"
+	default n
+	help
+	  ezbox Qiaochui distro is for CNC machine control.
+
 endchoice
 
 endmenu

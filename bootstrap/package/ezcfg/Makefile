@@ -36,7 +36,7 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
-  DEPENDS:= +libpthread
+  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS)
 endef
 
 define Package/ezcfg/description
@@ -52,12 +52,16 @@ ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_KUAFU),)
   EZBOX_DISTRO = "kuafu"
 endif
 
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI),)
+  EZBOX_DISTRO = "huangdi"
+endif
+
 ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_JINGWEI),)
   EZBOX_DISTRO = "jingwei"
 endif
 
-ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI),)
-  EZBOX_DISTRO = "huangdi"
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_QIAOCHUI),)
+  EZBOX_DISTRO = "qiaochui"
 endif
 
 CONFIGURE_ARGS += \
