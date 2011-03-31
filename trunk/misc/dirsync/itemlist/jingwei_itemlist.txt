@@ -1,0 +1,23 @@
+#########################
+# distro/jingwei/ directory
+#########################
+package/dnsmasq/
+package/dropbear/
+package/e2fsprogs/
+package/iproute2/
+package/libreadline/
+package/lua/
+package/ncurses/
+package/openssl/
+package/zlib/
+target/linux/x86/
+#########################
+# distributions/jingwei/ directory
+#########################
+packages/libs/freetype/
+packages/libs/gettext-full/
+packages/libs/jpeg/
+packages/libs/libiconv-full/
+packages/libs/libpng/
+packages/libs/sqlite3/
+packages/net/freeswitch/

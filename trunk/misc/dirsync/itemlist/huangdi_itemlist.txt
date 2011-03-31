@@ -1,5 +1,5 @@
 #########################
-# distro/jingwei/ directory
+# distro/huangdi/ directory
 #########################
 package/dnsmasq/
 package/dropbear/
@@ -12,12 +12,26 @@ package/openssl/
 package/zlib/
 target/linux/x86/
 #########################
-# distributions/jingwei/ directory
+# distributions/huangdi/ directory
 #########################
+packages/lang/tcl/
+packages/libs/curl/
+packages/libs/expat/
 packages/libs/freetype/
+packages/libs/gettext/
 packages/libs/gettext-full/
+packages/libs/glib2/
 packages/libs/jpeg/
 packages/libs/libiconv/
+packages/libs/libiconv-full/
 packages/libs/libpng/
+packages/libs/lzo/
 packages/libs/sqlite3/
+packages/libs/tiff/
+packages/net/bind/
 packages/net/freeswitch/
+packages/net/openvpn/
+packages/Xorg/app/dillo/
+packages/Xorg/lib/fltk2/
+packages/Xorg/xorg/app/fontconfig/
+packages/Xorg/xserver/microwin/

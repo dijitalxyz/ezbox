@@ -1,4 +1,4 @@
 1) Modify itemlist.txt
 2) Run command to generate diffs between source and dest dirs.
-	./gen_diff.sh <source dir> <dest dir>
+	./gen_diff.sh <source dir> <dest dir> <itemlist file>
 3) The diffs will put in diff/ directory
