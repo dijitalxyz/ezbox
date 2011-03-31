@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Wed Mar 30 16:29:04 2011
+# Thu Mar 31 11:43:00 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -992,7 +992,6 @@ CONFIG_BUSYBOX_CONFIG_LOGREAD=y
 # CONFIG_BUSYBOX_CONFIG_FEATURE_LOGREAD_REDUCED_LOCKING is not set
 CONFIG_BUSYBOX_CONFIG_KLOGD=y
 CONFIG_BUSYBOX_CONFIG_LOGGER=y
-CONFIG_PACKAGE_dnsmasq=y
 CONFIG_PACKAGE_dropbear=y
 CONFIG_PACKAGE_ezcfg=y
 
@@ -1004,8 +1003,9 @@ CONFIG_PACKAGE_ezcfg=y
 # ezcfg Settings
 #
 # CONFIG_EZCFG_EZBOX_DISTRO_KUAFU is not set
-CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI=y
+# CONFIG_EZCFG_EZBOX_DISTRO_HUANGDI is not set
 # CONFIG_EZCFG_EZBOX_DISTRO_JINGWEI is not set
+CONFIG_EZCFG_EZBOX_DISTRO_QIAOCHUI=y
 
 #
 # Utilities
@@ -1023,32 +1023,15 @@ CONFIG_PACKAGE_libstdcpp=y
 # CONFIG_PACKAGE_opkg is not set
 
 #
-# Utilities
+# Network
 #
 
 #
-# Filesystem
+# Routing and Redirection
 #
-CONFIG_PACKAGE_badblocks=y
-# CONFIG_PACKAGE_blkid is not set
-CONFIG_PACKAGE_e2fsprogs=y
-CONFIG_PACKAGE_resize2fs=y
-CONFIG_PACKAGE_tune2fs=y
-CONFIG_PACKAGE_uuidgen=y
-
-#
-# database
-#
-CONFIG_PACKAGE_sqlite3-cli=y
-# CONFIG_PACKAGE_dropbearconvert is not set
-CONFIG_PACKAGE_emc2=y
-CONFIG_PACKAGE_iconv=y
-# CONFIG_PACKAGE_jpeg-tools is not set
-# CONFIG_PACKAGE_ldconfig is not set
-# CONFIG_PACKAGE_ldd is not set
-# CONFIG_PACKAGE_ocf-crypto-headers is not set
-# CONFIG_PACKAGE_openssl-util is not set
-# CONFIG_PACKAGE_tiff-utils is not set
+CONFIG_PACKAGE_ip=y
+# CONFIG_PACKAGE_genl is not set
+# CONFIG_PACKAGE_tc is not set
 
 #
 # Real-Time
@@ -1058,137 +1041,6 @@ CONFIG_PACKAGE_iconv=y
 # RTAI
 #
 CONFIG_PACKAGE_rtai=y
-
-#
-# Network
-#
-
-#
-# File Transfer
-#
-# CONFIG_PACKAGE_curl is not set
-
-#
-# IP Addresses and Names
-#
-CONFIG_PACKAGE_bind-check=y
-CONFIG_PACKAGE_bind-client=y
-# CONFIG_PACKAGE_bind-dig is not set
-CONFIG_PACKAGE_bind-dnssec=y
-# CONFIG_PACKAGE_bind-host is not set
-CONFIG_PACKAGE_bind-rndc=y
-CONFIG_PACKAGE_bind-server=y
-CONFIG_PACKAGE_bind-tools=y
-
-#
-# Routing and Redirection
-#
-CONFIG_PACKAGE_ip=y
-
-#
-# Telephony
-#
-CONFIG_PACKAGE_freeswitch=y
-CONFIG_PACKAGE_freeswitch-collection-minimal=y
-# CONFIG_PACKAGE_freeswitch-collection-upstream-defaults is not set
-CONFIG_PACKAGE_freeswitch-config-minimal=y
-# CONFIG_PACKAGE_freeswitch-config-upstream-defaults is not set
-# CONFIG_PACKAGE_freeswitch-example-config is not set
-# CONFIG_PACKAGE_freeswitch-mod-alsa is not set
-# CONFIG_PACKAGE_freeswitch-mod-amr is not set
-# CONFIG_PACKAGE_freeswitch-mod-amrwb is not set
-# CONFIG_PACKAGE_freeswitch-mod-bv is not set
-# CONFIG_PACKAGE_freeswitch-mod-cdr-csv is not set
-# CONFIG_PACKAGE_freeswitch-mod-celt is not set
-# CONFIG_PACKAGE_freeswitch-mod-cidlookup is not set
-# CONFIG_PACKAGE_freeswitch-mod-cluechoo is not set
-CONFIG_PACKAGE_freeswitch-mod-commands=y
-# CONFIG_PACKAGE_freeswitch-mod-conference is not set
-# CONFIG_PACKAGE_freeswitch-mod-console is not set
-# CONFIG_PACKAGE_freeswitch-mod-curl is not set
-# CONFIG_PACKAGE_freeswitch-mod-dahdi-codec is not set
-# CONFIG_PACKAGE_freeswitch-mod-dialplan-asterisk is not set
-# CONFIG_PACKAGE_freeswitch-mod-dialplan-directory is not set
-CONFIG_PACKAGE_freeswitch-mod-dialplan-xml=y
-# CONFIG_PACKAGE_freeswitch-mod-dingaling is not set
-# CONFIG_PACKAGE_freeswitch-mod-directory is not set
-# CONFIG_PACKAGE_freeswitch-mod-distributor is not set
-CONFIG_PACKAGE_freeswitch-mod-dptools=y
-# CONFIG_PACKAGE_freeswitch-mod-easyroute is not set
-# CONFIG_PACKAGE_freeswitch-mod-enum is not set
-# CONFIG_PACKAGE_freeswitch-mod-esf is not set
-# CONFIG_PACKAGE_freeswitch-mod-event-multicast is not set
-CONFIG_PACKAGE_freeswitch-mod-event-socket=y
-# CONFIG_PACKAGE_freeswitch-mod-expr is not set
-# CONFIG_PACKAGE_freeswitch-mod-fax is not set
-# CONFIG_PACKAGE_freeswitch-mod-fifo is not set
-# CONFIG_PACKAGE_freeswitch-mod-file-string is not set
-# CONFIG_PACKAGE_freeswitch-mod-flite is not set
-# CONFIG_PACKAGE_freeswitch-mod-fsv is not set
-# CONFIG_PACKAGE_freeswitch-mod-g723-1 is not set
-# CONFIG_PACKAGE_freeswitch-mod-g729 is not set
-# CONFIG_PACKAGE_freeswitch-mod-h26x is not set
-# CONFIG_PACKAGE_freeswitch-mod-ilbc is not set
-# CONFIG_PACKAGE_freeswitch-mod-lcr is not set
-# CONFIG_PACKAGE_freeswitch-mod-limit is not set
-CONFIG_PACKAGE_freeswitch-mod-local-stream=y
-# CONFIG_PACKAGE_freeswitch-mod-logfile is not set
-# CONFIG_PACKAGE_freeswitch-mod-loopback is not set
-# CONFIG_PACKAGE_freeswitch-mod-lua is not set
-# CONFIG_PACKAGE_freeswitch-mod-native-file is not set
-# CONFIG_PACKAGE_freeswitch-mod-nibblebill is not set
-# CONFIG_PACKAGE_freeswitch-mod-openzap is not set
-# CONFIG_PACKAGE_freeswitch-mod-portaudio is not set
-# CONFIG_PACKAGE_freeswitch-mod-portaudio-stream is not set
-# CONFIG_PACKAGE_freeswitch-mod-rss is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-de is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-en is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-es is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-fr is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-it is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-nl is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-ru is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-th is not set
-# CONFIG_PACKAGE_freeswitch-mod-say-zh is not set
-# CONFIG_PACKAGE_freeswitch-mod-shell-stream is not set
-# CONFIG_PACKAGE_freeswitch-mod-silk is not set
-# CONFIG_PACKAGE_freeswitch-mod-skinny is not set
-# CONFIG_PACKAGE_freeswitch-mod-snapshot is not set
-CONFIG_PACKAGE_freeswitch-mod-sndfile=y
-# CONFIG_PACKAGE_freeswitch-mod-snipe-hunt is not set
-# CONFIG_PACKAGE_freeswitch-mod-snom is not set
-CONFIG_PACKAGE_freeswitch-mod-sofia=y
-# CONFIG_PACKAGE_freeswitch-mod-speex is not set
-# CONFIG_PACKAGE_freeswitch-mod-spy is not set
-# CONFIG_PACKAGE_freeswitch-mod-stress is not set
-CONFIG_PACKAGE_freeswitch-mod-syslog=y
-CONFIG_PACKAGE_freeswitch-mod-tone-stream=y
-# CONFIG_PACKAGE_freeswitch-mod-unimrcp is not set
-# CONFIG_PACKAGE_freeswitch-mod-valet-parking is not set
-# CONFIG_PACKAGE_freeswitch-mod-vmd is not set
-# CONFIG_PACKAGE_freeswitch-mod-voicemail is not set
-CONFIG_PACKAGE_freeswitch-mod-voipcodecs=y
-# CONFIG_PACKAGE_freeswitch-mod-xml-cdr is not set
-# CONFIG_PACKAGE_freeswitch-mod-xml-curl is not set
-# CONFIG_PACKAGE_freeswitch-mod-xml-rpc is not set
-# CONFIG_PACKAGE_freeswitch-mod-yaml is not set
-# CONFIG_PACKAGE_freeswitch-sounds-en is not set
-# CONFIG_PACKAGE_freeswitch-sounds-moh is not set
-CONFIG_PACKAGE_freeswitch-tools=y
-
-#
-# VPN
-#
-CONFIG_PACKAGE_openvpn=y
-CONFIG_PACKAGE_openvpn_complzo=y
-# CONFIG_PACKAGE_openvpn-easy-rsa is not set
-
-#
-# web server
-#
-CONFIG_PACKAGE_mongoose-webserver=y
-# CONFIG_PACKAGE_genl is not set
-# CONFIG_PACKAGE_tc is not set
 
 #
 # Libraries
@@ -1202,12 +1054,6 @@ CONFIG_PACKAGE_libext2fs=y
 CONFIG_PACKAGE_libuuid=y
 
 #
-# Lua Server Pages (luasp)
-#
-# CONFIG_PACKAGE_libluasp is not set
-CONFIG_PACKAGE_libluasp-mongoose=y
-
-#
 # SSL
 #
 CONFIG_PACKAGE_libopenssl=y
@@ -1216,30 +1062,14 @@ CONFIG_PACKAGE_libopenssl=y
 # Configuration
 #
 # CONFIG_OPENSSL_ENGINE is not set
-
-#
-# database
-#
-CONFIG_PACKAGE_libsqlite3=y
-
-#
-# web server
-#
-CONFIG_PACKAGE_libmongoose=y
-CONFIG_PACKAGE_bind-libs=y
 CONFIG_PACKAGE_glib2=y
-CONFIG_PACKAGE_libcharset=y
-# CONFIG_PACKAGE_libcurl is not set
+# CONFIG_PACKAGE_libcharset is not set
 CONFIG_PACKAGE_libexpat=y
 CONFIG_PACKAGE_libfreetype=y
-# CONFIG_PACKAGE_libiconv is not set
 CONFIG_PACKAGE_libiconv-full=y
-# CONFIG_PACKAGE_libintl is not set
 CONFIG_PACKAGE_libintl-full=y
 CONFIG_PACKAGE_libjpeg=y
 # CONFIG_PACKAGE_libltdl is not set
-CONFIG_PACKAGE_liblua=y
-CONFIG_PACKAGE_liblzo=y
 CONFIG_PACKAGE_libncurses=y
 CONFIG_PACKAGE_libncursesw=y
 CONFIG_PACKAGE_libpng=y
@@ -1355,13 +1185,13 @@ CONFIG_PACKAGE_zlib=y
 # Network Devices
 #
 CONFIG_PACKAGE_kmod-3c59x=y
-# CONFIG_PACKAGE_kmod-8139cp is not set
+CONFIG_PACKAGE_kmod-8139cp=y
 CONFIG_PACKAGE_kmod-8139too=y
-# CONFIG_PACKAGE_kmod-b44 is not set
+CONFIG_PACKAGE_kmod-b44=y
 # CONFIG_PACKAGE_kmod-dummy is not set
 CONFIG_PACKAGE_kmod-e100=y
 CONFIG_PACKAGE_kmod-e1000=y
-# CONFIG_PACKAGE_kmod-e1000e is not set
+CONFIG_PACKAGE_kmod-e1000e=y
 # CONFIG_PACKAGE_kmod-gigaset is not set
 # CONFIG_PACKAGE_kmod-hfcmulti is not set
 # CONFIG_PACKAGE_kmod-ifb is not set
@@ -1373,12 +1203,12 @@ CONFIG_PACKAGE_kmod-ne2k-pci=y
 CONFIG_PACKAGE_kmod-pcnet32=y
 CONFIG_PACKAGE_kmod-r8169=y
 CONFIG_PACKAGE_kmod-sis900=y
-# CONFIG_PACKAGE_kmod-sky2 is not set
+CONFIG_PACKAGE_kmod-sky2=y
 # CONFIG_PACKAGE_kmod-solos-pci is not set
 # CONFIG_PACKAGE_kmod-swconfig is not set
 # CONFIG_PACKAGE_kmod-switch-ip17xx is not set
 CONFIG_PACKAGE_kmod-tg3=y
-# CONFIG_PACKAGE_kmod-tulip is not set
+CONFIG_PACKAGE_kmod-tulip=y
 CONFIG_PACKAGE_kmod-via-rhine=y
 CONFIG_PACKAGE_kmod-via-velocity=y
 
@@ -1444,7 +1274,7 @@ CONFIG_PACKAGE_kmod-crc-ccitt=y
 # CONFIG_PACKAGE_kmod-rtc-core is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
 # CONFIG_PACKAGE_kmod-softdog is not set
-# CONFIG_PACKAGE_kmod-ssb is not set
+CONFIG_PACKAGE_kmod-ssb=y
 # CONFIG_PACKAGE_kmod-textsearch is not set
 # CONFIG_PACKAGE_kmod-wdt-geode is not set
 # CONFIG_PACKAGE_kmod-wdt-sc520 is not set
@@ -1513,25 +1343,37 @@ CONFIG_PACKAGE_kmod-crc-ccitt=y
 # CONFIG_PACKAGE_kmod-net-zd1201 is not set
 
 #
-# Languages
+# Utilities
 #
 
 #
-# Lua
+# Filesystem
 #
-# CONFIG_PACKAGE_lua is not set
-# CONFIG_PACKAGE_luac is not set
+CONFIG_PACKAGE_badblocks=y
+# CONFIG_PACKAGE_blkid is not set
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_resize2fs=y
+CONFIG_PACKAGE_tune2fs=y
+CONFIG_PACKAGE_uuidgen=y
+# CONFIG_PACKAGE_dropbearconvert is not set
+CONFIG_PACKAGE_emc2=y
+# CONFIG_PACKAGE_iconv is not set
+# CONFIG_PACKAGE_jpeg-tools is not set
+# CONFIG_PACKAGE_ldconfig is not set
+# CONFIG_PACKAGE_ldd is not set
+# CONFIG_PACKAGE_ocf-crypto-headers is not set
+# CONFIG_PACKAGE_openssl-util is not set
+# CONFIG_PACKAGE_tiff-utils is not set
+
+#
+# Languages
+#
 CONFIG_PACKAGE_tcl=y
 CONFIG_PACKAGE_tk=y
 
 #
 # Xorg
 #
-
-#
-# app
-#
-CONFIG_PACKAGE_dillo=y
 
 #
 # font-utils
