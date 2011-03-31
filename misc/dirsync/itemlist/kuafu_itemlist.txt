@@ -9,3 +9,5 @@ target/linux/x86/
 #########################
 # distributions/kuafu/ directory
 #########################
+packages/libs/gettext-full/
+packages/libs/libiconv-full/
