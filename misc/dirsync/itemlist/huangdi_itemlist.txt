@@ -34,4 +34,3 @@ packages/net/openvpn/
 packages/Xorg/app/dillo/
 packages/Xorg/lib/fltk2/
 packages/Xorg/xorg/app/fontconfig/
-packages/Xorg/xserver/microwin/
