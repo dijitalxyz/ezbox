@@ -57,7 +57,7 @@ define KernelPackage/crypto-hash
   TITLE:=CryptoAPI hash support
   KCONFIG:=CONFIG_CRYPTO_HASH
   FILES:=$(LINUX_DIR)/crypto/crypto_hash.ko
-  AUTOLOAD:=$(call AutoLoad,02,crypto_hash.ko)
+  AUTOLOAD:=$(call AutoLoad,02,crypto_hash)
   $(call AddDepends/crypto)
 endef
 $(eval $(call KernelPackage,crypto-hash))
@@ -341,7 +341,7 @@ $(eval $(call KernelPackage,crypto-misc))
 
 define KernelPackage/crypto-ocf
   TITLE:=OCF modules
-  DEPENDS:=+@OPENSSL_ENGINE @!TARGET_uml
+  DEPENDS:=+@OPENSSL_ENGINE @!TARGET_uml +kmod-crypto-manager
   KCONFIG:= \
 	CONFIG_OCF_OCF \
 	CONFIG_OCF_CRYPTODEV \
