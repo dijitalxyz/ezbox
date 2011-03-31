@@ -14,7 +14,7 @@ Package Content
 3. misc/ :
   This directory stores a lot of nothing, may be removed :-)
 
-4. rt/ :
+4. realtime/ :
   This directory contains real-time patches for Linux kernel.
 
 5. scripts/ :
