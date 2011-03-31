@@ -3,7 +3,7 @@
 #
 
 # DISTRO set the ezbox distro to be build
-# support [kuafu|huangdi|jingwei]
+# support [kuafu|huangdi|jingwei|qiaochui]
 DISTRO := kuafu
 
 # TARGET set the ezbox target running board
