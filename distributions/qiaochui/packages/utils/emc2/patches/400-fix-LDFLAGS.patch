@@ -1,0 +1,20 @@
+--- emc2-20110131/src/Makefile	2011-02-05 07:45:25.807612276 +0800
++++ emc2-20110131/src/Makefile	2011-02-05 07:46:31.486986872 +0800
+@@ -173,13 +173,13 @@
+ # Compilation options.  Perhaps some of these should come from Makefile.inc?
+ OPT := -Os
+ DEBUG := -g -Wall
+-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
+-CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
++CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE) $(TARGET_CFLAGS)
++CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE) $(TARGET_CXXFLAGS)
+ 
+ ifeq ($(RUN_IN_PLACE),yes)
+-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
++LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(TARGET_LDFLAGS)
+ else
+-LDFLAGS := -Wl,-rpath-link,../lib
++LDFLAGS := -Wl,-rpath-link,../lib $(TARGET_LDFLAGS)
+ endif
+ 
+ # Rules to make .d (dependency) files.

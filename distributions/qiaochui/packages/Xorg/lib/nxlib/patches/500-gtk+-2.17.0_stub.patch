@@ -1,0 +1,23 @@
+--- nxlib/stub.c	2011-02-06 22:28:46.642717212 +0800
++++ nxlib/stub.c	2011-02-06 22:30:28.734740787 +0800
+@@ -177,3 +177,20 @@
+ /* required for pango 1.26.0 */
+ int XExtendedMaxRequestSize() { DPRINTF("XExtendedMaxRequestSize called\n"); return 0; }
+ int XInitImage() { DPRINTF("XInitImage called\n"); return 0; }
++
++/* required for gtk+ 2.17.0 */
++int XextFindDisplay() { DPRINTF("XextFindDisplay called\n"); return 0; }
++int XRenderQueryExtension() { DPRINTF("XRenderQueryExtension called\n"); return 0; }
++int XRenderFindVisualFormat() { DPRINTF("XRenderFindVisualFormat called\n"); return 0; }
++int XRenderCreatePicture() { DPRINTF("XRenderCreatePicture called\n"); return 0; }
++int XRenderSetPictureClipRectangles() { DPRINTF("XRenderSetPictureClipRectangles called\n"); return 0; }
++int XRenderFreePicture() { DPRINTF("XRenderFreePicture called\n"); return 0; }
++int XShapeQueryExtension() { DPRINTF("XShapeQueryExtension called\n"); return 0; }
++int _XDeqAsyncHandler() { DPRINTF("_XDeqAsyncHandler called\n"); return 0; }
++int XRenderChangePicture() { DPRINTF("XRenderChangePicture called\n"); return 0; }
++int XListDepths() { DPRINTF("XListDepths called\n"); return 0; }
++int XRenderComposite() { DPRINTF("XRenderComposite called\n"); return 0; }
++int XRenderQuerySubpixelOrder() { DPRINTF("XRenderQuerySubpixelOrder called\n"); return 0; }
++int XRenderFindFormat() { DPRINTF("XRenderFindFormat called\n"); return 0; }
++int _XGetAsyncReply() { DPRINTF("_XGetAsyncReply called\n"); return 0; }
++int XShapeQueryVersion() { DPRINTF("XShapeQueryVersion called\n"); return 0; }
