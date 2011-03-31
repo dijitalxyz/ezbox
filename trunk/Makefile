@@ -51,7 +51,7 @@ build-info:
 	echo "ARCH=$(ARCH)"
 	echo "RT_TYPE=$(RT_TYPE)"
 
-prepare-build:
+prepare-basic-structure:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
 	rm -rf $(WK_DIR)/target/linux/$(TARGET)
@@ -65,21 +65,30 @@ prepare-build:
 	rm -rf $(WK_DIR)/dl
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
-clean-build:
-	rm -rf $(WK_DIR)
-
-prepare-realtime-kernel:
+prepare-realtime-kernel: prepare-basic-structure
 	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
 	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
 
+prepare-build: prepare-basic-structure prepare-realtime-kernel
+	echo "prepare-build OK!"
+
+clean-build:
+	echo "start to clean build!!!"
+	rm -rf $(WK_DIR)
+	echo "clean-build is finished!"
+
 quick-build:
+	echo "start to quick build..."
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
+	echo "quick-build is finished!"
 
 quick-clean:
+	echo "start to quick clean!!!"
 	cd $(WK_DIR) && make clean
+	echo "quick-clean is finished!"
 
-$(DISTRO): build-info prepare-build prepare-realtime-kernel
+$(DISTRO): build-info prepare-build
 	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
@@ -90,6 +99,8 @@ $(DISTRO)-clean:
 $(DISTRO)-distclean:
 	rm -rf $(WK_DIR)
 
+.PHONY: all dummy
 .PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
-.PHONY: all dummy build-info prepare-build clean-build
+.PHONY: prepare-basic-structure prepare-realtime-kernel
+.PHONY: build-info prepare-build clean-build
 .PHONY: quick-build quick-clean
