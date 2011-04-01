@@ -18,8 +18,8 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = -L.
 
-#libezcfg depends on pthread
-LIBS = -lezcfg
+# ezcd depends on libezcfg
+# LIBS += -lezcfg
 
 sbin_PROGRAMS =	ezcd
 

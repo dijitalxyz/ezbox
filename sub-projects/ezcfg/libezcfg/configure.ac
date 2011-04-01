@@ -96,6 +96,21 @@ AC_COMPILE_IFELSE(
 			AC_MSG_ERROR([pthread_rwlock_t not available])])])
 echo "-------------------------------------------------------------------------------"
 
+AC_MSG_CHECKING([if locale is available])
+# Checks for locale header files.
+AC_CHECK_HEADERS([locale.h])
+# Checks for setlocale function.
+AC_CHECK_FUNCS([setlocale])
+AC_SUBST(HAVE_LOCALE_H)
+
+AC_MSG_CHECKING([if i18n languages is available])
+# Checks for i18n languages header files.
+AC_CHECK_HEADERS([libintl.h])
+# Checks for gettext function.
+AC_CHECK_LIB(intl,gettext)
+AC_SUBST(HAVE_LIBINTL_H)
+AC_SUBST(HAVE_LIBINTL)
+
 
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
@@ -126,5 +141,6 @@ AC_MSG_RESULT([
 	compiler:		${CC}
 	cflags:			${CFLAGS}
 	ldflags:		${LDFLAGS}
+	libs:			${LIBS}
 	distro define:		${EZBOX_DISTRO_DEFINE}
 ])

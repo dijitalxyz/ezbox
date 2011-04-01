@@ -47,51 +47,6 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
-# Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
-AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.so is at])
-AC_ARG_VAR([LIBEZCFG_INC], [where ezcfg.h is at])
-AC_ARG_VAR([LIBEZCFG_API_INC], [where ezcfg-api.h is at])
-
-# Ensure that both or neither are specified.
-if (test -n "$LIBEZCFG_LIB" && test -z "$LIBEZCFG_INC") || \
-   (test -n "$LIBEZCFG_INC" && test -z "$LIBEZCFG_LIB"); then
-	AC_MSG_ERROR([both or neither libezcfg variables])
-fi
-
-# Not specified? Check for libezcfg in standard places.
-if test -z "$LIBEZCFG_LIB"; then
-  # Check for libezcfg as a sub-project.
-  if test -d "$srcdir/libezcfg"; then
-	AC_CONFIG_SUBDIRS([libezcfg])
-	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/.libs'
-	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
-	LIBEZCFG_API_INC='$(top_srcdir)/libezcfg/api/include'
-  else
-    # Check for libezcfg as a super-project.
-    if test -d "$srcdir/../libezcfg"; then
-	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/.libs'
-	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
-	LIBEZCFG_API_INC='$(top_srcdir)/../libezcfg/api/include'
-    fi
-  fi
-fi
-
-# Still empty? Check for installed libezcfg.
-if test -z "$LIBEZCFG_LIB"; then
-	AC_CHECK_LIB([libezcfg], [ezcfg_new], 
-		[AC_CHECK_HEADERS([ezcfg.h])
-			LIBS="-lezcfg $LIBS"],
-	[AC_MSG_ERROR([No libezcfg found.])])
-fi
-
-# AC_SUBST command line variables.
-if test -n "$LIBEZCFG_LIB"; then
-	AC_SUBST([LIBEZCFG_LIBS], ["-L. -lezcfg"])
-	AC_SUBST([LIBEZCFG_INCLUDE], ["-I$LIBEZCFG_INC"])
-	AC_SUBST([LIBEZCFG_API_INCLUDE], ["-I$LIBEZCFG_API_INC"])
-fi
-
-
 # Checks for libraries.
 AC_FUNC_FORK
 AC_HEADER_MAJOR
@@ -146,6 +101,75 @@ AC_HEADER_MAJOR
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([dup2 memset mkdir select socket strchr strerror strrchr])
 
+AC_MSG_CHECKING([if locale is available])
+# Checks for locale header files.
+AC_CHECK_HEADERS([locale.h])
+# Checks for setlocale function.
+AC_CHECK_FUNCS([setlocale])
+AC_SUBST(HAVE_LOCALE_H)
+
+AC_MSG_CHECKING([if i18n languages is available])
+# Checks for i18n languages header files.
+AC_CHECK_HEADERS([libintl.h])
+# Checks for gettext function.
+AC_CHECK_LIB(intl,gettext)
+AC_SUBST(HAVE_LIBINTL_H)
+AC_SUBST(HAVE_LIBINTL)
+
+#----------------------------------------------------------
+# This must be configured at the last!!!
+# Configure variables: LIBEZCFG_LIB , LIBEZCFG_INC and LIBEZCFG_API_INC.
+AC_ARG_VAR([LIBEZCFG_LIB], [where libezcfg.so is at])
+AC_ARG_VAR([LIBEZCFG_INC], [where ezcfg.h is at])
+AC_ARG_VAR([LIBEZCFG_API_INC], [where ezcfg-api.h is at])
+
+# Ensure that both or neither are specified.
+if (test -n "$LIBEZCFG_LIB" && test -z "$LIBEZCFG_INC") || \
+   (test -n "$LIBEZCFG_INC" && test -z "$LIBEZCFG_LIB"); then
+	AC_MSG_ERROR([both or neither libezcfg variables])
+fi
+
+# Not specified? Check for libezcfg in standard places.
+if test -z "$LIBEZCFG_LIB"; then
+  # Check for libezcfg as a sub-project.
+  if test -d "$srcdir/libezcfg"; then
+	AC_CONFIG_SUBDIRS([libezcfg])
+	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/.libs'
+	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
+	LIBEZCFG_API_INC='$(top_srcdir)/libezcfg/api/include'
+  else
+    # Check for libezcfg as a super-project.
+    if test -d "$srcdir/../libezcfg"; then
+	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/.libs'
+	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
+	LIBEZCFG_API_INC='$(top_srcdir)/../libezcfg/api/include'
+    fi
+  fi
+fi
+
+# Still empty? Check for installed libezcfg.
+if test -z "$LIBEZCFG_LIB"; then
+#	AC_CHECK_LIB([libezcfg], [ezcfg_new], 
+#		[AC_CHECK_HEADERS([ezcfg.h])
+#			LIBS="-lezcfg $LIBS"],
+#	[AC_MSG_ERROR([No libezcfg found.])])
+	AC_CHECK_HEADERS([ezcfg.h])
+	AC_CHECK_LIB(ezcfg, ezcfg_new)
+	AC_SUBST(HAVE_EZCFG_H)
+	AC_SUBST(HAVE_LIBEZCFG)
+fi
+
+# AC_SUBST command line variables.
+if test -n "$LIBEZCFG_LIB"; then
+	AC_SUBST([LIBEZCFG_LIBS], ["-lezcfg"])
+	AC_SUBST([LIBEZCFG_LDFLAGS], ["-L."])
+	AC_SUBST([LIBEZCFG_INCLUDE], ["-I$LIBEZCFG_INC"])
+	AC_SUBST([LIBEZCFG_API_INCLUDE], ["-I$LIBEZCFG_API_INC"])
+	LDFLAGS="$LIBEZCFG_LDFLAGS $LDFLAGS"
+	LIBS="$LIBEZCFG_LIBS $LIBS"
+fi
+#----------------------------------------------------------
+
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
@@ -174,6 +198,7 @@ AC_MSG_RESULT([
 	compiler:		${CC}
 	cflags:			${CFLAGS}
 	ldflags:		${LDFLAGS}
+	libs:			${LIBS}
 
 	libezcfg_lib:		${LIBEZCFG_LIB:-INSTALLED}
 	libezcfg_inc:		${LIBEZCFG_INC:-INSTALLED}
