@@ -219,7 +219,7 @@ int ezcd_main(int argc, char **argv)
 		goto exit;
 
 	ezcfg_log_init("ezcd");
-	ezcfg_set_log_fn(ezcfg, log_fn);
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
 
 	master = ezcfg_master_start(ezcfg);

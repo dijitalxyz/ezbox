@@ -11,6 +11,7 @@ SUBDIRS = .
 AM_CPPFLAGS = \
 	-I$(srcdir)/include \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
+	-DDATADIR=\""$(datadir)"\" \
 	-DEZCFG_DEBUG \
 	-Wall
 

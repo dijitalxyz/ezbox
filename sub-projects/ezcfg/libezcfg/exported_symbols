@@ -13,8 +13,8 @@ ezcfg_api_ubootenv_size
 ezcfg_api_firmware_upgrade
 ezcfg_new
 ezcfg_delete
-ezcfg_set_log_fn
-ezcfg_get_log_priority
+ezcfg_common_set_log_fn
+ezcfg_common_get_log_priority
 ezcfg_log
 ezcfg_uuid_new
 ezcfg_uuid_delete

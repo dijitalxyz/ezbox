@@ -30,9 +30,14 @@ typedef struct ezcfg_nv_pair_s {
 
 
 /* common/ezcfg.c */
-const char *ezcfg_get_rules_path(struct ezcfg *ezcfg);
-struct ezcfg_list_entry *ezcfg_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
-struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg);
+char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
+void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file);
+char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
+void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path);
+char *ezcfg_common_get_locale(struct ezcfg *ezcfg);
+void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale);
+struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
+struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
 
 
 /* common/list.c */

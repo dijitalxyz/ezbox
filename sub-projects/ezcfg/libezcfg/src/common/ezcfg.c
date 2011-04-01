@@ -52,8 +52,10 @@ struct ezcfg {
                        int priority, const char *file, int line, const char *fn,
                        const char *format, va_list args);
 	struct ezcfg_list_node properties_list;
-	char 		*rules_path;
+	char 		config_file[EZCFG_PATH_MAX];
 	int		log_priority;
+	char 		rules_path[EZCFG_PATH_MAX];
+	char 		locale[EZCFG_LOCALE_MAX];
 };
 
 void ezcfg_log(struct ezcfg *ezcfg,
@@ -76,7 +78,7 @@ static void log_stderr(struct ezcfg *ezcfg,
 }
 
 /**
- * ezcfg_set_log_fn:
+ * ezcfg_common_set_log_fn:
  * @ezcfg: ezcfg library context
  * @log_fn: function to be called for logging messages
  *
@@ -85,7 +87,7 @@ static void log_stderr(struct ezcfg *ezcfg,
  * into the users' logging functionality.
  *
  **/
-void ezcfg_set_log_fn(struct ezcfg *ezcfg,
+void ezcfg_common_set_log_fn(struct ezcfg *ezcfg,
                       void (*log_fn)(struct ezcfg *ezcfg,
                                     int priority, const char *file, int line, const char *fn,
                                     const char *format, va_list args))
@@ -94,7 +96,7 @@ void ezcfg_set_log_fn(struct ezcfg *ezcfg,
 }
 
 /**
- * ezcfg_get_log_priority:
+ * ezcfg_common_get_log_priority:
  * @ezcfg: ezcfg library context
  *
  * The initial logging priority is read from the ezcfg config file
@@ -102,34 +104,73 @@ void ezcfg_set_log_fn(struct ezcfg *ezcfg,
  *
  * Returns: the current logging priority
  **/
-int ezcfg_get_log_priority(struct ezcfg *ezcfg)
+int ezcfg_common_get_log_priority(struct ezcfg *ezcfg)
 {
 	return ezcfg->log_priority;
 }
 
 /**
- * ezcfg_set_log_priority:
+ * ezcfg_common_set_log_priority:
  * @ezcfg: ezcfg library context
  * @priority: the new logging priority
  *
  * Set the current logging priority. The value controls which messages
  * are logged.
  **/
-void ezcfg_set_log_priority(struct ezcfg *ezcfg, int priority)
+void ezcfg_common_set_log_priority(struct ezcfg *ezcfg, int priority)
 {
 	char num[32];
 
 	ezcfg->log_priority = priority;
 	snprintf(num, sizeof(num), "%u", ezcfg->log_priority);
-	ezcfg_add_property(ezcfg, "EZCFG_LOG", num);
+	ezcfg_common_add_property(ezcfg, "EZCFG_LOG", num);
 }
 
-struct ezcfg_list_entry *ezcfg_add_property(struct ezcfg *ezcfg, const char *key, const char *value)
+char *ezcfg_common_get_config_file(struct ezcfg *ezcfg)
+{
+	return ezcfg->config_file;
+}
+
+void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file)
+{
+	if (file == NULL)
+		return;
+
+	snprintf(ezcfg->config_file, EZCFG_PATH_MAX, "%s", file);
+}
+
+char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->rules_path;
+}
+
+void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_locale(struct ezcfg *ezcfg)
+{
+	return ezcfg->locale;
+}
+
+void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale)
+{
+	if (locale == NULL)
+		return;
+
+	snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", locale);
+}
+
+struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value)
 {
 	if (value == NULL) {
 		struct ezcfg_list_entry *list_entry;
 
-		list_entry = ezcfg_get_properties_list_entry(ezcfg);
+		list_entry = ezcfg_common_get_properties_list_entry(ezcfg);
 		list_entry = ezcfg_list_entry_get_by_name(list_entry, key);
 		if (list_entry != NULL)
 			ezcfg_list_entry_delete(list_entry);
@@ -138,7 +179,7 @@ struct ezcfg_list_entry *ezcfg_add_property(struct ezcfg *ezcfg, const char *key
         return ezcfg_list_entry_add(ezcfg, &ezcfg->properties_list, key, value, 1, 0);
 }
 
-struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg)
+struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg)
 {
 	return ezcfg_list_get_entry(&ezcfg->properties_list);
 }
@@ -154,9 +195,6 @@ struct ezcfg_list_entry *ezcfg_get_properties_list_entry(struct ezcfg *ezcfg)
 struct ezcfg *ezcfg_new(void)
 {
 	struct ezcfg *ezcfg = NULL;
-	char *config_file = NULL;
-	const char *env;
-	//FILE *fp;
 	char *p;
 
 	ezcfg = calloc(1, sizeof(struct ezcfg));
@@ -167,134 +205,38 @@ struct ezcfg *ezcfg_new(void)
 		ezcfg->log_fn = log_stderr;
 		ezcfg->log_priority = LOG_DEBUG;
 		ezcfg_list_init(&ezcfg->properties_list);
-		config_file = strdup(EZCFG_CONFIG_FILE_PATH);
-		if (config_file == NULL) {
-			goto fail_exit;
-		}
-		env = getenv("EZCFG_CONFIG_FILE");
-		if (env != NULL) {
-			free(config_file);
-			config_file = strdup(env);
-			ezcfg_util_remove_trailing_char(config_file, '/');
-		}
-		if (config_file == NULL) {
-			goto fail_exit;
-		}
+		snprintf(ezcfg->config_file, EZCFG_PATH_MAX, "%s", EZCFG_CONFIG_FILE_PATH);
+		info(ezcfg, "config_file='%s'\n", ezcfg->config_file);
 
 		/* find log_level keyword */
-		p = ezcfg_util_get_conf_string(config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
+		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
 		if (p != NULL) {
-			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
+			ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
 			free(p);
 		}
+		info(ezcfg, "log_priority='%d'\n", ezcfg->log_priority);
 
 		/* find rules_path keyword */
-		p = ezcfg_util_get_conf_string(config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
+		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
 		if (p != NULL) {
-			if (ezcfg->rules_path != NULL) {
-				free(ezcfg->rules_path);
-			}
-			//ezcfg->rules_path = strdup(val);
-			ezcfg->rules_path = p;
-			ezcfg_util_remove_trailing_char(ezcfg->rules_path, '/');
-			//free(p);
+			ezcfg_util_remove_trailing_char(p, '/');
+			snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", p);
+			free(p);
 		}
-#if 0
-		fp = fopen(config_file, "r");
-		if (fp != NULL) {
-			char line[UTIL_LINE_SIZE];
-			int line_nr = 0;
+		info(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
 
-			while (fgets(line, sizeof(line), fp)) {
-				size_t len;
-				char *key;
-				char *val;
-
-				line_nr++;
-
-				/* find key */
-				key = line;
-				while (isspace(key[0]))
-					key++;
-
-				/* comment or empty line */
-				if (key[0] == '#' || key[0] == '\0')
-					continue;
-
-				/* split key/value */
-				val = strchr(key, '=');
-				if (val == NULL) {
-					err(ezcfg, "missing <key>=<value> in '%s'[%i], skip line\n", config_file, line_nr);
-					continue;
-				}
-				val[0] = '\0';
-				val++;
-
-				/* find value */
-				while (isspace(val[0]))
-					val++;
-
-				/* terminate key */
-				len = strlen(key);
-				if (len == 0)
-					continue;
-				while (isspace(key[len-1]))
-					len--;
-				key[len] = '\0';
-
-				/* terminate value */
-				len = strlen(val);
-				if (len == 0)
-					continue;
-				while (isspace(val[len-1]))
-					len--;
-				val[len] = '\0';
-
-				if (len == 0)
-					continue;
-
-				/* unquote */
-				if (val[0] == '"' || val[0] == '\'') {
-					if (val[len-1] != val[0]) {
-						err(ezcfg, "inconsistent quoting in '%s'[%i], skip line\n", config_file, line_nr);
-						continue;
-					}
-					val[len-1] = '\0';
-					val++;
-				}
-
-				if (strcmp(key, "ezcfg_log") == 0) {
-					ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(val));
-					continue;
-				}
-				if (strcmp(key, "ezcfg_rules") == 0) {
-					free(ezcfg->rules_path);
-					ezcfg->rules_path = strdup(val);
-					ezcfg_util_remove_trailing_char(ezcfg->rules_path, '/');
-					continue;
-				}
-			}
-			fclose(fp);
+		/* find locale keyword */
+		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
+		if (p != NULL) {
+			snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", p);
+			free(p);
 		}
-#endif
+		info(ezcfg, "locale='%s'\n", ezcfg->locale);
 
-		env = getenv("EZCFG_LOG_LEVEL");
-		if (env != NULL)
-			ezcfg_set_log_priority(ezcfg, ezcfg_util_log_priority(env));
-
-		if (ezcfg->rules_path != NULL) {
-			info(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
-		}
-		if (config_file != NULL) {
-			free(config_file);
-		}
+		/* new ezcfg OK! */
 		return ezcfg;
 	}
-fail_exit:
-	if (config_file != NULL) {
-		free(config_file);
-	}
-	ezcfg_delete(ezcfg);
+
 	return NULL;
 }
 
@@ -309,7 +251,5 @@ void ezcfg_delete(struct ezcfg *ezcfg)
 {
 	if (ezcfg == NULL)
 		return;
-	if (ezcfg->rules_path != NULL)
-		free(ezcfg->rules_path);
 	free(ezcfg);
 }

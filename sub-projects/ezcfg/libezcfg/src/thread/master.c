@@ -109,7 +109,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	}
 
 	/* initialize nvram */
-	ezcfg_nvram_fill_storage_info(master->nvram, EZCFG_CONFIG_FILE_PATH);
+	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
 	ezcfg_nvram_initialize(master->nvram);
 
 	/* initialize socket queue */
@@ -252,6 +252,40 @@ fail_exit:
 	return NULL;
 }
 
+static void master_load_common_conf(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	if (master == NULL)
+		return ;
+
+	ezcfg = master->ezcfg;
+
+	/* get log_level keyword */
+	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
+	if (p != NULL) {
+		ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
+		free(p);
+		info(ezcfg, "log_priority='%d'\n", ezcfg_common_get_log_priority(ezcfg));
+	}
+
+	/* find rules_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		ezcfg_common_set_rules_path(ezcfg, p);
+		info(ezcfg, "rules_path='%s'\n", ezcfg_common_get_rules_path(ezcfg));
+	}
+
+	/* get locale */
+	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
+	if (p != NULL) {
+		ezcfg_common_set_locale(ezcfg, p);
+		info(ezcfg, "locale='%s'\n", ezcfg_common_get_locale(ezcfg));
+	}
+}
+
 static void master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -265,7 +299,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 	ezcfg = master->ezcfg;
 
 	/* first get the socket number */
-	p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
+	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
 	if (p != NULL) {
 		socket_number = atoi(p);
 		free(p);
@@ -281,7 +315,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		sp = NULL;
 
 		/* socket domain */
-		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
 		if (p != NULL) {
 			if (strcmp(p, EZCFG_SOCKET_DOMAIN_LOCAL_STRING) == 0) {
 				domain = AF_LOCAL;
@@ -296,7 +330,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		}
 
 		/* socket type */
-		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_TYPE);
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_TYPE);
 		if (p != NULL) {
 			if (strcmp(p, EZCFG_SOCKET_TYPE_STREAM_STRING) == 0) {
 				type = SOCK_STREAM;
@@ -311,14 +345,14 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		}
 
 		/* socket protocol */
-		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		if (p != NULL) {
 			proto = atoi(p);
 			free(p);
 		}
 
 		/* socket address */
-		p = ezcfg_util_get_conf_string(EZCFG_CONFIG_FILE_PATH, EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_ADDRESS);
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_ADDRESS);
 		if (p != NULL) {
 			if ((domain >=0) &&
 			    (type >= 0) &&
@@ -653,8 +687,11 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	pthread_mutex_lock(&master->thread_mutex);
 
+	/* initialize ezcfg common info */
+	master_load_common_conf(master);
+
 	/* initialize nvram */
-	ezcfg_nvram_fill_storage_info(master->nvram, EZCFG_CONFIG_FILE_PATH);
+	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
 	ezcfg_nvram_initialize(master->nvram);
 
 	/* initialize listening_sockets */

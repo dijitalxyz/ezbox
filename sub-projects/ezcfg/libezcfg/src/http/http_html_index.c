@@ -25,6 +25,9 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+#include <locale.h>
+#include <libintl.h>
+
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
@@ -97,13 +100,13 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, "Welcome");
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, gettext("Welcome"));
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
 
 	/* HTML P */
-	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, "Hello World!");
+	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, gettext("Hello World!"));
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
@@ -269,6 +272,15 @@ int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram 
 	ezcfg = http->ezcfg;
 
 	request_uri = ezcfg_http_get_request_uri(http);
+
+	/* set locale */
+	setlocale(LC_ALL, ezcfg_common_get_locale(ezcfg));
+
+	/* set directory containing message catalogs */
+	bindtextdomain(EZCFG_HTTP_HTML_INDEX_DOMAIN, EZCFG_HTTP_HTML_LANG_DIR);
+
+	/* set domain for future gettext() calls */
+	textdomain(EZCFG_HTTP_HTML_INDEX_DOMAIN);
 
 	if (strcmp(request_uri, EZCFG_HTTP_HTML_HOME_INDEX_URI) == 0) {
 		/* home index uri=[/] */

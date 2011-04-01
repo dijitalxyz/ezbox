@@ -26,10 +26,12 @@
 #define EZCFG_EZCFG_KEYWORD_LOG_LEVEL       "log_level"
 #define EZCFG_EZCFG_KEYWORD_RULES_PATH      "rules_path"
 #define EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER   "socket_number"
+#define EZCFG_EZCFG_KEYWORD_LOCALE          "locale"
 
 #define EZCFG_EZCFG_COMMON_LOG_LEVEL        "common.log_level"
 #define EZCFG_EZCFG_COMMON_RULES_PATH       "common.rules_path"
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
+#define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 
 /* ezcfg config [nvram] section */
 #define EZCFG_EZCFG_SECTION_NVRAM           "nvram"

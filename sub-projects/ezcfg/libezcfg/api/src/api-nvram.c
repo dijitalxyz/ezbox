@@ -100,7 +100,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	}
 
         ezcfg_log_init("nvram_get");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -278,7 +278,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
         ezcfg_log_init("nvram_set");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -481,7 +481,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
         ezcfg_log_init("nvram_unset");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -646,7 +646,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	}
 
         ezcfg_log_init("nvram_list");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -832,7 +832,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	}
 
         ezcfg_log_init("nvram_info");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -1012,7 +1012,7 @@ int ezcfg_api_nvram_commit(void)
 	}
 
         ezcfg_log_init("nvram_commit");
-        ezcfg_set_log_fn(ezcfg, log_fn);
+        ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {

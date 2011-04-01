@@ -34,6 +34,8 @@
 
 #define EZCFG_INVALID_SOCKET      -1
 #define EZCFG_BUFFER_SIZE         8192
+#define EZCFG_PATH_MAX            128
+#define EZCFG_LOCALE_MAX          32
 
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
 
@@ -49,7 +51,8 @@
 #define EZCFG_COMMON_LOG_LEVEL_ERR_STRING     "err"
 #define EZCFG_COMMON_LOG_LEVEL_INFO_STRING    "info"
 #define EZCFG_COMMON_LOG_LEVEL_DEBUG_STRING   "debug"
-#define EZCFG_COMMON_RULES_PATH               SYSCONFDIR "/ezcfg.rules"
+#define EZCFG_COMMON_DEFAULT_RULES_PATH       SYSCONFDIR "/ezcfg.rules"
+#define EZCFG_COMMON_DEFAULT_LOCALE_STRING    "zh_CN.UTF-8"
 
 /* ezcfg nvram definitions */
 #define EZCFG_NVRAM_BUFFER_SIZE            0x10000 /* 64K Bytes */
@@ -158,6 +161,8 @@
 /* ezcfg HTTP html request/response mode */
 #define EZCFG_HTTP_HTML_HOME_INDEX_URI      "/"
 #define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"
+#define EZCFG_HTTP_HTML_LANG_DIR            DATADIR "/ezcfg/html/lang"
+#define EZCFG_HTTP_HTML_INDEX_DOMAIN        "index"
 
 
 /* ezcfg uuid definitions */
@@ -214,7 +219,7 @@ ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
 
 #define ezcfg_log_cond(ezcfg, prio, arg...) \
   do { \
-    if (ezcfg_get_log_priority(ezcfg) >= prio) \
+    if (ezcfg_common_get_log_priority(ezcfg) >= prio) \
       ezcfg_log(ezcfg, prio, __FILE__, __LINE__, __FUNCTION__, ## arg); \
   } while (0)
 
@@ -247,12 +252,12 @@ static inline void ezcfg_log_close(void)
 	closelog();
 }
 
-void ezcfg_set_log_fn(struct ezcfg *ezcfg,
+void ezcfg_common_set_log_fn(struct ezcfg *ezcfg,
                       void (*log_fn)(struct ezcfg *ezcfg,
                                     int priority, const char *file, int line, const char *fn,
                                     const char *format, va_list args));
-int ezcfg_get_log_priority(struct ezcfg *ezcfg);
-void ezcfg_set_log_priority(struct ezcfg *ezcfg, int priority);
+int ezcfg_common_get_log_priority(struct ezcfg *ezcfg);
+void ezcfg_common_set_log_priority(struct ezcfg *ezcfg, int priority);
 
 struct ezcfg *ezcfg_new(void);
 void ezcfg_delete(struct ezcfg *ezcfg);

@@ -1,0 +1,4 @@
+# index page
+index
+i18n/html/pot/index.pot
+libezcfg/src/http/http_html_index.c

@@ -121,7 +121,7 @@ int nvram_main(int argc, char **argv)
 	}
 
 	ezcfg_log_init("nvram");
-	ezcfg_set_log_fn(ezcfg, log_fn);
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	if (strcmp(argv[1], "get") == 0) {
 		if (argc != 3) {

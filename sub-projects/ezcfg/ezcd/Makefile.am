@@ -12,6 +12,7 @@ AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
 	-I$(srcdir)/include \
         -DSYSCONFDIR=\""$(sysconfdir)"\" \
+        -DDATADIR=\""$(datadir)"\" \
         -DEZCFG_DEBUG \
         -Wall
 

@@ -129,7 +129,7 @@ int ezcm_main(int argc, char **argv)
 	}
 
 	ezcfg_log_init("ezcm");
-	ezcfg_set_log_fn(ezcfg, log_fn);
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 	info(ezcfg, "version %s\n", VERSION);
 
 	igrs = ezcfg_igrs_new(ezcfg);

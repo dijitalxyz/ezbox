@@ -92,6 +92,16 @@ int pop_etc_ezcfg_conf(int flag)
 			socket_number = atoi(buf);
 		}
 
+		/* locale */
+		snprintf(name, sizeof(name), "%s%s.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_COMMON,
+		         EZCFG_EZCFG_KEYWORD_LOCALE);
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_LOCALE, buf);
+		}
+
 		fprintf(file, "\n");
 
 		/* setup nvram storage info */
