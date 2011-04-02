@@ -56,6 +56,7 @@ struct ezcfg {
 	int		log_priority;
 	char 		rules_path[EZCFG_PATH_MAX];
 	char 		locale[EZCFG_LOCALE_MAX];
+	pthread_mutex_t locale_mutex; /* Protects locale */
 };
 
 void ezcfg_log(struct ezcfg *ezcfg,
@@ -165,6 +166,18 @@ void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale)
 	snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", locale);
 }
 
+int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg)
+{
+	
+	return pthread_mutex_lock(&ezcfg->locale_mutex);
+}
+
+int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg)
+{
+	
+	return pthread_mutex_unlock(&ezcfg->locale_mutex);
+}
+
 struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value)
 {
 	if (value == NULL) {
@@ -233,6 +246,9 @@ struct ezcfg *ezcfg_new(void)
 		}
 		info(ezcfg, "locale='%s'\n", ezcfg->locale);
 
+		/* initialize locale mutex */
+		pthread_mutex_init(&ezcfg->locale_mutex, NULL);
+
 		/* new ezcfg OK! */
 		return ezcfg;
 	}
@@ -251,5 +267,6 @@ void ezcfg_delete(struct ezcfg *ezcfg)
 {
 	if (ezcfg == NULL)
 		return;
+	pthread_mutex_destroy(&ezcfg->locale_mutex);
 	free(ezcfg);
 }

@@ -36,6 +36,8 @@ char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_locale(struct ezcfg *ezcfg);
 void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale);
+int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg);
+int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg);
 struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
 struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
 
@@ -102,6 +104,14 @@ bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_li
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+
+
+/* locale/locale.c */
+struct ezcfg_locale * ezcfg_locale_new(struct ezcfg *ezcfg);
+bool ezcfg_locale_delete(struct ezcfg_locale *locale);
+bool ezcfg_locale_set_domain(struct ezcfg_locale *locale, char *domain);
+bool ezcfg_locale_set_dir(struct ezcfg_locale *locale, char *dir);
+char * ezcfg_locale_text(struct ezcfg_locale *locale, char *msgid);
 
 
 /* uuid/uuid.c */

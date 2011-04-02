@@ -41,6 +41,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
+	struct ezcfg_locale *locale = NULL;
 	int head_index, body_index, child_index;
 	char *msg = NULL;
 	int msg_len;
@@ -52,6 +53,13 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	ASSERT(nvram != NULL);
 
 	ezcfg = http->ezcfg;
+
+	/* set locale info */
+	locale = ezcfg_locale_new(ezcfg);
+	if (locale != NULL) {
+		ezcfg_locale_set_domain(locale, EZCFG_HTTP_HTML_INDEX_DOMAIN);
+		ezcfg_locale_set_dir(locale, EZCFG_HTTP_HTML_LANG_DIR);
+	}
 
 	html = ezcfg_html_new(ezcfg);
 
@@ -100,13 +108,13 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, gettext("Welcome"));
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Welcome"));
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
 
 	/* HTML P */
-	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, gettext("Hello World!"));
+	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, ezcfg_locale_text(locale, "Hello World!"));
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
@@ -162,6 +170,9 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	/* set return value */
 	rc = 0;
 exit:
+	if (locale != NULL)
+		ezcfg_locale_delete(locale);
+
 	if (html != NULL)
 		ezcfg_html_delete(html);
 
@@ -272,15 +283,6 @@ int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram 
 	ezcfg = http->ezcfg;
 
 	request_uri = ezcfg_http_get_request_uri(http);
-
-	/* set locale */
-	setlocale(LC_ALL, ezcfg_common_get_locale(ezcfg));
-
-	/* set directory containing message catalogs */
-	bindtextdomain(EZCFG_HTTP_HTML_INDEX_DOMAIN, EZCFG_HTTP_HTML_LANG_DIR);
-
-	/* set domain for future gettext() calls */
-	textdomain(EZCFG_HTTP_HTML_INDEX_DOMAIN);
 
 	if (strcmp(request_uri, EZCFG_HTTP_HTML_HOME_INDEX_URI) == 0) {
 		/* home index uri=[/] */

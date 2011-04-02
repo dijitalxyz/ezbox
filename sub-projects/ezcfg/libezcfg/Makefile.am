@@ -52,6 +52,9 @@ libezcfg_la_SOURCES += src/ctrl/ctrl.c
 libezcfg_la_SOURCES += src/nvram/nvram.c
 libezcfg_la_SOURCES += src/nvram/nvram_defaults.c
 
+# ezcfg locale
+libezcfg_la_SOURCES += src/locale/locale.c
+
 # ezcfg UUID
 libezcfg_la_SOURCES += src/uuid/uuid.c
 
