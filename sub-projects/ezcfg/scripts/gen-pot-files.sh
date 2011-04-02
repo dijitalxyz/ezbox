@@ -36,8 +36,8 @@ do
       OUT_FILE=$LINE
     elif [ "x$IN_FILE" = "x" ] ; then
       IN_FILE=$LINE
-      dbg "xgettext -d $DOMAIN -o $OUT_FILE -kezcfg_locale_text -s $IN_FILE"
-      xgettext -d $DOMAIN -o $OUT_FILE -kezcfg_locale_text -s $IN_FILE
+      dbg "xgettext -d $DOMAIN -o $OUT_FILE -kezcfg_locale_text:2 -s $IN_FILE"
+      xgettext -d $DOMAIN -o $OUT_FILE -kezcfg_locale_text:2 -s $IN_FILE
       DOMAIN=
       OUT_FILE=
       IN_FILE=
