@@ -73,6 +73,16 @@
 #define EZCFG_NVRAM_BACKUP_STORAGE_PATH    "/var/ezcfg/nvram_backup.bin"
 #define EZCFG_NVRAM_STORAGE_NUM            2
 
+/* ezcfg authentication type string */
+#define EZCFG_AUTH_TYPE_HTTP_BASIC_STRING  "http-basic"
+#define EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING "http-digest"
+
+/* ezcfg authentication default string */
+#define EZCFG_AUTH_DEFAULT_USER_STRING     "admin"
+#define EZCFG_AUTH_DEFAULT_REALM_STRING    "admin@ezbox"
+#define EZCFG_AUTH_DEFAULT_DOMAIN_STRING    "/admin"
+#define EZCFG_AUTH_DEFAULT_SECRET_STRING   "admin"
+
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
 #define EZCFG_SOCKET_DOMAIN_INET_STRING    "inet"

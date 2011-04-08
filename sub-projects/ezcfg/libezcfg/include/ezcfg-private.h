@@ -106,6 +106,20 @@ bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_p
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 
 
+/* auth/auth.c */
+struct ezcfg_auth * ezcfg_auth_new(struct ezcfg *ezcfg);
+bool ezcfg_auth_delete(struct ezcfg_auth *auth);
+bool ezcfg_auth_set_type(struct ezcfg_auth *auth, char *type);
+bool ezcfg_auth_set_user(struct ezcfg_auth *auth, char *user);
+bool ezcfg_auth_set_realm(struct ezcfg_auth *auth, char *realm);
+bool ezcfg_auth_set_domain(struct ezcfg_auth *auth, char *domain);
+bool ezcfg_auth_set_secret(struct ezcfg_auth *auth, char *secret);
+bool ezcfg_auth_is_valid(struct ezcfg_auth *auth);
+bool ezcfg_auth_list_in(struct ezcfg_auth **list, struct ezcfg_auth *auth);
+bool ezcfg_auth_list_insert(struct ezcfg_auth **list, struct ezcfg_auth *auth);
+void ezcfg_auth_list_delete(struct ezcfg_auth **list);
+
+
 /* locale/locale.c */
 struct ezcfg_locale * ezcfg_locale_new(struct ezcfg *ezcfg);
 bool ezcfg_locale_delete(struct ezcfg_locale *locale);
