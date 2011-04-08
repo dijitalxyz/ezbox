@@ -1326,3 +1326,13 @@ int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len)
 
 	return (p-buf);
 }
+
+bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+	ASSERT(auth != NULL);
+
+	return true;
+}

@@ -457,6 +457,56 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 
 	if (is_http_html_admin_request(request_uri) == true) {
+		struct ezcfg_auth *auth, **auths;
+		bool ret;
+		char buf[1024];
+
+		auth = ezcfg_auth_new(ezcfg);
+		if (auth == NULL) {
+			err(ezcfg, "ezcfg_auth_new error.\n");
+			goto exit;
+		}
+
+		if (ezcfg_http_parse_auth(http, auth) == false) {
+			err(ezcfg, "ezcfg_http_parse_auth error.\n");
+			goto exit;
+		}
+
+		/* lock auths */
+		ezcfg_master_auth_mutex_lock(worker->master);
+		*auths = ezcfg_master_get_auths(worker->master);
+		ret = ezcfg_auth_check_authorized(auths, auth);
+		/* unlock auths */
+		ezcfg_master_auth_mutex_unlock(worker->master);
+
+		if (ret == false) {
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 401);
+			ezcfg_http_set_state_response(http);
+
+			/* http WWW-Authenticate */
+			snprintf(buf, sizeof(buf), "Basic realm=\"admin@ezbox\"");
+			ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
+
+			/* build HTTP Unauthorized response */
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+			worker_write(worker, msg, msg_len);
+			goto exit;
+		}
+
 		if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
 			/* clean http structure info */
 			ezcfg_http_reset_attributes(http);

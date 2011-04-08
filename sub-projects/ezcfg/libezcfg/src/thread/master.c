@@ -954,7 +954,42 @@ struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 
+	ASSERT(master != NULL);
+
 	ezcfg = master->ezcfg;
 
 	return master->nvram;
+}
+
+struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->auths;
+}
+
+int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_lock(&(master->auth_mutex));
+}
+
+int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_unlock(&(master->auth_mutex));
 }

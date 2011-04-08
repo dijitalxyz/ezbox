@@ -118,6 +118,7 @@ bool ezcfg_auth_is_valid(struct ezcfg_auth *auth);
 bool ezcfg_auth_list_in(struct ezcfg_auth **list, struct ezcfg_auth *auth);
 bool ezcfg_auth_list_insert(struct ezcfg_auth **list, struct ezcfg_auth *auth);
 void ezcfg_auth_list_delete(struct ezcfg_auth **list);
+bool ezcfg_auth_check_authorized(struct ezcfg_auth **list, struct ezcfg_auth *auth);
 
 
 /* locale/locale.c */
@@ -212,6 +213,7 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value);
 int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
 int ezcfg_http_get_message_length(struct ezcfg_http *http);
 int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len);
+bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth);
 
 
 /* http/http_html_index.c */
@@ -367,6 +369,9 @@ struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
+struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
+int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
+int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
 
 /* thread/worker.c */
 struct ezcfg_worker;

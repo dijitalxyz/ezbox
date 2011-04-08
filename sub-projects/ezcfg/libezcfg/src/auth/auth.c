@@ -303,3 +303,11 @@ void ezcfg_auth_list_delete(struct ezcfg_auth **list)
 		ap = *list;
 	}
 }
+
+bool ezcfg_auth_check_authorized(struct ezcfg_auth **list, struct ezcfg_auth *auth)
+{
+	ASSERT(list != NULL);
+	ASSERT(auth != NULL);
+
+	return ezcfg_auth_list_in(list, auth);
+}
