@@ -215,7 +215,7 @@ else
     $(SCRIPT_DIR)/rstrip.sh
 endif
 
-ifeq ($(CONFIG_ENABLE_LOCALE),true)
+ifeq ($(CONFIG_ENABLE_LOCALE),y)
   DISABLE_NLS:=--enable-nls
 else
   DISABLE_NLS:=--disable-nls
