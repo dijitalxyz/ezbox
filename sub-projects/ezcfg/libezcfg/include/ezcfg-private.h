@@ -402,11 +402,15 @@ void ezcfg_util_remove_trailing_charlist(char *s, char *l);
 char *ezcfg_util_skip_leading_char(char *s, char c);
 char *ezcfg_util_skip_leading_charlist(char *s, char *l);
 
-/* util/util_crc32.c */
-uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
-
 /* util/util_adler32.c */
 uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
+
+/* util/util_base64.c */
+int ezcfg_util_base64_encode(unsigned char *src, unsigned char *dst, size_t src_len, size_t dst_len);
+int ezcfg_util_base64_decode(unsigned char *src, unsigned char *dst, size_t src_len, size_t dst_len);
+
+/* util/util_crc32.c */
+uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 
 /* util/util_conf.c */
 char *ezcfg_util_get_conf_string(const char *path, const char *section, const int index, const char *keyword);

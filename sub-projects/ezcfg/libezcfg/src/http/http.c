@@ -181,6 +181,26 @@ static const struct status_code_reason_phrase_map default_status_code_maps[] = {
  * Private functions
  **/
 
+static char *get_http_header_value(struct ezcfg_http *http, char *name)
+{
+	struct ezcfg *ezcfg;
+	struct http_header *h;
+
+	ASSERT(http != NULL);
+	ASSERT(name != NULL);
+
+	ezcfg = http->ezcfg;
+
+	h = http->header_head;
+	while(h != NULL) {
+		if (strcasecmp(name, h->name) == 0)
+			return h->value;
+		h = h->next;
+	}
+
+	return NULL;
+}
+
 static void clear_http_headers(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
@@ -657,20 +677,13 @@ bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name)
 {
 	struct ezcfg *ezcfg;
-	struct http_header *h;
 
 	ASSERT(http != NULL);
+	ASSERT(name != NULL);
 
 	ezcfg = http->ezcfg;
 
-	h = http->header_head;
-	while(h != NULL) {
-		if (strcasecmp(name, h->name) == 0)
-			return h->value;
-		h = h->next;
-	}
-
-	return NULL;
+	return get_http_header_value(http, name);
 }
 
 void ezcfg_http_dump(struct ezcfg_http *http)
@@ -1330,9 +1343,15 @@ int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len)
 bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 {
 	struct ezcfg *ezcfg;
+	char *p;
 
 	ASSERT(http != NULL);
 	ASSERT(auth != NULL);
 
-	return true;
+	p = get_http_header_value(http, EZCFG_HTTP_HEADER_AUTHORIZATION);
+	if (p != NULL) {
+		return true;
+	}
+
+	return false;
 }
