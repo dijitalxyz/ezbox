@@ -457,7 +457,7 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 
 	if (is_http_html_admin_request(request_uri) == true) {
-		struct ezcfg_auth *auth, **auths;
+		struct ezcfg_auth *auth, *auths;
 		bool ret;
 		char buf[1024];
 
@@ -469,24 +469,37 @@ static void handle_http_request(struct ezcfg_worker *worker)
 
 		if (ezcfg_http_parse_auth(http, auth) == false) {
 			err(ezcfg, "ezcfg_http_parse_auth error.\n");
-			goto exit;
+			goto need_authenticate;
+		}
+
+		ret = ezcfg_auth_set_realm(auth, EZCFG_AUTH_REALM_ADMIN_STRING);
+		if (ret == false) {
+			err(ezcfg, "ezcfg_auth_set_realm error.\n");
+			goto need_authenticate;
+		}
+
+		ret = ezcfg_auth_set_domain(auth, EZCFG_AUTH_DOMAIN_ADMIN_STRING);
+		if (ret == false) {
+			err(ezcfg, "ezcfg_auth_set_domain error.\n");
+			goto need_authenticate;
 		}
 
 		/* lock auths */
 		ezcfg_master_auth_mutex_lock(worker->master);
-		*auths = ezcfg_master_get_auths(worker->master);
-		ret = ezcfg_auth_check_authorized(auths, auth);
+		auths = ezcfg_master_get_auths(worker->master);
+		ret = ezcfg_auth_check_authorized(&auths, auth);
 		/* unlock auths */
 		ezcfg_master_auth_mutex_unlock(worker->master);
 
 		if (ret == false) {
+need_authenticate:
 			/* clean http structure info */
 			ezcfg_http_reset_attributes(http);
 			ezcfg_http_set_status_code(http, 401);
 			ezcfg_http_set_state_response(http);
 
 			/* http WWW-Authenticate */
-			snprintf(buf, sizeof(buf), "Basic realm=\"admin@ezbox\"");
+			snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", EZCFG_AUTH_REALM_ADMIN_STRING);
 			ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
 
 			/* build HTTP Unauthorized response */

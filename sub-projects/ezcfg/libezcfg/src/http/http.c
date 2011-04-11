@@ -1343,13 +1343,46 @@ int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len)
 bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 {
 	struct ezcfg *ezcfg;
+	char buf[1024];
 	char *p;
+	bool ret;
 
 	ASSERT(http != NULL);
 	ASSERT(auth != NULL);
 
+	ezcfg = http->ezcfg;
+
 	p = get_http_header_value(http, EZCFG_HTTP_HEADER_AUTHORIZATION);
-	if (p != NULL) {
+	if (p == NULL) {
+		/* no authorization header, treat it as false */
+		return false;
+	}
+
+	if (strncmp(p, "Basic ", 6) == 0) {
+		p += 6; /* skip "Basic " */
+		if (ezcfg_util_base64_decode(p, buf, strlen(p), sizeof(buf)) < 0)
+			return false;
+		p = strchr(buf, ':');
+		if (p == NULL)
+			return false;
+
+		/* set auth type */
+		ret = ezcfg_auth_set_type(auth, EZCFG_AUTH_TYPE_HTTP_BASIC_STRING);
+		if (ret == false)
+			return false;
+
+		/* set auth user */
+		*p = '\0';
+		ret = ezcfg_auth_set_user(auth, buf);
+		if (ret == false)
+			return false;
+
+		/* set auth secret */
+		p++;
+		ret = ezcfg_auth_set_secret(auth, p);
+		if (ret == false)
+			return false;
+
 		return true;
 	}
 

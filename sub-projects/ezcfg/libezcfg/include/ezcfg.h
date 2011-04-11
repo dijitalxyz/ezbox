@@ -78,10 +78,10 @@
 #define EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING "http-digest"
 
 /* ezcfg authentication default string */
-#define EZCFG_AUTH_DEFAULT_USER_STRING     "admin"
-#define EZCFG_AUTH_DEFAULT_REALM_STRING    "admin@ezbox"
-#define EZCFG_AUTH_DEFAULT_DOMAIN_STRING   EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
-#define EZCFG_AUTH_DEFAULT_SECRET_STRING   "admin"
+#define EZCFG_AUTH_USER_ADMIN_STRING       "admin"
+#define EZCFG_AUTH_REALM_ADMIN_STRING      "admin@ezbox"
+#define EZCFG_AUTH_DOMAIN_ADMIN_STRING     EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
+#define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"
 
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"

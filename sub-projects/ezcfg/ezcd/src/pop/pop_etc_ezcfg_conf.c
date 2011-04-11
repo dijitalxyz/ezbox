@@ -47,6 +47,7 @@ int pop_etc_ezcfg_conf(int flag)
 	int rc;
 	int i;
 	int socket_number = 0;
+	int auth_number = 0;
 
 	switch (flag) {
 	case RC_BOOT :
@@ -100,6 +101,17 @@ int pop_etc_ezcfg_conf(int flag)
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		if (rc >= 0) {
 			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_LOCALE, buf);
+		}
+
+		/* auth_number */
+		snprintf(name, sizeof(name), "%s%s.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_COMMON,
+		         EZCFG_EZCFG_KEYWORD_AUTH_NUMBER);
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_AUTH_NUMBER, buf);
+			auth_number = atoi(buf);
 		}
 
 		fprintf(file, "\n");
@@ -186,6 +198,58 @@ int pop_etc_ezcfg_conf(int flag)
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc >= 0) {
 				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_ADDRESS, buf);
+			}
+			fprintf(file, "\n");
+		}
+
+		/* setup auth info */
+		for(i = 0; i < auth_number; i++) {
+
+			fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_AUTH);
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_AUTH,
+			         i, EZCFG_EZCFG_KEYWORD_TYPE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_TYPE, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_AUTH,
+			         i, EZCFG_EZCFG_KEYWORD_USER);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_USER, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_AUTH,
+			         i, EZCFG_EZCFG_KEYWORD_REALM);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_REALM, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_AUTH,
+			         i, EZCFG_EZCFG_KEYWORD_DOMAIN);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_DOMAIN, buf);
+			}
+
+			snprintf(name, sizeof(name), "%s%s.%d.%s",
+			         EZCFG_EZCFG_NVRAM_PREFIX,
+			         EZCFG_EZCFG_SECTION_AUTH,
+			         i, EZCFG_EZCFG_KEYWORD_SECRET);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc >= 0) {
+				fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SECRET, buf);
 			}
 			fprintf(file, "\n");
 		}

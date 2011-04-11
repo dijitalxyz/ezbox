@@ -309,5 +309,9 @@ bool ezcfg_auth_check_authorized(struct ezcfg_auth **list, struct ezcfg_auth *au
 	ASSERT(list != NULL);
 	ASSERT(auth != NULL);
 
+	if (auth->type == NULL) {
+		/* unknown authentication type */
+		return false;
+	}
 	return ezcfg_auth_list_in(list, auth);
 }
