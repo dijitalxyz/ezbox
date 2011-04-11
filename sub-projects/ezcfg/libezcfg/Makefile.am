@@ -77,6 +77,9 @@ libezcfg_la_SOURCES += src/http/http_html_index.c
 # ezcfg HTML/HTTP admin handling
 libezcfg_la_SOURCES += src/http/http_html_admin.c
 
+# ezcfg HTML/HTTP admin status_system handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
+
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c
 

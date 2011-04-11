@@ -174,6 +174,8 @@
 #define EZCFG_HTTP_HTML_LANG_DIR            DATADIR "/ezcfg/html/lang"
 #define EZCFG_HTTP_HTML_INDEX_DOMAIN        "index"
 
+#define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
+
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */

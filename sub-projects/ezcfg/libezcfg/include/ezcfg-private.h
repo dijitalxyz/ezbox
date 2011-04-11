@@ -223,6 +223,9 @@ int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram 
 /* http/http_html_admin.c */
 int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
+/* http/admin/http_html_admin_status_system_handler.c */
+int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+
 
 /* socket/socket_http.c */
 int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread);

@@ -17,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: libezcfg/src/http/http_html_index.c:117
+#: libezcfg/src/http/admin/http_html_admin_status_system.c:117
 msgid "Hello World!"
 msgstr ""
 
-#: libezcfg/src/http/http_html_index.c:111
-msgid "Welcome"
+#: libezcfg/src/http/admin/http_html_admin_status_system.c:111
+msgid "System Status"
 msgstr ""

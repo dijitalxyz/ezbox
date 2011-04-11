@@ -2,3 +2,7 @@
 index
 i18n/html/pot/index.pot
 libezcfg/src/http/http_html_index.c
+# admin status_system page
+admin_status_system
+i18n/html/pot/admin_status_system.pot
+libezcfg/src/http/admin/http_html_admin_status_system.c
