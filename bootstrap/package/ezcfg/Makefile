@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=758
+PKG_REV:=763
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -93,6 +93,8 @@ define Package/ezcfg/install
 	$(LN) ezcd $(1)/sbin/ubootenv
 	$(LN) ezcd $(1)/sbin/udhcpc.script
 	$(LN) ezcd $(1)/sbin/upfw
+	$(INSTALL_DIR) $(1)/usr/share/ezcfg/html/lang
+	$(CP) $(PKG_BUILD_DIR)/i18n/html/lang/* $(1)/usr/share/ezcfg/html/lang/
 endef
 
 $(eval $(call BuildPackage,ezcfg))
