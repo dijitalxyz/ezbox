@@ -176,6 +176,12 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
 
+#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN   "menu"
+
+
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
+
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */

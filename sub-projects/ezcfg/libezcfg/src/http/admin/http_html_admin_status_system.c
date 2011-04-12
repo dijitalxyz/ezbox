@@ -43,11 +43,12 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
 	int head_index, body_index, child_index;
+	int container_index, form_index, menu_index;
 	char *msg = NULL;
 	int msg_len;
-	char buf[1024];
 	int n;
 	int rc = 0;
+	bool ret;
 	
 	ASSERT(http != NULL);
 	ASSERT(nvram != NULL);
@@ -65,7 +66,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 
 	if (html == NULL) {
 		err(ezcfg, "can not alloc html.\n");
-		goto exit;
+		goto func_exit;
 	}
 
 	/* clean HTML structure info */
@@ -76,11 +77,30 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	ezcfg_html_set_version_minor(html, 1);
 
 	/* HTML root */
-	ezcfg_html_set_root(html, EZCFG_HTML_HTML_ELEMENT_NAME);
+	rc = ezcfg_html_set_root(html, EZCFG_HTML_HTML_ELEMENT_NAME);
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_html_set_root.\n");
+		rc = -1;
+		goto func_exit;
+	}
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);
+	if (head_index < 0) {
+		err(ezcfg, "ezcfg_html_set_head error.\n");
+		rc = -1;
+		goto func_exit;
+	}
 
+	/* set admin common Head */
+	child_index = ezcfg_http_html_admin_set_html_common_head(html, head_index, -1);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_common_head error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+#if 0
 	/* HTML Meta charset */
 	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
 	/* HTML http-equiv content-type */
@@ -105,29 +125,72 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	/* HTML http-equiv pragma */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_PRAGMA_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
+#endif
 
 	/* HTML Title */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "System Status"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		rc = -1;
+		goto func_exit;
+	}
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
+	if (body_index < 0) {
+		err(ezcfg, "ezcfg_html_set_body error.\n");
+		rc = -1;
+		goto func_exit;
+	}
 
-	/* HTML P */
-	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, ezcfg_locale_text(locale, "Hello World!"));
+	/* HTML div container */
+	container_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (container_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, container_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* HTML form */
+	form_index = ezcfg_html_add_body_child(html, container_index, -1, EZCFG_HTML_FORM_ELEMENT_NAME, NULL);
+	if (form_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_METHOD_ATTRIBUTE_NAME, "post", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, "/admin/apply", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* HTML div menu */
+	menu_index = ezcfg_html_add_body_child(html, form_index, -1, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (menu_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, menu_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	child_index = ezcfg_http_html_admin_set_html_menu(html, menu_index, -1);
+	if (menu_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
+		rc = -1;
+		goto func_exit;
+	}
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_html_get_message_length\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 	msg_len++; /* one more for '\0' */
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		err(ezcfg, "malloc error.\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	memset(msg, 0, msg_len);
@@ -135,7 +198,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	if (n < 0) {
 		err(ezcfg, "ezcfg_html_write_message\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	/* FIXME: name point to http->request_uri !!!
@@ -148,9 +211,17 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	if (ezcfg_http_set_message_body(http, msg, n) == NULL) {
 		err(ezcfg, "ezcfg_http_set_message_body\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
+	ret = ezcfg_http_html_admin_set_http_common_header(http);
+	if (ret == false) {
+		err(ezcfg, "ezcfg_http_html_admin_set_http_common_header error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+#if 0
 	/* HTML http-equiv content-type */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
 	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf);
@@ -166,10 +237,11 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 
 	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
 	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH , buf);
+#endif
 
 	/* set return value */
 	rc = 0;
-exit:
+func_exit:
 	if (locale != NULL)
 		ezcfg_locale_delete(locale);
 
