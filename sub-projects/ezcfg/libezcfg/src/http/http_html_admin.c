@@ -40,6 +40,7 @@ struct http_html_admin_handler {
 
 struct http_html_admin_handler adm_handlers[] = {
 	{ "status_system", ezcfg_http_html_admin_status_system_handler },
+	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }
 };
 

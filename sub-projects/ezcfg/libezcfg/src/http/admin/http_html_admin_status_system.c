@@ -66,6 +66,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 
 	if (html == NULL) {
 		err(ezcfg, "can not alloc html.\n");
+		rc = -1;
 		goto func_exit;
 	}
 
@@ -99,33 +100,6 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 		rc = -1;
 		goto func_exit;
 	}
-
-#if 0
-	/* HTML Meta charset */
-	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
-	/* HTML http-equiv content-type */
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CONTENT_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, buf, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* HTML Meta Cache-control */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
-	/* HTML http-equiv cache-control */
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* HTML Meta expires */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
-	/* HTML http-equiv expires */
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_EXPIRES, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* HTML Meta pragma */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
-	/* HTML http-equiv pragma */
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_PRAGMA_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-#endif
 
 	/* HTML Title */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "System Status"));
@@ -164,20 +138,21 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, "/admin/apply", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div menu */
-	menu_index = ezcfg_html_add_body_child(html, form_index, -1, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
-	if (menu_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		rc = -1;
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, menu_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	child_index = ezcfg_http_html_admin_set_html_menu(html, menu_index, -1);
+	menu_index = ezcfg_http_html_admin_set_html_menu(html, form_index, -1);
 	if (menu_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
 		rc = -1;
 		goto func_exit;
 	}
+
+#if 0
+	child_index = ezcfg_http_html_admin_set_html_menu(html, menu_index, -1);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+#endif
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
@@ -214,30 +189,12 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 		goto func_exit;
 	}
 
-	ret = ezcfg_http_html_admin_set_http_common_header(http);
+	ret = ezcfg_http_html_admin_set_http_html_common_header(http);
 	if (ret == false) {
-		err(ezcfg, "ezcfg_http_html_admin_set_http_common_header error.\n");
+		err(ezcfg, "ezcfg_http_html_admin_set_http_html_common_header error.\n");
 		rc = -1;
 		goto func_exit;
 	}
-
-#if 0
-	/* HTML http-equiv content-type */
-	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
-	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf);
-
-	/* HTML http-equiv cache-control */
-	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE);
-
-	/* HTML http-equiv expires */
-	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0");
-
-	/* HTML http-equiv pragma */
-	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE);
-
-	snprintf(buf, sizeof(buf), "%u", ezcfg_http_get_message_body_len(http));
-	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH , buf);
-#endif
 
 	/* set return value */
 	rc = 0;

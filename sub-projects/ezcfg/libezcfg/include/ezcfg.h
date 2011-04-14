@@ -113,6 +113,11 @@
 #define EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD 1
 
 
+/* ezcfg css definitions */
+#define EZCFG_CSS_RULE_TYPE_RULE_SET        0
+#define EZCFG_CSS_RULE_TYPE_AT_RULE         1
+
+
 /* ezcfg soap element names */
 #define EZCFG_SOAP_ENVELOPE_ELEMENT_NAME    "env:Envelope"
 #define EZCFG_SOAP_HEADER_ELEMENT_NAME      "env:Header"
@@ -181,6 +186,7 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU       "submenu"
 
 
 /* ezcfg uuid definitions */

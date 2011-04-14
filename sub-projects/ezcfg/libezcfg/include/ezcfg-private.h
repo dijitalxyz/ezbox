@@ -244,6 +244,19 @@ int ezcfg_html_get_message_length(struct ezcfg_html *html);
 int ezcfg_html_write_message(struct ezcfg_html *html, char *buf, int len);
 
 
+/* css/css.c */
+struct ezcfg_css;
+void ezcfg_css_delete(struct ezcfg_css *css);
+struct ezcfg_css *ezcfg_css_new(struct ezcfg *ezcfg);
+unsigned short ezcfg_css_get_version_major(struct ezcfg_css *css);
+unsigned short ezcfg_css_get_version_minor(struct ezcfg_css *css);
+bool ezcfg_css_set_version_major(struct ezcfg_css *css, unsigned short major);
+bool ezcfg_css_set_version_minor(struct ezcfg_css *css, unsigned short minor);
+int ezcfg_css_add_rule_set(struct ezcfg_css *css, char *selector, char *name, char *value);
+int ezcfg_css_get_message_length(struct ezcfg_css *css);
+int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
+
+
 /* http/http_html_index.c */
 int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
@@ -253,13 +266,17 @@ int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram 
 
 /* http/admin/http_html_admin_common_head.c */
 int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_html *html, int pi, int si);
-bool ezcfg_http_html_admin_set_http_common_header(struct ezcfg_http *http);
+bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http *http);
+bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http *http);
 
 /* http/admin/http_html_admin_menu.c */
 int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si);
 
-/* http/admin/http_html_admin_status_system_handler.c */
+/* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+
+/* http/admin/http_html_admin_layout_css.c */
+int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
 
 /* socket/socket_http.c */

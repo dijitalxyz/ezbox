@@ -83,6 +83,9 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_common_head.c
 # ezcfg HTML/HTTP admin menu handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu.c
 
+# ezcfg HTML/HTTP admin layout_css handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
+
 # ezcfg HTML/HTTP admin status_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
 
@@ -91,6 +94,9 @@ libezcfg_la_SOURCES += src/xml/xml.c
 
 # ezcfg HTML handling
 libezcfg_la_SOURCES += src/html/html.c
+
+# ezcfg CSS handling
+libezcfg_la_SOURCES += src/css/css.c
 
 # ezcfg SOAP protocol
 libezcfg_la_SOURCES += src/soap/soap.c

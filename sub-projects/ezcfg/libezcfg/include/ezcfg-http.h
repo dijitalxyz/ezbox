@@ -226,6 +226,7 @@ struct ezcfg_http {
 #define EZCFG_HTTP_MIME_APPLICATION_SOAP_XML  "application/soap+xml"
 #define EZCFG_HTTP_MIME_TEXT_HTML             "text/html"
 #define EZCFG_HTTP_MIME_TEXT_XML              "text/xml"
+#define EZCFG_HTTP_MIME_TEXT_CSS              "text/css"
 
 /* ezcfg HTTP Cache directives strings */
 #define EZCFG_HTTP_CACHE_REQUEST_NO_CACHE           "no-cache"
