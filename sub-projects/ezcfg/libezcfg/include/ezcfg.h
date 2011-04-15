@@ -181,7 +181,7 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
 
-#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN   "menu"
+#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "menu"
 
 
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"

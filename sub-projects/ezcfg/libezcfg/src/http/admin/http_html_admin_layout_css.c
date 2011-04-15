@@ -96,7 +96,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	/* div#menu {
-	 *   position: absolute;
 	 *   top: 81px;
 	 *   left: 0;
 	 *   width: 166px;
@@ -105,13 +104,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   z-index: 100;}
 	 */   
 	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU);
-	rc = ezcfg_css_add_rule_set(css, buf, "position", "absolute");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
 	rc = ezcfg_css_add_rule_set(css, buf, "top", "81px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
@@ -275,7 +267,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 
 	/* div#menu ul li a:hover span {
 	 *   display: block;
-	 *   position: absolute;
 	 *   top: 180px;
 	 *   left: 0;
 	 *   width: 125px;
@@ -295,13 +286,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "position", "absolute");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
 	rc = ezcfg_css_add_rule_set(css, buf, "top", "180px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
@@ -366,175 +350,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "center");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	/* div#submenu {
-	 *   position: absolute;
-	 *   top: 81px;
-	 *   left: 0;
-	 *   width: 166px;
-	 *   height: 700px;
-	 *   font: 16px Verdana, sans-serif;
-	 *   z-index: 100;}
-	 */   
-	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU);
-	rc = ezcfg_css_add_rule_set(css, buf, "position", "absolute");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "top", "81px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "left", "0");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "width", "166px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "height", "700px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "16px Verdana, sans-serif");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "z-index", "100");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	/* div#submenu a {
-	 *   display: block;
-	 *   text-align: center;
-	 *   font: bold 1em sans-serif; 
-	 *   padding: 5px 10px;
-	 *   margin: 0 0 1px;
-	 *   border-width: 0; 
-	 *   text-decoration: none;
-	 *   color: #FFC;
-	 *   background: #444;
-	 *   border-right: 5px solid #505050;}
-	 */
-	snprintf(buf, sizeof(buf), "%s#%s %s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU, EZCFG_HTML_A_ELEMENT_NAME);
-	rc = ezcfg_css_add_rule_set(css, buf, "display", "block");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "center");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "bold 1em sans-serif");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "padding", "5px 10px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 0 1px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "border-width", "0");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "text-decoration", "none");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "color", "#FFC");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "background", "#444");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "border-right", "5px solid #505050");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	/* div#submenu a:hover {
-	 *   color: #411;
-	 *   background: #AAA;
-	 *   border-right: 5px double white;}
-	 */    
-	snprintf(buf, sizeof(buf), "%s#%s %s:%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU, EZCFG_HTML_A_ELEMENT_NAME, "hover");
-	rc = ezcfg_css_add_rule_set(css, buf, "color", "#411");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "background", "#AAA");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "border-right", "5px double white");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -544,105 +359,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	/* div#menu a span {display: none;} */
 	snprintf(buf, sizeof(buf), "%s#%s %s %s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU, EZCFG_HTML_A_ELEMENT_NAME, EZCFG_HTML_SPAN_ELEMENT_NAME);
 	rc = ezcfg_css_add_rule_set(css, buf, "display", "none");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	/* div#submenu a:hover span {
-	 *   display: block;
-	 *   position: absolute;
-	 *   top: 180px;
-	 *   left: 0;
-	 *   width: 125px;
-	 *   padding: 5px;
-	 *   margin: 10px;
-	 *   z-index: 100;
-	 *   color: #AAA;
-	 *   background: black;
-	 *   font: 10px Verdana, sans-serif;
-	 *   text-align: center;}
-	 */
-	snprintf(buf, sizeof(buf), "%s#%s %s:%s %s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU, EZCFG_HTML_A_ELEMENT_NAME, "hover", EZCFG_HTML_SPAN_ELEMENT_NAME);
-	rc = ezcfg_css_add_rule_set(css, buf, "display", "block");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "position", "absolute");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "top", "180px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "left", "0");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "width", "125px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "padding", "5px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "margin", "10px");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "z-index", "100");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "color", "#AAA");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "background", "black");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "10 px Verdana, sans-serif");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "center");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;

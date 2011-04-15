@@ -45,9 +45,8 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_locale *locale = NULL;
-	int menu_index, submenu_index;
-	int ul_index, li_index, a_index;
-	int ul2_index, li2_index, a2_index;
+	int menu_index;
+	int ul_index, li_index;
 	int child_index;
 	int ret = -1;
 
@@ -79,84 +78,17 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 	}
 
 	/* menu <ul> <li> */
-	li_index = ezcfg_html_add_body_child(html, ul_index, -1, EZCFG_HTML_LI_ELEMENT_NAME, NULL);
+	/* menu Status */
+	li_index = ezcfg_http_html_admin_html_menu_status(html, ul_index, -1);
 	if (li_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 
-	/* menu <ul> <li> <a> */
-	a_index = ezcfg_html_add_body_child(html, li_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Status"));
-	if (a_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "#", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* menu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the device -- You can check running info and so on."));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
-	/* <div id="submenu"> */
-	submenu_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
-	if (submenu_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, submenu_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* submenu <ul> */
-	ul2_index = ezcfg_html_add_body_child(html, submenu_index, -1, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
-	if (ul2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
-	/* status_system */
-	/* submenu <ul> <li> */
-	li2_index = ezcfg_html_add_body_child(html, ul2_index, -1, EZCFG_HTML_LI_ELEMENT_NAME, NULL);
-	if (li2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
-	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "System"));
-	if (a2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "#", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the system -- You can check system info and so on."));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
-	/* status_lan */
-	/* submenu <ul> <li> */
-	li2_index = ezcfg_html_add_body_child(html, ul2_index, -1, EZCFG_HTML_LI_ELEMENT_NAME, NULL);
-	if (li2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
-	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Local Network"));
-	if (a2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "#", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of local network -- You can check local area networks info and so on."));
-	if (child_index < 0) {
+	/* menu <ul> <li> */
+	/* menu Setup */
+	li_index = ezcfg_http_html_admin_html_menu_setup(html, ul_index, li_index);
+	if (li_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}

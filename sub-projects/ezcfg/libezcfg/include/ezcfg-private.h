@@ -272,6 +272,12 @@ bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http *http);
 /* http/admin/http_html_admin_menu.c */
 int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si);
 
+/* http/admin/http_html_admin_menu_status.c */
+int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int si);
+
+/* http/admin/http_html_admin_menu_setup.c */
+int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int si);
+
 /* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
