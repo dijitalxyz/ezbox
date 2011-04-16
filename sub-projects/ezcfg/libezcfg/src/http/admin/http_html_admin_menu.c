@@ -47,7 +47,6 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 	struct ezcfg_locale *locale = NULL;
 	int menu_index;
 	int ul_index, li_index;
-	int child_index;
 	int ret = -1;
 
 	ASSERT(html != NULL);
