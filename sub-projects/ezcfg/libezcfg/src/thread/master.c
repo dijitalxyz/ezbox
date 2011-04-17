@@ -294,7 +294,7 @@ static void master_load_common_conf(struct ezcfg_master *master)
 static void master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	char *p;
+	char *p = NULL;
 	int i;
 	int socket_number = -1;
 
@@ -365,14 +365,15 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 				sp = ezcfg_socket_new(ezcfg, domain, type, proto, p);
 				if (sp == NULL) {
 					err(ezcfg, "init socket fail: %m\n");
-					goto continue_load;
+					free(p);
+					continue;
 				}
 
 			    	if (ezcfg_socket_list_in(&(master->listening_sockets), sp) == true) {
 					info(ezcfg, "socket already up\n");
 					ezcfg_socket_delete(sp);
-					sp = NULL;
-					goto continue_load;
+					free(p);
+					continue;
 				}
 
 				if ((domain == AF_LOCAL) &&
@@ -383,29 +384,28 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 				if (ezcfg_socket_list_insert(&(master->listening_sockets), sp) < 0) {
 					err(ezcfg, "insert listener socket fail: %m\n");
 					ezcfg_socket_delete(sp);
-					sp = NULL;
+					free(p);
+					continue;
 				}
-			}
-continue_load:
-			free(p);
-
-			if (sp == NULL) {
-				continue;
 			}
 
 			if (ezcfg_socket_enable_receiving(sp) < 0) {
 				err(ezcfg, "enable socket [%s] receiving fail: %m\n", p);
 				ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+				free(p);
 				continue;
 			}
 
 			if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
 				err(ezcfg, "enable socket [%s] listening fail: %m\n", p);
 				ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+				free(p);
 				continue;
 			}
 
 			ezcfg_socket_set_close_on_exec(sp);
+
+			free(p);
 		}
 	}
 }
