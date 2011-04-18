@@ -68,7 +68,8 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   position: relative;
 	 *   background: black;
 	 *   margin: 0;
-	 *   padding: 0;}
+	 *   padding: 0;
+	 * }
 	 */
 	rc = ezcfg_css_add_rule_set(css, EZCFG_HTML_BODY_ELEMENT_NAME, "position", "relative");
 	if (rc < 0) {
@@ -95,51 +96,228 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
+	/* div#container {
+	 *   width: 100%;
+	 * }
+	 */
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "100%");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* div#head {
+	 *   width: 800px;
+	 *   margin: 0 auto;
+	 *   height: 100px;
+	 *   background: #FFCC99;
+	 * }
+	 */   
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_HEAD);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "800px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "100px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "background", "#FFCC99");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* div#main {
+	 *   width: 800px;
+	 *   margin: 0 auto;
+	 *   height: auto;
+	 *   background: #CCFF00;
+	 * }
+	 */   
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "800px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "background", "#CCFF00");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* div#foot {
+	 *   width: 800px;
+	 *   margin: 0 auto;
+	 *   height: 50px;
+	 *   background: #00FFFF;
+	 * }
+	 */   
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_FOOT);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "800px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "50px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "background", "#00FFFF");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
 	/* div#menu {
-	 *   top: 81px;
-	 *   left: 0;
-	 *   width: 166px;
-	 *   height: 700px;
-	 *   font: 16px Verdana, sans-serif;
-	 *   z-index: 100;}
+	 *   width: 200px;
+	 *   text-align: left;
+	 *   float: left;
+	 *   clear: left;
+	 *   overflow: hidden;
+	 * }
 	 */   
 	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU);
-	rc = ezcfg_css_add_rule_set(css, buf, "top", "81px");
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "200px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "left", "0");
+	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "left");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "width", "166px");
+	rc = ezcfg_css_add_rule_set(css, buf, "float", "left");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "height", "700px");
+	rc = ezcfg_css_add_rule_set(css, buf, "clear", "left");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "16px Verdana, sans-serif");
+	rc = ezcfg_css_add_rule_set(css, buf, "overflow", "hidden");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "z-index", "100");
+	/* div#content {
+	 *   width: 580px;
+	 *   text-align: left;
+	 *   float: right;
+	 *   clear: right;
+	 *   overflow: hidden;
+	 * }
+	 */   
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "580px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "left");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "float", "right");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "clear", "right");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "overflow", "hidden");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* div#clear {
+	 *   clear: both;
+	 *   overflow: hidden;
+	 * }
+	 */   
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CLEAR);
+	rc = ezcfg_css_add_rule_set(css, buf, "clear", "both");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "overflow", "hidden");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;

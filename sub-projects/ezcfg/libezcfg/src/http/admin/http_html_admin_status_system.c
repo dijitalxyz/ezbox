@@ -36,6 +36,53 @@
 /**
  * Private functions
  **/
+static int set_html_main_status_system(struct ezcfg_http *http, struct ezcfg_nvram *nvram, struct ezcfg_html *html, int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	int main_index;
+	int content_index, child_index;
+	int ret = -1;
+
+	ASSERT(html != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = html->ezcfg;
+
+	/* <div id="main"> */
+	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (main_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <div id="menu"> */
+	child_index = ezcfg_http_html_admin_set_html_menu(html, main_index, -1);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
+		goto func_exit;
+	}
+
+	/* <div id="content"> */
+	content_index = ezcfg_html_add_body_child(html, main_index, child_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (content_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <div id="clear"> */
+	child_index = ezcfg_http_html_admin_set_html_clear(html, main_index, content_index);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_clear.\n");
+		goto func_exit;
+	}
+	/* must return main index */
+	ret = main_index;
+
+func_exit:
+
+	return ret;
+}
 
 static int build_admin_status_system_response(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
 {
@@ -43,7 +90,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
 	int head_index, body_index, child_index;
-	int container_index, form_index, menu_index;
+	int container_index, form_index;
 	char *msg = NULL;
 	int msg_len;
 	int n;
@@ -137,13 +184,38 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_METHOD_ATTRIBUTE_NAME, "post", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, "/admin/apply", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	/* HTML div head */
+	child_index = ezcfg_http_html_admin_set_html_head(html, form_index, -1);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_head error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* HTML div main */
+	child_index = set_html_main_status_system(http, nvram, html, form_index, child_index);
+	if (child_index < 0) {
+		err(ezcfg, "set_html_main_status_system error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* HTML div foot */
+	child_index = ezcfg_http_html_admin_set_html_foot(html, form_index, child_index);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_foot error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+#if 0
 	/* HTML div menu */
-	menu_index = ezcfg_http_html_admin_set_html_menu(html, form_index, -1);
+	menu_index = ezcfg_http_html_admin_set_html_menu(html, form_index, head_index);
 	if (menu_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
 		rc = -1;
 		goto func_exit;
 	}
+#endif
 
 #if 0
 	child_index = ezcfg_http_html_admin_set_html_menu(html, menu_index, -1);

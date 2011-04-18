@@ -181,12 +181,21 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
 
+#define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "head"
+#define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "main"
+#define EZCFG_HTTP_HTML_ADMIN_FOOT_DOMAIN              "foot"
 #define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "menu"
+#define EZCFG_HTTP_HTML_ADMIN_CONTENT_DOMAIN           "content"
+#define EZCFG_HTTP_HTML_ADMIN_CLEAR_DOMAIN             "clear"
 
 
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_HEAD          "head"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN          "main"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_FOOT          "foot"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_SUBMENU       "submenu"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT       "content"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CLEAR         "clear"
 
 
 /* ezcfg uuid definitions */
