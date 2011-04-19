@@ -56,16 +56,18 @@ static int submenu_setup_system(struct ezcfg_html *html, int pi, int si, struct 
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "System"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "System"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the system information-- You can change system information and so on."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the system information-- You can change system information and so on."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -98,16 +100,18 @@ static int submenu_setup_lan(struct ezcfg_html *html, int pi, int si, struct ezc
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "LAN"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "LAN"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/setup_lan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup LAN -- You can change local area network configuration."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup LAN -- You can change local area network configuration."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -140,16 +144,18 @@ static int submenu_setup_wan(struct ezcfg_html *html, int pi, int si, struct ezc
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "WAN"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "WAN"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/setup_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup WAN -- You can change the Internet connection configuration of your device."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup WAN -- You can change the Internet connection configuration of your device."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -166,7 +172,11 @@ func_exit:
 /**
  * Public functions
  **/
-int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int si)
+int ezcfg_http_html_admin_html_menu_setup(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_locale *locale = NULL;
@@ -175,6 +185,8 @@ int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int s
 	int child_index;
 	int ret = -1;
 
+	ASSERT(http != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
@@ -194,16 +206,25 @@ int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int s
 		goto func_exit;
 	}
 
+	a_index = -1;
 	/* menu <ul> <li> <a> */
-	a_index = ezcfg_html_add_body_child(html, li_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup"));
+	a_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_A_ELEMENT_NAME, NULL);
 	if (a_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
+	/* menu <ul> <li> <a> <h3> */
+	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child err.\n");
+		goto func_exit;
+	}
+
 	/* menu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the device -- You can change the configuration of the device."));
+	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the device -- You can change the configuration of the device."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -216,9 +237,10 @@ int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int s
 		goto func_exit;
 	}
 
+	li2_index = -1;
 	/* setup_system */
 	/* submenu <ul> <li> */
-	li2_index = submenu_setup_system(html, ul2_index, -1, locale);
+	li2_index = submenu_setup_system(html, ul2_index, li2_index, locale);
 	if (li2_index < 0) {
 		err(ezcfg, "submenu_setup_system err.\n");
 		goto func_exit;
@@ -248,4 +270,3 @@ func_exit:
 
 	return ret;
 }
-

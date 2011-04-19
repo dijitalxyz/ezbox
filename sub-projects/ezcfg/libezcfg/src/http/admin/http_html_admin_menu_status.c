@@ -56,16 +56,18 @@ static int submenu_status_system(struct ezcfg_html *html, int pi, int si, struct
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "System"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "System"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the system -- You can check system information and so on."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the system -- You can check system information and so on."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -98,16 +100,18 @@ static int submenu_status_lan(struct ezcfg_html *html, int pi, int si, struct ez
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "LAN"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "LAN"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_lan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of LAN -- You can check local area network information and so on."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of LAN -- You can check local area network information and so on."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -140,16 +144,18 @@ static int submenu_status_wan(struct ezcfg_html *html, int pi, int si, struct ez
 		goto func_exit;
 	}
 
+	a2_index = -1;
 	/* submenu <ul> <li> <a> */
-	a2_index = ezcfg_html_add_body_child(html, li2_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "WAN"));
+	a2_index = ezcfg_html_add_body_child(html, li2_index, a2_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "WAN"));
 	if (a2_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a2_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of WAN -- You can check wide area network information and so on."));
+	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of WAN -- You can check wide area network information and so on."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -166,7 +172,11 @@ func_exit:
 /**
  * Public functions
  **/
-int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int si)
+int ezcfg_http_html_admin_html_menu_status(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_locale *locale = NULL;
@@ -175,6 +185,8 @@ int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int 
 	int child_index;
 	int ret = -1;
 
+	ASSERT(http != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
@@ -194,16 +206,25 @@ int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int 
 		goto func_exit;
 	}
 
+	a_index = -1;
 	/* menu <ul> <li> <a> */
-	a_index = ezcfg_html_add_body_child(html, li_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Status"));
+	a_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_A_ELEMENT_NAME, NULL);
 	if (a_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
+	/* menu <ul> <li> <a> <h3> */
+	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Status"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child err.\n");
+		goto func_exit;
+	}
+
 	/* menu <ul> <li> <a> <span> */
-	child_index = ezcfg_html_add_body_child(html, a_index, -1, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the device -- You can check running info and so on."));
+	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "The status of the device -- You can check running info and so on."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -217,8 +238,9 @@ int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int 
 	}
 
 	/* status_system */
+	li2_index = -1;
 	/* submenu <ul> <li> */
-	li2_index = submenu_status_system(html, ul2_index, -1, locale);
+	li2_index = submenu_status_system(html, ul2_index, li2_index, locale);
 	if (li2_index < 0) {
 		err(ezcfg, "submenu_status_system err.\n");
 		goto func_exit;
@@ -248,4 +270,3 @@ func_exit:
 
 	return ret;
 }
-

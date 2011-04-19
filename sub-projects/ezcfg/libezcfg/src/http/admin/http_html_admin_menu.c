@@ -41,7 +41,11 @@
  * Public functions
  **/
 
-int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
+int ezcfg_http_html_admin_set_html_menu(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_locale *locale = NULL;
@@ -49,6 +53,8 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 	int ul_index, li_index;
 	int ret = -1;
 
+	ASSERT(http != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
@@ -78,7 +84,7 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 
 	/* menu <ul> <li> */
 	/* menu Status */
-	li_index = ezcfg_http_html_admin_html_menu_status(html, ul_index, -1);
+	li_index = ezcfg_http_html_admin_html_menu_status(http, nvram, html, ul_index, -1);
 	if (li_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
@@ -86,7 +92,7 @@ int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si)
 
 	/* menu <ul> <li> */
 	/* menu Setup */
-	li_index = ezcfg_http_html_admin_html_menu_setup(html, ul_index, li_index);
+	li_index = ezcfg_http_html_admin_html_menu_setup(http, nvram, html, ul_index, li_index);
 	if (li_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;

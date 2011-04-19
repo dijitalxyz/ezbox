@@ -86,8 +86,9 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_head.c
 # ezcfg HTML/HTTP admin foot handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_foot.c
 
-# ezcfg HTML/HTTP admin clear handling
-libezcfg_la_SOURCES += src/http/admin/http_html_admin_clear.c
+# ezcfg HTML/HTTP admin button handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_button.c
+
 
 # ezcfg HTML/HTTP admin menu handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu.c

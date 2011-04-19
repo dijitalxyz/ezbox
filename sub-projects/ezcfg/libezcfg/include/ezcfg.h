@@ -181,12 +181,13 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
 
-#define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "head"
-#define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "main"
-#define EZCFG_HTTP_HTML_ADMIN_FOOT_DOMAIN              "foot"
-#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "menu"
-#define EZCFG_HTTP_HTML_ADMIN_CONTENT_DOMAIN           "content"
-#define EZCFG_HTTP_HTML_ADMIN_CLEAR_DOMAIN             "clear"
+#define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
+#define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"
+#define EZCFG_HTTP_HTML_ADMIN_FOOT_DOMAIN              "admin_foot"
+#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "admin_menu"
+#define EZCFG_HTTP_HTML_ADMIN_CONTENT_DOMAIN           "admin_content"
+#define EZCFG_HTTP_HTML_ADMIN_CLEAR_DOMAIN             "admin_clear"
+#define EZCFG_HTTP_HTML_ADMIN_BUTTON_DOMAIN            "admin_button"
 
 
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"
@@ -196,7 +197,10 @@
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT       "content"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CLEAR         "clear"
+#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_BUTTON        "button"
 
+#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT        "submit"
+#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_FILE          "file"
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */

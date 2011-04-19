@@ -112,6 +112,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   width: 800px;
 	 *   margin: 0 auto;
 	 *   height: 100px;
+	 *   text-align: center;
 	 *   background: #FFCC99;
 	 * }
 	 */   
@@ -131,6 +132,13 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	rc = ezcfg_css_add_rule_set(css, buf, "height", "100px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "center");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -184,6 +192,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   width: 800px;
 	 *   margin: 0 auto;
 	 *   height: 50px;
+	 *   text-align: right;
 	 *   background: #00FFFF;
 	 * }
 	 */   
@@ -209,6 +218,13 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
+	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "right");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
 	rc = ezcfg_css_add_rule_set(css, buf, "background", "#00FFFF");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
@@ -217,7 +233,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	/* div#menu {
-	 *   width: 200px;
+	 *   width: 180px;
 	 *   text-align: left;
 	 *   float: left;
 	 *   clear: left;
@@ -225,7 +241,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 * }
 	 */   
 	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU);
-	rc = ezcfg_css_add_rule_set(css, buf, "width", "200px");
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "180px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -304,12 +320,44 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	/* div#clear {
+	/* div#button {
+	 *   width: 800px;
+	 *   margin: 0 auto;
+	 *   height: auto;
+	 *   text-align: right;
 	 *   clear: both;
 	 *   overflow: hidden;
 	 * }
 	 */   
-	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CLEAR);
+	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_BUTTON);
+	rc = ezcfg_css_add_rule_set(css, buf, "width", "800px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "right");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
 	rc = ezcfg_css_add_rule_set(css, buf, "clear", "both");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
@@ -324,10 +372,28 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
+	/* div#menu ul {
+	 *   padding: 0;
+	 *   margin: 0;
+	 */
+	snprintf(buf, sizeof(buf), "%s#%s %s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU, EZCFG_HTML_UL_ELEMENT_NAME);
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding", "0");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
 	/* div#menu ul li a {
 	 *   display: block;
 	 *   text-align: center;
-	 *   font: bold 1em sans-serif; 
 	 *   padding: 5px 10px;
 	 *   margin: 0 0 1px;
 	 *   border-width: 0; 
@@ -345,13 +411,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "center");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "bold 1em sans-serif");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -453,7 +512,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   z-index: 100;
 	 *   color: #AAA;
 	 *   background: black;
-	 *   font: 10px Verdana, sans-serif;
 	 *   text-align: center;}
 	 */
 	snprintf(buf, sizeof(buf), "%s#%s %s %s %s:%s %s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU, EZCFG_HTML_UL_ELEMENT_NAME, EZCFG_HTML_LI_ELEMENT_NAME, EZCFG_HTML_A_ELEMENT_NAME, "hover", EZCFG_HTML_SPAN_ELEMENT_NAME);
@@ -514,13 +572,6 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	rc = ezcfg_css_add_rule_set(css, buf, "background", "black");
-	if (rc < 0) {
-		err(ezcfg, "ezcfg_css_add_rule_set.\n");
-		rc = -1;
-		goto func_exit;
-	}
-
-	rc = ezcfg_css_add_rule_set(css, buf, "font", "10 px Verdana, sans-serif");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;

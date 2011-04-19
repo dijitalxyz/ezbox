@@ -36,13 +36,22 @@
 /**
  * Private functions
  **/
-static int set_html_main_status_system(struct ezcfg_http *http, struct ezcfg_nvram *nvram, struct ezcfg_html *html, int pi, int si)
+static int set_html_main_status_system(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_locale *locale,
+	struct ezcfg_html *html,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	int main_index;
 	int content_index, child_index;
+	char buf[1024];
+	char *p = NULL;
 	int ret = -1;
 
+	ASSERT(http != NULL);
+	ASSERT(nvram != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
@@ -57,7 +66,7 @@ static int set_html_main_status_system(struct ezcfg_http *http, struct ezcfg_nvr
 	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(html, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(http, nvram, html, main_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
@@ -69,18 +78,97 @@ static int set_html_main_status_system(struct ezcfg_http *http, struct ezcfg_nvr
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+	ezcfg_html_add_body_child_attribute(html, content_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+	child_index = -1;
+	/* <h3>Version Information</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Version Information"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Device Name : ezbox </p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, DEVICE_NAME), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Device Name"), p);
+		free(p);
+	}
+	else {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Device Name"), ezcfg_locale_text(locale, "Unknown Device"));
+	}
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Serial Number : 0123456789 </p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Serial Number"), p);
+		free(p);
+	}
+	else {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Serial Number"), ezcfg_locale_text(locale, "Invalid Serial Number"));
+	}
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Hardware Version : 1.0 </p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, HARDWARE_VERSION), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Hardware Version"), p);
+		free(p);
+	}
+	else {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Hardware Version"), ezcfg_locale_text(locale, "Invalid Version"));
+	}
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Software Version : 1.0 </p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Software Version"), p);
+		free(p);
+	}
+	else {
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s", ezcfg_locale_text(locale, "Software Version"), ezcfg_locale_text(locale, "Invalid Version"));
+	}
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+#if 0
+	child_index = content_index;
 	/* <div id="clear"> */
-	child_index = ezcfg_http_html_admin_set_html_clear(html, main_index, content_index);
+	child_index = ezcfg_http_html_admin_set_html_clear(html, main_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_clear.\n");
 		goto func_exit;
 	}
+#endif
+	child_index = content_index;
+	/* <div id="button"> */
+	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, main_index, child_index);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_http_html_admin_set_html_button.\n");
+		goto func_exit;
+	}
+
 	/* must return main index */
 	ret = main_index;
 
 func_exit:
-
 	return ret;
 }
 
@@ -185,7 +273,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, "/admin/apply", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
-	child_index = ezcfg_http_html_admin_set_html_head(html, form_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_head(http, nvram, html, form_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_head error.\n");
 		rc = -1;
@@ -193,7 +281,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_status_system(http, nvram, html, form_index, child_index);
+	child_index = set_html_main_status_system(http, nvram, locale, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "set_html_main_status_system error.\n");
 		rc = -1;
@@ -201,30 +289,12 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	}
 
 	/* HTML div foot */
-	child_index = ezcfg_http_html_admin_set_html_foot(html, form_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_foot(http, nvram, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_foot error.\n");
 		rc = -1;
 		goto func_exit;
 	}
-#if 0
-	/* HTML div menu */
-	menu_index = ezcfg_http_html_admin_set_html_menu(html, form_index, head_index);
-	if (menu_index < 0) {
-		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
-		rc = -1;
-		goto func_exit;
-	}
-#endif
-
-#if 0
-	child_index = ezcfg_http_html_admin_set_html_menu(html, menu_index, -1);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_http_html_admin_set_html_menu error.\n");
-		rc = -1;
-		goto func_exit;
-	}
-#endif
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {

@@ -41,11 +41,16 @@
  * Public functions
  **/
 
-int ezcfg_http_html_admin_set_html_head(struct ezcfg_html *html, int pi, int si)
+int ezcfg_http_html_admin_set_html_head(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_locale *locale = NULL;
-	int head_index;
+	int head_index, child_index;
+	int h1_index;
 	int ret = -1;
 
 	ASSERT(html != NULL);
@@ -67,6 +72,27 @@ int ezcfg_http_html_admin_set_html_head(struct ezcfg_html *html, int pi, int si)
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, head_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_HEAD, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <h1><a href="http://code.google.com/p/ezbox/">ezbox</a></h1> */
+	h1_index = ezcfg_html_add_body_child(html, head_index, -1, EZCFG_HTML_H1_ELEMENT_NAME, NULL);
+	if (h1_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	child_index = ezcfg_html_add_body_child(html, h1_index, -1, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "ezbox"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "http://code.google.com/p/ezbox/", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <h2>Open Platform for Embedded System Study</h2> */
+	child_index = ezcfg_html_add_body_child(html, head_index, h1_index, EZCFG_HTML_H2_ELEMENT_NAME, ezcfg_locale_text(locale, "Open Platform for Embedded System Study"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
 
 	/* must return menu index */
 	ret = head_index;

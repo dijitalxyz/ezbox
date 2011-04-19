@@ -270,22 +270,39 @@ bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http *http);
 bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http *http);
 
 /* http/admin/http_html_admin_head.c */
-int ezcfg_http_html_admin_set_html_head(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_set_html_head(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
 
 /* http/admin/http_html_admin_foot.c */
-int ezcfg_http_html_admin_set_html_foot(struct ezcfg_html *html, int pi, int si);
-
-/* http/admin/http_html_admin_clear.c */
-int ezcfg_http_html_admin_set_html_clear(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_set_html_foot(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
 
 /* http/admin/http_html_admin_menu.c */
-int ezcfg_http_html_admin_set_html_menu(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_set_html_menu(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
 
 /* http/admin/http_html_admin_menu_status.c */
-int ezcfg_http_html_admin_html_menu_status(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_html_menu_status(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
 
 /* http/admin/http_html_admin_menu_setup.c */
-int ezcfg_http_html_admin_html_menu_setup(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_html_menu_setup(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
 
 /* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
