@@ -110,8 +110,12 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 
 	/* div#head {
 	 *   width: 800px;
-	 *   margin: 0 auto;
-	 *   height: 100px;
+	 *   margin: auto;
+	 *   height: auto;
+	 *   padding-top: 1px;
+	 *   padding-bottom: 1px;
+	 *   padding-left: 5px;
+	 *   padding-right: 5px;
 	 *   text-align: center;
 	 *   background: #FFCC99;
 	 * }
@@ -124,14 +128,42 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "auto");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "height", "100px");
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-top", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-bottom", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-left", "5px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-right", "5px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -154,9 +186,14 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 
 	/* div#main {
 	 *   width: 800px;
-	 *   margin: 0 auto;
+	 *   margin: auto;
 	 *   height: auto;
+	 *   padding-top: 1px;
+	 *   padding-bottom: 1px;
+	 *   padding-left: 5px;
+	 *   padding-right: 5px;
 	 *   background: #CCFF00;
+	 *   overflow: hidden;
 	 * }
 	 */   
 	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN);
@@ -167,7 +204,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "auto");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -181,7 +218,42 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-top", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-bottom", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-left", "5px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-right", "5px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
 	rc = ezcfg_css_add_rule_set(css, buf, "background", "#CCFF00");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "overflow", "hidden");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -190,9 +262,14 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 
 	/* div#foot {
 	 *   width: 800px;
-	 *   margin: 0 auto;
-	 *   height: 50px;
+	 *   margin: auto;
+	 *   height: auto;
+	 *   padding-top: 1px;
+	 *   padding-bottom: 1px;
+	 *   padding-left: 5px;
+	 *   padding-right: 5px;
 	 *   text-align: right;
+	 *   clear: both;
 	 *   background: #00FFFF;
 	 * }
 	 */   
@@ -204,14 +281,42 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "margin", "0 auto");
+	rc = ezcfg_css_add_rule_set(css, buf, "margin", "auto");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
-	rc = ezcfg_css_add_rule_set(css, buf, "height", "50px");
+	rc = ezcfg_css_add_rule_set(css, buf, "height", "auto");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-top", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-bottom", "1px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-left", "5px");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "padding-right", "5px");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -219,6 +324,13 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	}
 
 	rc = ezcfg_css_add_rule_set(css, buf, "text-align", "right");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	rc = ezcfg_css_add_rule_set(css, buf, "clear", "both");
 	if (rc < 0) {
 		err(ezcfg, "ezcfg_css_add_rule_set.\n");
 		rc = -1;
@@ -328,7 +440,8 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	 *   clear: both;
 	 *   overflow: hidden;
 	 * }
-	 */   
+	 */ 
+#if 0
 	snprintf(buf, sizeof(buf), "%s#%s", EZCFG_HTML_DIV_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_BUTTON);
 	rc = ezcfg_css_add_rule_set(css, buf, "width", "800px");
 	if (rc < 0) {
@@ -371,6 +484,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		rc = -1;
 		goto func_exit;
 	}
+#endif
 
 	/* div#menu ul {
 	 *   padding: 0;

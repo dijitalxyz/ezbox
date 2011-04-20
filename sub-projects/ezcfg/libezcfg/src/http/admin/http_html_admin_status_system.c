@@ -157,9 +157,8 @@ static int set_html_main_status_system(
 		goto func_exit;
 	}
 #endif
-	child_index = content_index;
-	/* <div id="button"> */
-	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, main_index, child_index);
+	/* <input> buttons part */
+	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_button.\n");
 		goto func_exit;

@@ -186,7 +186,6 @@
 #define EZCFG_HTTP_HTML_ADMIN_FOOT_DOMAIN              "admin_foot"
 #define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "admin_menu"
 #define EZCFG_HTTP_HTML_ADMIN_CONTENT_DOMAIN           "admin_content"
-#define EZCFG_HTTP_HTML_ADMIN_CLEAR_DOMAIN             "admin_clear"
 #define EZCFG_HTTP_HTML_ADMIN_BUTTON_DOMAIN            "admin_button"
 
 
@@ -196,7 +195,6 @@
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_FOOT          "foot"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT       "content"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CLEAR         "clear"
 #define EZCFG_HTTP_HTML_ADMIN_DIV_ID_BUTTON        "button"
 
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT        "submit"

@@ -283,6 +283,13 @@ int ezcfg_http_html_admin_set_html_foot(
 	struct ezcfg_html *html,
 	int pi, int si);
 
+/* http/admin/http_html_admin_button.c */
+int ezcfg_http_html_admin_set_html_button(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_html *html,
+	int pi, int si);
+
 /* http/admin/http_html_admin_menu.c */
 int ezcfg_http_html_admin_set_html_menu(
 	struct ezcfg_http *http,
