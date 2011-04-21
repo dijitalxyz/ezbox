@@ -40,6 +40,7 @@ struct http_html_admin_handler {
 
 struct http_html_admin_handler adm_handlers[] = {
 	{ "status_system", ezcfg_http_html_admin_status_system_handler },
+	{ "setup_system", ezcfg_http_html_admin_setup_system_handler },
 	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }
 };
@@ -70,8 +71,12 @@ int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram 
 	if (strncmp(request_uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
 		/* admin prefix uri=[/admin/] */
 		section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
-		if (*section == '\0')
-			section = "status_system";
+		if (*section == '\0') {
+			if (ezcfg_http_set_request_uri(http, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_system") == true) {
+				request_uri = ezcfg_http_get_request_uri(http);
+				section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
+			}
+		}
 		ah = adm_handlers;
 		while(ah->section != NULL) {
 			if (strcmp(ah->section, section) == 0) {

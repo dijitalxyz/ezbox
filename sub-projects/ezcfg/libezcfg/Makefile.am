@@ -106,6 +106,9 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
 # ezcfg HTML/HTTP admin status_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
 
+# ezcfg HTML/HTTP admin setup_system handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_system.c
+
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c
 

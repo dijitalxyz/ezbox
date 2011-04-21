@@ -63,7 +63,7 @@ static int submenu_status_system(struct ezcfg_html *html, int pi, int si, struct
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
@@ -107,7 +107,7 @@ static int submenu_status_lan(struct ezcfg_html *html, int pi, int si, struct ez
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_lan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_lan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
@@ -151,7 +151,7 @@ static int submenu_status_wan(struct ezcfg_html *html, int pi, int si, struct ez
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
@@ -183,6 +183,7 @@ int ezcfg_http_html_admin_html_menu_status(
 	int li_index, a_index;
 	int ul2_index, li2_index;
 	int child_index;
+	char *request_uri, *section;
 	int ret = -1;
 
 	ASSERT(http != NULL);
@@ -191,6 +192,9 @@ int ezcfg_http_html_admin_html_menu_status(
 	ASSERT(pi > 1);
 
 	ezcfg = html->ezcfg;
+
+	request_uri = ezcfg_http_get_request_uri(http);
+	section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
 
         /* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -213,7 +217,7 @@ int ezcfg_http_html_admin_html_menu_status(
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
 	/* menu <ul> <li> <a> <h3> */
@@ -230,36 +234,40 @@ int ezcfg_http_html_admin_html_menu_status(
 		goto func_exit;
 	}
 
-	/* submenu <ul> */
-	ul2_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
-	if (ul2_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
+	if ((strcmp(section, "status_system") == 0) ||
+	    (strcmp(section, "status_lan") == 0) ||
+	    (strcmp(section, "status_wan") == 0)) {
+		/* submenu <ul> */
+		ul2_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
+		if (ul2_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child err.\n");
+			goto func_exit;
+		}
 
-	/* status_system */
-	li2_index = -1;
-	/* submenu <ul> <li> */
-	li2_index = submenu_status_system(html, ul2_index, li2_index, locale);
-	if (li2_index < 0) {
-		err(ezcfg, "submenu_status_system err.\n");
-		goto func_exit;
-	}
+		/* status_system */
+		li2_index = -1;
+		/* submenu <ul> <li> */
+		li2_index = submenu_status_system(html, ul2_index, li2_index, locale);
+		if (li2_index < 0) {
+			err(ezcfg, "submenu_status_system err.\n");
+			goto func_exit;
+		}
 
-	/* status_wan */
-	/* submenu <ul> <li> */
-	li2_index = submenu_status_lan(html, ul2_index, li2_index, locale);
-	if (li2_index < 0) {
-		err(ezcfg, "submenu_status_lan err.\n");
-		goto func_exit;
-	}
+		/* status_lan */
+		/* submenu <ul> <li> */
+		li2_index = submenu_status_lan(html, ul2_index, li2_index, locale);
+		if (li2_index < 0) {
+			err(ezcfg, "submenu_status_lan err.\n");
+			goto func_exit;
+		}
 
-	/* status_wan */
-	/* submenu <ul> <li> */
-	li2_index = submenu_status_wan(html, ul2_index, li2_index, locale);
-	if (li2_index < 0) {
-		err(ezcfg, "submenu_status_wan err.\n");
-		goto func_exit;
+		/* status_wan */
+		/* submenu <ul> <li> */
+		li2_index = submenu_status_wan(html, ul2_index, li2_index, locale);
+		if (li2_index < 0) {
+			err(ezcfg, "submenu_status_wan err.\n");
+			goto func_exit;
+		}
 	}
 
 	/* must return menu index */

@@ -782,6 +782,11 @@ unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char 
 	return 0;
 }
 
+int ezcfg_http_request_method_cmp(struct ezcfg_http *http, const char *method)
+{
+	return strcmp(http->method_strings[http->method_index], method);
+}
+
 unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code)
 {
 	struct ezcfg *ezcfg;

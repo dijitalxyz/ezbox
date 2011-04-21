@@ -180,6 +180,7 @@
 #define EZCFG_HTTP_HTML_INDEX_DOMAIN        "index"
 
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
+#define EZCFG_HTTP_HTML_ADMIN_SETUP_SYSTEM_DOMAIN      "admin_setup_system"
 
 #define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
 #define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"
@@ -199,6 +200,14 @@
 
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT        "submit"
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_FILE          "file"
+
+#define EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_LANGUAGE     "language"
+
+#define EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_EN_HK       "en_HK"
+#define EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_ZH_CN       "zh_CN"
+
+#define EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING          "warning"
+
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */

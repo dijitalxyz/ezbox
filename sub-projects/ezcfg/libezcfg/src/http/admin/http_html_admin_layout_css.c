@@ -708,6 +708,16 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
+	/* p.warning {color: red;} */
+	snprintf(buf, sizeof(buf), "%s.%s", EZCFG_HTML_P_ELEMENT_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING);
+	rc = ezcfg_css_add_rule_set(css, buf, "color", "red");
+	if (rc < 0) {
+		err(ezcfg, "ezcfg_css_add_rule_set.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+
 	msg_len = ezcfg_css_get_message_length(css);
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_css_get_message_length\n");

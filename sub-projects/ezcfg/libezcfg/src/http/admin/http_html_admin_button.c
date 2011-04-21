@@ -33,6 +33,19 @@
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
 
+
+char *refresh_buttons[] = {
+	"status_system",
+	"status_lan",
+	"status_wan",
+};
+
+char *save_cancel_buttons[] = {
+	"setup_system",
+	"setup_lan",
+	"setup_wan",
+};
+
 /**
  * Private functions
  **/
@@ -51,6 +64,9 @@ int ezcfg_http_html_admin_set_html_button(
 	struct ezcfg_locale *locale = NULL;
 	int button_index;
 	int input_index;
+	char *p;
+	int i;
+	char *section;
 	int ret = -1;
 
 	ASSERT(http != NULL);
@@ -59,6 +75,9 @@ int ezcfg_http_html_admin_set_html_button(
 	ASSERT(pi > 1);
 
 	ezcfg = html->ezcfg;
+
+	p = ezcfg_http_get_request_uri(http);
+	section = p+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
 
         /* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -77,35 +96,47 @@ int ezcfg_http_html_admin_set_html_button(
 
 	input_index = -1;
 
-	/* <input type="submit" name="act_refresh" value="refresh"> */
-	input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (input_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_refresh", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Refresh"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	for (i = 0; i < ARRAY_SIZE(save_cancel_buttons); i++) {
+		p = save_cancel_buttons[i];
+		if (strcmp(p, section) == 0) {
+			/* <input type="submit" name="act_save" value="Save Settings"> */
+			input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+			if (input_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child err.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_save", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Save Settings"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <input type="submit" name="act_cancel" value="cancel"> */
-	input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (input_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_cancel", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Cancel"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			/* <input type="submit" name="act_cancel" value="Cancel Changes"> */
+			input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+			if (input_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child err.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_cancel", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Cancel Changes"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <input type="submit" name="act_apply" value="apply"> */
-	input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (input_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
+			break;
+		}
 	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_apply", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Apply"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	
+	for (i = 0; i < ARRAY_SIZE(refresh_buttons); i++) {
+		p = refresh_buttons[i];
+		if (strcmp(p, section) == 0) {
+			input_index = ezcfg_html_add_body_child(html, button_index, input_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+			if (input_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child err.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_refresh", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Refresh"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			break;
+		}
+	}
 
 	/* must return menu index */
 	ret = button_index;

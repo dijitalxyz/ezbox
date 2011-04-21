@@ -97,7 +97,7 @@ int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_html *html, int pi, 
 	}
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_REL_ATTRIBUTE_NAME, "stylesheet", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, "text/css", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "/admin/layout_css", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "layout_css", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 func_exit:
 	return child_index;

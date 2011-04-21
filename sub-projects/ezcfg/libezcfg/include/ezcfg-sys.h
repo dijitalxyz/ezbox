@@ -23,4 +23,7 @@
 #define EZCFG_SYS_HARDWARE_VERSION        "hardware_version"
 #define EZCFG_SYS_SOFTWARE_VERSION        "software_version"
 
+#define EZCFG_SYS_LANGUAGE                "language"
+#define EZCFG_SYS_TIME_ZONE               "time_zone"
+
 #endif

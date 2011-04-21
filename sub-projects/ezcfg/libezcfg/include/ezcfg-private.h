@@ -191,6 +191,7 @@ bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_
 bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **header_strings, unsigned char num_headers);
 bool ezcfg_http_set_status_code_maps(struct ezcfg_http *http, const void *maps, unsigned short num_status_codes);
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method);
+int ezcfg_http_request_method_cmp(struct ezcfg_http *http, const char *method);
 char *ezcfg_http_get_request_uri(struct ezcfg_http *http);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
 unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code);
@@ -311,11 +312,14 @@ int ezcfg_http_html_admin_html_menu_setup(
 	struct ezcfg_html *html,
 	int pi, int si);
 
+/* http/admin/http_html_admin_layout_css.c */
+int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+
 /* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
-/* http/admin/http_html_admin_layout_css.c */
-int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+/* http/admin/http_html_admin_setup_system.c */
+int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
 
 /* socket/socket_http.c */
