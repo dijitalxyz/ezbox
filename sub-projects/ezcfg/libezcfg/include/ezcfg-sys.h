@@ -24,6 +24,7 @@
 #define EZCFG_SYS_SOFTWARE_VERSION        "software_version"
 
 #define EZCFG_SYS_LANGUAGE                "language"
-#define EZCFG_SYS_TIME_ZONE               "time_zone"
+#define EZCFG_SYS_TZ_AREA                 "tz_area"
+#define EZCFG_SYS_TZ_LOCATION             "tz_location"
 
 #endif

@@ -486,4 +486,8 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 /* util/util_conf.c */
 char *ezcfg_util_get_conf_string(const char *path, const char *section, const int index, const char *keyword);
 
+/* util/util_tzdata.c */
+char *ezcfg_util_get_tz_area_desc(char *tz_area);
+char *ezcfg_util_get_tz_location_desc(char *tz_area, char *tz_location);
+
 #endif

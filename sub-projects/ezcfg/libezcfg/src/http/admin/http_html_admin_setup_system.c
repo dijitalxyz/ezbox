@@ -35,14 +35,73 @@
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
 
-struct lang_pair {
+struct lc_pair {
 	char *lc_name;
 	char *lc_desc;
 };
 
-struct lang_pair support_langs[] = {
+static struct lc_pair support_langs[] = {
 	{ "en_HK", "English (Hong Kong)" },
 	{ "zh_CN", "Chinese (China)" },
+};
+
+static struct lc_pair support_areas[] = {
+	{ "Africa", "Africa" },
+	{ "America", "America" },
+	{ "Antarctica", "Antarctica" },
+	{ "Arctic", "Arctic Ocean" },
+	{ "Asia", "Asia" },
+	{ "Atlantic", "Atlantic Ocean" },
+	{ "Australia", "Australia" },
+	{ "Europe", "Europe" },
+	{ "Indian", "Indian Ocean" },
+	{ "Pacific", "Pacific Ocean" },
+	{ "none", "Posix TZ format" },
+};
+
+static struct lc_pair africa_locations[] = {
+	{ "Algeria", "Algeria" },
+};
+
+static struct lc_pair america_locations[] = {
+	{ "Anguilla", "Anguilla" },
+};
+
+static struct lc_pair antarctica_locations[] = {
+	{ "McMurdo", "McMurdo Station, Ross Island" },
+};
+
+static struct lc_pair arctica_locations[] = {
+	{ "Longyearbyen", "Svalbard & Jan Mayen" },
+};
+
+static struct lc_pair asia_locations[] = {
+	{ "Shanghai", "east China - Beijing, Guangdong, Shanghai, etc." },
+	{ "Hong_Kong", "Hong Kong" },
+};
+
+static struct lc_pair atlantic_locations[] = {
+	{ "Bermuda", "Bermuda" },
+};
+
+static struct lc_pair australia_locations[] = {
+	{ "Lord_Howe", "Lord Howe Island" },
+};
+
+static struct lc_pair europe_locations[] = {
+	{ "Mariehamn", "Aaland Islands" },
+};
+
+static struct lc_pair indian_locations[] = {
+	{ "Chagos", "British Indian Ocean Territory" },
+};
+
+static struct lc_pair pacific_locations[] = {
+	{ "Chatham", "Chatham Islands" },
+};
+
+static struct lc_pair none_locations[] = {
+	{ "GST-10", "GST-10" },
 };
 
 /**
@@ -60,9 +119,11 @@ static int set_html_main_setup_system(
 	int content_index, child_index;
 	int p_index, select_index;
 	char buf[1024];
+	char tz_area[32];
+	char tz_location[64];
 	char *p = NULL;
-	int i;
-	struct lang_pair *lang;
+	int i, location_length;
+	struct lc_pair *lcp;
 	int ret = -1;
 
 	ASSERT(http != NULL);
@@ -130,42 +191,177 @@ static int set_html_main_setup_system(
 	}
 	child_index = -1;
 	for (i = 0; i < ARRAY_SIZE(support_langs); i++) {
-		lang = &(support_langs[i]);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lang->lc_desc));
+		lcp = &(support_langs[i]);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lang->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(buf, lang->lc_name) == 0) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(buf, lcp->lc_name) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
 
 #if 0
-	child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, "English (Hong Kong)"));
+	/* <p><input type="submit" name="act_change_language" value="Change Language"></input></p> */
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_EN_HK, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	if (strcmp(buf, EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_EN_HK) == 0) {
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_change_language", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Change Language"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+#endif
+
+	/* <p>Time Zone : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Time Zone (Area)"));
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (p_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
 	}
 
-	child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, "Chinese (China)"));
+	/* <p>  (Area) : </p> */
+	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Time Zone (Area)"));
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (p_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>  (Area) : <select></select> </p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>  (Area) : <select><option></option></select> </p> */
+	tz_area[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+	if (p != NULL) {
+		snprintf(tz_area, sizeof(tz_area), "%s", p);
+		free(p);
+	}
+
+	child_index = -1;
+	for (i = 0; i < ARRAY_SIZE(support_areas); i++) {
+		lcp = &(support_areas[i]);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tz_area, lcp->lc_name) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+#if 0
+	/* <p><input type="submit" name="act_change_area" value="Change Area"></input></p> */
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_ZH_CN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	if (strcmp(buf, EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_ZH_CN) == 0) {
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	}
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_change_area", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Change Area"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 #endif
+
+	/* <p>  (Location) : </p> */
+	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Time Zone (Location)"));
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (p_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>  (Location) : <select></select> </p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_LOCATION, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>  (Location) : <select><option></option></select> </p> */
+	tz_location[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+	if (p != NULL) {
+		snprintf(tz_location, sizeof(tz_location), "%s", p);
+		free(p);
+	}
+
+	if (strcmp(tz_area, "Africa") == 0) {
+		lcp = africa_locations;
+		location_length = ARRAY_SIZE(africa_locations);
+	}
+	else if (strcmp(tz_area, "America") == 0) {
+		lcp = america_locations;
+		location_length = ARRAY_SIZE(america_locations);
+	}
+	else if (strcmp(tz_area, "Antarctica") == 0) {
+		lcp = antarctica_locations;
+		location_length = ARRAY_SIZE(antarctica_locations);
+	}
+	else if (strcmp(tz_area, "Arctica") == 0) {
+		lcp = arctica_locations;
+		location_length = ARRAY_SIZE(arctica_locations);
+	}
+	else if (strcmp(tz_area, "Asia") == 0) {
+		lcp = asia_locations;
+		location_length = ARRAY_SIZE(asia_locations);
+	}
+	else if (strcmp(tz_area, "Atlantic") == 0) {
+		lcp = atlantic_locations;
+		location_length = ARRAY_SIZE(atlantic_locations);
+	}
+	else if (strcmp(tz_area, "Australia") == 0) {
+		lcp = australia_locations;
+		location_length = ARRAY_SIZE(australia_locations);
+	}
+	else if (strcmp(tz_area, "Europe") == 0) {
+		lcp = europe_locations;
+		location_length = ARRAY_SIZE(europe_locations);
+	}
+	else if (strcmp(tz_area, "Indian") == 0) {
+		lcp = indian_locations;
+		location_length = ARRAY_SIZE(indian_locations);
+	}
+	else if (strcmp(tz_area, "Pacific") == 0) {
+		lcp = pacific_locations;
+		location_length = ARRAY_SIZE(pacific_locations);
+	}
+	else {
+		lcp = none_locations;
+		location_length = ARRAY_SIZE(none_locations);
+	}
+	child_index = -1;
+	for (i = 0; i < location_length; i++, lcp++) {
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tz_location, lcp->lc_name) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
 
 	/* restore index pointer */
 	child_index = p_index;
+
 	/* <input> buttons part */
 	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
 	if (child_index < 0) {

@@ -49,7 +49,9 @@ static int set_html_main_status_system(
 	int main_index;
 	int content_index, child_index;
 	char buf[1024];
-	char *p = NULL;
+	char tz_area[32];
+	char tz_location[64];
+	char *p = NULL, *q = NULL;
 	struct sysinfo info;
 	time_t tm;
 	struct tm tms;
@@ -159,20 +161,48 @@ static int set_html_main_status_system(
 	}
 
 	/* <p>Time Zone : Asia/Shanghai</p> */
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TIME_ZONE), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
-		ezcfg_locale_text(locale, "Time Zone"),
-		(p != NULL) ? ezcfg_locale_text(locale, p) : ezcfg_locale_text(locale, "Unknown Time Zone"));
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
 	if (p != NULL) {
+		snprintf(tz_area, sizeof(tz_area), p);
 		free(p);
+	}
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+	if (p != NULL) {
+		snprintf(tz_location, sizeof(tz_location), p);
+		free(p);
+	}
+	p = ezcfg_util_get_tz_area_desc(tz_area);
+	q = ezcfg_util_get_tz_location_desc(tz_area, tz_location);
+	if ((p != NULL) && (q != NULL)) {
 		tz_ok = true;
 	}
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+		ezcfg_locale_text(locale, "Time Zone"),
+		(tz_ok == true) ? "" : ezcfg_locale_text(locale, "Unknown Time Zone"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	if (tz_ok == false) {
+	if (tz_ok == true) {
+		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;%s",
+			ezcfg_locale_text(locale, "Area"),
+			ezcfg_locale_text(locale, p));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;%s",
+			ezcfg_locale_text(locale, "Location"),
+			ezcfg_locale_text(locale, q));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+	}
+	else {
 		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
