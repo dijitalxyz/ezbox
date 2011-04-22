@@ -18,6 +18,7 @@
 #define EZCFG_UI_NVRAM_PREFIX        "ui_"
 
 /* ezcfg UI names */
-#define EZCFG_UI_TIMEZONE_AREA       "timezone_area"
+#define EZCFG_UI_TZ_AREA             "tz_area"
+#define EZCFG_UI_TZ_LOCATION         "tz_location"
 
 #endif

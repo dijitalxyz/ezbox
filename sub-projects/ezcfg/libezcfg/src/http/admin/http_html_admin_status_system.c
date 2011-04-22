@@ -49,14 +49,14 @@ static int set_html_main_status_system(
 	int main_index;
 	int content_index, child_index;
 	char buf[1024];
+	char lang[16];
 	char tz_area[32];
 	char tz_location[64];
 	char *p = NULL, *q = NULL;
 	struct sysinfo info;
 	time_t tm;
 	struct tm tms;
-	bool tz_ok = false;
-	bool ct_ok = false;
+	bool bool_flag;
 	int ret = -1;
 
 	ASSERT(http != NULL);
@@ -104,11 +104,18 @@ static int set_html_main_status_system(
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Device"));
 	if (p != NULL) {
 		free(p);
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
 	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
+	}
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
 	/* <p>Serial Number : 0123456789 </p> */
@@ -118,11 +125,18 @@ static int set_html_main_status_system(
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Serial Number"));
 	if (p != NULL) {
 		free(p);
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
 	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
+	}
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
 	/* <p>Hardware Version : 1.0 </p> */
@@ -132,11 +146,18 @@ static int set_html_main_status_system(
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Version"));
 	if (p != NULL) {
 		free(p);
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
 	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
+	}
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
 	/* <p>Software Version : 1.0 </p> */
@@ -146,11 +167,18 @@ static int set_html_main_status_system(
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Version"));
 	if (p != NULL) {
 		free(p);
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
 	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
+	}
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
 	/* <h3>System Configurations</h3> */
@@ -160,32 +188,63 @@ static int set_html_main_status_system(
 		goto func_exit;
 	}
 
-	/* <p>Time Zone : Asia/Shanghai</p> */
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+	/* <p>Language : Chinese (China) </p> */
+	lang[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), &p);
 	if (p != NULL) {
-		snprintf(tz_area, sizeof(tz_area), p);
+		snprintf(lang, sizeof(lang), p);
 		free(p);
 	}
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+	p = ezcfg_util_lang_get_desc_by_name(lang);
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+		ezcfg_locale_text(locale, "Language"),
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Language"));
 	if (p != NULL) {
-		snprintf(tz_location, sizeof(tz_location), p);
-		free(p);
+		bool_flag = true;
 	}
-	p = ezcfg_util_get_tz_area_desc(tz_area);
-	q = ezcfg_util_get_tz_location_desc(tz_area, tz_location);
-	if ((p != NULL) && (q != NULL)) {
-		tz_ok = true;
+	else {
+		bool_flag = false;
 	}
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Time Zone"),
-		(tz_ok == true) ? "" : "&nbsp;:&nbsp;",
-		(tz_ok == true) ? "" : ezcfg_locale_text(locale, "Unknown Time Zone"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	if (tz_ok == true) {
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	}
+
+	/* <p>Time Zone : Asia/Shanghai</p> */
+	tz_area[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+	if (p != NULL) {
+		snprintf(tz_area, sizeof(tz_area), p);
+		free(p);
+	}
+	tz_location[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+	if (p != NULL) {
+		snprintf(tz_location, sizeof(tz_location), p);
+		free(p);
+	}
+	p = ezcfg_util_tzdata_get_area_desc_by_name(tz_area);
+	q = ezcfg_util_tzdata_get_location_desc_by_name(tz_area, tz_location);
+	if ((p != NULL) && (q != NULL)) {
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
+	}
+	snprintf(buf, sizeof(buf), "%s%s%s",
+		ezcfg_locale_text(locale, "Time Zone"),
+		(bool_flag == true) ? "" : "&nbsp;:&nbsp;",
+		(bool_flag == true) ? "" : ezcfg_locale_text(locale, "Unknown Time Zone"));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	if (bool_flag == true) {
 		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;%s",
 			ezcfg_locale_text(locale, "Area"),
 			ezcfg_locale_text(locale, p));
@@ -211,7 +270,7 @@ static int set_html_main_status_system(
 	time(&tm);
 	memcpy(&tms, localtime(&tm), sizeof(struct tm));
 	p = NULL;
-	if ((tz_ok == true) &&
+	if ((bool_flag == true) &&
 	    (time(0) > (unsigned long)60*60*24*365)) {
 		p = malloc(256);
 		if (p != NULL) {
@@ -224,13 +283,16 @@ static int set_html_main_status_system(
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p != NULL) {
 		free(p);
-		ct_ok = true;
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
 	}
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	if (ct_ok == false) {
+	if (bool_flag == false) {
 		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
@@ -308,7 +370,7 @@ static int set_html_main_status_system(
 
 		/* <p>Total Swap : 65536 KB </p> */
 		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%lu&nbsp;%s",
-			ezcfg_locale_text(locale, "Total swap"),
+			ezcfg_locale_text(locale, "Total Swap"),
 			info.totalswap,
 			ezcfg_locale_text(locale, "KB"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);

@@ -2,7 +2,7 @@
  * Project Name : ezbox configuration utilities
  * Module Name  : util/util_tzdata.c
  *
- * Description  : get string from config file
+ * Description  : system timezone data settings
  *
  * Copyright (C) 2010-2011 by ezbox-project
  *
@@ -35,133 +35,165 @@ struct tz_pair {
 	char *tz_desc;
 };
 
-struct tz_pair ezcfg_support_areas[] = {
-	{ "Africa", "Africa" },
-	{ "America", "America" },
-	{ "Antarctica", "Antarctica" },
-	{ "Arctic", "Arctic Ocean" },
-	{ "Asia", "Asia" },
-	{ "Atlantic", "Atlantic Ocean" },
-	{ "Australia", "Australia" },
-	{ "Europe", "Europe" },
-	{ "Indian", "Indian Ocean" },
-	{ "Pacific", "Pacific Ocean" },
-	{ "none", "Posix TZ format" },
+struct tz_triple {
+	char *tz_name;
+	char *tz_desc;
+	struct tz_pair *tz_list;
 };
 
 struct tz_pair ezcfg_africa_locations[] = {
 	{ "Algeria", "Algeria" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_america_locations[] = {
 	{ "Anguilla", "Anguilla" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_antarctica_locations[] = {
 	{ "McMurdo", "McMurdo Station, Ross Island" },
+	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_arctica_locations[] = {
+struct tz_pair ezcfg_arctic_locations[] = {
 	{ "Longyearbyen", "Svalbard & Jan Mayen" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_asia_locations[] = {
 	{ "Shanghai", "east China - Beijing, Guangdong, Shanghai, etc." },
 	{ "Hong_Kong", "Hong Kong" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_atlantic_locations[] = {
 	{ "Bermuda", "Bermuda" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_australia_locations[] = {
 	{ "Lord_Howe", "Lord Howe Island" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_europe_locations[] = {
 	{ "Mariehamn", "Aaland Islands" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_indian_locations[] = {
 	{ "Chagos", "British Indian Ocean Territory" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_pacific_locations[] = {
 	{ "Chatham", "Chatham Islands" },
+	{ NULL, NULL },
 };
 
 struct tz_pair ezcfg_none_locations[] = {
 	{ "GST-10", "GST-10" },
+	{ NULL, NULL },
 };
 
-char *ezcfg_util_get_tz_area_desc(char *tz_area)
+struct tz_triple ezcfg_support_areas[] = {
+	{ "Africa", "Africa", ezcfg_africa_locations },
+	{ "America", "America", ezcfg_america_locations },
+	{ "Antarctica", "Antarctica", ezcfg_antarctica_locations },
+	{ "Arctic", "Arctic Ocean", ezcfg_arctic_locations },
+	{ "Asia", "Asia", ezcfg_asia_locations },
+	{ "Atlantic", "Atlantic Ocean", ezcfg_atlantic_locations },
+	{ "Australia", "Australia", ezcfg_australia_locations },
+	{ "Europe", "Europe", ezcfg_europe_locations },
+	{ "Indian", "Indian Ocean", ezcfg_indian_locations },
+	{ "Pacific", "Pacific Ocean", ezcfg_pacific_locations },
+	{ "none", "Posix TZ format", ezcfg_none_locations },
+};
+
+int ezcfg_util_tzdata_get_area_length(void)
+{
+	return ARRAY_SIZE(ezcfg_support_areas);
+}
+
+char *ezcfg_util_tzdata_get_area_name_by_index(int i)
+{
+	return ezcfg_support_areas[i].tz_name;
+}
+
+char *ezcfg_util_tzdata_get_area_desc_by_index(int i)
+{
+	return ezcfg_support_areas[i].tz_desc;
+}
+
+char *ezcfg_util_tzdata_get_area_desc_by_name(char *name)
 {
 	int i;
+	for (i = 0; i < ARRAY_SIZE(ezcfg_support_areas); i++) {
+		if (strcmp(ezcfg_support_areas[i].tz_name, name) == 0)
+			return ezcfg_support_areas[i].tz_desc;
+	}
+	return NULL;
+}
+
+int ezcfg_util_tzdata_get_location_length(char *area)
+{
+	int i, j;
 	struct tz_pair *tzp;
 	for (i = 0; i < ARRAY_SIZE(ezcfg_support_areas); i++) {
-		tzp = &(ezcfg_support_areas[i]);
-		if (strcmp(tzp->tz_name, tz_area) == 0)
-			return tzp->tz_desc;
+		if (strcmp(ezcfg_support_areas[i].tz_name, area) == 0) {
+			j = 0;
+			tzp = ezcfg_support_areas[i].tz_list;
+			while (tzp->tz_name != NULL) {
+				tzp++;
+				j++;
+			}
+			return j;
+		}
 	}
-	return NULL;
+	return -1;
 }
 
-char *ezcfg_util_get_tz_location_desc(char *tz_area, char *tz_location)
+char *ezcfg_util_tzdata_get_location_name_by_index(char *area, int i)
 {
-	int i, location_length;
+	int j;
 	struct tz_pair *tzp;
-	if (strcmp(tz_area, "Africa") == 0) {
-		tzp = ezcfg_africa_locations;
-		location_length = ARRAY_SIZE(ezcfg_africa_locations);
-	}
-	else if (strcmp(tz_area, "America") == 0) {
-		tzp = ezcfg_america_locations;
-		location_length = ARRAY_SIZE(ezcfg_america_locations);
-	}
-	else if (strcmp(tz_area, "Antarctica") == 0) {
-		tzp = ezcfg_antarctica_locations;
-		location_length = ARRAY_SIZE(ezcfg_antarctica_locations);
-	}
-	else if (strcmp(tz_area, "Arctica") == 0) {
-		tzp = ezcfg_arctica_locations;
-		location_length = ARRAY_SIZE(ezcfg_arctica_locations);
-	}
-	else if (strcmp(tz_area, "Asia") == 0) {
-		tzp = ezcfg_asia_locations;
-		location_length = ARRAY_SIZE(ezcfg_asia_locations);
-	}
-	else if (strcmp(tz_area, "Atlantic") == 0) {
-		tzp = ezcfg_atlantic_locations;
-		location_length = ARRAY_SIZE(ezcfg_atlantic_locations);
-	}
-	else if (strcmp(tz_area, "Australia") == 0) {
-		tzp = ezcfg_australia_locations;
-		location_length = ARRAY_SIZE(ezcfg_australia_locations);
-	}
-	else if (strcmp(tz_area, "Europe") == 0) {
-		tzp = ezcfg_europe_locations;
-		location_length = ARRAY_SIZE(ezcfg_europe_locations);
-	}
-	else if (strcmp(tz_area, "Indian") == 0) {
-		tzp = ezcfg_indian_locations;
-		location_length = ARRAY_SIZE(ezcfg_indian_locations);
-	}
-	else if (strcmp(tz_area, "Pacific") == 0) {
-		tzp = ezcfg_pacific_locations;
-		location_length = ARRAY_SIZE(ezcfg_pacific_locations);
-	}
-	else if (strcmp(tz_area, "none") == 0) {
-		tzp = ezcfg_none_locations;
-		location_length = ARRAY_SIZE(ezcfg_none_locations);
-	}
-	else {
-		return NULL;
-	}
-
-	for (i = 0; i < location_length; i++, tzp++) {
-		if (strcmp(tzp->tz_name, tz_location) == 0)
-			return tzp->tz_desc;
+	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
+		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {
+			tzp = ezcfg_support_areas[j].tz_list;
+			return tzp[i].tz_name;
+		}
 	}
 	return NULL;
 }
 
+char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i)
+{
+	int j;
+	struct tz_pair *tzp;
+	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
+		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {
+			tzp = ezcfg_support_areas[j].tz_list;
+			return tzp[i].tz_desc;
+		}
+	}
+	return NULL;
+}
+
+char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name)
+{
+	int j;
+	struct tz_pair *tzp;
+	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
+		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {
+			tzp = ezcfg_support_areas[j].tz_list;
+			while(tzp->tz_name != NULL) {
+				if (strcmp(tzp->tz_name, name) == 0) {
+					return tzp->tz_desc;
+				}
+				tzp++;
+			}
+		}
+	}
+	return NULL;
+}

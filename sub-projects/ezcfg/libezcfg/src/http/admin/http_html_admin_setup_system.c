@@ -35,6 +35,7 @@
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
 
+#if 0
 struct lc_pair {
 	char *lc_name;
 	char *lc_desc;
@@ -103,6 +104,7 @@ static struct lc_pair pacific_locations[] = {
 static struct lc_pair none_locations[] = {
 	{ "GST-10", "GST-10" },
 };
+#endif
 
 /**
  * Private functions
@@ -122,8 +124,7 @@ static int set_html_main_setup_system(
 	char tz_area[32];
 	char tz_location[64];
 	char *p = NULL;
-	int i, location_length;
-	struct lc_pair *lcp;
+	int i;
 	int ret = -1;
 
 	ASSERT(http != NULL);
@@ -190,15 +191,14 @@ static int set_html_main_setup_system(
 		free(p);
 	}
 	child_index = -1;
-	for (i = 0; i < ARRAY_SIZE(support_langs); i++) {
-		lcp = &(support_langs[i]);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
+	for (i = 0; i < ezcfg_util_lang_get_length(); i++) {
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_lang_get_desc_by_index(i)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(buf, lcp->lc_name) == 0) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_lang_get_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(buf, ezcfg_util_lang_get_name_by_index(i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
@@ -251,15 +251,14 @@ static int set_html_main_setup_system(
 	}
 
 	child_index = -1;
-	for (i = 0; i < ARRAY_SIZE(support_areas); i++) {
-		lcp = &(support_areas[i]);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
+	for (i = 0; i < ezcfg_util_tzdata_get_area_length(); i++) {
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_tzdata_get_area_desc_by_index(i)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tz_area, lcp->lc_name) == 0) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_tzdata_get_area_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tz_area, ezcfg_util_tzdata_get_area_name_by_index(i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
@@ -302,59 +301,15 @@ static int set_html_main_setup_system(
 		free(p);
 	}
 
-	if (strcmp(tz_area, "Africa") == 0) {
-		lcp = africa_locations;
-		location_length = ARRAY_SIZE(africa_locations);
-	}
-	else if (strcmp(tz_area, "America") == 0) {
-		lcp = america_locations;
-		location_length = ARRAY_SIZE(america_locations);
-	}
-	else if (strcmp(tz_area, "Antarctica") == 0) {
-		lcp = antarctica_locations;
-		location_length = ARRAY_SIZE(antarctica_locations);
-	}
-	else if (strcmp(tz_area, "Arctica") == 0) {
-		lcp = arctica_locations;
-		location_length = ARRAY_SIZE(arctica_locations);
-	}
-	else if (strcmp(tz_area, "Asia") == 0) {
-		lcp = asia_locations;
-		location_length = ARRAY_SIZE(asia_locations);
-	}
-	else if (strcmp(tz_area, "Atlantic") == 0) {
-		lcp = atlantic_locations;
-		location_length = ARRAY_SIZE(atlantic_locations);
-	}
-	else if (strcmp(tz_area, "Australia") == 0) {
-		lcp = australia_locations;
-		location_length = ARRAY_SIZE(australia_locations);
-	}
-	else if (strcmp(tz_area, "Europe") == 0) {
-		lcp = europe_locations;
-		location_length = ARRAY_SIZE(europe_locations);
-	}
-	else if (strcmp(tz_area, "Indian") == 0) {
-		lcp = indian_locations;
-		location_length = ARRAY_SIZE(indian_locations);
-	}
-	else if (strcmp(tz_area, "Pacific") == 0) {
-		lcp = pacific_locations;
-		location_length = ARRAY_SIZE(pacific_locations);
-	}
-	else {
-		lcp = none_locations;
-		location_length = ARRAY_SIZE(none_locations);
-	}
 	child_index = -1;
-	for (i = 0; i < location_length; i++, lcp++) {
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, lcp->lc_desc));
+	for (i = 0; i < ezcfg_util_tzdata_get_location_length(tz_area); i++) {
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_tzdata_get_location_desc_by_index(tz_area, i)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, lcp->lc_name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tz_location, lcp->lc_name) == 0) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_tzdata_get_location_name_by_index(tz_area, i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tz_location, ezcfg_util_tzdata_get_location_desc_by_index(tz_area, i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
@@ -573,6 +528,7 @@ int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http *http, struct e
 	/* admin setup_system uri=[/admin/setup_system] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
+		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
 	}
 
 	ret = build_admin_setup_system_response(http, nvram);

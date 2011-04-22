@@ -442,29 +442,30 @@ static void handle_http_request(struct ezcfg_worker *worker)
 		msg_len = ezcfg_http_get_message_length(http);
 		if (msg_len < 0) {
 			err(ezcfg, "ezcfg_http_get_message_length error.\n");
-			goto exit;
+			goto func_exit;
 		}
 		msg_len++; /* one more for '\0' */
 		msg = (char *)malloc(msg_len);
 		if (msg == NULL) {
 			err(ezcfg, "malloc msg error.\n");
-			goto exit;
+			goto func_exit;
 		}
 		memset(msg, 0, msg_len);
 		msg_len = ezcfg_http_write_message(http, msg, msg_len);
 		worker_write(worker, msg, msg_len);
-		goto exit;
+		goto func_exit;
 	}
 
 	if (is_http_html_admin_request(request_uri) == true) {
 		struct ezcfg_auth *auth, *auths;
 		bool ret;
 		char buf[1024];
+		char *p;
 
 		auth = ezcfg_auth_new(ezcfg);
 		if (auth == NULL) {
 			err(ezcfg, "ezcfg_auth_new error.\n");
-			goto exit;
+			goto func_exit;
 		}
 
 		if (ezcfg_http_parse_auth(http, auth) == false) {
@@ -472,13 +473,25 @@ static void handle_http_request(struct ezcfg_worker *worker)
 			goto need_authenticate;
 		}
 
-		ret = ezcfg_auth_set_realm(auth, EZCFG_AUTH_REALM_ADMIN_STRING);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
+		if (p == NULL) {
+			err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
+			goto need_authenticate;
+		}
+		ret = ezcfg_auth_set_realm(auth, p);
+		free(p);
 		if (ret == false) {
 			err(ezcfg, "ezcfg_auth_set_realm error.\n");
 			goto need_authenticate;
 		}
 
-		ret = ezcfg_auth_set_domain(auth, EZCFG_AUTH_DOMAIN_ADMIN_STRING);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), &p);
+		if (p == NULL) {
+			err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
+			goto need_authenticate;
+		}
+		ret = ezcfg_auth_set_domain(auth, p);
+		free(p);
 		if (ret == false) {
 			err(ezcfg, "ezcfg_auth_set_domain error.\n");
 			goto need_authenticate;
@@ -499,25 +512,31 @@ need_authenticate:
 			ezcfg_http_set_state_response(http);
 
 			/* http WWW-Authenticate */
-			snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", EZCFG_AUTH_REALM_ADMIN_STRING);
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
+			if (p == NULL) {
+				err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
+				goto func_exit;
+			}
+			snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", p);
+			free(p);
 			ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
 
 			/* build HTTP Unauthorized response */
 			msg_len = ezcfg_http_get_message_length(http);
 			if (msg_len < 0) {
 				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			msg_len++; /* one more for '\0' */
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_http_write_message(http, msg, msg_len);
 			worker_write(worker, msg, msg_len);
-			goto exit;
+			goto func_exit;
 		}
 
 		if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
@@ -530,36 +549,36 @@ need_authenticate:
 			msg_len = ezcfg_http_get_message_length(http);
 			if (msg_len < 0) {
 				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			msg_len++; /* one more for '\0' */
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_http_write_message(http, msg, msg_len);
 			worker_write(worker, msg, msg_len);
-			goto exit;
+			goto func_exit;
 		}
 		else {
 			/* build HTTP response */
 			msg_len = ezcfg_http_get_message_length(http);
 			if (msg_len < 0) {
 				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			msg_len++; /* one more for '\0' */
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_http_write_message(http, msg, msg_len);
 			worker_write(worker, msg, msg_len);
-			goto exit;
+			goto func_exit;
 		}
 	}
 	else {
@@ -574,39 +593,39 @@ need_authenticate:
 			msg_len = ezcfg_http_get_message_length(http);
 			if (msg_len < 0) {
 				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			msg_len++; /* one more for '\0' */
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_http_write_message(http, msg, msg_len);
 			worker_write(worker, msg, msg_len);
-			goto exit;
+			goto func_exit;
 		}
 		else {
 			/* build HTTP response */
 			msg_len = ezcfg_http_get_message_length(http);
 			if (msg_len < 0) {
 				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			msg_len++; /* one more for '\0' */
 			msg = (char *)malloc(msg_len);
 			if (msg == NULL) {
 				err(ezcfg, "malloc msg error.\n");
-				goto exit;
+				goto func_exit;
 			}
 			memset(msg, 0, msg_len);
 			msg_len = ezcfg_http_write_message(http, msg, msg_len);
 			worker_write(worker, msg, msg_len);
-			goto exit;
+			goto func_exit;
 		}
 	}
-exit:
+func_exit:
 	if (msg != NULL)
 		free(msg);
 }

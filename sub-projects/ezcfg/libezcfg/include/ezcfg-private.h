@@ -487,7 +487,19 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 char *ezcfg_util_get_conf_string(const char *path, const char *section, const int index, const char *keyword);
 
 /* util/util_tzdata.c */
-char *ezcfg_util_get_tz_area_desc(char *tz_area);
-char *ezcfg_util_get_tz_location_desc(char *tz_area, char *tz_location);
+int ezcfg_util_tzdata_get_area_length(void);
+char *ezcfg_util_tzdata_get_area_name_by_index(int i);
+char *ezcfg_util_tzdata_get_area_desc_by_index(int i);
+char *ezcfg_util_tzdata_get_area_desc_by_name(char *name);
+int ezcfg_util_tzdata_get_location_length(char *area);
+char *ezcfg_util_tzdata_get_location_name_by_index(char *area, int i);
+char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i);
+char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name);
+
+/* util/util_language.c */
+int ezcfg_util_lang_get_length(void);
+char *ezcfg_util_lang_get_name_by_index(int i);
+char *ezcfg_util_lang_get_desc_by_index(int i);
+char *ezcfg_util_lang_get_desc_by_name(char *name);
 
 #endif
