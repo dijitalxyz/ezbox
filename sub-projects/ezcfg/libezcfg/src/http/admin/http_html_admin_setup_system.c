@@ -215,9 +215,9 @@ static int set_html_main_setup_system(
 	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Change Language"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 #endif
 
-	/* <p>Time Zone : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Time Zone (Area)"));
+	/* <p>Time Zone</p> */
+	snprintf(buf, sizeof(buf), "%s",
+		ezcfg_locale_text(locale, "Time Zone"));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -226,7 +226,7 @@ static int set_html_main_setup_system(
 
 	/* <p>  (Area) : </p> */
 	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Time Zone (Area)"));
+		ezcfg_locale_text(locale, "Area"));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -278,7 +278,7 @@ static int set_html_main_setup_system(
 
 	/* <p>  (Location) : </p> */
 	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Time Zone (Location)"));
+		ezcfg_locale_text(locale, "Location"));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");

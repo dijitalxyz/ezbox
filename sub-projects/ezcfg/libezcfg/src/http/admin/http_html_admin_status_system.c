@@ -176,8 +176,9 @@ static int set_html_main_status_system(
 	if ((p != NULL) && (q != NULL)) {
 		tz_ok = true;
 	}
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Time Zone"),
+		(tz_ok == true) ? "" : "&nbsp;:&nbsp;",
 		(tz_ok == true) ? "" : ezcfg_locale_text(locale, "Unknown Time Zone"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
