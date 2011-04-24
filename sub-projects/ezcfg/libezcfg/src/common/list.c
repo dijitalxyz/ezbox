@@ -28,7 +28,7 @@
 /**
  * ezcfg_list_entry:
  *
- * Opaque object representing one entry in a list. An entry contains
+ * Opaque object representing one entry in a list. An entry
  * contains a name, and optionally a value.
  */
 struct ezcfg_list_entry {

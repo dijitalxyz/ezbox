@@ -1393,3 +1393,64 @@ bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 
 	return false;
 }
+
+bool ezcfg_http_parse_post_data(struct ezcfg_http *http, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	char *p, *q;
+	char *end, *eq;
+	bool ret;
+
+	ASSERT(http != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = http->ezcfg;
+
+	p = http->message_body;
+
+	while(p != NULL) {
+		end = strchr(p, '&');
+		if (end != NULL) {
+			*end = '\0';
+
+			eq = strchr(p, '=');
+			if (eq == NULL) {
+				/* restore to '&' */
+				*end = '&';
+				return false;
+			}
+			*eq = '\0';
+			q = eq+1;
+
+			ret = ezcfg_link_list_insert(list, p, q);
+
+			/* restore to '=' */
+			*eq = '=';
+			/* restore to '&' */
+			*end = '&';
+			if (ret == false) {
+				return false;
+			}
+			p = end+1;
+		}
+		else {
+			eq = strchr(p, '=');
+			if (eq == NULL) {
+				return false;
+			}
+			*eq = '\0';
+			q = eq+1;
+
+			ret = ezcfg_link_list_insert(list, p, q);
+
+			/* restore to '=' */
+			*eq = '=';
+			if (ret == false) {
+				return false;
+			}
+			p = NULL;
+		}
+	}
+
+	return true;
+}

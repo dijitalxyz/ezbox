@@ -391,6 +391,13 @@ static int set_html_main_status_system(
 		}
 	}
 
+	/* <p>&nbsp;</p> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
 	/* <input> buttons part */
 	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
 	if (child_index < 0) {

@@ -317,6 +317,13 @@ static int set_html_main_setup_system(
 	/* restore index pointer */
 	child_index = p_index;
 
+	/* <p>&nbsp;</p> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
 	/* <input> buttons part */
 	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
 	if (child_index < 0) {
@@ -512,6 +519,38 @@ func_exit:
 	return rc;
 }
 
+static int do_admin_setup_system_action(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_link_list *list)
+{
+	return -1;
+}
+
+static int handle_admin_setup_system_post(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	bool ret;
+	int rc;
+
+	ezcfg = http->ezcfg;
+
+	list = ezcfg_link_list_new(ezcfg);
+	if (list == NULL) {
+		return -1;
+	}
+	ret = ezcfg_http_parse_post_data(http, list);
+	if (ret == false) {
+		rc = -1;
+		goto func_exit;
+	}
+	rc = do_admin_setup_system_action(http, nvram, list);
+func_exit:
+	ezcfg_link_list_delete(list);
+	return rc;
+}
+
 /**
  * Public functions
  **/
@@ -529,6 +568,7 @@ int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http *http, struct e
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
 		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
+		handle_admin_setup_system_post(http, nvram);
 	}
 
 	ret = build_admin_setup_system_response(http, nvram);

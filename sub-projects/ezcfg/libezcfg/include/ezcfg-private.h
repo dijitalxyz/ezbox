@@ -71,6 +71,15 @@ void ezcfg_list_cleanup_entries(struct ezcfg *ezcfg, struct ezcfg_list_node *nam
 struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
 
 
+/* common/link_list.c */
+struct ezcfg_link_list;
+struct ezcfg_link_list *ezcfg_link_list_new(struct ezcfg *ezcfg);
+void ezcfg_link_list_delete(struct ezcfg_link_list *list);
+bool ezcfg_link_list_insert(struct ezcfg_link_list *list, char *name, char *value);
+bool ezcfg_link_list_append(struct ezcfg_link_list *list, char *name, char *value);
+bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name);
+
+
 /* thread/thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
 

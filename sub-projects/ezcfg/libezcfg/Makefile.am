@@ -33,6 +33,7 @@ libezcfg_la_LDFLAGS = \
 
 libezcfg_la_SOURCES = src/common/ezcfg.c
 libezcfg_la_SOURCES += src/common/list.c
+libezcfg_la_SOURCES += src/common/link_list.c
 
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += src/thread/thread.c
