@@ -32,6 +32,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
@@ -173,12 +174,13 @@ func_exit:
  * Public functions
  **/
 int ezcfg_http_html_admin_html_menu_status(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
 	struct ezcfg_locale *locale = NULL;
 	int li_index, a_index;
 	int ul2_index, li2_index;
@@ -186,12 +188,13 @@ int ezcfg_http_html_admin_html_menu_status(
 	char *request_uri, *section;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
+	nvram = admin->nvram;
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

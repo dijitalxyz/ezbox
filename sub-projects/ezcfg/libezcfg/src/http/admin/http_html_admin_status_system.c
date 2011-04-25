@@ -34,18 +34,20 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
  **/
 static int set_html_main_status_system(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
 	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
 	int main_index;
 	int content_index, child_index;
 	char buf[1024];
@@ -59,12 +61,13 @@ static int set_html_main_status_system(
 	bool bool_flag;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
+	nvram = admin->nvram;
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -75,7 +78,7 @@ static int set_html_main_status_system(
 	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(http, nvram, html, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(admin, html, main_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
@@ -399,7 +402,7 @@ static int set_html_main_status_system(
 	}
 
 	/* <input> buttons part */
-	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_button(admin, html, content_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_button.\n");
 		goto func_exit;
@@ -412,11 +415,12 @@ func_exit:
 	return ret;
 }
 
-static int build_admin_status_system_response(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+static int build_admin_status_system_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
+	struct ezcfg_http *http = NULL;
 	int head_index, body_index, child_index;
 	int container_index, form_index;
 	char *msg = NULL;
@@ -425,10 +429,10 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	int rc = 0;
 	bool ret;
 	
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -513,7 +517,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
-	child_index = ezcfg_http_html_admin_set_html_head(http, nvram, html, form_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_head(admin, html, form_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_head error.\n");
 		rc = -1;
@@ -521,7 +525,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_status_system(http, nvram, locale, html, form_index, child_index);
+	child_index = set_html_main_status_system(admin, locale, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "set_html_main_status_system error.\n");
 		rc = -1;
@@ -529,7 +533,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 	}
 
 	/* HTML div foot */
-	child_index = ezcfg_http_html_admin_set_html_foot(http, nvram, html, form_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_foot(admin, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_foot error.\n");
 		rc = -1;
@@ -571,7 +575,7 @@ static int build_admin_status_system_response(struct ezcfg_http *http, struct ez
 		goto func_exit;
 	}
 
-	ret = ezcfg_http_html_admin_set_http_html_common_header(http);
+	ret = ezcfg_http_html_admin_set_http_html_common_header(admin);
 	if (ret == false) {
 		err(ezcfg, "ezcfg_http_html_admin_set_http_html_common_header error.\n");
 		rc = -1;
@@ -597,17 +601,16 @@ func_exit:
  * Public functions
  **/
 
-int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
 
 	/* admin status_system uri=[/admin/status_system] */
-	ret = build_admin_status_system_response(http, nvram);
+	ret = build_admin_status_system_response(admin);
 	return ret;
 }

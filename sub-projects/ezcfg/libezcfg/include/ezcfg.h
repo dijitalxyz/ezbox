@@ -77,11 +77,6 @@
 #define EZCFG_AUTH_TYPE_HTTP_BASIC_STRING  "http-basic"
 #define EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING "http-digest"
 
-/* ezcfg authentication default string */
-#define EZCFG_AUTH_USER_ADMIN_STRING       "admin"
-#define EZCFG_AUTH_REALM_ADMIN_STRING      "ezbox"
-#define EZCFG_AUTH_DOMAIN_ADMIN_STRING     EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
-#define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"
 
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
@@ -175,40 +170,18 @@
 
 /* ezcfg HTTP html request/response mode */
 #define EZCFG_HTTP_HTML_HOME_INDEX_URI      "/"
-#define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"
 #define EZCFG_HTTP_HTML_LANG_DIR            DATADIR "/ezcfg/html/lang"
 #define EZCFG_HTTP_HTML_INDEX_DOMAIN        "index"
 
-#define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
-#define EZCFG_HTTP_HTML_ADMIN_SETUP_SYSTEM_DOMAIN      "admin_setup_system"
 
-#define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
-#define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"
-#define EZCFG_HTTP_HTML_ADMIN_FOOT_DOMAIN              "admin_foot"
-#define EZCFG_HTTP_HTML_ADMIN_MENU_DOMAIN              "admin_menu"
-#define EZCFG_HTTP_HTML_ADMIN_CONTENT_DOMAIN           "admin_content"
-#define EZCFG_HTTP_HTML_ADMIN_BUTTON_DOMAIN            "admin_button"
+/* ezcfg HTTP html admin request/response mode */
+#define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"
 
-
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTAINER     "container"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_HEAD          "head"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN          "main"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_FOOT          "foot"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_MENU          "menu"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT       "content"
-#define EZCFG_HTTP_HTML_ADMIN_DIV_ID_BUTTON        "button"
-
-#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT        "submit"
-#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_FILE          "file"
-
-#define EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_LANGUAGE     "language"
-#define EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA      "tz_area"
-#define EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_LOCATION  "tz_location"
-
-#define EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_EN_HK       "en_HK"
-#define EZCFG_HTTP_HTML_ADMIN_OPTION_VALUE_ZH_CN       "zh_CN"
-
-#define EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING          "warning"
+/* ezcfg HTTP html admin authentication default string */
+#define EZCFG_AUTH_USER_ADMIN_STRING       "admin"
+#define EZCFG_AUTH_REALM_ADMIN_STRING      "ezbox"
+#define EZCFG_AUTH_DOMAIN_ADMIN_STRING     EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
+#define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"
 
 
 /* ezcfg uuid definitions */

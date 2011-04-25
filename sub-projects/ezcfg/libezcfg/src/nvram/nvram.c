@@ -114,6 +114,10 @@ struct ezcfg_nvram {
 	int num_default_unsets;
 	char **default_unsets;
 
+	/* default validators */
+	int num_default_validators;
+	ezcfg_nv_validator_t *default_validators;
+
 	/* total_space = sizeof(header) + free_space + used_space */
 	int total_space; /* storage space for nvram */
 	int free_space; /* unused space */
@@ -267,6 +271,40 @@ static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, c
 		}
 	}
 	return true;
+}
+
+static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name1, char *name2)
+{
+	struct ezcfg *ezcfg;
+	char *data;
+	char *p1, *p2;
+	int name_len;
+
+	ezcfg = nvram->ezcfg;
+
+	data = nvram->buffer + sizeof(struct nvram_header);
+
+	/* find nvram entry position */
+	name_len = strlen(name1);
+	p1 = find_nvram_entry_position(data, name1);
+
+	if (*p1 == '\0') {
+		return false;
+	}
+	/* find nvram entry */
+	p1 += (name_len + 1);
+
+	/* find nvram entry position */
+	name_len = strlen(name2);
+	p2 = find_nvram_entry_position(data, name2);
+
+	if (*p2 == '\0') {
+		return false;
+	}
+	/* find nvram entry */
+	p2 += (name_len + 1);
+
+	return (strcmp(p1, p2) == 0);
 }
 
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
@@ -510,6 +548,10 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	nvram->num_default_unsets = ezcfg_nvram_get_num_default_nvram_unsets();
 	nvram->default_unsets = default_nvram_unsets;
 
+	/* set default validators */
+	nvram->num_default_validators = ezcfg_nvram_get_num_default_nvram_validators();
+	nvram->default_validators = default_nvram_validators;
+
 	return nvram;
 }
 
@@ -731,6 +773,13 @@ bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t
 {
 	nvram->default_settings = settings;
 	nvram->num_default_settings = num_settings;
+	return true;
+}
+
+bool ezcfg_nvram_set_default_validators(struct ezcfg_nvram *nvram, ezcfg_nv_validator_t *validators, int num_validators)
+{
+	nvram->default_validators = validators;
+	nvram->num_default_validators = num_validators;
 	return true;
 }
 
@@ -1034,6 +1083,50 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 			break;
 		}
 	}
+
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name1, char *name2)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ASSERT(nvram != NULL);
+	ASSERT(name1 != NULL);
+	ASSERT(name2 != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	ret = nvram_match_entry_value(nvram, name1, name2);
+
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ASSERT(nvram != NULL);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	ret = ezcfg_nvram_validate_value(ezcfg, name, value);
 
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);

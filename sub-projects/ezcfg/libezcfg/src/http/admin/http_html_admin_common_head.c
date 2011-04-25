@@ -32,6 +32,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
@@ -103,15 +104,17 @@ func_exit:
 	return child_index;
 }
 
-bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http *http)
+bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	char buf[1024];
 	bool ret;
 
-	ASSERT(http);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	/* HTML http-equiv content-type */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
@@ -148,15 +151,17 @@ func_exit:
 	return ret;
 }
 
-bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http *http)
+bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	char buf[1024];
 	bool ret;
 
-	ASSERT(http);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	/* text/css charset=UTF-8 */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_CSS, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);

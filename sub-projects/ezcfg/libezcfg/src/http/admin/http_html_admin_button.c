@@ -32,7 +32,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
-
+#include "ezcfg-http_html_admin.h"
 
 char *refresh_buttons[] = {
 	"status_system",
@@ -55,12 +55,12 @@ char *save_cancel_buttons[] = {
  **/
 
 int ezcfg_http_html_admin_set_html_button(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	struct ezcfg_locale *locale = NULL;
 	int button_index;
 	int input_index;
@@ -69,12 +69,12 @@ int ezcfg_http_html_admin_set_html_button(
 	char *section;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	p = ezcfg_http_get_request_uri(http);
 	section = p+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

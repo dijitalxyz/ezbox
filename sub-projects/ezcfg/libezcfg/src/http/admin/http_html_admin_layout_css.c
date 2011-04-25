@@ -32,14 +32,16 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
  **/
 
-static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+static int build_admin_layout_css_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	struct ezcfg_css *css;
 	char buf[256];
 	char *msg = NULL;
@@ -48,10 +50,10 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 	int rc = 0;
 	bool ret;
 	
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	css = ezcfg_css_new(ezcfg);
 	if (css == NULL) {
@@ -753,7 +755,7 @@ static int build_admin_layout_css_response(struct ezcfg_http *http, struct ezcfg
 		goto func_exit;
 	}
 
-	ret = ezcfg_http_html_admin_set_http_css_common_header(http);
+	ret = ezcfg_http_html_admin_set_http_css_common_header(admin);
 	if (ret == false) {
 		err(ezcfg, "ezcfg_http_html_admin_set_http_css_common_header error.\n");
 		rc = -1;
@@ -776,18 +778,17 @@ func_exit:
  * Public functions
  **/
 
-int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
 
 	/* admin layout_css uri=[/admin/layout_css] */
-	ret = build_admin_layout_css_response(http, nvram);
+	ret = build_admin_layout_css_response(admin);
 	return ret;
 }
 

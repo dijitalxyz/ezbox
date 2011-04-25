@@ -34,89 +34,19 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
-
-#if 0
-struct lc_pair {
-	char *lc_name;
-	char *lc_desc;
-};
-
-static struct lc_pair support_langs[] = {
-	{ "en_HK", "English (Hong Kong)" },
-	{ "zh_CN", "Chinese (China)" },
-};
-
-static struct lc_pair support_areas[] = {
-	{ "Africa", "Africa" },
-	{ "America", "America" },
-	{ "Antarctica", "Antarctica" },
-	{ "Arctic", "Arctic Ocean" },
-	{ "Asia", "Asia" },
-	{ "Atlantic", "Atlantic Ocean" },
-	{ "Australia", "Australia" },
-	{ "Europe", "Europe" },
-	{ "Indian", "Indian Ocean" },
-	{ "Pacific", "Pacific Ocean" },
-	{ "none", "Posix TZ format" },
-};
-
-static struct lc_pair africa_locations[] = {
-	{ "Algeria", "Algeria" },
-};
-
-static struct lc_pair america_locations[] = {
-	{ "Anguilla", "Anguilla" },
-};
-
-static struct lc_pair antarctica_locations[] = {
-	{ "McMurdo", "McMurdo Station, Ross Island" },
-};
-
-static struct lc_pair arctica_locations[] = {
-	{ "Longyearbyen", "Svalbard & Jan Mayen" },
-};
-
-static struct lc_pair asia_locations[] = {
-	{ "Shanghai", "east China - Beijing, Guangdong, Shanghai, etc." },
-	{ "Hong_Kong", "Hong Kong" },
-};
-
-static struct lc_pair atlantic_locations[] = {
-	{ "Bermuda", "Bermuda" },
-};
-
-static struct lc_pair australia_locations[] = {
-	{ "Lord_Howe", "Lord Howe Island" },
-};
-
-static struct lc_pair europe_locations[] = {
-	{ "Mariehamn", "Aaland Islands" },
-};
-
-static struct lc_pair indian_locations[] = {
-	{ "Chagos", "British Indian Ocean Territory" },
-};
-
-static struct lc_pair pacific_locations[] = {
-	{ "Chatham", "Chatham Islands" },
-};
-
-static struct lc_pair none_locations[] = {
-	{ "GST-10", "GST-10" },
-};
-#endif
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
  **/
 static int set_html_main_setup_system(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
 	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
 	int main_index;
 	int content_index, child_index;
 	int p_index, select_index;
@@ -127,12 +57,12 @@ static int set_html_main_setup_system(
 	int i;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -143,7 +73,7 @@ static int set_html_main_setup_system(
 	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(http, nvram, html, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(admin, html, main_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
@@ -203,18 +133,6 @@ static int set_html_main_setup_system(
 		}
 	}
 
-#if 0
-	/* <p><input type="submit" name="act_change_language" value="Change Language"></input></p> */
-	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_change_language", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Change Language"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-#endif
-
 	/* <p>Time Zone</p> */
 	snprintf(buf, sizeof(buf), "%s",
 		ezcfg_locale_text(locale, "Time Zone"));
@@ -261,6 +179,19 @@ static int set_html_main_setup_system(
 		if (strcmp(tz_area, ezcfg_util_tzdata_get_area_name_by_index(i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
+	}
+
+	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), NVRAM_SERVICE_OPTION(UI, TZ_AREA)) == false) {
+		/* <p>  (Warning : time zone area has been changed, please set location again!)</p> */
+		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s&nbsp;:&nbsp;%s)",
+			ezcfg_locale_text(locale, "Warning"),
+			ezcfg_locale_text(locale, "time zone area has been changed, please set location again!"));
+		p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (p_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
 #if 0
@@ -325,7 +256,7 @@ static int set_html_main_setup_system(
 	}
 
 	/* <input> buttons part */
-	child_index = ezcfg_http_html_admin_set_html_button(http, nvram, html, content_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_button(admin, html, content_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_button.\n");
 		goto func_exit;
@@ -338,9 +269,10 @@ func_exit:
 	return ret;
 }
 
-static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http = NULL;
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
 	int head_index, body_index, child_index;
@@ -351,10 +283,10 @@ static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezc
 	int rc = 0;
 	bool ret;
 	
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -439,7 +371,7 @@ static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezc
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
-	child_index = ezcfg_http_html_admin_set_html_head(http, nvram, html, form_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_head(admin, html, form_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_head error.\n");
 		rc = -1;
@@ -447,7 +379,7 @@ static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezc
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_setup_system(http, nvram, locale, html, form_index, child_index);
+	child_index = set_html_main_setup_system(admin, locale, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "set_html_main_setup_system error.\n");
 		rc = -1;
@@ -455,7 +387,7 @@ static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezc
 	}
 
 	/* HTML div foot */
-	child_index = ezcfg_http_html_admin_set_html_foot(http, nvram, html, form_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_foot(admin, html, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_foot error.\n");
 		rc = -1;
@@ -497,7 +429,7 @@ static int build_admin_setup_system_response(struct ezcfg_http *http, struct ezc
 		goto func_exit;
 	}
 
-	ret = ezcfg_http_html_admin_set_http_html_common_header(http);
+	ret = ezcfg_http_html_admin_set_http_html_common_header(admin);
 	if (ret == false) {
 		err(ezcfg, "ezcfg_http_html_admin_set_http_html_common_header error.\n");
 		rc = -1;
@@ -519,58 +451,54 @@ func_exit:
 	return rc;
 }
 
-static int do_admin_setup_system_action(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
-	struct ezcfg_link_list *list)
+static int do_admin_setup_system_action(struct ezcfg_http_html_admin *admin)
 {
+	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
+		/* setup language */
+		
+	}
 	return -1;
 }
 
-static int handle_admin_setup_system_post(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+static int handle_admin_setup_system_post(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_link_list *list;
 	bool ret;
 	int rc;
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
 
-	list = ezcfg_link_list_new(ezcfg);
-	if (list == NULL) {
-		return -1;
-	}
-	ret = ezcfg_http_parse_post_data(http, list);
+	ret = ezcfg_http_html_admin_parse_post_data(admin);
 	if (ret == false) {
 		rc = -1;
 		goto func_exit;
 	}
-	rc = do_admin_setup_system_action(http, nvram, list);
+	rc = do_admin_setup_system_action(admin);
 func_exit:
-	ezcfg_link_list_delete(list);
 	return rc;
 }
 
 /**
  * Public functions
  **/
-int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
+int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	int ret = -1;
 
-	ASSERT(http != NULL);
-	ASSERT(nvram != NULL);
+	ASSERT(admin != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = admin->ezcfg;
+	http = admin->http;
 
 	/* admin setup_system uri=[/admin/setup_system] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
 		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
-		handle_admin_setup_system_post(http, nvram);
+		handle_admin_setup_system_post(admin);
 	}
 
-	ret = build_admin_setup_system_response(http, nvram);
+	ret = build_admin_setup_system_response(admin);
 	return ret;
 }

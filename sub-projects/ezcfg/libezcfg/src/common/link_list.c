@@ -252,3 +252,72 @@ bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name)
 	return false;
 }
 
+bool ezcfg_link_list_in(struct ezcfg_link_list *list, char *name)
+{
+	struct ezcfg *ezcfg;
+	struct link_node *np;
+
+	ASSERT(list != NULL);
+	ASSERT(name != NULL);
+
+	ezcfg = list->ezcfg;
+
+	np = list->head;
+
+	/* check if the name has been there */
+	while(np != NULL) {
+		if (strcmp(np->name, name) == 0) {
+			return true;
+		}
+		np = np->next;
+	}
+
+	/* no such node in the list */
+	return false;
+}
+
+int ezcfg_link_list_get_length(struct ezcfg_link_list *list)
+{
+	ASSERT(list != NULL);
+	return list->length;
+}
+
+char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i)
+{
+	struct ezcfg *ezcfg;
+	struct link_node *np;
+
+	ASSERT(list != NULL);
+	ASSERT((i > 0) && (i <= list->length));
+
+	ezcfg = list->ezcfg;
+
+	np = list->head;
+
+	while ((i > 0) && (np != NULL)) {
+		np = np->next;
+		i--;
+	}
+
+	return np->name;
+}
+
+char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i)
+{
+	struct ezcfg *ezcfg;
+	struct link_node *np;
+
+	ASSERT(list != NULL);
+	ASSERT((i > 0) && (i <= list->length));
+
+	ezcfg = list->ezcfg;
+
+	np = list->head;
+
+	while ((i > 0) && (np != NULL)) {
+		np = np->next;
+		i--;
+	}
+
+	return np->value;
+}

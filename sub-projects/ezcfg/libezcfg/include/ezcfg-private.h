@@ -28,6 +28,12 @@ typedef struct ezcfg_nv_pair_s {
 	char *value;
 } ezcfg_nv_pair_t;
 
+/* nvram validator struct */
+typedef struct ezcfg_nv_validator_s {
+	char *name;
+	bool (*handler)(const char *value);
+} ezcfg_nv_validator_t;
+
 
 /* common/ezcfg.c */
 char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
@@ -78,6 +84,10 @@ void ezcfg_link_list_delete(struct ezcfg_link_list *list);
 bool ezcfg_link_list_insert(struct ezcfg_link_list *list, char *name, char *value);
 bool ezcfg_link_list_append(struct ezcfg_link_list *list, char *name, char *value);
 bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name);
+bool ezcfg_link_list_in(struct ezcfg_link_list *list, char *name);
+int ezcfg_link_list_get_length(struct ezcfg_link_list *list);
+char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i);
+char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
 
 
 /* thread/thread.c */
@@ -89,6 +99,13 @@ extern ezcfg_nv_pair_t default_nvram_settings[];
 extern char *default_nvram_unsets[];
 int ezcfg_nvram_get_num_default_nvram_settings(void);
 int ezcfg_nvram_get_num_default_nvram_unsets(void);
+
+
+/* nvram/nvram-validators.c */
+extern ezcfg_nv_validator_t default_nvram_validators[];
+bool ezcfg_nvram_validate_value(struct ezcfg *ezcfg, char *name, char *value);
+int ezcfg_nvram_get_num_default_nvram_validators(void);
+
 
 /* nvram/nvram.c */
 struct ezcfg_nvram;
@@ -113,6 +130,8 @@ bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_li
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name1, char *name2);
+bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
 
 
 /* auth/auth.c */
@@ -224,6 +243,7 @@ int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len);
 int ezcfg_http_get_message_length(struct ezcfg_http *http);
 int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth);
+bool ezcfg_http_parse_post_data(struct ezcfg_http *http, struct ezcfg_link_list *list);
 
 
 /* html/html.c */
@@ -274,61 +294,65 @@ int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram 
 /* http/http_html_admin.c */
 int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
+struct ezcfg_http_html_admin;
+struct ezcfg_http_html_admin *ezcfg_http_html_admin_new(
+	struct ezcfg *ezcfg,
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram);
+void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin);
+int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin);
+bool ezcfg_http_html_admin_parse_post_data(struct ezcfg_http_html_admin *admin);
+
+
 /* http/admin/http_html_admin_common_head.c */
 int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_html *html, int pi, int si);
-bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http *http);
-bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http *http);
+bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http_html_admin *admin);
+bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http_html_admin *admin);
 
 /* http/admin/http_html_admin_head.c */
 int ezcfg_http_html_admin_set_html_head(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_foot.c */
 int ezcfg_http_html_admin_set_html_foot(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_button.c */
 int ezcfg_http_html_admin_set_html_button(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu.c */
 int ezcfg_http_html_admin_set_html_menu(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu_status.c */
 int ezcfg_http_html_admin_html_menu_status(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu_setup.c */
 int ezcfg_http_html_admin_html_menu_setup(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_layout_css.c */
-int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin);
 
 /* http/admin/http_html_admin_status_system.c */
-int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http_html_admin *admin);
 
 /* http/admin/http_html_admin_setup_system.c */
-int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *admin);
 
 
 /* socket/socket_http.c */

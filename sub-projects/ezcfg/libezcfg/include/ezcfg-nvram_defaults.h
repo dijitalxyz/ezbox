@@ -19,6 +19,7 @@
 #include "ezcfg-lan.h"
 #include "ezcfg-wan.h"
 #include "ezcfg-rc.h"
+#include "ezcfg-ui.h"
 #include "ezcfg-dnsmasq.h"
 
 #define GLUE2(a, b)      	a ## b

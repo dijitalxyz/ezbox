@@ -32,6 +32,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 #include "ezcfg-html.h"
+#include "ezcfg-http_html_admin.h"
 
 /**
  * Private functions
@@ -42,8 +43,7 @@
  **/
 
 int ezcfg_http_html_admin_set_html_head(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
+	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_html *html,
 	int pi, int si)
 {
@@ -53,10 +53,11 @@ int ezcfg_http_html_admin_set_html_head(
 	int h1_index;
 	int ret = -1;
 
+	ASSERT(admin != NULL);
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
 
         /* set locale info */
 	locale = ezcfg_locale_new(ezcfg);

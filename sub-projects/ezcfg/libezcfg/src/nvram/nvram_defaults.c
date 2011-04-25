@@ -24,9 +24,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
 
-	{ "sys_passwd", "admin" },	/* The root password */
-	{ "sys_hostname", "ezbox" },	/* The system host name */
-	{ "timer_interval", "3600" },	/* Timer interval in seconds */
+	/* UI configuration */
+	{ NVRAM_SERVICE_OPTION(UI, TZ_AREA), "Asia" }, /* Asia */
+	{ NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), "Shanghai" }, /* Shanghai */
 
 	/* Restore defaults */
 	{ "restore_defaults", "0" },	/* Set to 0 not restore defaults on boot */

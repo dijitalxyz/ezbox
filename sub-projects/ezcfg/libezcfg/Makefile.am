@@ -55,6 +55,7 @@ libezcfg_la_SOURCES += src/ctrl/ctrl.c
 # ezcfg nvram
 libezcfg_la_SOURCES += src/nvram/nvram.c
 libezcfg_la_SOURCES += src/nvram/nvram_defaults.c
+libezcfg_la_SOURCES += src/nvram/nvram_validators.c
 
 # ezcfg authentication
 libezcfg_la_SOURCES += src/auth/auth.c
