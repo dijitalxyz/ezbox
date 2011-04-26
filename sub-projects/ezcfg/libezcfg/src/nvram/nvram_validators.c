@@ -43,12 +43,15 @@ ezcfg_nv_validator_t default_nvram_validators[] = {
 bool ezcfg_nvram_validate_value(struct ezcfg *ezcfg, char *name, char *value)
 {
 	int i;
-	bool ret = false;
+	bool ret;
 	ezcfg_nv_validator_t v;
 
 	ASSERT(ezcfg != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
+
+	/* value is valid by default */
+ 	ret = true;
 
 	for(i = 0; i < ARRAY_SIZE(default_nvram_validators); i++) {
 		v = default_nvram_validators[i];

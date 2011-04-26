@@ -487,6 +487,45 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
 	return true;
 }
 
+static void sync_ui_settings(struct ezcfg_nvram *nvram)
+{
+	char *p;
+
+	/* ui_tz_area */
+	if (nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+		if (p != NULL) {
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), p);
+			free(p);
+		}
+	}
+
+	/* ui_tz_location */
+	if (nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+		if (p != NULL) {
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), p);
+			free(p);
+		}
+	}
+}
+
+static void nvram_sync_entries(struct ezcfg_nvram *nvram)
+{
+	/* sync UI settings */
+	sync_ui_settings(nvram);
+}
+
+static void check_sys_settings(struct ezcfg_nvram *nvram)
+{
+}
+
+static void nvram_check_entries(struct ezcfg_nvram *nvram)
+{
+	/* sync UI settings */
+	check_sys_settings(nvram);
+}
+
 /*
  * Public functions
  */
@@ -901,6 +940,9 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
+	/* check nvram entries */
+	nvram_check_entries(nvram);
+
 	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
 		switch (nvram->storage[i].backend) {
 		case EZCFG_NVRAM_BACKEND_NONE :
@@ -1083,6 +1125,9 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 			break;
 		}
 	}
+
+	/* sync nvram entries */
+	nvram_sync_entries(nvram);
 
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);

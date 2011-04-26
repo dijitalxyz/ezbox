@@ -26,6 +26,7 @@ struct ezcfg_http_html_admin {
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_link_list *post_list;
+	struct ezcfg_html *html;
 };
 
 

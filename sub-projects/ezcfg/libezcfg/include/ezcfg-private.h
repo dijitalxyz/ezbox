@@ -88,6 +88,7 @@ bool ezcfg_link_list_in(struct ezcfg_link_list *list, char *name);
 int ezcfg_link_list_get_length(struct ezcfg_link_list *list);
 char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
+char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name);
 
 
 /* thread/thread.c */
@@ -301,48 +302,43 @@ struct ezcfg_http_html_admin *ezcfg_http_html_admin_new(
 	struct ezcfg_nvram *nvram);
 void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin);
 int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin);
-bool ezcfg_http_html_admin_parse_post_data(struct ezcfg_http_html_admin *admin);
+bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin);
+bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin);
 
 
 /* http/admin/http_html_admin_common_head.c */
-int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_html *html, int pi, int si);
+int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_http_html_admin *admin, int pi, int si);
 bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http_html_admin *admin);
 bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http_html_admin *admin);
 
 /* http/admin/http_html_admin_head.c */
 int ezcfg_http_html_admin_set_html_head(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_foot.c */
 int ezcfg_http_html_admin_set_html_foot(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_button.c */
 int ezcfg_http_html_admin_set_html_button(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu.c */
 int ezcfg_http_html_admin_set_html_menu(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu_status.c */
 int ezcfg_http_html_admin_html_menu_status(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_menu_setup.c */
 int ezcfg_http_html_admin_html_menu_setup(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si);
 
 /* http/admin/http_html_admin_layout_css.c */
@@ -528,6 +524,7 @@ int ezcfg_util_tzdata_get_location_length(char *area);
 char *ezcfg_util_tzdata_get_location_name_by_index(char *area, int i);
 char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i);
 char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name);
+bool ezcfg_util_tzdata_check_area_location(char *area, char *location);
 
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);

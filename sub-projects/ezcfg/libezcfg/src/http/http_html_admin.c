@@ -49,6 +49,118 @@ struct http_html_admin_handler adm_handlers[] = {
 /**
  * Private functions
  **/
+static int generate_http_response(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_html *html;
+	char *msg = NULL;
+	int msg_len;
+	int n;
+	int rc = -1;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+	http = admin->http;
+	html = admin->html;
+
+	msg_len = ezcfg_html_get_message_length(html);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_html_get_message_length\n");
+		rc = -1;
+		goto func_exit;
+	}
+	msg_len++; /* one more for '\0' */
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		err(ezcfg, "malloc error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	memset(msg, 0, msg_len);
+	n = ezcfg_html_write_message(html, msg, msg_len);
+	if (n < 0) {
+		err(ezcfg, "ezcfg_html_write_message\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* FIXME: name point to http->request_uri !!!
+         * never reset http before using name */
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+	ezcfg_http_set_status_code(http, 200);
+	ezcfg_http_set_state_response(http);
+
+	if (ezcfg_http_set_message_body(http, msg, n) == NULL) {
+		err(ezcfg, "ezcfg_http_set_message_body\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	ret = ezcfg_http_html_admin_set_http_html_common_header(admin);
+	if (ret == false) {
+		err(ezcfg, "ezcfg_http_html_admin_set_http_html_common_header error.\n");
+		rc = -1;
+		goto func_exit;
+	}
+
+	/* set return value */
+	rc = 0;
+func_exit:
+	if (msg != NULL)
+		free(msg);
+
+	return rc;
+}
+
+static bool parse_post_data(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_link_list *list;
+
+	ASSERT(admin != NULL);
+
+	ezcfg = admin->ezcfg;
+	http = admin->http;
+
+	list = ezcfg_link_list_new(ezcfg);
+	if (list == NULL) {
+		return false;
+	}
+	admin->post_list = list;
+	return ezcfg_http_parse_post_data(http, list);
+}
+
+static bool validate_post_data(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	struct ezcfg_nvram *nvram;
+	int i;
+	int list_length;
+	char *name, *value;
+	bool ret;
+
+	ASSERT(admin != NULL);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	list = admin->post_list;
+
+	list_length = ezcfg_link_list_get_length(list);
+	for(i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		value = ezcfg_link_list_get_node_value_by_index(list, i);
+		ret = ezcfg_nvram_is_valid_entry_value(nvram, name, value);
+		if (ret == false) {
+			return false;
+		}
+	}
+	return true;
+}
 
 /**
  * Public functions
@@ -84,6 +196,9 @@ int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram 
 				admin = ezcfg_http_html_admin_new(ezcfg, http, nvram);
 				if (admin != NULL) {
 					ret = ah->handler(admin);
+					if ((ret >= 0) && (admin->html != NULL)) {
+						ret = generate_http_response(admin);
+					}
 				}
 				break;
 			}
@@ -114,6 +229,7 @@ struct ezcfg_http_html_admin *ezcfg_http_html_admin_new(
 		admin->http = http;
 		admin->nvram = nvram;
 		admin->post_list = NULL;
+		admin->html = NULL;
 	}
 	return admin;
 }
@@ -126,54 +242,25 @@ void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin)
 		ezcfg_link_list_delete(admin->post_list);
 	}
 
+	if (admin->html != NULL) {
+		ezcfg_html_delete(admin->html);
+	}
+
 	free(admin);
 }
 
-bool ezcfg_http_html_admin_parse_post_data(struct ezcfg_http_html_admin *admin)
+bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_link_list *list;
-
-	ASSERT(admin != NULL);
 
 	ezcfg = admin->ezcfg;
-	http = admin->http;
 
-	list = ezcfg_link_list_new(ezcfg);
-	if (list == NULL) {
+	if (parse_post_data(admin) == true) {
+		return validate_post_data(admin);
+	}
+	else {
 		return false;
 	}
-	admin->post_list = list;
-	return ezcfg_http_parse_post_data(http, list);
-}
-
-bool ezcfg_http_html_admin_validate_post_data(struct ezcfg_http_html_admin *admin)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_link_list *list;
-	struct ezcfg_nvram *nvram;
-	int i;
-	int list_length;
-	char *name, *value;
-	bool ret;
-
-	ASSERT(admin != NULL);
-
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	list = admin->post_list;
-
-	list_length = ezcfg_link_list_get_length(list);
-	for(i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		value = ezcfg_link_list_get_node_value_by_index(list, i);
-		ret = ezcfg_nvram_is_valid_entry_value(nvram, name, value);
-		if (ret == false) {
-			return false;
-		}
-	}
-	return true;
 }
 
 int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin)
@@ -196,4 +283,35 @@ int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin)
 			return HTTP_HTML_ADMIN_ACT_CANCEL;
 	}
 	return HTTP_HTML_ADMIN_ACT_CANCEL;
+}
+
+bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	struct ezcfg_nvram *nvram;
+	int i;
+	int list_length;
+	char *name, *value;
+	bool ret;
+
+	ASSERT(admin != NULL);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	list = admin->post_list;
+
+	list_length = ezcfg_link_list_get_length(list);
+	for(i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		value = ezcfg_link_list_get_node_value_by_index(list, i);
+		ret = ezcfg_nvram_set_entry(nvram, name, value);
+		if (ret == false) {
+			return false;
+		}
+	}
+	if (list_length > 0) {
+		ezcfg_nvram_commit(nvram);
+	}
+	return true;
 }

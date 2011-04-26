@@ -293,8 +293,9 @@ char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i
 	ezcfg = list->ezcfg;
 
 	np = list->head;
+	i--;
 
-	while ((i > 0) && (np != NULL)) {
+	while (i > 0) {
 		np = np->next;
 		i--;
 	}
@@ -313,11 +314,36 @@ char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int 
 	ezcfg = list->ezcfg;
 
 	np = list->head;
+	i--;
 
-	while ((i > 0) && (np != NULL)) {
+	while (i > 0) {
 		np = np->next;
 		i--;
 	}
 
 	return np->value;
+}
+
+char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name)
+{
+	struct ezcfg *ezcfg;
+	struct link_node *np;
+
+	ASSERT(list != NULL);
+	ASSERT(name != NULL);
+
+	ezcfg = list->ezcfg;
+
+	np = list->head;
+
+	/* check if the name has been there */
+	while(np != NULL) {
+		if (strcmp(np->name, name) == 0) {
+			return np->value;
+		}
+		np = np->next;
+	}
+
+	/* no such node in the list */
+	return NULL;
 }

@@ -42,16 +42,20 @@
  * Public functions
  **/
 
-int ezcfg_http_html_admin_set_html_common_head(struct ezcfg_html *html, int pi, int si)
+int ezcfg_http_html_admin_set_html_common_head(
+	struct ezcfg_http_html_admin *admin,
+	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_html *html;
 	int child_index;
 	char buf[1024];
 
-	ASSERT(html != NULL);
+	ASSERT(admin != NULL);
 	ASSERT(pi > 0);
 
-	ezcfg = html->ezcfg;
+	ezcfg = admin->ezcfg;
+	html = admin->html;
 
 	/* <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> */
 	child_index = ezcfg_html_add_head_child(html, pi, si, EZCFG_HTML_META_ELEMENT_NAME, NULL);

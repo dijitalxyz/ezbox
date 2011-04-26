@@ -42,12 +42,12 @@
 static int set_html_main_status_system(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
-	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
 	int main_index;
 	int content_index, child_index;
 	char buf[1024];
@@ -62,12 +62,12 @@ static int set_html_main_status_system(
 	int ret = -1;
 
 	ASSERT(admin != NULL);
-	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
 	ezcfg = admin->ezcfg;
 	http = admin->http;
 	nvram = admin->nvram;
+	html = admin->html;
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -78,7 +78,7 @@ static int set_html_main_status_system(
 	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(admin, html, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(admin, main_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
@@ -402,7 +402,7 @@ static int set_html_main_status_system(
 	}
 
 	/* <input> buttons part */
-	child_index = ezcfg_http_html_admin_set_html_button(admin, html, content_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_button(admin, content_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_button.\n");
 		goto func_exit;
@@ -420,19 +420,13 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
-	struct ezcfg_http *http = NULL;
 	int head_index, body_index, child_index;
 	int container_index, form_index;
-	char *msg = NULL;
-	int msg_len;
-	int n;
 	int rc = 0;
-	bool ret;
 	
 	ASSERT(admin != NULL);
 
 	ezcfg = admin->ezcfg;
-	http = admin->http;
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -448,6 +442,9 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 		rc = -1;
 		goto func_exit;
 	}
+
+	/* set admin->html */
+	admin->html = html;
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -473,7 +470,7 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 	}
 
 	/* set admin common Head */
-	child_index = ezcfg_http_html_admin_set_html_common_head(html, head_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_common_head(admin, head_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_common_head error.\n");
 		rc = -1;
@@ -517,7 +514,7 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "status_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
-	child_index = ezcfg_http_html_admin_set_html_head(admin, html, form_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_head(admin, form_index, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_head error.\n");
 		rc = -1;
@@ -525,7 +522,7 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_status_system(admin, locale, html, form_index, child_index);
+	child_index = set_html_main_status_system(admin, locale, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "set_html_main_status_system error.\n");
 		rc = -1;
@@ -533,13 +530,14 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 	}
 
 	/* HTML div foot */
-	child_index = ezcfg_http_html_admin_set_html_foot(admin, html, form_index, child_index);
+	child_index = ezcfg_http_html_admin_set_html_foot(admin, form_index, child_index);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_foot error.\n");
 		rc = -1;
 		goto func_exit;
 	}
 
+#if 0
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_html_get_message_length\n");
@@ -581,18 +579,13 @@ static int build_admin_status_system_response(struct ezcfg_http_html_admin *admi
 		rc = -1;
 		goto func_exit;
 	}
+#endif
 
 	/* set return value */
 	rc = 0;
 func_exit:
 	if (locale != NULL)
 		ezcfg_locale_delete(locale);
-
-	if (html != NULL)
-		ezcfg_html_delete(html);
-
-	if (msg != NULL)
-		free(msg);
 
 	return rc;
 }

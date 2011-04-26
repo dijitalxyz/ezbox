@@ -44,20 +44,20 @@
 
 int ezcfg_http_html_admin_set_html_head(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
 	int head_index, child_index;
 	int h1_index;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
-	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
 	ezcfg = admin->ezcfg;
+	html = admin->html;
 
         /* set locale info */
 	locale = ezcfg_locale_new(ezcfg);

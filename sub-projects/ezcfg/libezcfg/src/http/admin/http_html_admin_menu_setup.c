@@ -175,12 +175,12 @@ func_exit:
  **/
 int ezcfg_http_html_admin_html_menu_setup(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
 	int li_index, a_index;
 	int ul2_index, li2_index;
@@ -189,12 +189,12 @@ int ezcfg_http_html_admin_html_menu_setup(
 	int ret = -1;
 
 	ASSERT(admin != NULL);
-	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
 	ezcfg = admin->ezcfg;
 	http = admin->http;
 	nvram = admin->nvram;
+	html = admin->html;
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

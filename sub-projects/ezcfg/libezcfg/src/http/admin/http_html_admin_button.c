@@ -56,11 +56,11 @@ char *save_cancel_buttons[] = {
 
 int ezcfg_http_html_admin_set_html_button(
 	struct ezcfg_http_html_admin *admin,
-	struct ezcfg_html *html,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
+	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
 	int button_index;
 	int input_index;
@@ -70,11 +70,11 @@ int ezcfg_http_html_admin_set_html_button(
 	int ret = -1;
 
 	ASSERT(admin != NULL);
-	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
 	ezcfg = admin->ezcfg;
 	http = admin->http;
+	html = admin->html;
 
 	p = ezcfg_http_get_request_uri(http);
 	section = p+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

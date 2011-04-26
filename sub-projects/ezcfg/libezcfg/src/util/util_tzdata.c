@@ -197,3 +197,9 @@ char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name)
 	}
 	return NULL;
 }
+
+bool ezcfg_util_tzdata_check_area_location(char *area, char *location)
+{
+	return (ezcfg_util_tzdata_get_location_desc_by_name(area, location) != NULL);
+}
+
