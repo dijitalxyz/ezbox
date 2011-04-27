@@ -142,7 +142,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, CLONE_HWADDR), "" },
 
         /* WAN TCP/IP parameters */
-	/* WAN connection type [static|dhcp|pppoe|pptp|l2tp|disabled] */
+	/* WAN connection type [dhcp|static|pppoe|pptp|l2tp|disabled] */
 	{ NVRAM_SERVICE_OPTION(WAN, TYPE), "dhcp" },
 	/* WAN connection release [1|0] */
 	{ NVRAM_SERVICE_OPTION(WAN, RELEASE), "0" },

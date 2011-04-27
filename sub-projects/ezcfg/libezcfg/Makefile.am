@@ -48,6 +48,7 @@ libezcfg_la_SOURCES += src/util/util_crc32.c
 libezcfg_la_SOURCES += src/util/util_conf.c
 libezcfg_la_SOURCES += src/util/util_language.c
 libezcfg_la_SOURCES += src/util/util_tzdata.c
+libezcfg_la_SOURCES += src/util/util_wan.c
 
 # ezcfg control
 libezcfg_la_SOURCES += src/ctrl/ctrl.c 
@@ -110,8 +111,14 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
 # ezcfg HTML/HTTP admin status_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
 
+# ezcfg HTML/HTTP admin status_wan handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_wan.c
+
 # ezcfg HTML/HTTP admin setup_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_system.c
+
+# ezcfg HTML/HTTP admin setup_wan handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_wan.c
 
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c

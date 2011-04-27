@@ -106,7 +106,7 @@ int ezcfg_http_html_admin_set_html_button(
 				goto func_exit;
 			}
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_save", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_ACT_SAVE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Save Settings"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 			/* <input type="submit" name="act_cancel" value="Cancel Changes"> */
@@ -116,7 +116,7 @@ int ezcfg_http_html_admin_set_html_button(
 				goto func_exit;
 			}
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_cancel", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_ACT_CANCEL, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Cancel Changes"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 			break;
@@ -132,7 +132,7 @@ int ezcfg_http_html_admin_set_html_button(
 				goto func_exit;
 			}
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "act_refresh", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_ACT_REFRESH, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_locale_text(locale, "Refresh"), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			break;
 		}

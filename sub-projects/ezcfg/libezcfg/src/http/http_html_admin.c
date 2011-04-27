@@ -41,7 +41,9 @@ struct http_html_admin_handler {
 
 struct http_html_admin_handler adm_handlers[] = {
 	{ "status_system", ezcfg_http_html_admin_status_system_handler },
+	{ "status_wan", ezcfg_http_html_admin_status_wan_handler },
 	{ "setup_system", ezcfg_http_html_admin_setup_system_handler },
+	{ "setup_wan", ezcfg_http_html_admin_setup_wan_handler },
 	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }
 };

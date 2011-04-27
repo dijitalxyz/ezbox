@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : http/admin/http_html_admin_setup_system.c
+ * File Name    : http/admin/http_html_admin_setup_wan.c
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-04-21   0.1       Write it from scratch
+ * 2011-04-27   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,7 +39,7 @@
 /**
  * Private functions
  **/
-static int set_html_main_setup_system(
+static int set_html_main_setup_wan(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
 	int pi, int si)
@@ -47,12 +47,9 @@ static int set_html_main_setup_system(
 	struct ezcfg *ezcfg;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
-	int main_index;
 	int content_index, child_index;
-	int p_index, select_index;
+	int p_index, select_index, input_index;
 	char buf[1024];
-	char tz_area[32];
-	char tz_location[64];
 	char *p = NULL;
 	int i;
 	int ret = -1;
@@ -65,22 +62,22 @@ static int set_html_main_setup_system(
 	html = admin->html;
 
 	/* <div id="main"> */
-	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
-	if (main_index < 0) {
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, si, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(admin, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(admin, si, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
 	}
 
 	/* <div id="content"> */
-	content_index = ezcfg_html_add_body_child(html, main_index, child_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	content_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
 	if (content_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
@@ -88,157 +85,109 @@ static int set_html_main_setup_system(
 	ezcfg_html_add_body_child_attribute(html, content_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
-	/* <h3>Localization</h3> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Localization"));
+	/* <h3>WAN Setup</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "WAN Setup"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
-	/* <p>Language : </p> */
+	/* <p>Connection Type : </p> */
 	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Language"));
+		ezcfg_locale_text(locale, "Connection Type"));
 	p_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
-	/* <p>Language : <select></select> </p> */
+	/* <p>Connection Type : <select></select> </p> */
 	child_index = -1;
 	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
 	if (select_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_LANGUAGE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_WAN_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <p>Language : <select><option></option></select> </p> */
+	/* <p>Connection Type : <select><option></option></select> </p> */
 	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, TYPE), &p);
 	if (p != NULL) {
 		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
 	}
 	child_index = -1;
-	for (i = 0; i < ezcfg_util_lang_get_length(); i++) {
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_lang_get_desc_by_index(i)));
+	for (i = 0; i < ezcfg_util_wan_get_type_length(); i++) {
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_wan_get_type_desc_by_index(i)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_lang_get_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(buf, ezcfg_util_lang_get_name_by_index(i)) == 0) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_wan_get_type_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(buf, ezcfg_util_wan_get_type_name_by_index(i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
 
-	/* <p>Time Zone</p> */
-	snprintf(buf, sizeof(buf), "%s",
-		ezcfg_locale_text(locale, "Time Zone"));
-	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	/* restore index pointer */
+	child_index = p_index;
+
+	/* <h3>Optional Settings</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Optional Settings"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Host Name : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Host Name"));
+	p_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
-	/* <p>  (Area) : </p> */
-	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Area"));
-	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (p_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>  (Area) : <select></select> </p> */
+	/* <p>Host Name : <input maxlength="39" name="wan_hostname" size="20" value=""/></p> */
 	child_index = -1;
-	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
-	if (select_index < 0) {
+	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>  (Area) : <select><option></option></select> </p> */
-	tz_area[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA, &p);
-	if (p == NULL) {
-		/* ui_tz_area is not set, use sys_tz_area */
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
-	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_HOSTNAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "20", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, HOSTNAME), &p);
 	if (p != NULL) {
-		snprintf(tz_area, sizeof(tz_area), "%s", p);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		free(p);
 	}
 
-	child_index = -1;
-	for (i = 0; i < ezcfg_util_tzdata_get_area_length(); i++) {
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_tzdata_get_area_desc_by_index(i)));
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_tzdata_get_area_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tz_area, ezcfg_util_tzdata_get_area_name_by_index(i)) == 0) {
-			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
-	}
-
-	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA) == false) {
-		/* <p>  (Warning : time zone area has been changed, please set location again!)</p> */
-		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s&nbsp;:&nbsp;%s)",
-			ezcfg_locale_text(locale, "Warning"),
-			ezcfg_locale_text(locale, "time zone area has been changed, please set location again!"));
-		p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-		if (p_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, p_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	}
-
-	/* <p>  (Location) : </p> */
-	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Location"));
+	/* <p>Domain Name : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Domain Name"));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
-	/* <p>  (Location) : <select></select> </p> */
+	/* <p>Domain Name : <input maxlength="63" name="wan_domain" size="18" value=""/></p> */
 	child_index = -1;
-	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
-	if (select_index < 0) {
+	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_LOCATION, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>  (Location) : <select><option></option></select> </p> */
-	tz_location[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_LOCATION, &p);
-	if (p == NULL) {
-		/* ui_tz_location is not set, use sys_tz_location */
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
-	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_DOMAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "18", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DOMAIN), &p);
 	if (p != NULL) {
-		snprintf(tz_location, sizeof(tz_location), "%s", p);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		free(p);
-	}
-
-	child_index = -1;
-	for (i = 0; i < ezcfg_util_tzdata_get_location_length(tz_area); i++) {
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_tzdata_get_location_desc_by_index(tz_area, i)));
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_tzdata_get_location_name_by_index(tz_area, i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tz_location, ezcfg_util_tzdata_get_location_name_by_index(tz_area, i)) == 0) {
-			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
 	}
 
 	/* restore index pointer */
@@ -259,13 +208,13 @@ static int set_html_main_setup_system(
 	}
 
 	/* must return main index */
-	ret = main_index;
+	ret = si;
 
 func_exit:
 	return ret;
 }
 
-static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin)
+static int build_admin_setup_wan_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
@@ -359,9 +308,9 @@ static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin
 		rc = -1;
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "setup_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_METHOD_ATTRIBUTE_NAME, "post", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
 	child_index = ezcfg_http_html_admin_set_html_head(admin, form_index, -1);
@@ -372,9 +321,9 @@ static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_setup_system(admin, locale, form_index, child_index);
+	child_index = set_html_main_setup_wan(admin, locale, form_index, child_index);
 	if (child_index < 0) {
-		err(ezcfg, "set_html_main_setup_system error.\n");
+		err(ezcfg, "set_html_main_setup_wan error.\n");
 		rc = -1;
 		goto func_exit;
 	}
@@ -396,7 +345,7 @@ func_exit:
 	return rc;
 }
 
-static bool do_admin_setup_system_action(struct ezcfg_http_html_admin *admin)
+static bool do_admin_setup_wan_action(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_link_list *list;
@@ -428,7 +377,7 @@ static bool do_admin_setup_system_action(struct ezcfg_http_html_admin *admin)
 	return ret;
 }
 
-static bool handle_admin_setup_system_post(struct ezcfg_http_html_admin *admin)
+static bool handle_admin_setup_wan_post(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	bool ret = false;
@@ -436,7 +385,7 @@ static bool handle_admin_setup_system_post(struct ezcfg_http_html_admin *admin)
 	ezcfg = admin->ezcfg;
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
-		ret = do_admin_setup_system_action(admin);
+		ret = do_admin_setup_wan_action(admin);
 	}
 	return ret;
 }
@@ -444,7 +393,7 @@ static bool handle_admin_setup_system_post(struct ezcfg_http_html_admin *admin)
 /**
  * Public functions
  **/
-int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *admin)
+int ezcfg_http_html_admin_setup_wan_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -455,13 +404,13 @@ int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *adm
 	ezcfg = admin->ezcfg;
 	http = admin->http;
 
-	/* admin setup_system uri=[/admin/setup_system] */
+	/* admin setup_wan uri=[/admin/setup_wan] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
 		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
-		handle_admin_setup_system_post(admin);
+		handle_admin_setup_wan_post(admin);
 	}
 
-	ret = build_admin_setup_system_response(admin);
+	ret = build_admin_setup_wan_response(admin);
 	return ret;
 }
