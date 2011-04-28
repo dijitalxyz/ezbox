@@ -162,7 +162,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, DOMAIN), "" },
 	/* WAN lease time in seconds */
 	{ NVRAM_SERVICE_OPTION(WAN, LEASE), "86400" },
-	/* WAN MTU [1|0] */
+	/* WAN MTU setting mode [1|0] */
 	{ NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), "0" },
 	/* Negotiate MTU to the smaller of this value or the peer MRU */
 	{ NVRAM_SERVICE_OPTION(WAN, MTU), "1500" },

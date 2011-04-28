@@ -149,16 +149,16 @@ static int set_html_main_setup_wan(
 		goto func_exit;
 	}
 
-	/* <p>Host Name : <input maxlength="39" name="wan_hostname" size="20" value=""/></p> */
+	/* <p>Host Name : <input type="text" maxlength="39" name="wan_hostname" value=""/></p> */
 	child_index = -1;
 	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_HOSTNAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "20", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, HOSTNAME), &p);
 	if (p != NULL) {
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -174,20 +174,88 @@ static int set_html_main_setup_wan(
 		goto func_exit;
 	}
 
-	/* <p>Domain Name : <input maxlength="63" name="wan_domain" size="18" value=""/></p> */
+	/* <p>Domain Name : <input type="text" maxlength="63" name="wan_domain" value=""/></p> */
 	child_index = -1;
 	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_DOMAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "18", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DOMAIN), &p);
 	if (p != NULL) {
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		free(p);
+	}
+
+	/* <p>MTU : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "MTU"));
+	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (p_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>MTU : <select name="wan_mtu_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_WAN_MTU_ENABLE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>MTU : <select name="wan_mtu_enable"><option value="0" selected="selected">Auto</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_mtu_enable(i)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* MTU setting mode is manual */
+	if (strcmp(buf, "1") == 0) {
+		/* <p>MTU Size: </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "MTU Size"));
+		p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (p_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>MTU Size : <input type="text" maxlength="6" name="wan_mtu" value="1500"/></p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "6", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_MTU, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
 	}
 
 	/* restore index pointer */
