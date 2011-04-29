@@ -50,6 +50,7 @@ static int set_status_wan_common(
 	struct ezcfg_html *html;
 	char buf[1024];
 	char *p = NULL;
+	int i;
 	bool bool_flag;
 
 	ezcfg = admin->ezcfg;
@@ -120,25 +121,36 @@ static int set_status_wan_common(
 		ezcfg_html_add_body_child_attribute(html, si, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
-	/* <p>DNS : 0.0.0.0 1.1.1.1</p>*/
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DNS), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
-		ezcfg_locale_text(locale, "DNS"),
-		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid DNS Server IP Address"));
-	if (p != NULL) {
-		bool_flag = true;
-		free(p);
-	}
-	else {
-		bool_flag = false;
-	}
-	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (si < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	if (bool_flag == false) {
-		ezcfg_html_add_body_child_attribute(html, si, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	/* <p>DNS X : 0.0.0.0</p>*/
+	for (i = 1; i <= 3; i++) {
+		if (i == 1) {
+			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS1));
+		}
+		else if (i == 2) {
+			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS2));
+		}
+		else {
+			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS3));
+		}
+		ezcfg_nvram_get_entry_value(nvram, buf, &p);
+		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;%s",
+			ezcfg_locale_text(locale, "DNS"), i,
+			(p != NULL) ? p : "");
+		if (p != NULL) {
+			bool_flag = true;
+			free(p);
+		}
+		else {
+			bool_flag = false;
+		}
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		if (bool_flag == false) {
+			ezcfg_html_add_body_child_attribute(html, si, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
 	}
 
 	/* <p>MTU : 1500</p>*/
@@ -459,6 +471,8 @@ static int set_html_main_status_wan(
 					err(ezcfg, "set_status_wan_%s.\n", wan_type);
 					goto func_exit;
 				}
+				/* stop loop */
+				break;
 			}
 		}
 	}

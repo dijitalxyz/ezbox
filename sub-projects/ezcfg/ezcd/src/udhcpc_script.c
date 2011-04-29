@@ -141,7 +141,31 @@ static int udhcpc_bound(void)
 
 	dns = getenv("dns");
 	if (dns != NULL) {
-		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DNS), dns);
+		char name[32];
+		int i;
+		char *p, *savep;
+		snprintf(buf, sizeof(buf), "%s", dns);
+		for (p = buf, i = 1; ; p = NULL, i++) {
+			dns = strtok_r(p, " ", &savep);
+			if (dns == NULL)
+				break;
+			if (i == 1) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS1));
+			}
+			else if (i == 2) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS2));
+			}
+			else if (i == 3) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS3));
+			}
+			else {
+				break;
+			}
+			rc = ezcfg_api_nvram_set(name, dns);
+		}
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);
@@ -236,7 +260,31 @@ static int udhcpc_renew(void)
 
 	dns = getenv("dns");
 	if (dns != NULL) {
-		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DNS), dns);
+		char name[32];
+		int i;
+		char *p, *savep;
+		snprintf(buf, sizeof(buf), "%s", dns);
+		for (p = buf, i = 1; ; p = NULL, i++) {
+			dns = strtok_r(p, " ", &savep);
+			if (dns == NULL)
+				break;
+			if (i == 1) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS1));
+			}
+			else if (i == 2) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS2));
+			}
+			else if (i == 3) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS3));
+			}
+			else {
+				break;
+			}
+			rc = ezcfg_api_nvram_set(name, dns);
+		}
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);

@@ -39,3 +39,13 @@ char *ezcfg_util_text_get_mtu_enable(int i)
 		return "Manual";
 	}
 }
+
+char *ezcfg_util_text_get_pppoe_keep_enable(int i)
+{
+	if (i == 0) {
+		return "Dial on Demand";
+	}
+	else {
+		return "Keep Alive";
+	}
+}

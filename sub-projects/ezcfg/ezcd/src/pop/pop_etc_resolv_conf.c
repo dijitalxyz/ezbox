@@ -43,7 +43,9 @@ int pop_etc_resolv_conf(int flag)
 {
         FILE *file = NULL;
 	char buf[128];
-	char *p, *token, *savep;
+	//char *p, *token, *savep;
+	char name[32];
+	int i;
 	int rc = EXIT_FAILURE;
 
 	switch(flag) {
@@ -62,6 +64,7 @@ int pop_etc_resolv_conf(int flag)
 			fprintf(file, "domain %s\n", buf);
 		}
 
+#if 0
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DNS), buf, sizeof(buf));
 		if (rc < 0) {
 			rc = EXIT_FAILURE;
@@ -73,6 +76,25 @@ int pop_etc_resolv_conf(int flag)
 			if (token == NULL)
 				break;
 			fprintf(file, "nameserver %s\n", token);
+		}
+#endif
+		for (i = 1; i <= 3; i++) {
+			if (i == 1) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS1));
+			}
+			else if (i == 2) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS2));
+			}
+			else if (i == 3) {
+				snprintf(name, sizeof(name), "%s",
+					NVRAM_SERVICE_OPTION(WAN, DNS3));
+			}
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (buf[0] != '\0') {
+				fprintf(file, "nameserver %s\n", buf);
+			}
 		}
 		rc = EXIT_SUCCESS;
 		break;

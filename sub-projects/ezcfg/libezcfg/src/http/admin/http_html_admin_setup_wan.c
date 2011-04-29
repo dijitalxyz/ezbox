@@ -39,6 +39,527 @@
 /**
  * Private functions
  **/
+
+static int set_setup_wan_static(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int child_index;
+	int input_index;
+	char name[32];
+	char buf[1024];
+	char *p = NULL;
+	int i;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	/* <p>IP Address : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "IP Address"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>IP Address : <input type="text" maxlength="15" name="wan_static_ipaddr" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Subnet Mask : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Subnet Mask"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Subnet Mask : <input type="text" maxlength="15" name="wan_static_netmask" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Default Gateway : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Default Gateway"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Default Gateway : <input type="text" maxlength="15" name="wan_static_gateway" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	for (i = 1; i <= 3; i++) {
+		if (i == 1) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS1));
+		}
+		else if (i == 2) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS2));
+		}
+		else if (i == 3) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS3));
+		}
+		else {
+			err(ezcfg, "dns index is too large.\n");
+			goto func_exit;
+		}
+
+		/* <p>DNS 1 : </p> */
+		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "DNS"), i);
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>DNS 1 : <input type="text" maxlength="15" name="wan_static_dns1" value=""/></p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, name, &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+func_exit:
+	return si;
+}
+
+static int set_setup_wan_pppoe(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int child_index;
+	int input_index, select_index;
+	char buf[1024];
+	char *p = NULL;
+	int i;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	/* <p>Username : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Username"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Username : <input type="text" maxlength="63" name="wan_pppoe_ppp_username" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_USERNAME), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_USERNAME), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Password : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Password"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Password : <input type="text" maxlength="63" name="wan_pppoe_ppp_password" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_PASSWD), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_PASSWD), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Service Name : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Service Name"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Service Name : <input type="text" maxlength="63" name="wan_pppoe_service" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_SERVICE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_SERVICE), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Connecting Mode : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Connecting Mode"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Connecting Mode : <select name="wan_pppoe_keep_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_KEEP_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>Connecting Mode : <select name="wan_pppoe_keep_enable"><option value="1" selected="selected">Keep Alive</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_KEEP_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_pppoe_keep_enable(i)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* Connecting mode is Dial On Demand */
+	if (strcmp(buf, "0") == 0) {
+		/* <p>Max Idle Time : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Max Idle Time"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Max Idle Time : <input type="text" maxlength="4" size="4" name="wan_pppoe_ppp_idle" value="600"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_IDLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_IDLE), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+	/* Connecting mode is Keep Alive */
+	else {
+		/* <p>Redial Period : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Redial Period"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Redial Period : <input type="text" maxlength="4" size="4" name="wan_pppoe_ppp_redial" value="30"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_LCP_ECHO_INTERVAL), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_LCP_ECHO_INTERVAL), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+func_exit:
+	return si;
+}
+
+static int set_setup_wan_pptp(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	return si;
+}
+
+static int set_setup_wan_l2tp(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	return si;
+}
+
+struct type_handler {
+	char *name;
+	int (*handler)(
+		struct ezcfg_http_html_admin *admin,
+		struct ezcfg_locale *locale,
+		int pi, int si);
+};
+
+static struct type_handler wan_type_handlers[] = {
+	{ "static", set_setup_wan_static },
+	{ "pppoe", set_setup_wan_pppoe },
+	{ "pptp", set_setup_wan_pptp },
+	{ "l2tp", set_setup_wan_l2tp },
+};
+
+static int set_setup_wan_optional_settings(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int child_index;
+	int select_index, input_index;
+	char buf[1024];
+	char *p = NULL;
+	int i;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	/* <h3>Optional Settings</h3> */
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Optional Settings"));
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Host Name : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Host Name"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Host Name : <input type="text" maxlength="39" name="wan_hostname" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, HOSTNAME), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, HOSTNAME), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Domain Name : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Domain Name"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Domain Name : <input type="text" maxlength="63" name="wan_domain" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, DOMAIN), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DOMAIN), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>MTU : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "MTU"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>MTU : <select name="wan_mtu_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>MTU : <select name="wan_mtu_enable"><option value="0" selected="selected">Auto</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_mtu_enable(i)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* MTU setting mode is manual */
+	if (strcmp(buf, "1") == 0) {
+		/* <p>MTU Size: </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "MTU Size"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>MTU Size : <input type="text" maxlength="6" name="wan_mtu" value="1500"/></p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "6", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, MTU), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+func_exit:
+	return si;
+}
+
 static int set_html_main_setup_wan(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -48,8 +569,9 @@ static int set_html_main_setup_wan(
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int content_index, child_index;
-	int p_index, select_index, input_index;
+	int p_index, select_index;
 	char buf[1024];
+	char wan_type[16];
 	char *p = NULL;
 	int i;
 	int ret = -1;
@@ -95,11 +617,14 @@ static int set_html_main_setup_wan(
 	/* <p>Connection Type : </p> */
 	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
 		ezcfg_locale_text(locale, "Connection Type"));
-	p_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (p_index < 0) {
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+
+	/* store child_index */
+	p_index = child_index;
 
 	/* <p>Connection Type : <select></select> </p> */
 	child_index = -1;
@@ -108,13 +633,13 @@ static int set_html_main_setup_wan(
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_WAN_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, TYPE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <p>Connection Type : <select><option></option></select> </p> */
-	buf[0] = '\0';
+	wan_type[0] = '\0';
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, TYPE), &p);
 	if (p != NULL) {
-		snprintf(buf, sizeof(buf), "%s", p);
+		snprintf(wan_type, sizeof(wan_type), "%s", p);
 		free(p);
 	}
 	child_index = -1;
@@ -125,7 +650,7 @@ static int set_html_main_setup_wan(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, ezcfg_util_wan_get_type_name_by_index(i), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(buf, ezcfg_util_wan_get_type_name_by_index(i)) == 0) {
+		if (strcmp(wan_type, ezcfg_util_wan_get_type_name_by_index(i)) == 0) {
 			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 	}
@@ -133,133 +658,26 @@ static int set_html_main_setup_wan(
 	/* restore index pointer */
 	child_index = p_index;
 
-	/* <h3>Optional Settings</h3> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Optional Settings"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
+	/* setup connection type mode special settings */
+	for (i = 0; i < ARRAY_SIZE(wan_type_handlers); i++) {
+		if (strcmp(wan_type, wan_type_handlers[i].name) == 0) {
+			child_index = wan_type_handlers[i].handler(admin, locale, content_index, child_index);
+			if (child_index < 0) {
+				err(ezcfg, "set_status_wan_%s.\n", wan_type);
+				goto func_exit;
+			}
+			/* stop loop */
+			break;
+		}
 	}
 
-	/* <p>Host Name : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Host Name"));
-	p_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (p_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Host Name : <input type="text" maxlength="39" name="wan_hostname" value=""/></p> */
-	child_index = -1;
-	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (input_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "39", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_HOSTNAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, HOSTNAME), &p);
-	if (p != NULL) {
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		free(p);
-	}
-
-	/* <p>Domain Name : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Domain Name"));
-	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (p_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Domain Name : <input type="text" maxlength="63" name="wan_domain" value=""/></p> */
-	child_index = -1;
-	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-	if (input_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_DOMAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DOMAIN), &p);
-	if (p != NULL) {
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		free(p);
-	}
-
-	/* <p>MTU : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "MTU"));
-	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (p_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>MTU : <select name="wan_mtu_enable"></select></p> */
-	child_index = -1;
-	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
-	if (select_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_WAN_MTU_ENABLE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>MTU : <select name="wan_mtu_enable"><option value="0" selected="selected">Auto</option></select></p> */
-	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), &p);
-	if (p != NULL) {
-		snprintf(buf, sizeof(buf), "%s", p);
-		free(p);
-	}
-	child_index = -1;
-	for (i = 0; i < 2; i++) {
-		char tmp[2];
-		snprintf(tmp, sizeof(tmp), "%d", i);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_mtu_enable(i)));
+	if (strcmp(wan_type, "disabled") != 0) {
+		child_index = set_setup_wan_optional_settings(admin, locale, content_index, child_index);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tmp, buf) == 0) {
-			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
 	}
-
-	/* MTU setting mode is manual */
-	if (strcmp(buf, "1") == 0) {
-		/* <p>MTU Size: </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "MTU Size"));
-		p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-		if (p_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-
-		/* <p>MTU Size : <input type="text" maxlength="6" name="wan_mtu" value="1500"/></p> */
-		child_index = -1;
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "6", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_WAN_MTU, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU), &p);
-		if (p != NULL) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			free(p);
-		}
-	}
-
-	/* restore index pointer */
-	child_index = p_index;
 
 	/* <p>&nbsp;</p> */
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
@@ -425,8 +843,8 @@ static bool do_admin_setup_wan_action(struct ezcfg_http_html_admin *admin)
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		/* set area and location */
-		tz_area = ezcfg_link_list_get_node_value_by_name(list, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_AREA);
-		tz_location = ezcfg_link_list_get_node_value_by_name(list, EZCFG_HTTP_HTML_ADMIN_SELECT_NAME_TZ_LOCATION);
+		tz_area = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(UI, TZ_AREA));
+		tz_location = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION));
 		if ((tz_area != NULL) && (tz_location != NULL)) {
 			if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
 				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), tz_area);

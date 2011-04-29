@@ -152,8 +152,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, NETMASK), "0.0.0.0" },
 	/* WAN gateway */
 	{ NVRAM_SERVICE_OPTION(WAN, GATEWAY), "0.0.0.0" },
-	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
-	{ NVRAM_SERVICE_OPTION(WAN, DNS), "" },
+	/* WAN DNS server IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, DNS1), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, DNS2), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, DNS3), "" },
 	/* WAN WINS server IP address [x.x.x.x x.x.x.x ...] */
 	{ NVRAM_SERVICE_OPTION(WAN, WINS), "" },
 	/* WAN hostname */
@@ -174,8 +176,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), "0.0.0.0" },
 	/* WAN gateway */
 	{ NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), "0.0.0.0" },
-	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
-	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS), "" },
+	/* WAN DNS server IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS1), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS2), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS3), "" },
 
 	/* WAN DHCP Client parameters */
 	/* WAN DHCP gateway set enable [0|1] */
@@ -216,8 +220,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, PPTP_NETMASK), "0.0.0.0" },
 	/* PPTP assigned gateway */
 	{ NVRAM_SERVICE_OPTION(WAN, PPTP_GATEWAY), "0.0.0.0" },
-	/* PPTP DNS server IP address [x.x.x.x x.x.x.x ...] */
-	{ NVRAM_SERVICE_OPTION(WAN, PPTP_DNS), "" },
+	/* PPTP DNS server IP address */
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_DNS1), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_DNS2), "" },
+	{ NVRAM_SERVICE_OPTION(WAN, PPTP_DNS3), "" },
 	/* PPTP server IP address */
 	{ NVRAM_SERVICE_OPTION(WAN, PPTP_SERVER_IPADDR), "0.0.0.0" },
 	/* Restore link automatically */
@@ -304,8 +310,10 @@ char *default_nvram_unsets[] = {
 	NVRAM_SERVICE_OPTION(WAN, NETMASK),
 	/* WAN gateway */
 	NVRAM_SERVICE_OPTION(WAN, GATEWAY),
-	/* WAN DNS server IP address [x.x.x.x x.x.x.x ...] */
-	NVRAM_SERVICE_OPTION(WAN, DNS),
+	/* WAN DNS server IP address */
+	NVRAM_SERVICE_OPTION(WAN, DNS1),
+	NVRAM_SERVICE_OPTION(WAN, DNS2),
+	NVRAM_SERVICE_OPTION(WAN, DNS3),
 	/* WAN domain name */
 	NVRAM_SERVICE_OPTION(WAN, DOMAIN),
 	/* WAN lease time in seconds */
