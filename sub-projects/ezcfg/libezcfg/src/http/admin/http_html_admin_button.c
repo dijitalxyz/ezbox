@@ -37,6 +37,7 @@
 char *refresh_buttons[] = {
 	"status_system",
 	"status_lan",
+	"view_dhcp_client_table",
 	"status_wan",
 };
 

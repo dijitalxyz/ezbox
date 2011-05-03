@@ -346,6 +346,10 @@ int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin
 
 /* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http_html_admin *admin);
+/* http/admin/http_html_admin_status_lan.c */
+int ezcfg_http_html_admin_status_lan_handler(struct ezcfg_http_html_admin *admin);
+/* http/admin/http_html_admin_view_dhcp_client_table.c */
+int ezcfg_http_html_admin_view_dhcp_client_table_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_status_wan.c */
 int ezcfg_http_html_admin_status_wan_handler(struct ezcfg_http_html_admin *admin);
 
@@ -546,5 +550,6 @@ char *ezcfg_util_wan_get_type_desc_by_name(char *name);
 /* util/util_text.c */
 char *ezcfg_util_text_get_mtu_enable(int i);
 char *ezcfg_util_text_get_keep_enable(int i);
+char *ezcfg_util_text_get_service_switch(bool v);
 
 #endif

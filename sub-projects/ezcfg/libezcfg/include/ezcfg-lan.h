@@ -36,8 +36,8 @@
 #define EZCFG_LAN_STP_ENABLE             "stp_enable"
 
 /* LAN DHCP server parameters */
-#define EZCFG_LAN_DHCPD_START            "dhcpd_start"
-#define EZCFG_LAN_DHCPD_END              "dhcpd_end"
+#define EZCFG_LAN_DHCPD_START_IPADDR     "dhcpd_start_ipaddr"
+#define EZCFG_LAN_DHCPD_END_IPADDR       "dhcpd_end_ipaddr"
 #define EZCFG_LAN_DHCPD_LEASE            "dhcpd_lease"
 #define EZCFG_LAN_DHCPD_GATEWAY          "dhcpd_gateway"
 #define EZCFG_LAN_DHCPD_DNS              "dhcpd_dns"

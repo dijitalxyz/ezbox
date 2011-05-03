@@ -112,6 +112,12 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
 # ezcfg HTML/HTTP admin status_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
 
+# ezcfg HTML/HTTP admin status_lan handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_lan.c
+
+# ezcfg HTML/HTTP admin view_dhcp_client_table handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_view_dhcp_client_table.c
+
 # ezcfg HTML/HTTP admin status_wan handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_wan.c
 

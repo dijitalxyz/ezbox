@@ -49,3 +49,13 @@ char *ezcfg_util_text_get_keep_enable(int i)
 		return "Keep Alive";
 	}
 }
+
+char *ezcfg_util_text_get_service_switch(bool v)
+{
+	if (v == true) {
+		return "Enabled";
+	}
+	else {
+		return "Disabled";
+	}
+}

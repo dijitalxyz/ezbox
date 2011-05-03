@@ -514,7 +514,7 @@ static int build_admin_status_wan_response(struct ezcfg_http_html_admin *admin)
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
 	if (locale != NULL) {
-		ezcfg_locale_set_domain(locale, EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN);
+		ezcfg_locale_set_domain(locale, EZCFG_HTTP_HTML_ADMIN_STATUS_WAN_DOMAIN);
 		ezcfg_locale_set_dir(locale, EZCFG_HTTP_HTML_LANG_DIR);
 	}
 

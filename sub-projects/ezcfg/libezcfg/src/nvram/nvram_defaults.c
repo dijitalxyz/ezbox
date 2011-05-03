@@ -265,14 +265,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* Negotiate MTU to the smaller of this value or the peer MRU */
 	{ NVRAM_SERVICE_OPTION(WAN, L2TP_MTU), "1460" },
 
-	/* Static Route */
-	{ "static_route", "" },	/* Static routes (ipaddr:netmask:gateway:metric:ifname ...) */
-
 	/* LAN DHCP server */
 	/* First assignable DHCP address */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START), "192.168.1.100" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), "192.168.1.100" },
 	/* Last assignable DHCP address */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END), "192.168.1.149" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), "192.168.1.149" },
 	/* LAN lease time in minutes */ /* Add */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
 	/* LAN DHCP gateway IP address */

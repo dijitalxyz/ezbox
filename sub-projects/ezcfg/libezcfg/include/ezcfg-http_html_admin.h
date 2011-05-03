@@ -32,7 +32,12 @@ struct ezcfg_http_html_admin {
 
 /* ezcfg HTTP html admin request/response mode */
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
+#define EZCFG_HTTP_HTML_ADMIN_STATUS_LAN_DOMAIN        "admin_status_lan"
+#define EZCFG_HTTP_HTML_ADMIN_VIEW_DHCP_CLIENT_TABLE_DOMAIN  "admin_view_dhcp_client_table"
+#define EZCFG_HTTP_HTML_ADMIN_STATUS_WAN_DOMAIN        "admin_status_wan"
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_SYSTEM_DOMAIN      "admin_setup_system"
+#define EZCFG_HTTP_HTML_ADMIN_SETUP_LAN_DOMAIN         "admin_setup_lan"
+#define EZCFG_HTTP_HTML_ADMIN_SETUP_WAN_DOMAIN         "admin_setup_wan"
 
 #define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
 #define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"
