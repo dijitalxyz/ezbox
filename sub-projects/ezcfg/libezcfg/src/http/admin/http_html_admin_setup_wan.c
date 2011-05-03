@@ -307,7 +307,7 @@ static int set_setup_wan_pppoe(
 	for (i = 0; i < 2; i++) {
 		char tmp[2];
 		snprintf(tmp, sizeof(tmp), "%d", i);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_pppoe_keep_enable(i)));
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_keep_enable(i)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
@@ -384,6 +384,312 @@ static int set_setup_wan_pptp(
 	struct ezcfg_locale *locale,
 	int pi, int si)
 {
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int child_index;
+	int input_index, select_index;
+	char name[32];
+	char buf[1024];
+	char *p = NULL;
+	int i;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	/* <p>IP Address : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "IP Address"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>IP Address : <input type="text" maxlength="15" name="wan_static_ipaddr" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_IPADDR), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Subnet Mask : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Subnet Mask"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Subnet Mask : <input type="text" maxlength="15" name="wan_static_netmask" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_NETMASK), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_NETMASK), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Default Gateway : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Default Gateway"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Default Gateway : <input type="text" maxlength="15" name="wan_static_gateway" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_GATEWAY), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_GATEWAY), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	for (i = 1; i <= 3; i++) {
+		if (i == 1) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS1));
+		}
+		else if (i == 2) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS2));
+		}
+		else if (i == 3) {
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS3));
+		}
+		else {
+			err(ezcfg, "dns index is too large.\n");
+			goto func_exit;
+		}
+
+		/* <p>DNS 1 : </p> */
+		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "DNS"), i);
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>DNS 1 : <input type="text" maxlength="15" name="wan_static_dns1" value=""/></p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, name, &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+	/* <p>Server IP Addresse : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Server IP Address"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Server IP Address : <input type="text" maxlength="15" name="wan_pptp_server_ipaddr" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_SERVER_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_SERVER_IPADDR), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Username : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Username"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Username : <input type="text" maxlength="63" name="wan_pptp_ppp_username" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_USERNAME), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_USERNAME), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Password : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Password"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Password : <input type="text" maxlength="63" name="wan_pptp_ppp_password" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_PASSWD), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_PASSWD), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Connecting Mode : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Connecting Mode"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Connecting Mode : <select name="wan_pptp_keep_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_KEEP_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>Connecting Mode : <select name="wan_pptp_keep_enable"><option value="1" selected="selected">Keep Alive</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_KEEP_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_keep_enable(i)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* Connecting mode is Dial On Demand */
+	if (strcmp(buf, "0") == 0) {
+		/* <p>Max Idle Time : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Max Idle Time"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Max Idle Time : <input type="text" maxlength="4" size="4" name="wan_pptp_ppp_idle" value="600"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_IDLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_IDLE), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+	/* Connecting mode is Keep Alive */
+	else {
+		/* <p>Redial Period : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Redial Period"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Redial Period : <input type="text" maxlength="4" size="4" name="wan_pptp_ppp_redial" value="30"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_LCP_ECHO_INTERVAL), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, PPTP_PPP_LCP_ECHO_INTERVAL), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+func_exit:
 	return si;
 }
 
@@ -392,6 +698,195 @@ static int set_setup_wan_l2tp(
 	struct ezcfg_locale *locale,
 	int pi, int si)
 {
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int child_index;
+	int input_index, select_index;
+	char buf[1024];
+	char *p = NULL;
+	int i;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	/* <p>Server IP Addresse : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Server IP Address"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Server IP Address : <input type="text" maxlength="15" name="wan_l2tp_server_ipaddr" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_SERVER_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_SERVER_IPADDR), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Username : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Username"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Username : <input type="text" maxlength="63" name="wan_l2tp_ppp_username" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_USERNAME), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_USERNAME), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Password : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Password"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Password : <input type="text" maxlength="63" name="wan_l2tp_ppp_password" value=""/></p> */
+	child_index = -1;
+	input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+	if (input_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "63", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_PASSWD), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_PASSWD), &p);
+	if (p != NULL) {
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		free(p);
+	}
+
+	/* <p>Connecting Mode : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Connecting Mode"));
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (si < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Connecting Mode : <select name="wan_l2tp_keep_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_KEEP_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>Connecting Mode : <select name="wan_l2tp_keep_enable"><option value="1" selected="selected">Keep Alive</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_KEEP_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_keep_enable(i)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* Connecting mode is Dial On Demand */
+	if (strcmp(buf, "0") == 0) {
+		/* <p>Max Idle Time : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Max Idle Time"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Max Idle Time : <input type="text" maxlength="4" size="4" name="wan_l2tp_ppp_idle" value="600"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_IDLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_IDLE), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+	/* Connecting mode is Keep Alive */
+	else {
+		/* <p>Redial Period : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Redial Period"));
+		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (si < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Redial Period : <input type="text" maxlength="4" size="4" name="wan_l2tp_ppp_redial" value="30"/> seconds</p> */
+		child_index = -1;
+		input_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "4", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_LCP_ECHO_INTERVAL), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, L2TP_PPP_LCP_ECHO_INTERVAL), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+	}
+
+func_exit:
 	return si;
 }
 

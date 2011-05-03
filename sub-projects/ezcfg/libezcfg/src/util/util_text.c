@@ -40,7 +40,7 @@ char *ezcfg_util_text_get_mtu_enable(int i)
 	}
 }
 
-char *ezcfg_util_text_get_pppoe_keep_enable(int i)
+char *ezcfg_util_text_get_keep_enable(int i)
 {
 	if (i == 0) {
 		return "Dial on Demand";

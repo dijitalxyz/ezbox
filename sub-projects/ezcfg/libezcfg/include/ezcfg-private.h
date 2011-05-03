@@ -545,6 +545,6 @@ char *ezcfg_util_wan_get_type_desc_by_name(char *name);
 
 /* util/util_text.c */
 char *ezcfg_util_text_get_mtu_enable(int i);
-char *ezcfg_util_text_get_pppoe_keep_enable(int i);
+char *ezcfg_util_text_get_keep_enable(int i);
 
 #endif
