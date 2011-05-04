@@ -45,6 +45,7 @@ struct http_html_admin_handler adm_handlers[] = {
 	{ "view_dhcp_client_table", ezcfg_http_html_admin_view_dhcp_client_table_handler },
 	{ "status_wan", ezcfg_http_html_admin_status_wan_handler },
 	{ "setup_system", ezcfg_http_html_admin_setup_system_handler },
+	{ "setup_lan", ezcfg_http_html_admin_setup_lan_handler },
 	{ "setup_wan", ezcfg_http_html_admin_setup_wan_handler },
 	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }

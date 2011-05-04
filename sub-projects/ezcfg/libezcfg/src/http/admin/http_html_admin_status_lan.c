@@ -55,7 +55,6 @@ static int set_html_main_status_lan(
 	char buf[1024];
 	char *p = NULL;
 	int i;
-	bool dhcpd_switch;
 	bool bool_flag;
 	int ret = -1;
 

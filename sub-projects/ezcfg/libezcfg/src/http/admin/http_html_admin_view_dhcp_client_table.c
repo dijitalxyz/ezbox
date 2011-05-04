@@ -51,13 +51,7 @@ static int set_html_main_view_dhcp_client_table(
 	struct ezcfg_html *html;
 	int main_index;
 	int content_index, child_index;
-	int p_index;
 	int table_index, tr_index;
-	char buf[1024];
-	char *p = NULL;
-	int i;
-	bool dhcpd_switch;
-	bool bool_flag;
 	int ret = -1;
 
 	ASSERT(admin != NULL);

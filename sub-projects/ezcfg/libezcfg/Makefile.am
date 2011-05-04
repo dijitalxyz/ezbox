@@ -124,6 +124,9 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_wan.c
 # ezcfg HTML/HTTP admin setup_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_system.c
 
+# ezcfg HTML/HTTP admin setup_lan handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_lan.c
+
 # ezcfg HTML/HTTP admin setup_wan handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_wan.c
 

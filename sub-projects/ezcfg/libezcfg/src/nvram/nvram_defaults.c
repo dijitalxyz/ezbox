@@ -275,7 +275,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* LAN DHCP gateway IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_GATEWAY), "" },
 	/* LAN DNS server IP address */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), "" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS1), "" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS2), "" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS3), "" },
 	/* Use WAN domain name first if available (wan|lan) */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DOMAIN), "wan" },
 	/* Use WAN WINS first if available (wan|lan) */

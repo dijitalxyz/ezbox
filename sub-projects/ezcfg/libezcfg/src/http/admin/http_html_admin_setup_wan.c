@@ -1258,7 +1258,7 @@ static int build_admin_setup_wan_response(struct ezcfg_http_html_admin *admin)
 	}
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup System"));
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup WAN"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_head_child error.\n");
 		rc = -1;
@@ -1330,29 +1330,12 @@ static bool do_admin_setup_wan_action(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_link_list *list;
-	char *tz_area, *tz_location;
 	bool ret = false;
 
 	ezcfg = admin->ezcfg;
 	list = admin->post_list;
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
-		/* set area and location */
-		tz_area = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(UI, TZ_AREA));
-		tz_location = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION));
-		if ((tz_area != NULL) && (tz_location != NULL)) {
-			if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
-				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), tz_area);
-				if (ret == false) {
-					return false;
-				}
-				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), tz_location);
-				if (ret == false) {
-					return false;
-				}
-			}
-		}
-
 		ret = ezcfg_http_html_admin_save_settings(admin);
 	}
 	return ret;

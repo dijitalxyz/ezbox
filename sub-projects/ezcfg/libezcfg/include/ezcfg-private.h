@@ -356,6 +356,8 @@ int ezcfg_http_html_admin_status_wan_handler(struct ezcfg_http_html_admin *admin
 
 /* http/admin/http_html_admin_setup_system.c */
 int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *admin);
+/* http/admin/http_html_admin_setup_lan.c */
+int ezcfg_http_html_admin_setup_lan_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_setup_wan.c */
 int ezcfg_http_html_admin_setup_wan_handler(struct ezcfg_http_html_admin *admin);
 

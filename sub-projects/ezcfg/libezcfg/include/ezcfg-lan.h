@@ -40,7 +40,9 @@
 #define EZCFG_LAN_DHCPD_END_IPADDR       "dhcpd_end_ipaddr"
 #define EZCFG_LAN_DHCPD_LEASE            "dhcpd_lease"
 #define EZCFG_LAN_DHCPD_GATEWAY          "dhcpd_gateway"
-#define EZCFG_LAN_DHCPD_DNS              "dhcpd_dns"
+#define EZCFG_LAN_DHCPD_DNS1             "dhcpd_dns1"
+#define EZCFG_LAN_DHCPD_DNS2             "dhcpd_dns2"
+#define EZCFG_LAN_DHCPD_DNS3             "dhcpd_dns3"
 #define EZCFG_LAN_DHCPD_DOMAIN           "dhcpd_domain"
 #define EZCFG_LAN_DHCPD_WINS             "dhcpd_wins"
 
