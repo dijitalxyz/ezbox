@@ -80,5 +80,6 @@
 #define EZCFG_EZCFG_AUTH_0_REALM            "auth.0.realm"
 #define EZCFG_EZCFG_AUTH_0_DOMAIN           "auth.0.domain"
 #define EZCFG_EZCFG_AUTH_0_SECRET           "auth.0.secret"
+#define EZCFG_EZCFG_AUTH_0_SECRET2          "auth.0.secret2"
 
 #endif

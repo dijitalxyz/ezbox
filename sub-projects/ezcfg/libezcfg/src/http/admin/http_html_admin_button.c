@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-19   0.1       Write it from scratch
@@ -45,6 +45,9 @@ char *save_cancel_buttons[] = {
 	"setup_system",
 	"setup_lan",
 	"setup_wan",
+	"management_authz",
+	"management_default",
+	"management_upgrade",
 };
 
 /**

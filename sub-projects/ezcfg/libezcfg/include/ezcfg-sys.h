@@ -27,4 +27,7 @@
 #define EZCFG_SYS_TZ_AREA                 "tz_area"
 #define EZCFG_SYS_TZ_LOCATION             "tz_location"
 
+#define EZCFG_SYS_RESTORE_DEFAULTS        "restore_defaults"
+#define EZCFG_SYS_UPGRADE_IMAGE           "upgrade_image"
+
 #endif

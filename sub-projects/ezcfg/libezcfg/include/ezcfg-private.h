@@ -341,6 +341,11 @@ int ezcfg_http_html_admin_html_menu_setup(
 	struct ezcfg_http_html_admin *admin,
 	int pi, int si);
 
+/* http/admin/http_html_admin_menu_management.c */
+int ezcfg_http_html_admin_html_menu_management(
+	struct ezcfg_http_html_admin *admin,
+	int pi, int si);
+
 /* http/admin/http_html_admin_layout_css.c */
 int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin);
 
@@ -360,6 +365,14 @@ int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *adm
 int ezcfg_http_html_admin_setup_lan_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_setup_wan.c */
 int ezcfg_http_html_admin_setup_wan_handler(struct ezcfg_http_html_admin *admin);
+
+
+/* http/admin/http_html_admin_management_authz.c */
+int ezcfg_http_html_admin_management_authz_handler(struct ezcfg_http_html_admin *admin);
+/* http/admin/http_html_admin_setup_lan.c */
+int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admin *admin);
+/* http/admin/http_html_admin_setup_wan.c */
+int ezcfg_http_html_admin_management_upgrade_handler(struct ezcfg_http_html_admin *admin);
 
 
 /* socket/socket_http.c */

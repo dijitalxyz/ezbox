@@ -47,6 +47,9 @@ struct http_html_admin_handler adm_handlers[] = {
 	{ "setup_system", ezcfg_http_html_admin_setup_system_handler },
 	{ "setup_lan", ezcfg_http_html_admin_setup_lan_handler },
 	{ "setup_wan", ezcfg_http_html_admin_setup_wan_handler },
+	{ "management_authz", ezcfg_http_html_admin_management_authz_handler },
+	{ "management_default", ezcfg_http_html_admin_management_default_handler },
+	{ "management_upgrade", ezcfg_http_html_admin_management_upgrade_handler },
 	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }
 };

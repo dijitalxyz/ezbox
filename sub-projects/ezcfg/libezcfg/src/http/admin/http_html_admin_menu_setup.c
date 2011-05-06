@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-15   0.1       Write it from scratch
@@ -41,7 +41,6 @@ static int submenu_setup_system(struct ezcfg_html *html, int pi, int si, struct 
 {
 	struct ezcfg *ezcfg;
 	int li2_index, a2_index;
-	int child_index;
 	int ret = -1;
 
 	ASSERT(html != NULL);
@@ -66,6 +65,7 @@ static int submenu_setup_system(struct ezcfg_html *html, int pi, int si, struct 
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_system", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+#if 0
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
 	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the system information-- You can change system information and so on."));
@@ -73,6 +73,7 @@ static int submenu_setup_system(struct ezcfg_html *html, int pi, int si, struct 
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
+#endif
 
 	/* must return menu index */
 	ret = li2_index;
@@ -85,7 +86,6 @@ static int submenu_setup_lan(struct ezcfg_html *html, int pi, int si, struct ezc
 {
 	struct ezcfg *ezcfg;
 	int li2_index, a2_index;
-	int child_index;
 	int ret = -1;
 
 	ASSERT(html != NULL);
@@ -110,6 +110,7 @@ static int submenu_setup_lan(struct ezcfg_html *html, int pi, int si, struct ezc
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_lan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+#if 0
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
 	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup LAN -- You can change local area network configuration."));
@@ -117,6 +118,7 @@ static int submenu_setup_lan(struct ezcfg_html *html, int pi, int si, struct ezc
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
+#endif
 
 	/* must return menu index */
 	ret = li2_index;
@@ -129,7 +131,6 @@ static int submenu_setup_wan(struct ezcfg_html *html, int pi, int si, struct ezc
 {
 	struct ezcfg *ezcfg;
 	int li2_index, a2_index;
-	int child_index;
 	int ret = -1;
 
 	ASSERT(html != NULL);
@@ -154,6 +155,7 @@ static int submenu_setup_wan(struct ezcfg_html *html, int pi, int si, struct ezc
 	}
 	ezcfg_html_add_body_child_attribute(html, a2_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "setup_wan", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
+#if 0
 	child_index = -1;
 	/* submenu <ul> <li> <a> <span> */
 	child_index = ezcfg_html_add_body_child(html, a2_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup WAN -- You can change the Internet connection configuration of your device."));
@@ -161,6 +163,7 @@ static int submenu_setup_wan(struct ezcfg_html *html, int pi, int si, struct ezc
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
+#endif
 
 	/* must return menu index */
 	ret = li2_index;
@@ -230,12 +233,14 @@ int ezcfg_http_html_admin_html_menu_setup(
 		goto func_exit;
 	}
 
+#if 0
 	/* menu <ul> <li> <a> <span> */
 	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_SPAN_ELEMENT_NAME, ezcfg_locale_text(locale, "Setup the device -- You can change the configuration of the device."));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
+#endif
 
 	if ((strcmp(section, "setup_system") == 0) ||
 	    (strcmp(section, "setup_lan") == 0) ||

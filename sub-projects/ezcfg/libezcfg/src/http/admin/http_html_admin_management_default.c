@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : http/admin/http_html_admin_view_dhcp_client_table.c
+ * File Name    : http/admin/http_html_admin_management_default.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-03   0.1       Write it from scratch
+ * 2011-05-06   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,46 +39,44 @@
 /**
  * Private functions
  **/
-
-static int set_html_main_view_dhcp_client_table(
+static int set_html_main_management_default(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
-	int main_index;
 	int content_index, child_index;
-	int table_index, tr_index;
+	int p_index;
+	int input_index;
+	char buf[1024];
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
 	ezcfg = admin->ezcfg;
-	http = admin->http;
 	nvram = admin->nvram;
 	html = admin->html;
 
 	/* <div id="main"> */
-	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
-	if (main_index < 0) {
+	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, main_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, si, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_MAIN, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <div id="menu"> */
-	child_index = ezcfg_http_html_admin_set_html_menu(admin, main_index, -1);
+	child_index = ezcfg_http_html_admin_set_html_menu(admin, si, -1);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_http_html_admin_set_html_menu.\n");
 		goto func_exit;
 	}
 
 	/* <div id="content"> */
-	content_index = ezcfg_html_add_body_child(html, main_index, child_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
+	content_index = ezcfg_html_add_body_child(html, si, child_index, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
 	if (content_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
@@ -86,83 +84,55 @@ static int set_html_main_view_dhcp_client_table(
 	ezcfg_html_add_body_child_attribute(html, content_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
-	/* <h3>DHCP Client Table</h3> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Client Table"));
+	/* <h3>Restore System Defaults</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Restore System Defaults"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
-	/* <table></table> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_TABLE_ELEMENT_NAME, NULL);
+	/* <p>Confirm to restore system defaults : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Confirm to restore system defaults"));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* save <table> index */
-	table_index = child_index;
+	/* <p>Confirm to restore system defaults : <input type="radio" name="sys_restore_defaults" value="1">Yes</input></p> */
+	/* save <p> index */
+	p_index = child_index;
 	child_index = -1;
 
-	/* <table><tr></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, table_index, child_index, EZCFG_HTML_TR_ELEMENT_NAME, NULL);
-	if (child_index < 0) {
+	snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		ezcfg_locale_text(locale, "Yes"));
+	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* save <tr> index */
-	tr_index = child_index;
-	child_index = -1;
-
-	/* <table><tr><th>Client Name</th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, ezcfg_locale_text(locale, "Client Name"));
-	if (child_index < 0) {
+	/* <p>Confirm to restore system defaults : <input type="radio" name="sys_restore_defaults" value="0">No</input></p> */
+	/* save <p> index */
+	snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		ezcfg_locale_text(locale, "No"));
+	input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+	if (input_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <table><tr><th>Interface</th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, ezcfg_locale_text(locale, "Interface"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <table><tr><th>IP Address</th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, ezcfg_locale_text(locale, "IP Address"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <table><tr><th>Physical Address</th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, ezcfg_locale_text(locale, "Physical Address"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <table><tr><th>Expires Time</th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, ezcfg_locale_text(locale, "Expires Time"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <table><tr><th></th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, "&nbsp;");
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* restore <tr> index */
-	child_index = tr_index;
-	
-
-	/* restore <table> index */
-	child_index = table_index;
+	/* restore <p> index */
+	child_index = p_index;
 
 	/* <p>&nbsp;</p> */
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
@@ -179,13 +149,13 @@ static int set_html_main_view_dhcp_client_table(
 	}
 
 	/* must return main index */
-	ret = main_index;
+	ret = si;
 
 func_exit:
 	return ret;
 }
 
-static int build_admin_view_dhcp_client_table_response(struct ezcfg_http_html_admin *admin)
+static int build_admin_management_default_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
@@ -201,7 +171,7 @@ static int build_admin_view_dhcp_client_table_response(struct ezcfg_http_html_ad
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
 	if (locale != NULL) {
-		ezcfg_locale_set_domain(locale, EZCFG_HTTP_HTML_ADMIN_VIEW_DHCP_CLIENT_TABLE_DOMAIN);
+		ezcfg_locale_set_domain(locale, EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_DEFAULT_DOMAIN);
 		ezcfg_locale_set_dir(locale, EZCFG_HTTP_HTML_LANG_DIR);
 	}
 
@@ -248,7 +218,7 @@ static int build_admin_view_dhcp_client_table_response(struct ezcfg_http_html_ad
 	}
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Client Table"));
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Restore Defaults"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_head_child error.\n");
 		rc = -1;
@@ -279,9 +249,9 @@ static int build_admin_view_dhcp_client_table_response(struct ezcfg_http_html_ad
 		rc = -1;
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "view_dhcp_client_table", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, "management_default", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_METHOD_ATTRIBUTE_NAME, "post", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "view_dhcp_client_table", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, form_index, EZCFG_HTML_ACTION_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "management_default", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML div head */
 	child_index = ezcfg_http_html_admin_set_html_head(admin, form_index, -1);
@@ -292,9 +262,9 @@ static int build_admin_view_dhcp_client_table_response(struct ezcfg_http_html_ad
 	}
 
 	/* HTML div main */
-	child_index = set_html_main_view_dhcp_client_table(admin, locale, form_index, child_index);
+	child_index = set_html_main_management_default(admin, locale, form_index, child_index);
 	if (child_index < 0) {
-		err(ezcfg, "set_html_main_view_dhcp_client_table error.\n");
+		err(ezcfg, "set_html_main_management_default error.\n");
 		rc = -1;
 		goto func_exit;
 	}
@@ -316,20 +286,55 @@ func_exit:
 	return rc;
 }
 
+static bool do_admin_management_default_action(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+	list = admin->post_list;
+
+	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
+		ret = ezcfg_http_html_admin_save_settings(admin);
+	}
+	return ret;
+}
+
+static bool handle_admin_management_default_post(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+
+	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
+		ret = do_admin_management_default_action(admin);
+	}
+	return ret;
+}
+
 /**
  * Public functions
  **/
-
-int ezcfg_http_html_admin_view_dhcp_client_table_handler(struct ezcfg_http_html_admin *admin)
+int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
 	ezcfg = admin->ezcfg;
+	http = admin->http;
 
-	/* admin view_dhcp_client_table uri=[/admin/view_dhcp_client_table] */
-	ret = build_admin_view_dhcp_client_table_response(admin);
+	/* admin management_default uri=[/admin/management_default] */
+	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
+		/* do post handling */
+		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
+		handle_admin_management_default_post(admin);
+	}
+
+	ret = build_admin_management_default_response(admin);
 	return ret;
 }

@@ -23,13 +23,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, LANGUAGE), "zh_CN" }, /* zh_CN */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
+	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
 
 	/* UI configuration */
 	{ NVRAM_SERVICE_OPTION(UI, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), "Shanghai" }, /* Shanghai */
-
-	/* Restore defaults */
-	{ "restore_defaults", "0" },	/* Set to 0 not restore defaults on boot */
 
 	/* kernel modules */
 	{ "mod_wait_time", "30" },	/* wait module up time */
@@ -108,9 +106,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, PHYMODE), "auto" },
 
 	/* LAN TCP/IP parameters */
-	/* LAN size DHCP server [1|0] */
+	/* LAN side HTTP server [1|0] */
+	{ NVRAM_SERVICE_OPTION(LAN, HTTPD_ENABLE), "1" },
+	/* LAN side DHCP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), "1" },
-	/* LAN size PPPoE server [1|0] */
+	/* LAN side PPPoE server [1|0] */
 	{ NVRAM_SERVICE_OPTION(LAN, PPPOED_ENABLE), "0" },
 	/* LAN IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, IPADDR), "192.168.1.1" },
@@ -265,12 +265,18 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* Negotiate MTU to the smaller of this value or the peer MRU */
 	{ NVRAM_SERVICE_OPTION(WAN, L2TP_MTU), "1460" },
 
+	/* LAN HTTPD server */
+	/* Support HTTP protocol */
+	{ NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTP), "1" },
+	/* Support HTTPS protocol */
+	{ NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTPS), "0" },
+
 	/* LAN DHCP server */
 	/* First assignable DHCP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), "192.168.1.100" },
 	/* Last assignable DHCP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), "192.168.1.149" },
-	/* LAN lease time in minutes */ /* Add */
+	/* LAN lease time in minutes */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
 	/* LAN DHCP gateway IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_GATEWAY), "" },

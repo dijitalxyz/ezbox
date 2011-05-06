@@ -105,6 +105,9 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu_status.c
 # ezcfg HTML/HTTP admin menu setup handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu_setup.c
 
+# ezcfg HTML/HTTP admin menu management handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu_management.c
+
 
 # ezcfg HTML/HTTP admin layout_css handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
@@ -129,6 +132,15 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_lan.c
 
 # ezcfg HTML/HTTP admin setup_wan handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_wan.c
+
+# ezcfg HTML/HTTP admin management_authz handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_authz.c
+
+# ezcfg HTML/HTTP admin management_default handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_default.c
+
+# ezcfg HTML/HTTP admin management_upgrade handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_upgrade.c
 
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c

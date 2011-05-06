@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-21   0.1       Write it from scratch

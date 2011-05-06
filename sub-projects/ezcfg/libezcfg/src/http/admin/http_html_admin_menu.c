@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-12   0.1       Write it from scratch
@@ -96,6 +96,14 @@ int ezcfg_http_html_admin_set_html_menu(
 	/* menu <ul> <li> */
 	/* menu Setup */
 	li_index = ezcfg_http_html_admin_html_menu_setup(admin, ul_index, li_index);
+	if (li_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child err.\n");
+		goto func_exit;
+	}
+
+	/* menu <ul> <li> */
+	/* menu Management */
+	li_index = ezcfg_http_html_admin_html_menu_management(admin, ul_index, li_index);
 	if (li_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;

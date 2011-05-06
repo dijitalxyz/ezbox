@@ -38,6 +38,9 @@ struct ezcfg_http_html_admin {
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_SYSTEM_DOMAIN      "admin_setup_system"
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_LAN_DOMAIN         "admin_setup_lan"
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_WAN_DOMAIN         "admin_setup_wan"
+#define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_AUTHZ_DOMAIN  "admin_management_authz"
+#define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_DEFAULT_DOMAIN  "admin_management_default"
+#define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_UPGRADE_DOMAIN  "admin_management_upgrade"
 
 #define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
 #define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"
@@ -58,6 +61,9 @@ struct ezcfg_http_html_admin {
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_SUBMIT        "submit"
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_FILE          "file"
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT          "text"
+#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_PASSWORD      "password"
+#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_CHECKBOX      "checkbox"
+#define EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO         "radio"
 
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_ACT_SAVE      "act_save"
 #define EZCFG_HTTP_HTML_ADMIN_INPUT_NAME_ACT_CANCEL    "act_cancel"
