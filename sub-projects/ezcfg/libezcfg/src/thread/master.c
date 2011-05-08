@@ -512,12 +512,12 @@ static void master_load_auth_conf(struct ezcfg_master *master)
 
 		/* add new authentication */
 		if (ezcfg_auth_list_insert(&(master->auths), ap) == true) {
-			info(ezcfg, "insert auth entry succeed\n");
+			info(ezcfg, "insert auth entry successfully\n");
 			/* set ap to NULL to avoid delete it */
 			ap = NULL;
 		}
 		else {
-			err(ezcfg, "insert auth entry fail: %m\n");
+			err(ezcfg, "insert auth entry failed: %m\n");
 		}
 
 continue_load:

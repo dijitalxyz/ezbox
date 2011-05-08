@@ -1365,7 +1365,7 @@ bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 
 	if (strncmp(p, "Basic ", 6) == 0) {
 		p += 6; /* skip "Basic " */
-		if (ezcfg_util_base64_decode(p, buf, strlen(p), sizeof(buf)) < 0)
+		if (ezcfg_util_base64_decode((unsigned char *)p, (unsigned char *)buf, strlen(p), sizeof(buf)) < 0)
 			return false;
 		p = strchr(buf, ':');
 		if (p == NULL)
