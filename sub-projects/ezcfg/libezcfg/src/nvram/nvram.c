@@ -273,7 +273,7 @@ static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, c
 	return true;
 }
 
-static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name1, char *name2)
+static bool nvram_match_entry(struct ezcfg_nvram *nvram, const char *name1, char *name2)
 {
 	struct ezcfg *ezcfg;
 	char *data;
@@ -305,6 +305,30 @@ static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name1
 	p2 += (name_len + 1);
 
 	return (strcmp(p1, p2) == 0);
+}
+
+static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name, char *value)
+{
+	struct ezcfg *ezcfg;
+	char *data;
+	char *p;
+	int name_len;
+
+	ezcfg = nvram->ezcfg;
+
+	data = nvram->buffer + sizeof(struct nvram_header);
+
+	/* find nvram entry position */
+	name_len = strlen(name);
+	p = find_nvram_entry_position(data, name);
+
+	if (*p == '\0') {
+		return false;
+	}
+	/* find nvram entry */
+	p += (name_len + 1);
+
+	return (strcmp(p, value) == 0);
 }
 
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
@@ -492,7 +516,7 @@ static void sync_ui_settings(struct ezcfg_nvram *nvram)
 	char *p;
 
 	/* ui_tz_area */
-	if (nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
+	if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
 		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
 		if (p != NULL) {
 			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), p);
@@ -501,7 +525,7 @@ static void sync_ui_settings(struct ezcfg_nvram *nvram)
 	}
 
 	/* ui_tz_location */
-	if (nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
+	if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
 		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
 		if (p != NULL) {
 			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), p);
@@ -510,10 +534,73 @@ static void sync_ui_settings(struct ezcfg_nvram *nvram)
 	}
 }
 
+static void sync_lan_settings(struct ezcfg_nvram *nvram)
+{
+	char *p;
+	int i, ret;
+	int ip[4], mask[4], ip2[4];
+	bool ip_ok = false, mask_ok = false;
+	char buf[64];
+
+	/* ezcfg_socket.0.address */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
+	if (p != NULL) {
+		ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+		free(p);
+		if (ret == 4) {
+			snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
+			ip_ok = true;
+		}
+	}
+
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, NETMASK), &p);
+	if (p != NULL) {
+		ret = sscanf(p, "%d.%d.%d.%d", &mask[0], &mask[1], &mask[2], &mask[3]);
+		free(p);
+		if (ret == 4) {
+			mask_ok = true;
+		}
+	}
+
+	/* set lan_dhcpd_start_ipaddr */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
+	if (p != NULL) {
+		ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
+		free(p);
+		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
+			for(i = 0; i < 4; i++) {
+				ip2[i] &= (255 - mask[i]);
+				ip2[i] |= (255 & ip[i]);
+			}
+			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), buf);
+		}
+	}
+
+	/* set lan_dhcpd_end_ipaddr */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
+	if (p != NULL) {
+		ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
+		free(p);
+		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
+			for(i = 0; i < 4; i++) {
+				ip2[i] &= (255 - mask[i]);
+				ip2[i] |= (255 & ip[i]);
+			}
+			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), buf);
+		}
+	}
+}
+
 static void nvram_sync_entries(struct ezcfg_nvram *nvram)
 {
 	/* sync UI settings */
 	sync_ui_settings(nvram);
+
+	/* sync LAN settings */
+	sync_lan_settings(nvram);
 }
 
 static void check_sys_settings(struct ezcfg_nvram *nvram)
@@ -1126,6 +1213,13 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		}
 	}
 
+	/* check if restore_defaults is set */
+	if (nvram_match_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true) {
+		info(ezcfg, "restore system defaults.\n");
+		ret = nvram_init_by_defaults(nvram);
+	}
+
 	/* sync nvram entries */
 	nvram_sync_entries(nvram);
 
@@ -1135,7 +1229,7 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 	return ret;
 }
 
-bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name1, char *name2)
+bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2)
 {
 	struct ezcfg *ezcfg;
 	bool ret = false;
@@ -1149,7 +1243,29 @@ bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name1, char 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
-	ret = nvram_match_entry_value(nvram, name1, name2);
+	ret = nvram_match_entry(nvram, name1, name2);
+
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ASSERT(nvram != NULL);
+	ASSERT(name != NULL);
+	ASSERT(value != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	ret = nvram_match_entry_value(nvram, name, value);
 
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);

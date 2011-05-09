@@ -43,10 +43,11 @@ int rc_main(int argc, char **argv)
 {
 	rc_func_t *f = NULL;
 	int flag = RC_BOOT;
+	int s = 0;
 	int ret = EXIT_FAILURE;
 
-	/* only accept two arguments */
-	if (argc != 3)
+	/* only accept two/three arguments */
+	if ((argc != 3) && (argc != 4))
 		return (EXIT_FAILURE);
 
 	if (argv[1] != NULL) {
@@ -60,6 +61,16 @@ int rc_main(int argc, char **argv)
 			flag = RC_START;
 		else if (strcmp(argv[2], "stop") == 0)
 			flag = RC_STOP;
+		else if (strcmp(argv[2], "reload") == 0)
+			flag = RC_RELOAD;
+	}
+
+	if (argc == 4) {
+		s = atoi(argv[3]);
+		if ((s < 1) || (s > 90)) {
+			return (EXIT_FAILURE);
+		}
+		sleep(s);
 	}
 
 	if (flag != RC_BOOT && f != NULL) {

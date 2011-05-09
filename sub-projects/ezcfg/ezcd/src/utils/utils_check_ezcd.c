@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_kernel_modules.c
+ * Module Name  : rc_ezcd.c
  *
- * Description  : ezcfg get kernel modules function
+ * Description  : ezbox run ezcfg daemon service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-02-27   0.1       Write it from scratch
+ * 2011-05-09   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,39 +38,56 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-/*
- * Returns kernel modules string
- * It is the caller's duty to free the returned string.
- */
-char *utils_get_kernel_modules(void)
+#include "utils.h"
+
+#if 0
+#define DBG printf
+#else
+#define DBG(format, arg...)
+#endif
+
+bool utils_ezcd_is_alive(void)
 {
-        FILE *file;
-	char *p = NULL;
-	char *q = NULL;
-	char *v = NULL;
-	char buf[1024];
+	proc_stat_t *pidList;
 
-	/* get kernel version */
-	file = fopen("/proc/cmdline", "r");
-	if (file == NULL)
-		return NULL;
+	pidList = utils_find_pid_by_name("ezcd");
+	if (pidList) {
+		free(pidList);
+		return true;
+	}
+	return false;
+}
 
-	memset(buf, 0, sizeof(buf));
-	if (fgets(buf, sizeof(buf), file) == NULL)
-		goto func_out;
+bool utils_ezcd_is_up(void)
+{
+	char buf[64];
+	int rc;
 
-	q = strstr(buf, "modules=");
-	if (q == NULL)
-		goto func_out;
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), buf, sizeof(buf));
+	if (rc < 0) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
 
-	/* skip "modules=" */
-	p = q + 8;
-	q = strchr(p, ' ');
-	if (q != NULL)
-		*q = '\0';
-func_out:
-	fclose(file);
-	if (p != NULL)
-		v = strdup(p);
-	return (v);
+bool utils_ezcd_wait_up(int s)
+{
+	if (s < 1) {
+		do {
+			sleep(1);
+		} while(utils_ezcd_is_up() == false);
+		return true;
+	}
+	else {
+		while(s > 0) {
+			sleep(1);
+			s--;
+			if (utils_ezcd_is_up() == true) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

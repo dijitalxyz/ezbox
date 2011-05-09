@@ -78,6 +78,13 @@
 #define EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING "http-digest"
 
 
+/* ezcfg rc act string */
+#define EZCFG_RC_ACT_START                 "start"
+#define EZCFG_RC_ACT_STOP                  "stop"
+#define EZCFG_RC_ACT_RESTART               "restart"
+#define EZCFG_RC_ACT_RELOAD                "reload"
+
+
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
 #define EZCFG_SOCKET_DOMAIN_INET_STRING    "inet"
@@ -99,6 +106,9 @@
 #define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "2"
 #define EZCFG_SOCKET_PROTO_IGRS_STRING            "3"
 #define EZCFG_SOCKET_PROTO_ISDP_STRING            "4"
+
+#define EZCFG_PROTO_HTTP_PORT_NUMBER              80
+#define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
 
 
 /* ezcfg xml definitions */

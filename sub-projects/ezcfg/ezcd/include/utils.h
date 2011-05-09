@@ -12,6 +12,8 @@
 #define CMD_KILLALL		"/usr/bin/killall"
 #define CMD_MKDIR  		"/bin/mkdir"
 #define CMD_MV  		"/bin/mv"
+#define CMD_POWEROFF		"/sbin/poweroff"
+#define CMD_REBOOT		"/sbin/reboot"
 #define CMD_RM  		"/bin/rm"
 #define CMD_ROUTE  		"/sbin/route"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"

@@ -78,7 +78,8 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG socket protocol */
 	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_PROTOCOL), EZCFG_SOCKET_PROTO_HTTP_STRING },
 	/* EZCFG socket address */
-	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), "192.168.1.1:80" },
+	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS),
+	  EZCFG_LAN_DEFAULT_IPADDR ":" EZCFG_PROTO_HTTP_PORT_NUMBER_STRING },
 
 	/* EZCFG authentication type */
 	{ NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_TYPE), EZCFG_AUTH_TYPE_HTTP_BASIC_STRING },
@@ -113,9 +114,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* LAN side PPPoE server [1|0] */
 	{ NVRAM_SERVICE_OPTION(LAN, PPPOED_ENABLE), "0" },
 	/* LAN IP address */
-	{ NVRAM_SERVICE_OPTION(LAN, IPADDR), "192.168.1.1" },
+	{ NVRAM_SERVICE_OPTION(LAN, IPADDR),
+	  EZCFG_LAN_DEFAULT_IPADDR },
 	/* LAN netmask */
-	{ NVRAM_SERVICE_OPTION(LAN, NETMASK), "255.255.255.0" },
+	{ NVRAM_SERVICE_OPTION(LAN, NETMASK),
+	  EZCFG_LAN_DEFAULT_NETMASK },
 	/* LAN side WINS server ip list [x.x.x.x x.x.x.x ...] */
 	{ NVRAM_SERVICE_OPTION(LAN, WINS), "" },
 	/* LAN domain name */
@@ -273,9 +276,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 	/* LAN DHCP server */
 	/* First assignable DHCP address */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), "192.168.1.100" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), 
+	  EZCFG_LAN_DEFAULT_DHCPD_START_IPADDR },
 	/* Last assignable DHCP address */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), "192.168.1.149" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR),
+	  EZCFG_LAN_DEFAULT_DHCPD_END_IPADDR },
 	/* LAN lease time in minutes */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
 	/* LAN DHCP gateway IP address */

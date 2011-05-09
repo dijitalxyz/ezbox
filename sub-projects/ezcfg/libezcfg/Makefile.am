@@ -47,6 +47,7 @@ libezcfg_la_SOURCES += src/util/util_base64.c
 libezcfg_la_SOURCES += src/util/util_crc32.c
 libezcfg_la_SOURCES += src/util/util_conf.c
 libezcfg_la_SOURCES += src/util/util_language.c
+libezcfg_la_SOURCES += src/util/util_rc.c
 libezcfg_la_SOURCES += src/util/util_text.c
 libezcfg_la_SOURCES += src/util/util_tzdata.c
 libezcfg_la_SOURCES += src/util/util_wan.c

@@ -14,6 +14,9 @@ rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 uint32_t utils_crc32(unsigned char *data, int len);
 int utils_get_wan_type(void);
+bool utils_ezcd_is_alive(void);
+bool utils_ezcd_is_up(void);
+bool utils_ezcd_wait_up(int s);
 
 /* nvram function */
 int nvram_match(const char *name, const char *value);

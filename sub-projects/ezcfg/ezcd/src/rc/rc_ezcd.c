@@ -49,49 +49,56 @@
 
 int rc_ezcd(int flag)
 {
-	char cmdline[256];
+	char buf[256];
+	int rc;
 	proc_stat_t *pidList;
 
 	switch (flag) {
 	case RC_BOOT :
 		/* FIXME: nvram is not ready now!!! */
 		/* ezcfg config file should be prepared */
-		snprintf(cmdline, sizeof(cmdline), "%s -d", CMD_EZCD);
-		system(cmdline);
-		/* sleep 1 second to make sure ezcd is up */
-		sleep(1);
+		snprintf(buf, sizeof(buf), "%s -d", CMD_EZCD);
+		system(buf);
+
+		/* wait until nvram is ready */
+		if (utils_ezcd_wait_up(0) == false) {
+			return (EXIT_FAILURE);
+		}
+
 		/* FIXME: nvram is ready now!!! */
 		pop_etc_ezcfg_conf(flag);
 		break;
 
+#if 0
 	case RC_START :
 		/* FIXME: nvram is not ready now!!! */
 		/* ezcfg config file should be prepared by rc_ezcd(RC_BOOT) */
-		snprintf(cmdline, sizeof(cmdline), "%s -d", CMD_EZCD);
-		system(cmdline);
-		/* sleep 1 second to make sure ezcd is up */
-		sleep(1);
+		snprintf(buf, sizeof(buf), "%s -d", CMD_EZCD);
+		system(buf);
+
+		/* wait at most 10 seconds until nvram is ready */
+		if (utils_ezcd_wait_up(10) == false) {
+			return (EXIT_FAILURE);
+		}
+
 		/* FIXME: nvram is ready now!!! */
 		/* reload ezcfg info */
 		rc_ezcd(RC_RELOAD);
 		break;
+#endif
 
 	case RC_STOP :
 		pidList = utils_find_pid_by_name("ezcd");
-		if (pidList) {
+		while (pidList) {
 			int i;
 			for (i = 0; pidList[i].pid > 0; i++) {
 				kill(pidList[i].pid, SIGTERM);
 			}
 			free(pidList);
+			/* sleep 1 second to make sure ezcd is down */
+			sleep(1);
+			pidList = utils_find_pid_by_name("ezcd");
 		}
-		/* sleep 1 second to make sure ezcd is down */
-		sleep(1);
-		break;
-
-	case RC_RESTART :
-		rc_ezcd(RC_STOP);
-		rc_ezcd(RC_START);
 		break;
 
 	case RC_RELOAD :
@@ -106,6 +113,12 @@ int rc_ezcd(int flag)
 			}
 			free(pidList);
 		}
+
+		/* wait at most 10 seconds until nvram is ready */
+		if (utils_ezcd_wait_up(10) == false) {
+			return (EXIT_FAILURE);
+		}
+
 		break;
 	}
 	return (EXIT_SUCCESS);

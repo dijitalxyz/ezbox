@@ -123,10 +123,31 @@ int rc_system(int flag)
 
 		break;
 
+	case RC_RESTART :
 	case RC_STOP :
 		/* run in root HOME path */
 		chdir(ROOT_HOME_PATH);
 
+		/* bring down WAN interface */
+		rc_wan(RC_STOP);
+
+		/* stop telnet service */
+		rc_telnetd(RC_STOP);
+
+		/* bring down LAN interface */
+		rc_lan(RC_STOP);
+
+		/* stop ezcfg daemon */
+		rc_ezcd(RC_STOP);
+
+		if (flag == RC_STOP) {
+			snprintf(cmdline, sizeof(cmdline), "%s", CMD_POWEROFF);
+			system(cmdline);
+		}
+		else if (flag == RC_RESTART) {
+			snprintf(cmdline, sizeof(cmdline), "%s", CMD_REBOOT);
+			system(cmdline);
+		}
 		break;
 
 	case RC_START :

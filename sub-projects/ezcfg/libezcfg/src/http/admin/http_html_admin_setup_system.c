@@ -185,7 +185,7 @@ static int set_html_main_setup_system(
 		}
 	}
 
-	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), NVRAM_SERVICE_OPTION(UI, TZ_AREA)) == false) {
+	if (ezcfg_nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), NVRAM_SERVICE_OPTION(UI, TZ_AREA)) == false) {
 		/* <p>  (Warning : time zone area has been changed, please set location again!)</p> */
 		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s&nbsp;:&nbsp;%s)",
 			ezcfg_locale_text(locale, "Warning"),

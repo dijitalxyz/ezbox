@@ -51,4 +51,10 @@
 #define EZCFG_LAN_HTTPD_HTTP             "httpd_http"
 #define EZCFG_LAN_HTTPD_HTTPS            "httpd_https"
 
+/* default values */
+#define EZCFG_LAN_DEFAULT_IPADDR         "192.168.1.1"
+#define EZCFG_LAN_DEFAULT_NETMASK        "255.255.255.0"
+#define EZCFG_LAN_DEFAULT_DHCPD_START_IPADDR     "192.168.1.100"
+#define EZCFG_LAN_DEFAULT_DHCPD_END_IPADDR       "192.168.1.100"
+
 #endif

@@ -131,7 +131,8 @@ bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_li
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
-bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name1, char *name2);
+bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2);
+bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
 bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
 
 
@@ -566,5 +567,8 @@ char *ezcfg_util_wan_get_type_desc_by_name(char *name);
 char *ezcfg_util_text_get_mtu_enable(int i);
 char *ezcfg_util_text_get_keep_enable(int i);
 char *ezcfg_util_text_get_service_switch(bool v);
+
+/* util/util_rc.c */
+bool ezcfg_util_rc(char *func, char *act, int s, bool bg);
 
 #endif

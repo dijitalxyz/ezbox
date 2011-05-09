@@ -4,7 +4,7 @@
  *
  * Description  : ezcfg get kernel version function
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-02   0.1       Write it from scratch
