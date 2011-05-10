@@ -46,6 +46,26 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
+# Configure telnet service.
+AC_ARG_ENABLE([service-telnetd],
+	AS_HELP_STRING([--enable-service-telnetd], [Enable telnet service (default no)]),
+	[case "$enableval" in
+	no) AC_MSG_RESULT(no);;
+	*) AC_DEFINE([HAVE_EZBOX_SERVICE_TELNETD], [1], [Enable telnet service]) AC_MSG_RESULT(no);;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+
+# Configure dnsmasq service.
+AC_ARG_ENABLE([service-dnsmasq],
+	AS_HELP_STRING([--enable-service-dnsmasq], [Enable dnsmasq service (default no)]),
+	[case "$enableval" in
+	no) AC_MSG_RESULT(no);;
+	*) AC_DEFINE([HAVE_EZBOX_SERVICE_DNSMASQ], [1], [Enable dnsmasq service]) AC_MSG_RESULT(no);;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+
 # Checks for libraries.
 
 # Checks for header files.

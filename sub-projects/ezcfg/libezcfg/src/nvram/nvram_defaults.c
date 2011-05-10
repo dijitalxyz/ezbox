@@ -283,25 +283,18 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* syslog disabled */
 	{ NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "0" },
 
-#if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 	/* telnetd enabled */
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1" },
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "lan" },
-#else
-	/* telnetd disabled */
-	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "0" },
-	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "none" },
 #endif
 
-#if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
-	/* dnsmasq disabled */
-	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "0" },
-	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "none" },
-#else
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 	/* dnsmasq enabled */
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1" },
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "lan" },
 #endif
+
 };
 
 char *default_nvram_unsets[] = {
