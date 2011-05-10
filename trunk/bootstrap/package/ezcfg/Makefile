@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=770
+PKG_REV:=794
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -48,6 +48,7 @@ define Package/ezcfg/config
 	source "$(SOURCE)/Config.in"
 endef
 
+# set distro name
 ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_KUAFU),)
   EZBOX_DISTRO = "kuafu"
 endif
@@ -66,6 +67,12 @@ endif
 
 CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
+
+# set telnet service
+ifneq ($(CONFIG_BUSYBOX_CONFIG_TELNETD),)
+CONFIGURE_ARGS += \
+	--enable-service-telnetd
+endif
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
