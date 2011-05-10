@@ -41,6 +41,8 @@
 #define EZCFG_LAN_DHCPD_END_IPADDR       "dhcpd_end_ipaddr"
 #define EZCFG_LAN_DHCPD_LEASE            "dhcpd_lease"
 #define EZCFG_LAN_DHCPD_GATEWAY          "dhcpd_gateway"
+#define EZCFG_LAN_DHCPD_WAN_DNS_ENABLE   "dhcpd_wan_dns_enable"
+#define EZCFG_LAN_DHCPD_DNS              "dhcpd_dns"
 #define EZCFG_LAN_DHCPD_DNS1             "dhcpd_dns1"
 #define EZCFG_LAN_DHCPD_DNS2             "dhcpd_dns2"
 #define EZCFG_LAN_DHCPD_DNS3             "dhcpd_dns3"
@@ -55,6 +57,6 @@
 #define EZCFG_LAN_DEFAULT_IPADDR         "192.168.1.1"
 #define EZCFG_LAN_DEFAULT_NETMASK        "255.255.255.0"
 #define EZCFG_LAN_DEFAULT_DHCPD_START_IPADDR     "192.168.1.100"
-#define EZCFG_LAN_DEFAULT_DHCPD_END_IPADDR       "192.168.1.100"
+#define EZCFG_LAN_DEFAULT_DHCPD_END_IPADDR       "192.168.1.199"
 
 #endif

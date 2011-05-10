@@ -514,22 +514,41 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
 static void sync_ui_settings(struct ezcfg_nvram *nvram)
 {
 	char *p;
+	char tz_area[32];
+	char tz_location[64];
 
-	/* ui_tz_area */
-	if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
-		if (p != NULL) {
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), p);
-			free(p);
-		}
+	tz_area[0] = '\0';
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
+	if (p != NULL) {
+		snprintf(tz_area, sizeof(tz_area), "%s", p);
+		free(p);
 	}
 
-	/* ui_tz_location */
-	if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
-		if (p != NULL) {
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), p);
-			free(p);
+	tz_location[0] = '\0';
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
+	if (p != NULL) {
+		snprintf(tz_location, sizeof(tz_location), "%s", p);
+		free(p);
+	}
+
+	/* UI setting has been finished */
+	if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
+		/* ui_tz_area */
+		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
+			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
+			if (p != NULL) {
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), p);
+				free(p);
+			}
+		}
+
+		/* ui_tz_location */
+		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
+			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
+			if (p != NULL) {
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), p);
+				free(p);
+			}
 		}
 	}
 }
@@ -571,7 +590,7 @@ static void sync_lan_settings(struct ezcfg_nvram *nvram)
 		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
 			for(i = 0; i < 4; i++) {
 				ip2[i] &= (255 - mask[i]);
-				ip2[i] |= (255 & ip[i]);
+				ip2[i] |= (ip[i] & mask[i]);
 			}
 			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
 			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), buf);
@@ -586,11 +605,20 @@ static void sync_lan_settings(struct ezcfg_nvram *nvram)
 		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
 			for(i = 0; i < 4; i++) {
 				ip2[i] &= (255 - mask[i]);
-				ip2[i] |= (255 & ip[i]);
+				ip2[i] |= (ip[i] & mask[i]);
 			}
 			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
 			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), buf);
 		}
+	}
+
+	/* set lan_dhcpd_enable */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), &p);
+	if (p != NULL) {
+		if (strcmp(p, "0") == 0) {
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), p);
+		}
+		free(p);
 	}
 }
 
@@ -1030,6 +1058,9 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 	/* check nvram entries */
 	nvram_check_entries(nvram);
 
+	/* sync nvram entries */
+	nvram_sync_entries(nvram);
+
 	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
 		switch (nvram->storage[i].backend) {
 		case EZCFG_NVRAM_BACKEND_NONE :
@@ -1219,6 +1250,9 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		info(ezcfg, "restore system defaults.\n");
 		ret = nvram_init_by_defaults(nvram);
 	}
+
+	/* check nvram entries */
+	nvram_check_entries(nvram);
 
 	/* sync nvram entries */
 	nvram_sync_entries(nvram);

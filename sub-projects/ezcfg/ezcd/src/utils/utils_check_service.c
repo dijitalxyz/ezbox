@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_lan.c
+ * Module Name  : utils_check_service.c
  *
- * Description  : ezbox run network LAN config service
+ * Description  : ezbox check service status
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-04   0.1       Write it from scratch
+ * 2011-05-10   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,37 +36,37 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <net/if.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
-int rc_lan(int flag)
+#if 0
+#define DBG printf
+#else
+#define DBG(format, arg...)
+#endif
+
+bool utils_service_binding_lan(char *name)
 {
-	int ret = 0;
-	char lan_ifname[IFNAMSIZ];
-	char cmdline[256];
+	char buf[64];
+	int rc;
 
-	snprintf(lan_ifname, sizeof(lan_ifname), "%s", "eth0");
-
-	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		/* bring up LAN interface and config it */
-		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, lan_ifname);
-		ret = system(cmdline);
-		break;
-
-	case RC_STOP :
-		/* bring down LAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, lan_ifname);
-		ret = system(cmdline);
-		break;
-
-	case RC_RESTART :
-		ret = rc_lan(RC_STOP);
-		ret = rc_lan(RC_START);
-		break;
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if ((rc < 0) || (strcmp(buf, "lan") != 0)){
+		return false;
 	}
-
-	return (EXIT_SUCCESS);
+	return true;
 }
+
+bool utils_service_binding_wan(char *name)
+{
+	char buf[64];
+	int rc;
+
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if ((rc < 0) || (strcmp(buf, "wan") != 0)){
+		return false;
+	}
+	return true;
+}
+

@@ -39,6 +39,301 @@
 /**
  * Private functions
  **/
+static int set_html_main_setup_lan_dhcpd(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int content_index, child_index;
+	int p_index;
+	int input_index, select_index;
+	char buf[1024];
+	char name[32];
+	char *p = NULL;
+	int i;
+	int ret = -1;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	content_index = pi;
+	child_index = si;
+
+	/* <h3>DHCP Server Setting</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Server Setting"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Service Switch : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Service Switch"));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* save <p> index */
+	p_index = child_index;
+	child_index = -1;
+
+	/* <p>Service Switch : <select name="lan_dhcpd_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>Service Switch : <select name="lan_dhcpd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
+	/* restore <p> index */
+	child_index = p_index;
+
+	if (strcmp(buf, "1") == 0) {
+		char tmp[2];
+		/* <p>Start IP Address : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Start IP Address"));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Start IP Address : <input type="text" maxlength="15" name="lan_dhcpd_start_ipaddr" value=""/></p> */
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		/* <p>End IP Address : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "End IP Address"));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>End IP Address : <input type="text" maxlength="15" name="lan_dhcpd_end_ipaddr" value=""/></p> */
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		/* <p>Client Lease Time : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Client Lease Time"));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Client Lease Time : <input type="text" maxlength="15" name="lan_dhcpd_end_ipaddr" value=""/></p> */
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Minutes"));
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), &p);
+		if (p != NULL) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			free(p);
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		/* <p>Use WAN DNS Servers : </p> */
+		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+			ezcfg_locale_text(locale, "Use WAN DNS Servers"));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <p>Use WAN DNS Servers : <input type="radio" name="lan_dhcpd_wan_dns_enable" value="1">Yes</input><input type="radio" name="lan_dhcpd_wan_dns_enable" value="0">No</input></p> */
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+		tmp[0] = '\0';
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), &p);
+		if (p != NULL) {
+			snprintf(tmp, sizeof(tmp), "%s", p);
+			free(p);
+		}
+
+		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+			ezcfg_locale_text(locale, "Yes"));
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, "1") == 0) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+
+		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+			ezcfg_locale_text(locale, "No"));
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, "0") == 0) {
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		/* set DHCP DNS server manually */
+		if (strcmp(tmp, "0") == 0) {
+			for (i = 1; i <= 3; i++) {
+				snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), i);
+				/* <p>Static DNS 1 : </p> */
+				snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
+					ezcfg_locale_text(locale, "Static DNS"), i);
+				child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+				if (child_index < 0) {
+					err(ezcfg, "ezcfg_html_add_body_child error.\n");
+					goto func_exit;
+				}
+
+				/* <p>Static DNS 1 : <input type="text" maxlength="15" name="lan_dhcpd_dns1" value=""/></p> */
+				/* save <p> index */
+				p_index = child_index;
+				child_index = -1;
+
+				input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+				if (input_index < 0) {
+					err(ezcfg, "ezcfg_html_add_body_child error.\n");
+					goto func_exit;
+				}
+				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+				ezcfg_nvram_get_entry_value(nvram, name, &p);
+				if (p != NULL) {
+					ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+					free(p);
+				}
+
+				/* restore <p> index */
+				child_index = p_index;
+			}
+		}
+
+		/* <p><a href="/admin/reserve_dhcp_client">DHCP Client Reservation</a></p> */
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Client Reservation"));
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "reserve_dhcp_client", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		/* restore <p> index */
+		child_index = p_index;
+	}
+
+	si = child_index;
+
+	/* must return main index */
+	ret = si;
+
+func_exit:
+	return ret;
+}
+
 static int set_html_main_setup_lan(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -48,12 +343,10 @@ static int set_html_main_setup_lan(
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int content_index, child_index;
-	int p_index, select_index;
+	int p_index;
 	int input_index;
-	char name[32];
 	char buf[1024];
 	char *p = NULL;
-	int i;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
@@ -156,221 +449,19 @@ static int set_html_main_setup_lan(
 	/* restore <p> index */
 	child_index = p_index;
 
-	/* <h3>DHCP Server Setting</h3> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Server Setting"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Service Switch : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Service Switch"));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* save <p> index */
-	p_index = child_index;
-	child_index = -1;
-
-	/* <p>Service Switch : <select name="lan_dhcpd_enable"></select></p> */
-	child_index = -1;
-	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
-	if (select_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>Service Switch : <select name="lan_dhcpd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
 	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), &p);
 	if (p != NULL) {
 		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
 	}
-	child_index = -1;
-	for (i = 0; i < 2; i++) {
-		char tmp[2];
-		snprintf(tmp, sizeof(tmp), "%d", i);
-		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)));
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tmp, buf) == 0) {
-			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
-	}
-
-	/* restore <p> index */
-	child_index = p_index;
 
 	if (strcmp(buf, "1") == 0) {
-		/* <p>Start IP Address : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Start IP Address"));
-		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-
-		/* <p>Start IP Address : <input type="text" maxlength="15" name="lan_dhcpd_start_ipaddr" value=""/></p> */
-		/* save <p> index */
-		p_index = child_index;
-		child_index = -1;
-
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
-		if (p != NULL) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			free(p);
-		}
-
-		/* restore <p> index */
-		child_index = p_index;
-
-		/* <p>End IP Address : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "End IP Address"));
-		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-
-		/* <p>End IP Address : <input type="text" maxlength="15" name="lan_dhcpd_end_ipaddr" value=""/></p> */
-		/* save <p> index */
-		p_index = child_index;
-		child_index = -1;
-
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
-		if (p != NULL) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			free(p);
-		}
-
-		/* restore <p> index */
-		child_index = p_index;
-
-		/* <p>Client Lease Time : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Client Lease Time"));
-		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-
-		/* <p>Client Lease Time : <input type="text" maxlength="15" name="lan_dhcpd_end_ipaddr" value=""/></p> */
-		/* save <p> index */
-		p_index = child_index;
-		child_index = -1;
-
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), &p);
-		if (p != NULL) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			free(p);
-		}
-
-		/* restore <p> index */
-		child_index = p_index;
-
-		for (i = 1; i <= 3; i++) {
-			if (i == 1) {
-				snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS1));
-			}
-			else if (i == 2) {
-				snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS2));
-			}
-			else if (i == 3) {
-				snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS3));
-			}
-			else {
-				err(ezcfg, "dns index is too large.\n");
-				goto func_exit;
-			}
-
-			/* <p>Static DNS 1 : </p> */
-			snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
-				ezcfg_locale_text(locale, "Static DNS"), i);
-			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-			if (child_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-
-			/* <p>Static DNS 1 : <input type="text" maxlength="15" name="lan_dhcpd_dns1" value=""/></p> */
-			/* save <p> index */
-			p_index = child_index;
-			child_index = -1;
-
-			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
-			if (input_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, name, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			ezcfg_nvram_get_entry_value(nvram, name, &p);
-			if (p != NULL) {
-				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-				free(p);
-			}
-
-			/* restore <p> index */
-			child_index = p_index;
-		}
-
-		/* <p><a href="/admin/reserve_dhcp_client">DHCP Client Reservation</a></p> */
-		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		/* save <p> index */
-		p_index = child_index;
-		child_index = -1;
-
-		child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Client Reservation"));
-		if (child_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "reserve_dhcp_client", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		/* restore <p> index */
-		child_index = p_index;
+		child_index = set_html_main_setup_lan_dhcpd(admin, locale, content_index, child_index);
+	}
+	if (child_index < 0) {
+		err(ezcfg, "set_html_main_setup_lan_dhcpd error.\n");
+		goto func_exit;
 	}
 
 	/* <p>&nbsp;</p> */

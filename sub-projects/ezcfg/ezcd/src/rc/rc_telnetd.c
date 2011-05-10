@@ -42,13 +42,41 @@
 int rc_telnetd(int flag)
 {
 	int rc;
+	int ip[4];
+	char buf[256];
 	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
+
+	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+		rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+		if (rc != 4) {
+			return (EXIT_FAILURE);
+		}
+	}
+	else if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+		rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+		if (rc != 4) {
+			return (EXIT_FAILURE);
+		}
+	}
+	else {
+		return (EXIT_FAILURE);
+	}
+
 	switch (flag) {
 	case RC_START :
-		system("start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/sh");
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/sh -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		system(buf);
 		break;
 
 	case RC_STOP :

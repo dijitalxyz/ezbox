@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_ezcd.c
+ * Module Name  : utils_check_ezcd.c
  *
- * Description  : ezbox run ezcfg daemon service
+ * Description  : ezbox check ezcfg daemon service status
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *

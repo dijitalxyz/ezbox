@@ -128,11 +128,14 @@ int rc_system(int flag)
 		/* run in root HOME path */
 		chdir(ROOT_HOME_PATH);
 
+		/* stop WAN interface binding services */
+		rc_wan_services(RC_STOP);
+
 		/* bring down WAN interface */
 		rc_wan(RC_STOP);
 
-		/* stop telnet service */
-		rc_telnetd(RC_STOP);
+		/* stop LAN interface binding services */
+		rc_lan_services(RC_STOP);
 
 		/* bring down LAN interface */
 		rc_lan(RC_STOP);
@@ -187,14 +190,14 @@ int rc_system(int flag)
 		/* bring up LAN interface link up and configurate it */
 		rc_lan(RC_START);
 
-		/* start syslogd/klogd */
-		rc_syslog(RC_START);
-
-		/* start telnet service */
-		rc_telnetd(RC_START);
+		/* start LAN interface binding services */
+		rc_lan_services(RC_START);
 
 		/* bring up WAN interface link up and configurate it */
 		rc_wan(RC_START);
+
+		/* start WAN interface binding services */
+		rc_wan_services(RC_START);
 
 		break;
 	}

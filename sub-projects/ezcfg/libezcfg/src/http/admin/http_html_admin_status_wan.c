@@ -123,15 +123,7 @@ static int set_status_wan_common(
 
 	/* <p>DNS X : 0.0.0.0</p>*/
 	for (i = 1; i <= 3; i++) {
-		if (i == 1) {
-			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS1));
-		}
-		else if (i == 2) {
-			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS2));
-		}
-		else {
-			snprintf(buf, sizeof(buf), "%s", NVRAM_SERVICE_OPTION(WAN, DNS3));
-		}
+		snprintf(buf, sizeof(buf), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
 		ezcfg_nvram_get_entry_value(nvram, buf, &p);
 		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;%s",
 			ezcfg_locale_text(locale, "DNS"), i,

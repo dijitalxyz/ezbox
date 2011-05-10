@@ -14,7 +14,10 @@ extern int rc_netbase(int flag);
 extern int rc_syslog(int flag);
 extern int rc_system(int flag);
 extern int rc_telnetd(int flag);
+extern int rc_dnsmasq(int flag);
 extern int rc_wan(int flag);
 extern int rc_wan_if(int flag);
+extern int rc_lan_services(int flag);
+extern int rc_wan_services(int flag);
 
 #endif

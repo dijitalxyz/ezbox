@@ -50,7 +50,6 @@
 int rc_ezcd(int flag)
 {
 	char buf[256];
-	int rc;
 	proc_stat_t *pidList;
 
 	switch (flag) {

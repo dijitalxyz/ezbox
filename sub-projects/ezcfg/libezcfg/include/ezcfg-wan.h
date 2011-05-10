@@ -33,6 +33,7 @@
 #define EZCFG_WAN_IPADDR                 "ipaddr"
 #define EZCFG_WAN_NETMASK                "netmask"
 #define EZCFG_WAN_GATEWAY                "gateway"
+#define EZCFG_WAN_DNS                    "dns"
 #define EZCFG_WAN_DNS1                   "dns1"
 #define EZCFG_WAN_DNS2                   "dns2"
 #define EZCFG_WAN_DNS3                   "dns3"
@@ -44,16 +45,21 @@
 #define EZCFG_WAN_MTU                    "mtu"
 
 /* WAN static IP address parameters */
+#define EZCFG_WAN_STATIC_IFNAME          "static_ifname"
 #define EZCFG_WAN_STATIC_IPADDR          "static_ipaddr"
 #define EZCFG_WAN_STATIC_NETMASK         "static_netmask"
 #define EZCFG_WAN_STATIC_GATEWAY         "static_gateway"
+#define EZCFG_WAN_STATIC_DNS             "static_dns"
 #define EZCFG_WAN_STATIC_DNS1            "static_dns1"
 #define EZCFG_WAN_STATIC_DNS2            "static_dns2"
 #define EZCFG_WAN_STATIC_DNS3            "static_dns3"
 
 /* WAN DHCP client parameters */
+#define EZCFG_WAN_DHCP_IFNAME            "dhcp_ifname"
 #define EZCFG_WAN_DHCP_GATEWAY_ENABLE    "dhcp_gateway_enable"
 #define EZCFG_WAN_DHCP_GATEWAY_MAC       "dhcp_gateway_mac"
+#define EZCFG_WAN_DHCP_WINS              "dhcp_wins"
+#define EZCFG_WAN_DHCP_LEASE             "dhcp_lease"
 
 /* WAN PPPoE parameters */
 #define EZCFG_WAN_PPPOE_IFNAME           "pppoe_ifname"
@@ -73,6 +79,7 @@
 #define EZCFG_WAN_PPTP_IPADDR            "pptp_ipaddr"
 #define EZCFG_WAN_PPTP_NETMASK           "pptp_netmask"
 #define EZCFG_WAN_PPTP_GATEWAY           "pptp_gateway"
+#define EZCFG_WAN_PPTP_DNS               "pptp_dns"
 #define EZCFG_WAN_PPTP_DNS1              "pptp_dns1"
 #define EZCFG_WAN_PPTP_DNS2              "pptp_dns2"
 #define EZCFG_WAN_PPTP_DNS3              "pptp_dns3"

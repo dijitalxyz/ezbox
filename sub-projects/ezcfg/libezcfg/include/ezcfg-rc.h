@@ -20,6 +20,8 @@
 /* ezcfg rc control names */
 #define EZCFG_RC_SYSLOG_ENABLE           "syslog_enable"
 #define EZCFG_RC_TELNETD_ENABLE          "telnetd_enable"
+#define EZCFG_RC_TELNETD_BINDING         "telnetd_binding"
 #define EZCFG_RC_DNSMASQ_ENABLE          "dnsmasq_enable"
+#define EZCFG_RC_DNSMASQ_BINDING         "dnsmasq_binding"
 
 #endif

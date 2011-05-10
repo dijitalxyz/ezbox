@@ -79,18 +79,8 @@ int pop_etc_resolv_conf(int flag)
 		}
 #endif
 		for (i = 1; i <= 3; i++) {
-			if (i == 1) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS1));
-			}
-			else if (i == 2) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS2));
-			}
-			else if (i == 3) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS3));
-			}
+			snprintf(name, sizeof(name), "%s%d",
+				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (buf[0] != '\0') {
 				fprintf(file, "nameserver %s\n", buf);

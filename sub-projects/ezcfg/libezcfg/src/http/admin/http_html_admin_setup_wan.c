@@ -138,20 +138,7 @@ static int set_setup_wan_static(
 	}
 
 	for (i = 1; i <= 3; i++) {
-		if (i == 1) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS1));
-		}
-		else if (i == 2) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS2));
-		}
-		else if (i == 3) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS3));
-		}
-		else {
-			err(ezcfg, "dns index is too large.\n");
-			goto func_exit;
-		}
-
+		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS), i);
 		/* <p>DNS 1 : </p> */
 		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
 			ezcfg_locale_text(locale, "DNS"), i);
@@ -477,20 +464,7 @@ static int set_setup_wan_pptp(
 	}
 
 	for (i = 1; i <= 3; i++) {
-		if (i == 1) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS1));
-		}
-		else if (i == 2) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS2));
-		}
-		else if (i == 3) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS3));
-		}
-		else {
-			err(ezcfg, "dns index is too large.\n");
-			goto func_exit;
-		}
-
+		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS), i);
 		/* <p>DNS 1 : </p> */
 		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
 			ezcfg_locale_text(locale, "DNS"), i);

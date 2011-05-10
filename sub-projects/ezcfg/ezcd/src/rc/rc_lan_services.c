@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_lan.c
+ * Module Name  : rc_lan_services.c
  *
- * Description  : ezbox run network LAN config service
+ * Description  : ezbox run LAN services
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-04   0.1       Write it from scratch
+ * 2011-05-10   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,34 +39,40 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
-int rc_lan(int flag)
+int rc_lan_services(int flag)
 {
-	int ret = 0;
-	char lan_ifname[IFNAMSIZ];
-	char cmdline[256];
-
-	snprintf(lan_ifname, sizeof(lan_ifname), "%s", "eth0");
+	int ret = EXIT_FAILURE;
 
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
-		/* bring up LAN interface and config it */
-		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, lan_ifname);
-		ret = system(cmdline);
+		/* start syslogd/klogd */
+		rc_syslog(RC_START);
+
+		/* start telnet service */
+		rc_telnetd(RC_START);
+
+		/* start dnsmasq service */
+		rc_dnsmasq(RC_START);
+
+		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_STOP :
-		/* bring down LAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, lan_ifname);
-		ret = system(cmdline);
-		break;
+		/* stop dnsmasq service */
+		rc_dnsmasq(RC_STOP);
 
-	case RC_RESTART :
-		ret = rc_lan(RC_STOP);
-		ret = rc_lan(RC_START);
+		/* stop telnet service */
+		rc_telnetd(RC_STOP);
+
+		/* stop syslogd/klogd */
+		rc_syslog(RC_STOP);
+
+		ret = EXIT_SUCCESS;
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return ret;
 }

@@ -25,10 +25,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
 	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
 
-	/* UI configuration */
-	{ NVRAM_SERVICE_OPTION(UI, TZ_AREA), "Asia" }, /* Asia */
-	{ NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), "Shanghai" }, /* Shanghai */
-
 	/* kernel modules */
 	{ "mod_wait_time", "30" },	/* wait module up time */
 
@@ -129,10 +125,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, STP_ENABLE), "0" },
 
 	/* WAN H/W parameters */
-	/* WAN interface name */
-	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "eth1" },
-	/* WAN interface names */
-	{ NVRAM_SERVICE_OPTION(WAN, IFNAMES), "" },
 	/* WAN driver name (e.g. 8139cp) */
 	{ NVRAM_SERVICE_OPTION(WAN, HWNAME), "" },
 	/* WAN interface MAC address */
@@ -149,30 +141,16 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, TYPE), "dhcp" },
 	/* WAN connection release [1|0] */
 	{ NVRAM_SERVICE_OPTION(WAN, RELEASE), "0" },
-	/* WAN IP address */
-	{ NVRAM_SERVICE_OPTION(WAN, IPADDR), "0.0.0.0" },
-	/* WAN netmask */
-	{ NVRAM_SERVICE_OPTION(WAN, NETMASK), "0.0.0.0" },
-	/* WAN gateway */
-	{ NVRAM_SERVICE_OPTION(WAN, GATEWAY), "0.0.0.0" },
-	/* WAN DNS server IP address */
-	{ NVRAM_SERVICE_OPTION(WAN, DNS1), "" },
-	{ NVRAM_SERVICE_OPTION(WAN, DNS2), "" },
-	{ NVRAM_SERVICE_OPTION(WAN, DNS3), "" },
-	/* WAN WINS server IP address [x.x.x.x x.x.x.x ...] */
-	{ NVRAM_SERVICE_OPTION(WAN, WINS), "" },
 	/* WAN hostname */
 	{ NVRAM_SERVICE_OPTION(WAN, HOSTNAME), "" },
-	/* WAN domain name */
-	{ NVRAM_SERVICE_OPTION(WAN, DOMAIN), "" },
-	/* WAN lease time in seconds */
-	{ NVRAM_SERVICE_OPTION(WAN, LEASE), "86400" },
 	/* WAN MTU setting mode [1|0] */
 	{ NVRAM_SERVICE_OPTION(WAN, MTU_ENABLE), "0" },
 	/* Negotiate MTU to the smaller of this value or the peer MRU */
 	{ NVRAM_SERVICE_OPTION(WAN, MTU), "1500" },
 
 	/* WAN static IP parameters */
+	/* WAN interface */
+	{ NVRAM_SERVICE_OPTION(WAN, STATIC_IFNAME), "eth1" },
 	/* WAN IP address */
 	{ NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), "0.0.0.0" },
 	/* WAN netmask */
@@ -185,10 +163,15 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(WAN, STATIC_DNS3), "" },
 
 	/* WAN DHCP Client parameters */
+	/* WAN interface */
+	{ NVRAM_SERVICE_OPTION(WAN, DHCP_IFNAME), "eth1" },
 	/* WAN DHCP gateway set enable [0|1] */
 	{ NVRAM_SERVICE_OPTION(WAN, DHCP_GATEWAY_ENABLE), "0" },
 	/* WAN DHCP gateway MAC address */
 	{ NVRAM_SERVICE_OPTION(WAN, DHCP_GATEWAY_MAC), "FF:FF:FF:FF:FF:FF" },
+	/* WAN WINS server IP address [x.x.x.x x.x.x.x ...] */
+	{ NVRAM_SERVICE_OPTION(WAN, DHCP_WINS), "" },
+
 
 	/* PPPoE parameters */
 	/* PPPoE enslaved interface */
@@ -285,7 +268,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
 	/* LAN DHCP gateway IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_GATEWAY), "" },
-	/* LAN DNS server IP address */
+	/* LAN DHCP DNS server use WAN settings */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), "1" },
+	/* LAN DHCP DNS server IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS1), "" },
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS2), "" },
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS3), "" },
@@ -297,23 +282,37 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* rc services controller */
 	/* syslog disabled */
 	{ NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "0" },
+
 #if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
 	/* telnetd enabled */
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "lan" },
 #else
 	/* telnetd disabled */
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "0" },
+	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "none" },
 #endif
+
 #if (EZCFG_EZBOX_DISTRO == EZCFG_EZBOX_DISTRO_KUAFU)
 	/* dnsmasq disabled */
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "0" },
+	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "none" },
 #else
 	/* dnsmasq enabled */
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "lan" },
 #endif
 };
 
 char *default_nvram_unsets[] = {
+	/* UI configuration */
+	NVRAM_SERVICE_OPTION(UI, TZ_AREA),
+	NVRAM_SERVICE_OPTION(UI, TZ_LOCATION),
+
+	/* WAN interface name */
+	NVRAM_SERVICE_OPTION(WAN, IFNAME),
+	/* WAN interface names */
+	NVRAM_SERVICE_OPTION(WAN, IFNAMES),
 	/* WAN IP address */
 	NVRAM_SERVICE_OPTION(WAN, IPADDR),
 	/* WAN netmask */

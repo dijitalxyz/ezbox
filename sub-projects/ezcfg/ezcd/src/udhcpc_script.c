@@ -145,25 +145,12 @@ static int udhcpc_bound(void)
 		int i;
 		char *p, *savep;
 		snprintf(buf, sizeof(buf), "%s", dns);
-		for (p = buf, i = 1; ; p = NULL, i++) {
+		for (i = 1, p = buf; i <= 3; p = NULL, i++) {
 			dns = strtok_r(p, " ", &savep);
 			if (dns == NULL)
 				break;
-			if (i == 1) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS1));
-			}
-			else if (i == 2) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS2));
-			}
-			else if (i == 3) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS3));
-			}
-			else {
-				break;
-			}
+			snprintf(name, sizeof(name), "%s%d",
+				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_set(name, dns);
 		}
 	}
@@ -264,25 +251,12 @@ static int udhcpc_renew(void)
 		int i;
 		char *p, *savep;
 		snprintf(buf, sizeof(buf), "%s", dns);
-		for (p = buf, i = 1; ; p = NULL, i++) {
+		for (i = 1, p = buf; i <= 3; p = NULL, i++) {
 			dns = strtok_r(p, " ", &savep);
 			if (dns == NULL)
 				break;
-			if (i == 1) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS1));
-			}
-			else if (i == 2) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS2));
-			}
-			else if (i == 3) {
-				snprintf(name, sizeof(name), "%s",
-					NVRAM_SERVICE_OPTION(WAN, DNS3));
-			}
-			else {
-				break;
-			}
+			snprintf(name, sizeof(name), "%s%d",
+				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_set(name, dns);
 		}
 	}

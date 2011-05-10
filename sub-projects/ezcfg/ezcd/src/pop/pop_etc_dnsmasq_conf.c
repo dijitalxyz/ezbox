@@ -42,6 +42,8 @@
 int pop_etc_dnsmasq_conf(int flag)
 {
         FILE *file = NULL;
+	char buf[32];
+	int rc;
 
 	/* generate /etc/hosts */
 	file = fopen("/etc/dnsmasq.conf", "w");
@@ -50,9 +52,46 @@ int pop_etc_dnsmasq_conf(int flag)
 
 	switch (flag) {
 	case RC_START :
+		/* Never forward plain names (without a dot or domain part) */
 		if (nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
 			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));
 		}
+
+		/* get upstream servers from somewhere other that /etc/resolv.conf */
+		if (nvram_match(NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), "0") == 0) {
+			FILE *fp = NULL;
+			int i;
+			char name[32];
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, RESOLV_FILE), "/etc/resolv.conf.dnsmasq");
+			fp = fopen("/etc/resolv.conf.dnsmasq", "w");
+			if (fp != NULL) {
+				for (i = 1; i <= 3; i++) {
+					snprintf(name, sizeof(name), "%s%d",
+						NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), i);
+					rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+					if (buf[0] != '\0') {
+						fprintf(file, "nameserver %s\n", buf);
+					}
+				}
+				fclose(fp);
+			}
+		}
+
+		/* listen for DHCP and DNS requests only on specified interfaces */
+		fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), "lo");
+		if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IFNAME), buf, sizeof(buf));
+			if (buf[0] != '\0') {
+				fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
+			}
+		}
+		else if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), buf, sizeof(buf));
+			if (buf[0] != '\0') {
+				fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
+			}
+		}
+
 		break;
 	}
 

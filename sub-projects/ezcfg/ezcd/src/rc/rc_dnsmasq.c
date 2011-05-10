@@ -47,6 +47,12 @@ int rc_dnsmasq(int flag)
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
+
+	if ((utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false) &&
+	   (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false)) {
+		return (EXIT_FAILURE);
+	}
+
 	switch (flag) {
 	case RC_START :
 		pop_etc_dnsmasq_conf(RC_START);

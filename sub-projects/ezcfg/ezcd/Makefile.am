@@ -35,6 +35,7 @@ ezcd_SOURCES += src/rc/rc_func.c
 
 # utils
 ezcd_SOURCES += src/utils/utils_check_ezcd.c
+ezcd_SOURCES += src/utils/utils_check_service.c
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
 ezcd_SOURCES += src/utils/utils_get_wan_type.c
@@ -101,6 +102,12 @@ ezcd_SOURCES += src/rc/rc_telnetd.c
 # dhcp/dns service
 ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
 ezcd_SOURCES += src/rc/rc_dnsmasq.c
+
+# LAN side binding services
+ezcd_SOURCES += src/rc/rc_lan_services.c
+
+# WAN side binding services
+ezcd_SOURCES += src/rc/rc_wan_services.c
 
 ezcd_DEPENDENCIES = libezcfg.so
 
