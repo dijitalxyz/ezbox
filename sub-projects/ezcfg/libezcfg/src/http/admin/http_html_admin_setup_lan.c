@@ -193,12 +193,12 @@ static int set_html_main_setup_lan_dhcpd(
 			goto func_exit;
 		}
 
-		/* <p>Client Lease Time : <input type="text" maxlength="15" name="lan_dhcpd_end_ipaddr" value=""/></p> */
+		/* <p>Client Lease Time : <input type="text" maxlength="15" name="lan_dhcpd_lease" value=""/></p> */
 		/* save <p> index */
 		p_index = child_index;
 		child_index = -1;
 
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Minutes"));
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, ezcfg_locale_text(locale, " Seconds"));
 		if (input_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
@@ -458,10 +458,10 @@ static int set_html_main_setup_lan(
 
 	if (strcmp(buf, "1") == 0) {
 		child_index = set_html_main_setup_lan_dhcpd(admin, locale, content_index, child_index);
-	}
-	if (child_index < 0) {
-		err(ezcfg, "set_html_main_setup_lan_dhcpd error.\n");
-		goto func_exit;
+		if (child_index < 0) {
+			err(ezcfg, "set_html_main_setup_lan_dhcpd error.\n");
+			goto func_exit;
+		}
 	}
 
 	/* <p>&nbsp;</p> */

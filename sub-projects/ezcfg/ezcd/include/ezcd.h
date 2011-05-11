@@ -19,6 +19,7 @@ bool utils_ezcd_is_up(void);
 bool utils_ezcd_wait_up(int s);
 bool utils_service_binding_lan(char *name);
 bool utils_service_binding_wan(char *name);
+bool utils_wan_interface_is_up(void);
 
 /* nvram function */
 int nvram_match(const char *name, const char *value);

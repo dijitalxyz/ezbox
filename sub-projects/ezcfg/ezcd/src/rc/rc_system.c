@@ -128,8 +128,11 @@ int rc_system(int flag)
 		/* run in root HOME path */
 		chdir(ROOT_HOME_PATH);
 
+		/* FIXME: We do it in wan interface startup script */
+#if 0
 		/* stop WAN interface binding services */
 		rc_wan_services(RC_STOP);
+#endif
 
 		/* bring down WAN interface */
 		rc_wan(RC_STOP);
@@ -196,8 +199,13 @@ int rc_system(int flag)
 		/* bring up WAN interface link up and configurate it */
 		rc_wan(RC_START);
 
-		/* start WAN interface binding services */
-		rc_wan_services(RC_START);
+		/* FIXME: We do it in wan interface startup script */
+#if 0
+		if (utils_wan_interface_is_up() == true) {
+			/* start WAN interface binding services */
+			rc_wan_services(RC_START);
+		}
+#endif
 
 		break;
 	}

@@ -114,6 +114,10 @@ struct ezcfg_nvram {
 	int num_default_unsets;
 	char **default_unsets;
 
+	/* default savings */
+	int num_default_savings;
+	char **default_savings;
+
 	/* default validators */
 	int num_default_validators;
 	ezcfg_nv_validator_t *default_validators;
@@ -702,6 +706,10 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	nvram->num_default_unsets = ezcfg_nvram_get_num_default_nvram_unsets();
 	nvram->default_unsets = default_nvram_unsets;
 
+	/* set default savings */
+	nvram->num_default_savings = ezcfg_nvram_get_num_default_nvram_savings();
+	nvram->default_savings = default_nvram_savings;
+
 	/* set default validators */
 	nvram->num_default_validators = ezcfg_nvram_get_num_default_nvram_validators();
 	nvram->default_validators = default_nvram_validators;
@@ -1247,8 +1255,55 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 	/* check if restore_defaults is set */
 	if (nvram_match_entry_value(nvram,
 		NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true) {
+		struct ezcfg_link_list *list=NULL;
+		char *name, *value;
+
 		info(ezcfg, "restore system defaults.\n");
+
+		list = ezcfg_link_list_new(ezcfg);
+		if (list == NULL) {
+			err(ezcfg, "restore system defaults fail.\n");
+			ret = false;
+			goto restore_out;
+		}
+
+		/* save the savings */
+		for (i=0; i<nvram->num_default_savings; i++) {
+			name = nvram->default_savings[i];
+			ret = nvram_get_entry_value(nvram, name, &value);
+			if (value != NULL) {
+				ret = ezcfg_link_list_insert(list, name, value);
+				free(value);
+				if (ret == false) {
+					err(ezcfg, "restore system defaults insert fail.\n");
+					goto restore_out;
+				}
+			}
+		}
+
+		/* clean up nvram */
+		nvram->used_space = 0;
+		nvram->free_space = nvram->total_space-sizeof(struct nvram_header)-nvram->used_space;
+		memset(nvram->buffer+sizeof(struct nvram_header)+nvram->used_space, '\0', nvram->free_space);
+
+		/* set default settings */
 		ret = nvram_init_by_defaults(nvram);
+
+		/* restore the savings */
+		for(i=1; i<=ezcfg_link_list_get_length(list); i++) {
+			name = ezcfg_link_list_get_node_name_by_index(list, i);
+			value = ezcfg_link_list_get_node_value_by_index(list, i);
+			ret = nvram_set_entry(nvram, name, value);
+			if (ret == false) {
+				err(ezcfg, "restore system defaults set fail.\n");
+				goto restore_out;
+			}
+		}
+
+restore_out:
+		/* delete link list */
+		if (list != NULL)
+			ezcfg_link_list_delete(list);
 	}
 
 	/* check nvram entries */

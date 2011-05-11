@@ -46,7 +46,9 @@ int rc_lan(int flag)
 	char lan_ifname[IFNAMSIZ];
 	char cmdline[256];
 
-	snprintf(lan_ifname, sizeof(lan_ifname), "%s", "eth0");
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IFNAME), lan_ifname, sizeof(lan_ifname));
+	if (ret < 0)
+		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_BOOT :

@@ -40,6 +40,162 @@
  * Private functions
  **/
 
+static int set_html_main_status_lan_dhcpd(
+	struct ezcfg_http_html_admin *admin,
+	struct ezcfg_locale *locale,
+	int pi, int si)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_html *html;
+	int content_index, child_index;
+	int p_index;
+	char buf[1024];
+	char *p = NULL;
+	int i;
+	bool bool_flag;
+	int ret = -1;
+
+	ASSERT(admin != NULL);
+	ASSERT(pi > 1);
+
+	ezcfg = admin->ezcfg;
+	http = admin->http;
+	nvram = admin->nvram;
+	html = admin->html;
+
+	content_index = pi;
+	child_index = si;
+
+	/* <h3>DHCP Server</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Server"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Service Switch : Enabled</p> */
+	i = -1;
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	if (p != NULL) {
+		i = atoi(p);
+		free(p);
+	}
+	if ((i == 0) || (i == 1)) {
+		bool_flag = true;
+	}
+	else {
+		bool_flag = false;
+	}
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+		ezcfg_locale_text(locale, "Service Switch"),
+		(bool_flag == true) ? ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)) : ezcfg_locale_text(locale, "Unknown Settings"));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	if (bool_flag == false) {
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	}
+	else {
+		if (i == 1) {
+			/* <p>Start IP Address : 192.168.1.50</p> */
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
+			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+				ezcfg_locale_text(locale, "Start IP Address"),
+				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Start IP Address"));
+			if (p != NULL) {
+				bool_flag = true;
+				free(p);
+			}
+			else {
+				bool_flag = false;
+			}
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			if (bool_flag == false) {
+				ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			/* <p>End IP Address : 192.168.1.50</p> */
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
+			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+				ezcfg_locale_text(locale, "End IP Address"),
+				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown End IP Address"));
+			if (p != NULL) {
+				bool_flag = true;
+				free(p);
+			}
+			else {
+				bool_flag = false;
+			}
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			if (bool_flag == false) {
+				ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			/* <p>Client Lease Time : 86400 Seconds</p> */
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), &p);
+			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s %s",
+				ezcfg_locale_text(locale, "Client Lease Time"),
+				(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Lease Time"),
+				(p != NULL) ? ezcfg_locale_text(locale, "Seconds") : "");
+			if (p != NULL) {
+				bool_flag = true;
+				free(p);
+			}
+			else {
+				bool_flag = false;
+			}
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			if (bool_flag == false) {
+				ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			/* <p><a href="/admin/view_dhcp_client_table">View DHCP Client Table</a></p> */
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			/* save <p> index */
+			p_index = child_index;
+			child_index = -1;
+
+			child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "View DHCP Client Table"));
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "view_dhcp_client_table", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			/* restore <p> index */
+			child_index = p_index;
+		}
+	}
+
+	si = child_index;
+
+	/* must return main index */
+	ret = si;
+
+func_exit:
+	return ret;
+}
+
 static int set_html_main_status_lan(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -51,10 +207,8 @@ static int set_html_main_status_lan(
 	struct ezcfg_html *html;
 	int main_index;
 	int content_index, child_index;
-	int p_index;
 	char buf[1024];
 	char *p = NULL;
-	int i;
 	bool bool_flag;
 	int ret = -1;
 
@@ -160,100 +314,18 @@ static int set_html_main_status_lan(
 		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	}
 
-	/* <h3>DHCP Server</h3> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "DHCP Server"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Service Switch : Enabled</p> */
-	i = -1;
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), &p);
 	if (p != NULL) {
-		i = atoi(p);
+		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
 	}
-	if ((i == 0) || (i == 1)) {
-		bool_flag = true;
-	}
-	else {
-		bool_flag = false;
-	}
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
-		ezcfg_locale_text(locale, "Service Switch"),
-		(bool_flag == true) ? ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)) : ezcfg_locale_text(locale, "Unknown Settings"));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	if (bool_flag == false) {
-		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	}
-	else {
-		if (i == 1) {
-			/* <p>Start IP Address : 192.168.1.50</p> */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
-				ezcfg_locale_text(locale, "Start IP Address"),
-				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Start IP Address"));
-			if (p != NULL) {
-				bool_flag = true;
-				free(p);
-			}
-			else {
-				bool_flag = false;
-			}
-			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-			if (child_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-			if (bool_flag == false) {
-				ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			}
 
-			/* <p>End IP Address : 192.168.1.50</p> */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
-				ezcfg_locale_text(locale, "End IP Address"),
-				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown End IP Address"));
-			if (p != NULL) {
-				bool_flag = true;
-				free(p);
-			}
-			else {
-				bool_flag = false;
-			}
-			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-			if (child_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-			if (bool_flag == false) {
-				ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			}
-
-			/* <p><a href="/admin/view_dhcp_client_table">View DHCP Client Table</a></p> */
-			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
-			if (child_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-			/* save <p> index */
-			p_index = child_index;
-			child_index = -1;
-
-			child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "View DHCP Client Table"));
-			if (child_index < 0) {
-				err(ezcfg, "ezcfg_html_add_body_child error.\n");
-				goto func_exit;
-			}
-
-			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "view_dhcp_client_table", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-			/* restore <p> index */
-			child_index = p_index;
+	if (strcmp(buf, "1") == 0) {
+		child_index = set_html_main_status_lan_dhcpd(admin, locale, content_index, child_index);
+		if (child_index < 0) {
+			err(ezcfg, "set_html_main_setup_lan_dhcpd error.\n");
+			goto func_exit;
 		}
 	}
 

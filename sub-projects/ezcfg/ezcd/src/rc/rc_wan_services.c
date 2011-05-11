@@ -48,21 +48,29 @@ int rc_wan_services(int flag)
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* start telnet service */
 		rc_telnetd(RC_START);
+#endif
 
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* start dnsmasq service */
 		rc_dnsmasq(RC_START);
+#endif
 
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_STOP :
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* stop dnsmasq service */
 		rc_dnsmasq(RC_STOP);
+#endif
 
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* stop telnet service */
 		rc_telnetd(RC_STOP);
+#endif
 
 		ret = EXIT_SUCCESS;
 		break;

@@ -118,12 +118,12 @@ static int set_wan_interface(FILE *file)
 	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
-	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
-	if (rc < 0)
-		return (EXIT_FAILURE);
-
 	switch(wan_type) {
 	case WAN_TYPE_DHCP :
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DHCP_IFNAME), wan_ifname, sizeof(wan_ifname));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
 		fprintf(file, "iface %s inet dhcp\n", wan_ifname);
 #if 0
 		fprintf(file, "\tpre-up %s %s up\n", CMD_IFCONFIG, wan_ifname);
@@ -174,6 +174,10 @@ static int set_wan_interface(FILE *file)
 		       &wan_gateway[3]) != 4)
 			return (EXIT_FAILURE);
 
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_IFNAME), wan_ifname, sizeof(wan_ifname));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
 		fprintf(file, "iface %s inet static\n", wan_ifname);
 		fprintf(file, "\taddress %d.%d.%d.%d\n",
 			wan_ipaddr[0],
@@ -199,6 +203,10 @@ static int set_wan_interface(FILE *file)
 		break;
 
 	case WAN_TYPE_PPPOE :
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_IFNAME), wan_ifname, sizeof(wan_ifname));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
 		fprintf(file, "iface %s inet manual\n", wan_ifname);
 		fprintf(file, "\n");
 		break;
@@ -217,10 +225,6 @@ int pop_etc_network_interfaces(int flag)
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
-		/* set loopback & lan interface auto start */
-		//fprintf(file, "auto lo %s\n", lan_ifname);
-		//fprintf(file, "\n");
-
 		/* set loopback */
 		set_loopback_interface(file);
 

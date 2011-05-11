@@ -57,8 +57,11 @@ int rc_netbase(int flag)
 	case RC_START :
 		pop_etc_network_interfaces(RC_START);
 		pop_etc_hosts(RC_START);
-		pop_etc_resolv_conf(RC_START);
 		pop_etc_protocols(RC_START);
+		/* FIXME: do it after WAN interface is up */
+#if 0
+		pop_etc_resolv_conf(RC_START);
+#endif
 		break;
 	}
 

@@ -64,20 +64,6 @@ int pop_etc_resolv_conf(int flag)
 			fprintf(file, "domain %s\n", buf);
 		}
 
-#if 0
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DNS), buf, sizeof(buf));
-		if (rc < 0) {
-			rc = EXIT_FAILURE;
-			goto exit_func;
-		}
-
-		for (p = buf; ; p = NULL) {
-			token = strtok_r(p, " ", &savep);
-			if (token == NULL)
-				break;
-			fprintf(file, "nameserver %s\n", token);
-		}
-#endif
 		for (i = 1; i <= 3; i++) {
 			snprintf(name, sizeof(name), "%s%d",
 				NVRAM_SERVICE_OPTION(WAN, DNS), i);

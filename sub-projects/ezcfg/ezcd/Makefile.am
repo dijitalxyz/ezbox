@@ -36,6 +36,7 @@ ezcd_SOURCES += src/rc/rc_func.c
 # utils
 ezcd_SOURCES += src/utils/utils_check_ezcd.c
 ezcd_SOURCES += src/utils/utils_check_service.c
+ezcd_SOURCES += src/utils/utils_check_wan_interface.c
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
 ezcd_SOURCES += src/utils/utils_get_wan_type.c

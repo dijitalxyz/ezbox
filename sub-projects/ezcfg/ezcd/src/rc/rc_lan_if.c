@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run network LAN interface service
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-03   0.1       Write it from scratch
@@ -46,7 +46,9 @@ int rc_lan_if(int flag)
 	char lan_ifname[IFNAMSIZ];
 	char cmdline[256];
 
-	snprintf(lan_ifname, sizeof(lan_ifname), "%s", "eth0");
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, LAN_NIC), lan_ifname, sizeof(lan_ifname));
+	if (ret < 0)
+		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_BOOT :

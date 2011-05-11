@@ -197,7 +197,7 @@ static int set_status_wan_dhcp(
 	}
 
 	/* <p>DHCP Lease Time : 86400</p>*/
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, LEASE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), &p);
 	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
 		ezcfg_locale_text(locale, "DHCP Lease Time"),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Lease Time"));

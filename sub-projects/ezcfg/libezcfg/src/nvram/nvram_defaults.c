@@ -24,6 +24,8 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
 	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" }, /* Set to 0 not restore defaults on boot */
+	{ NVRAM_SERVICE_OPTION(SYS, WAN_NIC), "eth1" }, /* Set to 0 not restore defaults on boot */
 
 	/* kernel modules */
 	{ "mod_wait_time", "30" },	/* wait module up time */
@@ -105,8 +107,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* LAN TCP/IP parameters */
 	/* LAN side HTTP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(LAN, HTTPD_ENABLE), "1" },
-	/* LAN side DHCP server [1|0] */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), "1" },
 	/* LAN side PPPoE server [1|0] */
 	{ NVRAM_SERVICE_OPTION(LAN, PPPOED_ENABLE), "0" },
 	/* LAN IP address */
@@ -119,8 +119,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, WINS), "" },
 	/* LAN domain name */
 	{ NVRAM_SERVICE_OPTION(LAN, DOMAIN), "" },
-	/* LAN lease time in seconds */
-	{ NVRAM_SERVICE_OPTION(LAN, LEASE), "86400" },
 	/* LAN spanning tree protocol */
 	{ NVRAM_SERVICE_OPTION(LAN, STP_ENABLE), "0" },
 
@@ -258,6 +256,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTPS), "0" },
 
 	/* LAN DHCP server */
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
+	/* LAN side DHCP server [1|0] */
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), "1" },
 	/* First assignable DHCP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), 
 	  EZCFG_LAN_DEFAULT_DHCPD_START_IPADDR },
@@ -265,7 +266,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR),
 	  EZCFG_LAN_DEFAULT_DHCPD_END_IPADDR },
 	/* LAN lease time in minutes */
-	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "60" },
+	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), "86400" },
 	/* LAN DHCP gateway IP address */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_GATEWAY), "" },
 	/* LAN DHCP DNS server use WAN settings */
@@ -278,10 +279,13 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_DOMAIN), "wan" },
 	/* Use WAN WINS first if available (wan|lan) */
 	{ NVRAM_SERVICE_OPTION(LAN, DHCPD_WINS), "wan" },
+#endif
 
 	/* rc services controller */
+#if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
 	/* syslog disabled */
 	{ NVRAM_SERVICE_OPTION(RC, SYSLOG_ENABLE), "0" },
+#endif
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 	/* telnetd enabled */
@@ -319,7 +323,12 @@ char *default_nvram_unsets[] = {
 	/* WAN domain name */
 	NVRAM_SERVICE_OPTION(WAN, DOMAIN),
 	/* WAN lease time in seconds */
-	NVRAM_SERVICE_OPTION(WAN, LEASE),
+	NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE),
+};
+
+char *default_nvram_savings[] = {
+	NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER),
+	NVRAM_SERVICE_OPTION(SYS, LANGUAGE),
 };
 
 /* Public functions */
@@ -331,4 +340,9 @@ int ezcfg_nvram_get_num_default_nvram_settings(void)
 int ezcfg_nvram_get_num_default_nvram_unsets(void)
 {
 	return ARRAY_SIZE(default_nvram_unsets);
+}
+
+int ezcfg_nvram_get_num_default_nvram_savings(void)
+{
+	return ARRAY_SIZE(default_nvram_savings);
 }

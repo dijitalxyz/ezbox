@@ -39,24 +39,44 @@
 
 #include "ezcd.h"
 #include "pop_func.h"
+#include "rc_func.h"
 
 static int udhcpc_deconfig(void)
 {
 	char buf[128];
 	char *iface;
+	int rc;
+	int i;
 
 	iface = getenv("interface");
 	if (iface == NULL)
 		return (EXIT_FAILURE);
 
-	snprintf(buf, sizeof(buf), "%s %s 0.0.0.0", CMD_IFCONFIG, iface);
+	/* stop WAN interface binding services */
+	rc_wan_services(RC_STOP);
+
+	snprintf(buf, sizeof(buf), "%s %s %s", CMD_IFCONFIG, iface, "0.0.0.0");
 	system(buf);
+
+	pop_etc_resolv_conf(RC_STOP);
+
+	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
+	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
+	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, NETMASK));
+	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, GATEWAY));
+	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DOMAIN));
+	for (i=1; i<=3; i++) {
+		snprintf(buf, sizeof(buf), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
+		rc = ezcfg_api_nvram_unset(buf);
+	}
+
 	return (EXIT_SUCCESS);
 }
 
 static int udhcpc_bound(void)
 {
 	char buf[128];
+	char *lease;
 	char *iface;
 	char *ipaddr;
 	char *subnet;
@@ -65,8 +85,16 @@ static int udhcpc_bound(void)
 	char *domain;
 	char *dns;
 	char *p, *savep, *token;
-	//FILE *file;
 	int status, i, rc;
+
+	lease = getenv("lease");
+	if (lease == NULL) {
+		/* default set to 1 hour */
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), "3600");
+	}
+	else {
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+	}
 
 	iface = getenv("interface");
 	ipaddr = getenv("ip");
@@ -111,29 +139,6 @@ static int udhcpc_bound(void)
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
 	}
 
-#if 0
-	snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
-	file = fopen(buf, "w");
-	if (file != NULL) {
-		domain = getenv("domain");
-		if (domain != NULL) {
-        		printf("adding domain %s to %s\n", domain, buf);
-			fprintf(file, "domain %s\n", domain);
-		}
-
-		dns = getenv("dns");
-		if (dns != NULL) {
-			for (p = dns; ; p = NULL) {
-				token = strtok_r(p, " ", &savep);
-				if (token == NULL)
-					break;
-        			printf("adding dns %s to %s\n", token, buf);
-				fprintf(file, "nameserver %s\n", token);
-			}
-		}
-		fclose(file);
-	}
-#endif
 	domain = getenv("domain");
 	if (domain != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
@@ -156,6 +161,9 @@ static int udhcpc_bound(void)
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);
+
+	/* start WAN interface binding services */
+	rc_wan_services(RC_START);
 
 	return (EXIT_SUCCESS);
 }
@@ -163,6 +171,7 @@ static int udhcpc_bound(void)
 static int udhcpc_renew(void)
 {
 	char buf[128];
+	char *lease;
 	char *iface;
 	char *ipaddr;
 	char *subnet;
@@ -171,8 +180,16 @@ static int udhcpc_renew(void)
 	char *domain;
 	char *dns;
 	char *p, *savep, *token;
-	//FILE *file;
 	int status, i, rc;
+
+	lease = getenv("lease");
+	if (lease == NULL) {
+		/* default set to 1 hour */
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), "3600");
+	}
+	else {
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+	}
 
 	iface = getenv("interface");
 	ipaddr = getenv("ip");
@@ -217,29 +234,6 @@ static int udhcpc_renew(void)
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
 	}
 
-#if 0
-	snprintf(buf, sizeof(buf), "/etc/resolv.conf-%s", iface);
-	file = fopen(buf, "w");
-	if (file != NULL) {
-		domain = getenv("domain");
-		if (domain != NULL) {
-        		printf("adding domain %s to %s\n", domain, buf);
-			fprintf(file, "domain %s\n", domain);
-		}
-
-		dns = getenv("dns");
-		if (dns != NULL) {
-			for (p = dns; ; p = NULL) {
-				token = strtok_r(p, " ", &savep);
-				if (token == NULL)
-					break;
-        			printf("adding dns %s to %s\n", token, buf);
-				fprintf(file, "nameserver %s\n", token);
-			}
-		}
-		fclose(file);
-	}
-#endif
 	domain = getenv("domain");
 	if (domain != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
@@ -262,6 +256,9 @@ static int udhcpc_renew(void)
 	}
 
 	pop_etc_resolv_conf(RC_RESTART);
+
+	/* start WAN interface binding services */
+	rc_wan_services(RC_START);
 
 	return (EXIT_SUCCESS);
 }
