@@ -16,6 +16,7 @@
 
 #include "ezcfg-sys.h"
 #include "ezcfg-ezcfg.h"
+#include "ezcfg-loopback.h"
 #include "ezcfg-lan.h"
 #include "ezcfg-wan.h"
 #include "ezcfg-rc.h"

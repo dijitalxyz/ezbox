@@ -85,6 +85,12 @@
 #define EZCFG_RC_ACT_RELOAD                "reload"
 
 
+/* ezcfg service binding type */
+#define EZCFG_SERVICE_BINDING_UNKNOWN	0
+#define EZCFG_SERVICE_BINDING_LAN	1
+#define EZCFG_SERVICE_BINDING_WAN	2
+
+
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
 #define EZCFG_SOCKET_DOMAIN_INET_STRING    "inet"

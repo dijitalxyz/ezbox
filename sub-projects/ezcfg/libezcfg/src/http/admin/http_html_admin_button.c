@@ -36,15 +36,23 @@
 
 char *refresh_buttons[] = {
 	"status_system",
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	"status_lan",
+#endif
 	"view_dhcp_client_table",
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	"status_wan",
+#endif
 };
 
 char *save_cancel_buttons[] = {
 	"setup_system",
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	"setup_lan",
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	"setup_wan",
+#endif
 	"management_authz",
 	"management_default",
 	"management_upgrade",

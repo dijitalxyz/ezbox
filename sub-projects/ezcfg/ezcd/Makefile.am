@@ -36,10 +36,14 @@ ezcd_SOURCES += src/rc/rc_func.c
 # utils
 ezcd_SOURCES += src/utils/utils_check_ezcd.c
 ezcd_SOURCES += src/utils/utils_check_service.c
+if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_check_wan_interface.c
+endif
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
+if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_get_wan_type.c
+endif
 ezcd_SOURCES += src/utils/utils_find_pid_by_name.c
 ezcd_SOURCES += src/utils/utils_crc32.c
 
@@ -89,26 +93,40 @@ ezcd_SOURCES += src/rc/rc_netbase.c
 
 # network
 ezcd_SOURCES += src/rc/rc_loopback.c
+if CONFIG_EZBOX_LAN_NIC
 ezcd_SOURCES += src/rc/rc_lan_if.c
 ezcd_SOURCES += src/rc/rc_lan.c
+endif
+if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/rc/rc_wan_if.c
 ezcd_SOURCES += src/rc/rc_wan.c
+endif
 
 # syslog service
+if CONFIG_EZBOX_SERVICE_SYSLOG
 ezcd_SOURCES += src/rc/rc_syslog.c
+endif
 
 # telnet service
+if CONFIG_EZBOX_SERVICE_TELNETD
 ezcd_SOURCES += src/rc/rc_telnetd.c
+endif
 
 # dhcp/dns service
+if CONFIG_EZBOX_SERVICE_DNSMASQ
 ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
 ezcd_SOURCES += src/rc/rc_dnsmasq.c
+endif
 
 # LAN side binding services
+if CONFIG_EZBOX_LAN_NIC
 ezcd_SOURCES += src/rc/rc_lan_services.c
+endif
 
 # WAN side binding services
+if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/rc/rc_wan_services.c
+endif
 
 ezcd_DEPENDENCIES = libezcfg.so
 

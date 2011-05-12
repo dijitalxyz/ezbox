@@ -82,4 +82,8 @@
 #define EZCFG_EZCFG_AUTH_0_SECRET           "auth.0.secret"
 #define EZCFG_EZCFG_AUTH_0_SECRET2          "auth.0.secret2"
 
+#define EZCFG_EZCFG_HTTPD_ENABLE            "httpd_enable"
+#define EZCFG_EZCFG_HTTPD_HTTP              "httpd_http"
+#define EZCFG_EZCFG_HTTPD_HTTPS             "httpd_https"
+
 #endif

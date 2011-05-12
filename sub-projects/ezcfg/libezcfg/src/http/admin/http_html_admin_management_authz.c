@@ -165,18 +165,18 @@ static int set_html_main_management_authz(
 	p_index = child_index;
 	child_index = -1;
 
-	/* <p>Service Switch : <select name="lan_httpd_enable"></select></p> */
+	/* <p>Service Switch : <select name="ezcfg_httpd_enable"></select></p> */
 	child_index = -1;
 	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
 	if (select_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, HTTPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <p>Service Switch : <select name="lan_httpd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
+	/* <p>Service Switch : <select name="ezcfg_httpd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
 	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, HTTPD_ENABLE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), &p);
 	if (p != NULL) {
 		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
@@ -203,7 +203,7 @@ static int set_html_main_management_authz(
 		char tmp[2];
 
 		tmp[0] = '\0';
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTP), &p);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTP), &p);
 		if (p != NULL) {
 			snprintf(tmp, sizeof(tmp), "%s", p);
 			free(p);
@@ -217,7 +217,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 
-		/* <p>Access via HTTP : <input type="radio" name="lan_httpd_http" value="1">Yes</input><input type="radio" name="lan_httpd_http" value="0">No</input></p> */
+		/* <p>Access via HTTP : <input type="radio" name="ezcfg_httpd_http" value="1">Yes</input><input type="radio" name="ezcfg_httpd_http" value="0">No</input></p> */
 		/* save <p> index */
 		p_index = child_index;
 		child_index = -1;
@@ -230,7 +230,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTP), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTP), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "1") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -244,7 +244,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTP), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTP), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "0") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -254,7 +254,7 @@ static int set_html_main_management_authz(
 		child_index = p_index;
 
 		tmp[0] = '\0';
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTPS), &p);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), &p);
 		if (p != NULL) {
 			snprintf(tmp, sizeof(tmp), "%s", p);
 			free(p);
@@ -268,7 +268,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 
-		/* <p>Access via HTTPS : <input type="radio" name="lan_httpd_https" value="1">Yes</input><input type="radio" name="lan_httpd_https" value="0">No</input></p> */
+		/* <p>Access via HTTPS : <input type="radio" name="ezcfg_httpd_https" value="1">Yes</input><input type="radio" name="ezcfg_httpd_https" value="0">No</input></p> */
 		/* save <p> index */
 		p_index = child_index;
 		child_index = -1;
@@ -281,7 +281,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "1") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -295,7 +295,7 @@ static int set_html_main_management_authz(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "0") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);

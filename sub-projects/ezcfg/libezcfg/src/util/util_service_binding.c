@@ -2,12 +2,12 @@
  * Project Name : ezbox configuration utilities
  * Module Name  : util/util_rc.c
  *
- * Description  : system rc running
+ * Description  : system service binding interface checking
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-09   0.1       Write it from scrach
+ * 2011-05-12   0.1       Write it from scrach
  * ============================================================================
  */
 
@@ -30,20 +30,15 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-bool ezcfg_util_rc(char *func, char *act, int s, bool bg)
+int ezcfg_util_service_binding(char *interface)
 {
-	char cmd[1024];
-	int i;
-
-	i = snprintf(cmd, sizeof(cmd), "rc %s %s %d %s",
-		func, act, s,
-		(bg == true) ? "&" : "");
-
-	if (i < sizeof(cmd)) {
-		system(cmd);
-		return true;
+	if (strcmp(interface, "lan") == 0) {
+		return EZCFG_SERVICE_BINDING_LAN ;
+	}
+	else if (strcmp(interface, "wan") == 0) {
+		return EZCFG_SERVICE_BINDING_WAN ;
 	}
 	else {
-		return false;
+		return EZCFG_SERVICE_BINDING_UNKNOWN ;
 	}
 }

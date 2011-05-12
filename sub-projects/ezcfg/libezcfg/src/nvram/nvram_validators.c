@@ -30,6 +30,26 @@ static bool ui_tz_location_validator(const char *value)
 	return true;
 }
 
+static bool wan_type_validator(const char *value)
+{
+	if ((strcmp(value, "dhcp") == 0) ||
+	    (strcmp(value, "static") == 0) ||
+#if (HAVE_EZBOX_WAN_PPPOE == 1)
+	    (strcmp(value, "pppoe") == 0) ||
+#endif
+#if (HAVE_EZBOX_WAN_PPTP == 1)
+	    (strcmp(value, "pptp") == 0) ||
+#endif
+#if (HAVE_EZBOX_WAN_L2TP == 1)
+	    (strcmp(value, "l2tp") == 0) ||
+#endif
+	    (strcmp(value, "disabled") == 0)
+	)
+		return true;
+	else
+		return false;
+}
+
 ezcfg_nv_validator_t default_nvram_validators[] = {
 	/* System configuration */
 	{ NVRAM_SERVICE_OPTION(SYS, LANGUAGE), sys_language_validator },
@@ -37,6 +57,9 @@ ezcfg_nv_validator_t default_nvram_validators[] = {
 	/* UI configuration */
 	{ NVRAM_SERVICE_OPTION(UI, TZ_AREA), ui_tz_area_validator },
 	{ NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), ui_tz_location_validator },
+
+	/* WAN TCP/IP parameters */
+	{ NVRAM_SERVICE_OPTION(WAN, TYPE), wan_type_validator },
 };
 
 

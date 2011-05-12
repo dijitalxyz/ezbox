@@ -6,6 +6,7 @@ AC_INIT([libezcfg], [0.1], [ezbox@ezidc.net])
 AC_CANONICAL_SYSTEM
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+LT_INIT
 
 #AC_DISABLE_STATIC
 AC_CONFIG_MACRO_DIR([m4])
@@ -46,25 +47,148 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
-# Configure telnet service.
-AC_ARG_ENABLE([service-telnetd],
-	AS_HELP_STRING([--enable-service-telnetd], [Enable telnet service (default no)]),
+# Configure LAN NIC.
+config_ezbox_lan_nic=yes
+AC_MSG_CHECKING([if LAN network interface is enabled])
+AC_ARG_ENABLE([lan-nic],
+	AS_HELP_STRING([--enable-lan-nic], [Enable LAN network interface (default yes)]),
 	[case "$enableval" in
-	no) AC_MSG_RESULT(no);;
-	*) AC_DEFINE([HAVE_EZBOX_SERVICE_TELNETD], [1], [Enable telnet service]) AC_MSG_RESULT(no);;
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_lan_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_LAN_NIC, test "x$config_ezbox_lan_nic" = xyes)
+
+# Configure WAN NIC.
+config_ezbox_wan_nic=yes
+AC_MSG_CHECKING([if WAN network interface is enabled])
+AC_ARG_ENABLE([wan-nic],
+	AS_HELP_STRING([--enable-wan-nic], [Enable WAN network interface (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_wan_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_WAN_NIC], [1], [Enable WAN network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_WAN_NIC], [1], [Enable WAN network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_NIC, test "x$config_ezbox_wan_nic" = xyes)
+
+# Configure WAN connection type PPPoE.
+AC_MSG_CHECKING([if WAN type PPPoE is enabled])
+AC_ARG_ENABLE([wan-pppoe],
+	AS_HELP_STRING([--enable-wan-pppoe], [Enable WAN connection type PPPoE (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_WAN_PPPOE], [1], [Enable WAN connection type PPPoE])
+		AC_MSG_RESULT(yes)
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
 
-# Configure dnsmasq service.
-AC_ARG_ENABLE([service-dnsmasq],
-	AS_HELP_STRING([--enable-service-dnsmasq], [Enable dnsmasq service (default no)]),
+# Configure WAN connection type PPTP.
+AC_MSG_CHECKING([if WAN type PPTP is enabled])
+AC_ARG_ENABLE([wan-pptp],
+	AS_HELP_STRING([--enable-wan-pptp], [Enable WAN connection type PPTP (default no)]),
 	[case "$enableval" in
-	no) AC_MSG_RESULT(no);;
-	*) AC_DEFINE([HAVE_EZBOX_SERVICE_DNSMASQ], [1], [Enable dnsmasq service]) AC_MSG_RESULT(no);;
+	yes)
+		AC_DEFINE([HAVE_EZBOX_WAN_PPTP], [1], [Enable WAN connection type PPTP])
+		AC_MSG_RESULT(yes)
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+
+# Configure WAN connection type L2TP.
+AC_MSG_CHECKING([if WAN type L2TP is enabled])
+AC_ARG_ENABLE([wan-l2tp],
+	AS_HELP_STRING([--enable-wan-l2tp], [Enable WAN connection type L2TP (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_WAN_L2TP], [1], [Enable WAN connection type L2TP])
+		AC_MSG_RESULT(yes)
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+
+# Configure syslog service.
+config_ezbox_service_syslog=no
+AC_MSG_CHECKING([if syslog service is enabled])
+AC_ARG_ENABLE([service-syslog],
+	AS_HELP_STRING([--enable-service-syslog], [Enable syslog service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_SYSLOG], [1], [Enable syslog service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_syslog=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_SYSLOG, test "x$config_ezbox_service_syslog" = xyes)
+
+# Configure telnet service.
+config_ezbox_service_telnetd=no
+AC_MSG_CHECKING([if telnetd service is enabled])
+AC_ARG_ENABLE([service-telnetd],
+	AS_HELP_STRING([--enable-service-telnetd], [Enable telnet service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_TELNETD], [1], [Enable telnet service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_telnetd=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_TELNETD, test "x$config_ezbox_service_telnetd" = xyes)
+
+# Configure dnsmasq service.
+config_ezbox_service_dnsmasq=no
+AC_MSG_CHECKING([if dnsmasq service is enabled])
+AC_ARG_ENABLE([service-dnsmasq],
+	AS_HELP_STRING([--enable-service-dnsmasq], [Enable dnsmasq service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DNSMASQ], [1], [Enable dnsmasq service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_dnsmasq=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DNSMASQ, test "x$config_ezbox_service_dnsmasq" = xyes)
 
 # Checks for libraries.
 

@@ -135,13 +135,19 @@ int rc_system(int flag)
 #endif
 
 		/* bring down WAN interface */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 		rc_wan(RC_STOP);
+#endif
 
 		/* stop LAN interface binding services */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		rc_lan_services(RC_STOP);
+#endif
 
 		/* bring down LAN interface */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		rc_lan(RC_STOP);
+#endif
 
 		/* stop ezcfg daemon */
 		rc_ezcd(RC_STOP);
@@ -184,20 +190,30 @@ int rc_system(int flag)
 		rc_loopback(RC_START);
 
 		/* bring up LAN interface link up but not configurate it */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		rc_lan_if(RC_START);
+#endif
 
 		/* bring up WAN interface link up but not configurate it */
 		/* LAN interface alias need it */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 		rc_wan_if(RC_START);
+#endif
 
 		/* bring up LAN interface link up and configurate it */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		rc_lan(RC_START);
+#endif
 
 		/* start LAN interface binding services */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		rc_lan_services(RC_START);
+#endif
 
 		/* bring up WAN interface link up and configurate it */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 		rc_wan(RC_START);
+#endif
 
 		/* FIXME: We do it in wan interface startup script */
 #if 0

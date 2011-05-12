@@ -5,19 +5,29 @@ extern int rc_base_files(int flag);
 extern int rc_ezcd(int flag);
 extern int rc_hotplug2(int flag);
 extern int rc_init(int flag);
-extern int rc_lan(int flag);
-extern int rc_lan_if(int flag);
 extern int rc_load_modules(int flag);
 extern int rc_login(int flag);
 extern int rc_loopback(int flag);
 extern int rc_netbase(int flag);
-extern int rc_syslog(int flag);
 extern int rc_system(int flag);
+#if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
+extern int rc_syslog(int flag);
+#endif
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 extern int rc_telnetd(int flag);
+#endif
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 extern int rc_dnsmasq(int flag);
+#endif
+#if (HAVE_EZBOX_LAN_NIC == 1)
+extern int rc_lan(int flag);
+extern int rc_lan_if(int flag);
+extern int rc_lan_services(int flag);
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
 extern int rc_wan(int flag);
 extern int rc_wan_if(int flag);
-extern int rc_lan_services(int flag);
 extern int rc_wan_services(int flag);
+#endif
 
 #endif

@@ -515,6 +515,35 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
 	return true;
 }
 
+static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
+{
+	char *p;
+	int ret;
+	int ip[4];
+	char buf[64];
+
+	/* ezcfg_socket.0.address */
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
+	if (p != NULL) {
+		ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+		free(p);
+		if (ret == 4) {
+			snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
+			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
+		}
+	}
+#else
+	p = NULL;
+	ip[0] = 127;
+	ip[1] = 0;
+	ip[2] = 0;
+	ip[3] = 1;
+	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
+	nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
+#endif
+}
+
 static void sync_ui_settings(struct ezcfg_nvram *nvram)
 {
 	char *p;
@@ -557,7 +586,8 @@ static void sync_ui_settings(struct ezcfg_nvram *nvram)
 	}
 }
 
-static void sync_lan_settings(struct ezcfg_nvram *nvram)
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
+static void sync_dnsmasq_settings(struct ezcfg_nvram *nvram)
 {
 	char *p;
 	int i, ret;
@@ -565,74 +595,106 @@ static void sync_lan_settings(struct ezcfg_nvram *nvram)
 	bool ip_ok = false, mask_ok = false;
 	char buf[64];
 
-	/* ezcfg_socket.0.address */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
+	ret = EZCFG_SERVICE_BINDING_UNKNOWN ;
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), &p);
 	if (p != NULL) {
-		ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
-		free(p);
-		if (ret == 4) {
-			snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
-			ip_ok = true;
-		}
+		ret = ezcfg_util_service_binding(p);
 	}
 
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, NETMASK), &p);
-	if (p != NULL) {
-		ret = sscanf(p, "%d.%d.%d.%d", &mask[0], &mask[1], &mask[2], &mask[3]);
-		free(p);
-		if (ret == 4) {
-			mask_ok = true;
-		}
+	/* get ip/netmask */
+	if (ret == EZCFG_SERVICE_BINDING_LAN) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
+	}
+	else if (ret == EZCFG_SERVICE_BINDING_WAN) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, IPADDR), &p);
+	}
+	else {
+		return ;
 	}
 
-	/* set lan_dhcpd_start_ipaddr */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
-	if (p != NULL) {
-		ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
-		free(p);
-		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
-			for(i = 0; i < 4; i++) {
-				ip2[i] &= (255 - mask[i]);
-				ip2[i] |= (ip[i] & mask[i]);
-			}
-			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), buf);
-		}
+	if (p == NULL) {
+		return ;
+	}
+	ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+	free(p);
+	if (ret != 4) {
+		return ;
 	}
 
-	/* set lan_dhcpd_end_ipaddr */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
-	if (p != NULL) {
-		ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
-		free(p);
-		if ((ret == 4) && (ip_ok == true) && (mask_ok == true)){
-			for(i = 0; i < 4; i++) {
-				ip2[i] &= (255 - mask[i]);
-				ip2[i] |= (ip[i] & mask[i]);
-			}
-			snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), buf);
-		}
+	if (ret == EZCFG_SERVICE_BINDING_LAN) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, NETMASK), &p);
+	}
+	else if (ret == EZCFG_SERVICE_BINDING_WAN) {
+		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, NETMASK), &p);
+	}
+	else {
+		return ;
+	}
+	if (p == NULL) {
+		return ;
+	}
+	ret = sscanf(p, "%d.%d.%d.%d", &mask[0], &mask[1], &mask[2], &mask[3]);
+	free(p);
+	if (ret != 4) {
+		return ;
 	}
 
-	/* set lan_dhcpd_enable */
+	/* set dnsmasq_dhcpd_start_ipaddr */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), &p);
+	if (p == NULL) {
+		return ;
+	}
+	ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
+	free(p);
+	if (ret == 4) {
+		for(i = 0; i < 4; i++) {
+			ip2[i] &= (255 - mask[i]);
+			ip2[i] |= (ip[i] & mask[i]);
+		}
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), buf);
+	}
+
+	/* set dnsmasq_dhcpd_end_ipaddr */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), &p);
+	if (p == NULL) {
+		return ;
+	}
+	ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
+	free(p);
+	if (ret == 4) {
+		for(i = 0; i < 4; i++) {
+			ip2[i] &= (255 - mask[i]);
+			ip2[i] |= (ip[i] & mask[i]);
+		}
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), buf);
+	}
+
+	/* set dnsmasq_dhcpd_enable */
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), &p);
-	if (p != NULL) {
-		if (strcmp(p, "0") == 0) {
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), p);
-		}
-		free(p);
+	if (p == NULL) {
+		return ;
 	}
+	if (strcmp(p, "0") == 0) {
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), p);
+	}
+	free(p);
 }
+#endif
 
 static void nvram_sync_entries(struct ezcfg_nvram *nvram)
 {
+	/* sync ezcfg settings */
+	sync_ezcfg_settings(nvram);
+
 	/* sync UI settings */
 	sync_ui_settings(nvram);
 
 	/* sync LAN settings */
-	sync_lan_settings(nvram);
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
+	sync_dnsmasq_settings(nvram);
+#endif
 }
 
 static void check_sys_settings(struct ezcfg_nvram *nvram)

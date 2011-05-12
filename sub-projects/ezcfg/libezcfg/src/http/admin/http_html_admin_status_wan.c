@@ -278,6 +278,7 @@ func_exit:
 	return si;
 }
 
+#if (HAVE_EZBOX_WAN_PPPOE == 1)
 static int set_status_wan_pppoe(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -303,7 +304,9 @@ static int set_status_wan_pppoe(
 func_exit:
 	return si;
 }
+#endif
 
+#if (HAVE_EZBOX_WAN_PPTP == 1)
 static int set_status_wan_pptp(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -329,7 +332,9 @@ static int set_status_wan_pptp(
 func_exit:
 	return si;
 }
+#endif
 
+#if (HAVE_EZBOX_WAN_L2TP == 1)
 static int set_status_wan_l2tp(
 	struct ezcfg_http_html_admin *admin,
 	struct ezcfg_locale *locale,
@@ -355,6 +360,7 @@ static int set_status_wan_l2tp(
 func_exit:
 	return si;
 }
+#endif
 
 struct type_handler {
 	char *name;
@@ -367,9 +373,15 @@ struct type_handler {
 static struct type_handler wan_type_handlers[] = {
 	{ "dhcp", set_status_wan_dhcp },
 	{ "static", set_status_wan_static },
+#if (HAVE_EZBOX_WAN_PPPOE == 1)
 	{ "pppoe", set_status_wan_pppoe },
+#endif
+#if (HAVE_EZBOX_WAN_PPTP == 1)
 	{ "pptp", set_status_wan_pptp },
+#endif
+#if (HAVE_EZBOX_WAN_L2TP == 1)
 	{ "l2tp", set_status_wan_l2tp },
+#endif
 };
 
 static int set_html_main_status_wan(

@@ -93,11 +93,11 @@ static int set_html_main_setup_lan_dhcpd(
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <p>Service Switch : <select name="lan_dhcpd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
 	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), &p);
 	if (p != NULL) {
 		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
@@ -143,8 +143,8 @@ static int set_html_main_setup_lan_dhcpd(
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), &p);
 		if (p != NULL) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			free(p);
@@ -174,8 +174,8 @@ static int set_html_main_setup_lan_dhcpd(
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "15", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), &p);
 		if (p != NULL) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			free(p);
@@ -206,8 +206,8 @@ static int set_html_main_setup_lan_dhcpd(
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_TEXT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_MAXLENGTH_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_SIZE_ATTRIBUTE_NAME, "5", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), &p);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE), &p);
 		if (p != NULL) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, p, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			free(p);
@@ -230,7 +230,7 @@ static int set_html_main_setup_lan_dhcpd(
 		p_index = child_index;
 		child_index = -1;
 		tmp[0] = '\0';
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), &p);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_WAN_DNS_ENABLE), &p);
 		if (p != NULL) {
 			snprintf(tmp, sizeof(tmp), "%s", p);
 			free(p);
@@ -244,7 +244,7 @@ static int set_html_main_setup_lan_dhcpd(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "1") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -258,7 +258,7 @@ static int set_html_main_setup_lan_dhcpd(
 			goto func_exit;
 		}
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_WAN_DNS_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "0") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
@@ -270,7 +270,7 @@ static int set_html_main_setup_lan_dhcpd(
 		/* set DHCP DNS server manually */
 		if (strcmp(tmp, "0") == 0) {
 			for (i = 1; i <= 3; i++) {
-				snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), i);
+				snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_DNS), i);
 				/* <p>Static DNS 1 : </p> */
 				snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
 					ezcfg_locale_text(locale, "Static DNS"), i);

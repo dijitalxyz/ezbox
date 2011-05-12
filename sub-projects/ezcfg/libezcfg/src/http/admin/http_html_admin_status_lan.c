@@ -77,7 +77,7 @@ static int set_html_main_status_lan_dhcpd(
 
 	/* <p>Service Switch : Enabled</p> */
 	i = -1;
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_ENABLE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), &p);
 	if (p != NULL) {
 		i = atoi(p);
 		free(p);
@@ -102,7 +102,7 @@ static int set_html_main_status_lan_dhcpd(
 	else {
 		if (i == 1) {
 			/* <p>Start IP Address : 192.168.1.50</p> */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_START_IPADDR), &p);
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), &p);
 			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
 				ezcfg_locale_text(locale, "Start IP Address"),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Start IP Address"));
@@ -123,7 +123,7 @@ static int set_html_main_status_lan_dhcpd(
 			}
 
 			/* <p>End IP Address : 192.168.1.50</p> */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_END_IPADDR), &p);
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), &p);
 			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
 				ezcfg_locale_text(locale, "End IP Address"),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown End IP Address"));
@@ -144,7 +144,7 @@ static int set_html_main_status_lan_dhcpd(
 			}
 
 			/* <p>Client Lease Time : 86400 Seconds</p> */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, DHCPD_LEASE), &p);
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE), &p);
 			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s %s",
 				ezcfg_locale_text(locale, "Client Lease Time"),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Lease Time"),

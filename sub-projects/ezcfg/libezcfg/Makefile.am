@@ -49,6 +49,7 @@ libezcfg_la_SOURCES += src/util/util_crc32.c
 libezcfg_la_SOURCES += src/util/util_conf.c
 libezcfg_la_SOURCES += src/util/util_language.c
 libezcfg_la_SOURCES += src/util/util_rc.c
+libezcfg_la_SOURCES += src/util/util_service_binding.c
 libezcfg_la_SOURCES += src/util/util_text.c
 libezcfg_la_SOURCES += src/util/util_tzdata.c
 libezcfg_la_SOURCES += src/util/util_wan.c
@@ -118,22 +119,30 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_layout_css.c
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_system.c
 
 # ezcfg HTML/HTTP admin status_lan handling
+if CONFIG_EZBOX_LAN_NIC
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_lan.c
+endif
 
 # ezcfg HTML/HTTP admin view_dhcp_client_table handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_view_dhcp_client_table.c
 
 # ezcfg HTML/HTTP admin status_wan handling
+if CONFIG_EZBOX_WAN_NIC
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_status_wan.c
+endif
 
 # ezcfg HTML/HTTP admin setup_system handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_system.c
 
 # ezcfg HTML/HTTP admin setup_lan handling
+if CONFIG_EZBOX_LAN_NIC
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_lan.c
+endif
 
 # ezcfg HTML/HTTP admin setup_wan handling
+if CONFIG_EZBOX_WAN_NIC
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_setup_wan.c
+endif
 
 # ezcfg HTML/HTTP admin management_authz handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_authz.c

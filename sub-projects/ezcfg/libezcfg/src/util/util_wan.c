@@ -38,9 +38,15 @@ struct wan_pair {
 struct wan_pair ezcfg_wan_types[] = {
 	{ "static", "Static IP" },
 	{ "dhcp", "Automatic Configuration - DHCP" },
+#if (HAVE_EZBOX_WAN_PPPOE == 1)
 	{ "pppoe", "PPPoE" },
+#endif
+#if (HAVE_EZBOX_WAN_PPTP == 1)
 	{ "pptp", "PPTP" },
+#endif
+#if (HAVE_EZBOX_WAN_L2TP == 1)
 	{ "l2tp", "L2TP" },
+#endif
 	{ "disabled", "Disabled" },
 };
 

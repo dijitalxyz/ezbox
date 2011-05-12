@@ -82,6 +82,7 @@ func_exit:
 	return ret;
 }
 
+#if (HAVE_EZBOX_LAN_NIC == 1)
 static int submenu_status_lan(struct ezcfg_html *html, int pi, int si, struct ezcfg_locale *locale)
 {
 	struct ezcfg *ezcfg;
@@ -126,7 +127,9 @@ func_exit:
 
 	return ret;
 }
+#endif
 
+#if (HAVE_EZBOX_WAN_NIC == 1)
 static int submenu_status_wan(struct ezcfg_html *html, int pi, int si, struct ezcfg_locale *locale)
 {
 	struct ezcfg *ezcfg;
@@ -138,7 +141,7 @@ static int submenu_status_wan(struct ezcfg_html *html, int pi, int si, struct ez
 
 	ezcfg = html->ezcfg;
 
-	/* status_lan */
+	/* status_wan */
 	/* submenu <ul> <li> */
 	li2_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_LI_ELEMENT_NAME, NULL);
 	if (li2_index < 0) {
@@ -171,6 +174,7 @@ func_exit:
 
 	return ret;
 }
+#endif
 
 
 /**
@@ -242,9 +246,14 @@ int ezcfg_http_html_admin_html_menu_status(
 	}
 #endif
 
-	if ((strcmp(section, "status_system") == 0) ||
-	    (strcmp(section, "status_lan") == 0) ||
-	    (strcmp(section, "status_wan") == 0)) {
+	if ((strcmp(section, "status_system") == 0)
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	 || (strcmp(section, "status_lan") == 0)
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
+	 || (strcmp(section, "status_wan") == 0)
+#endif
+	) {
 		/* submenu <ul> */
 		ul2_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
 		if (ul2_index < 0) {
@@ -263,19 +272,23 @@ int ezcfg_http_html_admin_html_menu_status(
 
 		/* status_lan */
 		/* submenu <ul> <li> */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		li2_index = submenu_status_lan(html, ul2_index, li2_index, locale);
 		if (li2_index < 0) {
 			err(ezcfg, "submenu_status_lan err.\n");
 			goto func_exit;
 		}
+#endif
 
 		/* status_wan */
 		/* submenu <ul> <li> */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 		li2_index = submenu_status_wan(html, ul2_index, li2_index, locale);
 		if (li2_index < 0) {
 			err(ezcfg, "submenu_status_wan err.\n");
 			goto func_exit;
 		}
+#endif
 	}
 
 	/* must return menu index */
