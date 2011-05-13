@@ -41,12 +41,20 @@ struct http_html_admin_handler {
 
 struct http_html_admin_handler adm_handlers[] = {
 	{ "status_system", ezcfg_http_html_admin_status_system_handler },
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	{ "status_lan", ezcfg_http_html_admin_status_lan_handler },
+#endif
 	{ "view_dhcp_client_table", ezcfg_http_html_admin_view_dhcp_client_table_handler },
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	{ "status_wan", ezcfg_http_html_admin_status_wan_handler },
+#endif
 	{ "setup_system", ezcfg_http_html_admin_setup_system_handler },
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	{ "setup_lan", ezcfg_http_html_admin_setup_lan_handler },
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	{ "setup_wan", ezcfg_http_html_admin_setup_wan_handler },
+#endif
 	{ "management_authz", ezcfg_http_html_admin_management_authz_handler },
 	{ "management_default", ezcfg_http_html_admin_management_default_handler },
 	{ "management_upgrade", ezcfg_http_html_admin_management_upgrade_handler },

@@ -355,19 +355,27 @@ int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin
 /* http/admin/http_html_admin_status_system.c */
 int ezcfg_http_html_admin_status_system_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_status_lan.c */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 int ezcfg_http_html_admin_status_lan_handler(struct ezcfg_http_html_admin *admin);
+#endif
 /* http/admin/http_html_admin_view_dhcp_client_table.c */
 int ezcfg_http_html_admin_view_dhcp_client_table_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_status_wan.c */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 int ezcfg_http_html_admin_status_wan_handler(struct ezcfg_http_html_admin *admin);
+#endif
 
 
 /* http/admin/http_html_admin_setup_system.c */
 int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *admin);
 /* http/admin/http_html_admin_setup_lan.c */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 int ezcfg_http_html_admin_setup_lan_handler(struct ezcfg_http_html_admin *admin);
+#endif
 /* http/admin/http_html_admin_setup_wan.c */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 int ezcfg_http_html_admin_setup_wan_handler(struct ezcfg_http_html_admin *admin);
+#endif
 
 
 /* http/admin/http_html_admin_management_authz.c */

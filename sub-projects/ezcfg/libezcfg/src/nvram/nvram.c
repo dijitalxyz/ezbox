@@ -525,6 +525,9 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 	/* ezcfg_socket.0.address */
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
+#else
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LOOPBACK, IPADDR), &p);
+#endif
 	if (p != NULL) {
 		ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
 		free(p);
@@ -533,15 +536,6 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
 		}
 	}
-#else
-	p = NULL;
-	ip[0] = 127;
-	ip[1] = 0;
-	ip[2] = 0;
-	ip[3] = 1;
-	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
-	nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
-#endif
 }
 
 static void sync_ui_settings(struct ezcfg_nvram *nvram)

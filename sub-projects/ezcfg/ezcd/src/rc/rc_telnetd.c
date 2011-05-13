@@ -49,27 +49,27 @@ int rc_telnetd(int flag)
 		return (EXIT_FAILURE);
 	}
 
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
-		if (rc < 0) {
-			return (EXIT_FAILURE);
-		}
-		rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
-		if (rc != 4) {
-			return (EXIT_FAILURE);
-		}
-	}
-	else if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+	} else
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
+	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
-		if (rc < 0) {
-			return (EXIT_FAILURE);
-		}
-		rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
-		if (rc != 4) {
-			return (EXIT_FAILURE);
-		}
+	} else
+#endif
+#if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
+	{
+		return (EXIT_FAILURE);
 	}
-	else {
+#endif
+
+	if (rc < 0) {
+		return (EXIT_FAILURE);
+	}
+	rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+	if (rc != 4) {
 		return (EXIT_FAILURE);
 	}
 

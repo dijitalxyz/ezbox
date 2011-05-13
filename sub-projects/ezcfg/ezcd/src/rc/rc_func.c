@@ -45,15 +45,25 @@ rc_func_t rc_functions[] = {
 	{ "ezcd", RC_BOOT, rc_ezcd },
 	{ "hotplug2", RC_BOOT, rc_hotplug2 },
 	{ "init", RC_BOOT, rc_init },
-	{ "lan", RC_BOOT, rc_lan },
-	{ "lan_if", RC_BOOT, rc_lan_if },
 	{ "load_modules", RC_BOOT, rc_load_modules },
 	{ "login", RC_BOOT, rc_login },
 	{ "loopback", RC_BOOT, rc_loopback },
 	{ "netbase", RC_BOOT, rc_netbase },
 	{ "system", RC_BOOT, rc_system },
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	{ "lan", RC_BOOT, rc_lan },
+	{ "lan_if", RC_BOOT, rc_lan_if },
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	{ "wan", RC_BOOT, rc_wan },
 	{ "wan_if", RC_BOOT, rc_wan_if },
+#endif
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
+	{ "telnetd", RC_BOOT, rc_telnetd },
+#endif
+#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
+	{ "dnsmasq", RC_BOOT, rc_dnsmasq },
+#endif
 };
 
 rc_func_t *utils_find_rc_func(char *name)
