@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=794
+PKG_REV:=799
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -67,6 +67,17 @@ endif
 
 CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
+
+# set distro NIC settings
+ifeq ($(EZBOX_DISTRO), "kuafu")
+CONFIGURE_ARGS += \
+	--disable-wan-nic
+endif
+
+ifeq ($(EZBOX_DISTRO), "qiaochui")
+CONFIGURE_ARGS += \
+	--disable-lan-nic
+endif
 
 # set telnet service
 ifneq ($(CONFIG_BUSYBOX_CONFIG_TELNETD),)
