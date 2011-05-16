@@ -58,7 +58,9 @@ ezcd_SOURCES += src/rc/rc_base_files.c
 ezcd_SOURCES += src/ubootenv.c
 
 # udhcpc script support
+if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/udhcpc_script.c
+endif
 
 # upgrade firmware support
 ezcd_SOURCES += src/upfw.c

@@ -20,10 +20,6 @@
 /* ezcfg loopback control names */
 /* Loopback H/W parameters */
 #define EZCFG_LOOPBACK_IFNAME                 "ifname"
-#define EZCFG_LOOPBACK_IFNAMES                "ifnames"
-#define EZCFG_LOOPBACK_HWNAME                 "hwname"
-#define EZCFG_LOOPBACK_HWADDR                 "hwaddr"
-#define EZCFG_LOOPBACK_PHYMODE                "phymode"
 
 /* Loopback TCP/IP parameters */
 #define EZCFG_LOOPBACK_IPADDR                 "ipaddr"

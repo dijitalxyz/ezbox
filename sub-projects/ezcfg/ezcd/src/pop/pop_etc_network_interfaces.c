@@ -48,6 +48,7 @@ static int set_loopback_interface(FILE *file)
 	return (EXIT_SUCCESS);
 }
 
+#if (HAVE_EZBOX_LAN_NIC == 1)
 static int set_lan_interface(FILE *file)
 {
 	char lan_ifname[IFNAMSIZ];
@@ -102,7 +103,9 @@ static int set_lan_interface(FILE *file)
 	fprintf(file, "\n");
 	return (EXIT_SUCCESS);
 }
+#endif
 
+#if (HAVE_EZBOX_WAN_NIC == 1)
 static int set_wan_interface(FILE *file)
 {
 	char wan_ifname[IFNAMSIZ];
@@ -213,6 +216,7 @@ static int set_wan_interface(FILE *file)
 	}
 	return (EXIT_SUCCESS);
 }
+#endif
 
 int pop_etc_network_interfaces(int flag)
 {
@@ -229,10 +233,14 @@ int pop_etc_network_interfaces(int flag)
 		set_loopback_interface(file);
 
 		/* set lan interface */
+#if (HAVE_EZBOX_LAN_NIC == 1)
 		set_lan_interface(file);
+#endif
 
 		/* set wan interface */
+#if (HAVE_EZBOX_WAN_NIC == 1)
 		set_wan_interface(file);
+#endif
 
 		break;
 	}

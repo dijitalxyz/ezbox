@@ -63,10 +63,12 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "ubootenv")) {
 		return ubootenv_main(argc, argv);
 	}
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	else if (!strcmp(name, "udhcpc.script") ||
 	         !strcmp(argv[0], UDHCPC_SCRIPT_PATH)) {
 		return udhcpc_script_main(argc, argv);
 	}
+#endif
 	else if (!strcmp(name, "upfw")) {
 		return upfw_main(argc, argv);
 	}

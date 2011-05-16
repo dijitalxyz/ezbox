@@ -127,6 +127,20 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* Support HTTPS protocol */
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), "0" },
 
+	/*--------------------*/
+	/* Loopback H/W parameters */
+	/*--------------------*/
+	/* Loopback interface name */
+	{ NVRAM_SERVICE_OPTION(LOOPBACK, IFNAME), "lo" },
+
+	/* Loopback TCP/IP parameters */
+	/* Loopback IP address */
+	{ NVRAM_SERVICE_OPTION(LOOPBACK, IPADDR),
+	  EZCFG_LOOPBACK_DEFAULT_IPADDR },
+	/* Loopback netmask */
+	{ NVRAM_SERVICE_OPTION(LOOPBACK, NETMASK),
+	  EZCFG_LOOPBACK_DEFAULT_NETMASK },
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	/*--------------------*/
 	/* LAN H/W parameters */
@@ -326,31 +340,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 };
 
-char *default_nvram_unsets[] = {
-	/* UI configuration */
-	NVRAM_SERVICE_OPTION(UI, TZ_AREA),
-	NVRAM_SERVICE_OPTION(UI, TZ_LOCATION),
-
-	/* WAN interface name */
-	NVRAM_SERVICE_OPTION(WAN, IFNAME),
-	/* WAN interface names */
-	NVRAM_SERVICE_OPTION(WAN, IFNAMES),
-	/* WAN IP address */
-	NVRAM_SERVICE_OPTION(WAN, IPADDR),
-	/* WAN netmask */
-	NVRAM_SERVICE_OPTION(WAN, NETMASK),
-	/* WAN gateway */
-	NVRAM_SERVICE_OPTION(WAN, GATEWAY),
-	/* WAN DNS server IP address */
-	NVRAM_SERVICE_OPTION(WAN, DNS1),
-	NVRAM_SERVICE_OPTION(WAN, DNS2),
-	NVRAM_SERVICE_OPTION(WAN, DNS3),
-	/* WAN domain name */
-	NVRAM_SERVICE_OPTION(WAN, DOMAIN),
-	/* WAN lease time in seconds */
-	NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE),
-};
-
 char *default_nvram_savings[] = {
 	NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER),
 	NVRAM_SERVICE_OPTION(SYS, LANGUAGE),
@@ -360,11 +349,6 @@ char *default_nvram_savings[] = {
 int ezcfg_nvram_get_num_default_nvram_settings(void)
 {
 	return ARRAY_SIZE(default_nvram_settings);
-}
-
-int ezcfg_nvram_get_num_default_nvram_unsets(void)
-{
-	return ARRAY_SIZE(default_nvram_unsets);
 }
 
 int ezcfg_nvram_get_num_default_nvram_savings(void)

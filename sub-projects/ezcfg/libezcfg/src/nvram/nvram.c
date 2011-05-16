@@ -110,10 +110,6 @@ struct ezcfg_nvram {
 	int num_default_settings;
 	ezcfg_nv_pair_t *default_settings;
 
-	/* default unsets */
-	int num_default_unsets;
-	char **default_unsets;
-
 	/* default savings */
 	int num_default_savings;
 	char **default_savings;
@@ -335,6 +331,64 @@ static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name,
 	return (strcmp(p, value) == 0);
 }
 
+static bool nvram_cleanup_runtime_entries(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	ezcfg_nv_pair_t *nvp;
+	int i;
+	char *data, *entry, *name, *p;
+	bool ret;
+
+	ezcfg = nvram->ezcfg;
+	data = nvram->buffer + sizeof(struct nvram_header);
+	entry = data;
+	while(*entry != '\0') {
+		p = strchr(entry, '=');
+		if (p == NULL) {
+			return false;
+		}
+
+		/* split name and value */
+		*p = '\0';
+		for (i=0; i<nvram->num_default_settings; i++) {
+			nvp = &nvram->default_settings[i];
+			if (strcmp(entry, nvp->name) == 0) {
+				break;
+			}
+		}
+
+		if (i == nvram->num_default_settings) {
+			/* not in default_settings, it's a runtime nvram */
+			name = strdup(entry);
+			if (name == NULL) {
+				*p = '=';
+				ret = false;
+				goto func_out;
+			}
+			/* restore '=' */
+			*p = '=';
+			ret = nvram_unset_entry(nvram, name);
+			free(name);
+			if (ret == false)
+				goto func_out;
+
+			/* try it again from the beginning */
+			/* FIXME: no we just do it at the same place again */
+			//entry = data;
+		}
+		else {
+			/* restore '=' */
+			*p = '=';
+			/* move to next entry */
+			entry += (strlen(entry) + 1);
+		}
+	}
+
+	ret = true;
+func_out:
+	return ret;
+}
+
 static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -344,9 +398,8 @@ static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 	ezcfg = nvram->ezcfg;
 
 	/* clean up runtime generated nvram values */
-	for (i=0; i<nvram->num_default_unsets; i++) {
-		nvram_unset_entry(nvram, nvram->default_unsets[i]);
-	}
+	if (nvram_cleanup_runtime_entries(nvram) == false)
+		return false;
 
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
@@ -404,9 +457,8 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 	nvram->free_space = nvram->total_space - sizeof(struct nvram_header) - nvram->used_space;
 
 	/* clean up runtime generated nvram values */
-	for (i=0; i<nvram->num_default_unsets; i++) {
-		nvram_unset_entry(nvram, nvram->default_unsets[i]);
-	}
+	if (nvram_cleanup_runtime_entries(nvram) == false)
+		goto init_exit;
 
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
@@ -757,10 +809,6 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	/* set default settings */
 	nvram->num_default_settings = ezcfg_nvram_get_num_default_nvram_settings();
 	nvram->default_settings = default_nvram_settings;
-
-	/* set default unsets */
-	nvram->num_default_unsets = ezcfg_nvram_get_num_default_nvram_unsets();
-	nvram->default_unsets = default_nvram_unsets;
 
 	/* set default savings */
 	nvram->num_default_savings = ezcfg_nvram_get_num_default_nvram_savings();

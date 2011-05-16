@@ -97,10 +97,8 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 
 /* nvram/nvram-defaults.c */
 extern ezcfg_nv_pair_t default_nvram_settings[];
-extern char *default_nvram_unsets[];
 extern char *default_nvram_savings[];
 int ezcfg_nvram_get_num_default_nvram_settings(void);
-int ezcfg_nvram_get_num_default_nvram_unsets(void);
 int ezcfg_nvram_get_num_default_nvram_savings(void);
 
 
