@@ -19,6 +19,15 @@ extern int rc_telnetd(int flag);
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 extern int rc_dnsmasq(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+extern int rc_iptables(int flag);
+#if (HAVE_EZBOX_LAN_NIC == 1)
+extern int rc_lan_iptables(int flag);
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
+extern int rc_wan_iptables(int flag);
+#endif
+#endif
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int flag);
 extern int rc_lan_if(int flag);

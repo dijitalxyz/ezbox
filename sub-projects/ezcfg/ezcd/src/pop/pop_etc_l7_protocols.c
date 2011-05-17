@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_banner.c
+ * Module Name  : pop_etc_l7_protocols.c
  *
- * Description  : ezbox /etc/banner file generating program
+ * Description  : ezbox /etc/l7-protocols/xxx.pat generating program
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2011-05-17   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,21 +36,27 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
-int pop_etc_banner(int flag)
+#if 0
+static int set_loopback_interface(FILE *file)
 {
-        FILE *file = NULL;
+	fprintf(file, "iface lo inet loopback\n");
+	fprintf(file, "\n");
+	return (EXIT_SUCCESS);
+}
+#endif
 
-	/* generate /etc/banner */
-	file = fopen("/etc/banner", "w");
-	if (file == NULL)
-		return (EXIT_FAILURE);
+int pop_etc_l7_protocols(int flag)
+{
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		break;
+	}
 
-	fprintf(file, "%s\n", "Welcome to ezbox :-)");
-	fprintf(file, "%s\n", "---------------------------------------------------");
-
-	fclose(file);
 	return (EXIT_SUCCESS);
 }

@@ -58,10 +58,20 @@ int rc_wan_services(int flag)
 		rc_dnsmasq(RC_START);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+		/* start iptables-provided service */
+		rc_wan_iptables(RC_START);
+#endif
+
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_STOP :
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+		/* stop iptables-provided service */
+		rc_wan_iptables(RC_STOP);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* stop dnsmasq service */
 		rc_dnsmasq(RC_STOP);

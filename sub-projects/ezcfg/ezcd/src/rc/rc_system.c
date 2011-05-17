@@ -121,6 +121,11 @@ int rc_system(int flag)
 		/* setup network base files */
 		rc_netbase(RC_BOOT);
 
+		/* setup iptables */
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+		rc_iptables(RC_BOOT);
+#endif
+
 		break;
 
 	case RC_RESTART :

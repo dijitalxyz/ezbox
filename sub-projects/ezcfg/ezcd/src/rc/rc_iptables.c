@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dnsmasq.c
+ * Module Name  : rc_iptables.c
  *
- * Description  : ezbox run dns & dhcp service
+ * Description  : firewall and port-mapping
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
+ * 2011-05-17   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -40,32 +40,64 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_dnsmasq(int flag)
+#if (HAVE_EZBOX_LAN_NIC == 1)
+int rc_lan_iptables(int flag)
 {
 	int rc;
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
+	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
 	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
-
-	if ((utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false) &&
-	   (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false)) {
 		return (EXIT_FAILURE);
 	}
 
 	switch (flag) {
 	case RC_START :
-		pop_etc_dnsmasq_conf(RC_START);
-		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
 		break;
 
 	case RC_STOP :
-		system("start-stop-daemon -K -n dnsmasq");
 		break;
 
 	case RC_RESTART :
-		rc = rc_dnsmasq(RC_STOP);
-		rc = rc_dnsmasq(RC_START);
+		rc = rc_lan_iptables(RC_STOP);
+		rc = rc_lan_iptables(RC_START);
+		break;
+	}
+	return (EXIT_SUCCESS);
+}
+#endif
+
+#if (HAVE_EZBOX_WAN_NIC == 1)
+int rc_wan_iptables(int flag)
+{
+	int rc;
+	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
+	if (rc < 0) {
+		return (EXIT_FAILURE);
+	}
+
+	switch (flag) {
+	case RC_START :
+		pop_etc_l7_protocols(RC_START);
+		break;
+
+	case RC_STOP :
+		pop_etc_l7_protocols(RC_STOP);
+		break;
+
+	case RC_RESTART :
+		rc = rc_wan_iptables(RC_STOP);
+		rc = rc_wan_iptables(RC_START);
+		break;
+	}
+	return (EXIT_SUCCESS);
+}
+#endif
+
+int rc_iptables(int flag)
+{
+	switch (flag) {
+	case RC_BOOT :
+		/* manage iptables configuration options */
+		mkdir("/etc/l7-protocols", 0755);
 		break;
 	}
 	return (EXIT_SUCCESS);

@@ -120,6 +120,12 @@ ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
 ezcd_SOURCES += src/rc/rc_dnsmasq.c
 endif
 
+# iptables service
+if CONFIG_EZBOX_SERVICE_IPTABLES
+ezcd_SOURCES += src/pop/pop_etc_l7_protocols.c
+ezcd_SOURCES += src/rc/rc_iptables.c
+endif
+
 # LAN side binding services
 if CONFIG_EZBOX_LAN_NIC
 ezcd_SOURCES += src/rc/rc_lan_services.c
