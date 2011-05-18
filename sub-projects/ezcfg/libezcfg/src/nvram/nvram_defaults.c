@@ -338,6 +338,12 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_DNS3), "" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+	/* iptables enabled */
+	{ NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(RC, IPTABLES_BINDING), "wan" },
+#endif
+
 };
 
 char *default_nvram_savings[] = {

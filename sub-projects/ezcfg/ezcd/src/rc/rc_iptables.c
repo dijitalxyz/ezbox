@@ -92,6 +92,59 @@ int rc_wan_iptables(int flag)
 }
 #endif
 
+/* FIXME: be careful of the sequences */
+static char * iptables_modules[] = {
+	"x_tables",
+	"ip_tables",
+	"iptable_filter",
+	"nf_conntrack",
+	"nf_defrag_ipv4",
+	"nf_conntrack_ipv4",
+	"nf_nat",
+	"iptable_nat",
+};
+
+int rc_load_iptables_modules(int flag)
+{
+	char cmdline[64];
+	int ret, i;
+	char *kver;
+
+	kver = utils_get_kernel_version();
+	if (kver == NULL)
+		return (EXIT_FAILURE);
+
+	switch (flag) {
+	case RC_START :
+		for (i = 0; i < ARRAY_SIZE(iptables_modules); i++) {
+			snprintf(cmdline, sizeof(cmdline),
+			         "%s /lib/modules/%s/%s.ko",
+			         CMD_INSMOD, kver, iptables_modules[i]);
+
+			ret = system(cmdline);
+		}
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_STOP :
+		for (i = ARRAY_SIZE(iptables_modules)-1; i >= 0; i--) {
+			snprintf(cmdline, sizeof(cmdline),
+			         "%s %s", CMD_RMMOD, iptables_modules[i]);
+
+			ret = system(cmdline);
+		}
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
+		break;
+	}
+
+	free(kver);
+	return ret;
+}
+
 int rc_iptables(int flag)
 {
 	switch (flag) {
@@ -99,6 +152,15 @@ int rc_iptables(int flag)
 		/* manage iptables configuration options */
 		mkdir("/etc/l7-protocols", 0755);
 		break;
+
+	case RC_START :
+		rc_load_iptables_modules(RC_START);
+		break;
+
+	case RC_STOP :
+		rc_load_iptables_modules(RC_STOP);
+		break;
 	}
 	return (EXIT_SUCCESS);
 }
+

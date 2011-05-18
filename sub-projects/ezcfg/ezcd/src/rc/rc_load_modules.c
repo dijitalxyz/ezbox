@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run load kernel modules service
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch
@@ -42,57 +42,60 @@
 
 int rc_load_modules(int flag)
 {
-	FILE *file;
-	char cmdline[64];
+	FILE *file = NULL;
 	char buf[32];
-	int ret;
-	char *kver, *cmd;
+	char cmdline[64];
+	int ret = EXIT_FAILURE;
+	char *kver = NULL;
 
-	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		cmd = "insmod";
-		break;
-	case RC_STOP :
-		cmd = "rmmod";
-		break;
-	default :
-		return (EXIT_FAILURE);
-	}
-
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
-
+	/* first generate /etc/modules */
 	pop_etc_modules(flag);
 
 	file = fopen("/etc/modules", "r");
 	if (file == NULL) {
-		free(kver);
 		return (EXIT_FAILURE);
 	}
 
-	while(fgets(buf, sizeof(buf), file) != NULL)
-	{
-		if(buf[0] != '#')
-		{
-			int len = strlen(buf);
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       buf[len] == '\r' || 
-			       buf[len] == '\n'))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-			if(len > 0)
-			{
-				snprintf(cmdline, sizeof(cmdline), "%s /lib/modules/%s/%s.ko", cmd, kver, buf);
-				ret = system(cmdline);
-			}
+	switch (flag) {
+	case RC_BOOT :
+	case RC_START :
+		kver = utils_get_kernel_version();
+		if (kver == NULL) {
+			ret = EXIT_FAILURE;
+			goto func_out;
 		}
+
+		while (utils_file_get_line(file,
+			 buf, sizeof(buf), "#", "\r\n") == true) {
+			snprintf(cmdline, sizeof(cmdline),
+			         "%s /lib/modules/%s/%s.ko",
+			         CMD_INSMOD, kver, buf);
+			ret = system(cmdline);
+		}
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_STOP :
+		while (utils_file_get_line(file,
+			 buf, sizeof(buf), "#", "\r\n") == true) {
+			snprintf(cmdline, sizeof(cmdline),
+			         "%s %s", CMD_INSMOD, buf);
+			ret = system(cmdline);
+		}
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
+		break;
 	}
-	free(kver);
-	fclose(file);
-	return (EXIT_SUCCESS);
+
+func_out:
+	if (kver != NULL)
+		free(kver);
+
+	if (file != NULL)
+		fclose(file);
+
+	return (ret);
 }

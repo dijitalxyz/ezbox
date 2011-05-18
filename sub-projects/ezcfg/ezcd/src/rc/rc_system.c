@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run system services
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-02   0.1       Write it from scratch
@@ -182,6 +182,11 @@ int rc_system(int flag)
 
 		/* load kernel modules */
 		rc_load_modules(RC_START);
+
+		/* load iptables/netfileter kernel modules */
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+		rc_iptables(RC_START);
+#endif
 
 		/* misc files for the base system */
 		rc_base_files(RC_START);

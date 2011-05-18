@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_base_files.c
+ * Module Name  : utils_file_get_line.c
  *
- * Description  : ezbox run base files service
+ * Description  : get a line from file
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2011-05-18   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -40,27 +40,25 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_base_files(int flag)
+bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove)
 {
-	char cmdline[256];
+	while(fgets(buf, size, fp) != NULL)
+	{
+		if(strchr(comment, buf[0]) == NULL)
+		{
+			int len = strlen(buf);
 
-	switch (flag) {
-	case RC_START :
-		/* set hostname */
-		pop_etc_hostname(RC_START);
-		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
-		system(cmdline);
+			while((len > 0) && 
+			      (buf[len] == '\0' || 
+			       (strchr(remove, buf[len]) != NULL)))
+			{
+				buf[len] = '\0';
+				len --;
+			}
 
-		/* generate /etc/profile */
-		pop_etc_profile(RC_START);
-
-		/* generate /etc/banner */
-		pop_etc_banner(RC_START);
-
-		/* generate /etc/mtab */
-		pop_etc_mtab(RC_START);
-		break;
+			if (len > 0)
+				return true;
+		}
 	}
-
-	return (EXIT_SUCCESS);
+	return false;
 }

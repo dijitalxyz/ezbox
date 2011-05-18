@@ -44,6 +44,7 @@ ezcd_SOURCES += src/utils/utils_get_kernel_version.c
 if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_get_wan_type.c
 endif
+ezcd_SOURCES += src/utils/utils_file_get_line.c
 ezcd_SOURCES += src/utils/utils_find_pid_by_name.c
 ezcd_SOURCES += src/utils/utils_crc32.c
 

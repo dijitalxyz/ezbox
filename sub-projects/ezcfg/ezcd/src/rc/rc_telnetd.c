@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run telnet service
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-17   0.1       Write it from scratch

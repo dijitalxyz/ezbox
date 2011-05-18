@@ -190,6 +190,25 @@ AC_ARG_ENABLE([service-dnsmasq],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DNSMASQ, test "x$config_ezbox_service_dnsmasq" = xyes)
 
+# Configure iptables service.
+config_ezbox_service_iptables=no
+AC_MSG_CHECKING([if iptables service is enabled])
+AC_ARG_ENABLE([service-iptables],
+	AS_HELP_STRING([--enable-service-iptables], [Enable iptables service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_IPTABLES], [1], [Enable iptables service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_iptables=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES, test "x$config_ezbox_service_iptables" = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.
