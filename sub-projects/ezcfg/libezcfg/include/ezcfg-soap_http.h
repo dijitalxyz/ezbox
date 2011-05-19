@@ -38,8 +38,12 @@ int ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcf
 #define EZCFG_SOAP_HTTP_NVRAM_GET_URI               "/ezcfg/nvram/soap-http/getNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_SET_URI               "/ezcfg/nvram/soap-http/setNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_UNSET_URI             "/ezcfg/nvram/soap-http/unsetNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_SET_MULTI_URI         "/ezcfg/nvram/soap-http/setMultiNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_LIST_URI              "/ezcfg/nvram/soap-http/listNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_INFO_URI              "/ezcfg/nvram/soap-http/infoNvram"
 #define EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI            "/ezcfg/nvram/soap-http/commitNvram"
+#define EZCFG_SOAP_HTTP_NVRAM_INSERT_SOCKET_URI     "/ezcfg/nvram/soap-http/insertSocket"
+
+/* ezcfg SOAP/HTTP socket handler */
 
 #endif

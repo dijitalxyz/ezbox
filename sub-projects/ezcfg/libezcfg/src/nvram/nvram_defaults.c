@@ -97,11 +97,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	  EZCFG_SOCKET_PROTO_HTTP_STRING },
 	/* EZCFG socket address */
 	{ NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS),
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	  EZCFG_LAN_DEFAULT_IPADDR
-#else
 	  EZCFG_LOOPBACK_DEFAULT_IPADDR
-#endif
 	  ":" EZCFG_PROTO_HTTP_PORT_NUMBER_STRING },
 
 	/* EZCFG authentication type */
@@ -126,6 +122,12 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTP), "1" },
 	/* Support HTTPS protocol */
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), "0" },
+	/* ezcfg HTTP server binding interface */
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING), "lan" },
+#else
+	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING), "wan" },
+#endif
 
 	/*--------------------*/
 	/* Loopback H/W parameters */

@@ -29,6 +29,9 @@
       <xs:element name="unsetNvram" type="xs:string"/>
       <xs:element name="unsetNvramResponse" type="tNvramResult"/>
 
+      <xs:element name="setMultiNvram" type="tNvramList"/>
+      <xs:element name="setMultiNvramResponse" type="tNvramResult"/>
+
       <xs:element name="listNvram" type="xs:string"/>
       <xs:element name="listNvramResponse" type="tNvramList"/>
 
@@ -102,6 +105,18 @@
       <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
     </operation>
 
+    <operation name="opSetMultiNvram"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="false">
+      <input messageLabel="In"
+         element="nvns:setMultiNvram"/>
+      <output messageLabel="Out"
+         element="nvns:setMultiNvramResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+      <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
+    </operation>
+
     <operation name="opListNvram"
        pattern="http://www.w3.org/ns/wsdl/in-out"
        style="http://www.w3.org/ns/wsdl/style/iri"
@@ -152,6 +167,9 @@
     <operation ref="tns:opUnsetNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
+    <operation ref="tns:opSetMultiNvram"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
+
     <operation ref="tns:opListNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
@@ -184,6 +202,10 @@
 
     <operation ref="tns:opUnsetNvram"
        whttp:location="unsetNvram/{unsetNvram}"/>
+
+    <operation ref="tns:opSetMultiNvram"
+       whttp:location="setMultiNvram/{name}"
+       whttp:method="POST"/>
 
     <operation ref="tns:opListNvram"
        whttp:location="listNvram"/>

@@ -102,6 +102,8 @@ static char * iptables_modules[] = {
 	"nf_conntrack_ipv4",
 	"nf_nat",
 	"iptable_nat",
+	"xt_state",
+	"xt_tcpudp",
 };
 
 int rc_load_iptables_modules(int flag)
