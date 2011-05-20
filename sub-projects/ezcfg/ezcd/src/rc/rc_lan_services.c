@@ -50,17 +50,20 @@ int rc_lan_services(int flag)
 	case RC_START :
 #if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
 		/* start syslogd/klogd */
-		rc_syslog(RC_START);
+		rc_lan_syslog(RC_START);
 #endif
+
+		/* start ezcfg httpd service */
+		rc_lan_ezcfg_httpd(RC_START);
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* start telnet service */
-		rc_telnetd(RC_START);
+		rc_lan_telnetd(RC_START);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* start dnsmasq service */
-		rc_dnsmasq(RC_START);
+		rc_lan_dnsmasq(RC_START);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
@@ -79,17 +82,20 @@ int rc_lan_services(int flag)
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* stop dnsmasq service */
-		rc_dnsmasq(RC_STOP);
+		rc_lan_dnsmasq(RC_STOP);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* stop telnet service */
-		rc_telnetd(RC_STOP);
+		rc_lan_telnetd(RC_STOP);
 #endif
+
+		/* stop ezcfg httpd service */
+		rc_lan_ezcfg_httpd(RC_STOP);
 
 #if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
 		/* stop syslogd/klogd */
-		rc_syslog(RC_STOP);
+		rc_lan_syslog(RC_STOP);
 #endif
 
 		ret = EXIT_SUCCESS;

@@ -48,14 +48,17 @@ int rc_wan_services(int flag)
 	switch (flag) {
 	case RC_BOOT :
 	case RC_START :
+		/* start ezcfg httpd service */
+		rc_wan_ezcfg_httpd(RC_START);
+
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* start telnet service */
-		rc_telnetd(RC_START);
+		rc_wan_telnetd(RC_START);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* start dnsmasq service */
-		rc_dnsmasq(RC_START);
+		rc_wan_dnsmasq(RC_START);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
@@ -74,13 +77,16 @@ int rc_wan_services(int flag)
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 		/* stop dnsmasq service */
-		rc_dnsmasq(RC_STOP);
+		rc_wan_dnsmasq(RC_STOP);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* stop telnet service */
-		rc_telnetd(RC_STOP);
+		rc_wan_telnetd(RC_STOP);
 #endif
+
+		/* stop ezcfg httpd service */
+		rc_wan_ezcfg_httpd(RC_STOP);
 
 		ret = EXIT_SUCCESS;
 		break;

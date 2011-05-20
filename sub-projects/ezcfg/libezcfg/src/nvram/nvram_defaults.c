@@ -311,13 +311,21 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 	/* telnetd enabled */
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1" },
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "lan" },
+#elif (HAVE_EZBOX_WAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING), "wan" },
+#endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 	/* dnsmasq enabled */
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1" },
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "lan" },
+#elif (HAVE_EZBOX_WAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "wan" },
+#endif
 	/* dnsmasq DHCP server */
 	/* Enable DHCP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), "1" },

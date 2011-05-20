@@ -43,6 +43,7 @@
 rc_func_t rc_functions[] = {
 	{ "base_files", RC_BOOT, rc_base_files },
 	{ "ezcd", RC_BOOT, rc_ezcd },
+	{ "ezcfg_httpd", RC_BOOT, rc_ezcfg_httpd },
 	{ "hotplug2", RC_BOOT, rc_hotplug2 },
 	{ "init", RC_BOOT, rc_init },
 	{ "load_modules", RC_BOOT, rc_load_modules },

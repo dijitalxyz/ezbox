@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_telnetd.c
+ * Module Name  : rc_ezcfg_httpd.c
  *
- * Description  : ezbox run telnet service
+ * Description  : ezbox run ezcfg httpd service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
+ * 2011-05-20   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,25 +38,26 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
-int rc_telnetd(int flag)
+int rc_ezcfg_httpd(int flag)
 {
 	int rc;
 	int ip[4];
 	char buf[256];
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
+	rc = nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
 
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
@@ -74,29 +75,43 @@ int rc_telnetd(int flag)
 		return (EXIT_FAILURE);
 	}
 
+	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+		ip[0], ip[1], ip[2], ip[3],
+		EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
+
 	switch (flag) {
 	case RC_START :
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/sh -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-		system(buf);
+		/* add ezcfg httpd listening socket */
+		ezcfg_api_nvram_insert_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_HTTP_STRING,
+			buf);
+
+		/* restart ezcfg daemon */
+		rc_ezcd(RC_RELOAD);
 		break;
 
 	case RC_STOP :
-		system("start-stop-daemon -K -n telnetd");
-		break;
+		/* add ezcfg httpd listening socket */
+		ezcfg_api_nvram_remove_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_HTTP_STRING,
+			buf);
 
-	case RC_RESTART :
-		rc = rc_telnetd(RC_STOP);
-		rc = rc_telnetd(RC_START);
+		/* restart ezcfg daemon */
+		rc_ezcd(RC_RELOAD);
 		break;
 	}
 	return (EXIT_SUCCESS);
 }
 
 #if (HAVE_EZBOX_LAN_NIC == 1)
-int rc_lan_telnetd(int flag)
+int rc_lan_ezcfg_httpd(int flag)
 {
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
-		return rc_telnetd(flag);
+	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
+		return rc_ezcfg_httpd(flag);
 	}
 	else {
 		return (EXIT_FAILURE);
@@ -105,10 +120,10 @@ int rc_lan_telnetd(int flag)
 #endif
 
 #if (HAVE_EZBOX_WAN_NIC == 1)
-int rc_wan_telnetd(int flag)
+int rc_wan_ezcfg_httpd(int flag)
 {
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
-		return rc_telnetd(flag);
+	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
+		return rc_ezcfg_httpd(flag);
 	}
 	else {
 		return (EXIT_FAILURE);

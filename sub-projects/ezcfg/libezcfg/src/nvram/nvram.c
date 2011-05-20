@@ -331,6 +331,190 @@ static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name,
 	return (strcmp(p, value) == 0);
 }
 
+static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
+	char *domain, char *type, char *protocol, char *address)
+{
+	char buf[32];
+	int i;
+	char *value;
+	char *domain2, *type2, *protocol2, *address2;
+	bool ret;
+
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+	while (i > 0) {
+		/* get nvram socket domain */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_DOMAIN);
+		ret = nvram_get_entry_value(nvram, buf, &domain2);
+
+		/* get nvram socket type */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_TYPE);
+		ret = nvram_get_entry_value(nvram, buf, &type2);
+
+		/* get nvram socket protocol */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_PROTOCOL);
+		ret = nvram_get_entry_value(nvram, buf, &protocol2);
+
+		/* get nvram socket address */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_ADDRESS);
+		ret = nvram_get_entry_value(nvram, buf, &address2);
+
+		if (domain2 != NULL && type2 != NULL &&
+		    protocol2 != NULL && address2 != NULL) {
+			if ((strcmp(domain, domain2) == 0) &&
+			    (strcmp(type, type2) == 0) &&
+			    (strcmp(protocol, protocol2) == 0) &&
+			    (strcmp(address, address2) == 0)) {
+				free(domain2);
+				free(type2);
+				free(protocol2);
+				free(domain2);
+				break;
+			}
+		}
+
+		if (domain2 != NULL)
+			free(domain2);
+		if (type2 != NULL)
+			free(type2);
+		if (protocol2 != NULL)
+			free(protocol2);
+		if (address2 != NULL)
+			free(domain2);
+		i--;
+	}
+
+	return i;
+}
+
+static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
+{
+	char buf[32];
+	int i;
+	char *value;
+	bool ret;
+
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+
+	if (i < index) {
+		return false;
+	}
+
+	/* put the last socket to index-th socket place */
+	if (index < i) {
+		/* get nvram socket domain */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_DOMAIN);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram socket domain */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_KEYWORD_DOMAIN);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram socket type */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_TYPE);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram socket type */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_KEYWORD_TYPE);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram socket protocol */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_PROTOCOL);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram socket protocol */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_KEYWORD_PROTOCOL);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram socket address */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, i-1,
+			EZCFG_EZCFG_KEYWORD_ADDRESS);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram socket address */
+		snprintf(buf, sizeof(buf), "%s.%d.%s",
+			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_KEYWORD_ADDRESS);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+	}
+
+	/* update socket number */
+	i--;
+	snprintf(buf, sizeof(buf), "%d", i);
+	ret = nvram_set_entry(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
+		buf);
+
+func_out:
+	return ret;
+}
+
 static bool nvram_cleanup_runtime_entries(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -1482,6 +1666,183 @@ bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, cha
 
 	ret = ezcfg_nvram_validate_value(ezcfg, name, value);
 
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name, *value;
+	char *domain, *type, *protocol, *address;
+	char buf[64];
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+	domain = NULL;
+	type = NULL;
+	protocol = NULL;
+	address = NULL;
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		if (strcmp(name, "domain") == 0) {
+			domain = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "type") == 0) {
+			type = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "protocol") == 0) {
+			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "address") == 0) {
+			address = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+	}
+
+	/* validate settings */
+	if ((domain == NULL) || (type == NULL) ||
+	    (protocol == NULL) || (address == NULL)) {
+		ret = false;
+		goto func_out;
+	}
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* get socket index in nvram */
+	i = nvram_get_socket_index(nvram, domain, type, protocol, address);
+	/* socket exist! */
+	if (i > 0) {
+		ret = true;
+		goto func_out;
+	}
+
+	/* add the new socket */
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+
+	/* set nvram socket domain */
+	snprintf(buf, sizeof(buf), "%s.%d.%s",
+		EZCFG_EZCFG_SECTION_SOCKET, i,
+		EZCFG_EZCFG_KEYWORD_DOMAIN);
+	ret = nvram_set_entry(nvram, buf, domain);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram socket type */
+	snprintf(buf, sizeof(buf), "%s.%d.%s",
+		EZCFG_EZCFG_SECTION_SOCKET, i,
+		EZCFG_EZCFG_KEYWORD_TYPE);
+	ret = nvram_set_entry(nvram, buf, type);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram socket protocol */
+	snprintf(buf, sizeof(buf), "%s.%d.%s",
+		EZCFG_EZCFG_SECTION_SOCKET, i,
+		EZCFG_EZCFG_KEYWORD_PROTOCOL);
+	ret = nvram_set_entry(nvram, buf, protocol);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram socket address */
+	snprintf(buf, sizeof(buf), "%s.%d.%s",
+		EZCFG_EZCFG_SECTION_SOCKET, i,
+		EZCFG_EZCFG_KEYWORD_ADDRESS);
+	ret = nvram_set_entry(nvram, buf, address);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* update socket number */
+	i++;
+	snprintf(buf, sizeof(buf), "%d", i);
+	ret = nvram_set_entry(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
+		buf);
+
+func_out:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name;
+	char *domain, *type, *protocol, *address;
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+	domain = NULL;
+	type = NULL;
+	protocol = NULL;
+	address = NULL;
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		if (strcmp(name, "domain") == 0) {
+			domain = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "type") == 0) {
+			type = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "protocol") == 0) {
+			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "address") == 0) {
+			address = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+	}
+
+	/* validate settings */
+	if ((domain == NULL) || (type == NULL) ||
+	    (protocol == NULL) || (address == NULL)) {
+		ret = false;
+		goto func_out;
+	}
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* get socket index in nvram */
+	i = nvram_get_socket_index(nvram, domain, type, protocol, address);
+	/* socket does not exist! */
+	if (i < 1) {
+		ret = true;
+		goto func_out;
+	}
+
+	/* remove the i-th socket */
+	ret = nvram_remove_socket_by_index(nvram, i);
+
+func_out:
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);
 

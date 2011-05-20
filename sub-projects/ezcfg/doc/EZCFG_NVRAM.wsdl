@@ -38,6 +38,12 @@
       <xs:element name="commitNvram" type="xs:string"/>
       <xs:element name="commitNvramResponse" type="tNvramResult"/>
 
+      <xs:element name="insertSocket" type="tNvramList"/>
+      <xs:element name="insertSocketResponse" type="tNvramResult"/>
+
+      <xs:element name="removeSocket" type="tNvramList"/>
+      <xs:element name="removeSocketResponse" type="tNvramResult"/>
+
       <xs:complexType name="tNvram">
         <xs:sequence>
           <xs:element name="name" type="xs:string"/>
@@ -139,6 +145,30 @@
       <outfault ref="tns:operationFailFault" messageLabel="Out"/>
     </operation>
 
+    <operation name="opInsertSocket"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="false">
+      <input messageLabel="In"
+         element="nvns:insertSocket"/>
+      <output messageLabel="Out"
+         element="nvns:insertSocketResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+      <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
+    </operation>
+
+    <operation name="opRemoveSocket"
+       pattern="http://www.w3.org/ns/wsdl/in-out"
+       style="http://www.w3.org/ns/wsdl/style/iri"
+       wsdlx:safe="false">
+      <input messageLabel="In"
+         element="nvns:removeSocket"/>
+      <output messageLabel="Out"
+         element="nvns:removeSocketResponse"/>
+      <outfault ref="tns:invalidNameFault" messageLabel="Out"/>
+      <outfault ref="tns:invalidValueFault" messageLabel="Out"/>
+    </operation>
+
   </interface>
 
   <!-- SOAP 1.2 binding -->
@@ -176,6 +206,12 @@
     <operation ref="tns:opCommitNvram"
        wsoap:mep="http://www.w3.org/2003/05/soap/mep/soap-response"/>
 
+    <operation ref="tns:opInsertSocket"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
+
+    <operation ref="tns:opRemoveSocket"
+       wsoap:mep="http://www.w3.org/2003/05/soap/mep/request-response"/>
+
   </binding>
 
   <!-- HTTP 1.1 binding -->
@@ -212,6 +248,14 @@
 
     <operation ref="tns:opCommitNvram"
        whttp:location="commitNvram"/>
+
+    <operation ref="tns:opInsertSocket"
+       whttp:location="insertSocket/{name}"
+       whttp:method="POST"/>
+
+    <operation ref="tns:opRemoveSocket"
+       whttp:location="removeSocket/{name}"
+       whttp:method="POST"/>
 
   </binding>
 

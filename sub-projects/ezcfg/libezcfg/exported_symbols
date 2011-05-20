@@ -5,6 +5,8 @@ ezcfg_api_nvram_list
 ezcfg_api_nvram_info
 ezcfg_api_nvram_commit
 ezcfg_api_nvram_set_debug
+ezcfg_api_nvram_insert_socket
+ezcfg_api_nvram_remove_socket
 ezcfg_api_ubootenv_get
 ezcfg_api_ubootenv_set
 ezcfg_api_ubootenv_list

@@ -134,6 +134,8 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2);
 bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
 bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
+bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list);
+bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list);
 
 
 /* auth/auth.c */

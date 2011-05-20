@@ -318,7 +318,7 @@ bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin)
 	list = admin->post_list;
 
 	list_length = ezcfg_link_list_get_length(list);
-	for(i = 1; i < list_length+1; i++) {
+	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
 		value = ezcfg_link_list_get_node_value_by_index(list, i);
 		ret = ezcfg_nvram_set_entry(nvram, name, value);

@@ -165,6 +165,9 @@
 #define EZCFG_SOAP_NVRAM_INSERT_SOCKET_ELEMENT_NAME      "nvns:insertSocket"
 #define EZCFG_SOAP_NVRAM_INSERT_SOCKET_RESPONSE_ELEMENT_NAME  \
 	"nvns:insertSocketNvramResponse"
+#define EZCFG_SOAP_NVRAM_REMOVE_SOCKET_ELEMENT_NAME      "nvns:removeSocket"
+#define EZCFG_SOAP_NVRAM_REMOVE_SOCKET_RESPONSE_ELEMENT_NAME  \
+	"nvns:removeSocketNvramResponse"
 #define EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME               "nvns:name"
 #define EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME              "nvns:value"
 #define EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME             "nvns:result"

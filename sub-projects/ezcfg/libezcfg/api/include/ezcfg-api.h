@@ -17,6 +17,11 @@ int ezcfg_api_nvram_insert_socket(
 	const char *type,
 	const char *protocol,
 	const char *address);
+int ezcfg_api_nvram_remove_socket(
+	const char *domain,
+	const char *type,
+	const char *protocol,
+	const char *address);
 
 /* u-boot-env interface */
 int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
