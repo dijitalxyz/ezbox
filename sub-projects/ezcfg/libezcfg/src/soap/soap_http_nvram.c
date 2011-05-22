@@ -1848,7 +1848,7 @@ set_multi_out:
 			goto insert_socket_out;
 		}
 
-		/* get setMultiNvram part */
+		/* get insertSocket part */
 		body_index = ezcfg_soap_get_body_index(soap);
 		sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_INSERT_SOCKET_ELEMENT_NAME);
 
@@ -1881,7 +1881,7 @@ set_multi_out:
 			}
 
 			/* get next nvram node index */
-			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
+			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
 		}
 insert_socket_out:
 		ret = build_nvram_insert_socket_response(sh, nvram, list);
@@ -1899,7 +1899,7 @@ insert_socket_out:
 			goto remove_socket_out;
 		}
 
-		/* get setMultiNvram part */
+		/* get removeSocket part */
 		body_index = ezcfg_soap_get_body_index(soap);
 		sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_REMOVE_SOCKET_ELEMENT_NAME);
 
@@ -1932,7 +1932,7 @@ insert_socket_out:
 			}
 
 			/* get next nvram node index */
-			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
+			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
 		}
 remove_socket_out:
 		ret = build_nvram_remove_socket_response(sh, nvram, list);

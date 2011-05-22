@@ -650,6 +650,12 @@ static bool is_soap_http_nvram_request(const char *uri)
 	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI) == 0) {
 		return true;
 	}
+	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_INSERT_SOCKET_URI) == 0) {
+		return true;
+	}
+	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SOCKET_URI) == 0) {
+		return true;
+	}
 	else {
 		return false;
 	}

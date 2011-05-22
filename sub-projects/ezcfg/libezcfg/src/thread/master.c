@@ -692,8 +692,8 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 		/* unlock mutex before handling listening_sockets */
 		pthread_mutex_unlock(&(master->ls_mutex));
 
-		/* wait up to five seconds. */
-		tv.tv_sec = 5;
+		/* wait up to ten seconds. */
+		tv.tv_sec = EZCFG_MASTER_WAIT_TIME;
 		tv.tv_usec = 0;
 
 		retval = select(max_fd + 1, &read_set, NULL, NULL, &tv);
@@ -727,7 +727,6 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 
 			/* unlock mutex before handling listening_sockets */
 			pthread_mutex_unlock(&(master->ls_mutex));
-			/* some error happened */
 		}
 	}
 
@@ -819,7 +818,15 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	ezcfg = master->ezcfg;
 
+	/* lock thread mutex */
 	pthread_mutex_lock(&(master->thread_mutex));
+
+	/* lock listening sockets mutex */
+	pthread_mutex_lock(&(master->ls_mutex));
+
+	/* wait all wokers stop first */
+	while (master->num_threads > 0)
+		pthread_cond_wait(&(master->thread_sync_cond), &(master->thread_mutex));
 
 	/* initialize ezcfg common info */
 	master_load_common_conf(master);
@@ -828,20 +835,24 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
 	ezcfg_nvram_initialize(master->nvram);
 
-	/* initialize listening_sockets */
-	pthread_mutex_lock(&(master->ls_mutex));
 	master_load_socket_conf(master);
-	pthread_mutex_unlock(&(master->ls_mutex));
 
-	/* initialize auths */
+	/* lock auths mutex */
 	pthread_mutex_lock(&(master->auth_mutex));
+
 	if (master->auths != NULL) {
 		ezcfg_auth_list_delete(&(master->auths));
 		master->auths = NULL;
 	}
 	master_load_auth_conf(master);
+
+	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+	/* unlock listening sockets mutex */
+	pthread_mutex_unlock(&(master->ls_mutex));
+
+	/* unlock thread mutex */
 	pthread_mutex_unlock(&(master->thread_mutex));
 }
 
@@ -882,7 +893,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	master->num_idle++;
 	while (master->sq_head == master->sq_tail) {
 		ts.tv_nsec = 0;
-		ts.tv_sec = time(NULL) + 5;
+		ts.tv_sec = time(NULL) + EZCFG_MASTER_WAIT_TIME;
 		if (pthread_cond_timedwait(&(master->sq_empty_cond), &(master->thread_mutex), &ts) != 0) {
 			// Timeout! release the mutex and return
 			pthread_mutex_unlock(&(master->thread_mutex));

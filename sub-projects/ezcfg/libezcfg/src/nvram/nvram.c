@@ -350,25 +350,29 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 	}
 	while (i > 0) {
 		/* get nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_DOMAIN);
 		ret = nvram_get_entry_value(nvram, buf, &domain2);
 
 		/* get nvram socket type */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_TYPE);
 		ret = nvram_get_entry_value(nvram, buf, &type2);
 
 		/* get nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		ret = nvram_get_entry_value(nvram, buf, &protocol2);
 
 		/* get nvram socket address */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_ADDRESS);
 		ret = nvram_get_entry_value(nvram, buf, &address2);
@@ -424,7 +428,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 	/* put the last socket to index-th socket place */
 	if (index < i) {
 		/* get nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_DOMAIN);
 		ret = nvram_get_entry_value(nvram, buf, &value);
@@ -434,7 +439,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* set nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, index-1,
 			EZCFG_EZCFG_KEYWORD_DOMAIN);
 		ret = nvram_set_entry(nvram, buf, value);
@@ -444,7 +450,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* get nvram socket type */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_TYPE);
 		ret = nvram_get_entry_value(nvram, buf, &value);
@@ -454,7 +461,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* set nvram socket type */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, index-1,
 			EZCFG_EZCFG_KEYWORD_TYPE);
 		ret = nvram_set_entry(nvram, buf, value);
@@ -464,7 +472,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* get nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		ret = nvram_get_entry_value(nvram, buf, &value);
@@ -474,7 +483,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* set nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, index-1,
 			EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		ret = nvram_set_entry(nvram, buf, value);
@@ -484,7 +494,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* get nvram socket address */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, i-1,
 			EZCFG_EZCFG_KEYWORD_ADDRESS);
 		ret = nvram_get_entry_value(nvram, buf, &value);
@@ -494,7 +505,8 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		}
 
 		/* set nvram socket address */
-		snprintf(buf, sizeof(buf), "%s.%d.%s",
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
 			EZCFG_EZCFG_SECTION_SOCKET, index-1,
 			EZCFG_EZCFG_KEYWORD_ADDRESS);
 		ret = nvram_set_entry(nvram, buf, value);
@@ -1737,7 +1749,8 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	}
 
 	/* set nvram socket domain */
-	snprintf(buf, sizeof(buf), "%s.%d.%s",
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_DOMAIN);
 	ret = nvram_set_entry(nvram, buf, domain);
@@ -1746,7 +1759,8 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	}
 
 	/* set nvram socket type */
-	snprintf(buf, sizeof(buf), "%s.%d.%s",
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_TYPE);
 	ret = nvram_set_entry(nvram, buf, type);
@@ -1755,7 +1769,8 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	}
 
 	/* set nvram socket protocol */
-	snprintf(buf, sizeof(buf), "%s.%d.%s",
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_PROTOCOL);
 	ret = nvram_set_entry(nvram, buf, protocol);
@@ -1764,7 +1779,8 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	}
 
 	/* set nvram socket address */
-	snprintf(buf, sizeof(buf), "%s.%d.%s",
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_ADDRESS);
 	ret = nvram_set_entry(nvram, buf, address);

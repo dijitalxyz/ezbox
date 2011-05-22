@@ -45,6 +45,7 @@ int rc_ezcfg_httpd(int flag)
 	int rc;
 	int ip[4];
 	char buf[256];
+
 	rc = nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
@@ -82,28 +83,33 @@ int rc_ezcfg_httpd(int flag)
 	switch (flag) {
 	case RC_START :
 		/* add ezcfg httpd listening socket */
-		ezcfg_api_nvram_insert_socket(
+		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_STREAM_STRING,
 			EZCFG_SOCKET_PROTO_HTTP_STRING,
 			buf);
 
 		/* restart ezcfg daemon */
-		rc_ezcd(RC_RELOAD);
+		if (rc >= 0) {
+			rc_ezcd(RC_RELOAD);
+		}
 		break;
 
 	case RC_STOP :
 		/* add ezcfg httpd listening socket */
-		ezcfg_api_nvram_remove_socket(
+		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_STREAM_STRING,
 			EZCFG_SOCKET_PROTO_HTTP_STRING,
 			buf);
 
 		/* restart ezcfg daemon */
-		rc_ezcd(RC_RELOAD);
+		if (rc >= 0) {
+			rc_ezcd(RC_RELOAD);
+		}
 		break;
 	}
+
 	return (EXIT_SUCCESS);
 }
 
