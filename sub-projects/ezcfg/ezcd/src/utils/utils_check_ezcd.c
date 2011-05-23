@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "utils.h"
 
-#if 0
+#if 1
 #define DBG printf
 #else
 #define DBG(format, arg...)
@@ -77,6 +77,7 @@ bool utils_ezcd_wait_up(int s)
 	if (s < 1) {
 		do {
 			sleep(1);
+			DBG("%s(%d)\n", __func__, __LINE__);
 		} while(utils_ezcd_is_up() == false);
 		return true;
 	}

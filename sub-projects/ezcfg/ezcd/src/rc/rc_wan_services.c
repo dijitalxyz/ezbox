@@ -49,7 +49,7 @@ int rc_wan_services(int flag)
 	case RC_BOOT :
 	case RC_START :
 		/* start ezcfg httpd service */
-		rc_wan_ezcfg_httpd(RC_START);
+		//rc_wan_ezcfg_httpd(RC_START);
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* start telnet service */
@@ -86,7 +86,7 @@ int rc_wan_services(int flag)
 #endif
 
 		/* stop ezcfg httpd service */
-		rc_wan_ezcfg_httpd(RC_STOP);
+		//rc_wan_ezcfg_httpd(RC_STOP);
 
 		ret = EXIT_SUCCESS;
 		break;

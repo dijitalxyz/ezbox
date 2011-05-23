@@ -44,8 +44,8 @@
 #define EZCD_PRIORITY                  -4
 #define EZCI_PRIORITY                  -2
 
-static int ezcd_exit;
-static int ezcd_state;
+static bool ezcd_exit = false;
+static int ezcd_state = RC_BOOT;
 static bool debug = false;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
@@ -85,7 +85,7 @@ static void signal_handler(int sig_num)
 		ezcd_state = RC_RELOAD;
 	}
 	else {
-		ezcd_exit = 1;
+		ezcd_exit = true;
 	}
 }
 
@@ -133,6 +133,7 @@ int ezcd_main(int argc, char **argv)
 	struct ezcfg_master *master = NULL;
 	int rc = 1;
 	int ret = -1;
+	sigset_t sigset;
 
 	for (;;) {
 		int c;
@@ -151,7 +152,8 @@ int ezcd_main(int argc, char **argv)
 			case 'h':
 			default:
 				ezcd_show_usage();
-				goto exit;
+				rc = 1;
+				return rc;
 		}
         }
 
@@ -176,12 +178,13 @@ int ezcd_main(int argc, char **argv)
 	if (write(STDERR_FILENO, 0, 0) < 0)
 		dup2(fd, STDERR_FILENO);
 
-	ezcd_exit = 0;
+	ezcd_exit = false;
 	ezcd_state = RC_BOOT;
 	signal(SIGCHLD, signal_handler);
 	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 	signal(SIGHUP, signal_handler);
+	sigemptyset(&sigset);
 
 	if (!debug) {
 		dup2(fd, STDIN_FILENO);
@@ -204,59 +207,80 @@ int ezcd_main(int argc, char **argv)
 		case -1:
 			/* error */
 			rc = 4;
-			goto exit;
+			return rc;
 
 		default:
 			/* parant process */
 			rc = 0;
-			goto exit;
+			return rc;
 		}
 	}
-
-	/* main process */
-	ezcfg = ezcfg_new();
-	if (ezcfg == NULL)
-		goto exit;
-
-	ezcfg_log_init("ezcd");
-	ezcfg_common_set_log_fn(ezcfg, log_fn);
-	info(ezcfg, "version %s\n", VERSION);
-
-	master = ezcfg_master_start(ezcfg);
-	if (master == NULL) {
-		err(ezcfg, "%s\n", "Cannot initialize ezcd master");
-		rc = 3;
-		goto exit;
-	}
-
-	info(ezcfg, "start\n");
-	ezcd_state = RC_START;
-
-	if (threads_max <= 0) {
-		int memsize = mem_size_mb();
-
-		/* set value depending on the amount of RAM */
-		if (memsize > 0)
-			threads_max = 2 + (memsize / 8);
-		else
-			threads_max = 2;
-	}
-	ezcfg_master_set_threads_max(master, threads_max);
 
         /* set scheduling priority for the main daemon process */
 	setpriority(PRIO_PROCESS, 0, EZCD_PRIORITY);
 
 	setsid();
 
-	fp = fopen("/dev/kmsg", "w");
-	if (fp != NULL) {
-		fprintf(fp, "<6>ezcd: starting version " VERSION "\n");
-		fclose(fp);
-	}
+	/* main process */
+	while (ezcd_exit == false) {
+		switch(ezcd_state) {
+		case RC_BOOT :
+			ezcfg = ezcfg_new();
+			if (ezcfg == NULL) {
+				ezcd_exit = true;
+				break;
+			}
 
-	while (ezcd_exit == 0) {
-		sleep(1);
-		if (ezcd_state == RC_RELOAD) {
+			ezcfg_log_init("ezcd");
+			ezcfg_common_set_log_fn(ezcfg, log_fn);
+			info(ezcfg, "version %s\n", VERSION);
+			info(ezcfg, "boot\n");
+			ezcd_state = RC_START;
+			break;
+
+		case RC_START :
+			info(ezcfg, "start\n");
+			master = ezcfg_master_start(ezcfg);
+			if (master == NULL) {
+				err(ezcfg, "%s\n", "Cannot initialize ezcd master");
+				ezcd_exit = true;
+				rc = 3;
+				break;
+			}
+
+			if (threads_max <= 0) {
+				int memsize = mem_size_mb();
+
+				/* set value depending on the amount of RAM */
+				if (memsize > 0)
+					threads_max = 2 + (memsize / 8);
+				else
+					threads_max = 2;
+			}
+			ezcfg_master_set_threads_max(master, threads_max);
+			fp = fopen("/dev/kmsg", "w");
+			if (fp != NULL) {
+				fprintf(fp, "<6>ezcd: starting version " VERSION "\n");
+				fclose(fp);
+			}
+
+			ezcd_state = RC_IDLE;
+			break;
+
+		case RC_STOP :
+			info(ezcfg, "stop\n");
+			fp = fopen("/dev/kmsg", "w");
+			if (fp != NULL) {
+				fprintf(fp, "<6>ezcd: stop\n");
+				fclose(fp);
+			}
+
+			ezcfg_master_stop(master);
+			ezcd_exit = true;
+			rc = 0;
+			break;
+
+		case RC_RELOAD :
 			/* show reload info */
 			info(ezcfg, "reload\n");
 			fp = fopen("/dev/kmsg", "w");
@@ -264,25 +288,30 @@ int ezcd_main(int argc, char **argv)
 				fprintf(fp, "<6>ezcd: reload\n");
 				fclose(fp);
 			}
-
 			ezcfg_master_reload(master);
-			ezcd_state = RC_START;
+			ezcd_state = RC_IDLE;
+			break;
+
+		case RC_IDLE :
+			/* show idle info */
+			info(ezcfg, "idle\n");
+			fp = fopen("/dev/kmsg", "w");
+			if (fp != NULL) {
+				fprintf(fp, "<6>ezcd: idle\n");
+				fclose(fp);
+			}
+			sigsuspend(&sigset);
+			break;
+
+		default:
+			info(ezcfg, "unknown\n");
+			ezcfg_master_stop(master);
+			ezcd_exit = true;
+			rc = 2;
+			break;
 		}
 	}
-	rc = 0;
 
-exit:
-	if (ezcfg != NULL) {
-		info(ezcfg, "stop\n");
-	}
-
-	fp = fopen("/dev/kmsg", "w");
-	if (fp != NULL) {
-		fprintf(fp, "<6>ezcd: stop\n");
-		fclose(fp);
-	}
-
-	ezcfg_master_stop(master);
 	ezcfg_delete(ezcfg);
 	ezcfg_log_close();
 	return rc;

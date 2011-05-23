@@ -131,6 +131,7 @@ bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_li
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_reload(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2);
 bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
 bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);
@@ -502,7 +503,7 @@ int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
 void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
-bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp);
+bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time);
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);

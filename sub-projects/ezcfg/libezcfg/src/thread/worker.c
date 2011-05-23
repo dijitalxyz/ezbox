@@ -1232,7 +1232,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 	master = worker->master;
 
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
-	       (ezcfg_master_get_socket(worker->master, worker->client) == true)) {
+	       (ezcfg_master_get_socket(worker->master, worker->client, EZCFG_WORKER_WAIT_TIME) == true)) {
 
 		/* record start working time */
 		worker->birth_time = time(NULL);

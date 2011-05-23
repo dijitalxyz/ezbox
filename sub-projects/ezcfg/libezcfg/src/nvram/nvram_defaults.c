@@ -27,7 +27,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
 #endif
-#if (HAVE_EZBOX_LAN_NIC == 1)
+#if (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WAN_NIC), "eth1" },
 #endif
 

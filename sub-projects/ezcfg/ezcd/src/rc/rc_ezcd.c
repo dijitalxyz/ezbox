@@ -93,12 +93,14 @@ int rc_ezcd(int flag)
 			int i;
 			for (i = 0; pidList[i].pid > 0; i++) {
 				kill(pidList[i].pid, SIGHUP);
+				/* wait for a second */
+				sleep(1);
 			}
 			free(pidList);
 		}
 
-		/* wait at most 10 seconds until nvram is ready */
-		if (utils_ezcd_wait_up(10) == false) {
+		/* wait until nvram is ready */
+		if (utils_ezcd_wait_up(0) == false) {
 			return (EXIT_FAILURE);
 		}
 

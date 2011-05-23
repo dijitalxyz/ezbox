@@ -50,10 +50,16 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	if (stacksize > 0)
-		pthread_attr_setstacksize(&attr, stacksize);
+	if (stacksize > 0) {
+		retval = pthread_attr_setstacksize(&attr, stacksize);
+		if (retval != 0) {
+			err(ezcfg, "%s: %s", __func__, strerror(retval));
+			return retval;
+		}
+	}
 
-	if ((retval = pthread_create(&thread_id, &attr, func, param)) != 0) {
+	retval = pthread_create(&thread_id, &attr, func, param);
+	if (retval != 0) {
 		err(ezcfg, "%s: %s", __func__, strerror(retval));
 	}
 	return retval;

@@ -413,7 +413,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 static void master_load_auth_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	char *p;
+	char *p = NULL;
 	int i;
 	int auth_number = -1;
 	struct ezcfg_auth *ap = NULL;
@@ -436,78 +436,109 @@ static void master_load_auth_conf(struct ezcfg_master *master)
 		ap = ezcfg_auth_new(ezcfg);
 
 		if (ap == NULL) {
-			goto continue_load;
+			continue;
 		}
 		/* authentication type */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_TYPE);
-		if (p != NULL) {
-			if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_BASIC_STRING) == 0) {
-				if (ezcfg_auth_set_type(ap, p) == false) {
-					goto continue_load;
-				}
-			}
-			else if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING) == 0) {
-				if (ezcfg_auth_set_type(ap, p) == false) {
-					goto continue_load;
-				}
-			}
-			else {
-				/* unknown auth type */
-				goto continue_load;
-			}
-			free(p);
-			p = NULL;
+		if (p == NULL) {
+			ezcfg_auth_delete(ap);
+			continue;
 		}
+
+		/* check auth type */
+		if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_BASIC_STRING) == 0) {
+			if (ezcfg_auth_set_type(ap, p) == false) {
+				ezcfg_auth_delete(ap);
+				free(p);
+				continue;
+			}
+		}
+		else if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING) == 0) {
+			if (ezcfg_auth_set_type(ap, p) == false) {
+				ezcfg_auth_delete(ap);
+				free(p);
+				continue;
+			}
+		}
+		else {
+			/* unknown auth type */
+			ezcfg_auth_delete(ap);
+			free(p);
+			continue;
+		}
+		free(p);
 
 		/* authentication user */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_USER);
-		if (p != NULL) {
-			if (ezcfg_auth_set_user(ap, p) == false) {
-				goto continue_load;
-			}
-			free(p);
+		if (p == NULL) {
+			ezcfg_auth_delete(ap);
+			continue;
 		}
+
+		/* check auth user */
+		if (ezcfg_auth_set_user(ap, p) == false) {
+			ezcfg_auth_delete(ap);
+			free(p);
+			continue;
+		}
+		free(p);
 
 		/* authentication realm */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_REALM);
-		if (p != NULL) {
-			if (ezcfg_auth_set_realm(ap, p) == false) {
-				goto continue_load;
-			}
-			free(p);
-			p = NULL;
+		if (p == NULL) {
+			ezcfg_auth_delete(ap);
+			continue;
 		}
+
+		/* check auth realm */
+		if (ezcfg_auth_set_realm(ap, p) == false) {
+			ezcfg_auth_delete(ap);
+			free(p);
+			continue;
+		}
+		free(p);
 
 		/* authentication domain */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
-		if (p != NULL) {
-			if (ezcfg_auth_set_domain(ap, p) == false) {
-				goto continue_load;
-			}
-			free(p);
-			p = NULL;
+		if (p == NULL) {
+			ezcfg_auth_delete(ap);
+			continue;
 		}
+
+		/* check auth domain */
+		if (ezcfg_auth_set_domain(ap, p) == false) {
+			ezcfg_auth_delete(ap);
+			free(p);
+			continue;
+		}
+		free(p);
 
 		/* authentication secret */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_SECRET);
-		if (p != NULL) {
-			if (ezcfg_auth_set_secret(ap, p) == false) {
-				goto continue_load;
-			}
-			free(p);
-			p = NULL;
+		if (p == NULL) {
+			ezcfg_auth_delete(ap);
+			continue;
 		}
+
+		/* check auth secret */
+		if (ezcfg_auth_set_secret(ap, p) == false) {
+			ezcfg_auth_delete(ap);
+			free(p);
+			continue;
+		}
+		free(p);
 
 		/* check if auth is valid */
 		if (ezcfg_auth_is_valid(ap) == false) {
-			info(ezcfg, "auth is invalid\n");
-			goto continue_load;
+			ezcfg_auth_delete(ap);
+			continue;
 		}
 
 		/* check if auth is already set */
 		if (ezcfg_auth_list_in(&(master->auths), ap) == true) {
 			info(ezcfg, "auth entry already set\n");
-			goto continue_load;
+			ezcfg_auth_delete(ap);
+			continue;
 		}
 
 		/* add new authentication */
@@ -518,13 +549,6 @@ static void master_load_auth_conf(struct ezcfg_master *master)
 		}
 		else {
 			err(ezcfg, "insert auth entry failed: %m\n");
-		}
-
-continue_load:
-		if (p != NULL) {
-			free(p);
-		}
-		if (ap != NULL) {
 			ezcfg_auth_delete(ap);
 		}
 	}
@@ -692,7 +716,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 		/* unlock mutex before handling listening_sockets */
 		pthread_mutex_unlock(&(master->ls_mutex));
 
-		/* wait up to ten seconds. */
+		/* wait up to EZCFG_MASTER_WAIT_TIME seconds. */
 		tv.tv_sec = EZCFG_MASTER_WAIT_TIME;
 		tv.tv_usec = 0;
 
@@ -737,10 +761,12 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
-	int stacksize = sizeof(struct ezcfg_master) * 2;
+	int stacksize;
 	struct ezcfg_socket * sp;
 
 	ASSERT(ezcfg != NULL);
+	//stacksize = sizeof(struct ezcfg_master) * 2;
+	stacksize = 0;
 
 	/* There must be a ctrl socket */
 	master = master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
@@ -776,21 +802,25 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-	/* lock mutex before handling listening_sockets */
-	pthread_mutex_lock(&(master->ls_mutex));
-	master_load_socket_conf(master);
-	/* unlock mutex after handling listening_sockets */
-	pthread_mutex_unlock(&(master->ls_mutex));
-
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
 	master_load_auth_conf(master);
 	/* unlock mutex after handling auths */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&(master->ls_mutex));
+	master_load_socket_conf(master);
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&(master->ls_mutex));
+
 start_thread:
 	/* Start master (listening) thread */
-	ezcfg_thread_start(ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_master_thread, master);
+	if (ezcfg_thread_start(ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
+		ASSERT(master->num_threads == 0);
+		ezcfg_master_delete(master);
+		master = NULL;
+	}
 	return master;
 }
 
@@ -828,17 +858,15 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	while (master->num_threads > 0)
 		pthread_cond_wait(&(master->thread_sync_cond), &(master->thread_mutex));
 
+	/* lock auths mutex */
+	pthread_mutex_lock(&(master->auth_mutex));
+
 	/* initialize ezcfg common info */
 	master_load_common_conf(master);
 
 	/* initialize nvram */
 	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
-	ezcfg_nvram_initialize(master->nvram);
-
-	master_load_socket_conf(master);
-
-	/* lock auths mutex */
-	pthread_mutex_lock(&(master->auth_mutex));
+	ezcfg_nvram_reload(master->nvram);
 
 	if (master->auths != NULL) {
 		ezcfg_auth_list_delete(&(master->auths));
@@ -848,6 +876,8 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
+
+	master_load_socket_conf(master);
 
 	/* unlock listening sockets mutex */
 	pthread_mutex_unlock(&(master->ls_mutex));
@@ -879,12 +909,13 @@ bool ezcfg_master_is_stop(struct ezcfg_master *master)
 	return (master->stop_flag != 0);
 }
 
-bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp)
+bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time)
 {
 	struct ezcfg *ezcfg;
 	struct timespec ts;
 
 	ASSERT(master != NULL);
+	ASSERT(wait_time >= 0);
 
 	ezcfg = master->ezcfg;
 
@@ -893,7 +924,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 	master->num_idle++;
 	while (master->sq_head == master->sq_tail) {
 		ts.tv_nsec = 0;
-		ts.tv_sec = time(NULL) + EZCFG_MASTER_WAIT_TIME;
+		ts.tv_sec = time(NULL) + wait_time;
 		if (pthread_cond_timedwait(&(master->sq_empty_cond), &(master->thread_mutex), &ts) != 0) {
 			// Timeout! release the mutex and return
 			pthread_mutex_unlock(&(master->thread_mutex));

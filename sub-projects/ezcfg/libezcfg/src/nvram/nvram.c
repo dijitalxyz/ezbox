@@ -35,6 +35,11 @@
 #define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
 #define NVRAM_VERSOIN_REV   0x03 /* version[3] */ 
 
+enum {
+	NV_INIT = 0,
+	NV_RELOAD,
+};
+
 static unsigned char default_magics[][4] = {
 	{ 'N', 'O', 'N', 'E' },
 	{ 'F', 'I', 'L', 'E' },
@@ -585,7 +590,7 @@ func_out:
 	return ret;
 }
 
-static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
+static bool nvram_load_by_defaults(struct ezcfg_nvram *nvram, const int flag)
 {
 	struct ezcfg *ezcfg;
 	ezcfg_nv_pair_t *nvp;
@@ -594,8 +599,10 @@ static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 	ezcfg = nvram->ezcfg;
 
 	/* clean up runtime generated nvram values */
-	if (nvram_cleanup_runtime_entries(nvram) == false)
-		return false;
+	if (flag == NV_INIT) {
+		if (nvram_cleanup_runtime_entries(nvram) == false)
+			return false;
+	}
 
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
@@ -608,7 +615,7 @@ static bool nvram_init_by_defaults(struct ezcfg_nvram *nvram)
 	return true;
 }
 
-static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
+static bool nvram_load_from_file(struct ezcfg_nvram *nvram, const int index, const int flag)
 {
 	struct ezcfg *ezcfg;
 	struct nvram_header *header;
@@ -624,19 +631,19 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 
 	fp = fopen(nvram->storage[index].path, "r");
 	if (fp == NULL) {
-		err(ezcfg, "can't open file for nvram init\n");
+		err(ezcfg, "can't open file for nvram load\n");
 		return false;
 	}
 
 	if (fread(nvram->buffer, nvram->total_space, 1, fp) < 1) {
 		err(ezcfg, "read nvram buffer error\n");
-		goto init_exit;
+		goto load_exit;
 	}
 
 	header = (struct nvram_header *)nvram->buffer;
 	if ((nvram->total_space - header->size) != 0) {
 		err(ezcfg, "nvram size is not matched\n");
-		goto init_exit;
+		goto load_exit;
 	}
 
 	data = nvram->buffer + sizeof(struct nvram_header);
@@ -645,7 +652,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 	crc = ezcfg_util_crc32((unsigned char *)data, nvram->total_space - sizeof(struct nvram_header));
 	if (header->crc != crc) {
 		err(ezcfg, "nvram crc is error.\n");
-		goto init_exit;
+		goto load_exit;
 	}
 
 	/* fill nvram space info */
@@ -653,8 +660,10 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 	nvram->free_space = nvram->total_space - sizeof(struct nvram_header) - nvram->used_space;
 
 	/* clean up runtime generated nvram values */
-	if (nvram_cleanup_runtime_entries(nvram) == false)
-		goto init_exit;
+	if (flag == NV_INIT) {
+		if (nvram_cleanup_runtime_entries(nvram) == false)
+			goto load_exit;
+	}
 
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
@@ -665,7 +674,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 				if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
 					err(ezcfg, "set nvram error.\n");
 					ret = false;
-					goto init_exit;
+					goto load_exit;
 				}
 			}
 		}
@@ -676,7 +685,7 @@ static bool nvram_init_from_file(struct ezcfg_nvram *nvram, const int index)
 
 	ret = true;
 
-init_exit:
+load_exit:
 	if (fp != NULL) {
 		fclose(fp);
 	}
@@ -684,7 +693,7 @@ init_exit:
 	return ret;
 }
 
-static bool nvram_init_from_flash(struct ezcfg_nvram *nvram, const int index)
+static bool nvram_load_from_flash(struct ezcfg_nvram *nvram, const int index, const int flag)
 {
 	return true;
 }
@@ -1500,7 +1509,7 @@ bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_p
 	return true;
 }
 
-bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
+bool ezcfg_nvram_load(struct ezcfg_nvram *nvram, int flag)
 {
 	struct ezcfg *ezcfg;
 	bool ret = false;
@@ -1522,26 +1531,26 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
-	/* break the loop when init is OK */
+	/* break the loop when load is OK */
 	for (i = 0; (ret == false) && (i < EZCFG_NVRAM_STORAGE_NUM); i++) {
 		switch (nvram->storage[i].backend) {
 		case EZCFG_NVRAM_BACKEND_NONE :
-			ret = nvram_init_by_defaults(nvram);
+			ret = nvram_load_by_defaults(nvram, flag);
 			break;
 
 		case EZCFG_NVRAM_BACKEND_FILE :
-			ret = nvram_init_from_file(nvram, i);
+			ret = nvram_load_from_file(nvram, i, flag);
 			if (ret == false) {
-				err(ezcfg, "nvram_init_from_file fail, use default settings.\n");
-				ret = nvram_init_by_defaults(nvram);
+				err(ezcfg, "nvram_load_from_file fail, use default settings.\n");
+				ret = nvram_load_by_defaults(nvram, flag);
 			}
 			break;
 
 		case EZCFG_NVRAM_BACKEND_FLASH :
-			ret = nvram_init_from_flash(nvram, i);
+			ret = nvram_load_from_flash(nvram, i, flag);
 			if (ret == false) {
-				err(ezcfg, "nvram_init_from_flash fail, use default settings.\n");
-				ret = nvram_init_by_defaults(nvram);
+				err(ezcfg, "nvram_load_from_flash fail, use default settings.\n");
+				ret = nvram_load_by_defaults(nvram, flag);
 			}
 			break;
 
@@ -1553,8 +1562,8 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 	}
 
 	/* check if restore_defaults is set */
-	if (nvram_match_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true) {
+	if ((flag == NV_INIT) && (nvram_match_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true)) {
 		struct ezcfg_link_list *list=NULL;
 		char *name, *value;
 
@@ -1587,7 +1596,7 @@ bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 		memset(nvram->buffer+sizeof(struct nvram_header)+nvram->used_space, '\0', nvram->free_space);
 
 		/* set default settings */
-		ret = nvram_init_by_defaults(nvram);
+		ret = nvram_load_by_defaults(nvram, flag);
 
 		/* restore the savings */
 		for(i=1; i<=ezcfg_link_list_get_length(list); i++) {
@@ -1616,6 +1625,16 @@ restore_out:
 	pthread_mutex_unlock(&nvram->mutex);
 
 	return ret;
+}
+
+bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
+{
+	return ezcfg_nvram_load(nvram, NV_INIT);
+}
+
+bool ezcfg_nvram_reload(struct ezcfg_nvram *nvram)
+{
+	return ezcfg_nvram_load(nvram, NV_RELOAD);
 }
 
 bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2)

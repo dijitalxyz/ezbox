@@ -46,7 +46,8 @@
 #define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
 //#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
-#define EZCFG_MASTER_WAIT_TIME	10
+#define EZCFG_MASTER_WAIT_TIME	5
+#define EZCFG_WORKER_WAIT_TIME	1
 
 /* ezcfg common definitions */
 #define EZCFG_COMMON_LOG_LEVEL_ERR_STRING     "err"
