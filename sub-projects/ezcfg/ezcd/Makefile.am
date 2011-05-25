@@ -67,9 +67,17 @@ endif
 ezcd_SOURCES += src/upfw.c
 
 # ezcd
-ezcd_SOURCES += src/pop/pop_etc_ezcfg_conf.c
+ezcd_SOURCES += src/pop/pop_etc_ezcd_conf.c
 ezcd_SOURCES += src/rc/rc_ezcd.c
 ezcd_SOURCES += src/rc/rc_ezcfg_httpd.c
+
+# nvram
+ezcd_SOURCES += src/pop/pop_etc_nvram_conf.c
+ezcd_SOURCES += src/rc/rc_nvram.c
+
+# ezcm
+ezcd_SOURCES += src/pop/pop_etc_ezcm_conf.c
+ezcd_SOURCES += src/rc/rc_ezcm.c
 
 # hotplug2
 ezcd_SOURCES += src/pop/pop_etc_hotplug2_rules.c

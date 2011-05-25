@@ -3,6 +3,8 @@
 
 extern int rc_base_files(int flag);
 extern int rc_ezcd(int flag);
+extern int rc_nvram(int flag);
+extern int rc_ezcm(int flag);
 
 extern int rc_ezcfg_httpd(int flag);
 #if (HAVE_EZBOX_LAN_NIC == 1)

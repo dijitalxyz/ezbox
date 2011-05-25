@@ -42,11 +42,16 @@
  *
  */
 
-int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param)
+int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,
+	pthread_t *thread_id,
+	ezcfg_thread_func_t func,
+	void *param)
 {
-	pthread_t thread_id;
 	pthread_attr_t attr;
 	int retval;
+
+	ASSERT(ezcfg != NULL);
+	ASSERT(thread_id != NULL);
 
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
@@ -58,7 +63,7 @@ int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t f
 		}
 	}
 
-	retval = pthread_create(&thread_id, &attr, func, param);
+	retval = pthread_create(thread_id, &attr, func, param);
 	if (retval != 0) {
 		err(ezcfg, "%s: %s", __func__, strerror(retval));
 	}

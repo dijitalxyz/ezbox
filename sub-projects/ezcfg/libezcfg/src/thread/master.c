@@ -35,6 +35,23 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 0
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 /*
  * ezcfg_master:
  *
@@ -42,6 +59,8 @@
  * Multi-threads model - master part.
  */
 struct ezcfg_master {
+	pthread_t thread_id;
+	sigset_t *sigset;
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
 	int threads_max; /* MAX number of threads */
@@ -70,7 +89,7 @@ struct ezcfg_master {
 	struct ezcfg_worker *workers; /* Worker list */
 };
 
-static void ezcfg_master_delete(struct ezcfg_master *master)
+static void master_delete(struct ezcfg_master *master)
 {
 	if (master == NULL)
 		return;
@@ -92,7 +111,7 @@ static void ezcfg_master_delete(struct ezcfg_master *master)
  *
  * Returns: a new ezcfg master
  **/
-static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
+static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
 
@@ -144,7 +163,7 @@ static struct ezcfg_master *ezcfg_master_new(struct ezcfg *ezcfg)
 	return master;
 
 fail_exit:
-	ezcfg_master_delete(master);
+	master_delete(master);
 	return NULL;
 }
 
@@ -223,7 +242,7 @@ static struct ezcfg_master *master_new_from_socket(struct ezcfg *ezcfg, const ch
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
 
-	master = ezcfg_master_new(ezcfg);
+	master = master_new(ezcfg);
 	if (master == NULL) {
 		err(ezcfg, "new master fail: %m\n");
 		return NULL;
@@ -253,7 +272,7 @@ static struct ezcfg_master *master_new_from_socket(struct ezcfg *ezcfg, const ch
 
 fail_exit:
 	/* don't delete sp, ezcfg_master_delete will do it! */
-	ezcfg_master_delete(master);
+	master_delete(master);
 	return NULL;
 }
 
@@ -272,7 +291,7 @@ static void master_load_common_conf(struct ezcfg_master *master)
 	if (p != NULL) {
 		ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
 		free(p);
-		info(ezcfg, "log_priority='%d'\n", ezcfg_common_get_log_priority(ezcfg));
+		DBG("%s(%d) log_priority='%d'\n", __func__, __LINE__, ezcfg_common_get_log_priority(ezcfg));
 	}
 
 	/* find rules_path keyword */
@@ -280,14 +299,14 @@ static void master_load_common_conf(struct ezcfg_master *master)
 	if (p != NULL) {
 		ezcfg_util_remove_trailing_char(p, '/');
 		ezcfg_common_set_rules_path(ezcfg, p);
-		info(ezcfg, "rules_path='%s'\n", ezcfg_common_get_rules_path(ezcfg));
+		DBG("%s(%d) rules_path='%s'\n", __func__, __LINE__, ezcfg_common_get_rules_path(ezcfg));
 	}
 
 	/* get locale */
 	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
 	if (p != NULL) {
 		ezcfg_common_set_locale(ezcfg, p);
-		info(ezcfg, "locale='%s'\n", ezcfg_common_get_locale(ezcfg));
+		DBG("%s(%d) locale='%s'\n", __func__, __LINE__, ezcfg_common_get_locale(ezcfg));
 	}
 }
 
@@ -428,7 +447,6 @@ static void master_load_auth_conf(struct ezcfg_master *master)
 	if (p != NULL) {
 		auth_number = atoi(p);
 		free(p);
-		p = NULL;
 	}
 
 	for (i = 0; i < auth_number; i++) {
@@ -612,7 +630,7 @@ static void add_to_set(int fd, fd_set *set, int *max_fd)
 	}
 }
 
-// Master thread adds accepted socket to a queue
+/* Master thread adds accepted socket to a queue */
 static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *sp)
 {
 	struct ezcfg *ezcfg;
@@ -626,7 +644,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 
 	pthread_mutex_lock(&(master->thread_mutex));
 
-	// If the queue is full, wait
+	/* If the queue is full, wait */
 	while (master->sq_head - master->sq_tail >= master->sq_len) {
 		pthread_cond_wait(&(master->sq_full_cond), &(master->thread_mutex));
 	}
@@ -641,8 +659,8 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 		struct ezcfg_worker *worker;
 
 		worker = ezcfg_worker_new(master);
-		if (worker) {
-			if (ezcfg_thread_start(ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
+		if (worker != NULL) {
+			if (ezcfg_thread_start(ezcfg, stacksize, ezcfg_worker_get_thread_id(worker), (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
 				err(ezcfg, "Cannot start thread: %m\n");
 			} else {
 				master->num_threads++;
@@ -686,6 +704,16 @@ static bool accept_new_connection(struct ezcfg_master *master,
 	}
 	free(accepted);
 	return true;
+}
+
+pthread_t *ezcfg_master_get_thread_id(struct ezcfg_master *master)
+{
+	return &(master->thread_id);
+}
+
+void ezcfg_master_set_sigset(struct ezcfg_master *master, sigset_t *sigset)
+{
+	master->sigset = sigset;
 }
 
 void ezcfg_master_thread(struct ezcfg_master *master) 
@@ -765,7 +793,8 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	struct ezcfg_socket * sp;
 
 	ASSERT(ezcfg != NULL);
-	//stacksize = sizeof(struct ezcfg_master) * 2;
+
+	/* stacksize = sizeof(struct ezcfg_master) * 2; */
 	stacksize = 0;
 
 	/* There must be a ctrl socket */
@@ -816,9 +845,9 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 start_thread:
 	/* Start master (listening) thread */
-	if (ezcfg_thread_start(ezcfg, stacksize, (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
+	if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
 		ASSERT(master->num_threads == 0);
-		ezcfg_master_delete(master);
+		master_delete(master);
 		master = NULL;
 	}
 	return master;
@@ -836,7 +865,7 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 		sleep(1);
 
 	ASSERT(master->num_threads == 0);
-	ezcfg_master_delete(master);
+	master_delete(master);
 }
 
 void ezcfg_master_reload(struct ezcfg_master *master)
@@ -874,10 +903,10 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	}
 	master_load_auth_conf(master);
 
+	master_load_socket_conf(master);
+
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
-
-	master_load_socket_conf(master);
 
 	/* unlock listening sockets mutex */
 	pthread_mutex_unlock(&(master->ls_mutex));
@@ -926,7 +955,7 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 		ts.tv_nsec = 0;
 		ts.tv_sec = time(NULL) + wait_time;
 		if (pthread_cond_timedwait(&(master->sq_empty_cond), &(master->thread_mutex), &ts) != 0) {
-			// Timeout! release the mutex and return
+			/* Timeout! release the mutex and return */
 			pthread_mutex_unlock(&(master->thread_mutex));
 			return false;
 		}

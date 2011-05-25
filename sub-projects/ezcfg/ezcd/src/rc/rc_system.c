@@ -118,6 +118,12 @@ int rc_system(int flag)
 		/* start ezcfg daemon */
 		rc_ezcd(RC_BOOT);
 
+		/* setup nvram config file */
+		rc_nvram(RC_BOOT);
+
+		/* setup ezcm config file */
+		rc_ezcm(RC_BOOT);
+
 		/* setup network base files */
 		rc_netbase(RC_BOOT);
 
@@ -154,6 +160,12 @@ int rc_system(int flag)
 		rc_lan(RC_STOP);
 #endif
 
+		/* setup ezcm config file */
+		rc_ezcm(RC_STOP);
+
+		/* setup nvram config file */
+		rc_nvram(RC_STOP);
+
 		/* stop ezcfg daemon */
 		rc_ezcd(RC_STOP);
 
@@ -173,6 +185,12 @@ int rc_system(int flag)
 
 		/* restart ezcfg daemon */
 		rc_ezcd(RC_RELOAD);
+
+		/* re-generate nvram config file */
+		rc_nvram(RC_RELOAD);
+
+		/* re-generate ezcm config file */
+		rc_ezcm(RC_RELOAD);
 
 		/* restart hotplug2 */
 		rc_hotplug2(RC_RESTART);

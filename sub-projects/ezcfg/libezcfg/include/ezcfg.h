@@ -38,6 +38,7 @@
 #define EZCFG_LOCALE_MAX          32
 
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
+#define EZCFG_NVRAM_CONFIG_FILE_PATH	SYSCONFDIR "/nvram.conf"
 
 #define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
 //#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
@@ -304,7 +305,7 @@ void ezcfg_common_set_log_fn(struct ezcfg *ezcfg,
 int ezcfg_common_get_log_priority(struct ezcfg *ezcfg);
 void ezcfg_common_set_log_priority(struct ezcfg *ezcfg, int priority);
 
-struct ezcfg *ezcfg_new(void);
+struct ezcfg *ezcfg_new(char *path);
 void ezcfg_delete(struct ezcfg *ezcfg);
 
 /*

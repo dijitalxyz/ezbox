@@ -205,10 +205,13 @@ struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ez
  * Returns: a new ezcfg library context
  **/
 
-struct ezcfg *ezcfg_new(void)
+struct ezcfg *ezcfg_new(char *path)
 {
 	struct ezcfg *ezcfg = NULL;
 	char *p;
+
+	if (path == NULL)
+		return NULL;
 
 	ezcfg = calloc(1, sizeof(struct ezcfg));
 	if (ezcfg) {
@@ -220,7 +223,7 @@ struct ezcfg *ezcfg_new(void)
 		ezcfg_list_init(&ezcfg->properties_list);
 
 		/* set config file path */
-		ezcfg_common_set_config_file(ezcfg, EZCFG_CONFIG_FILE_PATH);
+		ezcfg_common_set_config_file(ezcfg, path);
 		dbg(ezcfg, "config_file='%s'\n", ezcfg->config_file);
 
 		/* find log_level keyword */

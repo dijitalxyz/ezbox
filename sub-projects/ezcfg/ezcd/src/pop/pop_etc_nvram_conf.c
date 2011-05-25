@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_ezcfg_conf.c
+ * Module Name  : pop_etc_nvram_conf.c
  *
- * Description  : ezbox /etc/ezcfg.conf generating program
+ * Description  : ezbox /etc/nvram.conf generating program
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2011-05-24   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-int pop_etc_ezcfg_conf(int flag)
+int pop_etc_nvram_conf(int flag)
 {
 	FILE *file;
 	char name[64];
@@ -54,8 +54,8 @@ int pop_etc_ezcfg_conf(int flag)
 	case RC_START :
 	case RC_RELOAD :
 	case RC_RESTART :
-		/* get ezcd config from nvram */
-		file = fopen(EZCFG_CONFIG_FILE_PATH, "w");
+		/* get nvram config from nvram */
+		file = fopen(NVRAM_CONFIG_FILE_PATH, "w");
 		if (file == NULL)
 			return (EXIT_FAILURE);
 

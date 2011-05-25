@@ -33,27 +33,6 @@
 
 #include "ezcd.h"
 
-static bool debug = false;
-
-static void log_fn(struct ezcfg *ezcfg, int priority,
-                   const char *file, int line, const char *fn,
-                   const char *format, va_list args)
-{
-	if (debug) {
-		char buf[1024];
-		struct timeval tv;
-		struct timezone tz;
-
-		vsnprintf(buf, sizeof(buf), format, args);
-		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
-		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, line, buf);
-	} else {
-		vsyslog(priority, format, args);
-        }
-}
-
 static void nvram_show_usage(void)
 {
 	printf("Usage: nvram [commands]\n");
@@ -105,7 +84,6 @@ int nvram_main(int argc, char **argv)
 	int rc = 0;
 	char *buf = NULL;
 	int buf_len;
-	struct ezcfg *ezcfg = NULL;
 
 	if (argc < 2) {
 		printf("need more arguments.\n");
@@ -113,15 +91,11 @@ int nvram_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-	ezcfg = ezcfg_new();
-	if (ezcfg == NULL) {
-		printf("error : %s\n", "ezcfg_new");
-		rc = -EZCFG_E_RESOURCE ;
+	rc = ezcfg_api_nvram_set_config_file(NVRAM_CONFIG_FILE_PATH);
+	if (rc < 0) {
+		printf("set nvram config file error.\n");
 		goto exit;
 	}
-
-	ezcfg_log_init("nvram");
-	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	if (strcmp(argv[1], "get") == 0) {
 		if (argc != 3) {
@@ -263,10 +237,6 @@ int nvram_main(int argc, char **argv)
 		nvram_show_usage();
 		rc = -EZCFG_E_ARGUMENT ;
 	}
-
 exit:
-	if (ezcfg != NULL)
-		ezcfg_delete(ezcfg);
-
         return rc;
 }

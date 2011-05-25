@@ -42,6 +42,7 @@
  * Multi-threads model - worker part.
  */
 struct ezcfg_worker {
+	pthread_t thread_id;
 	struct ezcfg *ezcfg;
 	struct ezcfg_worker *next; /* Linkage */
 	struct ezcfg_master *master;
@@ -51,6 +52,9 @@ struct ezcfg_worker {
 	time_t birth_time;
 	int64_t num_bytes_sent;
 };
+
+#define handle_error_en(en, msg) \
+	do { errno = en; perror(msg); } while (0)
 
 static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	struct ezcfg *ezcfg;
@@ -1203,7 +1207,12 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 
 }
 
-struct ezcfg_worker *ezcfg_worker_get_next(const struct ezcfg_worker *worker)
+pthread_t *ezcfg_worker_get_thread_id(struct ezcfg_worker *worker)
+{
+	return &(worker->thread_id);
+}
+
+struct ezcfg_worker *ezcfg_worker_get_next(struct ezcfg_worker *worker)
 {
 	ASSERT(worker != NULL);
 	return worker->next;
@@ -1225,11 +1234,26 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_master *master;
+	//sigset_t sigset;
+	//int s;
 
 	ASSERT(worker != NULL);
 
 	ezcfg = worker->ezcfg;
 	master = worker->master;
+
+	/* Block signal HUP, USR1 */
+	/* do it in root thread */
+#if 0
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGHUP);
+	sigaddset(&sigset, SIGUSR1);
+	s = pthread_sigmask(SIG_BLOCK, &sigset, NULL);
+	if (s != 0) {
+		handle_error_en(s, "pthread_sigmask");
+		goto worker_exit;
+	}
+#endif
 
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
 	       (ezcfg_master_get_socket(worker->master, worker->client, EZCFG_WORKER_WAIT_TIME) == true)) {

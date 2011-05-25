@@ -4,6 +4,7 @@
 #include "ezcfg-api-errno.h"
 
 /* NVRAM interface */
+int ezcfg_api_nvram_set_config_file(const char *path);
 int ezcfg_api_nvram_get(const char *name, char *value, size_t len);
 int ezcfg_api_nvram_set(const char *name, const char *value);
 int ezcfg_api_nvram_unset(const char *name);

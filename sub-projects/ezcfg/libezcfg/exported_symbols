@@ -1,3 +1,4 @@
+ezcfg_api_nvram_set_config_file
 ezcfg_api_nvram_get
 ezcfg_api_nvram_set
 ezcfg_api_nvram_unset

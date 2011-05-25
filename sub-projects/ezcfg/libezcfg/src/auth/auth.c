@@ -28,6 +28,23 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 0
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 struct ezcfg_auth {
 	struct ezcfg *ezcfg;
 
@@ -106,7 +123,7 @@ bool ezcfg_auth_delete(struct ezcfg_auth *auth)
 	}
 
 	if (auth->secret != NULL) {
-		free(auth->domain);
+		free(auth->secret);
 	}
 
 	free(auth);

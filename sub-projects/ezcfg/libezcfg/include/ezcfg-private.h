@@ -18,6 +18,7 @@
 #include <signal.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 #include "ezcfg.h"
 
@@ -92,7 +93,8 @@ char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char 
 
 
 /* thread/thread.c */
-int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize, ezcfg_thread_func_t func, void *param);
+int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,
+	pthread_t *thread_id, ezcfg_thread_func_t func, void *param);
 
 
 /* nvram/nvram-defaults.c */
@@ -499,6 +501,7 @@ struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
 void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
 /* thread/master.c */
+pthread_t *ezcfg_master_get_thread_id(struct ezcfg_master *master);
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
 void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
@@ -514,8 +517,9 @@ struct ezcfg_worker;
 /* worker inherits master's resource */
 void ezcfg_worker_delete(struct ezcfg_worker *worker);
 struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
+pthread_t *ezcfg_worker_get_thread_id(struct ezcfg_worker *worker);
 void ezcfg_worker_close_connection(struct ezcfg_worker *worker);
-struct ezcfg_worker *ezcfg_worker_get_next(const struct ezcfg_worker *worker);
+struct ezcfg_worker *ezcfg_worker_get_next(struct ezcfg_worker *worker);
 bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *next);
 void ezcfg_worker_thread(struct ezcfg_worker *worker);
 /* worker call this to notify master */

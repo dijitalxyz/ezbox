@@ -44,9 +44,26 @@
 #define EZCD_PRIORITY                  -4
 #define EZCI_PRIORITY                  -2
 
-static bool ezcd_exit = false;
-static int ezcd_state = RC_BOOT;
+#define handle_error_en(en, msg) \
+	do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
+
+#if 1
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 static bool debug = false;
+static int rc = EXIT_FAILURE;
+static pthread_t root_thread;
+static struct ezcfg *ezcfg = NULL;
+static struct ezcfg_master *master = NULL;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *file, int line, const char *fn,
@@ -64,28 +81,6 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 		        (int) getpid(), fn, line, buf);
 	} else {
 		vsyslog(priority, format, args);
-	}
-}
-
-static void signal_handler(int sig_num)
-{
-	FILE *fp;
-	fp = fopen("/dev/kmsg", "w");
-	if (fp != NULL) {
-		fprintf(fp, "<6>ezcd: catch siganl [%d]\n", sig_num);
-		fclose(fp);
-	}
-
-	if (sig_num == SIGCHLD) {
-		do {
-			/* nothing */
-		} while (waitpid(-1, &sig_num, WNOHANG) > 0);
-	}
-	else if (sig_num == SIGHUP) {
-		ezcd_state = RC_RELOAD;
-	}
-	else {
-		ezcd_exit = true;
 	}
 }
 
@@ -123,16 +118,45 @@ static int mem_size_mb(void)
 	return memsize;
 }
 
+static void *sig_thread(void *arg)
+{
+	sigset_t *set = (sigset_t *) arg;
+	int s, sig;
+
+	for (;;) {
+		s = sigwait(set, &sig);
+		if (s != 0) {
+			DBG("<6>ezcd: sigwait errno = [%d]\n", s);
+			continue;
+		}
+		DBG("<6>ezcd: Signal handling thread got signal %d\n", sig);
+		switch(sig) {
+		case SIGTERM :
+			ezcfg_master_stop(master);
+			ezcfg_delete(ezcfg);
+			ezcfg_log_close();
+			rc = EXIT_SUCCESS;
+			s = pthread_kill(root_thread, SIGHUP);
+			break;
+		case SIGUSR1 :
+			ezcfg_master_reload(master);
+			break;
+		default :
+			DBG("<6>ezcd: unknown signal [%d]\n", sig);
+			break;
+		}
+	}
+
+	return NULL;
+}
+
 int ezcd_main(int argc, char **argv)
 {
 	bool daemonize = false;
 	int fd = -1;
-	FILE *fp = NULL;
 	int threads_max = 0;
-	struct ezcfg *ezcfg = NULL;
-	struct ezcfg_master *master = NULL;
-	int rc = 1;
-	int ret = -1;
+	int s;
+	pthread_t thread;
 	sigset_t sigset;
 
 	for (;;) {
@@ -152,8 +176,7 @@ int ezcd_main(int argc, char **argv)
 			case 'h':
 			default:
 				ezcd_show_usage();
-				rc = 1;
-				return rc;
+				return (EXIT_FAILURE);
 		}
         }
 
@@ -163,7 +186,7 @@ int ezcd_main(int argc, char **argv)
 	}
 
 	/* set umask before creating any file/directory */
-	ret = chdir("/");
+	s = chdir("/");
 	umask(022);
 
 	mkdir("/var/ezcfg", 0777);
@@ -178,14 +201,6 @@ int ezcd_main(int argc, char **argv)
 	if (write(STDERR_FILENO, 0, 0) < 0)
 		dup2(fd, STDERR_FILENO);
 
-	ezcd_exit = false;
-	ezcd_state = RC_BOOT;
-	signal(SIGCHLD, signal_handler);
-	signal(SIGTERM, signal_handler);
-	signal(SIGINT, signal_handler);
-	signal(SIGHUP, signal_handler);
-	sigemptyset(&sigset);
-
 	if (!debug) {
 		dup2(fd, STDIN_FILENO);
 		dup2(fd, STDOUT_FILENO);
@@ -196,9 +211,7 @@ int ezcd_main(int argc, char **argv)
 
 	if (daemonize)
 	{
-		pid_t pid;
-
-		pid = fork();
+		pid_t pid = fork();
 		switch (pid) {
 		case 0:
 			/* child process */
@@ -206,13 +219,11 @@ int ezcd_main(int argc, char **argv)
 
 		case -1:
 			/* error */
-			rc = 4;
-			return rc;
+			return (EXIT_FAILURE);
 
 		default:
 			/* parant process */
-			rc = 0;
-			return rc;
+			return (EXIT_SUCCESS);
 		}
 	}
 
@@ -222,97 +233,58 @@ int ezcd_main(int argc, char **argv)
 	setsid();
 
 	/* main process */
-	while (ezcd_exit == false) {
-		switch(ezcd_state) {
-		case RC_BOOT :
-			ezcfg = ezcfg_new();
-			if (ezcfg == NULL) {
-				ezcd_exit = true;
-				break;
-			}
-
-			ezcfg_log_init("ezcd");
-			ezcfg_common_set_log_fn(ezcfg, log_fn);
-			info(ezcfg, "version %s\n", VERSION);
-			info(ezcfg, "boot\n");
-			ezcd_state = RC_START;
-			break;
-
-		case RC_START :
-			info(ezcfg, "start\n");
-			master = ezcfg_master_start(ezcfg);
-			if (master == NULL) {
-				err(ezcfg, "%s\n", "Cannot initialize ezcd master");
-				ezcd_exit = true;
-				rc = 3;
-				break;
-			}
-
-			if (threads_max <= 0) {
-				int memsize = mem_size_mb();
-
-				/* set value depending on the amount of RAM */
-				if (memsize > 0)
-					threads_max = 2 + (memsize / 8);
-				else
-					threads_max = 2;
-			}
-			ezcfg_master_set_threads_max(master, threads_max);
-			fp = fopen("/dev/kmsg", "w");
-			if (fp != NULL) {
-				fprintf(fp, "<6>ezcd: starting version " VERSION "\n");
-				fclose(fp);
-			}
-
-			ezcd_state = RC_IDLE;
-			break;
-
-		case RC_STOP :
-			info(ezcfg, "stop\n");
-			fp = fopen("/dev/kmsg", "w");
-			if (fp != NULL) {
-				fprintf(fp, "<6>ezcd: stop\n");
-				fclose(fp);
-			}
-
-			ezcfg_master_stop(master);
-			ezcd_exit = true;
-			rc = 0;
-			break;
-
-		case RC_RELOAD :
-			/* show reload info */
-			info(ezcfg, "reload\n");
-			fp = fopen("/dev/kmsg", "w");
-			if (fp != NULL) {
-				fprintf(fp, "<6>ezcd: reload\n");
-				fclose(fp);
-			}
-			ezcfg_master_reload(master);
-			ezcd_state = RC_IDLE;
-			break;
-
-		case RC_IDLE :
-			/* show idle info */
-			info(ezcfg, "idle\n");
-			fp = fopen("/dev/kmsg", "w");
-			if (fp != NULL) {
-				fprintf(fp, "<6>ezcd: idle\n");
-				fclose(fp);
-			}
-			sigsuspend(&sigset);
-			break;
-
-		default:
-			info(ezcfg, "unknown\n");
-			ezcfg_master_stop(master);
-			ezcd_exit = true;
-			rc = 2;
-			break;
-		}
+	DBG("<6>ezcd: booting...\n");
+	/* prepare signal handling thread */
+	sigemptyset(&sigset);
+	sigaddset(&sigset, SIGCHLD);
+	sigaddset(&sigset, SIGUSR1);
+	sigaddset(&sigset, SIGTERM);
+	s = pthread_sigmask(SIG_BLOCK, &sigset, NULL);
+	if (s != 0) {
+		DBG("<6>ezcd: pthread_sigmask\n");
+		handle_error_en(s, "pthread_sigmask");
 	}
 
-	ezcfg_delete(ezcfg);
-	ezcfg_log_close();
-	return rc;
+	/* get root thread id */
+	root_thread = pthread_self();
+
+	s = pthread_create(&thread, NULL, &sig_thread, (void *) &sigset);
+	if (s != 0) {
+		DBG("<6>ezcd: pthread_create\n");
+		handle_error_en(s, "pthread_create");
+	}
+
+	/* prepare master thread */
+	ezcfg = ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	if (ezcfg == NULL) {
+		DBG("<6>ezcd: boot failed\n");
+		return (EXIT_FAILURE);
+	}
+
+	ezcfg_log_init("ezcd");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
+
+	master = ezcfg_master_start(ezcfg);
+	if (master == NULL) {
+		DBG("<6>ezcd: Cannot initialize ezcd master\n");
+		ezcfg_delete(ezcfg);
+		ezcfg_log_close();
+		return (EXIT_FAILURE);
+	}
+
+	if (threads_max <= 0) {
+		int memsize = mem_size_mb();
+
+		/* set value depending on the amount of RAM */
+		if (memsize > 0)
+			threads_max = 2 + (memsize / 8);
+		else
+			threads_max = 2;
+	}
+	ezcfg_master_set_threads_max(master, threads_max);
+	DBG("<6>ezcd: starting version " VERSION "\n");
+
+	/* wait for exit signal */
+	pause();
+	return (rc);
 }

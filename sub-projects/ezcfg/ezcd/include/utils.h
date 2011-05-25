@@ -23,6 +23,15 @@
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
 
+/* ezcd command config file path */
+#define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"
+
+/* ezcm command config file path */
+#define EZCM_CONFIG_FILE_PATH	"/etc/ezcm.conf"
+
+/* nvram command config file path */
+#define NVRAM_CONFIG_FILE_PATH	"/etc/nvram.conf"
+
 /* udhcpc script path */
 #define UDHCPC_SCRIPT_PATH	"/usr/share/udhcpc/default.script"
 

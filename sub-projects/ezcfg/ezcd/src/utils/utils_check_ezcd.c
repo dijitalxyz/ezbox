@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "utils.h"
 
-#if 1
+#if 0
 #define DBG printf
 #else
 #define DBG(format, arg...)
@@ -65,6 +65,7 @@ bool utils_ezcd_is_up(void)
 
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), buf, sizeof(buf));
 	if (rc < 0) {
+		DBG("%s(%d) rc=[%d]\n", __func__, __LINE__, rc);
 		return false;
 	}
 	else {
@@ -75,19 +76,20 @@ bool utils_ezcd_is_up(void)
 bool utils_ezcd_wait_up(int s)
 {
 	if (s < 1) {
-		do {
+		while (utils_ezcd_is_up() == false) {
+			DBG("%s(%d) sleep 1 seconds\n", __func__, __LINE__);
 			sleep(1);
-			DBG("%s(%d)\n", __func__, __LINE__);
-		} while(utils_ezcd_is_up() == false);
+		}
 		return true;
 	}
 	else {
 		while(s > 0) {
-			sleep(1);
-			s--;
 			if (utils_ezcd_is_up() == true) {
 				return true;
 			}
+			DBG("%s(%d) sleep 1 seconds\n", __func__, __LINE__);
+			sleep(1);
+			s--;
 		}
 		return false;
 	}
