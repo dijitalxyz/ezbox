@@ -40,6 +40,39 @@
 #include "ezcd.h"
 #include "rc_func.h"
 
+#if 1
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+#define DBG2() do {\
+	pid_t pid = getpid(); \
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		char buf[32]; \
+		FILE *fp2; \
+		int i; \
+		for(i=pid; i<pid+30; i++) { \
+			snprintf(buf, sizeof(buf), "/proc/%d/stat", i); \
+			fp2 = fopen(buf, "r"); \
+			if (fp2) { \
+				if (fgets(buf, sizeof(buf)-1, fp2) != NULL) { \
+					fprintf(fp, "pid=[%d] buf=%s\n", i, buf); \
+				} \
+				fclose(fp2); \
+			} \
+		} \
+		fclose(fp); \
+	} \
+} while(0)
+
 int rc_system(int flag)
 {
         FILE *file = NULL;
@@ -167,16 +200,10 @@ int rc_system(int flag)
 		rc_nvram(RC_STOP);
 
 		/* stop ezcfg daemon */
+		/* before stopping wait for 3 seconds */
+		sleep(3);
 		rc_ezcd(RC_STOP);
 
-		if (flag == RC_STOP) {
-			snprintf(cmdline, sizeof(cmdline), "%s", CMD_POWEROFF);
-			system(cmdline);
-		}
-		else if (flag == RC_RESTART) {
-			snprintf(cmdline, sizeof(cmdline), "%s", CMD_REBOOT);
-			system(cmdline);
-		}
 		break;
 
 	case RC_START :

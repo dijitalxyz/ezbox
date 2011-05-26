@@ -96,7 +96,7 @@ int rc_ezcfg_httpd(int flag)
 		break;
 
 	case RC_STOP :
-		/* add ezcfg httpd listening socket */
+		/* delete ezcfg httpd listening socket */
 		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_STREAM_STRING,

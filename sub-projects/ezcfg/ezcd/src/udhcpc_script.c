@@ -55,9 +55,6 @@ static int udhcpc_deconfig(void)
 	/* stop WAN interface binding services */
 	rc_wan_services(RC_STOP);
 
-	snprintf(buf, sizeof(buf), "%s %s %s", CMD_IFCONFIG, iface, "0.0.0.0");
-	system(buf);
-
 	pop_etc_resolv_conf(RC_STOP);
 
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
@@ -69,6 +66,11 @@ static int udhcpc_deconfig(void)
 		snprintf(buf, sizeof(buf), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
 		rc = ezcfg_api_nvram_unset(buf);
 	}
+
+#if 0
+	snprintf(buf, sizeof(buf), "%s %s %s", CMD_IFCONFIG, iface, "0.0.0.0");
+	system(buf);
+#endif
 
 	return (EXIT_SUCCESS);
 }

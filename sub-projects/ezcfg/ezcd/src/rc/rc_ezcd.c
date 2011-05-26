@@ -41,10 +41,16 @@
 #include "utils.h"
 #include "pop_func.h"
 
-#if 0
-#define DBG printf
+#if 1
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
 #else
-#define DBG(format, arg...)
+#define DBG(format, args...)
 #endif
 
 int rc_ezcd(int flag)
@@ -76,10 +82,14 @@ int rc_ezcd(int flag)
 				kill(pidList[i].pid, SIGTERM);
 			}
 			free(pidList);
-			/* sleep 1 second to make sure ezcd is down */
-			sleep(1);
 			pidList = utils_find_pid_by_name("ezcd");
 		}
+
+		/* wait until ezcd is exit */
+		if (utils_ezcd_wait_down(0) == false) {
+			return (EXIT_FAILURE);
+		}
+
 		break;
 
 	case RC_RELOAD :
@@ -95,8 +105,6 @@ int rc_ezcd(int flag)
 			int i;
 			for (i = 0; pidList[i].pid > 0; i++) {
 				kill(pidList[i].pid, SIGUSR1);
-				/* wait for a second */
-				sleep(1);
 			}
 			free(pidList);
 		}
@@ -108,5 +116,6 @@ int rc_ezcd(int flag)
 
 		break;
 	}
+
 	return (EXIT_SUCCESS);
 }

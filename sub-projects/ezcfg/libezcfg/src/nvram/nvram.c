@@ -35,6 +35,23 @@
 #define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
 #define NVRAM_VERSOIN_REV   0x03 /* version[3] */ 
 
+#if 1
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 enum {
 	NV_INIT = 0,
 	NV_RELOAD,
@@ -353,7 +370,7 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 		i = atoi(value);
 		free(value);
 	}
-	while (i > 0) {
+	for( ; i >= 0; i--) {
 		/* get nvram socket domain */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
@@ -391,8 +408,8 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 				free(domain2);
 				free(type2);
 				free(protocol2);
-				free(domain2);
-				break;
+				free(address2);
+				return(i);
 			}
 		}
 
@@ -403,11 +420,9 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 		if (protocol2 != NULL)
 			free(protocol2);
 		if (address2 != NULL)
-			free(domain2);
-		i--;
+			free(address2);
 	}
-
-	return i;
+	return(0);
 }
 
 static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
@@ -775,22 +790,37 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
 static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 {
 	char *p;
-	int ret;
-	int ip[4];
+	int socket_number, i;
 	char buf[64];
 
-	/* ezcfg_socket.0.address */
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
-#else
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LOOPBACK, IPADDR), &p);
-#endif
+	/* ezcfg_common.socket_number */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), &p);
+	DBG("huedebug %s(%d)\n", __func__, __LINE__);
 	if (p != NULL) {
-		ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
+	DBG("huedebug %s(%d)\n", __func__, __LINE__);
+		socket_number = atoi(p);
+	DBG("huedebug %s(%d) socket_number=[%d]\n", __func__, __LINE__, socket_number);
 		free(p);
-		if (ret == 4) {
-			snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%d", ip[0], ip[1], ip[2], ip[3], EZCFG_PROTO_HTTP_PORT_NUMBER);
-			nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SOCKET_0_ADDRESS), buf);
+		for(i = 0; i < socket_number; i++) {
+	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
+			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+				EZCFG_EZCFG_NVRAM_PREFIX,
+				EZCFG_EZCFG_SECTION_SOCKET, i,
+				EZCFG_EZCFG_KEYWORD_DOMAIN);
+			nvram_get_entry_value(nvram, buf, &p);
+			if (p != NULL) {
+				/* It's OK for this socket setting */
+	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
+				free(p);
+			}
+			else {
+	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
+				snprintf(buf, sizeof(buf), "%d", i);
+	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), buf);
+	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
+				break;
+			}
 		}
 	}
 }
@@ -1742,8 +1772,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	/* validate settings */
 	if ((domain == NULL) || (type == NULL) ||
 	    (protocol == NULL) || (address == NULL)) {
-		ret = false;
-		goto func_out;
+		return(false);
 	}
 
 	/* lock nvram access */
@@ -1859,8 +1888,7 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	/* validate settings */
 	if ((domain == NULL) || (type == NULL) ||
 	    (protocol == NULL) || (address == NULL)) {
-		ret = false;
-		goto func_out;
+		return(false);
 	}
 
 	/* lock nvram access */

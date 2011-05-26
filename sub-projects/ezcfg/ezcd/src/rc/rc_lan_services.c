@@ -54,7 +54,7 @@ int rc_lan_services(int flag)
 #endif
 
 		/* start ezcfg httpd service */
-		//rc_lan_ezcfg_httpd(RC_START);
+		rc_lan_ezcfg_httpd(RC_START);
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		/* start telnet service */
@@ -91,7 +91,7 @@ int rc_lan_services(int flag)
 #endif
 
 		/* stop ezcfg httpd service */
-		//rc_lan_ezcfg_httpd(RC_STOP);
+		rc_lan_ezcfg_httpd(RC_STOP);
 
 #if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
 		/* stop syslogd/klogd */

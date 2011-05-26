@@ -40,25 +40,24 @@
 #include "ezcd.h"
 #include "utils.h"
 
-#if 0
-#define DBG printf
+#if 1
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
 #else
-#define DBG(format, arg...)
+#define DBG(format, args...)
 #endif
 
 bool utils_ezcd_is_alive(void)
 {
-	proc_stat_t *pidList;
-
-	pidList = utils_find_pid_by_name("ezcd");
-	if (pidList) {
-		free(pidList);
-		return true;
-	}
-	return false;
+	return utils_has_process_by_name("ezcd");
 }
 
-bool utils_ezcd_is_up(void)
+bool utils_ezcd_is_ready(void)
 {
 	char buf[64];
 	int rc;
@@ -76,15 +75,37 @@ bool utils_ezcd_is_up(void)
 bool utils_ezcd_wait_up(int s)
 {
 	if (s < 1) {
-		while (utils_ezcd_is_up() == false) {
-			DBG("%s(%d) sleep 1 seconds\n", __func__, __LINE__);
+		while (utils_ezcd_is_ready() == false) {
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
 			sleep(1);
 		}
 		return true;
 	}
 	else {
 		while(s > 0) {
-			if (utils_ezcd_is_up() == true) {
+			if (utils_ezcd_is_ready() == true) {
+				return true;
+			}
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
+			sleep(1);
+			s--;
+		}
+		return false;
+	}
+}
+
+bool utils_ezcd_wait_down(int s)
+{
+	if (s < 1) {
+		while (utils_ezcd_is_alive() == true) {
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
+			sleep(1);
+		}
+		return true;
+	}
+	else {
+		while(s > 0) {
+			if (utils_ezcd_is_alive() == false) {
 				return true;
 			}
 			DBG("%s(%d) sleep 1 seconds\n", __func__, __LINE__);

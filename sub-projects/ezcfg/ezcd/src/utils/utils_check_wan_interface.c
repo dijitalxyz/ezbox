@@ -113,9 +113,53 @@ bool utils_wan_interface_is_up(void)
 
 	close(sockfd);
 
-	if (!(ifreq.ifr_flags & IFF_UP) || (ipaddr == 0)){
+	if (!(ifreq.ifr_flags & IFF_UP) || (ipaddr == 0)) {
 		return false;
 	}
 
 	return true;
+}
+
+bool utils_wan_interface_wait_up(int s)
+{
+	if (s < 1) {
+		do {
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
+			sleep(1);
+		} while (utils_wan_interface_is_up() == false);
+		return true;
+	}
+	else {
+		do {
+			if (utils_wan_interface_is_up() == true) {
+				return true;
+			}
+			DBG("%s(%d) sleep 1 seconds\n", __func__, __LINE__);
+			sleep(1);
+			s--;
+		} while(s > 0);
+		return false;
+	}
+}
+
+bool utils_wan_interface_wait_down(int s)
+{
+	if (s < 1) {
+		do {
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
+			sleep(1);
+		} while (utils_wan_interface_is_up() == true);
+		return true;
+	}
+	else {
+		do {
+			DBG("<6>pid=[%d] %s(%d) sleep 1 seconds\n", getpid(), __func__, __LINE__);
+			sleep(1);
+			s--;
+			if (utils_wan_interface_is_up() == false) {
+				return true;
+			}
+		} while(s > 0);
+		return false;
+	}
 }

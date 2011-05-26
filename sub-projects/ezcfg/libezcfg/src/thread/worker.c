@@ -36,6 +36,23 @@
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
 
+#if 0
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 /*
  * ezcfg_worker:
  * Opaque object handling one event source.

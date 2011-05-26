@@ -187,7 +187,7 @@ int ezcd_main(int argc, char **argv)
 
 	/* set umask before creating any file/directory */
 	s = chdir("/");
-	umask(022);
+	umask(0022);
 
 	mkdir("/var/ezcfg", 0777);
 
@@ -195,6 +195,7 @@ int ezcd_main(int argc, char **argv)
 	fd = open("/dev/null", O_RDWR);
 	if (fd < 0) {
 		fprintf(stderr, "cannot open /dev/null\n");
+		exit(EXIT_FAILURE);
 	}
 	if (write(STDOUT_FILENO, 0, 0) < 0)
 		dup2(fd, STDOUT_FILENO);

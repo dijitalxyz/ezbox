@@ -43,6 +43,18 @@
 #include "rc_func.h"
 #include "pop_func.h"
 
+#if 1
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 static void config_wan_static(void)
 {
 	char name[32];
@@ -180,6 +192,10 @@ static int stop_wan(void)
 
 		break;
 
+	}
+
+	if (utils_wan_interface_wait_down(0) == false) {
+		return (EXIT_FAILURE);
 	}
 
 	return (EXIT_SUCCESS);

@@ -113,14 +113,17 @@ proc_stat_t *utils_find_pid_by_name(char *pidName)
 		if (strcmp(name, pidName) == 0)
 		{
 			pidTemp = (proc_stat_t *)realloc(pidList, sizeof(proc_stat_t) * (i+2));
-			if (pidTemp == NULL)
-				return pidList;
+			if (pidTemp == NULL) {
+				goto func_exit;
+			}
 			pidList = pidTemp;
 			pidList[i].pid = pid;
 			pidList[i].state = state;
 			i++;
 		}
 	}
+
+func_exit:
 	closedir(dir);
 
 	if (pidList)
@@ -129,4 +132,78 @@ proc_stat_t *utils_find_pid_by_name(char *pidName)
 		pidList[i].state = '\0';
 	}
 	return (pidList);
+}
+
+/*
+ * Returns true if has a process named as pidName
+ */
+bool utils_has_process_by_name(char *pidName)
+{
+	DIR *dir;
+	struct dirent *next;
+
+	dir = opendir("/proc");
+	if (dir == NULL)
+		return false;
+
+	while ((next = readdir(dir)) != NULL) {
+		FILE *fp;
+		char line[BUF_SIZE];
+		char name[BUF_SIZE];
+		pid_t pid = 0;
+		char state = '\0';
+		int c = 0;
+		char *tmp = NULL;
+
+		/* must skip ".." since that is outside /proc */
+		if (strcmp(next->d_name, "..") == 0)
+			continue;
+
+		/* if it isn't a number, we don't want it */
+		if (!isdigit(*next->d_name))
+			continue;
+
+		snprintf(name, sizeof(name), "/proc/%s/stat", next->d_name);
+		fp = fopen(name, "r");
+		if (fp == NULL)
+			continue;
+
+		if (fgets(line, BUF_SIZE-1, fp) == NULL)
+		{
+			fclose(fp);
+			continue;
+		}
+		fclose(fp);
+
+		/* Buffer should contain a string like "1 (init) S 0 1 1 0 -1 4194560 159 310977 16 257 0 88 7630 1277 15 0 1 0 10 2191360 146 4294967295 134512640 135032784 3214904272 3214903892 4294960144 0 0 0 674311 3222390807 0 0 0 0 0 0 0" */
+		tmp = line;
+		c = 0;
+		while (tmp && c < 3)
+		{
+			c++;
+			tmp = strchr(tmp, ' ');
+			if (tmp && c < 3) { tmp++; }
+		}
+
+		if (tmp) { *tmp = '\0'; }
+
+		memset(name, '\0', sizeof(name));
+		if (sscanf(line, "%d (%s %c", &pid, name, &state) != 3)
+		{
+			pid = 0;
+			state = '\0';
+		}
+
+		/* remove ')' in the name, say "(init)" will be get name="init)" */
+		tmp = strrchr(name, ')');
+		if (tmp) { *tmp = '\0'; }
+
+		if (strcmp(name, pidName) == 0)
+		{
+			closedir(dir);
+			return true;
+		}
+	}
+	closedir(dir);
+	return (false);
 }

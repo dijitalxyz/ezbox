@@ -13,17 +13,21 @@ char *utils_get_kernel_version(void);
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
+bool utils_has_process_by_name(char *pidName);
 uint32_t utils_crc32(unsigned char *data, int len);
 int utils_get_wan_type(void);
 bool utils_ezcd_is_alive(void);
-bool utils_ezcd_is_up(void);
+bool utils_ezcd_is_ready(void);
 bool utils_ezcd_wait_up(int s);
+bool utils_ezcd_wait_down(int s);
 #if (HAVE_EZBOX_LAN_NIC == 1)
 bool utils_service_binding_lan(char *name);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 bool utils_service_binding_wan(char *name);
 bool utils_wan_interface_is_up(void);
+bool utils_wan_interface_wait_up(int s);
+bool utils_wan_interface_wait_down(int s);
 #endif
 
 /* nvram function */

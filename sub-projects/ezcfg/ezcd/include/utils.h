@@ -53,7 +53,6 @@ enum {
 	RC_STOP,
 	RC_RESTART,
 	RC_RELOAD,
-	RC_IDLE,
 };
 
 /* WAN type */

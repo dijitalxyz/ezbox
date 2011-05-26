@@ -46,6 +46,9 @@
 //#define EZCFG_NVRAM_SOCK_PATH	"/tmp/ezcfg/nvram.sock"
 #define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
 //#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
+
+#define EZCFG_SEM_ROOT_PATH	"/var/ezcfg/sem"
+
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 #define EZCFG_MASTER_WAIT_TIME	5
 #define EZCFG_WORKER_WAIT_TIME	1
