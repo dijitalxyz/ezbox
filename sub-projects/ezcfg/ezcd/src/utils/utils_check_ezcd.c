@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "utils.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -64,7 +64,7 @@ bool utils_ezcd_is_ready(void)
 
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), buf, sizeof(buf));
 	if (rc < 0) {
-		DBG("%s(%d) rc=[%d]\n", __func__, __LINE__, rc);
+		DBG("pid=[%d] %s(%d) rc=[%d]\n", getpid(), __func__, __LINE__, rc);
 		return false;
 	}
 	else {
