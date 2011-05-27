@@ -25,6 +25,8 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <sys/mount.h>
 #include <sys/un.h>
 #include <fcntl.h>
@@ -42,6 +44,18 @@
 #include "ezcfg-soap_http.h"
 
 #include "ezcfg-api.h"
+
+#if 0
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
 
 static bool debug = false;
 static char config_file[EZCFG_PATH_MAX] = EZCFG_NVRAM_CONFIG_FILE_PATH;
@@ -112,6 +126,8 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (name == NULL || value == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -156,10 +172,36 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 	memset(msg, 0, msg_len);
-	ezcfg_soap_http_write_message(sh, msg, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -247,7 +289,20 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	}
 
 	rc = snprintf(value, len, "%s", res_value);
+
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -290,6 +345,8 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (name == NULL || value == NULL) {
 		return -EZCFG_E_ARGUMENT ;
@@ -376,8 +433,34 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	memset(msg, 0, msg_len);
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -453,6 +536,18 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -494,6 +589,8 @@ int ezcfg_api_nvram_unset(const char *name)
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (name == NULL) {
 		return -EZCFG_E_ARGUMENT ;
@@ -538,10 +635,35 @@ int ezcfg_api_nvram_unset(const char *name)
 		goto exit;
 	}
 	memset(msg, 0, msg_len);
-	ezcfg_soap_http_write_message(sh, msg, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -617,6 +739,18 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -660,6 +794,8 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	int header_len;
 	int n, i;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (list == NULL || num < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -766,8 +902,34 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	memset(msg, 0, msg_len);
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -843,6 +1005,18 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -885,6 +1059,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	int header_len;
 	int l, n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (list == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -929,10 +1105,36 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		goto exit;
 	}
 	memset(msg, 0, msg_len);
-	ezcfg_soap_http_write_message(sh, msg, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1032,7 +1234,20 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	}
 
 	rc = 0;
+
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1071,6 +1286,8 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	int header_len;
 	int l, n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (info == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -1115,10 +1332,36 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		goto exit;
 	}
 	memset(msg, 0, msg_len);
-	ezcfg_soap_http_write_message(sh, msg, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1218,7 +1461,20 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	}
 
 	rc = 0;
+
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1255,6 +1511,8 @@ int ezcfg_api_nvram_commit(void)
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	ezcfg = ezcfg_new(config_file);
 	if (ezcfg == NULL) {
@@ -1295,10 +1553,36 @@ int ezcfg_api_nvram_commit(void)
 		goto exit;
 	}
 	memset(msg, 0, msg_len);
-	ezcfg_soap_http_write_message(sh, msg, msg_len);
+	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1374,6 +1658,18 @@ int ezcfg_api_nvram_commit(void)
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1423,6 +1719,8 @@ int ezcfg_api_nvram_insert_socket(
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (domain == NULL || type == NULL ||
 	    protocol == NULL || address == NULL) {
@@ -1546,8 +1844,34 @@ int ezcfg_api_nvram_insert_socket(
 	memset(msg, 0, msg_len);
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1623,6 +1947,18 @@ int ezcfg_api_nvram_insert_socket(
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -1671,6 +2007,8 @@ int ezcfg_api_nvram_remove_socket(
 	int header_len;
 	int n;
 	int rc = 0;
+	int key, semid = -1;
+	struct sembuf require_res, release_res;
 
 	if (domain == NULL || type == NULL ||
 	    protocol == NULL || address == NULL) {
@@ -1794,8 +2132,34 @@ int ezcfg_api_nvram_remove_socket(
 	memset(msg, 0, msg_len);
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_NVRAM_SOCK_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_NVRAM_SOCK_PATH);
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto exit;
+	}
+
+	/* create a semaphore set */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	while (semid < 0) {
+		DBG("<6>pid=[%d] try to create sem.\n", getpid());
+		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	}
+	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
+
+	/* now require available resource */
+	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	require_res.sem_op = -1;
+	require_res.sem_flg = 0;
+
+	if (semop(semid, &require_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1871,6 +2235,18 @@ int ezcfg_api_nvram_remove_socket(
 	}
 
 exit:
+	/* now release resource */
+	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	release_res.sem_op = 1;
+	release_res.sem_flg = 0;
+
+	if (semop(semid, &release_res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto exit;
+	}
+
+sem_exit:
 	if (msg != NULL) {
 		free(msg);
 	}

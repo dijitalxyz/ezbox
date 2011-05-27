@@ -39,15 +39,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#if 0
-#include <linux/sem.h>
-#endif
-
 #include "ezcd.h"
 
-#define RC_SEM_PATH	EZCFG_SEM_ROOT_PATH "/rc_sem"
-
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -59,14 +53,6 @@
 #define DBG(format, args...)
 #endif
 
-union semun {
-	int val;                        /* value for SETVAL */
-	struct semid_ds *buf;   /* buffer for IPC_STAT & IPC_SET */
-	unsigned short *array;  /* array for GETALL & SETALL */
-	struct seminfo *__buf;  /* buffer for IPC_INFO */
-	void *__pad;
-};
-
 int rc_main(int argc, char **argv)
 {
 	rc_func_t *f = NULL;
@@ -76,7 +62,6 @@ int rc_main(int argc, char **argv)
 	pid_t pid;
 	int ret = EXIT_FAILURE;
 	int key, semid;
-	union semun arg;
 	struct sembuf require_res, release_res;
 
 	/* only accept two/three arguments */
@@ -103,7 +88,6 @@ int rc_main(int argc, char **argv)
 		if ((s < 1) || (s > 90)) {
 			return (EXIT_FAILURE);
 		}
-		//sleep(s);
 	}
 
 	if (getuid() != 0) {
@@ -146,29 +130,24 @@ int rc_main(int argc, char **argv)
 	/* child process main */
 
 	/* prepare semaphore */
-	mkdir(EZCFG_SEM_ROOT_PATH, 0777);
-	key = ftok(RC_SEM_PATH, 'a');
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto rc_exit;
+	}
 
 	/* create a semaphore set that only includes one semaphore */
-	semid = semget(key, 1, IPC_CREAT|IPC_EXCL|00666);
-	while (semid < 0) {
-		sleep(1);
-		DBG("<6>rc: wait 1 second to create sem.\n");
-		semid = semget(key, 1, IPC_CREAT|IPC_EXCL|00666);
-	}
-	DBG("<6>rc: create sem OK.\n");
-
-	/* initialize semaphore */
-	arg.val = 1;
-	if (semctl(semid, 0, SETVAL, arg) == -1) {
-		DBG("<6>rc: semctl setval error\n");
+	/* rc semaphore has been initialized in ezcd */
+	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
+	if (semid < 0) {
+		DBG("<6>rc: semget error\n");
 		goto rc_exit;
 	}
 
 	/* now require available resource */
-	require_res.sem_num = 0;
+	require_res.sem_num = EZCFG_SEM_RC_INDEX;
 	require_res.sem_op = -1;
-	require_res.sem_flg = SEM_UNDO;
+	require_res.sem_flg = 0;
 
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>rc: semop require_res error\n");
@@ -185,9 +164,9 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* now release resource */
-	release_res.sem_num = 0;
+	release_res.sem_num = EZCFG_SEM_RC_INDEX;
 	release_res.sem_op = 1;
-	release_res.sem_flg = SEM_UNDO;
+	release_res.sem_flg = 0;
 
 	if (semop(semid, &release_res, 1) == -1) {
 		DBG("<6>rc: semop release_res error\n");
@@ -195,13 +174,6 @@ int rc_main(int argc, char **argv)
 	}
 
 rc_exit:
-	if (semctl(semid, 0, IPC_RMID) == -1) {
-		DBG("<6>rc: semctl IPC_RMID error\n");
-	}
-	else {
-		DBG("<6>rc: remove sem OK.\n");
-	}
-
 	/* special actions for rc_system stop/restart */
 	if (strcmp("system", argv[1]) == 0) {
 		if (flag == RC_STOP) {

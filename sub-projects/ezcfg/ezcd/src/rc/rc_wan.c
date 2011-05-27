@@ -83,6 +83,9 @@ static void config_wan_static(void)
 	}
 
 	pop_etc_resolv_conf(RC_START);
+
+	/* start WAN interface binding services */
+	rc_wan_services(RC_START);
 }
 
 static void deconfig_wan_static(void)
@@ -143,9 +146,6 @@ static int start_wan(void)
 
 		config_wan_static();
 
-		/* start WAN interface binding services */
-		rc_wan_services(RC_START);
-
 		break;
 
 	}
@@ -164,6 +164,9 @@ static int stop_wan(void)
 	if (wan_type == WAN_TYPE_UNKNOWN)
 		return (EXIT_FAILURE);
 
+	/* stop WAN interface binding services */
+	rc_wan_services(RC_STOP);
+
 	switch (wan_type) {
 	case WAN_TYPE_DHCP :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DHCP_IFNAME), wan_ifname, sizeof(wan_ifname));
@@ -181,9 +184,6 @@ static int stop_wan(void)
 		if (rc < 0)
 			return (EXIT_FAILURE);
 
-		/* stop WAN interface binding services */
-		rc_wan_services(RC_STOP);
-
 		deconfig_wan_static();
 
 		/* deconfig Static IP address */
@@ -192,10 +192,6 @@ static int stop_wan(void)
 
 		break;
 
-	}
-
-	if (utils_wan_interface_wait_down(0) == false) {
-		return (EXIT_FAILURE);
 	}
 
 	return (EXIT_SUCCESS);

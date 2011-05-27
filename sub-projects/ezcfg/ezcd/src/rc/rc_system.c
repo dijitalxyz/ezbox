@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "rc_func.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -200,8 +200,6 @@ int rc_system(int flag)
 		rc_nvram(RC_STOP);
 
 		/* stop ezcfg daemon */
-		/* before stopping wait for 3 seconds */
-		sleep(3);
 		rc_ezcd(RC_STOP);
 
 		break;

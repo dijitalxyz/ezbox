@@ -35,7 +35,7 @@
 #define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
 #define NVRAM_VERSOIN_REV   0x03 /* version[3] */ 
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	pid_t pid; \
 	char path[256]; \
@@ -795,14 +795,10 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 
 	/* ezcfg_common.socket_number */
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), &p);
-	DBG("huedebug %s(%d)\n", __func__, __LINE__);
 	if (p != NULL) {
-	DBG("huedebug %s(%d)\n", __func__, __LINE__);
 		socket_number = atoi(p);
-	DBG("huedebug %s(%d) socket_number=[%d]\n", __func__, __LINE__, socket_number);
 		free(p);
 		for(i = 0; i < socket_number; i++) {
-	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
 			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 				EZCFG_EZCFG_NVRAM_PREFIX,
 				EZCFG_EZCFG_SECTION_SOCKET, i,
@@ -810,15 +806,11 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 			nvram_get_entry_value(nvram, buf, &p);
 			if (p != NULL) {
 				/* It's OK for this socket setting */
-	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
 				free(p);
 			}
 			else {
-	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
 				snprintf(buf, sizeof(buf), "%d", i);
-	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
 				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), buf);
-	DBG("huedebug %s(%d) i=[%d]\n", __func__, __LINE__, i);
 				break;
 			}
 		}

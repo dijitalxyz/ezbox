@@ -40,15 +40,23 @@
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
 #define EZCFG_NVRAM_CONFIG_FILE_PATH	SYSCONFDIR "/nvram.conf"
 
-#define EZCFG_CTRL_SOCK_PATH	"@/org/kernel/ezcfg/ctrl"
-//#define EZCFG_CTRL_SOCK_PATH	"/tmp/ezcfg/ctrl.sock"
-#define EZCFG_NVRAM_SOCK_PATH	"@/org/kernel/ezcfg/nvram"
-//#define EZCFG_NVRAM_SOCK_PATH	"/tmp/ezcfg/nvram.sock"
-#define EZCFG_MASTER_SOCK_PATH	"@/org/kernel/ezcfg/master"
-//#define EZCFG_MASTER_SOCK_PATH	"/tmp/ezcfg/master.sock"
+#define EZCFG_ROOT_PATH		"/var/ezcfg"
+/* semaphore path */
+#define EZCFG_SEM_ROOT_PATH	EZCFG_ROOT_PATH "/sem"
+#define EZCFG_SEM_EZCFG_PATH	EZCFG_SEM_ROOT_PATH "/ezcfg"
+#define EZCFG_SEM_PROJID_EZCFG	'e'
 
-#define EZCFG_SEM_ROOT_PATH	"/var/ezcfg/sem"
+#define EZCFG_SEM_NVRAM_INDEX	0
+#define EZCFG_SEM_RC_INDEX	1
+#define EZCFG_SEM_NUMBER	2
 
+/* socket path */
+#define EZCFG_SOCK_ROOT_PATH	"@/org/ezbox/ezcfg/sock"
+#define EZCFG_SOCK_CTRL_PATH	EZCFG_SOCK_ROOT_PATH "/ctrl"
+#define EZCFG_SOCK_NVRAM_PATH	EZCFG_SOCK_ROOT_PATH "/nvram"
+#define EZCFG_SOCK_MASTER_PATH	EZCFG_SOCK_ROOT_PATH "/master"
+
+/* thread config definitions */
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 #define EZCFG_MASTER_WAIT_TIME	5
 #define EZCFG_WORKER_WAIT_TIME	1

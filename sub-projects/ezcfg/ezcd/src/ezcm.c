@@ -189,9 +189,9 @@ int ezcm_main(int argc, char **argv)
 	memset(msg, 0, msg_len);
 	msg_len = ezcfg_igrs_write_message(igrs, msg, msg_len);
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_CTRL_SOCK_PATH, getpid());
+	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_CTRL_PATH, getpid());
 
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf, EZCFG_CTRL_SOCK_PATH);
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_IGRS, buf, EZCFG_SOCK_CTRL_PATH);
 
 	if (ezctrl == NULL) {
 		err(ezcfg, "%s\n", "Cannot initialize ezcm controller");

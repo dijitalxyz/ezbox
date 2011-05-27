@@ -189,7 +189,19 @@ int ezcd_main(int argc, char **argv)
 	s = chdir("/");
 	umask(0022);
 
-	mkdir("/var/ezcfg", 0777);
+	if (EZCFG_ROOT_PATH[0] == '/') {
+		mkdir(EZCFG_ROOT_PATH, 0777);
+		mkdir(EZCFG_SEM_ROOT_PATH, 0777);
+		fd = open(EZCFG_SEM_EZCFG_PATH, O_CREAT|O_RDWR);
+		if (fd < 0) {
+			fprintf(stderr, "cannot open %s\n", EZCFG_SEM_EZCFG_PATH);
+			exit(EXIT_FAILURE);
+		}
+		close(fd);
+	}
+	if (EZCFG_SOCK_ROOT_PATH[0] == '/') {
+		mkdir(EZCFG_SOCK_ROOT_PATH, 0777);
+	}
 
 	/* before opening new files, make sure std{in,out,err} fds are in a sane state */
 	fd = open("/dev/null", O_RDWR);

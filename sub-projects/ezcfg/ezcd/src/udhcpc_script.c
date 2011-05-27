@@ -41,6 +41,18 @@
 #include "pop_func.h"
 #include "rc_func.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 static int udhcpc_deconfig(void)
 {
 	char buf[128];
@@ -51,9 +63,6 @@ static int udhcpc_deconfig(void)
 	iface = getenv("interface");
 	if (iface == NULL)
 		return (EXIT_FAILURE);
-
-	/* stop WAN interface binding services */
-	rc_wan_services(RC_STOP);
 
 	pop_etc_resolv_conf(RC_STOP);
 
@@ -280,28 +289,28 @@ int udhcpc_script_main(int argc, char **argv)
 {
 	int ret;
 	if (argc < 2) {
-		printf("error, argc=[%d]\n", argc);
+		DBG("error, argc=[%d]\n", argc);
 		return (EXIT_FAILURE);
 	}
 
 	if (strcmp(argv[1], "deconfig") == 0) {
-		printf("udhcpc operation %s\n", argv[1]);
+		DBG("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_deconfig();
 	}
 	else if (strcmp(argv[1], "bound") == 0) {
-		printf("udhcpc operation %s\n", argv[1]);
+		DBG("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_bound();
 	}
 	else if (strcmp(argv[1], "renew") == 0) {
-		printf("udhcpc operation %s\n", argv[1]);
+		DBG("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_renew();
 	}
 	else if (strcmp(argv[1], "nak") == 0) {
-		printf("udhcpc operation %s\n", argv[1]);
+		DBG("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_nak();
 	}
 	else {
-		printf("unknown operation %s\n", argv[1]);
+		DBG("unknown operation %s\n", argv[1]);
 		ret = EXIT_FAILURE;
 	}
 

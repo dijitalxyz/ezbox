@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -61,6 +63,7 @@
 struct ezcfg_master {
 	pthread_t thread_id;
 	sigset_t *sigset;
+	int semid; /* for semaphore control */
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
 	int threads_max; /* MAX number of threads */
@@ -93,6 +96,15 @@ static void master_delete(struct ezcfg_master *master)
 {
 	if (master == NULL)
 		return;
+	if (master->semid >= 0) {
+		/* remove semaphore */
+		if (semctl(master->semid, 0, IPC_RMID) == -1) {
+			DBG("<6>pid=[%d] semctl IPC_RMID error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
+		}
+	}
 	if (master->nvram) {
 		ezcfg_nvram_delete(master->nvram);
 	}
@@ -105,7 +117,7 @@ static void master_delete(struct ezcfg_master *master)
 }
 
 /**
- * ezcfg_master_new:
+ * master_new:
  *
  * Create ezcfg master.
  *
@@ -114,6 +126,8 @@ static void master_delete(struct ezcfg_master *master)
 static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
+	int key;
+	struct sembuf res[EZCFG_SEM_NUMBER];
 
 	ASSERT(ezcfg != NULL);
 
@@ -125,6 +139,36 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	/* initialize ezcfg library context */
 	memset(master, 0, sizeof(struct ezcfg_master));
 
+	/* prepare semaphore */
+	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto fail_exit;
+	}
+
+	/* create a semaphore set */
+	/* this is the first place to create the semaphore, must IPC_EXCL */
+	master->semid = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
+	if (master->semid < 0) {
+		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
+		goto fail_exit;
+	}
+
+	/* initialize semaphore */
+	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
+
+	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
+	res[EZCFG_SEM_RC_INDEX].sem_op = 1;
+	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+
+	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		goto fail_exit;
+	}
+
+	/* get nvram memory */
 	master->nvram = ezcfg_nvram_new(ezcfg);
 	if(master->nvram == NULL) {
 		err(ezcfg, "calloc nvram fail: %m\n");
@@ -788,7 +832,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 {
-	struct ezcfg_master *master;
+	struct ezcfg_master *master = NULL;
 	int stacksize;
 	struct ezcfg_socket * sp;
 
@@ -798,35 +842,35 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	stacksize = 0;
 
 	/* There must be a ctrl socket */
-	master = master_new_from_socket(ezcfg, EZCFG_CTRL_SOCK_PATH);
+	master = master_new_from_socket(ezcfg, EZCFG_SOCK_CTRL_PATH);
 	if (master == NULL) {
 		err(ezcfg, "can not initialize control socket");
-		return NULL;
+		goto start_out;
 	}
 
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
 
-	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_NVRAM_SOCK_PATH);
+	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
 
 	/* unlock mutex after handling listening_sockets */
 	pthread_mutex_unlock(&(master->ls_mutex));
 
 	if (sp == NULL) {
 		err(ezcfg, "can not add nvram socket");
-		goto start_thread;
+		goto start_out;
 	}
 
 	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
 		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto start_thread;
+		goto start_out;
 	}
 
 	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_NVRAM_SOCK_PATH);
+		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
 		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto start_thread;
+		goto start_out;
 	}
 
 	ezcfg_socket_set_close_on_exec(sp);
@@ -843,26 +887,52 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	/* unlock mutex after handling listening_sockets */
 	pthread_mutex_unlock(&(master->ls_mutex));
 
-start_thread:
+start_out:
 	/* Start master (listening) thread */
-	if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
-		ASSERT(master->num_threads == 0);
-		master_delete(master);
-		master = NULL;
+	if (master != NULL) {
+		if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
+			ASSERT(master->num_threads == 0);
+			master_delete(master);
+			master = NULL;
+		}
 	}
 	return master;
 }
 
 void ezcfg_master_stop(struct ezcfg_master *master)
 {
+	struct sembuf res;
+	bool sem_required = true;
+
 	if (master == NULL)
 		return;
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(master->semid, &res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		sem_required = false;
+	}
 
 	master->stop_flag = 1;
 
 	/* Wait until ezcfg_master_finish() stops */
 	while (master->stop_flag != 2)
 		sleep(1);
+
+	/* now release resource */
+	if (sem_required == true) {
+		res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+		res.sem_op = 1;
+		res.sem_flg = 0;
+
+		if (semop(master->semid, &res, 1) == -1) {
+			DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		}
+	}
 
 	ASSERT(master->num_threads == 0);
 	master_delete(master);
@@ -871,9 +941,20 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 void ezcfg_master_reload(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
+	struct sembuf res;
 
 	if (master == NULL)
 		return;
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(master->semid, &res, 1) == -1) {
+		DBG("<6>pid=[%d] semop require_res error\n", getpid());
+		return;
+	}
 
 	ezcfg = master->ezcfg;
 
@@ -913,6 +994,16 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	/* unlock thread mutex */
 	pthread_mutex_unlock(&(master->thread_mutex));
+
+	/* now release resource */
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
+
+	if (semop(master->semid, &res, 1) == -1) {
+		DBG("<6>pid=[%d] semop release_res error\n", getpid());
+		return;
+	}
 }
 
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max)
