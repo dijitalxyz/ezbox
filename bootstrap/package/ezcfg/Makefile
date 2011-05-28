@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2010 ezbox-project
+# Copyright (C) 2008-2011 ezbox-project
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=799
+PKG_REV:=814
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
