@@ -216,7 +216,7 @@
 #define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"
 
 /* ezcfg HTTP html admin authentication default string */
-#define EZCFG_AUTH_USER_ADMIN_STRING       "admin"
+#define EZCFG_AUTH_USER_ADMIN_STRING       "root"
 #define EZCFG_AUTH_REALM_ADMIN_STRING      "ezbox"
 #define EZCFG_AUTH_DOMAIN_ADMIN_STRING     EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
 #define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"

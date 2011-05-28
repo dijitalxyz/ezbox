@@ -76,7 +76,7 @@ int rc_telnetd(int flag)
 
 	switch (flag) {
 	case RC_START :
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/sh -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/login -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 		system(buf);
 		break;
 

@@ -4,6 +4,7 @@
 /* shell command */
 #define CMD_CAT			"/bin/cat"
 #define CMD_CHMOD		"/bin/chmod"
+#define CMD_CHPASSWD		"/usr/sbin/chpasswd"
 #define CMD_EZCD		"/sbin/ezcd"
 #define CMD_HOTPLUG2		"/sbin/hotplug2"
 #define CMD_IFCONFIG		"/sbin/ifconfig"
@@ -13,8 +14,6 @@
 #define CMD_KILLALL		"/usr/bin/killall"
 #define CMD_MKDIR  		"/bin/mkdir"
 #define CMD_MV  		"/bin/mv"
-#define CMD_POWEROFF		"/sbin/poweroff"
-#define CMD_REBOOT		"/sbin/reboot"
 #define CMD_RM  		"/bin/rm"
 #define CMD_RMMOD  		"/sbin/rmmod"
 #define CMD_ROUTE  		"/sbin/route"

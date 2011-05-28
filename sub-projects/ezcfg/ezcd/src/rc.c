@@ -179,13 +179,15 @@ rc_exit:
 		if (flag == RC_STOP) {
 			if (utils_ezcd_wait_down(0) == true) {
 				DBG("<6>rc: system stop.\n");
-				system(CMD_POWEROFF);
+				/* { SIGUSR1, SIGUSR2, SIGTERM } for ezbox init/halt, poweroff, reboot */
+				ret = kill(1, SIGUSR2);
 			}
 		}
 		else if (flag == RC_RESTART) {
 			if (utils_ezcd_wait_down(0) == true) {
 				DBG("<6>rc: system restart.\n");
-				system(CMD_REBOOT);
+				/* { SIGUSR1, SIGUSR2, SIGTERM } for ezbox init/halt, poweroff, reboot */
+				ret = kill(1, SIGTERM);
 			}
 		}
 	}
