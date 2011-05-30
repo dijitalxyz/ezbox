@@ -36,6 +36,32 @@
 #include "ezcfg-html.h"
 #include "ezcfg-http_html_admin.h"
 
+#if 0
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+static ezcfg_rc_triple_t rc_list[] = {
+	{ EZCFG_RC_SERVICE_LOGIN, NULL, 0 },
+	{ EZCFG_RC_SERVICE_EZCFG_HTTPD, NULL, 0 },
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
+	{ EZCFG_RC_SERVICE_TELNETD, NULL, 0 },
+#endif
+	{ NULL, NULL, 0 },
+};
+
 /**
  * Private functions
  **/
@@ -253,57 +279,116 @@ static int set_html_main_management_authz(
 		/* restore <p> index */
 		child_index = p_index;
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 		tmp[0] = '\0';
 		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), &p);
 		if (p != NULL) {
 			snprintf(tmp, sizeof(tmp), "%s", p);
 			free(p);
+
+			/* <p>Access via HTTPS : </p> */
+			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+				ezcfg_locale_text(locale, "Access via HTTPS"));
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+
+			/* <p>Access via HTTPS : <input type="radio" name="ezcfg_httpd_https" value="1">Yes</input><input type="radio" name="ezcfg_httpd_https" value="0">No</input></p> */
+			/* save <p> index */
+			p_index = child_index;
+			child_index = -1;
+
+			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+				ezcfg_locale_text(locale, "Yes"));
+			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+			if (input_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			if (strcmp(tmp, "1") == 0) {
+				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+				ezcfg_locale_text(locale, "No"));
+			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+			if (input_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			if (strcmp(tmp, "0") == 0) {
+				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			/* restore <p> index */
+			child_index = p_index;
 		}
-		/* <p>Access via HTTPS : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Access via HTTPS"));
-		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+#endif /* (HAVE_EZBOX_SERVICE_OPENSSL == 1) */
+	}
+
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
+	/* <h3>Telnet Access Setting</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Telnet Access Setting"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <p>Service Switch : </p> */
+	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
+		ezcfg_locale_text(locale, "Service Switch"));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* save <p> index */
+	p_index = child_index;
+	child_index = -1;
+
+	/* <p>Service Switch : <select name="rc_telnetd_enable"></select></p> */
+	child_index = -1;
+	select_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_SELECT_ELEMENT_NAME, NULL);
+	if (select_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+	/* <p>Service Switch : <select name="rc_telnetd_enable"><option value="1" selected="selected">Enabled</option></select></p> */
+	buf[0] = '\0';
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), &p);
+	if (p != NULL) {
+		snprintf(buf, sizeof(buf), "%s", p);
+		free(p);
+	}
+	child_index = -1;
+	for (i = 0; i < 2; i++) {
+		char tmp[2];
+		snprintf(tmp, sizeof(tmp), "%d", i);
+		child_index = ezcfg_html_add_body_child(html, select_index, child_index, EZCFG_HTML_OPTION_ELEMENT_NAME, ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)));
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-
-		/* <p>Access via HTTPS : <input type="radio" name="ezcfg_httpd_https" value="1">Yes</input><input type="radio" name="ezcfg_httpd_https" value="0">No</input></p> */
-		/* save <p> index */
-		p_index = child_index;
-		child_index = -1;
-
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-			ezcfg_locale_text(locale, "Yes"));
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
+		ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, tmp, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		if (strcmp(tmp, buf) == 0) {
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_HTML_SELECTED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tmp, "1") == 0) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
-
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-			ezcfg_locale_text(locale, "No"));
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
-		if (input_index < 0) {
-			err(ezcfg, "ezcfg_html_add_body_child error.\n");
-			goto func_exit;
-		}
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		if (strcmp(tmp, "0") == 0) {
-			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-		}
-
-		/* restore <p> index */
-		child_index = p_index;
 	}
+
+	/* restore <p> index */
+	child_index = p_index;
+#endif
 
 	/* <p>&nbsp;</p> */
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
@@ -460,11 +545,14 @@ func_exit:
 static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_nvram *nvram;
 	struct ezcfg_link_list *list;
 	char *passwd, *passwd2;
+	char *telnetd_enable;
 	bool ret = false;
 
 	ezcfg = admin->ezcfg;
+	nvram = admin->nvram;
 	list = admin->post_list;
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
@@ -476,10 +564,52 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 			    (strcmp(passwd, passwd2) != 0)){
 				ret = ezcfg_link_list_remove(list, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET));
 			}
+			else {
+				/* re-generate /etc/passwd */
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_LOGIN,
+					EZCFG_RC_ACT_RESTART, 0);
+				/* restart ezcfg_httpd */
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_EZCFG_HTTPD,
+					EZCFG_RC_ACT_RESTART, 1);
+				/* restart telnetd */
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_TELNETD,
+					EZCFG_RC_ACT_RESTART, 0);
+#endif
+			}
 		}
 		else {
 			ret = ezcfg_link_list_remove(list, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET));
 		}
+
+		/* set telnetd service */
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
+		telnetd_enable = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE));
+		if (telnetd_enable != NULL) {
+			char tmp[2];
+			char *p;
+			tmp[0] = '\0';
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), &p);
+			if (p != NULL) {
+				snprintf(tmp, sizeof(tmp), "%s", p);
+				free(p);
+			}
+			if (strcmp(telnetd_enable, tmp) != 0) {
+				/* re-generate /etc/passwd */
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_LOGIN,
+					EZCFG_RC_ACT_RESTART, 0);
+				/* restart telnetd */
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_TELNETD,
+					EZCFG_RC_ACT_RESTART, 0);
+			}
+		}
+#endif
+
 		/* remove temp variable */
 		ret = ezcfg_link_list_remove(list, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET2));
 
@@ -509,6 +639,7 @@ int ezcfg_http_html_admin_management_authz_handler(struct ezcfg_http_html_admin 
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	int ret = -1;
+	ezcfg_rc_triple_t *rcp;
 
 	ASSERT(admin != NULL);
 
@@ -518,8 +649,15 @@ int ezcfg_http_html_admin_management_authz_handler(struct ezcfg_http_html_admin 
 	/* admin management_authz uri=[/admin/management_authz] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
-		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
 		handle_admin_management_authz_post(admin);
+		/* do service actions */
+		rcp = rc_list;
+		while(rcp->service != NULL) {
+			if (rcp->action != NULL) {
+				ezcfg_util_rc(rcp->service, rcp->action, rcp->wait);
+			}
+			rcp++;
+		}
 	}
 
 	ret = build_admin_management_authz_response(admin);

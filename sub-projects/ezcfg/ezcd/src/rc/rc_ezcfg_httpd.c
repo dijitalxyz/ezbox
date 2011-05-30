@@ -46,11 +46,6 @@ int rc_ezcfg_httpd(int flag)
 	int ip[4];
 	char buf[256];
 
-	rc = nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
-	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
-
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
@@ -82,6 +77,11 @@ int rc_ezcfg_httpd(int flag)
 
 	switch (flag) {
 	case RC_START :
+		rc = nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+
 		/* add ezcfg httpd listening socket */
 		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
@@ -107,6 +107,11 @@ int rc_ezcfg_httpd(int flag)
 		if (rc >= 0) {
 			rc_ezcd(RC_RELOAD);
 		}
+		break;
+
+	case RC_RESTART :
+		rc_ezcfg_httpd(RC_STOP);
+		rc_ezcfg_httpd(RC_START);
 		break;
 	}
 

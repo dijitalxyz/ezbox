@@ -49,10 +49,16 @@ int pop_etc_inittab(int flag)
 		return (EXIT_FAILURE);
 
 	fprintf(file, "%s\n", "::sysinit:/sbin/rc system start");
+#if 0
 	//fprintf(file, "%s\n", "::shutdown:/sbin/rc system stop");
 	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
 	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
 	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
+#else
+	fprintf(file, "%s\n", "tts/0::askfirst:/bin/login");
+	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/login");
+	fprintf(file, "%s\n", "tty1::askfirst:/bin/login");
+#endif
 
 	fclose(file);
 	return (EXIT_SUCCESS);

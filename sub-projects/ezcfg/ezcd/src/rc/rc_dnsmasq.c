@@ -43,10 +43,6 @@
 int rc_dnsmasq(int flag)
 {
 	int rc;
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
-	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
 
 	if ((utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false) &&
 	   (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false)) {
@@ -55,6 +51,11 @@ int rc_dnsmasq(int flag)
 
 	switch (flag) {
 	case RC_START :
+		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+
 		pop_etc_dnsmasq_conf(RC_START);
 		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
 		break;

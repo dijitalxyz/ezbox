@@ -63,8 +63,15 @@ int rc_login(int flag)
 		break;
 
 	case RC_START :
-		rc_login(RC_BOOT);
+		/* generate /etc/passwd */
+		pop_etc_passwd(RC_START);
 
+		/* generate /etc/group */
+		pop_etc_group(RC_START);
+
+		/* fall down to change passwd */
+
+	case RC_RESTART :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf, sizeof(buf));
 		if (rc < 0) {
 			break;

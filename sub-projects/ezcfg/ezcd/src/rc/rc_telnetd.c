@@ -44,10 +44,6 @@ int rc_telnetd(int flag)
 	int rc;
 	int ip[4];
 	char buf[256];
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
-	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
 
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
@@ -76,16 +72,22 @@ int rc_telnetd(int flag)
 
 	switch (flag) {
 	case RC_START :
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n telnetd -a /usr/sbin/telnetd -- -l /bin/login -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n telnetd -a /usr/sbin/telnetd -- -l /bin/login -b %d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 		system(buf);
 		break;
 
 	case RC_STOP :
-		system("start-stop-daemon -K -n telnetd");
+		system("start-stop-daemon -K -s KILL -n telnetd");
 		break;
 
 	case RC_RESTART :
 		rc = rc_telnetd(RC_STOP);
+		sleep(1);
 		rc = rc_telnetd(RC_START);
 		break;
 	}

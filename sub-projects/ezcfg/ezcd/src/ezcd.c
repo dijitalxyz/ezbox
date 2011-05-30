@@ -47,7 +47,7 @@
 #define handle_error_en(en, msg) \
 	do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -58,6 +58,14 @@
 #else
 #define DBG(format, args...)
 #endif
+
+#define INFO(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
 
 static bool debug = false;
 static int rc = EXIT_FAILURE;
@@ -140,6 +148,9 @@ static void *sig_thread(void *arg)
 			break;
 		case SIGUSR1 :
 			ezcfg_master_reload(master);
+			break;
+		case SIGCHLD :
+			/* do nothing for child exit */
 			break;
 		default :
 			DBG("<6>ezcd: unknown signal [%d]\n", sig);
@@ -246,7 +257,7 @@ int ezcd_main(int argc, char **argv)
 	setsid();
 
 	/* main process */
-	DBG("<6>ezcd: booting...\n");
+	INFO("<6>ezcd: booting...\n");
 	/* prepare signal handling thread */
 	sigemptyset(&sigset);
 	sigaddset(&sigset, SIGCHLD);
@@ -295,7 +306,7 @@ int ezcd_main(int argc, char **argv)
 			threads_max = 2;
 	}
 	ezcfg_master_set_threads_max(master, threads_max);
-	DBG("<6>ezcd: starting version " VERSION "\n");
+	INFO("<6>ezcd: starting version " VERSION "\n");
 
 	/* wait for exit signal */
 	pause();

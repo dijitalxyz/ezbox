@@ -790,15 +790,15 @@ static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
 static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 {
 	char *p;
-	int socket_number, i;
+	int number, i;
 	char buf[64];
 
 	/* ezcfg_common.socket_number */
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), &p);
 	if (p != NULL) {
-		socket_number = atoi(p);
+		number = atoi(p);
 		free(p);
-		for(i = 0; i < socket_number; i++) {
+		for(i = 0; i < number; i++) {
 			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 				EZCFG_EZCFG_NVRAM_PREFIX,
 				EZCFG_EZCFG_SECTION_SOCKET, i,
@@ -814,6 +814,45 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 				break;
 			}
 		}
+	}
+
+	/* ezcfg_common.auth_number */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), &p);
+	if (p != NULL) {
+		number = atoi(p);
+		free(p);
+		for(i = 0; i < number; i++) {
+			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+				EZCFG_EZCFG_NVRAM_PREFIX,
+				EZCFG_EZCFG_SECTION_AUTH, i,
+				EZCFG_EZCFG_KEYWORD_TYPE);
+			nvram_get_entry_value(nvram, buf, &p);
+			if (p != NULL) {
+				/* It's OK for this auth setting */
+				free(p);
+			}
+			else {
+				snprintf(buf, sizeof(buf), "%d", i);
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf);
+				break;
+			}
+		}
+	}
+
+	/* ezcfg_auth.0.user must be "root" */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), &p);
+	if ((p == NULL) ||
+	    ((p != NULL) && (strcmp(p, EZCFG_AUTH_USER_ADMIN_STRING) != 0))) {
+		/* first release p */
+		if (p != NULL)
+			free(p);
+
+		/* not valid admin user, fix it! */
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_TYPE), EZCFG_AUTH_TYPE_HTTP_BASIC_STRING);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), EZCFG_AUTH_USER_ADMIN_STRING);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), EZCFG_AUTH_REALM_ADMIN_STRING);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), EZCFG_AUTH_DOMAIN_ADMIN_STRING);
+		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET), EZCFG_AUTH_SECRET_ADMIN_STRING);
 	}
 }
 

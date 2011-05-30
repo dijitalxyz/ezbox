@@ -99,6 +99,13 @@
 #define EZCFG_RC_ACT_RELOAD                "reload"
 
 
+/* ezcfg rc service string */
+#define EZCFG_RC_SERVICE_SYSTEM            "system"
+#define EZCFG_RC_SERVICE_LOGIN             "login"
+#define EZCFG_RC_SERVICE_EZCFG_HTTPD       "ezcfg_httpd"
+#define EZCFG_RC_SERVICE_TELNETD           "telnetd"
+
+
 /* ezcfg service binding type */
 #define EZCFG_SERVICE_BINDING_UNKNOWN	0
 #define EZCFG_SERVICE_BINDING_LAN	1

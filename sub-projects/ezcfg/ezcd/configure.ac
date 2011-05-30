@@ -133,6 +133,25 @@ AC_ARG_ENABLE([wan-l2tp],
 	[AC_MSG_RESULT(no)]
 )
 
+# Configure openssl service.
+config_ezbox_service_openssl=no
+AC_MSG_CHECKING([if openssl service is enabled])
+AC_ARG_ENABLE([service-openssl],
+	AS_HELP_STRING([--enable-service-openssl], [Enable openssl service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_OPENSSL], [1], [Enable openssl service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_openssl=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_OPENSSL, test "x$config_ezbox_service_openssl" = xyes)
+
 # Configure syslog service.
 config_ezbox_service_syslog=no
 AC_MSG_CHECKING([if syslog service is enabled])

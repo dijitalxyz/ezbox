@@ -661,7 +661,6 @@ int ezcfg_http_html_admin_setup_lan_handler(struct ezcfg_http_html_admin *admin)
 	/* admin setup_lan uri=[/admin/setup_lan] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
-		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
 		handle_admin_setup_lan_post(admin);
 	}
 

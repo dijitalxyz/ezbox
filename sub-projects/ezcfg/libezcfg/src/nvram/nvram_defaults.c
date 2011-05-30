@@ -120,8 +120,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1" },
 	/* Support HTTP protocol */
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTP), "1" },
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	/* Support HTTPS protocol */
-	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), "0" },
+	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_HTTPS), "1" },
+#endif
 	/* ezcfg HTTP server binding interface */
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING), "lan" },

@@ -30,14 +30,34 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-bool ezcfg_util_rc(char *func, char *act, int s, bool bg)
+#if 0
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+bool ezcfg_util_rc(char *func, char *act, int s)
 {
-	char cmd[1024];
+	char cmd[64];
 	int i;
 
-	i = snprintf(cmd, sizeof(cmd), "rc %s %s %d %s",
-		func, act, s,
-		(bg == true) ? "&" : "");
+	if (s < 1) {
+		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %s %s", func, act);
+	}
+	else {
+		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %s %s %d", func, act, s);
+	}
 
 	if (i < sizeof(cmd)) {
 		system(cmd);
@@ -46,4 +66,24 @@ bool ezcfg_util_rc(char *func, char *act, int s, bool bg)
 	else {
 		return false;
 	}
+}
+
+bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s)
+{
+	ezcfg_rc_triple_t *rcp;
+
+	if ((list == NULL) || (func == NULL))
+		return false;
+
+	rcp = list;
+	while(rcp->service != NULL) {
+		if (strcmp(rcp->service, func) == 0) {
+			rcp->action = act;
+			rcp->wait = s;
+			return true;
+		}
+		rcp++;
+	}
+
+	return true;
 }

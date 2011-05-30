@@ -573,10 +573,10 @@ int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admi
 	/* admin management_default uri=[/admin/management_default] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* do post handling */
-		info(ezcfg, "[%s]\n", ezcfg_http_get_message_body(http));
 		handle_admin_management_default_post(admin);
+		/* do service actions */
 		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true) {
-			ezcfg_util_rc("system", "restart", 1, true);
+			ezcfg_util_rc(EZCFG_RC_SERVICE_SYSTEM, EZCFG_RC_ACT_RESTART, 1);
 			ret = build_admin_management_default_result(admin);
 			return ret;
 		}

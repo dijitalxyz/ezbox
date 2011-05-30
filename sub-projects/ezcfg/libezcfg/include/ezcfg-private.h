@@ -36,6 +36,14 @@ typedef struct ezcfg_nv_validator_s {
 } ezcfg_nv_validator_t;
 
 
+/* rc service invocation struct */
+typedef struct ezcfg_rc_triple_s {
+	char *service;
+	char *action;
+	int wait;
+} ezcfg_rc_triple_t;
+
+
 /* common/ezcfg.c */
 char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
 void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file);
@@ -584,6 +592,7 @@ char *ezcfg_util_text_get_keep_enable(int i);
 char *ezcfg_util_text_get_service_switch(bool v);
 
 /* util/util_rc.c */
-bool ezcfg_util_rc(char *func, char *act, int s, bool bg);
+bool ezcfg_util_rc(char *func, char *act, int s);
+bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);
 
 #endif
