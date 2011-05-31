@@ -74,9 +74,12 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
 		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
 		        (int) getpid(), fn, line, buf);
-	} else {
+	}
+#if 0
+	else {
 		vsyslog(priority, format, args);
 	}
+#endif
 }
 
 /**

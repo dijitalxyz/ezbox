@@ -224,7 +224,6 @@ struct ezcfg *ezcfg_new(char *path)
 
 		/* set config file path */
 		ezcfg_common_set_config_file(ezcfg, path);
-		dbg(ezcfg, "config_file='%s'\n", ezcfg->config_file);
 
 		/* find log_level keyword */
 		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
@@ -232,7 +231,6 @@ struct ezcfg *ezcfg_new(char *path)
 			ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
 			free(p);
 		}
-		dbg(ezcfg, "log_priority='%d'\n", ezcfg->log_priority);
 
 		/* find rules_path keyword */
 		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
@@ -241,7 +239,6 @@ struct ezcfg *ezcfg_new(char *path)
 			snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", p);
 			free(p);
 		}
-		dbg(ezcfg, "rules_path='%s'\n", ezcfg->rules_path);
 
 		/* find locale keyword */
 		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
@@ -249,7 +246,6 @@ struct ezcfg *ezcfg_new(char *path)
 			snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", p);
 			free(p);
 		}
-		dbg(ezcfg, "locale='%s'\n", ezcfg->locale);
 
 		/* initialize locale mutex */
 		pthread_mutex_init(&ezcfg->locale_mutex, NULL);

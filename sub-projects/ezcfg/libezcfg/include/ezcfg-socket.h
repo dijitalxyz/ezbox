@@ -49,6 +49,7 @@ struct ezcfg_socket {
 	struct usa	lsa;		/* Local socket address         */
 	struct usa	rsa;		/* Remote socket address        */
 	bool		need_unlink;	/* Need to unlink socket node 	*/
+	bool		need_delete;	/* Need to delete socket node 	*/
 };
 
 #endif

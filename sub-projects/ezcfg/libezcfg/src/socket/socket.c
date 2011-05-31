@@ -392,6 +392,37 @@ struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list)
 	return (*list)->next;
 }
 
+bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_socket *sp, bool need_delete)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_socket *cur;
+	struct usa *usa = NULL, *usa2 = NULL;
+	bool ret = false;
+
+	ASSERT(list != NULL);
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+
+	cur = *list;
+	usa = &(sp->lsa);
+	while (cur != NULL) {
+		usa2 = &(cur->lsa);
+		if ((sp->proto == cur->proto) &&
+		    (usa->domain == usa2->domain) &&
+		    (usa->type == usa2->type) &&
+		    (usa->len == usa2->len)) {
+			if (memcmp(&(usa->u.sa), &(usa2->u.sa), usa->len) == 0) {
+				info(ezcfg, "find match socket, and set need_delete\n");
+				cur->need_delete = need_delete;
+				ret = true;
+			}
+		}
+		cur = cur->next;
+	}
+	return ret;
+}
+
 /**
  * ezcfg_socket_enable_receiving:
  * @sp: the listening socket which should receive events
@@ -520,6 +551,26 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 	return 0;
 }
 
+bool ezcfg_socket_compare(struct ezcfg_socket *sp1, struct ezcfg_socket *sp2)
+{
+	struct usa *usa1 = NULL, *usa2 = NULL;
+
+	ASSERT(sp1 != NULL);
+	ASSERT(sp2 != NULL);
+
+	usa1 = &(sp1->lsa);
+	usa2 = &(sp2->lsa);
+	if ((sp1->proto == sp2->proto) &&
+	    (usa1->domain == usa2->domain) &&
+	    (usa1->type == usa2->type) &&
+	    (usa1->len == usa2->len)) {
+		if (memcmp(&(usa1->u.sa), &(usa2->u.sa), usa1->len) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
 /**
  * ezcfg_socket_set_receive_buffer_size:
  * @sp: the socket which should receive events
@@ -632,6 +683,20 @@ void ezcfg_socket_set_need_unlink(struct ezcfg_socket *sp, bool need_unlink)
 	ASSERT(sp != NULL);
 
 	sp->need_unlink = need_unlink;
+}
+
+void ezcfg_socket_set_need_delete(struct ezcfg_socket *sp, bool need_delete)
+{
+	ASSERT(sp != NULL);
+
+	sp->need_delete = need_delete;
+}
+
+bool ezcfg_socket_get_need_delete(struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+
+	return (sp->need_delete);
 }
 
 int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path)

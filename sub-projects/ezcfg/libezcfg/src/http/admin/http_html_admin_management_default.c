@@ -102,15 +102,16 @@ static int set_html_main_management_default_result(
 		goto func_exit;
 	}
 
-	/* <p>Please wait a minute to restart the system.</p> */
+	/* <p>Please wait a minute for rebooting the system.</p> */
 	snprintf(buf, sizeof(buf), "%s",
-		ezcfg_locale_text(locale, "Please wait a minute to restart the system."));
+		ezcfg_locale_text(locale, "Please wait a minute for rebooting the system."));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
 
+#if (HAVE_EZBOX_LAN_NIC == 1)
 	/* <p>When system is up again, please click following link.</p> */
 	snprintf(buf, sizeof(buf), "%s",
 		ezcfg_locale_text(locale, "When system is up again, please click following link."));
@@ -131,8 +132,8 @@ static int set_html_main_management_default_result(
 	p_index = child_index;
 	child_index = -1;
 
-	snprintf(buf, sizeof(buf), "http://%s%s", "192.168.1.1", EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, buf);
+	snprintf(buf, sizeof(buf), "http://%s%s", EZCFG_LAN_DEFAULT_IPADDR, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
+	child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
@@ -141,6 +142,16 @@ static int set_html_main_management_default_result(
 
 	/* restore <p> index */
 	child_index = p_index;
+#elif (HAVE_EZBOX_WAN_NIC == 1)
+	/* <p>When system is up again, please visit WAN IP address.</p> */
+	snprintf(buf, sizeof(buf), "%s",
+		ezcfg_locale_text(locale, "When system is up again, please visit WAN IP address."));
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+#endif
 
 	ret = si;
 

@@ -547,7 +547,10 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 	struct ezcfg *ezcfg;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_link_list *list;
+	char tmp[2];
+	char *p;
 	char *passwd, *passwd2;
+	char *httpd_enable;
 	char *telnetd_enable;
 	bool ret = false;
 
@@ -585,12 +588,27 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 			ret = ezcfg_link_list_remove(list, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET));
 		}
 
+		/* set ezcfg_httpd service */
+		httpd_enable = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE));
+		if (httpd_enable != NULL) {
+			tmp[0] = '\0';
+			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), &p);
+			if (p != NULL) {
+				snprintf(tmp, sizeof(tmp), "%s", p);
+				free(p);
+			}
+			if (strcmp(httpd_enable, tmp) != 0) {
+				/* restart ezcfg_httpd */
+				ezcfg_util_rc_list(rc_list,
+					EZCFG_RC_SERVICE_EZCFG_HTTPD,
+					EZCFG_RC_ACT_RESTART, 1);
+			}
+		}
+
 		/* set telnetd service */
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 		telnetd_enable = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE));
 		if (telnetd_enable != NULL) {
-			char tmp[2];
-			char *p;
 			tmp[0] = '\0';
 			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), &p);
 			if (p != NULL) {
