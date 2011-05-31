@@ -1387,6 +1387,11 @@ CONFIG_PACKAGE_tk=y
 #
 
 #
+# app
+#
+CONFIG_PACKAGE_dillo=y
+
+#
 # font-utils
 #
 CONFIG_PACKAGE_fontconfig=y
