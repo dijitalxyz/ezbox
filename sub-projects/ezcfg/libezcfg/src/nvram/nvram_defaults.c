@@ -356,6 +356,15 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(RC, IPTABLES_BINDING), "wan" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_NANO_X == 1)
+	/* nano-X enabled */
+	{ NVRAM_SERVICE_OPTION(RC, NANO_X_ENABLE), "1" },
+	/* nano-X mouse port */
+	{ NVRAM_SERVICE_OPTION(NANO_X, MOUSE_PORT), "/dev/input/mouse0" },
+	/* nano-X console device */
+	{ NVRAM_SERVICE_OPTION(NANO_X, CONSOLE), "/dev/console" },
+#endif
+
 };
 
 char *default_nvram_savings[] = {

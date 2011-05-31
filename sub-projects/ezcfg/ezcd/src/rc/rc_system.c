@@ -172,6 +172,10 @@ int rc_system(int flag)
 		/* run in root HOME path */
 		chdir(ROOT_HOME_PATH);
 
+#if (HAVE_EZBOX_SERVICE_NANO_X == 1)
+		rc_nano_x(RC_STOP);
+#endif
+
 		/* FIXME: We do it in wan interface startup script */
 #if 0
 		/* stop WAN interface binding services */
@@ -274,6 +278,10 @@ int rc_system(int flag)
 			/* start WAN interface binding services */
 			rc_wan_services(RC_START);
 		}
+#endif
+
+#if (HAVE_EZBOX_SERVICE_NANO_X == 1)
+		rc_nano_x(RC_START);
 #endif
 
 		break;

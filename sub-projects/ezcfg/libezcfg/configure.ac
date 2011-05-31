@@ -228,6 +228,25 @@ AC_ARG_ENABLE([service-iptables],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES, test "x$config_ezbox_service_iptables" = xyes)
 
+# Configure nano-X service.
+config_ezbox_service_nano_x=no
+AC_MSG_CHECKING([if nano-X service is enabled])
+AC_ARG_ENABLE([service-nano_x],
+	AS_HELP_STRING([--enable-service-nano_x], [Enable nano-X service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_NANO_X], [1], [Enable nano-X service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_nano_x=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_NANO_X, test "x$config_ezbox_service_nano_x" = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.
