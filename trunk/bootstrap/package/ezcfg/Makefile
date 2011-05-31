@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=814
+PKG_REV:=822
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -83,6 +83,12 @@ endif
 ifneq ($(CONFIG_BUSYBOX_CONFIG_TELNETD),)
 CONFIGURE_ARGS += \
 	--enable-service-telnetd
+endif
+
+# set nano-X service
+ifneq ($(CONFIG_PACKAGE_microwin),)
+CONFIGURE_ARGS += \
+	--enable-service-nano_x
 endif
 
 define Build/Configure
