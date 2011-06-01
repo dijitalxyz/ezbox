@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_nano_x.c
+ * Module Name  : rc_dillo.c
  *
- * Description  : ezbox run nano-X service
+ * Description  : ezbox run dillo web browser
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-31   0.1       Write it from scratch
+ * 2011-06-01   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,49 +39,32 @@
 
 #include "ezcd.h"
 
-int rc_nano_x(int flag)
+int rc_dillo(int flag)
 {
 	int rc;
 	char buf[64];
 
 	switch (flag) {
 	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, NANO_X_ENABLE), "1");
+		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
-		/* nano-X MOUSE_PORT */
-		buf[0] = '\0';
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(NANO_X, MOUSE_PORT), buf, sizeof(buf));
-		if (buf[0] != '\0') {
-			setenv("MOUSE_PORT", buf, 1);
-		}
-
-		/* nano-X CONSOLE */
-		buf[0] = '\0';
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(NANO_X, CONSOLE), buf, sizeof(buf));
-		if (buf[0] != '\0') {
-			setenv("CONSOLE", buf, 1);
-		}
-
-		/* start nano-X server */
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n nano-X -a /usr/bin/nano-X");
+		/* start dillo web browser */
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n dillo -a /usr/bin/dillo");
 		system(buf);
 
-		/* start nanowm */
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n nanowm -a /usr/bin/nanowm");
-		system(buf);
 		break;
 
 	case RC_STOP :
-		system("start-stop-daemon -K -s KILL -n nano-X");
+		system("start-stop-daemon -K -s KILL -n dillo");
 		break;
 
 	case RC_RESTART :
-		rc = rc_nano_x(RC_STOP);
+		rc = rc_dillo(RC_STOP);
 		sleep(1);
-		rc = rc_nano_x(RC_START);
+		rc = rc_dillo(RC_START);
 		break;
 	}
 	return (EXIT_SUCCESS);

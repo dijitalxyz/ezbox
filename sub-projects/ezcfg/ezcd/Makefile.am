@@ -151,6 +151,11 @@ if CONFIG_EZBOX_SERVICE_NANO_X
 ezcd_SOURCES += src/rc/rc_nano_x.c
 endif
 
+# dillo web browser service
+if CONFIG_EZBOX_SERVICE_DILLO
+ezcd_SOURCES += src/rc/rc_dillo.c
+endif
+
 ezcd_DEPENDENCIES = libezcfg.so
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)

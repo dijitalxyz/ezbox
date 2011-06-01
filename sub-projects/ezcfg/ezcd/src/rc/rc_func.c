@@ -67,6 +67,12 @@ rc_func_t rc_functions[] = {
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 	{ "dnsmasq", RC_BOOT, rc_dnsmasq },
 #endif
+#if (HAVE_EZBOX_SERVICE_NANO_X == 1)
+	{ "nano_x", RC_BOOT, rc_nano_x },
+#endif
+#if (HAVE_EZBOX_SERVICE_DILLO == 1)
+	{ "dillo", RC_BOOT, rc_dillo },
+#endif
 };
 
 rc_func_t *utils_find_rc_func(char *name)

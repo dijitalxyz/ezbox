@@ -62,6 +62,10 @@ extern int rc_wan_iptables(int flag);
 #endif
 #endif
 
+#if (HAVE_EZBOX_SERVICE_NANO_X == 1)
+extern int rc_nano_x(int flag);
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int flag);
 extern int rc_lan_if(int flag);

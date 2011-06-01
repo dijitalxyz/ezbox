@@ -365,6 +365,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(NANO_X, CONSOLE), "/dev/console" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_DILLO == 1)
+	/* nano-X enabled */
+	{ NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1" },
+#endif
+
 };
 
 char *default_nvram_savings[] = {

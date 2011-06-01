@@ -247,6 +247,25 @@ AC_ARG_ENABLE([service-nano_x],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_NANO_X, test "x$config_ezbox_service_nano_x" = xyes)
 
+# Configure dillo web browser service.
+config_ezbox_service_dillo=no
+AC_MSG_CHECKING([if dillo web browser service is enabled])
+AC_ARG_ENABLE([service-dillo],
+	AS_HELP_STRING([--enable-service-dillo], [Enable dillo web browser service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DILLO], [1], [Enable dillo web browser service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_dillo=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DILLO, test "x$config_ezbox_service_dillo" = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.

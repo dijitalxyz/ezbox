@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-16   0.1       Write it from scratch
@@ -23,6 +23,7 @@
 #include "ezcfg-ui.h"
 #include "ezcfg-dnsmasq.h"
 #include "ezcfg-nano_x.h"
+#include "ezcfg-dillo.h"
 
 #define GLUE2(a, b)      	a ## b
 #define GLUE3(a, b, c)   	a ## b ## c
