@@ -26,5 +26,6 @@
 #define EZCFG_RC_IPTABLES_ENABLE         "iptables_enable"
 #define EZCFG_RC_IPTABLES_BINDING        "iptables_binding"
 #define EZCFG_RC_NANO_X_ENABLE           "nano-X_enable"
+#define EZCFG_RC_DILLO_ENABLE            "dillo_enable"
 
 #endif
