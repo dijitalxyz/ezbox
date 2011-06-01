@@ -272,7 +272,7 @@ PSP                      = N
 VTSWITCH                 = N
 FBREVERSE                = N
 GRAYPALETTE              = N
-HAVETEXTMODE             = N
+HAVETEXTMODE             = Y
 
 # SA1100_LCD_LTLEND 4bpp driver with arm SA1100 LCD controller
 # INVERT4BPP 4bpp inverted pixel driver for VTech Helio
