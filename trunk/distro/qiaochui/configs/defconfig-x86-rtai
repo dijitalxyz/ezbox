@@ -1392,6 +1392,11 @@ CONFIG_PACKAGE_tk=y
 CONFIG_PACKAGE_dillo=y
 
 #
+# font
+#
+CONFIG_PACKAGE_dejavu-fonts-ttf=y
+
+#
 # font-utils
 #
 CONFIG_PACKAGE_fontconfig=y

@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=822
+PKG_REV:=830
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -89,6 +89,12 @@ endif
 ifneq ($(CONFIG_PACKAGE_microwin),)
 CONFIGURE_ARGS += \
 	--enable-service-nano_x
+endif
+
+# set dillo web browser service
+ifneq ($(CONFIG_PACKAGE_dillo),)
+CONFIGURE_ARGS += \
+	--enable-service-dillo
 endif
 
 define Build/Configure
