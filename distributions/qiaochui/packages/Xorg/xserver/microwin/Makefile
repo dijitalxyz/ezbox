@@ -53,6 +53,7 @@ endef
 
 define Build/Configure
 	$(CP) ./files/configs/defconfig-$(NANOX_CONFIG) $(PKG_BUILD_DIR)/src/config
+	rm -rf $(PKG_BUILD_DIR)/src/demos/vnc
 endef
 
 define Build/Compile
@@ -79,6 +80,8 @@ define Build/Install
 		LDFLAGS="-L$(PKG_BUILD_DIR)/src/lib -L$(STAGING_DIR)/usr/lib -lz -ljpeg -lpng -lfreetype" \
 		install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/bin/nanowm $(PKG_INSTALL_DIR)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/bin/nxkbd $(PKG_INSTALL_DIR)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/bin/nxterm $(PKG_INSTALL_DIR)/usr/bin/
 endef
 
 define Build/InstallDev
@@ -97,6 +100,12 @@ define Package/microwin/install
 		$(1)/usr/lib/
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/bin/nanowm \
+		$(1)/usr/bin/
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/bin/nxkbd \
+		$(1)/usr/bin/
+	$(INSTALL_BIN) \
+		$(PKG_INSTALL_DIR)/usr/bin/nxterm \
 		$(1)/usr/bin/
 endef
 
