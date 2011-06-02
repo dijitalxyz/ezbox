@@ -12,12 +12,15 @@
 #define CMD_IFUP		"/sbin/ifup"
 #define CMD_INSMOD		"/sbin/insmod"
 #define CMD_KILLALL		"/usr/bin/killall"
+#define CMD_LOGIN  		"/bin/login"
 #define CMD_MKDIR  		"/bin/mkdir"
 #define CMD_MV  		"/bin/mv"
+#define CMD_RC  		"/sbin/rc"
 #define CMD_RM  		"/bin/rm"
 #define CMD_RMMOD  		"/sbin/rmmod"
 #define CMD_ROUTE  		"/sbin/route"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
+#define CMD_UMOUNT		"/bin/umount"
 
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"

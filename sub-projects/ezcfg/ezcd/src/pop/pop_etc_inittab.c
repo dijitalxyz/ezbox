@@ -42,22 +42,21 @@
 int pop_etc_inittab(int flag)
 {
         FILE *file = NULL;
+	char buf[64];
 
 	/* generate /etc/inittab */
 	file = fopen("/etc/inittab", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	fprintf(file, "%s\n", "::sysinit:/sbin/rc system start");
+	snprintf(buf, sizeof(buf), "%s %s", CMD_RC, "system start");
+	fprintf(file, "::sysinit:%s\n", buf);
+	snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, "-a -f");
+	fprintf(file, "::shutdown:%s\n", buf);
 #if 0
-	//fprintf(file, "%s\n", "::shutdown:/sbin/rc system stop");
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/ash --login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/ash --login");
-#else
-	fprintf(file, "%s\n", "tts/0::askfirst:/bin/login");
-	fprintf(file, "%s\n", "ttyS0::askfirst:/bin/login");
-	fprintf(file, "%s\n", "tty1::askfirst:/bin/login");
+	fprintf(file, "tts/0::askfirst:%s\n", CMD_LOGIN);
+	fprintf(file, "ttyS0::askfirst:%s\n", CMD_LOGIN);
+	fprintf(file, "tty0::askfirst:%s\n", CMD_LOGIN);
 #endif
 
 	fclose(file);
