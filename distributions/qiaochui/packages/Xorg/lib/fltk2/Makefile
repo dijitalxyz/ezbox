@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fltk2
-PKG_REV:=8571
+PKG_REV:=8772
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=2
 
