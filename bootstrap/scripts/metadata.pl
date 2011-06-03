@@ -45,7 +45,6 @@ sub parse_target_metadata() {
 				$target->{parent} = $target{$1};
 			}
 		};
-		/^Target-Kernel:\s*(\d+\.\d+)\s*$/ and $target->{kernel} = $1;
 		/^Target-Name:\s*(.+)\s*$/ and $target->{name} = $1;
 		/^Target-Path:\s*(.+)\s*$/ and $target->{path} = $1;
 		/^Target-Arch:\s*(.+)\s*$/ and $target->{arch} = $1;
@@ -227,6 +226,8 @@ EOF
 	}
 	if (@{$target->{subtargets}} > 0) {
 		$confstr .= "\tselect HAS_SUBTARGETS\n";
+	} else {
+		$confstr .= $features;
 	}
 
 	if ($target->{arch} =~ /\w/) {
@@ -246,7 +247,6 @@ EOF
 		$flags =~ /\+/ and $mode = "select";
 		$flags =~ /@/ and $confstr .= "\t$mode $name\n";
 	}
-	$confstr .= $features;
 	$confstr .= "$help\n\n";
 	print $confstr;
 }
@@ -530,6 +530,7 @@ sub print_package_config_category($) {
 				print "\t\tdefault $default\n";
 			}
 			print mconf_depends($pkg->{name}, $pkg->{depends}, 0);
+			print mconf_depends($pkg->{name}, $pkg->{mdepends}, 0);
 			print "\t\thelp\n";
 			print $pkg->{description};
 			print "\n";
