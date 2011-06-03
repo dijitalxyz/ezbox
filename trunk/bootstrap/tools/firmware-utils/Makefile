@@ -47,7 +47,11 @@ define Host/Compile
 	$(call cc,mktitanimg)
 	$(call cc,mkchkimg)
 	$(call cc,mkzcfw cyg_crc32)
+	$(call cc,spw303v)
 	$(call cc,trx2edips)
+	$(call cc,xorimage)
+	$(call cc,buffalo-enc buffalo-lib, -Wall)
+	$(call cc,buffalo-tag buffalo-lib, -Wall)
 endef
 
 define Host/Install
