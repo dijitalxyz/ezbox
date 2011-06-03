@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=base-files
-PKG_RELEASE:=68
+PKG_RELEASE:=71
 
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=opkg/host
@@ -57,6 +57,7 @@ define Package/base-files/conffiles
 /etc/sysupgrade.conf
 /etc/config/
 /etc/dropbear/
+/etc/crontabs/
 $(call $(TARGET)/conffiles)
 endef
 
@@ -487,10 +488,11 @@ ifeq ($(CONFIG_EXTERNAL_TOOLCHAIN),)
 		$(TOOLCHAIN_DIR)/lib/ld-$(LIBC_SO_VERSION).so \
 		$(1)/lib/
 	for file in libanl libc libcidn libcrypt libdl libm $(use_libnsl) $(use_nsswitch) libresolv $(use_libutil); do \
-		$(CP) \
-			$(TOOLCHAIN_DIR)/lib/$$$$file.so.* \
-			$(TOOLCHAIN_DIR)/lib/$$$$file-$(LIBC_SO_VERSION).so \
-			$(1)/lib/; \
+		for file in $(TOOLCHAIN_DIR)/lib/$$$$file.so.* $(TOOLCHAIN_DIR)/lib/$$$$file-$(LIBC_SO_VERSION).so; do \
+			if [ -e "$$$$file" ]; then \
+				$(CP) $$$$file $(1)/lib/; \
+			fi; \
+		done; \
 	done
   endef
 
@@ -575,7 +577,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBGCC_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/libssp/install
@@ -583,7 +586,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBSSP_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/libstdcpp/install
@@ -591,7 +595,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBSTDCPP_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/libc/install
@@ -599,7 +604,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBC_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/libpthread/install
@@ -607,7 +613,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBPTHREAD_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/librt/install
@@ -615,7 +622,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LIBRT_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/ldd/install
@@ -623,7 +631,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LDD_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
   define Package/ldconfig/install
@@ -631,7 +640,8 @@ else
 		dir=`dirname $$$$file` ; \
 		$(INSTALL_DIR) $(1)/$$$$dir ; \
 		$(CP) $(call qstrip,$(CONFIG_LDCONFIG_ROOT_DIR))/$$$$file $(1)/$$$$dir/ ; \
-	done
+	done ; \
+	exit 0
   endef
 
 endif
