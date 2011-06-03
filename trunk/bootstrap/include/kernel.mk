@@ -109,7 +109,6 @@ define KernelPackage
   $(eval $(call Package/Default))
   $(eval $(call KernelPackage/Defaults))
   $(eval $(call KernelPackage/$(1)))
-  $(eval $(call KernelPackage/$(1)/$(KERNEL)))
   $(eval $(call KernelPackage/$(1)/$(BOARD)))
 
   define Package/kmod-$(1)
@@ -120,7 +119,6 @@ define KernelPackage
     EXTRA_DEPENDS:=kernel (=$(LINUX_VERSION)-$(LINUX_RELEASE))
     VERSION:=$(LINUX_VERSION)$(if $(PKG_VERSION),+$(PKG_VERSION))-$(if $(PKG_RELEASE),$(PKG_RELEASE),$(LINUX_RELEASE))
     $(call KernelPackage/$(1))
-    $(call KernelPackage/$(1)/$(KERNEL))
     $(call KernelPackage/$(1)/$(BOARD))
   endef
 
@@ -163,11 +161,20 @@ define AutoLoad
   add_module "$(1)" "$(2)" "$(3)";
 endef
 
+version_field=$(if $(word $(1),$(2)),$(word $(1),$(2)),0)
+kernel_version_merge=$$(( ($(call version_field,1,$(1)) << 24) + ($(call version_field,2,$(1)) << 16) + ($(call version_field,3,$(1)) << 8) + $(call version_field,4,$(1)) ))
+
 ifdef DUMP
-  CompareKernelPatchVer=0
+  kernel_version_cmp=
 else
-  define CompareKernelPatchVer
-    $(shell [ $$(echo $(1) | tr . 0) -$(2) $$(echo $(3) | tr . 0) ] && echo 1 || echo 0)
-  endef
+  kernel_version_cmp=$(shell [ $(call kernel_version_merge,$(call split_version,$(2))) $(1) $(call kernel_version_merge,$(call split_version,$(3))) ] && echo 1 )
 endif
+
+CompareKernelPatchVer=$(if $(call kernel_version_cmp,-$(2),$(1),$(3)),1,0)
+
+kernel_patchver_gt=$(call kernel_version_cmp,-gt,$(KERNEL_PATCHVER),$(1))
+kernel_patchver_ge=$(call kernel_version_cmp,-ge,$(KERNEL_PATCHVER),$(1))
+kernel_patchver_eq=$(call kernel_version_cmp,-eq,$(KERNEL_PATCHVER),$(1))
+kernel_patchver_le=$(call kernel_version_cmp,-lt,$(KERNEL_PATCHVER),$(1))
+kernel_patchver_lt=$(call kernel_version_cmp,-le,$(KERNEL_PATCHVER),$(1))
 
