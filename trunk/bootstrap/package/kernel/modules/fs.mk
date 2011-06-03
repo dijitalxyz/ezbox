@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2010 OpenWrt.org
+# Copyright (C) 2006-2011 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -25,7 +25,7 @@ $(eval $(call KernelPackage,fs-autofs4))
 define KernelPackage/fs-btrfs
   SUBMENU:=$(FS_MENU)
   TITLE:=BTRFS filesystem support
-  DEPENDS:=+kmod-libcrc32c
+  DEPENDS:=+kmod-libcrc32c +kmod-zlib
   KCONFIG:=\
 	CONFIG_BTRFS_FS \
 	CONFIG_BTRFS_FS_POSIX_ACL=n
@@ -76,7 +76,7 @@ define KernelPackage/fs-ext2
   SUBMENU:=$(FS_MENU)
   TITLE:=EXT2 filesystem support
   KCONFIG:=CONFIG_EXT2_FS
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache)
+  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
   FILES:=$(LINUX_DIR)/fs/ext2/ext2.ko
   AUTOLOAD:=$(call AutoLoad,32,ext2,1)
 endef
@@ -94,7 +94,7 @@ define KernelPackage/fs-ext3
   KCONFIG:= \
 	CONFIG_EXT3_FS \
 	CONFIG_JBD
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache)
+  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
   FILES:= \
 	$(LINUX_DIR)/fs/ext3/ext3.ko \
 	$(LINUX_DIR)/fs/jbd/jbd.ko
@@ -218,10 +218,6 @@ define KernelPackage/fs-msdos
   FILES:=$(LINUX_DIR)/fs/fat/msdos.ko
   AUTOLOAD:=$(call AutoLoad,40,msdos)
 $(call AddDepends/nls)
-endef
-
-define KernelPackage/fs-msdos/2.4
-  FILES:=$(LINUX_DIR)/fs/msdos/msdos.ko
 endef
 
 define KernelPackage/fs-msdos/description
@@ -357,12 +353,6 @@ define KernelPackage/fs-vfat
 	$(LINUX_DIR)/fs/fat/vfat.ko
   AUTOLOAD:=$(call AutoLoad,30,fat vfat)
 $(call AddDepends/nls)
-endef
-
-define KernelPackage/fs-vfat/2.4
-  FILES:= \
-	$(LINUX_DIR)/fs/fat/fat.ko \
-	$(LINUX_DIR)/fs/vfat/vfat.ko
 endef
 
 define KernelPackage/fs-vfat/description

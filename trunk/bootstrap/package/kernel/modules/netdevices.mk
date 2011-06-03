@@ -224,7 +224,7 @@ $(eval $(call KernelPackage,8139cp))
 define KernelPackage/r8169
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=RealTek RTL-8169 PCI Gigabit Ethernet Adapter kernel support
-  DEPENDS:=@TARGET_x86
+  DEPENDS:=@PCI_SUPPORT
   KCONFIG:=CONFIG_R8169 \
     CONFIG_R8169_NAPI=y \
     CONFIG_R8169_VLAN=n
@@ -268,6 +268,13 @@ endef
 
 define KernelPackage/e100/description
  Kernel modules for Intel(R) PRO/100+ Ethernet adapters.
+endef
+
+define KernelPackage/e100/install
+	$(INSTALL_DIR) $(1)/lib/firmware/e100
+	$(foreach file,d101m_ucode.bin d101s_ucode.bin d102e_ucode.bin, \
+		$(TARGET_CROSS)objcopy -Iihex -Obinary $(LINUX_DIR)/firmware/e100/$(file).ihex $(1)/lib/firmware/e100/$(file); \
+	)
 endef
 
 $(eval $(call KernelPackage,e100))
@@ -390,8 +397,26 @@ endef
 
 $(eval $(call KernelPackage,ssb-gige))
 
+
+define KernelPackage/hfcpci
+  TITLE:=HFC PCI cards (single port) support for mISDN
+  KCONFIG:=CONFIG_MISDN_HFCPCI
+  DEPENDS:=+kmod-misdn
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  FILES:=$(LINUX_DIR)/drivers/isdn/hardware/mISDN/hfcpci.ko
+  AUTOLOAD:=$(call AutoLoad,31,hfcpci)
+endef
+
+define KernelPackage/hfcpci/description
+ Kernel modules for Cologne AG's HFC pci cards (single port)
+ using the mISDN V2 stack.
+endef
+
+$(eval $(call KernelPackage,hfcpci))
+
+
 define KernelPackage/hfcmulti
-  TITLE:=HFC multiport cards (HFC-4S/8S/E1)
+  TITLE:=HFC multiport cards (HFC-4S/8S/E1) support for mISDN
   KCONFIG:=CONFIG_MISDN_HFCMULTI
   DEPENDS:=+kmod-misdn
   SUBMENU:=$(NETWORK_DEVICES_MENU)
@@ -400,7 +425,8 @@ define KernelPackage/hfcmulti
 endef
 
 define KernelPackage/hfcmulti/description
-  HFC multiport cards (HFC-4S/8S/E1) support
+ Kernel modules for Cologne AG's HFC multiport cards (HFC-4S/8S/E1)
+ using the mISDN V2 stack.
 endef
 
 $(eval $(call KernelPackage,hfcmulti))
@@ -408,7 +434,7 @@ $(eval $(call KernelPackage,hfcmulti))
 
 define KernelPackage/gigaset
   SUBMENU:=$(NETWORK_DEVICES_MENU)
-  TITLE:=Siemens Gigaset support (isdn)
+  TITLE:=Siemens Gigaset support for isdn4linux
   DEPENDS:=@USB_SUPPORT +kmod-isdn4linux +kmod-crc-ccitt +kmod-usb-core
   URL:=http://gigaset307x.sourceforge.net/
   KCONFIG:= \

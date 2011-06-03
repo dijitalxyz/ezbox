@@ -355,7 +355,7 @@ $(eval $(call KernelPackage,usb-serial-ftdi))
 define KernelPackage/usb-serial-ipw
   TITLE:=Support for IPWireless 3G devices
   KCONFIG:=CONFIG_USB_SERIAL_IPW
-  FILES:=$(LINUX_DIR)/drivers/usb/serial/ipw.$(LINUX_KMOD_SUFFIX)
+  FILES:=$(LINUX_DIR)/drivers/usb/serial/ipw.ko
   AUTOLOAD:=$(call AutoLoad,65,ipw)
   $(call AddDepends/usb-serial)
 endef
@@ -546,7 +546,7 @@ $(eval $(call KernelPackage,usb-serial-keyspan))
 
 define KernelPackage/usb-serial-wwan
   TITLE:=Support for GSM and CDMA modems
-  DEPENDS:= @LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38
+  DEPENDS:= @LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38||LINUX_2_6_39
   KCONFIG:=CONFIG_USB_SERIAL_WWAN
   FILES:=$(LINUX_DIR)/drivers/usb/serial/usb_wwan.ko
   AUTOLOAD:=$(call AutoLoad,61,usb_wwan)
@@ -562,7 +562,7 @@ $(eval $(call KernelPackage,usb-serial-wwan))
 
 define KernelPackage/usb-serial-option
   TITLE:=Support for Option HSDPA modems
-  DEPENDS:=+LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38:kmod-usb-serial-wwan
+  DEPENDS:=+LINUX_2_6_35||LINUX_2_6_36||LINUX_2_6_37||LINUX_2_6_38||LINUX_2_6_39:kmod-usb-serial-wwan
   KCONFIG:=CONFIG_USB_SERIAL_OPTION
   FILES:=$(LINUX_DIR)/drivers/usb/serial/option.ko
   AUTOLOAD:=$(call AutoLoad,65,option)
@@ -715,7 +715,7 @@ $(eval $(call KernelPackage,usb-atm-cxacru))
 
 define KernelPackage/usb-net
   TITLE:=Kernel modules for USB-to-Ethernet convertors
-  KCONFIG:=CONFIG_USB_USBNET
+  KCONFIG:=CONFIG_USB_USBNET CONFIG_MII=y
   AUTOLOAD:=$(call AutoLoad,60,usbnet)
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/usbnet.ko
   $(call AddDepends/usb)
@@ -853,6 +853,20 @@ define KernelPackage/usb-net-rndis/description
 endef
 
 $(eval $(call KernelPackage,usb-net-rndis))
+
+define KernelPackage/usb-net-sierrawireless
+  TITLE:=Support for Sierra Wireless devices
+  KCONFIG:=CONFIG_USB_SIERRA_NET
+  FILES:=$(LINUX_DIR)/drivers/net/usb/sierra_net.ko
+  AUTOLOAD:=$(call AutoLoad,65,sierra_net)
+  $(call AddDepends/usb-net)
+endef
+
+define KernelPackage/usb-net-sierrawireless/description
+ Kernel support for Sierra Wireless devices
+endef
+
+$(eval $(call KernelPackage,usb-net-sierrawireless))
 
 
 define KernelPackage/usb-hid
