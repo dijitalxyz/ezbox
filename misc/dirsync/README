@@ -2,3 +2,25 @@
 2) Run command to generate diffs between source and dest dirs.
 	./gen_diff.sh <source dir> <dest dir> <itemlist file>
 3) The diffs will put in diff/ directory
+
+====================================
+Notes!!!
+====================================
+1. bootstrap
+
+a. Add config ENABLE_LOCALE.
+bootstrap/Config.in
+
+b. Add DEFAULT_PACKAGES:=ezcfg libc libgcc busybox hotplug2
+bootstrap/include/target.mk
+
+c. Fix ifeq ($(CONFIG_ENABLE_LOCALE),true) to ifeq ($(CONFIG_ENABLE_LOCALE),y)
+bootstrap/rules.mk
+
+d. Add locale config file for CONFIG_ENABLE_LOCALE=y
+bootstrap/toolchain/uClibc/config-0.9.32/locale
+
+e. Fix Fedora 13 and up ['sqrt@@GLIBC_2.0' is defined in DSO /lib/libm.so.6 so try adding it to the linker command line] issue
+bootstrap/tools/cloog/Makefile
+bootstrap/toolchain/gcc/common.mk
+====================================
