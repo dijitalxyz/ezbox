@@ -19,7 +19,7 @@ tools-y += sstrip ipkg-utils genext2fs e2fsprogs mtd-utils mkimage
 tools-y += firmware-utils patch-cmdline quilt yaffs2 flock
 tools-y += mm-macros xorg-macros xfce-macros missing-macros xz cmake
 tools-$(CONFIG_TARGET_orion_generic) += wrt350nv2-builder upslug2
-tools-$(CONFIG_TARGET_x86) += qemu
+tools-$(CONFIG_TARGET_x86) += qemu mkelfimage
 ifneq ($(CONFIG_TARGET_ar71xx),)
 tools-y += lzma-old squashfs 
 endif
@@ -38,7 +38,7 @@ $(curdir)/bison/compile := $(curdir)/flex/install
 $(curdir)/pkg-config/compile := $(curdir)/sed/install
 $(curdir)/libtool/compile := $(curdir)/sed/install
 $(curdir)/squashfs/compile := $(curdir)/lzma-old/install
-$(curdir)/squashfs4/compile := $(curdir)/lzma/install
+$(curdir)/squashfs4/compile := $(curdir)/xz/install
 $(curdir)/quilt/compile := $(curdir)/sed/install $(curdir)/autoconf/install
 $(curdir)/dtc/compile := $(curdir)/bison/install
 $(curdir)/autoconf/compile := $(curdir)/m4/install $(curdir)/libtool/install
@@ -65,7 +65,7 @@ $(curdir)/builddirs-default := $(tools-y)
 ifndef DUMP_TARGET_DB
 define PrepareStaging
 	@for dir in $(1); do ( \
-		set -x; \
+		$(if $(QUIET),,set -x;) \
 		mkdir -p "$$dir"; \
 		cd "$$dir"; \
 		mkdir -p bin lib include stamp; \

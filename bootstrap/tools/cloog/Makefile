@@ -20,7 +20,7 @@ include $(INCLUDE_DIR)/host-build.mk
 unexport CFLAGS
 
 HOST_CONFIGURE_VARS += \
-	LIBS="-lstdc++ -lm"
+	LIBS=-lstdc++
 
 HOST_CONFIGURE_ARGS += \
 	--enable-static \
