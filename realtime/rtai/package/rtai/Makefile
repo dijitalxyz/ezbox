@@ -9,11 +9,16 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtai
-PKG_VERSION:=3.8.1
+# PKG_VERSION:=3.8.1
+PKG_VERSION:=20110603
 PKG_RELEASE:=1
 
+PKG_SOURCE_PROTO:=cvs
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-PKG_SOURCE_URL:=http://www.rtai.org/RTAI/
+# PKG_SOURCE_URL:=http://www.rtai.org/RTAI/
+PKG_SOURCE_URL:=:pserver:anonymous@cvs.gna.org:/cvs/rtai
+PKG_SOURCE_SUBDIR:=magma
+PKG_SOURCE_VERSION:=-D$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 
