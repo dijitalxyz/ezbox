@@ -1,24 +1,24 @@
 --- a/networking/udhcp/common.c
 +++ b/networking/udhcp/common.c
-@@ -54,6 +54,8 @@ const struct dhcp_optflag dhcp_optflags[
- 	{ OPTION_SIP_SERVERS                      , 0x78 }, /* DHCP_SIP_SERVERS   */
+@@ -56,6 +56,8 @@ const struct dhcp_optflag dhcp_optflags[
  #endif
  	{ OPTION_STATIC_ROUTES                    , 0x79 }, /* DHCP_STATIC_ROUTES */
+ 	{ OPTION_STATIC_ROUTES                    , 0xf9 }, /* DHCP_MS_STATIC_ROUTES */
 +	{ OPTION_6RD                              , 0xd4 }, /* DHCP_6RD (RFC)     */
 +	{ OPTION_6RD                              , 0x96 }, /* DHCP_6RD (Comcast) */
  	{ OPTION_STRING                           , 0xfc }, /* DHCP_WPAD          */
  
  	/* Options below have no match in dhcp_option_strings[],
-@@ -114,6 +116,8 @@ const char dhcp_option_strings[] ALIGN1 
- // doesn't work in udhcpd.conf since OPTION_STATIC_ROUTES
+@@ -119,6 +121,8 @@ const char dhcp_option_strings[] ALIGN1 
  // is not handled yet by "string->option" conversion code:
  	"staticroutes" "\0"/* DHCP_STATIC_ROUTES  */
+ 	"msstaticroutes""\0"/* DHCP_MS_STATIC_ROUTES */
 +	"ip6rd" "\0"       /* DHCP_6RD (RFC)      */
 +	"ip6rd" "\0"       /* DHCP_6RD (Comcast)  */
  	"wpad" "\0"        /* DHCP_WPAD           */
  	;
  
-@@ -141,6 +145,7 @@ const uint8_t dhcp_option_lengths[] ALIG
+@@ -146,6 +150,7 @@ const uint8_t dhcp_option_lengths[] ALIG
  	[OPTION_S32] =     4,
  	/* Just like OPTION_STRING, we use minimum length here */
  	[OPTION_STATIC_ROUTES] = 5,
@@ -26,6 +26,16 @@
  };
  
  
+--- a/networking/udhcp/common.h
++++ b/networking/udhcp/common.h
+@@ -88,6 +88,7 @@ enum {
+ 	OPTION_S32,
+ 	OPTION_BIN,
+ 	OPTION_STATIC_ROUTES,
++	OPTION_6RD,
+ #if ENABLE_FEATURE_UDHCP_RFC3397
+ 	OPTION_DNS_STRING,  /* RFC1035 compressed domain name list */
+ 	OPTION_SIP_SERVERS,
 --- a/networking/udhcp/dhcpc.c
 +++ b/networking/udhcp/dhcpc.c
 @@ -45,6 +45,7 @@ static const uint8_t len_of_option_as_st
@@ -131,13 +141,3 @@
  #if ENABLE_FEATURE_UDHCP_RFC3397
  		case OPTION_DNS_STRING:
  			/* unpack option into dest; use ret for prefix (i.e., "optname=") */
---- a/networking/udhcp/common.h
-+++ b/networking/udhcp/common.h
-@@ -88,6 +88,7 @@ enum {
- 	OPTION_S32,
- 	OPTION_BIN,
- 	OPTION_STATIC_ROUTES,
-+	OPTION_6RD,
- #if ENABLE_FEATURE_UDHCP_RFC3397
- 	OPTION_DNS_STRING,  /* RFC1035 compressed domain name list */
- 	OPTION_SIP_SERVERS,
