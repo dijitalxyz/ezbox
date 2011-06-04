@@ -77,7 +77,7 @@ int rc_telnetd(int flag)
 			return (EXIT_FAILURE);
 		}
 
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n telnetd -a /usr/sbin/telnetd -- -l %s -b %d.%d.%d.%d", CMD_LOGIN, ip[0], ip[1], ip[2], ip[3]);
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n telnetd -a %s -- -l %s -b %d.%d.%d.%d", CMD_TELNETD, CMD_LOGIN, ip[0], ip[1], ip[2], ip[3]);
 		system(buf);
 		break;
 

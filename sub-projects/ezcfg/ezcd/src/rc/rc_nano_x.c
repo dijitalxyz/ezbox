@@ -72,6 +72,10 @@ int rc_nano_x(int flag)
 		/* start nanowm */
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n nanowm -a /usr/bin/nanowm");
 		system(buf);
+
+		/* start nxterm */
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n nxterm -a /usr/bin/nxterm");
+		system(buf);
 		break;
 
 	case RC_STOP :
