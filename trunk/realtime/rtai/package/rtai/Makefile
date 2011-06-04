@@ -20,6 +20,8 @@ PKG_SOURCE_URL:=:pserver:anonymous@cvs.gna.org:/cvs/rtai
 PKG_SOURCE_SUBDIR:=magma
 PKG_SOURCE_VERSION:=-D$(PKG_VERSION)
 
+PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/magma
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/rtai/Default
