@@ -33,6 +33,14 @@ define Package/libXft
   URL:=http://xorg.freedesktop.org/
 endef
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+
+define Build/Configure
+	(cd $(PKG_BUILD_DIR); autoconf );
+	$(call Build/Configure/Default, --with-x --x-libraries=$(STAGING_DIR)/usr/lib --x-includes=$(STAGING_DIR)/usr/include --with-freetype-config=$(STAGING_DIR)/host/bin/freetype-config)
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/{lib/pkgconfig,include/X11/Xft}
 	$(CP) \
