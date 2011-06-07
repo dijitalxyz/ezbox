@@ -21,5 +21,8 @@ packages/libs/jpeg/
 packages/libs/libiconv-full/
 packages/libs/libpng/
 packages/libs/tiff/
+packages/Xorg/app/dillo/
+packages/Xorg/font/dejavu-fonts-ttf/
 packages/Xorg/lib/fltk2/
 packages/Xorg/xorg/app/fontconfig/
+packages/Xorg/xorg/lib/libXft/
