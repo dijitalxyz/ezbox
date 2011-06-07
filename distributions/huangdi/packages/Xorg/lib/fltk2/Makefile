@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fltk2
-PKG_REV:=8571
+PKG_REV:=8772
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=2
 
@@ -30,7 +30,7 @@ define Package/fltk2
   SUBMENU:=framework
   TITLE:=Fltk2
   URL:=http://fltk.org/
-  DEPENDS:=@DISPLAY_SUPPORT +libstdcpp +libfreetype \
+  DEPENDS:=@DISPLAY_SUPPORT +libstdcpp +libXft +zlib +libjpeg +libpng \
   +FEATURE_drawing-backend_nxlib:nxlib \
   +FEATURE_drawing-backend_libX11:libXi
 endef
@@ -46,11 +46,15 @@ define Package/fltk2/description
 endef
 
 TARGET_LDFLAGS += \
+	-lz \
+	-lexpat \
+	-lfreetype \
+	-lfontconfig \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); autoconf );
-	$(call Build/Configure/Default, --disable-jpeg --disable-zlib --disable-png --disable-gl --disable-xinerama --enable-shared --x-libraries=$(STAGING_DIR)/usr/lib --x-includes=$(STAGING_DIR)/usr/include)
+	$(call Build/Configure/Default, --enable-jpeg --enable-zlib --enable-png --disable-gl --disable-xinerama --enable-shared --x-libraries=$(STAGING_DIR)/usr/lib --x-includes=$(STAGING_DIR)/usr/include)
 endef
 
 define Build/Compile
@@ -66,6 +70,10 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/fltk $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/fltk2-config $(1)/usr/bin/
+	$(INSTALL_DIR) $(2)/bin
+	for f in fltk2-config; do \
+		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \
+	done
 endef
 
 define Package/fltk2/install

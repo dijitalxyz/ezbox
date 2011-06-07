@@ -28,7 +28,7 @@ define Package/dillo
   SUBMENU:=app
   TITLE:=Dillo2
   URL:=http://fltk.org/
-  DEPENDS:=+libstdcpp +libpthread +zlib +fltk2 +libjpeg +libpng $(ICONV_DEPENDS)
+  DEPENDS:=+libXft +libstdcpp +libpthread +zlib +fltk2 +libjpeg +libpng $(ICONV_DEPENDS)
 endef
 
 define Package/dillo/description
@@ -42,6 +42,8 @@ endef
 
 EXTRA_CPPFLAGS+=-I$(ICONV_PREFIX)/include
 EXTRA_LDFLAGS+=-L$(ICONV_PREFIX)/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
+
+TARGET_LDFLAGS +=-ljpeg -lpng
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); ./autogen.sh );
