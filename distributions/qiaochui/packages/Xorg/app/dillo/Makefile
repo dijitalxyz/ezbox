@@ -43,6 +43,8 @@ endef
 EXTRA_CPPFLAGS+=-I$(ICONV_PREFIX)/include
 EXTRA_LDFLAGS+=-L$(ICONV_PREFIX)/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
+TARGET_LDFLAGS +=-ljpeg -lpng
+
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); ./autogen.sh );
 	$(call Build/Configure/Default)

@@ -1,9 +1,24 @@
 --- nxlib/stub.c	2011-06-06 21:41:28.072154687 +0800
 +++ nxlib/stub.c	2011-06-06 21:42:25.063172842 +0800
-@@ -194,3 +194,6 @@
+@@ -194,3 +194,21 @@
  int XRenderFindFormat() { DPRINTF("XRenderFindFormat called\n"); return 0; }
  int _XGetAsyncReply() { DPRINTF("_XGetAsyncReply called\n"); return 0; }
  int XShapeQueryVersion() { DPRINTF("XShapeQueryVersion called\n"); return 0; }
 +
 +/* required for libXft */
 +int XRenderFindStandardFormat() { DPRINTF("XRenderFindStandardFormat called\n"); return 0; }
++int XRenderCreateGlyphSet() { DPRINTF("XRenderCreateGlyphSet called\n"); return 0; }
++int XRenderFreeGlyphs() { DPRINTF("XRenderFreeGlyphs called\n"); return 0; }
++int XRenderFillRectangle() { DPRINTF("XRenderFillRectangle called\n"); return 0; }
++int XRenderSetPictureClipRegion() { DPRINTF("XRenderSetPictureClipRegion called\n"); return 0; }
++int XRenderCompositeString16() { DPRINTF("XRenderCompositeString16 called\n"); return 0; }
++int XRenderQueryVersion() { DPRINTF("XRenderQueryVersion called\n"); return 0; }
++int XRenderFreeGlyphSet() { DPRINTF("XRenderFreeGlyphSet called\n"); return 0; }
++int XRenderCompositeString8() { DPRINTF("XRenderCompositeString8 called\n"); return 0; }
++int XRenderAddGlyphs() { DPRINTF("XRenderAddGlyphs called\n"); return 0; }
++int XRenderCompositeText32() { DPRINTF("XRenderCompositeText32 called\n"); return 0; }
++int XRenderCompositeString32() { DPRINTF("XRenderCompositeString32 called\n"); return 0; }
++int XRenderCompositeText16() { DPRINTF("XRenderCompositeText16 called\n"); return 0; }
++int XRenderCompositeText8() { DPRINTF("XRenderCompositeText8 called\n"); return 0; }
++int XRenderSetPictureFilter() { DPRINTF("XRenderSetPictureFilter called\n"); return 0; }
++int XRenderSetPictureTransform() { DPRINTF("XRenderSetPictureTransform called\n"); return 0; }
