@@ -85,7 +85,13 @@ define Build/InstallDev
 	$(SED) 's,$(STAGING_DIR),,g' $(1)/usr/lib/liblxrt.la
 	$(CP) $(PKG_INSTALL_DIR)/usr/modules/* $(1)/usr/modules/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rtai-config $(1)/usr/bin/
-	$(SED) 's,DESTDIR,$(STAGING_DIR),g' $(1)/usr/bin/rtai-config
+	$(SED) \
+		's,DESTDIR,$(STAGING_DIR),g' \
+		$(1)/usr/bin/rtai-config
+	$(INSTALL_DIR) $(2)/bin
+	for f in rtai-config; do \
+		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \
+	done
 endef
 
 define Package/rtai/install
