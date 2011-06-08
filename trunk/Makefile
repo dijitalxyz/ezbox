@@ -64,6 +64,8 @@ build-info:
 	echo "DEVICE_TYPE=$(DEVICE_TYPE)"
 	echo "ARCH=$(ARCH)"
 	echo "RT_TYPE=$(RT_TYPE)"
+	echo "DRAWING_BACKEND=$(DRAWING_BACKEND)"
+	echo "GUI_TOOLKIT=$(GUI_TOOLKIT)"
 
 prepare-basic-structure:
 	mkdir -p $(WK_DIR)
