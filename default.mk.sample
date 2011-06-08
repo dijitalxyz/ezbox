@@ -22,6 +22,19 @@ ARCH := mips
 # support [none|rtai|xenomai]
 # RT_TYPE := none
 
+# DRAWING_BACKEND set the Feature_drawing-backend
+# support [none|nanox|kdrive]
+# none : no graphic user interface support
+# nanox : use nxlib/nano-X archetecture
+# kdrive : use libX11/kdrive-fbdev archetecture
+# DRAWING_BACKEND := none
+
+# GUI_TOOLKIT set the Feature_gui-toolkit
+# support [none|fltk2]
+# none : no graphic user interface toolkit support
+# fltk2 : use fltk2/(X window system) archetecture
+# GUI_TOOLKIT := none
+
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 # LOG_FILE :=
