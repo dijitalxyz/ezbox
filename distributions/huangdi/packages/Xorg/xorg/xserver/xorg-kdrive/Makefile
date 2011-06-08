@@ -71,6 +71,10 @@ $(call Package/xserver-kdrive/Default)
   DEPENDS += @BROKEN
 endef
 
+define Package/xserver-kdrive-xfbdev/config
+	source "$(SOURCE)/Config.in"
+endef
+
 define Build/Configure
 	$(call Build/Configure/Default, \
 		--enable-kdrive \
