@@ -20,16 +20,30 @@ TARGET ?= x86
 DEVICE_TYPE ?= ezbox
 ARCH ?= i386
 RT_TYPE ?= none
+DRAWING_BACKEND ?= none
+GUI_TOOLKIT ?= none
 export DEVICE_TYPE
 
 # log settings
 LOG_FILE ?= $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
 LOG_LEVEL ?= 0
 
-ifeq ($(RT_TYPE),none)
+# initialize suffix
 SUFFIX:=$(TARGET)
-else
-SUFFIX:=$(TARGET)-$(RT_TYPE)
+
+# setting realtime suffix
+ifneq ($(RT_TYPE),none)
+SUFFIX:=$(SUFFIX)-$(RT_TYPE)
+endif
+
+# setting drawing backend suffix
+ifneq ($(DRAWING_BACKEND),none)
+SUFFIX:=$(SUFFIX)-$(DRAWING_BACKEND)
+endif
+
+# setting gui toolkit suffix
+ifneq ($(GUI_TOOLKIT),none)
+SUFFIX:=$(SUFFIX)-$(GUI_TOOLKIT)
 endif
 
 # basic directories
