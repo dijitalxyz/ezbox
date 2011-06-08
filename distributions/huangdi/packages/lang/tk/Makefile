@@ -44,6 +44,15 @@ and can produce rich, native applications that run unchanged across
 Windows, Mac OS X, Linux and more. 
 endef
 
+TARGET_LDFLAGS += \
+	-lz \
+	-lexpat \
+	-lfreetype \
+	-lfontconfig
+
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lXau -lXdmcp, )
+
 CONFIGURE_PATH := unix
 
 CONFIGURE_VARS += \
@@ -61,6 +70,8 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
 
 MAKE_PATH := unix
+
+TARGET_LIB_RUNTIME_DIR := $(STAGING_DIR)/usr/lib
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
