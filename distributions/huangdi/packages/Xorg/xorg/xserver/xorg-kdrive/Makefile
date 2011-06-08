@@ -44,7 +44,6 @@ define Package/xserver-kdrive/Default
   SUBMENU:=server
   URL:=http://xorg.freedesktop.org/
   DEPENDS:=@!avr32 \
-  +xserver-common \
   +libpthread \
   +libxkbfile \
   +libXfont \
@@ -103,7 +102,7 @@ define Build/Configure
 		--disable-xdmcp \
 		--disable-xdm-auth-1 \
 		--disable-glx \
-		--enable-dri \
+		--disable-dri \
 		--disable-dri2 \
 		--disable-xf86vidmode \
 		--disable-xace \
