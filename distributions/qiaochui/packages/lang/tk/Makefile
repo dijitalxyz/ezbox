@@ -55,10 +55,10 @@ CONFIGURE_ARGS += \
 	--enable-threads \
 	--disable-xss \
 	--with-tcl=$(STAGING_DIR)/usr/bin \
-	$(if $(FEATURE_drawing-backend_nxlib), --disable-xft, \
-	$(if $(FEATURE_drawing-backend_libX11), --enable-xft, --disable-xft)) \
-	$(if $(FEATURE_drawing-backend_nxlib), --with-x="yes", \
-	$(if $(FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --disable-xft, \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --enable-xft, --disable-xft)) \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --with-x="yes", \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
 
 MAKE_PATH := unix
 
