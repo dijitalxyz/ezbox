@@ -1,9 +1,0 @@
---- nxlib/stub.c	2011-02-04 01:51:20.275739012 +0800
-+++ nxlib/stub.c	2011-02-04 01:52:43.878734466 +0800
-@@ -170,3 +170,6 @@
- 
- /* required for tk 8.5.8 */
- int XResetScreenSaver() { DPRINTF("XResetScreenSaver called\n"); return 0; }
-+
-+/* required for emc2 2.4.x */
-+int XineramaQueryExtension() { DPRINTF("XineramaQueryExtension called\n"); return 0; }
