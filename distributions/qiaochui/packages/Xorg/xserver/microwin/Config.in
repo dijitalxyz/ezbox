@@ -1,3 +1,6 @@
+menu "Nano-X Feature Support"
+depends on PACKAGE_microwin
+
 choice
 	prompt "Machine Type"
 	default NANOX_MACH_GENERIC
@@ -20,9 +23,6 @@ config NANOX_MACHINE_COLINUX
 	  Please select it if you run Nano-X on CoLinux VM.
 
 endchoice
-
-menu "Nano-X Feature Support"
-depends on PACKAGE_microwin
 
 choice
 	prompt "Mouse Device"
