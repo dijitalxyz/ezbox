@@ -44,6 +44,7 @@ define Package/xserver-kdrive/Default
   SUBMENU:=server
   URL:=http://xorg.freedesktop.org/
   DEPENDS:=@!avr32 \
+  +xserver-kdrive-common \
   +libpthread \
   +libxkbfile \
   +libXfont \
@@ -55,8 +56,16 @@ define Package/xserver-kdrive/Default
   +libdrm \
   +xkbcomp \
   +xkbdata \
-  @DISPLAY_SUPPORT \
-  +X_TSLIB:tslib
+  @DISPLAY_SUPPORT
+endef
+
+define Package/xserver-kdrive-common
+  SECTION:=xorg-server
+  CATEGORY:=Xorg
+  SUBMENU:=server
+  DEPENDS:=@!avr32
+  URL:=http://xorg.freedesktop.org/
+  TITLE:=meta-package
 endef
 
 define Package/xserver-kdrive-xfbdev
@@ -149,5 +158,6 @@ define Package/xserver-kdrive-xephyr/install
 		$(1)/usr/bin/
 endef
 
+$(eval $(call BuildPackage,xserver-kdrive-common))
 $(eval $(call BuildPackage,xserver-kdrive-xfbdev))
 $(eval $(call BuildPackage,xserver-kdrive-xephyr))
