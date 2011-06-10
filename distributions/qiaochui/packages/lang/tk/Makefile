@@ -32,8 +32,7 @@ define Package/tk
   URL:=http://www.tcl.tk
   DEPENDS:=+tcl +fontconfig +libfreetype \
   +FEATURE_drawing-backend_nxlib:nxlib \
-  +FEATURE_drawing-backend_libX11:libX11 \
-  +FEATURE_drawing-backend_libX11:libXft
+  +FEATURE_drawing-backend_libX11:libX11
 endef
 
 define Package/tk/description
@@ -64,14 +63,22 @@ CONFIGURE_ARGS += \
 	--enable-threads \
 	--disable-xss \
 	--with-tcl=$(STAGING_DIR)/usr/bin \
-	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --disable-xft, \
-	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --enable-xft, --disable-xft)) \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --with-x="yes", \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
+
+XFT_CONFIG := $(STAGING_DIR)/host/bin/xft-config
+
+CONFIGURE_ARGS += \
+	$(if $(CONFIG_PACKAGE_libXft), \
+		--enable-xft --with-xft-config=$(XFT_CONFIG), \
+		--disable-xft)
 
 MAKE_PATH := unix
 
 TARGET_LIB_RUNTIME_DIR := $(STAGING_DIR)/usr/lib
+
+CONFIGURE_ARGS += \
+	--with-target-lib-runtime-dir=$(TARGET_LIB_RUNTIME_DIR)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
