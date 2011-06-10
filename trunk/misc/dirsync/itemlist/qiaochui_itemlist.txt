@@ -13,6 +13,7 @@ target/linux/x86/
 # distributions/qiaochui/ directory
 #########################
 packages/lang/tcl/
+packages/lang/tk/
 packages/libs/expat/
 packages/libs/freetype/
 packages/libs/gettext-full/

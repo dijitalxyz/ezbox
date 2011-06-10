@@ -7,6 +7,7 @@
 Notes!!!
 ====================================
 1. bootstrap
+  bootstrap keeps the basic packages of ezbox. The bootstrap_itemlist.txt is used to generate diff files between bootstrap and openwrt packages.
 
 a. Add config ENABLE_LOCALE.
 bootstrap/Config.in
@@ -23,4 +24,21 @@ bootstrap/toolchain/uClibc/config-0.9.32/locale
 e. Fix Fedora 13 and up ['sqrt@@GLIBC_2.0' is defined in DSO /lib/libm.so.6 so try adding it to the linker command line] issue
 bootstrap/tools/cloog/Makefile
 bootstrap/toolchain/gcc/common.mk
+====================================
+2. kuafu
+  kuafu keeps the minimal requirement of packages to build a ezbox system. The kuafu_itemlist.txt is used to generate diff files between kuafu and openwrt packages. Generally the kuafu distro is used to port ezbox system on new platform.
+====================================
+3. huangdi
+  huangdi keeps the all supported packages of the ezbox system. The huangdi_itemlist.txt is used to generate diff files between huangdi and openwrt packages. Generally the huangdi distro is used to add new package in ezbox system.
+====================================
+4. jingwei
+  jingwei keeps the packages to build an IPPBX system. The jingwei_itemlist.txt is used to generate diff files between jingwei and huangdi packages.
+====================================
+5. qiaochui
+  qiaochui keeps the packages to build an CNC system. The qiaochui_itemlist.txt is used to generate diff files between qiaochui and huangdi packages.
+====================================
+* All openwrt updates merged to ezbox system must be approved in bootstrap at first.
+* The new platform added to ezbox system must be approved in kuafu at first.
+* The new package added to ezbox system must be approved in huangdi at first.
+* The distro other than kuafu and huangdi should retrieve its packages and supported platforms from huangdi and kuafu.
 ====================================
