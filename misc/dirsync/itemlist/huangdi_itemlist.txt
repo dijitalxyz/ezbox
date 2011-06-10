@@ -66,5 +66,3 @@ packages/Xorg/xorg/proto/xf86driproto/
 packages/Xorg/xorg/proto/xineramaproto/
 packages/Xorg/xorg/proto/xproto/
 packages/Xorg/xorg/xserver/xorg-kdrive/
-packages/Xorg/xorg/xserver/xorg-server/
-
