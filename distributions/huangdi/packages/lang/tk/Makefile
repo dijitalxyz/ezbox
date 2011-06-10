@@ -73,6 +73,9 @@ MAKE_PATH := unix
 
 TARGET_LIB_RUNTIME_DIR := $(STAGING_DIR)/usr/lib
 
+CONFIGURE_ARGS += \
+	--with-target-lib-runtime-dir=$(TARGET_LIB_RUNTIME_DIR)
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/*.h $(1)/usr/include/
