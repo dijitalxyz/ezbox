@@ -53,11 +53,10 @@ int pop_etc_inittab(int flag)
 	fprintf(file, "::sysinit:%s\n", buf);
 	snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, "-a -f");
 	fprintf(file, "::shutdown:%s\n", buf);
-#if 0
 	fprintf(file, "tts/0::askfirst:%s\n", CMD_LOGIN);
 	fprintf(file, "ttyS0::askfirst:%s\n", CMD_LOGIN);
-	fprintf(file, "tty0::askfirst:%s\n", CMD_LOGIN);
-#endif
+	fprintf(file, "tty1::askfirst:%s\n", CMD_LOGIN);
+	fprintf(file, "tty2::askfirst:%s\n", CMD_LOGIN);
 
 	fclose(file);
 	return (EXIT_SUCCESS);
