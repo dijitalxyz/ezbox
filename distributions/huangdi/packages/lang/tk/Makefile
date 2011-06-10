@@ -66,7 +66,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), --with-x="yes", \
 	$(if $(CONFIG_FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no"))
 
-XFT_CONFIG := $(STAGING_DIR)/usr/bin/xft-config
+XFT_CONFIG := $(STAGING_DIR)/host/bin/xft-config
 
 CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_libXft), \

@@ -70,6 +70,9 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/fltk $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/fltk2-config $(1)/usr/bin/
+	$(SED) \
+		's,^\(prefix\|exec_prefix\)=.*,\1="$(STAGING_DIR)/usr",g' \
+		 $(1)/usr/bin/fltk2-config
 	$(INSTALL_DIR) $(2)/bin
 	for f in fltk2-config; do \
 		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \

@@ -52,11 +52,11 @@ define Build/InstallDev
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/include/X11/Xft/* \
 		$(1)/usr/include/X11/Xft/
-	$(INSTALL_DIR) $(1)/usr/bin $(2)/bin
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/xft-config $(1)/usr/bin/
-	for f in xft-config; do \
-		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \
-	done
+	$(INSTALL_DIR) $(2)/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/xft-config $(2)/bin/
+	$(SED) \
+		's,^\(prefix\|exec_prefix\)=.*,\1="$(STAGING_DIR)/usr",g' \
+		 $(2)/bin/xft-config
 endef
 
 define Package/libXft/install
