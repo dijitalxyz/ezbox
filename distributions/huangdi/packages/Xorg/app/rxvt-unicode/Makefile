@@ -1,21 +1,20 @@
 #
-# Copyright (C) 2007-2010 OpenWrt.org
+# Copyright (C) 2011 ezbox project
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
-# blogic@openwrt.org
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=rxvt
-PKG_RELEASE:=2
-PKG_VERSION:=2.7.10
+PKG_NAME:=rxvt-unicode
+PKG_RELEASE:=1
+PKG_VERSION:=9.11
 
-PKG_SOURCE_URL:=@SF/rxvt
+PKG_SOURCE_URL:=http://dist.schmorp.de/rxvt-unicode/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=302c5c455e64047b02d1ef19ff749141
+#PKG_MD5SUM:=302c5c455e64047b02d1ef19ff749141
 
 PKG_FIXUP:=libtool
 
@@ -25,16 +24,16 @@ PKG_INSTALL:=1
 
 #TARGET_LDFLAGS+=-Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
-define Package/rxvt
+define Package/rxvt-unicode
   SECTION:=xorg-app
   CATEGORY:=Xorg
   SUBMENU:=app
-  DEPENDS:=+libX11 +libXext +libXau +libXtst
-  TITLE:=rxvt
-  URL:=http://rxvt.sourceforge.net
+  DEPENDS:=+libX11 +libXext +libXau
+  TITLE:=rxvt-unicode
+  URL:=http://software.schmorp.de/pkg/rxvt-unicode.html
 endef
 
-define Package/rxvt/install
+define Package/rxvt-unicode/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/applications $(1)/usr/share/icons
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/bin/* \
@@ -47,4 +46,4 @@ define Package/rxvt/install
 		$(1)/usr/share/icons/rxvt.png
 endef
 
-$(eval $(call BuildPackage,rxvt))
+$(eval $(call BuildPackage,rxvt-unicode))
