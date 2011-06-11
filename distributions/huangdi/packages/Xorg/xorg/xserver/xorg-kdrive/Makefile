@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xserver-kdrive
-PKG_VERSION:=1.7.1
+PKG_VERSION:=1.8.2
 PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/xserver/
 PKG_SOURCE:=xorg-server-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/xserver/$(PKG_NAME)/xorg-server-$(PKG_VERSION)/
-PKG_MD5SUM:=dda7842467cda6018fdc87e6002e4db1
+#PKG_MD5SUM:=dda7842467cda6018fdc87e6002e4db1
 
 PKG_BUILD_DEPENDS:=randrproto renderproto fixesproto damageproto xcmiscproto \
 				   xextproto xproto bigreqsproto resourceproto \
@@ -108,7 +108,7 @@ define Build/Configure
 		--enable-xvmc \
 		--disable-dga \
 		--disable-screensaver \
-		--disable-xdmcp \
+		--enable-xdmcp \
 		--disable-xdm-auth-1 \
 		--disable-glx \
 		--disable-dri \
@@ -141,6 +141,10 @@ define Build/Configure
 		--enable-silent-rules \
 		--disable-shave \
 		--disable-xsdl \
+		--enable-kdrive-kbd \
+		--enable-kdrive-mouse \
+		--enable-kdrive-evdev \
+		--with-default-font-path=built-ins \
 	)
 endef
 
