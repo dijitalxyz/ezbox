@@ -38,6 +38,7 @@ define Build/Configure
 		--enable-jpeg \
 		--enable-png \
 		--enable-Xft \
+		--disable-unit-tests \
 	)
 endef
 
