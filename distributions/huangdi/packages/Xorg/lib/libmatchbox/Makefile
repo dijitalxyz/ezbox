@@ -27,7 +27,7 @@ define Package/libmatchbox
   SECTION:=xorg-libraries
   CATEGORY:=Xorg
   SUBMENU:=libraries
-  DEPENDS:=+libX11 +libXft +libpng +libjpeg +libXext
+  DEPENDS:=+libX11 +libXft +libpng +libjpeg +libXext +check
   TITLE:=libmatchbox
   URL:=http://matchbox-project.org
 endef
@@ -38,7 +38,6 @@ define Build/Configure
 		--enable-jpeg \
 		--enable-png \
 		--enable-Xft \
-		--disable-unit-tests \
 	)
 endef
 
