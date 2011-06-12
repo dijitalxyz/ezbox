@@ -9,17 +9,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libX11
 PKG_RELEASE:=1
-PKG_VERSION:=1.3.2
+PKG_VERSION:=1.4.3
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=001d780829f936e34851ef7cd37b4dfd
+#PKG_MD5SUM:=001d780829f936e34851ef7cd37b4dfd
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
 PKG_BUILD_DEPENDS:=xproto xextproto xf86bigfontproto kbproto inputproto \
-                   xtrans xcmiscproto bigreqsproto
+                   xtrans xcmiscproto bigreqsproto xcbproto
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -27,7 +27,7 @@ define Package/libX11
   SECTION:=xorg-libraries
   CATEGORY:=Xorg
   SUBMENU:=libraries
-  DEPENDS:=+libXdmcp +libXau @FEATURE_drawing-backend_libX11 @DISPLAY_SUPPORT
+  DEPENDS:=+libXdmcp +libXau +libxcb @FEATURE_drawing-backend_libX11 @DISPLAY_SUPPORT
   TITLE:=libX11
   URL:=http://xorg.freedesktop.org/
 endef
