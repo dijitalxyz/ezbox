@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xcb-proto
-PKG_VERSION:=1.3
+PKG_VERSION:=1.6
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://xcb.freedesktop.org/dist/
-PKG_MD5SUM:=d9275a714e83ab9c1f9b260c6eff1609
+#PKG_MD5SUM:=d9275a714e83ab9c1f9b260c6eff1609
 PKG_INSTALL:=1
 
 #PKG_BUILD_DEPENDS:=python-mini/host

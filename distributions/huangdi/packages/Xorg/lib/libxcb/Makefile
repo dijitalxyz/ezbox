@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libxcb
-PKG_VERSION:=1.1
-PKG_RELEASE:=2
+PKG_VERSION:=1.7
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://xcb.freedesktop.org/dist/
-PKG_MD5SUM:=9310b02433273d75d42f10da3c7455aa
+#PKG_MD5SUM:=9310b02433273d75d42f10da3c7455aa
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
 PKG_BUILD_DEPENDS:=xcbproto libpthread-stubs
@@ -37,13 +37,13 @@ libxcb provides an interface to the X Window System protocol, which
 replaces the current Xlib interface.
 endef
 
-define Package/libxcb-xlib
-  SECTION:=xorg-libraries
-  CATEGORY:=Xorg
-  SUBMENU:=libraries
-  TITLE:=libxcb-xlib
-  DEPENDS:=+libxcb
-endef
+#define Package/libxcb-xlib
+#  SECTION:=xorg-libraries
+#  CATEGORY:=Xorg
+#  SUBMENU:=libraries
+#  TITLE:=libxcb-xlib
+#  DEPENDS:=+libxcb
+#endef
 
 define Package/libxcb-proto/Default
 define Package/libxcb-$(1)
@@ -79,12 +79,12 @@ define Package/libxcb/install
 		$(1)/usr/lib/
 endef
 
-define Package/libxcb-xlib/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libxcb-xlib.so* \
-		$(1)/usr/lib/
-endef
+#define Package/libxcb-xlib/install
+#	$(INSTALL_DIR) $(1)/usr/lib
+#	$(CP) \
+#		$(PKG_INSTALL_DIR)/usr/lib/libxcb-xlib.so* \
+#		$(1)/usr/lib/
+#endef
 
 define Package/libxcb-proto/install/Default
 define Package/libxcb-$(1)/install
@@ -98,5 +98,5 @@ endef
 $(foreach proto,$(PROTOS),$(eval $(call Package/libxcb-proto/install/Default,$(proto))))
 
 $(eval $(call BuildPackage,libxcb))
-$(eval $(call BuildPackage,libxcb-xlib))
+#$(eval $(call BuildPackage,libxcb-xlib))
 $(foreach proto,$(PROTOS),$(eval $(call BuildPackage,libxcb-$(proto))))
