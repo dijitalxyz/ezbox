@@ -10,12 +10,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libXft
 PKG_RELEASE:=1
-PKG_VERSION:=2.1.14
+PKG_VERSION:=2.2.0
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=254e62a233491e0e1251636536163e20
+PKG_MD5SUM:=cce3c327258116493b753f157e0360c7
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
@@ -52,11 +52,6 @@ define Build/InstallDev
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/include/X11/Xft/* \
 		$(1)/usr/include/X11/Xft/
-	$(INSTALL_DIR) $(2)/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/xft-config $(2)/bin/
-	$(SED) \
-		's,^\(prefix\|exec_prefix\)=.*,\1="$(STAGING_DIR)/usr",g' \
-		 $(2)/bin/xft-config
 endef
 
 define Package/libXft/install

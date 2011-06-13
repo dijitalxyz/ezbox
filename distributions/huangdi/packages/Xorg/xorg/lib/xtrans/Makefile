@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xtrans
 PKG_RELEASE:=1
-PKG_VERSION:=1.2.5
+PKG_VERSION:=1.2.6
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=2d1e57e82acc5f21797e92341415af2f
+PKG_MD5SUM:=c66f9ffd2da4fb012220c6c40ebc7609
 
 PKG_INSTALL:=1
 

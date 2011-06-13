@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libXi
 PKG_RELEASE:=1
-PKG_VERSION:=1.3
+PKG_VERSION:=1.4.3
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=8df4ece9bd1efb02c28acb2b6f485e09
+PKG_MD5SUM:=792e8a7ddc7175911d69f823d38eaff6
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1

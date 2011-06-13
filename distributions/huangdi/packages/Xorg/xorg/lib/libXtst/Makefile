@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libXtst
 PKG_RELEASE:=1
-PKG_VERSION:=1.1.0
+PKG_VERSION:=1.2.0
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=dd6f3e20b87310187121539f9605d977
+PKG_MD5SUM:=7c592c72da6676f8b0aeec9133b81686
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1

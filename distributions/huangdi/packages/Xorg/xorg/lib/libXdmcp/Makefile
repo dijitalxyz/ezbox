@@ -10,12 +10,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libXdmcp
 PKG_RELEASE:=1
-PKG_VERSION:=1.0.3
+PKG_VERSION:=1.1.0
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=d60941d471800f41a3f19b24bea855a7
+PKG_MD5SUM:=762b6bbaff7b7d0831ddb4f072f939a5
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1

@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libXv
 PKG_RELEASE:=
-PKG_VERSION:=1.0.5
+PKG_VERSION:=1.0.6
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=1d97798b1d8bbf8d9085e1b223a0738f
+PKG_MD5SUM:=e292445a64b63e918bbc8b6aae6391dd
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1

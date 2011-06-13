@@ -42,7 +42,6 @@ define Build/Configure
 	$(call Build/Configure/Default, \
 		--enable-malloc0returnsnull \
 		--enable-xf86bigfont \
-		--without-xcb \
 		--without-launchd \
 	)
 endef

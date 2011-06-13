@@ -14,7 +14,7 @@ PKG_VERSION:=9.11
 PKG_SOURCE_URL:=http://dist.schmorp.de/rxvt-unicode/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
-#PKG_MD5SUM:=302c5c455e64047b02d1ef19ff749141
+PKG_MD5SUM:=1bed5bfeed026e0bfafa0e9e4f62aa37
 
 PKG_FIXUP:=libtool
 
@@ -33,7 +33,7 @@ CONFIGURE_ARGS+= \
 
 #TARGET_LDFLAGS+=-Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
-TARGET_LDFLAGS +=-lz -lexpat -lXau -lXdmcp
+TARGET_LDFLAGS +=-lz -lexpat -lXau -lXdmcp -lxcb
 
 define Package/rxvt-unicode
   SECTION:=xorg-app
