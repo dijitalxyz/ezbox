@@ -11,12 +11,12 @@ include $(TOPDIR)/rules.mk
 PKG_BASE_NAME:=libXau
 PKG_NAME:=libXau
 PKG_RELEASE:=1
-PKG_VERSION:=1.0.5
+PKG_VERSION:=1.0.6
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/lib/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=993b3185c629e4b89401fca072dcb663
+PKG_MD5SUM:=4a2cbd83727682f9ee1c1e719bac6adb
 
 PKG_FIXUP:=libtool
 

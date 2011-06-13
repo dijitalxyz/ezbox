@@ -9,13 +9,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xproto
-PKG_VERSION:=7.0.16
+PKG_VERSION:=7.0.21
 PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=http://xorg.freedesktop.org/releases/individual/proto/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_BUILD_DIR:=$(BUILD_DIR)/Xorg/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_MD5SUM:=75c9edff1f3823e5ab6bb9e66821a901
+PKG_MD5SUM:=c5a93a69b701cf81925fab02b35b0d0e
 
 include $(INCLUDE_DIR)/package.mk
 
