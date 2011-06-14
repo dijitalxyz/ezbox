@@ -35,6 +35,9 @@ CONFIGURE_ARGS+= \
 
 TARGET_LDFLAGS +=-lz -lexpat -lXau -lXdmcp -lxcb
 
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_PACKAGE_libXft), -lfreetype -lfontconfig, )
+
 define Package/rxvt-unicode
   SECTION:=xorg-app
   CATEGORY:=Xorg
