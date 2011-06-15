@@ -73,7 +73,7 @@ TARGET_LDFLAGS += \
 	$(if $(CONFIG_FEATURE_gui-toolkit_FLTK2), $(FLK2_EXTRA_LIBS), ) \
 	$(if $(CONFIG_FEATURE_gui-toolkit_GTK2), $(GTK2_EXTRA_LIBS), ) \
 	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lX11 -lnano-X, \
-	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11 -lXau -lXdmcp, ))
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11 -lXau -lXdmcp -lxcb, ))
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
