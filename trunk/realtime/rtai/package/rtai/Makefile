@@ -58,6 +58,12 @@ CONFIGURE_ARGS += --disable-leds
 #endef
 
 define Build/Compile
+	$(SED) 's,-I/usr,-I$(TOOLCHAIN_DIR),g' \
+		$(PKG_BUILD_DIR)/base/math/Makefile.kbuild
+	$(SED) 's,-I/usr,-I$(STAGING_DIR)/usr,g' \
+		$(PKG_BUILD_DIR)/rtai-lab/scilab5/devices/machine.h
+	$(SED) 's,-I/usr,-I$(STAGING_DIR)/usr,g' \
+		$(PKG_BUILD_DIR)/rtai-lab/matrixx/Makefile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
