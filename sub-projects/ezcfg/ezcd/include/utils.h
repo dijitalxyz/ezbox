@@ -14,6 +14,7 @@
 #define CMD_KILLALL		"/bin/killall"
 #define CMD_LOGIN  		"/bin/login"
 #define CMD_MKDIR  		"/bin/mkdir"
+#define CMD_MOUNT  		"/bin/mount"
 #define CMD_MV  		"/bin/mv"
 #define CMD_RC  		"/sbin/rc"
 #define CMD_RM  		"/bin/rm"

@@ -83,8 +83,8 @@
 #define EZCFG_NVRAM_CODING_NONE_STRING     "0"
 #define EZCFG_NVRAM_CODING_GZIP            1
 #define EZCFG_NVRAM_CODING_GZIP_STRING     "1"
-#define EZCFG_NVRAM_STORAGE_PATH           "/var/ezcfg/nvram.bin"
-#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    "/var/ezcfg/nvram_backup.bin"
+#define EZCFG_NVRAM_STORAGE_PATH           EZCFG_ROOT_PATH "/nvram.bin"
+#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    EZCFG_ROOT_PATH "/nvram_backup.bin"
 #define EZCFG_NVRAM_STORAGE_NUM            2
 
 /* ezcfg authentication type string */

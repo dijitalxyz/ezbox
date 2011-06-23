@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_kernel_modules.c
+ * Module Name  : utils_get_device_path.c
  *
- * Description  : ezcfg get kernel modules function
+ * Description  : ezcfg get device path function
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-02-27   0.1       Write it from scratch
+ * 2011-06-23   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,42 +38,32 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+
 /*
- * Returns kernel modules string
+ * Returns boot device path string
  * It is the caller's duty to free the returned string.
  */
-char *utils_get_kernel_modules(void)
+char *utils_get_boot_device_path(void)
 {
-	return utils_file_get_keyword("/proc/cmdline", "modules=");
-#if 0
-        FILE *file;
-	char *p = NULL;
-	char *q = NULL;
-	char *v = NULL;
-	char buf[1024];
+	return utils_file_get_keyword("/proc/cmdline", "boot_dev=");
+}
 
-	/* get kernel version */
-	file = fopen("/proc/cmdline", "r");
-	if (file == NULL)
-		return NULL;
+#define DATA_DEVICE_PATH_FILE	"/boot/data_device"
 
-	memset(buf, 0, sizeof(buf));
-	if (fgets(buf, sizeof(buf), file) == NULL)
-		goto func_out;
+char *utils_get_data_device_path(void)
+{
+	int i;
+	struct stat stat_buf;
 
-	q = strstr(buf, "modules=");
-	if (q == NULL)
-		goto func_out;
-
-	/* skip "modules=" */
-	p = q + 8;
-	q = strchr(p, ' ');
-	if (q != NULL)
-		*q = '\0';
-func_out:
-	fclose(file);
-	if (p != NULL)
-		v = strdup(p);
-	return (v);
-#endif
+	for (i = 10; i > 0; i--) {
+		if (stat(DATA_DEVICE_PATH_FILE, &stat_buf) == 0) {
+			if (S_ISREG(stat_buf.st_mode)) {
+				/* get data device path string */
+				return utils_file_get_keyword(DATA_DEVICE_PATH_FILE, "data_dev=");
+			}
+		}
+		/* wait a second then try again */
+		sleep(1);
+	}
+	return NULL;
 }

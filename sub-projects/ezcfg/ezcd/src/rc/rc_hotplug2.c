@@ -52,13 +52,15 @@ int rc_hotplug2(int flag)
 		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --no-persistent --set-coldplug-cmd %s", CMD_HOTPLUG2, CMD_UDEVTRIGGER);
 		ret = system(cmdline);
 
+#if 0
 		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent &", CMD_HOTPLUG2);
 		ret = system(cmdline);
 
 		break;
+#endif
 
 	case RC_START :
-		snprintf(cmdline, sizeof(cmdline), "%s --override --persistent --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --max-children 1 >/dev/null 2>&1 &", CMD_HOTPLUG2);
+		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent --override --max-children 1 >/dev/null 2>&1 &", CMD_HOTPLUG2);
 		ret = system(cmdline);
 
 		break;

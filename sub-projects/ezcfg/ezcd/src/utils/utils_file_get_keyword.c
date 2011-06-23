@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_kernel_modules.c
+ * Module Name  : utils_file_get_keyword.c
  *
- * Description  : ezcfg get kernel modules function
+ * Description  : ezcfg get keyword from file function
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-02-27   0.1       Write it from scratch
+ * 2011-06-23   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,35 +38,35 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-/*
- * Returns kernel modules string
- * It is the caller's duty to free the returned string.
- */
-char *utils_get_kernel_modules(void)
+
+char *utils_file_get_keyword(char *filename, char *keyword)
 {
-	return utils_file_get_keyword("/proc/cmdline", "modules=");
-#if 0
         FILE *file;
 	char *p = NULL;
 	char *q = NULL;
 	char *v = NULL;
 	char buf[1024];
 
-	/* get kernel version */
-	file = fopen("/proc/cmdline", "r");
+	/* open file */
+	file = fopen(filename, "r");
 	if (file == NULL)
 		return NULL;
 
 	memset(buf, 0, sizeof(buf));
+#if 0
 	if (fgets(buf, sizeof(buf), file) == NULL)
 		goto func_out;
+#else
+	if (utils_file_get_line(file, buf, sizeof(buf), "", "\r\n") == false)
+		goto func_out;
+#endif
 
-	q = strstr(buf, "modules=");
+	q = strstr(buf, keyword);
 	if (q == NULL)
 		goto func_out;
 
-	/* skip "modules=" */
-	p = q + 8;
+	/* skip key word length */
+	p = q + strlen(keyword);
 	q = strchr(p, ' ');
 	if (q != NULL)
 		*q = '\0';
@@ -75,5 +75,4 @@ func_out:
 	if (p != NULL)
 		v = strdup(p);
 	return (v);
-#endif
 }

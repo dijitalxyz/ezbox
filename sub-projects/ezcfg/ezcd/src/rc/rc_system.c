@@ -39,6 +39,7 @@
 
 #include "ezcd.h"
 #include "rc_func.h"
+#include "utils.h"
 
 #if 0
 #define DBG(format, args...) do {\
@@ -77,6 +78,7 @@ int rc_system(int flag)
 {
         FILE *file = NULL;
 	char cmdline[1024];
+	char *dev_path = NULL;
 
 	switch (flag) {
 	case RC_BOOT :
@@ -95,6 +97,9 @@ int rc_system(int flag)
 		/* /etc */
 		mkdir("/etc", 0755);
 
+		/* /boot */
+		mkdir("/boot", 0777);
+
 		/* /var */
 		mkdir("/var", 0777);
 		mkdir("/var/lock", 0777);
@@ -103,7 +108,6 @@ int rc_system(int flag)
 		mkdir("/var/tmp", 0777);
 
 		/* /tmp */
-		//mkdir("/tmp", 0777);
 		snprintf(cmdline, sizeof(cmdline), "%s -rf /tmp", CMD_RM);
 		system(cmdline);
 		symlink("/var/tmp", "/tmp");
@@ -133,8 +137,53 @@ int rc_system(int flag)
 		/* load preinit kernel modules */
 		rc_load_modules(RC_BOOT);
 
-		/* prepare nvram storage path */
-		mount("/dev/sda2", "/var", "ext4", MS_MGC_VAL, NULL);
+		/* prepare boot device path */
+		dev_path = utils_get_boot_device_path();
+		if (dev_path != NULL) {
+			int i;
+			struct stat stat_buf;
+			char path[64];
+
+			snprintf(path, sizeof(path), "/dev/%s", dev_path);
+			for (i = 10; i > 0; i--) {
+				if (stat(path, &stat_buf) == 0) {
+					if (S_ISBLK(stat_buf.st_mode)) {
+						/* mount /dev/sda1 /boot */
+						snprintf(cmdline, sizeof(cmdline), "%s %s /boot", CMD_MOUNT, path);
+						system(cmdline);
+					}
+					break;
+				}
+				/* wait a second then try again */
+				sleep(1);
+			}
+
+			free(dev_path);
+		}
+
+		/* prepare dynamic data storage path */
+		dev_path = utils_get_data_device_path();
+		if (dev_path != NULL) {
+			int i;
+			struct stat stat_buf;
+			char path[64];
+
+			snprintf(path, sizeof(path), "/dev/%s", dev_path);
+			for (i = 10; i > 0; i--) {
+				if (stat(path, &stat_buf) == 0) {
+					if (S_ISBLK(stat_buf.st_mode)) {
+						/* mount /dev/sda2 /var */
+						snprintf(cmdline, sizeof(cmdline), "%s %s /var", CMD_MOUNT, path);
+						system(cmdline);
+					}
+					break;
+				}
+				/* wait a second then try again */
+				sleep(1);
+			}
+
+			free(dev_path);
+		}
 		snprintf(cmdline, sizeof(cmdline), "%s a+rwx /var", CMD_CHMOD);
 		system(cmdline);
 		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/lock", CMD_RM);

@@ -8,8 +8,11 @@
 #include "utils.h"
 
 /* utils function declaration */
+char *utils_file_get_keyword(char *filename, char *keyword);
 char *utils_get_kernel_modules(void);
 char *utils_get_kernel_version(void);
+char *utils_get_boot_device_path(void);
+char *utils_get_data_device_path(void);
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);

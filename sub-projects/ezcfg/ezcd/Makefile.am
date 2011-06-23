@@ -39,8 +39,10 @@ ezcd_SOURCES += src/utils/utils_check_service.c
 if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_check_wan_interface.c
 endif
+ezcd_SOURCES += src/utils/utils_file_get_keyword.c
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
+ezcd_SOURCES += src/utils/utils_get_device_path.c
 if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_get_wan_type.c
 endif
