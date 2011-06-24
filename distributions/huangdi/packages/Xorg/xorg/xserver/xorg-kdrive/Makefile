@@ -53,9 +53,7 @@ define Package/xserver-kdrive/Default
   +libfontenc \
   +pixman \
   +libopenssl \
-  +libdrm \
-  +xkbcomp \
-  +xkbdata \
+  +xkeyboard-config \
   @DISPLAY_SUPPORT
 endef
 

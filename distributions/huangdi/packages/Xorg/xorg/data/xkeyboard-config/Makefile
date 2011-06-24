@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.x.org/releases/individual/data/xkeyboard-config/
-#PKG_MD5SUM:=d351c0109fac166edcedad32d1b0e38e
+PKG_MD5SUM:=0be9fbddcb19ac62a23e08fead5df8be
 
 PKG_INSTALL:=1
 
