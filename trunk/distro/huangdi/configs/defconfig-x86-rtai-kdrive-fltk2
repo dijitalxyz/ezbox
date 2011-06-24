@@ -1630,6 +1630,7 @@ CONFIG_PACKAGE_xkbcomp=y
 # data
 #
 CONFIG_PACKAGE_xkbdata=y
+CONFIG_PACKAGE_xkeyboard-config=y
 
 #
 # font
