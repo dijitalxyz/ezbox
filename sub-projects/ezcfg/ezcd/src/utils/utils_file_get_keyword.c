@@ -39,8 +39,65 @@
 
 #include "ezcd.h"
 
+char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
+{
+        FILE *file;
+	char *p = NULL;
+	char *q = NULL;
+	char *v = NULL;
+	int i;
+	char buf[1024];
+
+	/* open file */
+	file = fopen(filename, "r");
+	if (file == NULL)
+		return NULL;
+
+	memset(buf, 0, sizeof(buf));
+#if 0
+	if (fgets(buf, sizeof(buf), file) == NULL)
+		goto func_out;
+#else
+	if (utils_file_get_line(file, buf, sizeof(buf), "", "\r\n") == false)
+		goto func_out;
+#endif
+
+	q = strstr(buf, keyword);
+	if (q == NULL)
+		goto func_out;
+
+	/* skip key word length */
+	p = q + strlen(keyword);
+	q = strchr(p, ' ');
+	if (q != NULL)
+		*q = '\0';
+
+	if (idx > 0) {
+		/* get index part string */
+		for (i = 1; (i < idx) && (p != NULL); i++) {
+			p = strchr(p, ',');
+			if (p != NULL)
+				p++;
+		}
+
+		/* split string */
+		if (p != NULL) {
+			q = strchr(p, ',');
+			if (q != NULL)
+				*q = '\0';
+		}
+	}
+
+func_out:
+	fclose(file);
+	if (p != NULL)
+		v = strdup(p);
+	return (v);
+}
+
 char *utils_file_get_keyword(char *filename, char *keyword)
 {
+#if 0
         FILE *file;
 	char *p = NULL;
 	char *q = NULL;
@@ -75,4 +132,6 @@ func_out:
 	if (p != NULL)
 		v = strdup(p);
 	return (v);
+#endif
+	return utils_file_get_keyword_by_index(filename, keyword, 0);
 }

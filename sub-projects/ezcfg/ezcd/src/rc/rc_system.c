@@ -143,13 +143,23 @@ int rc_system(int flag)
 			int i;
 			struct stat stat_buf;
 			char path[64];
+			char *fs_type;
 
 			snprintf(path, sizeof(path), "/dev/%s", dev_path);
+			free(dev_path);
+
 			for (i = 10; i > 0; i--) {
 				if (stat(path, &stat_buf) == 0) {
 					if (S_ISBLK(stat_buf.st_mode)) {
 						/* mount /dev/sda1 /boot */
-						snprintf(cmdline, sizeof(cmdline), "%s %s /boot", CMD_MOUNT, path);
+						fs_type = utils_get_boot_device_fs_type();
+						if (fs_type != NULL) {
+							snprintf(cmdline, sizeof(cmdline), "%s -t %s %s /boot", CMD_MOUNT, fs_type, path);
+							free(fs_type);
+						}
+						else {
+							snprintf(cmdline, sizeof(cmdline), "%s %s /boot", CMD_MOUNT, path);
+						}
 						system(cmdline);
 					}
 					break;
@@ -157,8 +167,6 @@ int rc_system(int flag)
 				/* wait a second then try again */
 				sleep(1);
 			}
-
-			free(dev_path);
 		}
 
 		/* prepare dynamic data storage path */
@@ -167,13 +175,23 @@ int rc_system(int flag)
 			int i;
 			struct stat stat_buf;
 			char path[64];
+			char *fs_type;
 
 			snprintf(path, sizeof(path), "/dev/%s", dev_path);
+			free(dev_path);
+
 			for (i = 10; i > 0; i--) {
 				if (stat(path, &stat_buf) == 0) {
 					if (S_ISBLK(stat_buf.st_mode)) {
 						/* mount /dev/sda2 /var */
-						snprintf(cmdline, sizeof(cmdline), "%s %s /var", CMD_MOUNT, path);
+						fs_type = utils_get_data_device_fs_type();
+						if (fs_type != NULL) {
+							snprintf(cmdline, sizeof(cmdline), "%s -t %s %s /var", CMD_MOUNT, fs_type, path);
+							free(fs_type);
+						}
+						else {
+							snprintf(cmdline, sizeof(cmdline), "%s %s /var", CMD_MOUNT, path);
+						}
 						system(cmdline);
 					}
 					break;
@@ -181,8 +199,6 @@ int rc_system(int flag)
 				/* wait a second then try again */
 				sleep(1);
 			}
-
-			free(dev_path);
 		}
 		snprintf(cmdline, sizeof(cmdline), "%s a+rwx /var", CMD_CHMOD);
 		system(cmdline);

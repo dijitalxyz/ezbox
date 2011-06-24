@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_device_path.c
+ * Module Name  : utils_get_device_info.c
  *
  * Description  : ezcfg get device path function
  *
@@ -39,27 +39,52 @@
 
 #include "ezcd.h"
 
+#define DEVICE_INFO_PATH_INDEX          1
+#define DEVICE_INFO_FS_TYPE_INDEX       2
 /*
  * Returns boot device path string
  * It is the caller's duty to free the returned string.
  */
 char *utils_get_boot_device_path(void)
 {
-	return utils_file_get_keyword("/proc/cmdline", "boot_dev=");
+	return utils_file_get_keyword_by_index("/proc/cmdline", "boot_dev=", DEVICE_INFO_PATH_INDEX);
 }
 
-#define DATA_DEVICE_PATH_FILE	"/boot/data_device"
+char *utils_get_boot_device_fs_type(void)
+{
+	return utils_file_get_keyword_by_index("/proc/cmdline", "boot_dev=", DEVICE_INFO_FS_TYPE_INDEX);
+}
+
+#define DATA_DEVICE_PATH_FILE	"/boot/ezbox_boot.cfg"
 
 char *utils_get_data_device_path(void)
 {
 	int i;
 	struct stat stat_buf;
 
-	for (i = 10; i > 0; i--) {
+	for (i = 3; i > 0; i--) {
 		if (stat(DATA_DEVICE_PATH_FILE, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				/* get data device path string */
-				return utils_file_get_keyword(DATA_DEVICE_PATH_FILE, "data_dev=");
+				return utils_file_get_keyword_by_index(DATA_DEVICE_PATH_FILE, "data_dev=", DEVICE_INFO_PATH_INDEX);
+			}
+		}
+		/* wait a second then try again */
+		sleep(1);
+	}
+	return NULL;
+}
+
+char *utils_get_data_device_fs_type(void)
+{
+	int i;
+	struct stat stat_buf;
+
+	for (i = 3; i > 0; i--) {
+		if (stat(DATA_DEVICE_PATH_FILE, &stat_buf) == 0) {
+			if (S_ISREG(stat_buf.st_mode)) {
+				/* get data device path string */
+				return utils_file_get_keyword_by_index(DATA_DEVICE_PATH_FILE, "data_dev=", DEVICE_INFO_FS_TYPE_INDEX);
 			}
 		}
 		/* wait a second then try again */
