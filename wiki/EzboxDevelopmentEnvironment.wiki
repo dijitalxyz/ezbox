@@ -23,7 +23,7 @@ ezbox 的开发在ubuntu/Linux发行版本中完成，工作机器使用MS Windo
 
   * 安装开发使用的工具软件
 {{{
-ezbox@ezbox-laptop:~$ sudo apt-get install build-essential bison flex zlib1g-dev libncurses5-dev subversion quilt git-core
+ezbox@ezbox-laptop:~$ sudo apt-get install build-essential bison flex zlib1g-dev libncurses5-dev subversion quilt git-core texinfo intltool
 }}}
 
   * 修正 /bin/sh 链接到 /bin/bash
