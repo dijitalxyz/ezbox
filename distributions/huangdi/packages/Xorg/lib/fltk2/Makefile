@@ -50,7 +50,10 @@ TARGET_LDFLAGS += \
 	-lexpat \
 	-lfreetype \
 	-lfontconfig \
-	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, )
+	-lX11 \
+	-lXrender \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lxcb -lXau -lXdmcp, ) \
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lnano-X, ) \
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); autoconf );
