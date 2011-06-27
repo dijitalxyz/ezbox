@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=949
+PKG_REV:=954
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -89,6 +89,12 @@ endif
 ifneq ($(CONFIG_PACKAGE_microwin),)
 CONFIGURE_ARGS += \
 	--enable-service-nano_x
+endif
+
+# set TinyX/kdrive service
+ifneq ($(CONFIG_PACKAGE_xserver-kdrive-xfbdev),)
+CONFIGURE_ARGS += \
+	--enable-service-kdrive
 endif
 
 # set dillo web browser service
