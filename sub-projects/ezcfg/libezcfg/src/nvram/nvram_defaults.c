@@ -363,6 +363,17 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(NANO_X, MOUSE_PORT), "/dev/input/mouse0" },
 	/* nano-X console device */
 	{ NVRAM_SERVICE_OPTION(NANO_X, CONSOLE), "/dev/console" },
+#elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
+	/* TinyX/kdrive enabled */
+	{ NVRAM_SERVICE_OPTION(RC, KDRIVE_ENABLE), "1" },
+	/* TinyX/kdrive mouse driver */
+	{ NVRAM_SERVICE_OPTION(KDRIVE, MOUSE_DRIVER), "mouse" },
+	/* TinyX/kdrive mouse device */
+	{ NVRAM_SERVICE_OPTION(KDRIVE, MOUSE_DEVICE), "/dev/input/mouse0" },
+	/* TinyX/kdrive mouse protocol */
+	{ NVRAM_SERVICE_OPTION(KDRIVE, MOUSE_PROTOCOL), "ps/2" },
+	/* TinyX/kdrive keybd driver */
+	{ NVRAM_SERVICE_OPTION(KDRIVE, KEYBD_DRIVER), "keyboard" },
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)

@@ -69,6 +69,8 @@ rc_func_t rc_functions[] = {
 #endif
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 	{ "nano_x", RC_BOOT, rc_nano_x },
+#elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
+	{ "kdrive", RC_BOOT, rc_kdrive },
 #endif
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 	{ "dillo", RC_BOOT, rc_dillo },

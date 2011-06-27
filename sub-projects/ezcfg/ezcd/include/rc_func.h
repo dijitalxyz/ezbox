@@ -64,6 +64,8 @@ extern int rc_wan_iptables(int flag);
 
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 extern int rc_nano_x(int flag);
+#elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
+extern int rc_kdrive(int flag);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)

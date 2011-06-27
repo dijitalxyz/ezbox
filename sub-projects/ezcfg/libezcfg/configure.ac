@@ -247,6 +247,25 @@ AC_ARG_ENABLE([service-nano_x],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_NANO_X, test "x$config_ezbox_service_nano_x" = xyes)
 
+# Configure TinyX/kdrive service.
+config_ezbox_service_kdrive=no
+AC_MSG_CHECKING([if TinyX/kdrive service is enabled])
+AC_ARG_ENABLE([service-kdrive],
+	AS_HELP_STRING([--enable-service-kdrive], [Enable TinyX/kdrive service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_KDRIVE], [1], [Enable TinyX/kdrive service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_kdrive=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KDRIVE, test "x$config_ezbox_service_kdrive" = xyes)
+
 # Configure dillo web browser service.
 config_ezbox_service_dillo=no
 AC_MSG_CHECKING([if dillo web browser service is enabled])

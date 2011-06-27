@@ -153,6 +153,11 @@ if CONFIG_EZBOX_SERVICE_NANO_X
 ezcd_SOURCES += src/rc/rc_nano_x.c
 endif
 
+# TinyX/kdrive service
+if CONFIG_EZBOX_SERVICE_KDRIVE
+ezcd_SOURCES += src/rc/rc_kdrive.c
+endif
+
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
 ezcd_SOURCES += src/rc/rc_dillo.c

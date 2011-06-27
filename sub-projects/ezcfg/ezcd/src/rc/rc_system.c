@@ -237,8 +237,14 @@ int rc_system(int flag)
 		/* run in root HOME path */
 		chdir(ROOT_HOME_PATH);
 
+#if (HAVE_EZBOX_SERVICE_DILLO == 1)
+		rc_dillo(RC_STOP);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 		rc_nano_x(RC_STOP);
+#elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
+		rc_kdrive(RC_STOP);
 #endif
 
 		/* FIXME: We do it in wan interface startup script */
@@ -347,6 +353,12 @@ int rc_system(int flag)
 
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 		rc_nano_x(RC_START);
+#elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
+		rc_kdrive(RC_START);
+#endif
+
+#if (HAVE_EZBOX_SERVICE_DILLO == 1)
+		rc_dillo(RC_START);
 #endif
 
 		break;

@@ -23,6 +23,7 @@
 #include "ezcfg-ui.h"
 #include "ezcfg-dnsmasq.h"
 #include "ezcfg-nano_x.h"
+#include "ezcfg-kdrive.h"
 #include "ezcfg-dillo.h"
 
 #define GLUE2(a, b)      	a ## b
