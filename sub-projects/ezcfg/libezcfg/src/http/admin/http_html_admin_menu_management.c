@@ -155,7 +155,7 @@ int ezcfg_http_html_admin_html_menu_management(
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
-	int li_index, a_index;
+	int li_index, h3_index, a_index;
 	int ul2_index, li2_index;
 	int child_index;
 	char *request_uri, *section;
@@ -186,28 +186,28 @@ int ezcfg_http_html_admin_html_menu_management(
 		goto func_exit;
 	}
 
+	h3_index = -1;
+	/* menu <ul> <li> <h3> */
+	h3_index = ezcfg_html_add_body_child(html, li_index, h3_index, EZCFG_HTML_H3_ELEMENT_NAME, NULL);
+	if (h3_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child err.\n");
+		goto func_exit;
+	}
+
 	a_index = -1;
 	/* menu <ul> <li> <a> */
-	a_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_A_ELEMENT_NAME, NULL);
+	a_index = ezcfg_html_add_body_child(html, h3_index, a_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Management"));
 	if (a_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child err.\n");
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, a_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "management_authz", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	child_index = -1;
-	/* menu <ul> <li> <a> <h3> */
-	child_index = ezcfg_html_add_body_child(html, a_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Management"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child err.\n");
-		goto func_exit;
-	}
-
 	if ((strcmp(section, "management_authz") == 0) ||
 	    (strcmp(section, "management_default") == 0) ||
 	    (strcmp(section, "management_upgrade") == 0)) {
 		/* submenu <ul> */
-		ul2_index = ezcfg_html_add_body_child(html, li_index, a_index, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
+		ul2_index = ezcfg_html_add_body_child(html, li_index, h3_index, EZCFG_HTML_UL_ELEMENT_NAME, NULL);
 		if (ul2_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child err.\n");
 			goto func_exit;

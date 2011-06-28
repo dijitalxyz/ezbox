@@ -248,9 +248,8 @@ static int set_html_main_management_authz(
 		p_index = child_index;
 		child_index = -1;
 
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-			ezcfg_locale_text(locale, "Yes"));
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 		if (input_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
@@ -262,9 +261,17 @@ static int set_html_main_management_authz(
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 
+		/* <i> Yes </i> */
 		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-			ezcfg_locale_text(locale, "No"));
-		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+			ezcfg_locale_text(locale, "Yes"));
+		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 		if (input_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
@@ -274,6 +281,15 @@ static int set_html_main_management_authz(
 		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		if (strcmp(tmp, "0") == 0) {
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+
+		/* <i> No </i> */
+		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+			ezcfg_locale_text(locale, "No"));
+		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
 		}
 
 		/* restore <p> index */
@@ -300,9 +316,8 @@ static int set_html_main_management_authz(
 			p_index = child_index;
 			child_index = -1;
 
-			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-				ezcfg_locale_text(locale, "Yes"));
-			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+			/* <input /> */
+			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 			if (input_index < 0) {
 				err(ezcfg, "ezcfg_html_add_body_child error.\n");
 				goto func_exit;
@@ -314,9 +329,16 @@ static int set_html_main_management_authz(
 				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			}
 
+			/* <i> Yes </i> */
 			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
-				ezcfg_locale_text(locale, "No"));
-			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
+				ezcfg_locale_text(locale, "Yes"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+
+			input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
 			if (input_index < 0) {
 				err(ezcfg, "ezcfg_html_add_body_child error.\n");
 				goto func_exit;
@@ -326,6 +348,15 @@ static int set_html_main_management_authz(
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 			if (strcmp(tmp, "0") == 0) {
 				ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+			}
+
+			/* <i> No </i> */
+			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+				ezcfg_locale_text(locale, "No"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
 			}
 
 			/* restore <p> index */
