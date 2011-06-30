@@ -1636,6 +1636,7 @@ CONFIG_PACKAGE_xkeyboard-config=y
 # font
 #
 CONFIG_PACKAGE_dejavu-fonts-ttf=y
+CONFIG_PACKAGE_gs-fonts=y
 CONFIG_PACKAGE_wqy-zenhei-ttf=y
 
 #
