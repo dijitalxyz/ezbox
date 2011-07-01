@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=unifont
-PKG_VERSION:=5.1.20080907
+PKG_VERSION:=5.1.20080914
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).gz
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/$(PKG_NAME)-${PKG_VERSION}/
-PKG_SOURCE_URL:=http://unifoundry.com/
-#PKG_MD5SUM:=4c6c3f4e902dd5ee0a121e8c41d040bd
+PKG_SOURCE_URL:=http://ezbox-pool.googlecode.com/svn/trunk
+PKG_MD5SUM:=ae99db5125df712fe16246bab36fd95b
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -36,7 +36,7 @@ endef
 
 define Package/unifont-ttf/install
 	$(INSTALL_DIR) $(1)/usr/share/fonts/ttf-unifont
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/*.ttf $(1)/usr/share/fonts/ttf-unifont
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/font/precompiled/*.ttf $(1)/usr/share/fonts/ttf-unifont
 endef
 
 $(eval $(call BuildPackage,unifont-ttf))

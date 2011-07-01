@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/freefont-${PKG_VERSION}/
 PKG_SOURCE_URL:=http://ftp.gnu.org/gnu/freefont
-#PKG_MD5SUM:=4c6c3f4e902dd5ee0a121e8c41d040bd
+PKG_MD5SUM:=33d96c755d0a6f585bc917f08cbddf66
 
 include $(INCLUDE_DIR)/package.mk
 
