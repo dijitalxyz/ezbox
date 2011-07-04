@@ -157,7 +157,6 @@ int ezcfg_http_html_admin_html_menu_management(
 	struct ezcfg_locale *locale = NULL;
 	int li_index, h3_index, a_index;
 	int ul2_index, li2_index;
-	int child_index;
 	char *request_uri, *section;
 	int ret = -1;
 

@@ -69,7 +69,7 @@ int pop_etc_dnsmasq_conf(int flag)
 					snprintf(name, sizeof(name), "%s%d",
 						NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), i);
 					rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-					if (buf[0] != '\0') {
+					if (rc >= 0) {
 						fprintf(file, "nameserver %s\n", buf);
 					}
 				}
@@ -80,7 +80,7 @@ int pop_etc_dnsmasq_conf(int flag)
 		/* listen for DHCP and DNS requests only on specified interfaces */
 		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LOOPBACK, IFNAME));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-		if (buf[0] != '\0') {
+		if (rc > 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
 		}
 		if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
@@ -93,7 +93,7 @@ int pop_etc_dnsmasq_conf(int flag)
 			break;
 		}
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-		if (buf[0] != '\0') {
+		if (rc > 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
 		}
 

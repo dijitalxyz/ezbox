@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int rc_dillo(int flag)
 {
@@ -50,6 +51,8 @@ int rc_dillo(int flag)
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
+
+		pop_etc_dillo_dillorc(RC_START);
 
 		/* start dillo web browser */
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n dillo -a /usr/bin/dillo");

@@ -68,7 +68,7 @@ int pop_etc_resolv_conf(int flag)
 			snprintf(name, sizeof(name), "%s%d",
 				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-			if (buf[0] != '\0') {
+			if (rc > 0) {
 				fprintf(file, "nameserver %s\n", buf);
 			}
 		}

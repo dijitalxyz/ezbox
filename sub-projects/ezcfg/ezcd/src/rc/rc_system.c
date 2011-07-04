@@ -154,11 +154,11 @@ int rc_system(int flag)
 						/* mount /dev/sda1 /boot */
 						fs_type = utils_get_boot_device_fs_type();
 						if (fs_type != NULL) {
-							snprintf(cmdline, sizeof(cmdline), "%s -t %s %s /boot", CMD_MOUNT, fs_type, path);
+							snprintf(cmdline, sizeof(cmdline), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
 							free(fs_type);
 						}
 						else {
-							snprintf(cmdline, sizeof(cmdline), "%s %s /boot", CMD_MOUNT, path);
+							snprintf(cmdline, sizeof(cmdline), "%s -r %s /boot", CMD_MOUNT, path);
 						}
 						system(cmdline);
 					}
@@ -186,11 +186,11 @@ int rc_system(int flag)
 						/* mount /dev/sda2 /var */
 						fs_type = utils_get_data_device_fs_type();
 						if (fs_type != NULL) {
-							snprintf(cmdline, sizeof(cmdline), "%s -t %s %s /var", CMD_MOUNT, fs_type, path);
+							snprintf(cmdline, sizeof(cmdline), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
 							free(fs_type);
 						}
 						else {
-							snprintf(cmdline, sizeof(cmdline), "%s %s /var", CMD_MOUNT, path);
+							snprintf(cmdline, sizeof(cmdline), "%s -w %s /var", CMD_MOUNT, path);
 						}
 						system(cmdline);
 					}

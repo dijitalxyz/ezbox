@@ -160,6 +160,7 @@ endif
 
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
+ezcd_SOURCES += src/pop/pop_etc_dillo_dillorc.c
 ezcd_SOURCES += src/rc/rc_dillo.c
 endif
 
