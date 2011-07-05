@@ -63,8 +63,9 @@ static int set_setup_wan_static(
 	html = admin->html;
 
 	/* <p>IP Address : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "IP Address"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "IP Address"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -88,8 +89,9 @@ static int set_setup_wan_static(
 	}
 
 	/* <p>Subnet Mask : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Subnet Mask"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Subnet Mask"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -113,8 +115,9 @@ static int set_setup_wan_static(
 	}
 
 	/* <p>Default Gateway : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Default Gateway"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Default Gateway"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -140,8 +143,9 @@ static int set_setup_wan_static(
 	for (i = 1; i <= 3; i++) {
 		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS), i);
 		/* <p>DNS 1 : </p> */
-		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "DNS"), i);
+		snprintf(buf, sizeof(buf), "%s %d%s",
+			ezcfg_locale_text(locale, "DNS"), i,
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -192,8 +196,9 @@ static int set_setup_wan_pppoe(
 	html = admin->html;
 
 	/* <p>Username : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Username"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Username"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -217,8 +222,9 @@ static int set_setup_wan_pppoe(
 	}
 
 	/* <p>Password : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Password"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Password"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -242,8 +248,9 @@ static int set_setup_wan_pppoe(
 	}
 
 	/* <p>Service Name : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Service Name"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Service Name"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -267,8 +274,9 @@ static int set_setup_wan_pppoe(
 	}
 
 	/* <p>Connecting Mode : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Connecting Mode"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Connecting Mode"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -309,8 +317,9 @@ static int set_setup_wan_pppoe(
 	/* Connecting mode is Dial On Demand */
 	if (strcmp(buf, "0") == 0) {
 		/* <p>Max Idle Time : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Max Idle Time"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Max Idle Time"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -337,8 +346,9 @@ static int set_setup_wan_pppoe(
 	/* Connecting mode is Keep Alive */
 	else {
 		/* <p>Redial Period : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Redial Period"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Redial Period"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -392,8 +402,9 @@ static int set_setup_wan_pptp(
 	html = admin->html;
 
 	/* <p>IP Address : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "IP Address"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "IP Address"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -417,8 +428,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Subnet Mask : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Subnet Mask"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Subnet Mask"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -442,8 +454,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Default Gateway : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Default Gateway"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Default Gateway"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -469,8 +482,9 @@ static int set_setup_wan_pptp(
 	for (i = 1; i <= 3; i++) {
 		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, PPTP_DNS), i);
 		/* <p>DNS 1 : </p> */
-		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "DNS"), i);
+		snprintf(buf, sizeof(buf), "%s %d%s",
+			ezcfg_locale_text(locale, "DNS"), i,
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -495,8 +509,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Server IP Addresse : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Server IP Address"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Server IP Address"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -520,8 +535,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Username : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Username"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Username"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -545,8 +561,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Password : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Password"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Password"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -570,8 +587,9 @@ static int set_setup_wan_pptp(
 	}
 
 	/* <p>Connecting Mode : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Connecting Mode"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Connecting Mode"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -612,8 +630,9 @@ static int set_setup_wan_pptp(
 	/* Connecting mode is Dial On Demand */
 	if (strcmp(buf, "0") == 0) {
 		/* <p>Max Idle Time : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Max Idle Time"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Max Idle Time"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -640,8 +659,9 @@ static int set_setup_wan_pptp(
 	/* Connecting mode is Keep Alive */
 	else {
 		/* <p>Redial Period : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Redial Period"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Redial Period"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -694,8 +714,9 @@ static int set_setup_wan_l2tp(
 	html = admin->html;
 
 	/* <p>Server IP Addresse : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Server IP Address"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Server IP Address"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -719,8 +740,9 @@ static int set_setup_wan_l2tp(
 	}
 
 	/* <p>Username : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Username"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Username"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -744,8 +766,9 @@ static int set_setup_wan_l2tp(
 	}
 
 	/* <p>Password : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Password"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Password"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -769,8 +792,9 @@ static int set_setup_wan_l2tp(
 	}
 
 	/* <p>Connecting Mode : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Connecting Mode"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Connecting Mode"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -811,8 +835,9 @@ static int set_setup_wan_l2tp(
 	/* Connecting mode is Dial On Demand */
 	if (strcmp(buf, "0") == 0) {
 		/* <p>Max Idle Time : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Max Idle Time"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Max Idle Time"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -839,8 +864,9 @@ static int set_setup_wan_l2tp(
 	/* Connecting mode is Keep Alive */
 	else {
 		/* <p>Redial Period : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Redial Period"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Redial Period"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -920,8 +946,9 @@ static int set_setup_wan_optional_settings(
 	}
 
 	/* <p>Host Name : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Host Name"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Host Name"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -945,8 +972,9 @@ static int set_setup_wan_optional_settings(
 	}
 
 	/* <p>Domain Name : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Domain Name"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Domain Name"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -970,8 +998,9 @@ static int set_setup_wan_optional_settings(
 	}
 
 	/* <p>MTU : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "MTU"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "MTU"),
+		ezcfg_locale_text(locale, " : "));
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (si < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -1012,8 +1041,9 @@ static int set_setup_wan_optional_settings(
 	/* MTU setting mode is manual */
 	if (strcmp(buf, "1") == 0) {
 		/* <p>MTU Size: </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "MTU Size"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "MTU Size"),
+			ezcfg_locale_text(locale, " : "));
 		si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (si < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -1096,8 +1126,9 @@ static int set_html_main_setup_wan(
 	}
 
 	/* <p>Connection Type : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Connection Type"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Connection Type"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -1160,8 +1191,8 @@ static int set_html_main_setup_wan(
 		}
 	}
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

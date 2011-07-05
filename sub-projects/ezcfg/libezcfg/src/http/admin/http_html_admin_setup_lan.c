@@ -74,8 +74,9 @@ static int set_html_main_setup_lan_dhcpd(
 	}
 
 	/* <p>Service Switch : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Service Switch"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Service Switch"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -123,8 +124,9 @@ static int set_html_main_setup_lan_dhcpd(
 	if (strcmp(buf, "1") == 0) {
 		char tmp[2];
 		/* <p>Start IP Address : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Start IP Address"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Start IP Address"),
+			ezcfg_locale_text(locale, " : "));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -154,8 +156,9 @@ static int set_html_main_setup_lan_dhcpd(
 		child_index = p_index;
 
 		/* <p>End IP Address : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "End IP Address"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "End IP Address"),
+			ezcfg_locale_text(locale, " : "));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -185,8 +188,9 @@ static int set_html_main_setup_lan_dhcpd(
 		child_index = p_index;
 
 		/* <p>Client Lease Time : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Client Lease Time"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Client Lease Time"),
+			ezcfg_locale_text(locale, " : "));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -217,8 +221,9 @@ static int set_html_main_setup_lan_dhcpd(
 		child_index = p_index;
 
 		/* <p>Use WAN DNS Servers : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Use WAN DNS Servers"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Use WAN DNS Servers"),
+			ezcfg_locale_text(locale, " : "));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -236,7 +241,7 @@ static int set_html_main_setup_lan_dhcpd(
 			free(p);
 		}
 
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		snprintf(buf, sizeof(buf), " %s ",
 			ezcfg_locale_text(locale, "Yes"));
 		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
 		if (input_index < 0) {
@@ -250,7 +255,7 @@ static int set_html_main_setup_lan_dhcpd(
 			ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 		}
 
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		snprintf(buf, sizeof(buf), " %s ",
 			ezcfg_locale_text(locale, "No"));
 		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, buf);
 		if (input_index < 0) {
@@ -272,8 +277,9 @@ static int set_html_main_setup_lan_dhcpd(
 			for (i = 1; i <= 3; i++) {
 				snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_DNS), i);
 				/* <p>Static DNS 1 : </p> */
-				snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;",
-					ezcfg_locale_text(locale, "Static DNS"), i);
+				snprintf(buf, sizeof(buf), "%s %d%s",
+					ezcfg_locale_text(locale, "Static DNS"), i,
+					ezcfg_locale_text(locale, " : "));
 				child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 				if (child_index < 0) {
 					err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -388,8 +394,9 @@ static int set_html_main_setup_lan(
 	}
 
 	/* <p>IP Address : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "IP Address"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "IP Address"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -419,8 +426,9 @@ static int set_html_main_setup_lan(
 	child_index = p_index;
 
 	/* <p>Subnet Mask : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Subnet Mask"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Subnet Mask"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -464,8 +472,8 @@ static int set_html_main_setup_lan(
 		}
 	}
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

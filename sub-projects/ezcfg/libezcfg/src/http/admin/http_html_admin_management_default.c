@@ -212,8 +212,9 @@ static int set_html_main_management_default(
 	}
 
 	/* <p>Confirm to restore system defaults : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Confirm to restore system defaults"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Confirm to restore system defaults"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -237,7 +238,7 @@ static int set_html_main_management_default(
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <i> Yes </i> */
-	snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+	snprintf(buf, sizeof(buf), " %s ",
 		ezcfg_locale_text(locale, "Yes"));
 	child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 	if (child_index < 0) {
@@ -259,7 +260,7 @@ static int set_html_main_management_default(
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <i> No </i> */
-	snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+	snprintf(buf, sizeof(buf), " %s ",
 		ezcfg_locale_text(locale, "No"));
 	child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 	if (child_index < 0) {
@@ -270,8 +271,8 @@ static int set_html_main_management_default(
 	/* restore <p> index */
 	child_index = p_index;
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

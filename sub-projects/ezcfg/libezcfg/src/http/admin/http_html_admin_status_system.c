@@ -102,8 +102,9 @@ static int set_html_main_status_system(
 
 	/* <p>Device Name : ezbox </p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, DEVICE_NAME), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Device Name"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Device"));
 	if (p != NULL) {
 		free(p);
@@ -123,8 +124,9 @@ static int set_html_main_status_system(
 
 	/* <p>Serial Number : 0123456789 </p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Serial Number"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Serial Number"));
 	if (p != NULL) {
 		free(p);
@@ -144,8 +146,9 @@ static int set_html_main_status_system(
 
 	/* <p>Hardware Version : 1.0 </p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, HARDWARE_VERSION), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Hardware Version"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Version"));
 	if (p != NULL) {
 		free(p);
@@ -165,8 +168,9 @@ static int set_html_main_status_system(
 
 	/* <p>Software Version : 1.0 </p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Software Version"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Version"));
 	if (p != NULL) {
 		free(p);
@@ -199,8 +203,9 @@ static int set_html_main_status_system(
 		free(p);
 	}
 	p = ezcfg_util_lang_get_desc_by_name(lang);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Language"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Language"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -240,7 +245,7 @@ static int set_html_main_status_system(
 	}
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Time Zone"),
-		(bool_flag == true) ? "" : "&nbsp;:&nbsp;",
+		(bool_flag == true) ? "" : ezcfg_locale_text(locale, " : "),
 		(bool_flag == true) ? "" : ezcfg_locale_text(locale, "Unknown Time Zone"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
@@ -248,16 +253,20 @@ static int set_html_main_status_system(
 		goto func_exit;
 	}
 	if (bool_flag == true) {
-		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%s%s",
+			ezcfg_locale_text(locale, " ("),
 			ezcfg_locale_text(locale, "Area"),
+			ezcfg_locale_text(locale, ") : "),
 			ezcfg_locale_text(locale, p));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
 		}
-		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%s%s",
+			ezcfg_locale_text(locale, " ("),
 			ezcfg_locale_text(locale, "Location"),
+			ezcfg_locale_text(locale, ") : "),
 			ezcfg_locale_text(locale, q));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -280,8 +289,9 @@ static int set_html_main_status_system(
 			strftime(p, 255, "%c", &tms);
 		}
 	}
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Current Time"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Available"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p != NULL) {
@@ -338,11 +348,13 @@ static int set_html_main_status_system(
 			info.freeswap *= info.mem_unit;
 		}
 
-		/* <p>Up Time : 10000 seconds </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%ld&nbsp;%s",
+		/* <p>Up Time : 10000 Seconds </p> */
+		snprintf(buf, sizeof(buf), "%s%s%ld%s%s",
 			ezcfg_locale_text(locale, "Up Time"),
+			ezcfg_locale_text(locale, " : "),
 			info.uptime,
-			ezcfg_locale_text(locale, "seconds"));
+			ezcfg_locale_text(locale, " "),
+			ezcfg_locale_text(locale, "Seconds"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -350,9 +362,11 @@ static int set_html_main_status_system(
 		}
 
 		/* <p>Total Memory : 65536 KB </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%lu&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%lu%s%s",
 			ezcfg_locale_text(locale, "Total Memory"),
+			ezcfg_locale_text(locale, " : "),
 			info.totalram,
+			ezcfg_locale_text(locale, " "),
 			ezcfg_locale_text(locale, "KB"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -361,9 +375,11 @@ static int set_html_main_status_system(
 		}
 
 		/* <p>Free Memory : 16384 KB </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%lu&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%lu%s%s",
 			ezcfg_locale_text(locale, "Free Memory"),
+			ezcfg_locale_text(locale, " : "),
 			info.freeram,
+			ezcfg_locale_text(locale, " "),
 			ezcfg_locale_text(locale, "KB"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -372,9 +388,11 @@ static int set_html_main_status_system(
 		}
 
 		/* <p>Total Swap : 65536 KB </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%lu&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%lu%s%s",
 			ezcfg_locale_text(locale, "Total Swap"),
+			ezcfg_locale_text(locale, " : "),
 			info.totalswap,
+			ezcfg_locale_text(locale, " "),
 			ezcfg_locale_text(locale, "KB"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -383,9 +401,11 @@ static int set_html_main_status_system(
 		}
 
 		/* <p>Free Swap : 16384 KB </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%lu&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s%s%lu%s%s",
 			ezcfg_locale_text(locale, "Free Swap"),
+			ezcfg_locale_text(locale, " : "),
 			info.freeswap,
+			ezcfg_locale_text(locale, " "),
 			ezcfg_locale_text(locale, "KB"));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -394,8 +414,8 @@ static int set_html_main_status_system(
 		}
 	}
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

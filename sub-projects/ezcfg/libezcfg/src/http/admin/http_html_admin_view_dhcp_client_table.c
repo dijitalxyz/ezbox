@@ -151,7 +151,7 @@ static int set_html_main_view_dhcp_client_table(
 	}
 
 	/* <table><tr><th></th></tr><table> */
-	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, "&nbsp;");
+	child_index = ezcfg_html_add_body_child(html, tr_index, child_index, EZCFG_HTML_TH_ELEMENT_NAME, " ");
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
@@ -164,8 +164,8 @@ static int set_html_main_view_dhcp_client_table(
 	/* restore <table> index */
 	child_index = table_index;
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

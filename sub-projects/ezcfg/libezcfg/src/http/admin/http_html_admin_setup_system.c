@@ -96,8 +96,9 @@ static int set_html_main_setup_system(
 	}
 
 	/* <p>Language : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Language"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Language"),
+		ezcfg_locale_text(locale, " : "));
 	p_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -143,8 +144,10 @@ static int set_html_main_setup_system(
 	}
 
 	/* <p>  (Area) : </p> */
-	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Area"));
+	snprintf(buf, sizeof(buf), "%s%s%s",
+		ezcfg_locale_text(locale, " ("),
+		ezcfg_locale_text(locale, "Area"),
+		ezcfg_locale_text(locale, ") : "));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -187,9 +190,12 @@ static int set_html_main_setup_system(
 
 	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), tz_area) == false) {
 		/* <p>  (Warning : time zone area has been changed, please set location again!)</p> */
-		snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s&nbsp;:&nbsp;%s)",
+		snprintf(buf, sizeof(buf), "%s%s%s%s%s",
+			ezcfg_locale_text(locale, " ("),
 			ezcfg_locale_text(locale, "Warning"),
-			ezcfg_locale_text(locale, "time zone area has been changed, please set location again!"));
+			ezcfg_locale_text(locale, " : "),
+			ezcfg_locale_text(locale, "time zone area has been changed, please set location again!"),
+			ezcfg_locale_text(locale, ")"));
 		p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (p_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -199,8 +205,10 @@ static int set_html_main_setup_system(
 	}
 
 	/* <p>  (Location) : </p> */
-	snprintf(buf, sizeof(buf), "&nbsp;&nbsp;(%s)&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Location"));
+	snprintf(buf, sizeof(buf), "%s%s%s",
+		ezcfg_locale_text(locale, " ("),
+		ezcfg_locale_text(locale, "Location"),
+		ezcfg_locale_text(locale, ") : "));
 	p_index = ezcfg_html_add_body_child(html, content_index, p_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (p_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -244,8 +252,8 @@ static int set_html_main_setup_system(
 	/* restore index pointer */
 	child_index = p_index;
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

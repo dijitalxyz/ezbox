@@ -60,8 +60,9 @@ static int set_status_wan_common(
 
 	/* <p>IP Address : 0.0.0.0</p>*/
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, IPADDR), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "IP Address"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid IP Address"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -81,8 +82,9 @@ static int set_status_wan_common(
 
 	/* <p>Subnet Mask : 0.0.0.0</p>*/
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, NETMASK), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Subnet Mask"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Subnet Mask"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -102,8 +104,9 @@ static int set_status_wan_common(
 
 	/* <p>Default Gateway : 0.0.0.0</p>*/
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, GATEWAY), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Default Gateway"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Default Gateway"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -125,8 +128,9 @@ static int set_status_wan_common(
 	for (i = 1; i <= 3; i++) {
 		snprintf(buf, sizeof(buf), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
 		ezcfg_nvram_get_entry_value(nvram, buf, &p);
-		snprintf(buf, sizeof(buf), "%s %d&nbsp;:&nbsp;%s",
+		snprintf(buf, sizeof(buf), "%s %d%s%s",
 			ezcfg_locale_text(locale, "DNS"), i,
+			ezcfg_locale_text(locale, " : "),
 			(p != NULL) ? p : "");
 		if (p != NULL) {
 			bool_flag = true;
@@ -147,8 +151,9 @@ static int set_status_wan_common(
 
 	/* <p>MTU : 1500</p>*/
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, MTU), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "MTU"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid MTU"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -198,8 +203,9 @@ static int set_status_wan_dhcp(
 
 	/* <p>DHCP Lease Time : 86400</p>*/
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "DHCP Lease Time"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Lease Time"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -449,8 +455,9 @@ static int set_html_main_status_wan(
 		free(p);
 	}
 	p = ezcfg_util_wan_get_type_desc_by_name(wan_type);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Connection Type"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? ezcfg_locale_text(locale, p) : ezcfg_locale_text(locale, "Unknown Type"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -481,8 +488,8 @@ static int set_html_main_status_wan(
 		}
 	}
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

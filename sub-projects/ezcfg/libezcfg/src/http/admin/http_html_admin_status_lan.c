@@ -88,8 +88,9 @@ static int set_html_main_status_lan_dhcpd(
 	else {
 		bool_flag = false;
 	}
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Service Switch"),
+		ezcfg_locale_text(locale, " : "),
 		(bool_flag == true) ? ezcfg_locale_text(locale, ezcfg_util_text_get_service_switch(i == 1)) : ezcfg_locale_text(locale, "Unknown Settings"));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
@@ -103,8 +104,9 @@ static int set_html_main_status_lan_dhcpd(
 		if (i == 1) {
 			/* <p>Start IP Address : 192.168.1.50</p> */
 			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), &p);
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+			snprintf(buf, sizeof(buf), "%s%s%s",
 				ezcfg_locale_text(locale, "Start IP Address"),
+				ezcfg_locale_text(locale, " : "),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Start IP Address"));
 			if (p != NULL) {
 				bool_flag = true;
@@ -124,8 +126,9 @@ static int set_html_main_status_lan_dhcpd(
 
 			/* <p>End IP Address : 192.168.1.50</p> */
 			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), &p);
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+			snprintf(buf, sizeof(buf), "%s%s%s",
 				ezcfg_locale_text(locale, "End IP Address"),
+				ezcfg_locale_text(locale, " : "),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown End IP Address"));
 			if (p != NULL) {
 				bool_flag = true;
@@ -145,9 +148,11 @@ static int set_html_main_status_lan_dhcpd(
 
 			/* <p>Client Lease Time : 86400 Seconds</p> */
 			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE), &p);
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s %s",
+			snprintf(buf, sizeof(buf), "%s%s%s%s%s",
 				ezcfg_locale_text(locale, "Client Lease Time"),
+				ezcfg_locale_text(locale, " : "),
 				(p != NULL) ? p : ezcfg_locale_text(locale, "Invalid Lease Time"),
+				ezcfg_locale_text(locale, " "),
 				(p != NULL) ? ezcfg_locale_text(locale, "Seconds") : "");
 			if (p != NULL) {
 				bool_flag = true;
@@ -253,8 +258,9 @@ static int set_html_main_status_lan(
 
 	/* <p>Physical Address : 00:11:22:33:44:55</p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, HWADDR), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Physical Address"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Physical Address"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -274,8 +280,9 @@ static int set_html_main_status_lan(
 
 	/* <p>IP Address : 192.168.1.1</p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "IP Address"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown IP Address"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -295,8 +302,9 @@ static int set_html_main_status_lan(
 
 	/* <p>Subnet Mask : 255.255.255.0</p> */
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, NETMASK), &p);
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Subnet Mask"),
+		ezcfg_locale_text(locale, " : "),
 		(p != NULL) ? p : ezcfg_locale_text(locale, "Unknown Subnet Mask"));
 	if (p != NULL) {
 		bool_flag = true;
@@ -329,8 +337,8 @@ static int set_html_main_status_lan(
 		}
 	}
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

@@ -120,8 +120,9 @@ static int set_html_main_management_authz(
 	}
 
 	/* <p>Administrator Password : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Administrator Password"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Administrator Password"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -146,8 +147,9 @@ static int set_html_main_management_authz(
 	child_index = p_index;
 
 	/* <p>Re-Enter to Confirm : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Re-Enter to Confirm"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Re-Enter to Confirm"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -179,8 +181,9 @@ static int set_html_main_management_authz(
 	}
 
 	/* <p>Service Switch : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Service Switch"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Service Switch"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -235,8 +238,9 @@ static int set_html_main_management_authz(
 			free(p);
 		}
 		/* <p>Access via HTTP : </p> */
-		snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-			ezcfg_locale_text(locale, "Access via HTTP"));
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Access via HTTP"),
+			ezcfg_locale_text(locale, " : "));
 		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -262,7 +266,7 @@ static int set_html_main_management_authz(
 		}
 
 		/* <i> Yes </i> */
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		snprintf(buf, sizeof(buf), " %s ",
 			ezcfg_locale_text(locale, "Yes"));
 		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -284,7 +288,7 @@ static int set_html_main_management_authz(
 		}
 
 		/* <i> No </i> */
-		snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+		snprintf(buf, sizeof(buf), " %s ",
 			ezcfg_locale_text(locale, "No"));
 		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 		if (child_index < 0) {
@@ -303,8 +307,9 @@ static int set_html_main_management_authz(
 			free(p);
 
 			/* <p>Access via HTTPS : </p> */
-			snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-				ezcfg_locale_text(locale, "Access via HTTPS"));
+			snprintf(buf, sizeof(buf), "%s%s",
+				ezcfg_locale_text(locale, "Access via HTTPS"),
+				ezcfg_locale_text(locale, " : "));
 			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 			if (child_index < 0) {
 				err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -330,7 +335,7 @@ static int set_html_main_management_authz(
 			}
 
 			/* <i> Yes </i> */
-			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+			snprintf(buf, sizeof(buf), " %s ",
 				ezcfg_locale_text(locale, "Yes"));
 			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 			if (child_index < 0) {
@@ -351,7 +356,7 @@ static int set_html_main_management_authz(
 			}
 
 			/* <i> No </i> */
-			snprintf(buf, sizeof(buf), "&nbsp;%s&nbsp;",
+			snprintf(buf, sizeof(buf), " %s ",
 				ezcfg_locale_text(locale, "No"));
 			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 			if (child_index < 0) {
@@ -374,8 +379,9 @@ static int set_html_main_management_authz(
 	}
 
 	/* <p>Service Switch : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "Service Switch"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "Service Switch"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -421,8 +427,8 @@ static int set_html_main_management_authz(
 	child_index = p_index;
 #endif
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

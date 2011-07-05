@@ -92,8 +92,9 @@ static int set_html_main_management_upgrade(
 	}
 
 	/* <p>System Image : </p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;",
-		ezcfg_locale_text(locale, "System Image"));
+	snprintf(buf, sizeof(buf), "%s%s",
+		ezcfg_locale_text(locale, "System Image"),
+		ezcfg_locale_text(locale, " : "));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -117,8 +118,9 @@ static int set_html_main_management_upgrade(
 	child_index = p_index;
 
 	/* <p class="warning">Waring : Upgrading system may take a few minutes; please don't turn off the power.</p> */
-	snprintf(buf, sizeof(buf), "%s&nbsp;:&nbsp;%s",
+	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Warning"),
+		ezcfg_locale_text(locale, " : "),
 		ezcfg_locale_text(locale, "Upgrading system may take a few minutes; please don't turn off the power."));
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
@@ -127,8 +129,8 @@ static int set_html_main_management_upgrade(
 	}
 	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <p>&nbsp;</p> */
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, "&nbsp;");
+	/* <br /> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_BR_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
