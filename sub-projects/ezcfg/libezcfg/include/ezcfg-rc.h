@@ -28,5 +28,6 @@
 #define EZCFG_RC_NANO_X_ENABLE           "nano-X_enable"
 #define EZCFG_RC_KDRIVE_ENABLE           "kdrive_enable"
 #define EZCFG_RC_DILLO_ENABLE            "dillo_enable"
+#define EZCFG_RC_EMC2_ENABLE             "emc2_enable"
 
 #endif

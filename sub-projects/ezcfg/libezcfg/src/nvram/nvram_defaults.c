@@ -441,6 +441,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(DILLO, SHOW_EXTRA_WARNINGS), "1" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	/* EMC2 enabled */
+	{ NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1" },
+#endif
+
 };
 
 char *default_nvram_savings[] = {

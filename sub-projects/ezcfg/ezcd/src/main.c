@@ -4,7 +4,7 @@
  *
  * Description  : EZCD main program
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch

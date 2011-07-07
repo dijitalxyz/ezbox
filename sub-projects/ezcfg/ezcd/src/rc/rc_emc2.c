@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : preinit.c
+ * Module Name  : rc_emc2.c
  *
- * Description  : ezbox initramfs preinit program
+ * Description  : ezbox run EMC2 Enhanced Machine Controller service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2011-07-05   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,19 +38,38 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
+#include "pop_func.h"
 
-int preinit_main(int argc, char **argv)
+int rc_emc2(int flag)
 {
-	/* unset umask */
-	umask(0);
+	int rc;
+	char buf[64];
 
-	/* run boot processes */
-	rc_system(RC_BOOT);
+	switch (flag) {
+	case RC_START :
+		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1");
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
 
-	/* run init */
-	/* if cmdline has root= switch_root to new root device */
-	rc_init(RC_BOOT);
+		pop_etc_emc2_rtapi_conf(RC_START);
+		pop_etc_emc2_configs(RC_START);
 
+		/* start EMC2 Enhanced Machine Controller service */
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n emcsvr -a /usr/bin/emcsvr -- -ini /etc/emc2/configs/ezcnc.ini");
+		system(buf);
+
+		break;
+
+	case RC_STOP :
+		system("start-stop-daemon -K -s KILL -n emc2");
+		break;
+
+	case RC_RESTART :
+		rc = rc_emc2(RC_STOP);
+		sleep(1);
+		rc = rc_emc2(RC_START);
+		break;
+	}
 	return (EXIT_SUCCESS);
 }

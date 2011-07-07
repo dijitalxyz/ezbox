@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : preinit.c
+ * Module Name  : pop_etc_emc2_rtapi_conf.c
  *
- * Description  : ezbox initramfs preinit program
+ * Description  : ezbox /etc/emc2/rtapi.conf file generating program
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2011-07-06   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,19 +38,25 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
 
-int preinit_main(int argc, char **argv)
+int pop_etc_emc2_rtapi_conf(int flag)
 {
-	/* unset umask */
-	umask(0);
+        FILE *file = NULL;
+	char name[32];
+	char buf[64];
+	int rc;
 
-	/* run boot processes */
-	rc_system(RC_BOOT);
+	/* generate /etc/emc2/rtapi.conf */
+	file = fopen("/etc/emc2/rtapi.conf", "w");
+	if (file == NULL)
+		return (EXIT_FAILURE);
 
-	/* run init */
-	/* if cmdline has root= switch_root to new root device */
-	rc_init(RC_BOOT);
+	switch (flag) {
+	case RC_START :
 
+		break;
+	}
+
+	fclose(file);
 	return (EXIT_SUCCESS);
 }

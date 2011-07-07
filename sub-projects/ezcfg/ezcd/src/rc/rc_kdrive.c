@@ -48,7 +48,7 @@ int rc_kdrive(int flag)
 	char mouse_protocol[16];
 	char keybd_driver[16];
 	char keybd_device[64];
-	char kdrive_args[128];
+	char kdrive_args[256];
 
 	switch (flag) {
 	case RC_START :

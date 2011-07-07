@@ -72,6 +72,10 @@ extern int rc_kdrive(int flag);
 extern int rc_dillo(int flag);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+extern int rc_emc2(int flag);
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int flag);
 extern int rc_lan_if(int flag);
