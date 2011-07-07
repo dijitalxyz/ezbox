@@ -3,27 +3,33 @@
 SRC_DIR=$1
 DST_DIR=$2
 ITEM_LIST=$3
-
-DIFF_DIR="diff"
+DIFF_DIR=$4
 
 usage() {
-  echo "usage: ./gen_dir.sh <source dir> <dest dir> <item-list file>"
+  echo "usage: ./gen_diff.sh <source dir> <dest dir> <item-list file> <diff dir>"
 }
 
 if [ "x$SRC_DIR" = "x" ] ; then
   usage
-  exit 0
+  exit -1
 fi
 
 if [ "x$DST_DIR" = "x" ] ; then
   usage
-  exit 0
+  exit -1
 fi
 
 if [ "x$ITEM_LIST" = "x" ] ; then
   usage
-  exit 0
+  exit -1
 fi
+
+if [ "x$DIFF_DIR" = "x" ] ; then
+  usage
+  exit -1
+fi
+
+mkdir -p "$DIFF_DIR"
 
 while read LINE
 do
