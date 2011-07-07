@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=966
+PKG_REV:=970
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -101,6 +101,12 @@ endif
 ifneq ($(CONFIG_PACKAGE_dillo),)
 CONFIGURE_ARGS += \
 	--enable-service-dillo
+endif
+
+# set  EMC2 (Enhanced Machine Controller) service
+ifneq ($(CONFIG_PACKAGE_emc2),)
+CONFIGURE_ARGS += \
+	--enable-service-emc2
 endif
 
 define Build/Configure
