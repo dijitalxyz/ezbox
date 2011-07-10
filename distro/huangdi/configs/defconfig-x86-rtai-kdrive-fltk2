@@ -1510,12 +1510,10 @@ CONFIG_PACKAGE_kmod-tun=y
 # CONFIG_PACKAGE_kmod-gpio-nsc is not set
 # CONFIG_PACKAGE_kmod-gpio-pc8736x is not set
 # CONFIG_PACKAGE_kmod-gpio-scx200 is not set
-# CONFIG_PACKAGE_kmod-hid is not set
-# CONFIG_PACKAGE_kmod-input-core is not set
-# CONFIG_PACKAGE_kmod-input-evdev is not set
-# CONFIG_PACKAGE_kmod-input-gpio-encoder is not set
-# CONFIG_PACKAGE_kmod-input-joydev is not set
-# CONFIG_PACKAGE_kmod-input-polldev is not set
+CONFIG_PACKAGE_kmod-input-evdev=y
+CONFIG_PACKAGE_kmod-input-joydev=y
+CONFIG_PACKAGE_kmod-input-polldev=y
+CONFIG_PACKAGE_kmod-lp=y
 # CONFIG_PACKAGE_kmod-mmc is not set
 # CONFIG_PACKAGE_kmod-pwm is not set
 # CONFIG_PACKAGE_kmod-pwm-gpio is not set
