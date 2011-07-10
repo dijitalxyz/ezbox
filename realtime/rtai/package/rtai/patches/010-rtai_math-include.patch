@@ -8,11 +8,15 @@
  #define _MATH_H         1
  
  #include <rtai_types.h>
-@@ -443,6 +444,9 @@
+@@ -443,6 +444,13 @@
  #endif
  
  __END_DECLS
 +#else
++#define _MATH_H         1
++
++#include <rtai_types.h>
++#undef _MATH_H
 +#include <math.h>
 +#endif
  

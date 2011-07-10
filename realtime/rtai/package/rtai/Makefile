@@ -53,6 +53,8 @@ endef
 
 CONFIGURE_ARGS += --with-linux-dir=$(LINUX_DIR)
 CONFIGURE_ARGS += --disable-leds
+#CONFIGURE_ARGS += --enable-math=m
+#CONFIGURE_ARGS += --enable-math-c99=y
 
 #define Build/Configure
 #endef
