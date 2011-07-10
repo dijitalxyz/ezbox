@@ -375,7 +375,6 @@ $(eval $(call KernelPackage,input-polldev))
 define KernelPackage/lp
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Parallel port and line printer support
-  DEPENDS:=@BROKEN
   KCONFIG:= \
 	CONFIG_PARPORT \
 	CONFIG_PRINTER \
