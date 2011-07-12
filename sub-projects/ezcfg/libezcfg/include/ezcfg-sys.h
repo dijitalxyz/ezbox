@@ -32,4 +32,6 @@
 #define EZCFG_SYS_LAN_NIC                 "lan_nic"
 #define EZCFG_SYS_WAN_NIC                 "wan_nic"
 
+#define EZCFG_SYS_MODULES                 "modules"
+
 #endif

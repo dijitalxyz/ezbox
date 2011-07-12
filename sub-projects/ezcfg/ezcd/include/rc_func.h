@@ -73,6 +73,7 @@ extern int rc_dillo(int flag);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+extern int rc_realtime(int flag);
 extern int rc_emc2(int flag);
 #endif
 

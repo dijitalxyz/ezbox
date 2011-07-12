@@ -200,7 +200,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -208,17 +208,17 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -229,26 +229,26 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get getNvramResponse part */
@@ -256,27 +256,27 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	getnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_GETNV_RESPONSE_ELEMENT_NAME);
 	if (getnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram node name */
 	child_index = ezcfg_soap_get_element_index(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	res_name = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (res_name == NULL) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram entry value */
 	child_index = ezcfg_soap_get_element_index(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
@@ -288,12 +288,12 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 	if (len < strlen(res_value)+1) {
 		rc = -EZCFG_E_SPACE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	rc = snprintf(value, len, "%s", res_value);
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -305,7 +305,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -459,7 +459,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -467,17 +467,17 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -488,26 +488,26 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get setNvramResponse part */
@@ -515,20 +515,20 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	setnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_SETNV_RESPONSE_ELEMENT_NAME);
 	if (setnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -538,7 +538,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -550,7 +550,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -662,7 +662,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -670,17 +670,17 @@ int ezcfg_api_nvram_unset(const char *name)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -691,26 +691,26 @@ int ezcfg_api_nvram_unset(const char *name)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get unsetNvramResponse part */
@@ -718,20 +718,20 @@ int ezcfg_api_nvram_unset(const char *name)
 	unsetnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_UNSETNV_RESPONSE_ELEMENT_NAME);
 	if (unsetnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, unsetnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -741,7 +741,7 @@ int ezcfg_api_nvram_unset(const char *name)
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -753,7 +753,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -928,7 +928,7 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -936,17 +936,17 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -957,26 +957,26 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get setMultiNvramResponse part */
@@ -984,20 +984,20 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	setmnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_SETNV_RESPONSE_ELEMENT_NAME);
 	if (setmnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, setmnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -1007,7 +1007,7 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -1019,7 +1019,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -1133,7 +1133,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -1141,17 +1141,17 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -1162,26 +1162,26 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get listNvramResponse part */
@@ -1189,7 +1189,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	listnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_LISTNV_RESPONSE_ELEMENT_NAME);
 	if (listnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram node index */
@@ -1201,20 +1201,20 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
 		if (child_index < 2) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		res_name = ezcfg_soap_get_element_content_by_index(soap, child_index);
 		if (res_name == NULL) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		/* get nvram node value */
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
 		if (child_index < 2) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
@@ -1230,7 +1230,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 		if (l == 0) {
 			rc = -EZCFG_E_SPACE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		nvnode_index =  ezcfg_soap_get_element_index(soap, listnv_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
@@ -1238,7 +1238,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 	rc = 0;
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -1250,7 +1250,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1360,7 +1360,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -1368,17 +1368,17 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -1389,26 +1389,26 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get infoNvramResponse part */
@@ -1416,7 +1416,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	infonv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_INFONV_RESPONSE_ELEMENT_NAME);
 	if (infonv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram info node index */
@@ -1428,20 +1428,20 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
 		if (child_index < 2) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		res_name = ezcfg_soap_get_element_content_by_index(soap, child_index);
 		if (res_name == NULL) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		/* get nvram node value */
 		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
 		if (child_index < 2) {
 			rc = -EZCFG_E_PARSE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		res_value = ezcfg_soap_get_element_content_by_index(soap, child_index);
@@ -1457,7 +1457,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 
 		if (l == 0) {
 			rc = -EZCFG_E_SPACE ;
-			goto exit;
+			goto sem_exit;
 		}
 
 		nvnode_index =  ezcfg_soap_get_element_index(soap, infonv_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
@@ -1465,7 +1465,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 
 	rc = 0;
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -1477,7 +1477,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1581,7 +1581,7 @@ int ezcfg_api_nvram_commit(void)
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -1589,17 +1589,17 @@ int ezcfg_api_nvram_commit(void)
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -1610,26 +1610,26 @@ int ezcfg_api_nvram_commit(void)
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get commitNvramResponse part */
@@ -1637,20 +1637,20 @@ int ezcfg_api_nvram_commit(void)
 	commitnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_COMMITNV_RESPONSE_ELEMENT_NAME);
 	if (commitnv_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, commitnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -1660,7 +1660,7 @@ int ezcfg_api_nvram_commit(void)
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -1672,7 +1672,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
         if (sh != NULL) {
                 ezcfg_soap_http_delete(sh);
 	}
@@ -1870,7 +1870,7 @@ int ezcfg_api_nvram_insert_socket(
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -1878,17 +1878,17 @@ int ezcfg_api_nvram_insert_socket(
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -1899,26 +1899,26 @@ int ezcfg_api_nvram_insert_socket(
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get insertSocketResponse part */
@@ -1926,20 +1926,20 @@ int ezcfg_api_nvram_insert_socket(
 	sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_INSERT_SOCKET_RESPONSE_ELEMENT_NAME);
 	if (sock_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -1949,7 +1949,7 @@ int ezcfg_api_nvram_insert_socket(
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -1961,7 +1961,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}
@@ -2158,7 +2158,7 @@ int ezcfg_api_nvram_remove_socket(
 	if (semop(semid, &require_res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
-		goto sem_exit;
+		goto exit;
 	}
 
 	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
@@ -2166,17 +2166,17 @@ int ezcfg_api_nvram_remove_socket(
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_soap_http_reset_attributes(sh);
@@ -2187,26 +2187,26 @@ int ezcfg_api_nvram_remove_socket(
 
 	if (header_len <= 0) {
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	ezcfg_http_set_state_response(http);
 	if (ezcfg_soap_http_parse_header(sh, msg, header_len) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	p = ezcfg_socket_read_http_content(sp, http, msg, header_len, &msg_len, &n);
 	if ((p == NULL) || (n <= header_len)){
 		rc = -EZCFG_E_READ ;
-		goto exit;
+		goto sem_exit;
 	}
 	msg = p;
 
 	ezcfg_soap_http_set_message_body(sh, msg + header_len, n - header_len);
 	if (ezcfg_soap_http_parse_message_body(sh) == false) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get removeSocketResponse part */
@@ -2214,20 +2214,20 @@ int ezcfg_api_nvram_remove_socket(
 	sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_REMOVE_SOCKET_RESPONSE_ELEMENT_NAME);
 	if (sock_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	/* get nvram result part */
 	child_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME);
 	if (child_index < 2) {
 		rc = -EZCFG_E_PARSE ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	result = ezcfg_soap_get_element_content_by_index(soap, child_index);
 	if (result == NULL) {
 		rc = -EZCFG_E_RESULT ;
-		goto exit;
+		goto sem_exit;
 	}
 
 	if (strcmp(result, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK) == 0) {
@@ -2237,7 +2237,7 @@ int ezcfg_api_nvram_remove_socket(
 		rc = -EZCFG_E_RESULT ;
 	}
 
-exit:
+sem_exit:
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
 	release_res.sem_op = 1;
@@ -2249,7 +2249,7 @@ exit:
 		goto exit;
 	}
 
-sem_exit:
+exit:
 	if (msg != NULL) {
 		free(msg);
 	}

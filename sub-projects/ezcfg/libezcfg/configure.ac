@@ -285,6 +285,25 @@ AC_ARG_ENABLE([service-dillo],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DILLO, test "x$config_ezbox_service_dillo" = xyes)
 
+# Configure EMC2 (Enhanced Machine Controller) service.
+config_ezbox_service_emc2=no
+AC_MSG_CHECKING([if EMC2 Enhanced Machine Controller service is enabled])
+AC_ARG_ENABLE([service-emc2],
+	AS_HELP_STRING([--enable-service-emc2], [Enable EMC2 Enhanced Machine Controller service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EMC2], [1], [Enable EMC2 Enhanced Machine Controller service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_emc2=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.

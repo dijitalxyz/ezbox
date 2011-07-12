@@ -75,6 +75,10 @@ rc_func_t rc_functions[] = {
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 	{ "dillo", RC_BOOT, rc_dillo },
 #endif
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	{ "realtime", RC_BOOT, rc_realtime },
+	{ "emc2", RC_BOOT, rc_emc2 },
+#endif
 };
 
 rc_func_t *utils_find_rc_func(char *name)

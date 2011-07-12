@@ -80,6 +80,12 @@ int rc_system(int flag)
 	char cmdline[1024];
 	char *dev_path = NULL;
 
+	if(geteuid() != 0)
+	{
+		DBG("run rc_system euid is not 0!\n");
+		return (EXIT_FAILURE);
+	}
+
 	switch (flag) {
 	case RC_BOOT :
 		/* /proc */
@@ -123,6 +129,7 @@ int rc_system(int flag)
 
 		/* run in root HOME path */
 		mkdir(ROOT_HOME_PATH, 0755);
+		setenv("HOME", ROOT_HOME_PATH, 1);
 		chdir(ROOT_HOME_PATH);
 
 		/* init hotplug2 */
@@ -235,6 +242,7 @@ int rc_system(int flag)
 	case RC_RESTART :
 	case RC_STOP :
 		/* run in root HOME path */
+		setenv("HOME", ROOT_HOME_PATH, 1);
 		chdir(ROOT_HOME_PATH);
 
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
@@ -281,6 +289,7 @@ int rc_system(int flag)
 
 	case RC_START :
 		/* run in root HOME path */
+		setenv("HOME", ROOT_HOME_PATH, 1);
 		chdir(ROOT_HOME_PATH);
 
 		/* restart ezcfg daemon */
@@ -359,6 +368,10 @@ int rc_system(int flag)
 
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 		rc_dillo(RC_START);
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+		//rc_emc2(RC_START);
 #endif
 
 		break;

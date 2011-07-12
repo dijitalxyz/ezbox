@@ -25,6 +25,7 @@
 #include "ezcfg-nano_x.h"
 #include "ezcfg-kdrive.h"
 #include "ezcfg-dillo.h"
+#include "ezcfg-emc2.h"
 
 #define GLUE2(a, b)      	a ## b
 #define GLUE3(a, b, c)   	a ## b ## c

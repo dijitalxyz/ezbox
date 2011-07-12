@@ -44,6 +44,8 @@ int pop_etc_modules(int flag)
 	FILE *file;
 	char *kmod = NULL;
 	char *p, *q;
+	char buf[256];
+	int rc;
 
 	file = fopen("/etc/modules", "w");
 	if (file == NULL)
@@ -71,6 +73,20 @@ int pop_etc_modules(int flag)
 	case RC_RESTART :
 	case RC_START :
 		/* get the kernel module name from nvram */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, MODULES), buf, sizeof(buf));
+		if (rc > 0) {
+			p = buf;
+			while(p != NULL) {
+				q = strchr(p, ',');
+				if (q != NULL)
+					*q = '\0';
+				fprintf(file, "%s\n", p);
+				if (q != NULL)
+					p = q+1;
+				else
+					p = NULL;
+			}
+		}
 		break;
 	}
 
