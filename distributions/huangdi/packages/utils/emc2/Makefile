@@ -44,8 +44,10 @@ define Package/emc2/description
   and lathes.
 endef
 
+#CONFIGURE_VARS += \
+#	ac_cv_lib_readline_readline=yes
 CONFIGURE_VARS += \
-	ac_cv_lib_readline_readline=yes
+	ac_cv_path_AR="$(TOOLCHAIN_DIR)/bin/$(TARGET_CROSS)ar"
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR)/src; autoreconf --install --symlink );
@@ -68,6 +70,8 @@ TARGET_EXTRA_LIBS:= -lpng -lz -lexpat -lintl $(LIBRPC)
 FLTK2_EXTRA_LIBS:= 
 GTK2_EXTRA_LIBS:= -lpixman-1
 
+TARGET_EXTRA_LIBS += -lncurses
+
 TARGET_LDFLAGS += \
 	$(TARGET_EXTRA_LIBS) \
 	$(if $(CONFIG_FEATURE_gui-toolkit_FLTK2), $(FLK2_EXTRA_LIBS), ) \
@@ -77,6 +81,7 @@ TARGET_LDFLAGS += \
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
+		V=1 \
 		BUILD_VERBOSE=1 \
 		TARGET_CFLAGS="$(TARGET_CFLAGS)" \
 		TARGET_CXXFLAGS="$(TARGET_CFLAGS)" \
@@ -87,6 +92,7 @@ endef
 
 define Build/Install
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
+		V=1 \
 		BUILD_VERBOSE=1 \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		TARGET_CFLAGS="$(TARGET_CFLAGS)" \

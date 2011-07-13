@@ -18,3 +18,14 @@
  endif
  
  # Rules to make .d (dependency) files.
+--- emc2-20110710/src/Makefile	2011-02-05 07:45:25.807612276 +0800
++++ emc2-20110710/src/Makefile	2011-02-05 07:46:31.486986872 +0800
+@@ -163,7 +163,7 @@
+ INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+ 
+ ifneq ($(KERNELDIR),)
+-INCLUDE += -I$(KERNELDIR)/include
++#INCLUDE += -I$(KERNELDIR)/include
+ endif
+ 
+ ifeq ($(BUILD_PYTHON),yes)
