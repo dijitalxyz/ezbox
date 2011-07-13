@@ -43,7 +43,7 @@ endef
 EXTRA_CPPFLAGS+=-I$(ICONV_PREFIX)/include
 EXTRA_LDFLAGS+=-L$(ICONV_PREFIX)/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
-TARGET_LDFLAGS +=-ljpeg -lpng
+TARGET_LDFLAGS +=-ljpeg -lpng -liconv
 
 FLTK2_CONFIG := $(STAGING_DIR)/host/bin/fltk2-config
 
