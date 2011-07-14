@@ -85,6 +85,7 @@ define Build/Configure
 		--enable-trace=n \
 		--enable-math=m \
 		--enable-math-c99=n \
+		--enable-netrpc=n \
 		--enable-doc=n \
 		--enable-module-debug=y \
 		--enable-user-debug=y \
