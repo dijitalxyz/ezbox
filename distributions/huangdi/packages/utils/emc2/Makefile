@@ -57,8 +57,8 @@ define Build/Configure
 		$(if $(CONFIG_FEATURE_gui-toolkit_GTK2), --enable-gtk, --disable-gtk) \
 		--disable-build-documentation \
 		--disable-python \
-		--with-realtime="$(STAGING_DIR)/usr" \
-		--with-module-dir="/usr/modules" \
+		--with-realtime="$(STAGING_DIR)/usr/realtime" \
+		--with-module-dir="/usr/realtime/modules" \
 		--with-tclConfig="$(STAGING_DIR)/usr/lib/tclConfig.sh" \
 		--with-tkConfig="$(STAGING_DIR)/usr/lib/tkConfig.sh" \
 		--with-x="no" \
@@ -66,11 +66,15 @@ define Build/Configure
 		,src)
 endef
 
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
+
 TARGET_EXTRA_LIBS:= -lpng -lz -lexpat -lintl $(LIBRPC)
 FLTK2_EXTRA_LIBS:= 
 GTK2_EXTRA_LIBS:= -lpixman-1
 
 TARGET_EXTRA_LIBS += -lncurses
+
+TARGET_EXTRA_LIBS += -L$(STAGING_DIR)/usr/realtime/lib -llxrt -lpthread
 
 TARGET_LDFLAGS += \
 	$(TARGET_EXTRA_LIBS) \
@@ -111,12 +115,12 @@ endef
 
 define Package/emc2/install
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/usr/bin $(1)/etc
-	$(INSTALL_DIR) $(1)/usr/modules/emc2
+	$(INSTALL_DIR) $(1)/usr/realtime/modules/emc2
 	$(INSTALL_DIR) $(1)/usr/share
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/etc/* $(1)/etc/
-	$(CP) $(PKG_INSTALL_DIR)/usr/modules/emc2/*.ko $(1)/usr/modules/emc2/
+	$(CP) $(PKG_INSTALL_DIR)/usr/realtime/modules/emc2/*.ko $(1)/usr/realtime/modules/emc2/
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/* $(1)/usr/share/
 endef
 

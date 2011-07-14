@@ -6,15 +6,15 @@
  DEBUG := -g -Wall
 -CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
 -CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
-+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE) $(TARGET_CFLAGS)
-+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE) $(TARGET_CXXFLAGS)
++CFLAGS := $(INCLUDE) $(TARGET_CFLAGS) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
++CXXFLAGS := $(INCLUDE) $(TARGET_CXXFLAGS) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
  
  ifeq ($(RUN_IN_PLACE),yes)
 -LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
-+LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(TARGET_LDFLAGS)
++LDFLAGS := -L$(LIB_DIR) $(TARGET_LDFLAGS) -Wl,-rpath,$(LIB_DIR)
  else
 -LDFLAGS := -Wl,-rpath-link,../lib
-+LDFLAGS := -Wl,-rpath-link,../lib $(TARGET_LDFLAGS)
++LDFLAGS := $(TARGET_LDFLAGS) -Wl,-rpath-link,../lib
  endif
  
  # Rules to make .d (dependency) files.
