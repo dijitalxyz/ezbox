@@ -81,6 +81,8 @@ define Build/Configure
 		--infodir=$(CONFIGURE_PREFIX)/info \
 		--with-kconfig-file=$(KCONFIG_FILE) \
 		--with-linux-dir="$(LINUX_DIR)" \
+		--enable-shared=yes \
+		--enable-static=no \
 		--disable-leds \
 		--enable-trace=n \
 		--enable-math=m \
@@ -90,6 +92,7 @@ define Build/Configure
 		--enable-module-debug=y \
 		--enable-user-debug=y \
 		--enable-sim=n \
+		--with-x=no \
 		--verbose \
 		, ARCH="$(ARCH)" \
 		  CROSS_COMPILE="$(TARGET_CROSS)" \
