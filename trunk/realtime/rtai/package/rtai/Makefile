@@ -51,13 +51,49 @@ endef
 
 #TARGET_CFLAGS += -I$(LINUX_DIR)/arch/$(LINUX_KARCH)/include
 
-CONFIGURE_ARGS += --with-linux-dir=$(LINUX_DIR)
-CONFIGURE_ARGS += --disable-leds
+#CONFIGURE_ARGS += --with-linux-dir=$(LINUX_DIR)
+#CONFIGURE_ARGS += --disable-leds
 #CONFIGURE_ARGS += --enable-math=m
 #CONFIGURE_ARGS += --enable-math-c99=y
+#CONFIGURE_ARGS += --verbose
 
-#define Build/Configure
-#endef
+AUTOCONF_DIR:=$(PKG_BUILD_DIR)/base/config/autoconf
+KCONFIG_DIR:=$(PKG_BUILD_DIR)/base/config/kconfig
+KCONFIG_FILE:=$(PKG_BUILD_DIR)/.rtai_config
+
+CONFIGURE_PREFIX:=/usr/realtime
+
+define Build/Configure
+	$(CP) configs/defconfig-$(ARCH) $(KCONFIG_FILE)
+	(cd $(PKG_BUILD_DIR); autoreconf --include=$(AUTOCONF_DIR) --install --symlink );
+	(cd $(PKG_BUILD_DIR); \
+		$(MAKE) -C $(KCONFIG_DIR) \
+			-f $(KCONFIG_DIR)/Makefile.kconfig oldconfig \
+			srctree=$(PKG_BUILD_DIR) ARCH=$(ARCH));
+	$(call Build/Configure/Default, \
+		--prefix=$(CONFIGURE_PREFIX) \
+		--exec-prefix=$(CONFIGURE_PREFIX) \
+		--bindir=$(CONFIGURE_PREFIX)/bin \
+		--sbindir=$(CONFIGURE_PREFIX)/sbin \
+		--libexecdir=$(CONFIGURE_PREFIX)/lib \
+		--datadir=$(CONFIGURE_PREFIX)/share \
+		--mandir=$(CONFIGURE_PREFIX)/man \
+		--infodir=$(CONFIGURE_PREFIX)/info \
+		--with-kconfig-file=$(KCONFIG_FILE) \
+		--with-linux-dir="$(LINUX_DIR)" \
+		--disable-leds \
+		--enable-trace=n \
+		--enable-math=m \
+		--enable-math-c99=n \
+		--enable-doc=n \
+		--enable-module-debug=y \
+		--enable-user-debug=y \
+		--enable-sim=n \
+		--verbose \
+		, ARCH="$(ARCH)" \
+		  CROSS_COMPILE="$(TARGET_CROSS)" \
+		,)
+endef
 
 define Build/Compile
 	$(SED) 's,-I/usr,-I$(TOOLCHAIN_DIR),g' \
@@ -70,7 +106,7 @@ define Build/Compile
 		CC="$(TARGET_CC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		ARCH="$(ARCH)" \
-		CROSS_COMPILE="$(CROSS_COMPILE)" \
+		CROSS_COMPILE="$(TARGET_CROSS)" \
 		all
 endef
 
@@ -79,42 +115,42 @@ define Build/Install
 		CC="$(TARGET_CC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		ARCH="$(ARCH)" \
-		CROSS_COMPILE="$(CROSS_COMPILE)" \
+		CROSS_COMPILE="$(TARGET_CROSS)" \
 		install
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
-	$(SED) 's,$(STAGING_DIR),,g' $(1)/usr/lib/liblxrt.la
-	$(CP) $(PKG_INSTALL_DIR)/usr/modules/* $(1)/usr/modules/
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/rtai-config $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/include
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/lib
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/bin
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/modules
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/include/* $(1)$(CONFIGURE_PREFIX)/include/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/lib/* $(1)$(CONFIGURE_PREFIX)/lib/
+	$(SED) 's,$(STAGING_DIR),,g' $(1)$(CONFIGURE_PREFIX)/lib/liblxrt.la
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/modules/* $(1)$(CONFIGURE_PREFIX)/modules/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/bin/rtai-config $(1)$(CONFIGURE_PREFIX)/bin/
 	$(SED) \
 		's,DESTDIR,$(STAGING_DIR),g' \
-		$(1)/usr/bin/rtai-config
+		$(1)$(CONFIGURE_PREFIX)/bin/rtai-config
 	$(INSTALL_DIR) $(2)/bin
 	for f in rtai-config; do \
-		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \
+		$(LN) ../..$(CONFIGURE_PREFIX)/bin/$$$$f $(2)/bin/ ; \
 	done
 endef
 
 define Package/rtai/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/usr/calibration
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/modules
-	$(INSTALL_DIR) $(1)/usr/share/rtai
-	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
-	$(CP) $(PKG_INSTALL_DIR)/usr/calibration/* $(1)/usr/calibration/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/modules/*.ko $(1)/usr/modules/
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/rtai/* $(1)/usr/share/rtai/
-	$(SED) 's,DESTDIR,,g' $(1)/usr/bin/rtai-config
-	$(SED) 's,$(KERNEL_BUILD_DIR),/usr/src,g' $(1)/usr/bin/rtai-config
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/bin
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/calibration
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/lib
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/modules
+	$(INSTALL_DIR) $(1)$(CONFIGURE_PREFIX)/share/rtai
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/bin/* $(1)$(CONFIGURE_PREFIX)/bin/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/calibration/* $(1)$(CONFIGURE_PREFIX)/calibration/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/lib/*.so* $(1)$(CONFIGURE_PREFIX)/lib/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/modules/*.ko $(1)$(CONFIGURE_PREFIX)/modules/
+	$(CP) $(PKG_INSTALL_DIR)$(CONFIGURE_PREFIX)/share/rtai/* $(1)$(CONFIGURE_PREFIX)/share/rtai/
+	$(SED) 's,DESTDIR,,g' $(1)$(CONFIGURE_PREFIX)/bin/rtai-config
+	$(SED) 's,$(KERNEL_BUILD_DIR),/usr/src,g' $(1)$(CONFIGURE_PREFIX)/bin/rtai-config
 endef
 
 $(eval $(call BuildPackage,rtai))
