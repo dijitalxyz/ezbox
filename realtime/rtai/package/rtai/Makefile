@@ -84,10 +84,13 @@ define Build/Configure
 		--enable-shared=yes \
 		--enable-static=no \
 		--disable-leds \
+		--enable-shm=m \
 		--enable-trace=n \
+		--enable-fpu=y \
 		--enable-math=m \
 		--enable-math-c99=n \
 		--enable-netrpc=n \
+		--enable-rtdm=y \
 		--enable-doc=n \
 		--enable-module-debug=y \
 		--enable-user-debug=y \
