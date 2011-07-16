@@ -819,12 +819,11 @@ CONFIG_HOTPLUG=y
 # CONFIG_HYPERV is not set
 # CONFIG_HYSDN is not set
 # CONFIG_HZ_100 is not set
-CONFIG_HZ=250
-CONFIG_HZ_250=y
 # CONFIG_HZ_1000 is not set
 # CONFIG_HZ_1024 is not set
 # CONFIG_HZ_128 is not set
-# CONFIG_HZ_250 is not set
+CONFIG_HZ=250
+CONFIG_HZ_250=y
 # CONFIG_HZ_256 is not set
 # CONFIG_HZ_300 is not set
 # CONFIG_HZ_48 is not set
@@ -1843,7 +1842,7 @@ CONFIG_PCI_SYSCALL=y
 # CONFIG_PNX8550_JBS is not set
 # CONFIG_PNX8550_STB810 is not set
 # CONFIG_POHMELFS is not set
-# CONFIG_POSIX_MQUEUE is not set
+CONFIG_POSIX_MQUEUE=y
 # CONFIG_POWERTV is not set
 # CONFIG_POWER_SUPPLY is not set
 # CONFIG_PPC4xx_GPIO is not set
