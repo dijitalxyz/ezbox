@@ -82,6 +82,7 @@ prepare-basic-structure:
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
 prepare-realtime-kernel: prepare-basic-structure
+	[ ! -d $(RT_DIR)/target/linux/generic ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/generic $(RT_DIR)/target/linux/generic $(RT_DIR)/target/linux/generic/patches-list.txt
 	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
 	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
 
