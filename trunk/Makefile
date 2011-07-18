@@ -67,6 +67,11 @@ build-info:
 	echo "DRAWING_BACKEND=$(DRAWING_BACKEND)"
 	echo "GUI_TOOLKIT=$(GUI_TOOLKIT)"
 
+clean-symbol-links:
+	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/package $(RT_DIR)/package/package-list.txt
+	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
+	[ ! -d $(DISTRO_DIR)/package ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/package $(DISTRO_DIR)/package/package-list.txt
+
 prepare-basic-structure:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
@@ -82,11 +87,10 @@ prepare-basic-structure:
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
 prepare-realtime-kernel: prepare-basic-structure
-	[ ! -d $(RT_DIR)/target/linux/generic ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/generic $(RT_DIR)/target/linux/generic $(RT_DIR)/target/linux/generic/patches-list.txt
 	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
 	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
 
-prepare-build: prepare-basic-structure prepare-realtime-kernel
+prepare-build: clean-symbol-links prepare-basic-structure prepare-realtime-kernel
 	echo "prepare-build OK!"
 
 clean-build:
@@ -118,6 +122,7 @@ $(DISTRO)-distclean:
 
 .PHONY: all dummy
 .PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
+.PHONY: clean-symbol-links
 .PHONY: prepare-basic-structure prepare-realtime-kernel
 .PHONY: build-info prepare-build clean-build
 .PHONY: quick-build quick-clean
