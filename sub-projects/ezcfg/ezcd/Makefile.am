@@ -56,6 +56,7 @@ ezcd_SOURCES += src/pop/pop_etc_hostname.c
 ezcd_SOURCES += src/pop/pop_etc_mtab.c
 ezcd_SOURCES += src/pop/pop_etc_profile.c
 ezcd_SOURCES += src/rc/rc_base_files.c
+ezcd_SOURCES += src/rc/rc_ldconfig.c
 
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c

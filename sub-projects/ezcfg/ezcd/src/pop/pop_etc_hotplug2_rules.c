@@ -115,6 +115,17 @@ int pop_etc_hotplug2_rules(int flag)
 		fprintf(file, "\t%s\n", "exec /sbin/watchdog -t 5 /dev/watchdog");
 		fprintf(file, "\t%s\n", "next");
 		fprintf(file, "%s\n", "}");
+
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+		fprintf(file, "%s\n", "DEVICENAME ~~ (rtai_shm) {");
+		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0666");
+		fprintf(file, "%s\n", "}");
+
+		fprintf(file, "%s\n", "DEVICENAME ~~ (rtf[0-9]*) {");
+		fprintf(file, "\t%s\n", "makedev /dev/%DEVICENAME% 0666");
+		fprintf(file, "\t%s\n", "next");
+		fprintf(file, "%s\n", "}");
+#endif
 		break;
 	}
 

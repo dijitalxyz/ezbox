@@ -39,6 +39,7 @@
 
 #include "ezcd.h"
 #include "pop_func.h"
+#include "rc_func.h"
 
 int rc_base_files(int flag)
 {
@@ -59,6 +60,9 @@ int rc_base_files(int flag)
 
 		/* generate /etc/mtab */
 		pop_etc_mtab(RC_START);
+
+		/* load LD_LIBRARY_PATH */
+		rc_ldconfig(RC_START);
 		break;
 	}
 

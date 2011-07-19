@@ -2,6 +2,7 @@
 #define _RC_FUNC_H_
 
 extern int rc_base_files(int flag);
+extern int rc_ldconfig(int flag);
 extern int rc_ezcd(int flag);
 extern int rc_nvram(int flag);
 extern int rc_ezcm(int flag);

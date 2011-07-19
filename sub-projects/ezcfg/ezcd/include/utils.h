@@ -12,6 +12,7 @@
 #define CMD_IFUP		"/sbin/ifup"
 #define CMD_INSMOD		"/sbin/insmod"
 #define CMD_KILLALL		"/bin/killall"
+#define CMD_LDCONFIG  		"/sbin/ldconfig"
 #define CMD_LOGIN  		"/bin/login"
 #define CMD_MKDIR  		"/bin/mkdir"
 #define CMD_MOUNT  		"/bin/mount"

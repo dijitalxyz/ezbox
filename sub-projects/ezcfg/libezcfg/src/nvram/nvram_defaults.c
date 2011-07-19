@@ -32,6 +32,13 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 	/* kernel modules */
 	{ NVRAM_SERVICE_OPTION(SYS, MODULES), "" },
+	/* LD_LIBRARY_PATH */
+	{ NVRAM_SERVICE_OPTION(SYS, LD_LIBRARY_PATH),
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+		"/usr/realtime/lib,"
+#endif
+		""
+	},
 
 #if 0
 	/* NTP */
@@ -385,11 +392,19 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(DILLO, FILTER_AUTO_REQUESTS), "same_domain" },
 	{ NVRAM_SERVICE_OPTION(DILLO, BUFFERED_DRAWING), "1" },
 	{ NVRAM_SERVICE_OPTION(DILLO, SAVE_DIR), "/tmp" },
+#if 0
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_SERIF), "DejaVu Serif" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_SANS_SERIF), "DejaVu Sans" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_CURSIVE), "URW Chancery L" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_FANTASY), "DejaVu Sans" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_MONOSPACE), "DejaVu Sans Mono" },
+#else
+	{ NVRAM_SERVICE_OPTION(DILLO, FONT_SERIF), "WenQuanYi Zen Hei" },
+	{ NVRAM_SERVICE_OPTION(DILLO, FONT_SANS_SERIF), "WenQuanYi Zen Hei Sharp" },
+	{ NVRAM_SERVICE_OPTION(DILLO, FONT_CURSIVE), "WenQuanYi Zen Hei" },
+	{ NVRAM_SERVICE_OPTION(DILLO, FONT_FANTASY), "WenQuanYi Zen Hei Sharp" },
+	{ NVRAM_SERVICE_OPTION(DILLO, FONT_MONOSPACE), "WenQuanYi Zen Hei Mono" },
+#endif
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_FACTOR), "1.0" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_MAX_SIZE), "100" },
 	{ NVRAM_SERVICE_OPTION(DILLO, FONT_MIN_SIZE), "12" },
@@ -444,9 +459,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EMC2 enabled */
 	{ NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1" },
 	{ NVRAM_SERVICE_OPTION(EMC2, MODULES),
-		"rtai_hal,rtai_sched,rtai_fifos,rtai_shm,rtai_sem,rtai_math,emc2/rtapi,emc2/hal_lib" },
-	{ NVRAM_SERVICE_OPTION(EMC2, MODPATH), "/usr/modules" },
-	{ NVRAM_SERVICE_OPTION(EMC2, RTLIB_DIR), "/usr/modules/emc2" },
+		"rtai_hal,rtai_sched,rtai_fifos,rtai_sem,rtai_math,emc2/rtapi,emc2/hal_lib" },
+	{ NVRAM_SERVICE_OPTION(EMC2, MODPATH), "/usr/realtime/modules" },
+	{ NVRAM_SERVICE_OPTION(EMC2, RTLIB_DIR), "/usr/realtime/modules/emc2" },
 	{ NVRAM_SERVICE_OPTION(EMC2, RTAPI_DEBUG), "5" },
 	{ NVRAM_SERVICE_OPTION(EMC2, INIFILE), "/root/emc2/configs/ezcnc.ini" },
 	/* [EMC] section */

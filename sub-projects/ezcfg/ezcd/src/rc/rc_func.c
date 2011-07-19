@@ -42,6 +42,7 @@
 
 rc_func_t rc_functions[] = {
 	{ "base_files", RC_BOOT, rc_base_files },
+	{ "base_ldconfig", RC_BOOT, rc_ldconfig },
 	{ "ezcd", RC_BOOT, rc_ezcd },
 	{ "ezcfg_httpd", RC_BOOT, rc_ezcfg_httpd },
 	{ "nvram", RC_BOOT, rc_nvram },

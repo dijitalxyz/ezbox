@@ -60,6 +60,7 @@ int rc_realtime(int flag)
 	char cmd[128];
 	char modpath[128];
 	char *p, *q, *r;
+	FILE *file;
 
 	switch (flag) {
 	case RC_START :
@@ -92,7 +93,7 @@ int rc_realtime(int flag)
 		}
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, RTAPI_DEBUG), buf, sizeof(buf));
 		if (rc > 0) {
-			FILE *file = fopen("/proc/rtapi/debug", "w");
+			file = fopen("/proc/rtapi/debug", "w");
 			if (file != NULL) {
 				/* set debug mode */
 				fprintf(file, "%s", buf);

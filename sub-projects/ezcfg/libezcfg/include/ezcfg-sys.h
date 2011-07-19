@@ -33,5 +33,6 @@
 #define EZCFG_SYS_WAN_NIC                 "wan_nic"
 
 #define EZCFG_SYS_MODULES                 "modules"
+#define EZCFG_SYS_LD_LIBRARY_PATH         "ld_library_path"
 
 #endif
