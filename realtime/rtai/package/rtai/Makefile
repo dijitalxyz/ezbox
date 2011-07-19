@@ -81,10 +81,11 @@ define Build/Configure
 		--infodir=$(CONFIGURE_PREFIX)/info \
 		--with-kconfig-file=$(KCONFIG_FILE) \
 		--with-linux-dir="$(LINUX_DIR)" \
+		--with-lxrt-inline=extern \
 		--enable-shared=yes \
 		--enable-static=no \
 		--disable-leds \
-		--enable-shm=m \
+		--enable-shm=y \
 		--enable-trace=n \
 		--enable-fpu=y \
 		--enable-math=m \
