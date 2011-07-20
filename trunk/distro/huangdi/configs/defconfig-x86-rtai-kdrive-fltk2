@@ -1634,9 +1634,9 @@ CONFIG_PACKAGE_xkeyboard-config=y
 # font
 #
 CONFIG_PACKAGE_dejavu-fonts-ttf=y
-CONFIG_PACKAGE_freefont-ttf=y
+# CONFIG_PACKAGE_freefont-ttf is not set
 CONFIG_PACKAGE_gs-fonts=y
-CONFIG_PACKAGE_unifont-ttf=y
+# CONFIG_PACKAGE_unifont-ttf is not set
 CONFIG_PACKAGE_wqy-zenhei-ttf=y
 
 #
