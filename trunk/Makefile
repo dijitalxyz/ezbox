@@ -135,7 +135,7 @@ prepare-special-kernel:
 	[ ! -f $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt
 
 
-prepare-basic-structure: prepare-workspace prepare-bootstrap prepare-packages prepare-download
+prepare-basic-structure: prepare-workspace prepare-bootstrap
 # prepare realtime config
 ifneq ($(RT_TYPE),none)
 prepare-basic-structure: prepare-realtime
@@ -144,6 +144,8 @@ endif
 ifneq ($(KERNEL_VERSION),default)
 prepare-basic-structure: prepare-special-kernel
 endif
+# finally we config packages and download
+prepare-basic-structure: prepare-packages prepare-download
 
 
 ifneq ($(RT_TYPE),none)
