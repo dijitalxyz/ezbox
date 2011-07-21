@@ -16,9 +16,12 @@ endif
 
 # build info
 DISTRO ?= huangdi
+RELEASE_TYPE ?= testing
+RELEASE_VERSION ?= 0.1
 TARGET ?= x86
 DEVICE_TYPE ?= ezbox
 ARCH ?= i386
+KERNEL_VERSION ?= default
 RT_TYPE ?= none
 DRAWING_BACKEND ?= none
 GUI_TOOLKIT ?= none
@@ -30,6 +33,11 @@ LOG_LEVEL ?= 0
 
 # initialize suffix
 SUFFIX:=$(TARGET)
+
+# setting linux kernel version suffix
+ifneq ($(KERNEL_VERSION),default)
+SUFFIX:=$(SUFFIX)-linux-$(KERNEL_VERSION)
+endif
 
 # setting realtime suffix
 ifneq ($(RT_TYPE),none)
@@ -51,8 +59,20 @@ CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
 DISTRO_DIR:=$(CUR_DIR)/distro/$(DISTRO)
 DL_DIR:=$(BASE_DIR)/dl
-RT_DIR:=$(CUR_DIR)/realtime/$(RT_TYPE)
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
+CONF_DIR:=$(DISTRO_DIR)/configs
+# set packages symbol links list directory
+ifeq ($(RELEASE_TYPE),testing)
+PKGLIST_DIR:=$(DISTRO_DIR)/testing
+BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
+endif
+ifeq ($(RELEASE_TYPE),release)
+PKGLIST_DIR:=$(DISTRO_DIR)/release/$(RELEASE_VERSION)
+BOOTSTRAP_DIR:=$(CUR_DIR)/pool/bootstrap
+PKGS_DIR:=$(CUR_DIR)/pool/packages
+endif
+# set realtime symbol links directory
+RT_DIR:=$(BOOTSTRAP_DIR)/realtime/$(RT_TYPE)
 
 all: $(DISTRO)-all
 
@@ -60,37 +80,67 @@ $(DISTRO)-all: $(DISTRO)-distclean $(DISTRO)
 
 build-info:
 	echo "DISTRO=$(DISTRO)"
+	echo "RELEASE_TYPE=$(RELEASE_TYPE)"
+	echo "RELEASE_VERSION=$(RELEASE_VERSION)"
 	echo "TARGET=$(TARGET)"
 	echo "DEVICE_TYPE=$(DEVICE_TYPE)"
 	echo "ARCH=$(ARCH)"
+	echo "KERNEL_VERSION=$(KERNEL_VERSION)"
 	echo "RT_TYPE=$(RT_TYPE)"
 	echo "DRAWING_BACKEND=$(DRAWING_BACKEND)"
 	echo "GUI_TOOLKIT=$(GUI_TOOLKIT)"
 
-clean-symbol-links:
-	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/package $(RT_DIR)/package/package-list.txt
-	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
-	[ ! -d $(DISTRO_DIR)/package ] || $(SCRIPTS_DIR)/clean-symbol-links.sh $(WK_DIR)/package $(DISTRO_DIR)/package/package-list.txt
 
-prepare-basic-structure:
+prepare-workspace:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
-	rm -rf $(WK_DIR)/target/linux/$(TARGET)
-	ln -s $(DISTRO_DIR)/target/linux/$(TARGET) $(WK_DIR)/target/linux/$(TARGET)
-	[ ! -d $(DISTRO_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(DISTRO_DIR)/package $(DISTRO_DIR)/package/package-list.txt
-	cp $(DISTRO_DIR)/feeds.conf $(WK_DIR)/feeds.conf
+
+prepare-bootstrap:
+	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
+
+clean-bootstrap-links:
+	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
+
+ifeq ($(RELEASE_TYPE),testing)
+prepare-packages:
+	cp -f $(CONF_DIR)/feeds.conf $(WK_DIR)/feeds.conf
 	cd $(WK_DIR) && ./scripts/feeds update -a
 	cd $(WK_DIR) && ./scripts/feeds install -a
 	sleep 3
+
+clean-packages-links:
+	echo "do nothing for clean testing packages links"
+endif
+
+ifeq ($(RELEASE_TYPE),release)
+prepare-packages:
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
+
+clean-packages-links:
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
+endif
+
+prepare-download:
 	mkdir -p $(DL_DIR)
 	rm -rf $(WK_DIR)/dl
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
-prepare-realtime-kernel: prepare-basic-structure
-	[ ! -d $(RT_DIR)/target/linux/$(TARGET) ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET) $(RT_DIR)/target/linux/$(TARGET)/patches-list.txt
-	[ ! -d $(RT_DIR)/package ] || $(SCRIPTS_DIR)/symbol-link-source-dir.sh $(WK_DIR)/package $(RT_DIR)/package $(RT_DIR)/package/package-list.txt
+prepare-realtime:
+	[ ! -f $(PKGLIST_DIR)/realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-$(RT_TYPE)-$(TARGET)-list.txt
 
-prepare-build: clean-symbol-links prepare-basic-structure prepare-realtime-kernel
+
+prepare-basic-structure: prepare-workspace prepare-bootstrap prepare-packages prepare-download
+ifneq ($(RT_TYPE),none)
+prepare-basic-structure: prepare-realtime
+endif
+
+ifneq ($(RT_TYPE),none)
+clean-symbol-links: clean-realtime-links
+endif
+clean-symbol-links: clean-packages-links clean-bootstrap-links
+
+
+prepare-build: clean-symbol-links prepare-basic-structure
 	echo "prepare-build OK!"
 
 clean-build:
@@ -122,7 +172,11 @@ $(DISTRO)-distclean:
 
 .PHONY: all dummy
 .PHONY: $(DISTRO) $(DISTRO)-all $(DISTRO)-clean $(DISTRO)-distclean
+.PHONY: clean-bootstrap-links clean-packages-links clean-realtime-links
+.PHONY: clean-realtime-links
 .PHONY: clean-symbol-links
-.PHONY: prepare-basic-structure prepare-realtime-kernel
+.PHONY: prepare-workspace prepare-bootstrap prepare-packages prepare-download
+.PHONY: prepare-realtime
+.PHONY: prepare-basic-structure
 .PHONY: build-info prepare-build clean-build
 .PHONY: quick-build quick-clean
