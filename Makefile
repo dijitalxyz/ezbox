@@ -127,14 +127,24 @@ prepare-download:
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
 prepare-realtime:
-	[ ! -f $(PKGLIST_DIR)/packages-realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-realtime-$(RT_TYPE)-$(TARGET)-list.txt
-	[ ! -f $(PKGLIST_DIR)/target-realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/target-realtime-$(RT_TYPE)-$(TARGET)-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-target-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-list.txt
+
+
+prepare-special-kernel:
+	[ ! -f $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt
 
 
 prepare-basic-structure: prepare-workspace prepare-bootstrap prepare-packages prepare-download
+# prepare realtime config
 ifneq ($(RT_TYPE),none)
 prepare-basic-structure: prepare-realtime
 endif
+# prepare special kerner version config
+ifneq ($(KERNEL_VERSION),default)
+prepare-basic-structure: prepare-special-kernel
+endif
+
 
 ifneq ($(RT_TYPE),none)
 clean-symbol-links: clean-realtime-links
@@ -181,6 +191,7 @@ $(DISTRO)-distclean:
 .PHONY: clean-symbol-links
 .PHONY: prepare-workspace prepare-bootstrap prepare-packages prepare-download
 .PHONY: prepare-realtime
+.PHONY: prepare-special-kernel
 .PHONY: prepare-basic-structure
 .PHONY: generate-config
 .PHONY: build-info prepare-build clean-build
