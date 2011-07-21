@@ -1,0 +1,1 @@
+/home/hue/workplace/ezbox/build/x86/huangdi-rtai-kdrive-fltk2/trunk/realtime/rtai/target/linux/x86/Makefile
