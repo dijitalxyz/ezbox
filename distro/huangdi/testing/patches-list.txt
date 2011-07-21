@@ -1,0 +1,12 @@
+# patches-2.6.32/1100-adeos-ipipe-2.6.32.11-x86-2.6-03.patch
+# patches-2.6.32/1100-adeos-ipipe-2.6.32.20-x86-2.7-03.patch
+patches-2.6.32/1100-adeos-ipipe-2.6.32.32-x86-2.7-03.patch
+# patches-2.6.32/1110-rtai-hal-2.6.32.11-x86-2.6-03.patch
+# patches-2.6.32/1110-rtai-hal-2.6.32.20-x86-2.7-03.patch
+patches-2.6.32/1110-rtai-hal-2.6.32.32-x86-2.7-03.patch
+# patches-2.6.32/1120-ubuntu-linux-2.6.32.11-drm33.2.patch
+patches-2.6.37/1100-adeos-ipipe-2.6.37.6-x86-2.9-02.patch
+patches-2.6.37/1110-rtai-hal-2.6.37.6-x86-2.9-02.patch
+config-default
+generic/config-default
+Makefile
