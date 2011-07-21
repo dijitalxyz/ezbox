@@ -172,6 +172,7 @@ quick-clean:
 	echo "quick-clean is finished!"
 
 generate-config:
+	rm -rf $(WK_DIR)/tmp
 	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 
