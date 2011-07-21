@@ -97,6 +97,7 @@ prepare-workspace:
 
 prepare-bootstrap:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
+	[ ! -f $(PKGLIST_DIR)/target-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/target-list.txt
 
 clean-bootstrap-links:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
@@ -126,7 +127,8 @@ prepare-download:
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
 prepare-realtime:
-	[ ! -f $(PKGLIST_DIR)/realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-$(RT_TYPE)-$(TARGET)-list.txt
+	[ ! -f $(PKGLIST_DIR)/packages-realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-realtime-$(RT_TYPE)-$(TARGET)-list.txt
+	[ ! -f $(PKGLIST_DIR)/target-realtime-$(RT_TYPE)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/target-realtime-$(RT_TYPE)-$(TARGET)-list.txt
 
 
 prepare-basic-structure: prepare-workspace prepare-bootstrap prepare-packages prepare-download
@@ -159,9 +161,11 @@ quick-clean:
 	cd $(WK_DIR) && make clean
 	echo "quick-clean is finished!"
 
-$(DISTRO): build-info prepare-build
+generate-config:
 	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
+
+$(DISTRO): build-info prepare-build generate-config
 	cd $(WK_DIR) && make V=$(LOG_LEVEL) 2>&1 | tee $(LOG_FILE)
 
 $(DISTRO)-clean:
@@ -178,5 +182,6 @@ $(DISTRO)-distclean:
 .PHONY: prepare-workspace prepare-bootstrap prepare-packages prepare-download
 .PHONY: prepare-realtime
 .PHONY: prepare-basic-structure
+.PHONY: generate-config
 .PHONY: build-info prepare-build clean-build
 .PHONY: quick-build quick-clean
