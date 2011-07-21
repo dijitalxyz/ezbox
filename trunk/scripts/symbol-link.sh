@@ -50,9 +50,11 @@ do
       echo "file format error @ [$LINE] !!!"
       exit -1
     fi
-    if [ [ ! -d $SOURCE_DIR/$SOURCE ] -a [ ! -f $SOURCE_DIR/$SOURCE ] ] ; then
-      echo "$SOURCE_DIR/$SOURCE does not exist !!!"
-      exit -1
+    if [ ! -d $SOURCE_DIR/$SOURCE ] ; then
+      if [ ! -f $SOURCE_DIR/$SOURCE ] ; then
+        echo "$SOURCE_DIR/$SOURCE does not exist !!!"
+        exit -1
+      fi
     fi
     dbg "mkdir -p $TARGET_DIR/$TARGET"
     mkdir -p $TARGET_DIR/$TARGET
