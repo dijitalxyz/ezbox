@@ -32,7 +32,8 @@ define KernelPackage/bluetooth
 	CONFIG_BT_HCIUSB \
 	CONFIG_BT_HCIUART \
 	CONFIG_BT_HCIUART_H4 \
-	CONFIG_BT_HIDP
+	CONFIG_BT_HIDP \
+	CONFIG_HID_SUPPORT=y
   $(call AddDepends/crc16)
   $(call AddDepends/hid)
   $(call AddDepends/rfkill)
@@ -107,6 +108,37 @@ endef
 $(eval $(call KernelPackage,eeprom-93cx6))
 
 
+define KernelPackage/eeprom-at24
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=EEPROM AT24 support
+  KCONFIG:=CONFIG_EEPROM_AT24
+  DEPENDS:=+kmod-i2c-core
+  FILES:=$(LINUX_DIR)/drivers/misc/eeprom/at24.ko
+  AUTOLOAD:=$(call AutoLoad,60,at24)
+endef
+
+define KernelPackage/eeprom-at24/description
+ Kernel module for most I2C EEPROMs
+endef
+
+$(eval $(call KernelPackage,eeprom-at24))
+
+
+define KernelPackage/eeprom-at25
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=EEPROM AT25 support
+  KCONFIG:=CONFIG_EEPROM_AT25
+  FILES:=$(LINUX_DIR)/drivers/misc/eeprom/at25.ko
+  AUTOLOAD:=$(call AutoLoad,61,at25)
+endef
+
+define KernelPackage/eeprom-at25/description
+ Kernel module for most SPI EEPROMs
+endef
+
+$(eval $(call KernelPackage,eeprom-at25))
+
+
 define KernelPackage/gpio-cs5535
   SUBMENU:=$(OTHER_MENU)
   TITLE:=AMD CS5535/CS5536 GPIO driver
@@ -126,7 +158,7 @@ $(eval $(call KernelPackage,gpio-cs5535))
 define KernelPackage/gpio-cs5535-new
   SUBMENU:=$(OTHER_MENU)
   TITLE:=AMD CS5535/CS5536 GPIO driver with improved sysfs support
-  DEPENDS:=@TARGET_x86 @!(LINUX_2_6_30||LINUX_2_6_31||LINUX_2_6_32)
+  DEPENDS:=@TARGET_x86 +kmod-cs5535-mfd @!(LINUX_2_6_30||LINUX_2_6_31||LINUX_2_6_32)
   KCONFIG:=CONFIG_GPIO_CS5535
   FILES:=$(LINUX_DIR)/drivers/gpio/cs5535-gpio.ko
   AUTOLOAD:=$(call AutoLoad,50,cs5535-gpio)
@@ -375,6 +407,7 @@ $(eval $(call KernelPackage,input-polldev))
 define KernelPackage/lp
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Parallel port and line printer support
+  DEPENDS:=@BROKEN
   KCONFIG:= \
 	CONFIG_PARPORT \
 	CONFIG_PRINTER \
@@ -550,7 +583,7 @@ $(eval $(call KernelPackage,cs5535-clockevt))
 define KernelPackage/cs5535-mfgpt
   SUBMENU:=$(OTHER_MENU)
   TITLE:=CS5535/6 Multifunction General Purpose Timer
-  DEPENDS:=@TARGET_x86
+  DEPENDS:=@TARGET_x86 +kmod-cs5535-mfd
   KCONFIG:=CONFIG_CS5535_MFGPT
   FILES:=$(LINUX_DIR)/drivers/misc/cs5535-mfgpt.ko
   AUTOLOAD:=$(call AutoLoad,45,cs5535-mfgpt)
@@ -561,6 +594,24 @@ define KernelPackage/cs5535-mfgpt/description
 endef
 
 $(eval $(call KernelPackage,cs5535-mfgpt))
+
+
+define KernelPackage/cs5535-mfd
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=CS5535/6 Multifunction General Purpose Driver
+  DEPENDS:=@TARGET_x86
+  KCONFIG:=CONFIG_MFD_CS5535
+  FILES:= \
+  	$(LINUX_DIR)/drivers/mfd/mfd-core.ko \
+  	$(LINUX_DIR)/drivers/mfd/cs5535-mfd.ko 
+  AUTOLOAD:=$(call AutoLoad,44,mfd-core cs5535-mfd)
+endef
+
+define KernelPackage/cs5535-mfd/description
+  Core driver for CS5535/CS5536 MFD functions.
+endef
+
+$(eval $(call KernelPackage,cs5535-mfd))
 
 
 define KernelPackage/wdt-omap
@@ -658,6 +709,7 @@ $(eval $(call KernelPackage,pwm-gpio))
 
 define KernelPackage/rtc-core
   SUBMENU:=$(OTHER_MENU)
+  DEPENDS:=@(!LINUX_3_0||BROKEN)
   TITLE:=Real Time Clock class support
   KCONFIG:=CONFIG_RTC_CLASS
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-core.ko
