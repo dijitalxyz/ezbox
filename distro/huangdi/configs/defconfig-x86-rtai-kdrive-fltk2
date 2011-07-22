@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Jun 10 22:50:45 2011
+# Fri Jul 22 09:50:36 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1053,32 +1053,13 @@ CONFIG_PACKAGE_libstdcpp=y
 # CONFIG_PACKAGE_opkg is not set
 
 #
-# Utilities
+# Real-Time
 #
 
 #
-# Filesystem
+# RTAI
 #
-CONFIG_PACKAGE_badblocks=y
-# CONFIG_PACKAGE_blkid is not set
-CONFIG_PACKAGE_e2fsprogs=y
-CONFIG_PACKAGE_resize2fs=y
-CONFIG_PACKAGE_tune2fs=y
-CONFIG_PACKAGE_uuidgen=y
-
-#
-# database
-#
-CONFIG_PACKAGE_sqlite3-cli=y
-# CONFIG_PACKAGE_dropbearconvert is not set
-CONFIG_PACKAGE_emc2=y
-CONFIG_PACKAGE_iconv=y
-# CONFIG_PACKAGE_jpeg-tools is not set
-CONFIG_PACKAGE_ldconfig=y 
-# CONFIG_PACKAGE_ldd is not set
-# CONFIG_PACKAGE_ocf-crypto-headers is not set
-# CONFIG_PACKAGE_openssl-util is not set
-# CONFIG_PACKAGE_tiff-utils is not set
+CONFIG_PACKAGE_rtai=y
 
 #
 # Network
@@ -1241,15 +1222,6 @@ CONFIG_PACKAGE_mongoose-webserver=y
 # CONFIG_PACKAGE_tc is not set
 
 #
-# Real-Time
-#
-
-#
-# RTAI
-#
-CONFIG_PACKAGE_rtai=y
-
-#
 # Libraries
 #
 
@@ -1373,25 +1345,25 @@ CONFIG_PACKAGE_kmod-scsi-generic=y
 #
 # Filesystems
 #
-# CONFIG_PACKAGE_kmod-fs-autofs4 is not set
+CONFIG_PACKAGE_kmod-fs-autofs4=y
 # CONFIG_PACKAGE_kmod-fs-btrfs is not set
 # CONFIG_PACKAGE_kmod-fs-cifs is not set
 # CONFIG_PACKAGE_kmod-fs-exportfs is not set
-# CONFIG_PACKAGE_kmod-fs-ext4 is not set
+CONFIG_PACKAGE_kmod-fs-ext4=y
 # CONFIG_PACKAGE_kmod-fs-hfs is not set
 # CONFIG_PACKAGE_kmod-fs-hfsplus is not set
 # CONFIG_PACKAGE_kmod-fs-isofs is not set
-# CONFIG_PACKAGE_kmod-fs-mbcache is not set
+CONFIG_PACKAGE_kmod-fs-mbcache=y
 # CONFIG_PACKAGE_kmod-fs-minix is not set
-# CONFIG_PACKAGE_kmod-fs-msdos is not set
+CONFIG_PACKAGE_kmod-fs-msdos=y
 # CONFIG_PACKAGE_kmod-fs-nfs is not set
 # CONFIG_PACKAGE_kmod-fs-nfs-common is not set
 # CONFIG_PACKAGE_kmod-fs-nfs-common-v4 is not set
 # CONFIG_PACKAGE_kmod-fs-nfsd is not set
-# CONFIG_PACKAGE_kmod-fs-ntfs is not set
+CONFIG_PACKAGE_kmod-fs-ntfs=y
 # CONFIG_PACKAGE_kmod-fs-reiserfs is not set
 # CONFIG_PACKAGE_kmod-fs-udf is not set
-# CONFIG_PACKAGE_kmod-fs-vfat is not set
+CONFIG_PACKAGE_kmod-fs-vfat=y
 # CONFIG_PACKAGE_kmod-fs-xfs is not set
 
 #
@@ -1426,7 +1398,7 @@ CONFIG_PACKAGE_kmod-scsi-generic=y
 #
 CONFIG_PACKAGE_kmod-crc-ccitt=y
 # CONFIG_PACKAGE_kmod-crc-itu-t is not set
-# CONFIG_PACKAGE_kmod-crc16 is not set
+CONFIG_PACKAGE_kmod-crc16=y
 # CONFIG_PACKAGE_kmod-crc7 is not set
 # CONFIG_PACKAGE_kmod-libcrc32c is not set
 # CONFIG_PACKAGE_kmod-textsearch is not set
@@ -1510,9 +1482,6 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
 # CONFIG_PACKAGE_kmod-ipv6 is not set
 # CONFIG_PACKAGE_kmod-isdn4linux is not set
-# CONFIG_PACKAGE_kmod-l2tp is not set
-# CONFIG_PACKAGE_kmod-l2tp-eth is not set
-# CONFIG_PACKAGE_kmod-l2tp-ip is not set
 # CONFIG_PACKAGE_kmod-misdn is not set
 # CONFIG_PACKAGE_kmod-mp-alg is not set
 # CONFIG_PACKAGE_kmod-pktgen is not set
@@ -1534,7 +1503,6 @@ CONFIG_PACKAGE_kmod-tun=y
 # CONFIG_PACKAGE_kmod-eeprom-at24 is not set
 # CONFIG_PACKAGE_kmod-eeprom-at25 is not set
 # CONFIG_PACKAGE_kmod-gpio-cs5535 is not set
-# CONFIG_PACKAGE_kmod-gpio-cs5535-new is not set
 # CONFIG_PACKAGE_kmod-gpio-nsc is not set
 # CONFIG_PACKAGE_kmod-gpio-pc8736x is not set
 # CONFIG_PACKAGE_kmod-gpio-scx200 is not set
@@ -1577,22 +1545,21 @@ CONFIG_PACKAGE_kmod-ssb=y
 #
 # CONFIG_PACKAGE_kmod-usb-acm is not set
 # CONFIG_PACKAGE_kmod-usb-atm is not set
-# CONFIG_PACKAGE_kmod-usb-audio is not set
 # CONFIG_PACKAGE_kmod-usb-cm109 is not set
-# CONFIG_PACKAGE_kmod-usb-core is not set
-# CONFIG_PACKAGE_kmod-usb-hid is not set
+CONFIG_PACKAGE_kmod-usb-core=y
+CONFIG_PACKAGE_kmod-usb-hid=y
 # CONFIG_PACKAGE_kmod-usb-net is not set
-# CONFIG_PACKAGE_kmod-usb-ohci is not set
+CONFIG_PACKAGE_kmod-usb-ohci=y
 # CONFIG_PACKAGE_kmod-usb-phidget is not set
 # CONFIG_PACKAGE_kmod-usb-printer is not set
 # CONFIG_PACKAGE_kmod-usb-serial is not set
-# CONFIG_PACKAGE_kmod-usb-storage is not set
-# CONFIG_PACKAGE_kmod-usb-storage-extras is not set
+CONFIG_PACKAGE_kmod-usb-storage=y
+CONFIG_PACKAGE_kmod-usb-storage-extras=y
 # CONFIG_PACKAGE_kmod-usb-test is not set
-# CONFIG_PACKAGE_kmod-usb-uhci is not set
+CONFIG_PACKAGE_kmod-usb-uhci=y
 # CONFIG_PACKAGE_kmod-usb-video is not set
 # CONFIG_PACKAGE_kmod-usb-yealink is not set
-# CONFIG_PACKAGE_kmod-usb2 is not set
+CONFIG_PACKAGE_kmod-usb2=y
 
 #
 # Video Support
@@ -1615,6 +1582,34 @@ CONFIG_PACKAGE_kmod-ssb=y
 # CONFIG_PACKAGE_kmod-net-airo is not set
 # CONFIG_PACKAGE_kmod-net-prism54 is not set
 # CONFIG_PACKAGE_kmod-net-zd1201 is not set
+
+#
+# Utilities
+#
+
+#
+# Filesystem
+#
+CONFIG_PACKAGE_badblocks=y
+# CONFIG_PACKAGE_blkid is not set
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_resize2fs=y
+CONFIG_PACKAGE_tune2fs=y
+CONFIG_PACKAGE_uuidgen=y
+
+#
+# database
+#
+CONFIG_PACKAGE_sqlite3-cli=y
+# CONFIG_PACKAGE_dropbearconvert is not set
+CONFIG_PACKAGE_emc2=y
+CONFIG_PACKAGE_iconv=y
+# CONFIG_PACKAGE_jpeg-tools is not set
+CONFIG_PACKAGE_ldconfig=y
+# CONFIG_PACKAGE_ldd is not set
+# CONFIG_PACKAGE_ocf-crypto-headers is not set
+# CONFIG_PACKAGE_openssl-util is not set
+# CONFIG_PACKAGE_tiff-utils is not set
 
 #
 # Languages
