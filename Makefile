@@ -128,7 +128,7 @@ prepare-download:
 
 prepare-realtime:
 	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
-	[ ! -f $(PKGLIST_DIR)/realtime-target-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-target-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-list.txt
 
 
 prepare-special-kernel:
