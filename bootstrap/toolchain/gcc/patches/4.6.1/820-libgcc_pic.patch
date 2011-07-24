@@ -1,6 +1,6 @@
 --- a/libgcc/Makefile.in
 +++ b/libgcc/Makefile.in
-@@ -680,11 +680,12 @@ $(libgcov-objects): %$(objext): $(gcc_sr
+@@ -747,11 +747,12 @@ $(libgcov-objects): %$(objext): $(gcc_sr
  
  # Static libraries.
  libgcc.a: $(libgcc-objects)
@@ -14,7 +14,7 @@
  	-rm -f $@
  
  	objects="$(objects)";					\
-@@ -706,7 +707,7 @@ libgcc_s$(SHLIB_EXT): libunwind$(SHLIB_E
+@@ -773,7 +774,7 @@ libgcc_s$(SHLIB_EXT): libunwind$(SHLIB_E
  endif
  
  ifeq ($(enable_shared),yes)
@@ -23,7 +23,7 @@
  ifneq ($(LIBUNWIND),)
  all: libunwind$(SHLIB_EXT)
  endif
-@@ -879,6 +880,10 @@ install-shared:
+@@ -954,6 +955,10 @@ install-shared:
  	chmod 644 $(DESTDIR)$(inst_libdir)/libgcc_eh.a
  	$(RANLIB) $(DESTDIR)$(inst_libdir)/libgcc_eh.a
  
