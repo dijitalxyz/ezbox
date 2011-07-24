@@ -147,13 +147,6 @@ menu "Global build settings"
 		  When this option is enabled, packages are built with the full versions of iconv and GNU gettext
 		  instead of the default OpenWrt stubs.
 
-	config ENABLE_LOCALE
-		default n
-		bool "Enable native language support"
-		depends BUILD_NLS
-		help
-		  This will enable NLS
-
 	config SHADOW_PASSWORDS
 		bool
 		prompt "Enable shadow password support"
@@ -431,6 +424,11 @@ menuconfig DEVEL
 		  Enter a full pathname to a local reference git repository.
 		  In this instance, the --refererence option of git clone will
 		  be used thus creating a quick local clone of your repo.
+
+	config BUILD_LOG
+		bool "Enable log files during build process" if DEVEL
+		help
+		  If enabled log files will be written to the ./log directory
 
 menuconfig TARGET_OPTIONS
 	bool "Target Options"  if DEVEL
