@@ -23,11 +23,14 @@ endif
 ifeq ($(LINUX_VERSION),2.6.37.6)
   LINUX_KERNEL_MD5SUM:=05970afdce8ec4323a10dcd42bc4fb0c
 endif
-ifeq ($(LINUX_VERSION),2.6.38.6)
-  LINUX_KERNEL_MD5SUM:=e896a3bb3185b8a8af8e2f010f63c02e
+ifeq ($(LINUX_VERSION),2.6.38.8)
+  LINUX_KERNEL_MD5SUM:=d27b85795c6bc56b5a38d7d31bf1d724
 endif
-ifeq ($(LINUX_VERSION),2.6.39)
-  LINUX_KERNEL_MD5SUM:=1aab7a741abe08d42e8eccf20de61e05
+ifeq ($(LINUX_VERSION),2.6.39.2)
+  LINUX_KERNEL_MD5SUM:=51be93d92028658ec93f68b79a378b17
+endif
+ifeq ($(LINUX_VERSION),3.0)
+  LINUX_KERNEL_MD5SUM:=398e95866794def22b12dfbc15ce89c0
 endif
 
 # disable the md5sum check for unknown kernel versions
@@ -37,5 +40,9 @@ split_version=$(subst ., ,$(1))
 merge_version=$(subst $(space),.,$(1))
 KERNEL_BASE=$(firstword $(subst -, ,$(LINUX_VERSION)))
 KERNEL=$(call merge_version,$(wordlist 1,2,$(call split_version,$(KERNEL_BASE))))
-KERNEL_PATCHVER=$(call merge_version,$(wordlist 1,3,$(call split_version,$(KERNEL_BASE))))
+ifeq ($(firstword $(call split_version,$(KERNEL_BASE))),2)
+  KERNEL_PATCHVER=$(call merge_version,$(wordlist 1,3,$(call split_version,$(KERNEL_BASE))))
+else
+  KERNEL_PATCHVER=$(KERNEL)
+endif
 
