@@ -8,8 +8,10 @@ package/iproute2:package/iproute2
 package/kernel/modules/extra-block.mk:package/kernel/modules/extra-block.mk
 package/libreadline:package/libreadline
 package/lua:package/lua
+package/mac80211:package/mac80211
 package/ncurses:package/ncurses
 package/openssl:package/openssl
+package/wireless-tools:package/wireless-tools
 package/zlib:package/zlib
 
 
