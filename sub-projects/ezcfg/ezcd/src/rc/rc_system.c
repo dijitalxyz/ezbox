@@ -161,7 +161,12 @@ int rc_system(int flag)
 						/* mount /dev/sda1 /boot */
 						fs_type = utils_get_boot_device_fs_type();
 						if (fs_type != NULL) {
-							snprintf(cmdline, sizeof(cmdline), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
+							if (strcmp(fs_type, "ntfs-3g") == 0) {
+								snprintf(cmdline, sizeof(cmdline), "%s -o ro %s /boot", "/usr/bin/ntfs-3g", path);
+							}
+							else {
+								snprintf(cmdline, sizeof(cmdline), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
+							}
 							free(fs_type);
 						}
 						else {
@@ -193,7 +198,12 @@ int rc_system(int flag)
 						/* mount /dev/sda2 /var */
 						fs_type = utils_get_data_device_fs_type();
 						if (fs_type != NULL) {
-							snprintf(cmdline, sizeof(cmdline), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
+							if (strcmp(fs_type, "ntfs-3g") == 0) {
+								snprintf(cmdline, sizeof(cmdline), "%s %s /var", "/usr/bin/ntfs-3g", path);
+							}
+							else {
+								snprintf(cmdline, sizeof(cmdline), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
+							}
 							free(fs_type);
 						}
 						else {

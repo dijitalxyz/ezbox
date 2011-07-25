@@ -171,6 +171,7 @@ ezcd_SOURCES += src/pop/pop_etc_emc2_rtapi_conf.c
 ezcd_SOURCES += src/pop/pop_etc_emc2_configs.c
 ezcd_SOURCES += src/rc/rc_realtime.c
 ezcd_SOURCES += src/rc/rc_emc2.c
+ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
 endif
 
 ezcd_DEPENDENCIES = libezcfg.so

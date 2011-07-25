@@ -24,6 +24,11 @@
 #define EZCFG_EMC2_RTAPI_DEBUG              "rtapi_debug"
 #define EZCFG_EMC2_INIFILE                  "inifile"
 
+/* ezcfg emc2 latency test */
+#define EZCFG_EMC2_LAT_TEST_ENABLE          "lat_test_enable"
+#define EZCFG_EMC2_LAT_BASE_PERIOD          "lat_base_period"
+#define EZCFG_EMC2_LAT_SERVO_PERIOD         "lat_servo_period"
+
 /* ezcfg emc2 .ini config names */
 /* sections */
 #define EZCFG_EMC2_CONF_SECTION_EMC         "conf_emc"

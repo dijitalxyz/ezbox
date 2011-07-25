@@ -79,6 +79,7 @@ rc_func_t rc_functions[] = {
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
 	{ "realtime", RC_BOOT, rc_realtime },
 	{ "emc2", RC_BOOT, rc_emc2 },
+	{ "emc2_latency_test", RC_BOOT, rc_emc2_latency_test },
 #endif
 };
 
