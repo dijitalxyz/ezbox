@@ -507,7 +507,7 @@ define KernelPackage/pata-cs5535
   TITLE:=CS5535 PATA support
   DEPENDS:=@TARGET_x86 @PCI_SUPPORT
   KCONFIG:=CONFIG_PATA_CS5535
-  FILES=$(LINUX_DIR)/drivers/ata/pata-cs5535.ko
+  FILES=$(LINUX_DIR)/drivers/ata/pata_cs5535.ko
   AUTOLOAD:=$(call AutoLoad,30,pata-cs5535,1)
   $(call AddDepends/ata)
 endef
@@ -523,7 +523,7 @@ define KernelPackage/pata-cs5536
   TITLE:=CS5536 PATA support
   DEPENDS:=@TARGET_x86 @PCI_SUPPORT
   KCONFIG:=CONFIG_PATA_CS5536
-  FILES=$(LINUX_DIR)/drivers/ata/pata-cs5536.ko
+  FILES=$(LINUX_DIR)/drivers/ata/pata_cs5536.ko
   AUTOLOAD:=$(call AutoLoad,30,pata-cs5536,1)
   $(call AddDepends/ata)
 endef
