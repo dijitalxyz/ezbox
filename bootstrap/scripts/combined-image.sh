@@ -32,3 +32,4 @@ md5=$(cat "$kern" "$root" | md5sum -)
 
 # Clean up.
 rm -f "$kern" "$root"
+
