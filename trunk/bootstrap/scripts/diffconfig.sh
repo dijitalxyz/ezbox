@@ -9,3 +9,4 @@ grep '^CONFIG_TOOLCHAINOPTS=y' .config >> tmp/.diffconfig.head
 ./scripts/kconfig.pl '>' tmp/.diffconfig.stage2 .config >> tmp/.diffconfig.head
 cat tmp/.diffconfig.head
 rm -f tmp/.diffconfig tmp/.diffconfig.head
+
