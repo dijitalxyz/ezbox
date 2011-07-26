@@ -16,7 +16,7 @@ endif
 
 # build info
 DISTRO ?= huangdi
-RELEASE_TYPE ?= testing
+BUILD_TYPE ?= testing
 RELEASE_VERSION ?= 0.1
 TARGET ?= x86
 DEVICE_TYPE ?= ezbox
@@ -62,11 +62,11 @@ DL_DIR:=$(BASE_DIR)/dl
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
 CONF_DIR:=$(DISTRO_DIR)/configs
 # set packages symbol links list directory
-ifeq ($(RELEASE_TYPE),testing)
+ifeq ($(BUILD_TYPE),testing)
 PKGLIST_DIR:=$(DISTRO_DIR)/testing
 BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
 endif
-ifeq ($(RELEASE_TYPE),release)
+ifeq ($(BUILD_TYPE),release)
 PKGLIST_DIR:=$(DISTRO_DIR)/release/$(RELEASE_VERSION)
 BOOTSTRAP_DIR:=$(CUR_DIR)/pool/bootstrap
 PKGS_DIR:=$(CUR_DIR)/pool/packages
@@ -80,7 +80,7 @@ $(DISTRO)-all: $(DISTRO)-distclean $(DISTRO)
 
 build-info:
 	echo "DISTRO=$(DISTRO)"
-	echo "RELEASE_TYPE=$(RELEASE_TYPE)"
+	echo "BUILD_TYPE=$(BUILD_TYPE)"
 	echo "RELEASE_VERSION=$(RELEASE_VERSION)"
 	echo "TARGET=$(TARGET)"
 	echo "DEVICE_TYPE=$(DEVICE_TYPE)"
@@ -102,7 +102,7 @@ prepare-bootstrap:
 clean-bootstrap-links:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
 
-ifeq ($(RELEASE_TYPE),testing)
+ifeq ($(BUILD_TYPE),testing)
 prepare-packages:
 	cp -f $(CONF_DIR)/feeds.conf $(WK_DIR)/feeds.conf
 	cd $(WK_DIR) && ./scripts/feeds update -a
@@ -113,7 +113,7 @@ clean-packages-links:
 	echo "do nothing for clean testing packages links"
 endif
 
-ifeq ($(RELEASE_TYPE),release)
+ifeq ($(BUILD_TYPE),release)
 prepare-packages:
 	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
 
