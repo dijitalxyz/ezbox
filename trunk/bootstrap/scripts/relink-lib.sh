@@ -12,4 +12,3 @@ dest="$1"; shift
 SYMBOLS="$(${cross}nm "$ref" | grep -E '........ [TW] ' | awk '$3 {printf "-u%s ", $3}')"
 set -x
 ${cross}gcc -nostdlib -nostartfiles -shared -Wl,--gc-sections -o "$dest" $SYMBOLS "$pic" "$@"
-
