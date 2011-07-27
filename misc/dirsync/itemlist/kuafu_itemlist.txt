@@ -1,13 +1,13 @@
 #########################
 # distro/kuafu/ directory
 #########################
-package/switch/
-target/linux/ar71xx/
-target/linux/brcm47xx/
-target/linux/s3c24xx/
-target/linux/x86/
+d:package/switch/
+d:target/linux/ar71xx/
+d:target/linux/brcm47xx/
+d:target/linux/s3c24xx/
+d:target/linux/x86/
 #########################
 # distributions/kuafu/ directory
 #########################
-packages/libs/gettext-full/
-packages/libs/libiconv-full/
+d:packages/libs/gettext-full/
+d:packages/libs/libiconv-full/

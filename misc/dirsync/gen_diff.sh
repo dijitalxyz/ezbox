@@ -38,12 +38,33 @@ do
   if [ $FIRST_CHAR = "#" ] ; then
     echo "it's a comment"
   else
-    DIFF_FILE=${LINE//\//-}.diff
-    diff -urNd $SRC_DIR/$LINE $DST_DIR/$LINE > $DIFF_DIR/$DIFF_FILE
-    LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
-    # remove empty diff file
-    if [ $LINE_COUNT -lt 1 ] ; then
-      rm -f $DIFF_DIR/$DIFF_FILE
+    ACTION=${LINE%:*}
+    FILE_PATH=${LINE#*:}
+    # do a diff action
+    if [ $ACTION = "d" ] ; then
+      DIFF_FILE=${FILE_PATH//\//-}.diff
+      diff -urNd $SRC_DIR/$FILE_PATH $DST_DIR/$FILE_PATH > $DIFF_DIR/$DIFF_FILE
+      LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
+      # remove empty diff file
+      if [ $LINE_COUNT -lt 1 ] ; then
+        rm -f $DIFF_DIR/$DIFF_FILE
+      fi
+    fi
+    # do a move action
+    if [ $ACTION = "m" ] ; then
+      mkdir -p $SRC_DIR/tmp/$FILE_PATH
+      cp -af $SRC_DIR/$FILE_PATH $SRC_DIR/tmp/$FILE_PATH
+      rm -rf $SRC_DIR/$FILE_PATH
+      mkdir -p $DST_DIR/tmp/$FILE_PATH
+      cp -af $DST_DIR/$FILE_PATH $DST_DIR/tmp/$FILE_PATH
+      rm -rf $DST_DIR/$FILE_PATH
+      DIFF_FILE=tmp-${FILE_PATH//\//-}.diff
+      diff -urNd $SRC_DIR/tmp/$FILE_PATH $DST_DIR/tmp/$FILE_PATH > $DIFF_DIR/$DIFF_FILE
+      LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
+      # remove empty diff file
+      if [ $LINE_COUNT -lt 1 ] ; then
+        rm -f $DIFF_DIR/$DIFF_FILE
+      fi
     fi
   fi
 done < $ITEM_LIST
