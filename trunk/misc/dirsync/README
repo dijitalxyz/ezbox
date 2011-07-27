@@ -19,11 +19,15 @@ c. Fix ifeq ($(CONFIG_ENABLE_LOCALE),true) to ifeq ($(CONFIG_ENABLE_LOCALE),y)
 bootstrap/rules.mk
 
 d. Add locale config file for CONFIG_ENABLE_LOCALE=y
+bootstrap/toolchain/uClibc/Makefile
 bootstrap/toolchain/uClibc/config-0.9.32/locale
 
 e. Fix Fedora 13 and up ['sqrt@@GLIBC_2.0' is defined in DSO /lib/libm.so.6 so try adding it to the linker command line] issue
 bootstrap/tools/cloog/Makefile
 bootstrap/toolchain/gcc/common.mk
+
+f. Add ezbox package source code pool URL
+bootstrap/scripts/download.pl
 ====================================
 2. kuafu
   kuafu keeps the minimal requirement of packages to build a ezbox system. The kuafu_itemlist.txt is used to generate diff files between kuafu and openwrt packages. Generally the kuafu distro is used to port ezbox system on new platform.
