@@ -58,8 +58,7 @@ int rc_ldconfig(int flag)
 	int rc;
 	char buf[128];
 	char cmd[128];
-	char modpath[128];
-	char *p, *q, *r;
+	char *p, *q;
 	FILE *file;
 
 	switch (flag) {

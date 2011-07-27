@@ -55,18 +55,16 @@ char *utils_get_boot_device_fs_type(void)
 	return utils_file_get_keyword_by_index("/proc/cmdline", "boot_dev=", DEVICE_INFO_FS_TYPE_INDEX);
 }
 
-#define DATA_DEVICE_PATH_FILE	"/boot/ezbox_boot.cfg"
-
 char *utils_get_data_device_path(void)
 {
 	int i;
 	struct stat stat_buf;
 
 	for (i = 3; i > 0; i--) {
-		if (stat(DATA_DEVICE_PATH_FILE, &stat_buf) == 0) {
+		if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				/* get data device path string */
-				return utils_file_get_keyword_by_index(DATA_DEVICE_PATH_FILE, "data_dev=", DEVICE_INFO_PATH_INDEX);
+				return utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH, "data_dev=", DEVICE_INFO_PATH_INDEX);
 			}
 		}
 		/* wait a second then try again */
@@ -81,10 +79,10 @@ char *utils_get_data_device_fs_type(void)
 	struct stat stat_buf;
 
 	for (i = 3; i > 0; i--) {
-		if (stat(DATA_DEVICE_PATH_FILE, &stat_buf) == 0) {
+		if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				/* get data device path string */
-				return utils_file_get_keyword_by_index(DATA_DEVICE_PATH_FILE, "data_dev=", DEVICE_INFO_FS_TYPE_INDEX);
+				return utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH, "data_dev=", DEVICE_INFO_FS_TYPE_INDEX);
 			}
 		}
 		/* wait a second then try again */

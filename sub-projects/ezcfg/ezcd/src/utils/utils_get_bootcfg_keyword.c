@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_emc2_rtapi_conf.c
+ * Module Name  : utils_get_bootcfg_keyword.c
  *
- * Description  : ezbox /etc/emc2/rtapi.conf file generating program
+ * Description  : ezcfg get keyword from ezbox_boot.cfg file function
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-07-06   0.1       Write it from scratch
+ * 2011-07-27   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,21 +39,32 @@
 
 #include "ezcd.h"
 
-int pop_etc_emc2_rtapi_conf(int flag)
+int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 {
-        FILE *file = NULL;
+	int len, ret=-1;
+	struct stat stat_buf;
+	char *keyword=NULL, *value=NULL;
 
-	/* generate /etc/emc2/rtapi.conf */
-	file = fopen("/etc/emc2/rtapi.conf", "w");
-	if (file == NULL)
-		return (EXIT_FAILURE);
+	if ((name == NULL) || (buf == NULL) || (buf_len < 1))
+		return -1;
 
-	switch (flag) {
-	case RC_START :
+	len = strlen(name) + 2;
+	keyword = malloc(len);
+	if (keyword == NULL)
+		return -1;
 
-		break;
+	snprintf(keyword, len, "%s=", name);
+
+	if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
+		if (S_ISREG(stat_buf.st_mode)) {
+			/* get keyword's value from boot.cfg file */
+			value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
+			if (value != NULL) {
+				ret = snprintf(buf, buf_len, "%s", value);
+				free(value);
+			}
+		}
 	}
-
-	fclose(file);
-	return (EXIT_SUCCESS);
+	free(keyword);
+	return ret;
 }

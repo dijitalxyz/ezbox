@@ -45,7 +45,7 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 	char name[64];
 	char buf[64];
 	int rc;
-	int i, axes, num;
+	int i, axes=0, num;
 
 	switch (flag) {
 	case RC_START :

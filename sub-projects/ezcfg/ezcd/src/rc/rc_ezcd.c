@@ -61,6 +61,7 @@ int rc_ezcd(int flag)
 	switch (flag) {
 	case RC_BOOT :
 		/* FIXME: nvram is not ready now!!! */
+		pop_etc_ezcd_conf(RC_BOOT);
 		/* ezcd config file should be prepared */
 		snprintf(buf, sizeof(buf), "%s -d", CMD_EZCD);
 		system(buf);
@@ -70,8 +71,6 @@ int rc_ezcd(int flag)
 			return (EXIT_FAILURE);
 		}
 
-		/* FIXME: nvram is ready now!!! */
-		pop_etc_ezcd_conf(flag);
 		break;
 
 	case RC_STOP :

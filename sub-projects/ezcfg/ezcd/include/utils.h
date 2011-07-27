@@ -25,6 +25,9 @@
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 #define CMD_UMOUNT		"/bin/umount"
 
+/* boot config file path */
+#define BOOT_CONFIG_FILE_PATH   "/boot/ezbox_boot.cfg"
+
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
 
