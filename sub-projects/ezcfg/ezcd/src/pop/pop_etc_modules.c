@@ -39,10 +39,13 @@
 
 #include "ezcd.h"
 
+/* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
+#define COMMAND_LINE_SIZE	512
+
 int pop_etc_modules(int flag)
 {
 	FILE *file;
-	char *kmod = NULL;
+	char kmod[COMMAND_LINE_SIZE];
 	char *p, *q;
 	char buf[256];
 	int rc;
@@ -54,8 +57,8 @@ int pop_etc_modules(int flag)
 	switch (flag) {
 	case RC_BOOT :
 		/* get the kernel module name from kernel cmdline */
-		kmod = utils_get_kernel_modules();
-		if (kmod != NULL) {
+		rc = utils_get_kernel_modules(kmod, sizeof(kmod));
+		if (rc > 0) {
 			p = kmod;
 			while(p != NULL) {
 				q = strchr(p, ',');
@@ -67,7 +70,6 @@ int pop_etc_modules(int flag)
 				else
 					p = NULL;
 			}
-			free(kmod);
 		}
 		break;
 	case RC_RESTART :

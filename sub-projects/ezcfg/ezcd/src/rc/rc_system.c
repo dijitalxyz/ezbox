@@ -77,8 +77,8 @@
 int rc_system(int flag)
 {
         FILE *file = NULL;
-	char cmdline[1024];
-	char *dev_path = NULL;
+	char buf[1024];
+	int rc;
 
 	if(geteuid() != 0)
 	{
@@ -114,8 +114,8 @@ int rc_system(int flag)
 		mkdir("/var/tmp", 0777);
 
 		/* /tmp */
-		snprintf(cmdline, sizeof(cmdline), "%s -rf /tmp", CMD_RM);
-		system(cmdline);
+		snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
+		system(buf);
 		symlink("/var/tmp", "/tmp");
 
 		/* init shms */
@@ -145,34 +145,32 @@ int rc_system(int flag)
 		rc_load_modules(RC_BOOT);
 
 		/* prepare boot device path */
-		dev_path = utils_get_boot_device_path();
-		if (dev_path != NULL) {
+		rc = utils_get_boot_device_path(buf, sizeof(buf));
+		if (rc > 0) {
 			int i;
 			struct stat stat_buf;
 			char path[64];
-			char *fs_type;
+			char fs_type[64];
 
-			snprintf(path, sizeof(path), "/dev/%s", dev_path);
-			free(dev_path);
+			snprintf(path, sizeof(path), "/dev/%s", buf);
 
 			for (i = 10; i > 0; i--) {
 				if (stat(path, &stat_buf) == 0) {
 					if (S_ISBLK(stat_buf.st_mode)) {
 						/* mount /dev/sda1 /boot */
-						fs_type = utils_get_boot_device_fs_type();
-						if (fs_type != NULL) {
+						rc = utils_get_boot_device_fs_type(fs_type, sizeof(fs_type));
+						if (rc > 0) {
 							if (strcmp(fs_type, "ntfs-3g") == 0) {
-								snprintf(cmdline, sizeof(cmdline), "%s -o ro %s /boot", "/usr/bin/ntfs-3g", path);
+								snprintf(buf, sizeof(buf), "%s -o ro %s /boot", "/usr/bin/ntfs-3g", path);
 							}
 							else {
-								snprintf(cmdline, sizeof(cmdline), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
+								snprintf(buf, sizeof(buf), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
 							}
-							free(fs_type);
 						}
 						else {
-							snprintf(cmdline, sizeof(cmdline), "%s -r %s /boot", CMD_MOUNT, path);
+							snprintf(buf, sizeof(buf), "%s -r %s /boot", CMD_MOUNT, path);
 						}
-						system(cmdline);
+						system(buf);
 					}
 					break;
 				}
@@ -182,34 +180,32 @@ int rc_system(int flag)
 		}
 
 		/* prepare dynamic data storage path */
-		dev_path = utils_get_data_device_path();
-		if (dev_path != NULL) {
+		rc = utils_get_data_device_path(buf, sizeof(buf));
+		if (rc > 0) {
 			int i;
 			struct stat stat_buf;
 			char path[64];
-			char *fs_type;
+			char fs_type[64];
 
-			snprintf(path, sizeof(path), "/dev/%s", dev_path);
-			free(dev_path);
+			snprintf(path, sizeof(path), "/dev/%s", buf);
 
 			for (i = 10; i > 0; i--) {
 				if (stat(path, &stat_buf) == 0) {
 					if (S_ISBLK(stat_buf.st_mode)) {
 						/* mount /dev/sda2 /var */
-						fs_type = utils_get_data_device_fs_type();
-						if (fs_type != NULL) {
+						rc = utils_get_data_device_fs_type(fs_type, sizeof(fs_type));
+						if (rc > 0) {
 							if (strcmp(fs_type, "ntfs-3g") == 0) {
-								snprintf(cmdline, sizeof(cmdline), "%s %s /var", "/usr/bin/ntfs-3g", path);
+								snprintf(buf, sizeof(buf), "%s %s /var", "/usr/bin/ntfs-3g", path);
 							}
 							else {
-								snprintf(cmdline, sizeof(cmdline), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
+								snprintf(buf, sizeof(buf), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
 							}
-							free(fs_type);
 						}
 						else {
-							snprintf(cmdline, sizeof(cmdline), "%s -w %s /var", CMD_MOUNT, path);
+							snprintf(buf, sizeof(buf), "%s -w %s /var", CMD_MOUNT, path);
 						}
-						system(cmdline);
+						system(buf);
 					}
 					break;
 				}
@@ -217,14 +213,14 @@ int rc_system(int flag)
 				sleep(1);
 			}
 		}
-		snprintf(cmdline, sizeof(cmdline), "%s a+rwx /var", CMD_CHMOD);
-		system(cmdline);
-		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/lock", CMD_RM);
-		system(cmdline);
-		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/run", CMD_RM);
-		system(cmdline);
-		snprintf(cmdline, sizeof(cmdline), "%s -rf /var/tmp", CMD_RM);
-		system(cmdline);
+		snprintf(buf, sizeof(buf), "%s a+rwx /var", CMD_CHMOD);
+		system(buf);
+		snprintf(buf, sizeof(buf), "%s -rf /var/lock", CMD_RM);
+		system(buf);
+		snprintf(buf, sizeof(buf), "%s -rf /var/run", CMD_RM);
+		system(buf);
+		snprintf(buf, sizeof(buf), "%s -rf /var/tmp", CMD_RM);
+		system(buf);
 		mkdir("/var/lock", 0777);
 		mkdir("/var/log", 0777);
 		mkdir("/var/run", 0777);

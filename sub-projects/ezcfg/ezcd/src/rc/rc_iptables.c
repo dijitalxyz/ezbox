@@ -108,32 +108,19 @@ static char * iptables_modules[] = {
 
 int rc_load_iptables_modules(int flag)
 {
-	char cmdline[64];
 	int ret, i;
-	char *kver;
-
-	kver = utils_get_kernel_version();
-	if (kver == NULL)
-		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_START :
 		for (i = 0; i < ARRAY_SIZE(iptables_modules); i++) {
-			snprintf(cmdline, sizeof(cmdline),
-			         "%s /lib/modules/%s/%s.ko",
-			         CMD_INSMOD, kver, iptables_modules[i]);
-
-			ret = system(cmdline);
+			utils_install_kernel_module(iptables_modules[i], NULL);
 		}
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_STOP :
 		for (i = ARRAY_SIZE(iptables_modules)-1; i >= 0; i--) {
-			snprintf(cmdline, sizeof(cmdline),
-			         "%s %s", CMD_RMMOD, iptables_modules[i]);
-
-			ret = system(cmdline);
+			utils_remove_kernel_module(iptables_modules[i]);
 		}
 		ret = EXIT_SUCCESS;
 		break;
@@ -143,7 +130,6 @@ int rc_load_iptables_modules(int flag)
 		break;
 	}
 
-	free(kver);
 	return ret;
 }
 

@@ -8,16 +8,27 @@
 #include "utils.h"
 
 /* utils function declaration */
+
+/* FIXME: these functions return pointer get from malloc, must free it */
 char *utils_file_get_keyword(char *filename, char *keyword);
 char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx);
-char *utils_get_kernel_modules(void);
 char *utils_get_kernel_version(void);
+
+
+int utils_get_kernel_modules(char *buf, int buf_len);
+
+int utils_install_kernel_module(char *name, char *args);
+int utils_remove_kernel_module(char *name);
+
 int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len);
-char *utils_get_boot_device_path(void);
-char *utils_get_boot_device_fs_type(void);
-char *utils_get_data_device_path(void);
-char *utils_get_data_device_fs_type(void);
+
+int utils_get_boot_device_path(char *buf, int buf_len);
+int utils_get_boot_device_fs_type(char *buf, int buf_len);
+int utils_get_data_device_path(char *buf, int buf_len);
+int utils_get_data_device_fs_type(char *buf, int buf_len);
+
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
+
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 bool utils_has_process_by_name(char *pidName);

@@ -42,38 +42,14 @@
  * Returns kernel modules string
  * It is the caller's duty to free the returned string.
  */
-char *utils_get_kernel_modules(void)
+int utils_get_kernel_modules(char *buf, int buf_len)
 {
-	return utils_file_get_keyword("/proc/cmdline", "modules=");
-#if 0
-        FILE *file;
-	char *p = NULL;
-	char *q = NULL;
-	char *v = NULL;
-	char buf[1024];
-
-	/* get kernel version */
-	file = fopen("/proc/cmdline", "r");
-	if (file == NULL)
-		return NULL;
-
-	memset(buf, 0, sizeof(buf));
-	if (fgets(buf, sizeof(buf), file) == NULL)
-		goto func_out;
-
-	q = strstr(buf, "modules=");
-	if (q == NULL)
-		goto func_out;
-
-	/* skip "modules=" */
-	p = q + 8;
-	q = strchr(p, ' ');
-	if (q != NULL)
-		*q = '\0';
-func_out:
-	fclose(file);
-	if (p != NULL)
-		v = strdup(p);
-	return (v);
-#endif
+	int rc = -1;
+	char *p;
+	p = utils_file_get_keyword("/proc/cmdline", "modules=");
+	if (p != NULL) {
+		rc = snprintf(buf, buf_len, "%s", p);
+		free(p);
+	}
+	return rc;
 }
