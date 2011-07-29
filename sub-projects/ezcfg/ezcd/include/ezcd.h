@@ -29,6 +29,8 @@ int utils_get_data_device_fs_type(char *buf, int buf_len);
 
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 
+int utils_mount_partition(char *dev, char *path, char *fs_type, char *args);
+
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 bool utils_has_process_by_name(char *pidName);

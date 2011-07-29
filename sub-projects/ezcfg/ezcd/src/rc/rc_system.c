@@ -76,10 +76,6 @@
 
 int rc_system(int flag)
 {
-        FILE *file = NULL;
-	char buf[1024];
-	int rc;
-
 	if(geteuid() != 0)
 	{
 		DBG("run rc_system euid is not 0!\n");
@@ -88,143 +84,14 @@ int rc_system(int flag)
 
 	switch (flag) {
 	case RC_BOOT :
-		/* /proc */
-		mkdir("/proc", 0555);
-		mount("proc", "/proc", "proc", MS_MGC_VAL, NULL);
-
-		/* sysfs -> /sys */
-		mkdir("/sys", 0755);
-		mount("sysfs", "/sys", "sysfs", MS_MGC_VAL, NULL);
-
-		/* /dev */
-		mkdir("/dev", 0755);
-		// mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
-
-		/* /etc */
-		mkdir("/etc", 0755);
-
-		/* /boot */
-		mkdir("/boot", 0777);
-
-		/* /var */
-		mkdir("/var", 0777);
-		mkdir("/var/lock", 0777);
-		mkdir("/var/log", 0777);
-		mkdir("/var/run", 0777);
-		mkdir("/var/tmp", 0777);
-
-		/* /tmp */
-		snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
-		system(buf);
-		symlink("/var/tmp", "/tmp");
-
-		/* init shms */
-		mkdir("/dev/shm", 0777);
-
-		/* Mount /dev/pts */
-		mkdir("/dev/pts", 0777);
-		mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
-
-		mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
-
-		/* run in root HOME path */
-		mkdir(ROOT_HOME_PATH, 0755);
-		setenv("HOME", ROOT_HOME_PATH, 1);
-		chdir(ROOT_HOME_PATH);
-
-		/* init hotplug2 */
-		rc_hotplug2(RC_BOOT);
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-		if (file != NULL)
-		{
-			fprintf(file, "%s", "");
-			fclose(file);
-		}
+		/* prepare boot device and basic infrastructure for the system */
+		rc_preboot(RC_BOOT);
 
 		/* load preinit kernel modules */
 		rc_load_modules(RC_BOOT);
 
-		/* prepare boot device path */
-		rc = utils_get_boot_device_path(buf, sizeof(buf));
-		if (rc > 0) {
-			int i;
-			struct stat stat_buf;
-			char path[64];
-			char fs_type[64];
-
-			snprintf(path, sizeof(path), "/dev/%s", buf);
-
-			for (i = 10; i > 0; i--) {
-				if (stat(path, &stat_buf) == 0) {
-					if (S_ISBLK(stat_buf.st_mode)) {
-						/* mount /dev/sda1 /boot */
-						rc = utils_get_boot_device_fs_type(fs_type, sizeof(fs_type));
-						if (rc > 0) {
-							if (strcmp(fs_type, "ntfs-3g") == 0) {
-								snprintf(buf, sizeof(buf), "%s -o ro %s /boot", "/usr/bin/ntfs-3g", path);
-							}
-							else {
-								snprintf(buf, sizeof(buf), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
-							}
-						}
-						else {
-							snprintf(buf, sizeof(buf), "%s -r %s /boot", CMD_MOUNT, path);
-						}
-						system(buf);
-					}
-					break;
-				}
-				/* wait a second then try again */
-				sleep(1);
-			}
-		}
-
 		/* prepare dynamic data storage path */
-		rc = utils_get_data_device_path(buf, sizeof(buf));
-		if (rc > 0) {
-			int i;
-			struct stat stat_buf;
-			char path[64];
-			char fs_type[64];
-
-			snprintf(path, sizeof(path), "/dev/%s", buf);
-
-			for (i = 10; i > 0; i--) {
-				if (stat(path, &stat_buf) == 0) {
-					if (S_ISBLK(stat_buf.st_mode)) {
-						/* mount /dev/sda2 /var */
-						rc = utils_get_data_device_fs_type(fs_type, sizeof(fs_type));
-						if (rc > 0) {
-							if (strcmp(fs_type, "ntfs-3g") == 0) {
-								snprintf(buf, sizeof(buf), "%s %s /var", "/usr/bin/ntfs-3g", path);
-							}
-							else {
-								snprintf(buf, sizeof(buf), "%s -w -t %s %s /var", CMD_MOUNT, fs_type, path);
-							}
-						}
-						else {
-							snprintf(buf, sizeof(buf), "%s -w %s /var", CMD_MOUNT, path);
-						}
-						system(buf);
-					}
-					break;
-				}
-				/* wait a second then try again */
-				sleep(1);
-			}
-		}
-		snprintf(buf, sizeof(buf), "%s a+rwx /var", CMD_CHMOD);
-		system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/lock", CMD_RM);
-		system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/run", CMD_RM);
-		system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/tmp", CMD_RM);
-		system(buf);
-		mkdir("/var/lock", 0777);
-		mkdir("/var/log", 0777);
-		mkdir("/var/run", 0777);
-		mkdir("/var/tmp", 0777);
+		rc_data_storage(RC_BOOT);
 
 		/* start ezcfg daemon */
 		rc_ezcd(RC_BOOT);

@@ -30,6 +30,8 @@ ezcd_SOURCES += src/ezcd.c
 ezcd_SOURCES += src/ezcm.c
 ezcd_SOURCES += src/nvram.c
 ezcd_SOURCES += src/rc.c
+ezcd_SOURCES += src/rc/rc_preboot.c
+ezcd_SOURCES += src/rc/rc_data_storage.c
 ezcd_SOURCES += src/rc/rc_system.c
 ezcd_SOURCES += src/rc/rc_func.c
 
@@ -43,6 +45,7 @@ ezcd_SOURCES += src/utils/utils_file_get_keyword.c
 ezcd_SOURCES += src/utils/utils_get_kernel_modules.c
 ezcd_SOURCES += src/utils/utils_get_kernel_version.c
 ezcd_SOURCES += src/utils/utils_handle_kernel_module.c
+ezcd_SOURCES += src/utils/utils_mount_partition.c
 ezcd_SOURCES += src/utils/utils_get_bootcfg_keyword.c
 ezcd_SOURCES += src/utils/utils_get_device_info.c
 if CONFIG_EZBOX_WAN_NIC

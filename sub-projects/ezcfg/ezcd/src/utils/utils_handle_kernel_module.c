@@ -67,6 +67,7 @@ int utils_install_kernel_module(char *name, char *args)
 		return ret;
 	}
 
+	/* first check if we should insmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
 		mdp = &mod_depends[i];
 		if (strcmp(mdp->name, name) == 0) {
@@ -91,7 +92,7 @@ int utils_install_kernel_module(char *name, char *args)
 		}
         }
 
-	/* insmod the kernel module directly */
+	/* then insmod the kernel module directly */
 	p = (args == NULL) ? "" : args;
 	snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, p);
 	system(buf);
@@ -113,6 +114,11 @@ int utils_remove_kernel_module(char *name)
 		return ret;
 	}
 
+	/* first rmmod the kernel module directly */
+	snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, name);
+	system(buf);
+
+	/* then check if we can rmmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
 		mdp = &mod_depends[i];
 		if (strcmp(mdp->name, name) == 0) {
@@ -141,9 +147,6 @@ int utils_remove_kernel_module(char *name)
 		}
         }
 
-	/* rmmod the kernel module directly */
-	snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, name);
-	system(buf);
 	ret = EXIT_SUCCESS;
 
 	return ret;

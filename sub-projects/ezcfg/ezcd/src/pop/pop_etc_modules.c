@@ -45,9 +45,8 @@
 int pop_etc_modules(int flag)
 {
 	FILE *file;
-	char kmod[COMMAND_LINE_SIZE];
 	char *p, *q;
-	char buf[256];
+	char buf[COMMAND_LINE_SIZE];
 	int rc;
 
 	file = fopen("/etc/modules", "w");
@@ -56,26 +55,17 @@ int pop_etc_modules(int flag)
 
 	switch (flag) {
 	case RC_BOOT :
-		/* get the kernel module name from kernel cmdline */
-		rc = utils_get_kernel_modules(kmod, sizeof(kmod));
-		if (rc > 0) {
-			p = kmod;
-			while(p != NULL) {
-				q = strchr(p, ',');
-				if (q != NULL)
-					*q = '\0';
-				fprintf(file, "%s\n", p);
-				if (q != NULL)
-					p = q+1;
-				else
-					p = NULL;
-			}
-		}
-		break;
 	case RC_RESTART :
 	case RC_START :
-		/* get the kernel module name from nvram */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, MODULES), buf, sizeof(buf));
+		if (flag == RC_BOOT) {
+			/* get the kernel module name from boot.cfg */
+			rc = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, MODULES), buf, sizeof(buf));
+		}
+		else {
+			/* get the kernel module name from nvram */
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, MODULES), buf, sizeof(buf));
+		}
+
 		if (rc > 0) {
 			p = buf;
 			while(p != NULL) {
