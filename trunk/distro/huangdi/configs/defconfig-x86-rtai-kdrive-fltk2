@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Sat Jul 30 14:00:34 2011
+# Sat Jul 30 14:22:21 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1301,6 +1301,7 @@ CONFIG_PACKAGE_liblua=y
 CONFIG_PACKAGE_liblzo=y
 CONFIG_PACKAGE_libncurses=y
 CONFIG_PACKAGE_libncursesw=y
+CONFIG_PACKAGE_libnl-tiny=y
 CONFIG_PACKAGE_libpng=y
 CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_librpc=y
