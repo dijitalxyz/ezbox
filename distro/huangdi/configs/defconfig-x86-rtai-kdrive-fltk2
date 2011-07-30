@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Thu Jul 28 18:00:58 2011
+# Sat Jul 30 14:00:34 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1221,7 +1221,21 @@ CONFIG_PACKAGE_openvpn_complzo=y
 #
 CONFIG_PACKAGE_mongoose-webserver=y
 # CONFIG_PACKAGE_genl is not set
+# CONFIG_PACKAGE_hostapd is not set
+# CONFIG_PACKAGE_hostapd-mini is not set
+CONFIG_PACKAGE_hostapd-utils=y
 # CONFIG_PACKAGE_tc is not set
+CONFIG_PACKAGE_wpa-cli=y
+CONFIG_PACKAGE_wpa-supplicant=y
+CONFIG_WPA_SUPPLICANT_NO_TIMESTAMP_CHECK=y
+# CONFIG_WPA_SUPPLICANT_INTERNAL is not set
+CONFIG_WPA_SUPPLICANT_OPENSSL=y
+CONFIG_WPA_RFKILL_SUPPORT=y
+CONFIG_DRIVER_WEXT_SUPPORT=y
+CONFIG_DRIVER_11N_SUPPORT=y
+# CONFIG_PACKAGE_wpa-supplicant-mini is not set
+CONFIG_PACKAGE_wpad=y
+# CONFIG_PACKAGE_wpad-mini is not set
 
 #
 # Libraries
@@ -1321,14 +1335,7 @@ CONFIG_PACKAGE_kmod-ata-sil24=y
 CONFIG_PACKAGE_kmod-ata-via-sata=y
 # CONFIG_PACKAGE_kmod-block2mtd is not set
 # CONFIG_PACKAGE_kmod-dm is not set
-CONFIG_PACKAGE_kmod-ide-core=y
-CONFIG_PACKAGE_kmod-cs5535=y
-CONFIG_PACKAGE_kmod-cs5536=y
-CONFIG_PACKAGE_kmod-ide-aec62xx=y
-CONFIG_PACKAGE_kmod-ide-generic=y
-CONFIG_PACKAGE_kmod-ide-generic-old=y
-CONFIG_PACKAGE_kmod-ide-it821x=y
-CONFIG_PACKAGE_kmod-ide-pdc202xx=y
+# CONFIG_PACKAGE_kmod-ide-core is not set
 CONFIG_PACKAGE_kmod-libsas=y
 CONFIG_PACKAGE_kmod-loop=y
 CONFIG_PACKAGE_kmod-md-mod=y
@@ -1536,10 +1543,10 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 # CONFIG_PACKAGE_kmod-isdn4linux is not set
 # CONFIG_PACKAGE_kmod-misdn is not set
 # CONFIG_PACKAGE_kmod-mp-alg is not set
-CONFIG_PACKAGE_kmod-netem=y
+# CONFIG_PACKAGE_kmod-netem is not set
 # CONFIG_PACKAGE_kmod-pktgen is not set
 # CONFIG_PACKAGE_kmod-ppp is not set
-CONFIG_PACKAGE_kmod-sched=y
+# CONFIG_PACKAGE_kmod-sched is not set
 # CONFIG_PACKAGE_kmod-sctp is not set
 # CONFIG_PACKAGE_kmod-sit is not set
 CONFIG_PACKAGE_kmod-tun=y
@@ -1549,7 +1556,7 @@ CONFIG_PACKAGE_kmod-tun=y
 #
 CONFIG_PACKAGE_kmod-bcma=y
 # CONFIG_PACKAGE_kmod-bluetooth is not set
-# CONFIG_PACKAGE_kmod-cpu-msr is not set
+CONFIG_PACKAGE_kmod-cpu-msr=y
 # CONFIG_PACKAGE_kmod-cs5535-clockevt is not set
 # CONFIG_PACKAGE_kmod-cs5535-mfd is not set
 # CONFIG_PACKAGE_kmod-cs5535-mfgpt is not set
@@ -1564,13 +1571,13 @@ CONFIG_PACKAGE_kmod-input-evdev=y
 CONFIG_PACKAGE_kmod-input-joydev=y
 CONFIG_PACKAGE_kmod-input-polldev=y
 CONFIG_PACKAGE_kmod-lp=y
-# CONFIG_PACKAGE_kmod-mmc is not set
+CONFIG_PACKAGE_kmod-mmc=y
 # CONFIG_PACKAGE_kmod-pwm is not set
 # CONFIG_PACKAGE_kmod-pwm-gpio is not set
-# CONFIG_PACKAGE_kmod-rfkill is not set
-# CONFIG_PACKAGE_kmod-rtc-core is not set
+CONFIG_PACKAGE_kmod-rfkill=y
+CONFIG_PACKAGE_kmod-rtc-core=y
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
-# CONFIG_PACKAGE_kmod-softdog is not set
+CONFIG_PACKAGE_kmod-softdog=y
 CONFIG_PACKAGE_kmod-ssb=y
 # CONFIG_PACKAGE_kmod-wdt-geode is not set
 # CONFIG_PACKAGE_kmod-wdt-sc520 is not set
@@ -1579,7 +1586,10 @@ CONFIG_PACKAGE_kmod-ssb=y
 #
 # PCMCIA support
 #
-# CONFIG_PACKAGE_kmod-pcmcia-core is not set
+CONFIG_PACKAGE_kmod-pcmcia-core=y
+CONFIG_PACKAGE_kmod-pcmcia-rsrc=y
+CONFIG_PACKAGE_kmod-pcmcia-serial=y
+CONFIG_PACKAGE_kmod-pcmcia-yenta=y
 
 #
 # SPI Support
@@ -1701,8 +1711,8 @@ CONFIG_PACKAGE_kmod-net-hermes-plx=y
 CONFIG_PACKAGE_kmod-net-ipw2100=y
 CONFIG_PACKAGE_kmod-net-ipw2200=y
 CONFIG_PACKAGE_kmod-net-libipw=y
-# CONFIG_PACKAGE_kmod-net-prism54 is not set
-# CONFIG_PACKAGE_kmod-net-zd1201 is not set
+CONFIG_PACKAGE_kmod-net-prism54=y
+CONFIG_PACKAGE_kmod-net-zd1201=y
 CONFIG_PACKAGE_kmod-p54-common=y
 CONFIG_PACKAGE_kmod-p54-pci=y
 CONFIG_PACKAGE_kmod-p54-usb=y
