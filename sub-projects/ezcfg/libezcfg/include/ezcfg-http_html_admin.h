@@ -35,12 +35,18 @@ struct ezcfg_http_html_admin {
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_LAN_DOMAIN        "admin_status_lan"
 #define EZCFG_HTTP_HTML_ADMIN_VIEW_DHCP_CLIENT_TABLE_DOMAIN  "admin_view_dhcp_client_table"
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_WAN_DOMAIN        "admin_status_wan"
+
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_SYSTEM_DOMAIN      "admin_setup_system"
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_LAN_DOMAIN         "admin_setup_lan"
 #define EZCFG_HTTP_HTML_ADMIN_SETUP_WAN_DOMAIN         "admin_setup_wan"
+
 #define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_AUTHZ_DOMAIN  "admin_management_authz"
 #define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_DEFAULT_DOMAIN  "admin_management_default"
 #define EZCFG_HTTP_HTML_ADMIN_MANAGEMENT_UPGRADE_DOMAIN  "admin_management_upgrade"
+
+#define EZCFG_HTTP_HTML_ADMIN_CNC_SETUP_DOMAIN         "admin_cnc_setup"
+#define EZCFG_HTTP_HTML_ADMIN_CNC_DEFAULT_DOMAIN       "admin_cnc_default"
+#define EZCFG_HTTP_HTML_ADMIN_CNC_LATENCY_DOMAIN       "admin_cnc_latency"
 
 #define EZCFG_HTTP_HTML_ADMIN_HEAD_DOMAIN              "admin_head"
 #define EZCFG_HTTP_HTML_ADMIN_MAIN_DOMAIN              "admin_main"

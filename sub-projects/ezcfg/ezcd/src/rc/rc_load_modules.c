@@ -77,7 +77,6 @@ int rc_load_modules(int flag)
 		break;
 	}
 
-func_out:
 	if (file != NULL)
 		fclose(file);
 

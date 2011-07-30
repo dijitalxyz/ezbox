@@ -109,6 +109,16 @@ int ezcfg_http_html_admin_set_html_menu(
 		goto func_exit;
 	}
 
+	/* menu <ul> <li> */
+	/* menu CNC */
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	li_index = ezcfg_http_html_admin_html_menu_cnc(admin, ul_index, li_index);
+	if (li_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child err.\n");
+		goto func_exit;
+	}
+#endif
+
 	/* must return menu index */
 	ret = menu_index;
 func_exit:

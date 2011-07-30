@@ -58,6 +58,11 @@ struct http_html_admin_handler adm_handlers[] = {
 	{ "management_authz", ezcfg_http_html_admin_management_authz_handler },
 	{ "management_default", ezcfg_http_html_admin_management_default_handler },
 	{ "management_upgrade", ezcfg_http_html_admin_management_upgrade_handler },
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	{ "cnc_setup", ezcfg_http_html_admin_cnc_setup_handler },
+	{ "cnc_default", ezcfg_http_html_admin_cnc_default_handler },
+	{ "cnc_latency", ezcfg_http_html_admin_cnc_latency_handler },
+#endif
 	{ "layout_css", ezcfg_http_html_admin_layout_css_handler },
 	{ NULL, NULL }
 };

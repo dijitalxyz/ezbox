@@ -153,6 +153,16 @@ libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_default.c
 # ezcfg HTML/HTTP admin management_upgrade handling
 libezcfg_la_SOURCES += src/http/admin/http_html_admin_management_upgrade.c
 
+if CONFIG_EZBOX_SERVICE_EMC2
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_menu_cnc.c
+# ezcfg HTML/HTTP admin cnc_setup handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_cnc_setup.c
+# ezcfg HTML/HTTP admin cnc_default handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_cnc_default.c
+# ezcfg HTML/HTTP admin cnc_latency handling
+libezcfg_la_SOURCES += src/http/admin/http_html_admin_cnc_latency.c
+endif
+
 # ezcfg XML doc
 libezcfg_la_SOURCES += src/xml/xml.c
 

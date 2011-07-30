@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/tmp/realtime.debug", "a"); \
 	if (fp) { \
@@ -122,7 +122,7 @@ int rc_realtime(int flag)
 					p = r+1;
 				}
 
-				/* insmod kernel module */
+				/* rmmod kernel module */
 				snprintf(cmd, sizeof(cmd), "%s %s %s",
 					"/usr/bin/emc_module_helper", "remove", p);
 				system(cmd);

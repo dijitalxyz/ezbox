@@ -43,6 +43,9 @@
 /* udhcpc script path */
 #define UDHCPC_SCRIPT_PATH	"/usr/share/udhcpc/default.script"
 
+/* Linux kernel version */
+#define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
+
 typedef struct rc_func_s {
 	char *name;
 	int flag;

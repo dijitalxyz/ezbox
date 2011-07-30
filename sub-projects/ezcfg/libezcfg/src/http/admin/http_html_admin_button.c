@@ -43,6 +43,9 @@ char *refresh_buttons[] = {
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	"status_wan",
 #endif
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	"cnc_latency",
+#endif
 };
 
 char *save_cancel_buttons[] = {
@@ -56,6 +59,9 @@ char *save_cancel_buttons[] = {
 	"management_authz",
 	"management_default",
 	"management_upgrade",
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+	"cnc_setup",
+#endif
 };
 
 /**

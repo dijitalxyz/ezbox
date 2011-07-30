@@ -364,6 +364,13 @@ int ezcfg_http_html_admin_html_menu_management(
 	struct ezcfg_http_html_admin *admin,
 	int pi, int si);
 
+/* http/admin/http_html_admin_menu_cnc.c */
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+int ezcfg_http_html_admin_html_menu_cnc(
+	struct ezcfg_http_html_admin *admin,
+	int pi, int si);
+#endif
+
 /* http/admin/http_html_admin_layout_css.c */
 int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin);
 
@@ -400,6 +407,11 @@ int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admi
 /* http/admin/http_html_admin_setup_wan.c */
 int ezcfg_http_html_admin_management_upgrade_handler(struct ezcfg_http_html_admin *admin);
 
+#if (HAVE_EZBOX_SERVICE_EMC2 == 1)
+int ezcfg_http_html_admin_cnc_setup_handler(struct ezcfg_http_html_admin *admin);
+int ezcfg_http_html_admin_cnc_default_handler(struct ezcfg_http_html_admin *admin);
+int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admin);
+#endif
 
 /* socket/socket_http.c */
 int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread);

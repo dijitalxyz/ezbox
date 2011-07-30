@@ -244,7 +244,9 @@ int rc_system(int flag)
 #endif
 
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
-		//rc_emc2(RC_START);
+#if 0
+		rc_emc2(RC_START);
+#endif
 #endif
 
 		break;

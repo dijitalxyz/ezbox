@@ -41,7 +41,7 @@
 #include "pop_func.h"
 #include "rc_func.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/tmp/emc2.debug", "a"); \
 	if (fp) { \
@@ -53,6 +53,8 @@
 #define DBG(format, args...)
 #endif
 
+#define LATEXIT_SH_FLAG_FILE	"/tmp/.latexit.sh"
+
 static int generate_latexit_sh(const char *path)
 {
 	FILE * file;
@@ -61,10 +63,11 @@ static int generate_latexit_sh(const char *path)
 		return EXIT_FAILURE;
 	}
 
-	fprintf(file, "L=$((halcmd gets sj; halcmd gets bj;\n");
-	fprintf(file, "  if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi\n");
-	fprintf(file, "  ) | sort -n | tail -1)\n");
-	fprintf(file, "echo $L > $HOME/.latency\n");
+	fprintf(file, "echo 1 > %s\n", LATEXIT_SH_FLAG_FILE);
+	fprintf(file, "while [ -f %s ]\n", LATEXIT_SH_FLAG_FILE);
+	fprintf(file, "do\n");
+	fprintf(file, "  echo 1 > /dev/null\n");
+	fprintf(file, "done\n");
 
 	fclose(file);
 	return EXIT_SUCCESS;
@@ -84,15 +87,13 @@ static int generate_test_hal_file(const char *path, long base_period, long servo
 	fprintf(file, "addf timedelta.0 fast\n");
 	fprintf(file, "addf timedelta.1 slow\n");
 	fprintf(file, "start\n");
-	fprintf(file, "loadusr -Wn lat pyvcp lat.xml\n");
-	fprintf(file, "net sl timedelta.1.max => lat.sl\n");
-	fprintf(file, "net sj timedelta.1.jitter => lat.sj\n");
-	fprintf(file, "net st timedelta.1.out => lat.st\n");
-	fprintf(file, "net bl timedelta.0.max => lat.bl\n");
-	fprintf(file, "net bj timedelta.0.jitter => lat.bj\n");
-	fprintf(file, "net bt timedelta.0.out => lat.bt\n");
-	fprintf(file, "net reset lat.reset => timedelta.0.reset timedelta.1.reset\n");
-	fprintf(file, "waitusr lat\n");
+	fprintf(file, "net sl timedelta.1.max\n");
+	fprintf(file, "net sj timedelta.1.jitter\n");
+	fprintf(file, "net st timedelta.1.out\n");
+	fprintf(file, "net bl timedelta.0.max\n");
+	fprintf(file, "net bj timedelta.0.jitter\n");
+	fprintf(file, "net bt timedelta.0.out\n");
+	fprintf(file, "net reset timedelta.0.reset timedelta.1.reset\n");
 	fprintf(file, "loadusr -w sh latexit.sh\n");
 
 	fclose(file);
@@ -137,7 +138,6 @@ int rc_emc2_latency_test(int flag)
 		}
 
 		snprintf(cmd, sizeof(cmd), "%s -p %s", CMD_MKDIR, ini_dir);
-		DBG("huedbg: %s[%d] cmd=[%s]\n", __func__, __LINE__, cmd);
 		system(cmd);
 
 		pop_etc_emc2_rtapi_conf(RC_START);
@@ -185,8 +185,7 @@ int rc_emc2_latency_test(int flag)
 
 		/* Run latency test in background */
 		/* $HALCMD -i "$INIFILE" -f $CFGFILE */
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd -i %s -f %s", ini_file, test_file);
-		DBG("huedbg: %s[%d] cmd=[%s]\n", __func__, __LINE__, cmd);
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd -i %s -f %s &", ini_file, test_file);
 		system(cmd);
 
 		/* restore to original dir */
@@ -196,14 +195,15 @@ int rc_emc2_latency_test(int flag)
 
 	case RC_STOP :
 		/* Stop latency test in background */
+		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, LATEXIT_SH_FLAG_FILE);
+		system(cmd);
+
 		/* $HALCMD stop */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd stop");
-		DBG("huedbg: %s[%d] cmd=[%s]\n", __func__, __LINE__, cmd);
 		system(cmd);
 
 		/* $HALCMD unload all */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
-		DBG("huedbg: %s[%d] cmd=[%s]\n", __func__, __LINE__, cmd);
 		system(cmd);
 
 		/* Stop REALTIME */

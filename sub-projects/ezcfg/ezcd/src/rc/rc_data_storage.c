@@ -76,7 +76,6 @@
 
 int rc_data_storage(int flag)
 {
-        FILE *file = NULL;
 	char buf[64];
 	char dev_buf[64];
 	char fs_type_buf[64];

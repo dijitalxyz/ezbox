@@ -44,15 +44,28 @@ typedef struct mod_dep_s {
 	char *list;
 } mod_dep_t;
 
+/* directly depends list */
 static mod_dep_t mod_depends[] = {
-	{ "fat", "nls_base,nls_cp437,nls_iso8859-1" },
+	{ "ahci", "libahci" },
+	{ "cfg80211", "compat" },
+	{ "ehci-hcd", "usbcore" },
+	{ "fat", "nls_cp437,nls_iso8859-1" },
+	{ "ohci-hcd", "nls_base,usbcore" },
+	{ "mac80211", "compat,cfg80211" },
+	{ "nls_cp437", "nls_base" },
+	{ "nls_iso8859-1", "nls_base" },
+	{ "rt2x00lib", "compat,compat_firmware_class,cfg80211,mac80211" },
+	{ "rt2x00usb", "usbcore,mac80211,rt2x00lib" },
+	{ "rt73usb", "crc-itu-t,rt2x00lib,rt2x00usb" },
+	{ "uhci-hcd", "usbcore" },
+	{ "usbcore", "nls_base" },
 	{ "vfat", "nls_base,nls_cp437,nls_iso8859-1,fat" },
 };
 
 int utils_install_kernel_module(char *name, char *args)
 {
 	mod_dep_t *mdp;
-	char buf[128];
+	//char buf[128];
 	char *p, *q, *l;
 	char *kver;
 	int i;
@@ -62,10 +75,12 @@ int utils_install_kernel_module(char *name, char *args)
 		return ret;
 	}
 
+#if 0
 	kver = utils_get_kernel_version();
 	if (kver == NULL) {
 		return ret;
 	}
+#endif
 
 	/* first check if we should insmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
@@ -79,8 +94,13 @@ int utils_install_kernel_module(char *name, char *args)
 					if (q != NULL)
 						*q = '\0';
 
+				#if 0
 					snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko", CMD_INSMOD, kver, p);
 					system(buf);
+				#else
+					/* check it recursively */
+					utils_install_kernel_module(p, NULL);
+				#endif
 
 					if (q != NULL)
 						p = q+1;
@@ -92,10 +112,29 @@ int utils_install_kernel_module(char *name, char *args)
 		}
         }
 
+	kver = utils_get_kernel_version();
+	if (kver == NULL) {
+		return ret;
+	}
+
 	/* then insmod the kernel module directly */
-	p = (args == NULL) ? "" : args;
-	snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, p);
+	q = (args == NULL) ? "" : args;
+#if 0
+	snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, q);
 	system(buf);
+#else
+	i = strlen(CMD_INSMOD);
+	i += 14; /* strlen(" /lib/modules/") */
+	i += (strlen(kver) + 1); /* %s/ */
+	i += (strlen(name) + 3);
+	i += (strlen(q) + 2); /* " %s", one more for '\0' */
+	p = malloc(i);
+	if (p != NULL) {
+		snprintf(p, i, "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, q);
+		system(p);
+		free(p);
+	}
+#endif
 	free(kver);
 	ret = EXIT_SUCCESS;
 
@@ -105,7 +144,7 @@ int utils_install_kernel_module(char *name, char *args)
 int utils_remove_kernel_module(char *name)
 {
 	mod_dep_t *mdp;
-	char buf[128];
+	//char buf[128];
 	char *p, *q, *l;
 	int i;
 	int ret = EXIT_FAILURE;
@@ -115,8 +154,19 @@ int utils_remove_kernel_module(char *name)
 	}
 
 	/* first rmmod the kernel module directly */
+#if 0
 	snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, name);
 	system(buf);
+#else
+	i = strlen(CMD_RMMOD) + strlen(name) + 2;
+	p = malloc(i);
+	if (p == NULL) {
+		return ret;
+	}
+	snprintf(p, i, "%s %s", CMD_RMMOD, name);
+	system(p);
+	free(p);
+#endif
 
 	/* then check if we can rmmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
@@ -131,8 +181,13 @@ int utils_remove_kernel_module(char *name)
 						p = q+1;
 					}
 
+				#if 0
 					snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, p);
 					system(buf);
+				#else
+					/* check it recursively */
+					utils_remove_kernel_module(p);
+				#endif
 
 					if (q != NULL) {
 						*q = '\0';
