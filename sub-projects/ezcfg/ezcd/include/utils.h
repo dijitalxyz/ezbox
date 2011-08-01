@@ -28,6 +28,9 @@
 /* boot config file path */
 #define BOOT_CONFIG_FILE_PATH   "/boot/ezbox_boot.cfg"
 
+/* upgrade config file path */
+#define UPGRADE_CONFIG_FILE_PATH   "/boot/ezbox_upgrade.cfg"
+
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
 
@@ -45,6 +48,9 @@
 
 /* Linux kernel version */
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
+
+/* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
+#define KERNEL_COMMAND_LINE_SIZE	512
 
 typedef struct rc_func_s {
 	char *name;

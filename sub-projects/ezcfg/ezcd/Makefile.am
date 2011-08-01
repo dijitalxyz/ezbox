@@ -48,6 +48,8 @@ ezcd_SOURCES += src/utils/utils_handle_kernel_module.c
 ezcd_SOURCES += src/utils/utils_mount_partition.c
 ezcd_SOURCES += src/utils/utils_get_bootcfg_keyword.c
 ezcd_SOURCES += src/utils/utils_get_device_info.c
+ezcd_SOURCES += src/utils/utils_sync_cfg_with_nvram.c
+ezcd_SOURCES += src/utils/utils_sync_nvram_with_cfg.c
 if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/utils/utils_get_wan_type.c
 endif

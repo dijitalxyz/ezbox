@@ -74,22 +74,12 @@
 	} \
 } while(0)
 
-/* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
-#define COMMAND_LINE_SIZE	512
-
 int rc_preboot(int flag)
 {
         FILE *file = NULL;
-	char buf[COMMAND_LINE_SIZE];
+	char buf[KERNEL_COMMAND_LINE_SIZE];
 	int rc;
 	char *p, *q;
-	int i;
-	struct stat stat_buf;
-	char dev_buf[64];
-	char fs_type_buf[64];
-	char *dev = NULL;
-	char *fs_type = NULL;
-	char *args = NULL;
 
 	switch (flag) {
 	case RC_BOOT :
@@ -166,70 +156,7 @@ int rc_preboot(int flag)
 		}
 
 		/* prepare boot device path */
-#if 0
-		rc = utils_get_boot_device_path(buf, sizeof(buf));
-		if (rc > 0) {
-			int i;
-			struct stat stat_buf;
-			char path[64];
-			char fs_type[64];
-
-			snprintf(path, sizeof(path), "/dev/%s", buf);
-
-			for (i = 10; i > 0; i--) {
-				if (stat(path, &stat_buf) == 0) {
-					if (S_ISBLK(stat_buf.st_mode)) {
-						/* mount /dev/sda1 /boot */
-						rc = utils_get_boot_device_fs_type(fs_type, sizeof(fs_type));
-						if (rc > 0) {
-							if (strcmp(fs_type, "ntfs-3g") == 0) {
-								snprintf(buf, sizeof(buf), "%s -o ro %s /boot", "/usr/bin/ntfs-3g", path);
-							}
-							else {
-								snprintf(buf, sizeof(buf), "%s -r -t %s %s /boot", CMD_MOUNT, fs_type, path);
-							}
-						}
-						else {
-							snprintf(buf, sizeof(buf), "%s -r %s /boot", CMD_MOUNT, path);
-						}
-						system(buf);
-					}
-					break;
-				}
-				/* wait a second then try again */
-				sleep(1);
-			}
-		}
-#else
-		rc = utils_get_boot_device_path(buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
-			dev = dev_buf;
-		}
-
-		rc = utils_get_boot_device_fs_type(buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
-			fs_type = fs_type_buf;
-			if (strcmp(fs_type, "ntfs-3g") == 0)
-				args = "-o ro";
-			else
-				args = "-r";
-		}
-
-		i = (dev == NULL) ? 0 : 10;
-		for ( ; i > 0; sleep(1), i--) {
-			if (stat(dev, &stat_buf) != 0)
-				continue;
-
-			if (S_ISBLK(stat_buf.st_mode) == 0)
-				continue;
-
-			/* mount /dev/sda1 /boot */
-			rc = utils_mount_partition(dev, "/boot", fs_type, args);
-			break;
-		}
-#endif
+		utils_mount_boot_partition_readonly();
 
 		break;
 	}

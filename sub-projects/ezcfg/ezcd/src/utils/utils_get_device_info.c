@@ -80,7 +80,9 @@ int utils_get_data_device_path(char *buf, int buf_len)
 		if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				/* get data device path string */
-				p = utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH, "data_dev=", DEVICE_INFO_PATH_INDEX);
+				p = utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH,
+					NVRAM_SERVICE_OPTION(SYS, DATA_DEV) "=",
+					DEVICE_INFO_PATH_INDEX);
 				if (p != NULL) {
 					rc = snprintf(buf, buf_len, "%s", p);
 					free(p);
@@ -105,7 +107,9 @@ int utils_get_data_device_fs_type(char *buf, int buf_len)
 		if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
 			if (S_ISREG(stat_buf.st_mode)) {
 				/* get data device file system type string */
-				p = utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH, "data_dev=", DEVICE_INFO_FS_TYPE_INDEX);
+				p = utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH,
+					NVRAM_SERVICE_OPTION(SYS, DATA_DEV) "=",
+					DEVICE_INFO_FS_TYPE_INDEX);
 				if (p != NULL) {
 					rc = snprintf(buf, buf_len, "%s", p);
 					free(p);

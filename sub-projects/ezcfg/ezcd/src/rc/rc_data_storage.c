@@ -77,44 +77,11 @@
 int rc_data_storage(int flag)
 {
 	char buf[64];
-	char dev_buf[64];
-	char fs_type_buf[64];
-	char *dev = NULL;
-	char *fs_type = NULL;
-	char *args = NULL;
-	int rc;
-	int i;
-	struct stat stat_buf;
 
 	switch (flag) {
 	case RC_BOOT :
 		/* prepare dynamic data storage path */
-		rc = utils_get_data_device_path(buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
-			dev = dev_buf;
-		}
-
-		rc = utils_get_data_device_fs_type(buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
-			fs_type = fs_type_buf;
-			if (strcmp(fs_type, "ntfs-3g") != 0)
-				args = "-w";
-		}
-
-		i = (dev == NULL) ? 0 : 10;
-		for ( ; i > 0; sleep(1), i--) {
-			if (stat(dev, &stat_buf) != 0)
-				continue;
-
-			if (S_ISBLK(stat_buf.st_mode) == 0)
-				continue;
-
-			/* mount /dev/sda2 /var */
-			rc = utils_mount_partition(dev, "/var", fs_type, args);
-			break;
-		}
+		utils_mount_data_partition_writable();
 
 		snprintf(buf, sizeof(buf), "%s a+rwx /var", CMD_CHMOD);
 		system(buf);

@@ -52,12 +52,27 @@ int rc_nvram(int flag)
 	switch (flag) {
 	case RC_BOOT :
 		/* generate nvram config file */
-		pop_etc_nvram_conf(flag);
+		pop_etc_nvram_conf(RC_BOOT);
+		/* update nvram with ezbox_boot.cfg */
+		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH);
 		break;
 
 	case RC_RELOAD :
 		/* re-generate nvram config file */
-		pop_etc_nvram_conf(flag);
+		pop_etc_nvram_conf(RC_RELOAD);
+		/* update nvram with ezbox_upgrade.cfg */
+		utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH);
+		break;
+
+	case RC_STOP :
+		/* first make /boot writable */
+		utils_remount_boot_partition_writable();
+		/* remove ezbox_upgrade.cfg */
+		unlink(UPGRADE_CONFIG_FILE_PATH);
+		/* update ezbox_boot.cfg with nvram */
+		utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH);
+		/* make /boot read-only */
+		utils_remount_boot_partition_readonly();
 		break;
 	}
 	return (EXIT_SUCCESS);

@@ -75,13 +75,6 @@ int utils_install_kernel_module(char *name, char *args)
 		return ret;
 	}
 
-#if 0
-	kver = utils_get_kernel_version();
-	if (kver == NULL) {
-		return ret;
-	}
-#endif
-
 	/* first check if we should insmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
 		mdp = &mod_depends[i];
@@ -94,13 +87,8 @@ int utils_install_kernel_module(char *name, char *args)
 					if (q != NULL)
 						*q = '\0';
 
-				#if 0
-					snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko", CMD_INSMOD, kver, p);
-					system(buf);
-				#else
 					/* check it recursively */
 					utils_install_kernel_module(p, NULL);
-				#endif
 
 					if (q != NULL)
 						p = q+1;
@@ -119,10 +107,6 @@ int utils_install_kernel_module(char *name, char *args)
 
 	/* then insmod the kernel module directly */
 	q = (args == NULL) ? "" : args;
-#if 0
-	snprintf(buf, sizeof(buf), "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, q);
-	system(buf);
-#else
 	i = strlen(CMD_INSMOD);
 	i += 14; /* strlen(" /lib/modules/") */
 	i += (strlen(kver) + 1); /* %s/ */
@@ -134,7 +118,6 @@ int utils_install_kernel_module(char *name, char *args)
 		system(p);
 		free(p);
 	}
-#endif
 	free(kver);
 	ret = EXIT_SUCCESS;
 
@@ -154,10 +137,6 @@ int utils_remove_kernel_module(char *name)
 	}
 
 	/* first rmmod the kernel module directly */
-#if 0
-	snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, name);
-	system(buf);
-#else
 	i = strlen(CMD_RMMOD) + strlen(name) + 2;
 	p = malloc(i);
 	if (p == NULL) {
@@ -166,7 +145,6 @@ int utils_remove_kernel_module(char *name)
 	snprintf(p, i, "%s %s", CMD_RMMOD, name);
 	system(p);
 	free(p);
-#endif
 
 	/* then check if we can rmmod related kernel modules */
 	for (i = 0; i < ARRAY_SIZE(mod_depends); i++) {
@@ -181,13 +159,7 @@ int utils_remove_kernel_module(char *name)
 						p = q+1;
 					}
 
-				#if 0
-					snprintf(buf, sizeof(buf), "%s %s", CMD_RMMOD, p);
-					system(buf);
-				#else
-					/* check it recursively */
 					utils_remove_kernel_module(p);
-				#endif
 
 					if (q != NULL) {
 						*q = '\0';

@@ -30,6 +30,16 @@ int utils_get_data_device_fs_type(char *buf, int buf_len);
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 
 int utils_mount_partition(char *dev, char *path, char *fs_type, char *args);
+int utils_umount_partition(char *path);
+int utils_remount_partition(char *dev, char *path, char *fs_type, char *args);
+int utils_mount_boot_partition_readonly(void);
+int utils_mount_boot_partition_writable(void);
+int utils_remount_boot_partition_readonly(void);
+int utils_remount_boot_partition_writable(void);
+int utils_mount_data_partition_writable(void);
+
+int utils_sync_nvram_with_cfg(char *path);
+int utils_sync_cfg_with_nvram(char *path);
 
 rc_func_t *utils_find_rc_func(char *name);
 proc_stat_t *utils_find_pid_by_name(char *pidName);

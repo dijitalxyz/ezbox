@@ -114,3 +114,191 @@ int utils_mount_partition(char *dev, char *path, char *fs_type, char *args)
 	system(buf);
 	return (EXIT_SUCCESS);
 }
+
+int utils_umount_partition(char *path)
+{
+	char buf[128];
+
+	if (path == NULL)
+		return (EXIT_FAILURE);
+
+	/* umount dev from path */
+	snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, path);
+	system(buf);
+	return (EXIT_SUCCESS);
+}
+
+int utils_remount_partition(char *dev, char *path, char *fs_type, char *args)
+{
+	if (dev == NULL || path == NULL)
+		return (EXIT_FAILURE);
+
+	/* first umount dev from path */
+	utils_umount_partition(path);
+
+	/* wait a second */
+	sleep(1);
+
+	/* mount dev to path */
+	return utils_mount_partition(dev, path, fs_type, args);
+}
+
+int utils_mount_boot_partition_readonly(void)
+{
+	char buf[KERNEL_COMMAND_LINE_SIZE];
+	int rc, ret = EXIT_FAILURE;
+	int i;
+	struct stat stat_buf;
+	char dev_buf[64];
+	char fs_type_buf[64];
+	char *dev = NULL;
+	char *fs_type = NULL;
+	char *args = NULL;
+
+	/* prepare boot device path */
+	rc = utils_get_boot_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+		dev = dev_buf;
+	}
+
+	rc = utils_get_boot_device_fs_type(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
+		fs_type = fs_type_buf;
+		if (strcmp(fs_type, "ntfs-3g") == 0)
+			args = "-o ro";
+		else
+			args = "-r";
+	}
+
+	i = (dev == NULL) ? 0 : 10;
+	for ( ; i > 0; sleep(1), i--) {
+		if (stat(dev, &stat_buf) != 0)
+			continue;
+
+		if (S_ISBLK(stat_buf.st_mode) == 0)
+			continue;
+
+		/* mount /dev/sda1 /boot */
+		rc = utils_mount_partition(dev, "/boot", fs_type, args);
+		ret = EXIT_SUCCESS;
+		break;
+	}
+
+	return (ret);
+}
+
+int utils_mount_boot_partition_writable(void)
+{
+	char buf[KERNEL_COMMAND_LINE_SIZE];
+	int rc, ret = EXIT_FAILURE;
+	int i;
+	struct stat stat_buf;
+	char dev_buf[64];
+	char fs_type_buf[64];
+	char *dev = NULL;
+	char *fs_type = NULL;
+	char *args = NULL;
+
+	/* prepare boot device path */
+	rc = utils_get_boot_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+		dev = dev_buf;
+	}
+
+	rc = utils_get_boot_device_fs_type(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
+		fs_type = fs_type_buf;
+		if (strcmp(fs_type, "ntfs-3g") == 0)
+			args = NULL;
+		else
+			args = "-w";
+	}
+
+	i = (dev == NULL) ? 0 : 10;
+	for ( ; i > 0; sleep(1), i--) {
+		if (stat(dev, &stat_buf) != 0)
+			continue;
+
+		if (S_ISBLK(stat_buf.st_mode) == 0)
+			continue;
+
+		/* mount /dev/sda1 /boot */
+		rc = utils_mount_partition(dev, "/boot", fs_type, args);
+		ret = EXIT_SUCCESS;
+		break;
+	}
+
+	return (ret);
+}
+
+int utils_remount_boot_partition_readonly(void)
+{
+	/* first umount dev from /boot */
+	utils_umount_partition("/boot");
+
+	/* wait a second */
+	sleep(1);
+
+	/* prepare boot device path */
+	return utils_mount_boot_partition_readonly();
+}
+
+int utils_remount_boot_partition_writable(void)
+{
+	/* first umount dev from /boot */
+	utils_umount_partition("/boot");
+
+	/* wait a second */
+	sleep(1);
+
+	/* prepare boot device path */
+	return utils_mount_boot_partition_writable();
+}
+
+int utils_mount_data_partition_writable(void)
+{
+	char buf[64];
+	char dev_buf[64];
+	char fs_type_buf[64];
+	char *dev = NULL;
+	char *fs_type = NULL;
+	char *args = NULL;
+	int rc, ret = EXIT_FAILURE;
+	int i;
+	struct stat stat_buf;
+
+	/* prepare dynamic data storage path */
+	rc = utils_get_data_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+		dev = dev_buf;
+	}
+
+	rc = utils_get_data_device_fs_type(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
+		fs_type = fs_type_buf;
+		if (strcmp(fs_type, "ntfs-3g") != 0)
+			args = "-w";
+	}
+
+	i = (dev == NULL) ? 0 : 10;
+	for ( ; i > 0; sleep(1), i--) {
+		if (stat(dev, &stat_buf) != 0)
+			continue;
+
+		if (S_ISBLK(stat_buf.st_mode) == 0)
+			continue;
+
+		/* mount /dev/sda2 /var */
+		rc = utils_mount_partition(dev, "/var", fs_type, args);
+		ret = EXIT_SUCCESS;
+		break;
+	}
+
+	return (ret);
+}

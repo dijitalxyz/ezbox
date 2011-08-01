@@ -39,14 +39,11 @@
 
 #include "ezcd.h"
 
-/* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
-#define COMMAND_LINE_SIZE	512
-
 int pop_etc_modules(int flag)
 {
 	FILE *file;
 	char *p, *q;
-	char buf[COMMAND_LINE_SIZE];
+	char buf[KERNEL_COMMAND_LINE_SIZE];
 	int rc;
 
 	file = fopen("/etc/modules", "w");
