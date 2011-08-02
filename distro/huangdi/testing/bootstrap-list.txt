@@ -1,10 +1,12 @@
 # basic packages
+package/crda:package/crda
 package/dnsmasq:package/dnsmasq
 package/dropbear:package/dropbear
 package/e2fsprogs:package/e2fsprogs
 package/fuse:package/fuse
 package/hostapd:package/hostapd
 package/iproute2:package/iproute2
+package/iw:package/iw
 # kernel modules package
 package/kernel/modules/extra-block.mk:package/kernel/modules/extra-block.mk
 package/libnl-tiny:package/libnl-tiny
