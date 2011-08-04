@@ -119,6 +119,13 @@ if CONFIG_EZBOX_LAN_NIC
 ezcd_SOURCES += src/rc/rc_lan_if.c
 ezcd_SOURCES += src/rc/rc_lan.c
 endif
+if CONFIG_EZBOX_WLAN_NIC
+ezcd_SOURCES += src/rc/rc_wlan_if.c
+if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
+ezcd_SOURCES += src/rc/rc_wpa_supplicant.c
+ezcd_SOURCES += src/pop/pop_etc_wpa_supplicant_conf.c
+endif
+endif
 if CONFIG_EZBOX_WAN_NIC
 ezcd_SOURCES += src/rc/rc_wan_if.c
 ezcd_SOURCES += src/rc/rc_wan.c

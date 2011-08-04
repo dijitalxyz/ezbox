@@ -66,6 +66,25 @@ AC_ARG_ENABLE([lan-nic],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_LAN_NIC, test "x$config_ezbox_lan_nic" = xyes)
 
+# Configure WLAN NIC.
+config_ezbox_wlan_nic=yes
+AC_MSG_CHECKING([if WLAN network interface is enabled])
+AC_ARG_ENABLE([wlan-nic],
+	AS_HELP_STRING([--enable-wlan-nic], [Enable WLAN network interface (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_wlan_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_WLAN_NIC], [1], [Enable WLAN network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_WLAN_NIC], [1], [Enable WLAN network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_WLAN_NIC, test "x$config_ezbox_wlan_nic" = xyes)
+
 # Configure WAN NIC.
 config_ezbox_wan_nic=yes
 AC_MSG_CHECKING([if WAN network interface is enabled])
@@ -284,6 +303,25 @@ AC_ARG_ENABLE([service-dillo],
 	[AC_MSG_RESULT(no)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DILLO, test "x$config_ezbox_service_dillo" = xyes)
+
+# Configure wpa_supplicant service.
+config_ezbox_service_wpa_supplicant=no
+AC_MSG_CHECKING([if wpa_supplicant service is enabled])
+AC_ARG_ENABLE([service-wpa_supplicant],
+	AS_HELP_STRING([--enable-service-wpa_supplicant], [Enable wpa_supplicant service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_WPA_SUPPLICANT], [1], [Enable wpa_supplicant service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_wpa_supplicant=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT, test "x$config_ezbox_service_wpa_supplicant" = xyes)
 
 # Configure EMC2 (Enhanced Machine Controller) service.
 config_ezbox_service_emc2=no

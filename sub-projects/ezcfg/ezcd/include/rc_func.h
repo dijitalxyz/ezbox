@@ -87,6 +87,13 @@ extern int rc_lan_if(int flag);
 extern int rc_lan_services(int flag);
 #endif
 
+#if (HAVE_EZBOX_WLAN_NIC == 1)
+extern int rc_wlan_if(int flag);
+#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
+extern int rc_wpa_supplicant(int flag);
+#endif
+#endif
+
 #if (HAVE_EZBOX_WAN_NIC == 1)
 extern int rc_wan(int flag);
 extern int rc_wan_if(int flag);

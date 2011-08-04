@@ -58,6 +58,10 @@ rc_func_t rc_functions[] = {
 	{ "lan", RC_BOOT, rc_lan },
 	{ "lan_if", RC_BOOT, rc_lan_if },
 #endif
+#if (HAVE_EZBOX_WLAN_NIC == 1)
+	{ "wlan_if", RC_BOOT, rc_wlan_if },
+	{ "wpa_supplicant", RC_BOOT, rc_wpa_supplicant },
+#endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	{ "wan", RC_BOOT, rc_wan },
 	{ "wan_if", RC_BOOT, rc_wan_if },

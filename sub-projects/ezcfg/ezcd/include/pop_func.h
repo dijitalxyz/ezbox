@@ -26,6 +26,9 @@ extern int pop_etc_l7_protocols(int flag);
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 extern int pop_etc_dillo_dillorc(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
+extern int pop_etc_wpa_supplicant_conf(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
 extern int pop_etc_emc2_rtapi_conf(int flag);
 extern int pop_etc_emc2_configs(int flag);

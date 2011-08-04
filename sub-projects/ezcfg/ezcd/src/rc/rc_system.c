@@ -204,6 +204,11 @@ int rc_system(int flag)
 		rc_lan_if(RC_START);
 #endif
 
+		/* bring up WLAN interface link up but not configurate it */
+#if (HAVE_EZBOX_WLAN_NIC == 1)
+		rc_wlan_if(RC_START);
+#endif
+
 		/* bring up WAN interface link up but not configurate it */
 		/* LAN interface alias need it */
 #if (HAVE_EZBOX_WAN_NIC == 1)
