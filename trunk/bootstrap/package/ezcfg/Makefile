@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1088
+PKG_REV:=1090
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -101,6 +101,25 @@ endif
 ifneq ($(CONFIG_PACKAGE_dillo),)
 CONFIGURE_ARGS += \
 	--enable-service-dillo
+endif
+
+# set wpa_supplicant service
+ifneq ($(CONFIG_PACKAGE_wpa-supplicant),)
+CONFIGURE_ARGS += \
+	--enable-service-wpa_supplicant
+endif
+
+# set hostapd service
+ifneq ($(CONFIG_PACKAGE_hostapd),)
+CONFIGURE_ARGS += \
+	--enable-service-hostapd
+endif
+
+# set wireless STA and AP service
+ifneq ($(CONFIG_PACKAGE_wpad),)
+CONFIGURE_ARGS += \
+	--enable-service-wpa_supplicant \
+	--enable-service-hostapd
 endif
 
 # set  EMC2 (Enhanced Machine Controller) service

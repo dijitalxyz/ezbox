@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue Aug  2 16:09:22 2011
+# Thu Aug  4 19:24:49 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -139,7 +139,7 @@ CONFIG_TARGET_ROOTFS_DIR=""
 CONFIG_EXTERNAL_KERNEL_TREE=""
 CONFIG_KERNEL_GIT_CLONE_URI=""
 CONFIG_KERNEL_GIT_LOCAL_REPOSITORY=""
-# CONFIG_BUILD_LOG is not set
+CONFIG_BUILD_LOG=y
 CONFIG_TARGET_OPTIONS=y
 CONFIG_TARGET_OPTIMIZATION="-O2 -pipe -march=i486 -fno-caller-saves"
 # CONFIG_EXTERNAL_TOOLCHAIN is not set
