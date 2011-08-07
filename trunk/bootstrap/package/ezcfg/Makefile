@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1090
+PKG_REV:=1093
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -77,6 +77,18 @@ endif
 ifeq ($(EZBOX_DISTRO), "qiaochui")
 CONFIGURE_ARGS += \
 	--disable-lan-nic
+endif
+
+# set syslog service
+ifneq ($(CONFIG_BUSYBOX_CONFIG_SYSLOGD),)
+CONFIGURE_ARGS += \
+	--enable-service-syslogd
+endif
+
+# set klog service
+ifneq ($(CONFIG_BUSYBOX_CONFIG_KLOGD),)
+CONFIGURE_ARGS += \
+	--enable-service-klogd
 endif
 
 # set telnet service
