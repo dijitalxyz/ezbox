@@ -12,6 +12,7 @@
 #define CMD_IFUP		"/sbin/ifup"
 #define CMD_INSMOD		"/sbin/insmod"
 #define CMD_KILLALL		"/bin/killall"
+#define CMD_KLOGD  		"/sbin/klogd"
 #define CMD_LDCONFIG  		"/sbin/ldconfig"
 #define CMD_LOGIN  		"/bin/login"
 #define CMD_MKDIR  		"/bin/mkdir"
@@ -21,6 +22,7 @@
 #define CMD_RM  		"/bin/rm"
 #define CMD_RMMOD  		"/sbin/rmmod"
 #define CMD_ROUTE  		"/sbin/route"
+#define CMD_SYSLOGD  		"/sbin/syslogd"
 #define CMD_TELNETD  		"/sbin/telnetd"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 #define CMD_UMOUNT		"/bin/umount"
@@ -52,10 +54,15 @@
 /* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
 #define KERNEL_COMMAND_LINE_SIZE	512
 
+#define RC_RUN_LEVEL(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
+
 typedef struct rc_func_s {
 	char *name;
 	int flag;
 	int (*func)(int flag);
+	int start;
+	int stop;
+	char *deps;
 } rc_func_t;
 
 typedef struct proc_stat_s {
@@ -70,6 +77,12 @@ enum {
 	RC_STOP,
 	RC_RESTART,
 	RC_RELOAD,
+};
+
+/* rc debug state */
+enum {
+	RC_DEBUG_UNKNOWN = 0,
+	RC_DEBUG_DUMP,
 };
 
 /* WAN type */

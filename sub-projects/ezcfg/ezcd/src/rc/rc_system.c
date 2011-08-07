@@ -90,6 +90,9 @@ int rc_system(int flag)
 		/* load preinit kernel modules */
 		rc_load_modules(RC_BOOT);
 
+		/* preinit mount system supported fs */
+		rc_mount_system_fs(RC_BOOT);
+
 		/* prepare dynamic data storage path */
 		rc_data_storage(RC_BOOT);
 
@@ -149,6 +152,16 @@ int rc_system(int flag)
 		rc_lan(RC_STOP);
 #endif
 
+		/* stop klog service */
+#if (HAVE_EZBOX_SERVICE_KLOGD == 1)
+		rc_klogd(RC_STOP);
+#endif
+
+		/* stop syslog service */
+#if (HAVE_EZBOX_SERVICE_SYSLOGD == 1)
+		rc_syslogd(RC_STOP);
+#endif
+
 		/* setup ezcm config file */
 		rc_ezcm(RC_STOP);
 
@@ -174,6 +187,16 @@ int rc_system(int flag)
 		/* re-generate ezcm config file */
 		rc_ezcm(RC_RELOAD);
 
+		/* start syslog service */
+#if (HAVE_EZBOX_SERVICE_SYSLOGD == 1)
+		rc_syslogd(RC_START);
+#endif
+
+		/* start klog service */
+#if (HAVE_EZBOX_SERVICE_KLOGD == 1)
+		rc_klogd(RC_START);
+#endif
+
 		/* restart hotplug2 */
 		rc_hotplug2(RC_RESTART);
 
@@ -182,6 +205,9 @@ int rc_system(int flag)
 
 		/* load kernel modules */
 		rc_load_modules(RC_START);
+
+		/* mount system supported fs */
+		rc_mount_system_fs(RC_START);
 
 		/* load iptables/netfileter kernel modules */
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)

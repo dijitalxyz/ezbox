@@ -40,6 +40,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 
 #if 0
 #define DBG(format, args...) do {\
@@ -81,6 +82,14 @@ int rc_main(int argc, char **argv)
 			flag = RC_STOP;
 		else if (strcmp(argv[2], "reload") == 0)
 			flag = RC_RELOAD;
+	}
+
+	/* FIXME: for rc debug only */
+	if ((f != NULL) && (f->func == rc_debug)) {
+			flag = RC_DEBUG_UNKNOWN;
+		if (strcmp(argv[2], "dump") == 0)
+			flag = RC_DEBUG_DUMP;
+		return f->func(flag);
 	}
 
 	if (argc == 4) {

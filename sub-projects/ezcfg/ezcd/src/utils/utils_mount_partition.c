@@ -235,6 +235,28 @@ int utils_mount_boot_partition_writable(void)
 	return (ret);
 }
 
+#if 0
+static int remount_boot_partition(char *args)
+{
+	char buf[KERNEL_COMMAND_LINE_SIZE];
+	int rc;
+	char dev_buf[64];
+
+	if (args == NULL)
+		args = "";
+
+	/* prepare boot device path */
+	rc = utils_get_boot_device_path(buf, sizeof(buf));
+	if (rc <= 0)
+		return (EXIT_FAILURE);
+
+	snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+	snprintf(buf, sizeof(buf), "%s -o remount %s %s %s", CMD_MOUNT, args, dev_buf, "/boot");
+	system(buf);
+	return (EXIT_SUCCESS);
+}
+#endif
+
 int utils_remount_boot_partition_readonly(void)
 {
 	/* first umount dev from /boot */

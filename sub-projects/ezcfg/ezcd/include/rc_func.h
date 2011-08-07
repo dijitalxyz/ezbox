@@ -1,6 +1,7 @@
 #ifndef _RC_FUNC_H_
 #define _RC_FUNC_H_
 
+extern int rc_debug(int flag);
 extern int rc_base_files(int flag);
 extern int rc_ldconfig(int flag);
 extern int rc_ezcd(int flag);
@@ -20,18 +21,29 @@ extern int rc_hotplug2(int flag);
 extern int rc_data_storage(int flag);
 extern int rc_init(int flag);
 extern int rc_load_modules(int flag);
+extern int rc_mount_system_fs(int flag);
 extern int rc_login(int flag);
 extern int rc_loopback(int flag);
 extern int rc_netbase(int flag);
 extern int rc_system(int flag);
 
-#if (HAVE_EZBOX_SERVICE_SYSLOG == 1)
-extern int rc_syslog(int flag);
+#if (HAVE_EZBOX_SERVICE_SYSLOGD == 1)
+extern int rc_syslogd(int flag);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_syslog(int flag);
+extern int rc_lan_syslogd(int flag);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_syslog(int flag);
+extern int rc_wan_syslogd(int flag);
+#endif
+#endif
+
+#if (HAVE_EZBOX_SERVICE_KLOGD == 1)
+extern int rc_klogd(int flag);
+#if (HAVE_EZBOX_LAN_NIC == 1)
+extern int rc_lan_klogd(int flag);
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
+extern int rc_wan_klogd(int flag);
 #endif
 #endif
 

@@ -36,13 +36,27 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/tmp/wpa_supplicant.debug", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 int rc_wpa_supplicant(int flag)
 {
-	char buf[64];
+	char wlan_nic[IFNAMSIZ];
 	char cmd[256];
 	int rc;
 
@@ -53,13 +67,13 @@ int rc_wpa_supplicant(int flag)
 			return (EXIT_FAILURE);
 		}
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WLAN, IFNAME), buf, sizeof(buf));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), wlan_nic, sizeof(wlan_nic));
 		if (rc <= 0) {
 			return (EXIT_FAILURE);
 		}
 
 		pop_etc_wpa_supplicant_conf(RC_START);
-		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i %s -c /etc/wpa_supplicant-%s.conf", buf, buf);
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -B -D%s -i%s -c/etc/wpa_supplicant-%s.conf", "nl80211", wlan_nic, wlan_nic);
 #if 0
 		system("start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i wlan0 -c /etc/wpa_supplicant-wlan0.conf");
 #else

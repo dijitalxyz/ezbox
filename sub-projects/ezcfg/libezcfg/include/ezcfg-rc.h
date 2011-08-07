@@ -18,7 +18,8 @@
 #define EZCFG_RC_NVRAM_PREFIX            "rc_"
 
 /* ezcfg rc control names */
-#define EZCFG_RC_SYSLOG_ENABLE           "syslog_enable"
+#define EZCFG_RC_SYSLOGD_ENABLE          "syslogd_enable"
+#define EZCFG_RC_KLOGD_ENABLE            "klogd_enable"
 #define EZCFG_RC_TELNETD_ENABLE          "telnetd_enable"
 #define EZCFG_RC_TELNETD_BINDING         "telnetd_binding"
 #define EZCFG_RC_DNSMASQ_ENABLE          "dnsmasq_enable"

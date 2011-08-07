@@ -34,6 +34,7 @@ ezcd_SOURCES += src/rc/rc_preboot.c
 ezcd_SOURCES += src/rc/rc_data_storage.c
 ezcd_SOURCES += src/rc/rc_system.c
 ezcd_SOURCES += src/rc/rc_func.c
+ezcd_SOURCES += src/rc/rc_debug.c
 
 # utils
 ezcd_SOURCES += src/utils/utils_check_ezcd.c
@@ -97,6 +98,9 @@ ezcd_SOURCES += src/rc/rc_hotplug2.c
 ezcd_SOURCES += src/pop/pop_etc_modules.c
 ezcd_SOURCES += src/rc/rc_load_modules.c
 
+# mount system fs
+ezcd_SOURCES += src/rc/rc_mount_system_fs.c
+
 # init
 ezcd_SOURCES += src/pop/pop_etc_inittab.c
 ezcd_SOURCES += src/rc/rc_init.c
@@ -131,9 +135,14 @@ ezcd_SOURCES += src/rc/rc_wan_if.c
 ezcd_SOURCES += src/rc/rc_wan.c
 endif
 
-# syslog service
-if CONFIG_EZBOX_SERVICE_SYSLOG
-ezcd_SOURCES += src/rc/rc_syslog.c
+# syslogd service
+if CONFIG_EZBOX_SERVICE_SYSLOGD
+ezcd_SOURCES += src/rc/rc_syslogd.c
+endif
+
+# klogd service
+if CONFIG_EZBOX_SERVICE_KLOGD
+ezcd_SOURCES += src/rc/rc_klogd.c
 endif
 
 # telnet service

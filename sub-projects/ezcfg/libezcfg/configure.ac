@@ -172,15 +172,15 @@ AC_ARG_ENABLE([service-openssl],
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_OPENSSL, test "x$config_ezbox_service_openssl" = xyes)
 
 # Configure syslog service.
-config_ezbox_service_syslog=no
+config_ezbox_service_syslogd=no
 AC_MSG_CHECKING([if syslog service is enabled])
-AC_ARG_ENABLE([service-syslog],
-	AS_HELP_STRING([--enable-service-syslog], [Enable syslog service (default no)]),
+AC_ARG_ENABLE([service-syslogd],
+	AS_HELP_STRING([--enable-service-syslogd], [Enable syslog service (default no)]),
 	[case "$enableval" in
 	yes)
-		AC_DEFINE([HAVE_EZBOX_SERVICE_SYSLOG], [1], [Enable syslog service])
+		AC_DEFINE([HAVE_EZBOX_SERVICE_SYSLOGD], [1], [Enable syslog service])
 		AC_MSG_RESULT(yes)
-		config_ezbox_service_syslog=yes
+		config_ezbox_service_syslogd=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -188,7 +188,26 @@ AC_ARG_ENABLE([service-syslog],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_SYSLOG, test "x$config_ezbox_service_syslog" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_SYSLOGD, test "x$config_ezbox_service_syslogd" = xyes)
+
+# Configure klog service.
+config_ezbox_service_klogd=no
+AC_MSG_CHECKING([if klog service is enabled])
+AC_ARG_ENABLE([service-klogd],
+	AS_HELP_STRING([--enable-service-klogd], [Enable klog service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_KLOGD], [1], [Enable klog service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_klogd=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KLOGD, test "x$config_ezbox_service_klogd" = xyes)
 
 # Configure telnet service.
 config_ezbox_service_telnetd=no

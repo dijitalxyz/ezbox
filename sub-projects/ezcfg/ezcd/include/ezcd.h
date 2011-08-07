@@ -42,6 +42,9 @@ int utils_sync_nvram_with_cfg(char *path);
 int utils_sync_cfg_with_nvram(char *path);
 
 rc_func_t *utils_find_rc_func(char *name);
+int utils_get_rc_funcs_number(void);
+char *utils_get_rc_func_name(int i);
+
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 bool utils_has_process_by_name(char *pidName);
 uint32_t utils_crc32(unsigned char *data, int len);

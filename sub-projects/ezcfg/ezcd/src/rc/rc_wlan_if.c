@@ -39,6 +39,41 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
+
+static int start_wlan_if(void)
+{
+	int rc;
+	char buf[64];
+
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WLAN, NODE_TYPE), buf, sizeof(buf));
+	if (rc > 0) {
+#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
+		if (strcmp(buf, "sta") == 0) {
+			/* wireless client node */
+			return rc_wpa_supplicant(RC_START);
+		}
+#endif
+	}
+	return (EXIT_FAILURE);
+}
+
+static int stop_wlan_if(void)
+{
+	int rc;
+	char buf[64];
+
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WLAN, NODE_TYPE), buf, sizeof(buf));
+	if (rc > 0) {
+#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
+		if (strcmp(buf, "sta") == 0) {
+			/* wireless client node */
+			return rc_wpa_supplicant(RC_STOP);
+		}
+#endif
+	}
+	return (EXIT_FAILURE);
+}
 
 int rc_wlan_if(int flag)
 {
@@ -56,9 +91,13 @@ int rc_wlan_if(int flag)
 		/* bring up WLAN interface, but not config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, wlan_ifname);
 		ret = system(cmdline);
+		/* setup WLAN interface phy link */
+		ret = start_wlan_if();
 		break;
 
 	case RC_STOP :
+		/* clean WLAN interface phy link */
+		ret = stop_wlan_if();
 		/* bring down WLAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, wlan_ifname);
 		ret = system(cmdline);
