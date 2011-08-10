@@ -89,7 +89,6 @@ d:target/linux/generic/
 d:package/Makefile
 d:package/base-files/
 d:package/busybox/
-d:package/hotplug2/
 d:package/kernel/
 d:package/libtool/
 d:package/librpc/
