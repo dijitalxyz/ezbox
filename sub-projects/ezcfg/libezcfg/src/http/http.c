@@ -5,7 +5,7 @@
  * Description  : implement HTTP/1.1 protocol (RFC 2616)
  *                and it's extension (RFC 2774)
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch

@@ -4,7 +4,7 @@
  *
  * Description  : implement authentications
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-08   0.1       Write it from scratch

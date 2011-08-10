@@ -54,6 +54,7 @@
 #define EZCFG_SOCK_ROOT_PATH	"@/org/ezbox/ezcfg/sock"
 #define EZCFG_SOCK_CTRL_PATH	EZCFG_SOCK_ROOT_PATH "/ctrl"
 #define EZCFG_SOCK_NVRAM_PATH	EZCFG_SOCK_ROOT_PATH "/nvram"
+#define EZCFG_SOCK_UEVENT_PATH	EZCFG_SOCK_ROOT_PATH "/uevent"
 #define EZCFG_SOCK_MASTER_PATH	EZCFG_SOCK_ROOT_PATH "/master"
 
 /* thread config definitions */
@@ -128,11 +129,13 @@
 #define EZCFG_PROTO_SOAP_HTTP	2
 #define EZCFG_PROTO_IGRS	3
 #define EZCFG_PROTO_ISDP	4
+#define EZCFG_PROTO_UEVENT	5
 #define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
 #define EZCFG_SOCKET_PROTO_HTTP_STRING            "1"
 #define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "2"
 #define EZCFG_SOCKET_PROTO_IGRS_STRING            "3"
 #define EZCFG_SOCKET_PROTO_ISDP_STRING            "4"
+#define EZCFG_SOCKET_PROTO_UEVENT_STRING          "5"
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
@@ -356,6 +359,11 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
 void ezcfg_master_reload(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
+
+/* uevent/uevent.c */
+struct ezcfg_uevent;
+void ezcfg_uevent_delete(struct ezcfg_uevent *uevent);
+struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg);
 
 /* igrs/igrs.c */
 struct ezcfg_igrs;

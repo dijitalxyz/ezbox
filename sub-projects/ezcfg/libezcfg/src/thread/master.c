@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -892,6 +892,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		goto start_out;
 	}
 
+	/* setup nvram socket */
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
 
@@ -919,6 +920,37 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	ezcfg_socket_set_close_on_exec(sp);
 
+	/* setup udev socket */
+	/* lock mutex before handling listening_sockets */
+	pthread_mutex_lock(&(master->ls_mutex));
+
+	sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, EZCFG_SOCK_UEVENT_PATH);
+
+	/* unlock mutex after handling listening_sockets */
+	pthread_mutex_unlock(&(master->ls_mutex));
+
+	if (sp == NULL) {
+		err(ezcfg, "can not add udev socket");
+		goto load_other_sockets;
+	}
+
+	if (ezcfg_socket_enable_receiving(sp) < 0) {
+		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+		goto load_other_sockets;
+	}
+
+#if 0
+	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
+		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
+		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+		goto load_other_sockets;
+	}
+#endif
+
+	ezcfg_socket_set_close_on_exec(sp);
+
+load_other_sockets:
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
 	master_load_auth_conf(master);

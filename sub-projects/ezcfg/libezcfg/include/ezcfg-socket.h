@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
+ * 2011-08-09             Add linux netlink socket
  * ============================================================================
  */
 
@@ -17,6 +18,7 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <netinet/in.h>
+#include <linux/netlink.h>
 
 #include "ezcfg.h"
 
@@ -32,6 +34,7 @@ struct usa {
 		struct sockaddr sa;
 		struct sockaddr_un sun;
 		struct sockaddr_in sin;
+		struct sockaddr_nl snl;
         } u;
 };
 

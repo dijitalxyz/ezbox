@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -89,6 +89,9 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 		break;
 	case EZCFG_PROTO_IGRS :
 		ezcfg_igrs_reset_attributes(worker->proto_data);
+		break;
+	case EZCFG_PROTO_UEVENT :
+		info(ezcfg, "UEVENT reset attributes\n");
 		break;
 	default :
 		err(ezcfg, "unknown protocol\n");
@@ -1085,6 +1088,45 @@ exit:
 		free(buf);
 }
 
+static void process_uevent_new_connection(struct ezcfg_worker *worker)
+{
+	int header_len, nread;
+	char *buf;
+	int buf_len;
+	struct ezcfg *ezcfg;
+	struct ezcfg_uevent *uevent;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+	uevent = (struct ezcfg_uevent *)(worker->proto_data);
+	buf_len = 20 * 1024;
+
+	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for processing igrs new connection\n");
+		return;
+	}
+	memset(buf, 0, buf_len);
+	nread = 0;
+	header_len = ezcfg_socket_read(worker->client, buf, buf_len, 0);
+
+	ASSERT(nread >= header_len);
+
+	if (header_len <= 0) {
+		err(ezcfg, "request error\n");
+		free(buf);
+		return; /* Request is too large or format is not correct */
+	}
+
+	info(ezcfg, "uevent=[%s]\n", buf);
+
+exit:
+	/* release buf memory */
+	if (buf != NULL)
+		free(buf);
+}
+
 static void init_protocol_data(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -1111,6 +1153,10 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 		break;
 	case EZCFG_PROTO_ISDP :
 		//worker->proto_data = ezcfg_isdp_new(ezcfg);
+		break;
+	case EZCFG_PROTO_UEVENT :
+		worker->proto_data = ezcfg_uevent_new(ezcfg);
+		info(ezcfg, "UEVENT protocol\n");
 		break;
 	default :
 		info(ezcfg, "unknown protocol\n");
@@ -1140,6 +1186,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		break;
 	case EZCFG_PROTO_ISDP :
 		//process_isdp_new_connection(worker);
+		break;
+	case EZCFG_PROTO_UEVENT :
+		process_uevent_new_connection(worker);
 		break;
 	default :
 		err(ezcfg, "unknown protocol\n");
@@ -1171,6 +1220,10 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_ISDP :
 		//ezcfg_isdp_delete(worker->proto_data);
 		//worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_UEVENT :
+		ezcfg_uevent_delete(worker->proto_data);
+		worker->proto_data = NULL;
 		break;
 	default :
 		err(ezcfg, "unknown protocol\n");

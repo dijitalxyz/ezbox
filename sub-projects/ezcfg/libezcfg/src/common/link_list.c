@@ -4,7 +4,7 @@
  *
  * Description  : single link list handler
  *
- * Copyright (C) 2010-2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-23   0.1       Write it from scrach

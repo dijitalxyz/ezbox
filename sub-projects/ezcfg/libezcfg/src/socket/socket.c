@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -103,12 +103,14 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	struct usa *usa = NULL;
 	char *addr = NULL, *port;
 	int sock_protocol = -1;
+	int buf_size = 16 * 1024 * 1024;
 
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
 
 	if ((domain != AF_LOCAL) &&
-	    (domain != AF_INET)){
+	    (domain != AF_INET) &&
+	    (domain != AF_NETLINK)){
 		err(ezcfg, "unknown socket family %d\n", domain);
 		return NULL;
 	}
@@ -116,7 +118,8 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	if (proto != EZCFG_PROTO_HTTP &&
 	    proto != EZCFG_PROTO_SOAP_HTTP &&
 	    proto != EZCFG_PROTO_IGRS &&
-	    proto != EZCFG_PROTO_ISDP) {
+	    proto != EZCFG_PROTO_ISDP &&
+	    proto != EZCFG_PROTO_UEVENT) {
 		err(ezcfg, "unknown communication protocol %d\n", proto);
 		return NULL;
 	}
@@ -132,7 +135,12 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	sp->proto = proto;
 
 	/* FIXME: should change sock_protocol w/r proto */
-	sock_protocol = 0;
+	if (proto == EZCFG_PROTO_UEVENT) {
+		sock_protocol = NETLINK_KOBJECT_UEVENT;
+	}
+	else {
+		sock_protocol = 0;
+	}
 
 	switch (domain) {
 	case AF_LOCAL:
@@ -184,6 +192,29 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		}
 		usa->len = sizeof(usa->u.sin);
 		free(addr);
+		break;
+
+	case AF_NETLINK:
+		sp->sock = socket(AF_NETLINK, type, sock_protocol);
+		if (sp->sock < 0) {
+			err(ezcfg, "socket error\n");
+			goto fail_exit;
+		}
+		/* set receive buffer size */
+		if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUFFORCE, &buf_size, sizeof(buf_size))) {
+			buf_size = 106496;
+			if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size))) {
+				err(ezcfg, "socket set receive buffer size error\n");
+				goto fail_exit;
+			}
+		}
+		usa = &(sp->lsa);
+		usa->domain = AF_NETLINK;
+		usa->type = type;
+		usa->u.snl.nl_family = AF_NETLINK;
+		usa->u.snl.nl_pid = getpid();
+		usa->u.snl.nl_groups = 1;
+		usa->len = sizeof(usa->u.snl);
 		break;
 
 	default:
@@ -451,6 +482,11 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		           (struct sockaddr *)&usa->u.sin, usa->len);
 		break;
 
+	case AF_NETLINK:
+		err = bind(sp->sock,
+		           (struct sockaddr *)&usa->u.snl, usa->len);
+		break;
+
 	default:
 		err(ezcfg, "unknown family [%d]\n", usa->domain);
 		return -EINVAL;
@@ -486,11 +522,14 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 
 	switch(usa->domain) {
 	case AF_LOCAL:
-		err = listen(sp->sock, backlog);
+	case AF_INET:
+		if (usa->type == SOCK_STREAM) {
+			err = listen(sp->sock, backlog);
+		}
 		break;
 
-	case AF_INET:
-		err = listen(sp->sock, backlog);
+	case AF_NETLINK:
+		info(ezcfg, "UEVENT not need listen\n");
 		break;
 
 	default:
@@ -637,6 +676,17 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 
 	case AF_INET:
 		accepted->rsa.len = sizeof(accepted->rsa.u.sin);
+		accepted->sock = accept(listener->sock,
+		                        &(accepted->rsa.u.sa),
+		                        &(accepted->rsa.len));
+		if (accepted->sock == -1) {
+			free(accepted);
+			return NULL;
+		}
+		break;
+
+	case AF_NETLINK:
+		accepted->rsa.len = sizeof(accepted->rsa.u.snl);
 		accepted->sock = accept(listener->sock,
 		                        &(accepted->rsa.u.sa),
 		                        &(accepted->rsa.len));

@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/thread.c
+ * File Name    : uevent/uevent.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-07-12   0.1       Write it from scratch
+ * 2011-08-10   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -30,43 +30,49 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/un.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <pthread.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+#include "ezcfg-uevent.h"
 
-/*
- * ezcfg-thread - ezbox config multi-threads model
- *
- */
+/**
+ * private functions
+ **/
 
-int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,
-	pthread_t *thread_id,
-	ezcfg_thread_func_t func,
-	void *param)
+/**
+ * Public functions
+ **/
+void ezcfg_uevent_delete(struct ezcfg_uevent *uevent)
 {
-	pthread_attr_t attr;
-	int retval;
+	struct ezcfg *ezcfg;
+
+	ASSERT(uevent != NULL);
+
+	ezcfg = uevent->ezcfg;
+
+	free(uevent);
+}
+
+/**
+ * ezcfg_uevent_new:
+ * Create ezcfg uevent protocol data structure
+ * Returns: a new ezcfg uevent protocol data structure
+ **/
+struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg)
+{
+	struct ezcfg_uevent *uevent;
 
 	ASSERT(ezcfg != NULL);
-	ASSERT(thread_id != NULL);
 
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	if (stacksize > 0) {
-		retval = pthread_attr_setstacksize(&attr, stacksize);
-		if (retval != 0) {
-			err(ezcfg, "%s: %s", __func__, strerror(retval));
-			return retval;
-		}
+	/* initialize uevent protocol data structure */
+	uevent = calloc(1, sizeof(struct ezcfg_uevent));
+	if (uevent == NULL) {
+		return NULL;
 	}
 
-	retval = pthread_create(thread_id, &attr, func, param);
-	if (retval != 0) {
-		err(ezcfg, "%s: %s", __func__, strerror(retval));
-	}
-	return retval;
+	memset(uevent, 0, sizeof(struct ezcfg_uevent));
+
+	return uevent;
 }
 

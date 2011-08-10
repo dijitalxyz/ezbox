@@ -4,7 +4,7 @@
  *
  * Description  : system language settings
  *
- * Copyright (C) 2010-2011 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-22   0.1       Write it from scrach

@@ -4,7 +4,7 @@
  *
  * Description  : implement Non-Volatile RAM default settings
  *
- * Copyright (C) 2010 by ezbox-project
+ * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
  * 2010-08-20   0.1       Write it from scratch
