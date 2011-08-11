@@ -1039,8 +1039,7 @@ static void process_igrs_new_connection(struct ezcfg_worker *worker)
 
 	if (header_len <= 0) {
 		err(ezcfg, "request error\n");
-		free(buf);
-		return; /* Request is too large or format is not correct */
+		goto exit;
 	}
 
 	/* first setup message body info */
@@ -1115,8 +1114,7 @@ static void process_uevent_new_connection(struct ezcfg_worker *worker)
 
 	if (header_len <= 0) {
 		err(ezcfg, "request error\n");
-		free(buf);
-		return; /* Request is too large or format is not correct */
+		goto exit;
 	}
 
 	info(ezcfg, "uevent=[%s]\n", buf);

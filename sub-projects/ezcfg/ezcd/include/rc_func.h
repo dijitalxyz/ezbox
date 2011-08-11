@@ -17,7 +17,8 @@ extern int rc_wan_ezcfg_httpd(int flag);
 #endif
 
 extern int rc_preboot(int flag);
-extern int rc_hotplug2(int flag);
+//extern int rc_hotplug2(int flag);
+extern int rc_mdev(int flag);
 extern int rc_data_storage(int flag);
 extern int rc_init(int flag);
 extern int rc_load_modules(int flag);

@@ -8,13 +8,15 @@ extern int pop_etc_mtab(int flag);
 extern int pop_etc_ezcd_conf(int flag);
 extern int pop_etc_nvram_conf(int flag);
 extern int pop_etc_ezcm_conf(int flag);
-extern int pop_etc_hotplug2_rules(int flag);
+//extern int pop_etc_hotplug2_rules(int flag);
+extern int pop_etc_mdev_conf(int flag);
 extern int pop_etc_modules(int flag);
 extern int pop_etc_inittab(int flag);
 extern int pop_etc_passwd(int flag);
 extern int pop_etc_group(int flag);
 extern int pop_etc_network_interfaces(int flag);
 extern int pop_etc_hosts(int flag);
+extern int pop_etc_mactab(int flag);
 extern int pop_etc_resolv_conf(int flag);
 extern int pop_etc_protocols(int flag);
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)

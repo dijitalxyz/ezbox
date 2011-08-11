@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_netbase.c
+ * Module Name  : pop_etc_mactab.c
  *
- * Description  : ezbox run network base files service
+ * Description  : ezbox /etc/mactab file generating program
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-03   0.1       Write it from scratch
+ * 2011-08-11   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,35 +36,18 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <net/if.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
-int rc_netbase(int flag)
+int pop_etc_mactab(int flag)
 {
-	switch (flag) {
-	case RC_BOOT :
-		/* manage network interfaces and configure some networking options */
-		mkdir("/etc/network", 0755);
-		mkdir("/etc/network/if-pre-up.d", 0755);
-		mkdir("/etc/network/if-up.d", 0755);
-		mkdir("/etc/network/if-down.d", 0755);
-		mkdir("/etc/network/if-post-down.d", 0755);
-		break;
+        FILE *file = NULL;
 
-	case RC_RESTART :
-	case RC_START :
-		pop_etc_network_interfaces(RC_START);
-		pop_etc_hosts(RC_START);
-		pop_etc_protocols(RC_START);
-		pop_etc_mactab(RC_START);
-		/* FIXME: do it after WAN interface is up */
-#if 0
-		pop_etc_resolv_conf(RC_START);
-#endif
-		break;
-	}
+	/* generate /etc/mactab */
+	file = fopen("/etc/mactab", "w");
+	if (file == NULL)
+		return (EXIT_FAILURE);
 
+	fclose(file);
 	return (EXIT_SUCCESS);
 }

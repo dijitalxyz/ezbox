@@ -76,7 +76,6 @@
 
 int rc_preboot(int flag)
 {
-        FILE *file = NULL;
 	char buf[KERNEL_COMMAND_LINE_SIZE];
 	int rc;
 	char *p, *q;
@@ -93,10 +92,11 @@ int rc_preboot(int flag)
 
 		/* /dev */
 		mkdir("/dev", 0755);
-		// mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
+		mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
 
 		/* /etc */
 		mkdir("/etc", 0755);
+		mount("tmpfs", "/etc", "tmpfs", MS_MGC_VAL, NULL);
 
 		/* /boot */
 		mkdir("/boot", 0777);
@@ -120,21 +120,19 @@ int rc_preboot(int flag)
 		mkdir("/dev/pts", 0777);
 		mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
 
-		mknod("/dev/console", S_IRWXU|S_IFCHR, makedev(5, 1));
+		mknod("/dev/console", S_IRUSR|S_IWUSR|S_IFCHR, makedev(5, 1));
+		mknod("/dev/null", S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|S_IFCHR, makedev(1, 3));
 
 		/* run in root HOME path */
 		mkdir(ROOT_HOME_PATH, 0755);
 		setenv("HOME", ROOT_HOME_PATH, 1);
 		chdir(ROOT_HOME_PATH);
 
-		/* init hotplug2 */
-		rc_hotplug2(RC_BOOT);
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-		if (file != NULL)
-		{
-			fprintf(file, "%s", "");
-			fclose(file);
-		}
+		/* prepare /etc/passwd and /etc/group */
+		rc_login(RC_BOOT);
+
+		/* init /dev/ node */
+		rc_mdev(RC_BOOT);
 
 		/* get the kernel module name from /proc/cmdline */
 		rc = utils_get_kernel_modules(buf, sizeof(buf));

@@ -54,6 +54,7 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		if (rc <= 0) {
 			return (EXIT_FAILURE);
 		}
+
 		//file = fopen("/etc/emc2/configs/ezcnc.ini", "w");
 		file = fopen(buf, "w");
 		if (file == NULL)

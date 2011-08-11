@@ -44,12 +44,21 @@ int rc_dillo(int flag)
 {
 	int rc;
 	char buf[64];
+	struct stat stat_buf;
 
 	switch (flag) {
 	case RC_START :
 		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
+		}
+
+		/* mkdir for /etc/dillo */
+		if ((stat("/etc/dillo", &stat_buf) != 0) ||
+		    (S_ISDIR(stat_buf.st_mode) == 0)) {
+			snprintf(buf, sizeof(buf), "%s -rf /etc/dillo", CMD_RM);
+			system(buf);
+			mkdir("/etc/dillo", 0755);
 		}
 
 		pop_etc_dillo_dillorc(RC_START);

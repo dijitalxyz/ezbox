@@ -91,8 +91,12 @@ ezcd_SOURCES += src/pop/pop_etc_ezcm_conf.c
 ezcd_SOURCES += src/rc/rc_ezcm.c
 
 # hotplug2
-ezcd_SOURCES += src/pop/pop_etc_hotplug2_rules.c
-ezcd_SOURCES += src/rc/rc_hotplug2.c
+#ezcd_SOURCES += src/pop/pop_etc_hotplug2_rules.c
+#ezcd_SOURCES += src/rc/rc_hotplug2.c
+
+# mdev
+ezcd_SOURCES += src/pop/pop_etc_mdev_conf.c
+ezcd_SOURCES += src/rc/rc_mdev.c
 
 # kernel modules
 ezcd_SOURCES += src/pop/pop_etc_modules.c
@@ -114,6 +118,7 @@ ezcd_SOURCES += src/rc/rc_login.c
 ezcd_SOURCES += src/pop/pop_etc_hosts.c
 ezcd_SOURCES += src/pop/pop_etc_network_interfaces.c
 ezcd_SOURCES += src/pop/pop_etc_protocols.c
+ezcd_SOURCES += src/pop/pop_etc_mactab.c
 ezcd_SOURCES += src/pop/pop_etc_resolv_conf.c
 ezcd_SOURCES += src/rc/rc_netbase.c
 

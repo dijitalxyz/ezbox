@@ -69,7 +69,13 @@ rc_func_t rc_functions[] = {
 		RC_RUN_LEVEL(99,99,99),
 		RC_RUN_LEVEL(1,1,1),
 		NULL },
+#if 0
 	{ "hotplug2", RC_BOOT, rc_hotplug2,
+		RC_RUN_LEVEL(99,99,99),
+		RC_RUN_LEVEL(1,1,1),
+		NULL },
+#endif
+	{ "mdev", RC_BOOT, rc_mdev,
 		RC_RUN_LEVEL(99,99,99),
 		RC_RUN_LEVEL(1,1,1),
 		NULL },

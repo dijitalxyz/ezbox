@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_hotplug2.c
+ * Module Name  : rc_mdev.c
  *
- * Description  : ezbox run hotplug2 service
+ * Description  : ezbox run mdev to generate /dev/ node service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-03   0.1       Write it from scratch
+ * 2011-08-11   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -40,49 +40,44 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_hotplug2(int flag)
+int rc_mdev(int flag)
 {
 	FILE *file;
 	int ret;
 	char cmdline[256];
 
-	pop_etc_hotplug2_rules(flag);
 
 	switch (flag) {
 	case RC_BOOT :
+	case RC_START :
+	case RC_RESTART :
+
+		pop_etc_mdev_conf(flag);
+
 		file = fopen("/proc/sys/kernel/hotplug", "w");
-		if (file != NULL)
+                if (file != NULL)
+		{
+			fprintf(file, "%s", CMD_MDEV);
+			fclose(file);
+		}
+
+		if (flag == RC_BOOT) {
+			snprintf(cmdline, sizeof(cmdline), "%s -s", CMD_MDEV);
+			ret = system(cmdline);
+		}
+
+		break;
+
+	case RC_STOP :
+		file = fopen("/proc/sys/kernel/hotplug", "w");
+                if (file != NULL)
 		{
 			fprintf(file, "%s", "");
 			fclose(file);
 		}
 
-		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --no-persistent --set-coldplug-cmd %s", CMD_HOTPLUG2, CMD_UDEVTRIGGER);
-		ret = system(cmdline);
-
-#if 0
-		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent &", CMD_HOTPLUG2);
-		ret = system(cmdline);
-
-		break;
-#endif
-
-	case RC_START :
-		snprintf(cmdline, sizeof(cmdline), "%s --set-worker /lib/hotplug2/worker_fork.so --set-rules-file /etc/hotplug2.rules --persistent --override --max-children 1 >/dev/null 2>&1 &", CMD_HOTPLUG2);
-		ret = system(cmdline);
-
-		break;
-
-	case RC_STOP :
-		snprintf(cmdline, sizeof(cmdline), "%s -q hotplug2", CMD_KILLALL);
-		ret = system(cmdline);
-
-		break;
-
-	case RC_RESTART :
-		rc_hotplug2(RC_STOP);
-		rc_hotplug2(RC_START);
 		break;
 	}
+
 	return (EXIT_SUCCESS);
 }

@@ -197,8 +197,8 @@ int rc_system(int flag)
 		rc_klogd(RC_START);
 #endif
 
-		/* restart hotplug2 */
-		rc_hotplug2(RC_RESTART);
+		/* re-generate /dev/ node */
+		rc_mdev(RC_RESTART);
 
 		/* re-generate network base files */
 		rc_netbase(RC_RESTART);

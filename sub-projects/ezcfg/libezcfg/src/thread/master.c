@@ -920,7 +920,8 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-	/* setup udev socket */
+#if 0
+	/* setup uevent socket */
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
 
@@ -951,6 +952,8 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	ezcfg_socket_set_close_on_exec(sp);
 
 load_other_sockets:
+#endif
+
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
 	master_load_auth_conf(master);
