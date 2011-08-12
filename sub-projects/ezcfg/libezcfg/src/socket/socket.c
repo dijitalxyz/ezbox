@@ -37,6 +37,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-socket.h"
+#include "ezcfg-uevent.h"
 
 static int set_non_blocking_mode(int sock)
 {
@@ -88,6 +89,9 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 				err(ezcfg, "unlink fail: %m\n");
 			}
 		}
+	}
+	if (sp->buffer != NULL) {
+		free(sp->buffer);
 	}
 	free(sp);
 }
@@ -212,9 +216,34 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		usa->domain = AF_NETLINK;
 		usa->type = type;
 		usa->u.snl.nl_family = AF_NETLINK;
-		usa->u.snl.nl_pid = getpid();
-		usa->u.snl.nl_groups = 1;
+		//usa->u.snl.nl_groups = 1;
+		if (strcmp(socket_path, "kernel") == 0) {
+			usa->u.snl.nl_groups = UEVENT_NLGRP_KERNEL;
+		}
+		else {
+			usa->u.snl.nl_groups = UEVENT_NLGRP_NONE;
+		}
+		//usa->u.snl.nl_pid = getpid();
+		{
+			int err = 0;
+			//const int on = 1;
+			struct sockaddr_nl snl;
+			socklen_t addrlen;
+
+			/*
+			 * get the address the kernel has assigned us
+			 * it is usually, but not necessarily the pid
+			 */
+			addrlen = sizeof(struct sockaddr_nl);
+			err = getsockname(sp->sock, (struct sockaddr *)&snl, &addrlen);
+			if (err == 0)
+				usa->u.snl.nl_pid = snl.nl_pid;
+
+			/* enable receiving of sender credentials */
+			//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
+		}
 		usa->len = sizeof(usa->u.snl);
+
 		break;
 
 	default:
@@ -249,6 +278,42 @@ unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
 	return sp->proto;
+}
+
+bool ezcfg_socket_set_buffer(struct ezcfg_socket *sp, char *buf, int buf_len)
+{
+	char *p;
+
+	ASSERT(sp != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(buf_len >= 0);
+
+	p = malloc(buf_len);
+	if (p == NULL) {
+		return false;
+	}
+
+	memcpy(p, buf, buf_len);
+
+	if (sp->buffer != NULL) {
+		free(sp->buffer);
+	}
+	sp->buffer = p;
+	sp->buffer_len = buf_len;
+
+	return true;
+}
+
+char *ezcfg_socket_get_buffer(const struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return sp->buffer;
+}
+
+int ezcfg_socket_get_buffer_len(const struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return sp->buffer_len;
 }
 
 struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp)
@@ -567,7 +632,13 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 	ezcfg_socket_close_sock(sp);
 
 	/* FIXME: should change sock_protocol w/r sp->proto */
-	sock_protocol = 0;
+	if (sp->proto == EZCFG_PROTO_UEVENT) {
+		sock_protocol = NETLINK_KOBJECT_UEVENT;
+	}
+	else {
+		sock_protocol = 0;
+	}
+
 	sp->sock = socket(usa->domain, usa->type, sock_protocol);
 	if (sp->sock < 0) {
 		return -1;
@@ -639,13 +710,12 @@ int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int pos, const str
 	return 0;
 }
 
-struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener)
+static struct ezcfg_socket *new_accepted_socket_stream(const struct ezcfg_socket *listener)
 {
 	struct ezcfg_socket *accepted;
 	struct ezcfg *ezcfg;
 	int domain;
 
-	ASSERT(listener != NULL);
 	ezcfg = listener->ezcfg;
 
 	accepted = calloc(1, sizeof(struct ezcfg_socket));
@@ -685,6 +755,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 		}
 		break;
 
+#if 0
 	case AF_NETLINK:
 		accepted->rsa.len = sizeof(accepted->rsa.u.snl);
 		accepted->sock = accept(listener->sock,
@@ -695,6 +766,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 			return NULL;
 		}
 		break;
+#endif
 
 	default:
 		err(ezcfg, "unknown socket family [%d]\n", domain);
@@ -703,6 +775,45 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	}
 
 	return accepted;
+}
+
+static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_socket *listener)
+{
+	struct ezcfg_socket *accepted;
+	struct ezcfg *ezcfg;
+
+	ezcfg = listener->ezcfg;
+
+	accepted = calloc(1, sizeof(struct ezcfg_socket));
+	if (accepted == NULL) {
+		err(ezcfg, "calloc fail: %m\n");
+		return NULL;
+	}
+	memset(accepted, 0, sizeof(struct ezcfg_socket));
+	accepted->ezcfg = ezcfg;
+	accepted->sock = -1;
+	accepted->proto = listener->proto;
+	accepted->lsa = listener->lsa;
+	accepted->need_unlink = listener->need_unlink;
+	accepted->rsa.domain = listener->lsa.domain;
+	accepted->buffer = NULL;
+
+	return accepted;
+}
+
+struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(listener != NULL);
+	ezcfg = listener->ezcfg;
+
+	switch (listener->proto) {
+	case EZCFG_PROTO_UEVENT :
+		return new_accepted_socket_datagram(listener);
+	default :
+		return new_accepted_socket_stream(listener);
+	}
 }
 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp)

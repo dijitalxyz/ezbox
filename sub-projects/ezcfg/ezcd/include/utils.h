@@ -57,6 +57,9 @@
 
 #define RC_RUN_LEVEL(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 
+/* removed line tails */
+#define LINE_TAIL_STRING	" \t\r\n"
+
 typedef struct rc_func_s {
 	char *name;
 	int flag;

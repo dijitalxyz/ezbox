@@ -20,4 +20,9 @@ struct ezcfg_uevent {
 	struct ezcfg *ezcfg;
 };
 
+enum uevent_netlink_group {
+	UEVENT_NLGRP_NONE = 0,
+	UEVENT_NLGRP_KERNEL,
+};
+
 #endif /* _EZCFG_UEVENT_H_ */

@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
 int utils_sync_cfg_with_nvram(char *path)
 {
@@ -63,7 +64,7 @@ int utils_sync_cfg_with_nvram(char *path)
 		goto func_out;
 	}
 
-	while(utils_file_get_line(file, buf, sizeof(buf), "", "\r\n") == true) {
+	while (utils_file_get_line(file, buf, sizeof(buf), "", LINE_TAIL_STRING) == true) {
 		p = strchr(buf, '=');
 		if (p != NULL) {
 			*p = '\0';

@@ -86,7 +86,7 @@ static bool support_fs(char *fs)
 		return ret;
 
 	while (utils_file_get_line(file,
-		buf, sizeof(buf), "#", "\r\n") == true) {
+		buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 		p = strchr(buf, '\t');
 		if (p != NULL) {
 			p++;
@@ -113,7 +113,7 @@ static bool fs_not_mounted(char *fs)
 		return ret;
 
 	while (utils_file_get_line(file,
-		buf, sizeof(buf), "#", "\r\n") == true) {
+		buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 		p = strchr(buf, ' ');
 		if (p != NULL) {
 			*p = '\0';

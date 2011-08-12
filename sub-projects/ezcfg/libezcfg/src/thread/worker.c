@@ -36,7 +36,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do { \
 	pid_t pid; \
 	char path[256]; \
@@ -1089,7 +1089,6 @@ exit:
 
 static void process_uevent_new_connection(struct ezcfg_worker *worker)
 {
-	int header_len, nread;
 	char *buf;
 	int buf_len;
 	struct ezcfg *ezcfg;
@@ -1099,30 +1098,15 @@ static void process_uevent_new_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 	uevent = (struct ezcfg_uevent *)(worker->proto_data);
-	buf_len = 20 * 1024;
-
-	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
+	buf = ezcfg_socket_get_buffer(worker->client);
 	if (buf == NULL) {
 		err(ezcfg, "not enough memory for processing igrs new connection\n");
 		return;
 	}
-	memset(buf, 0, buf_len);
-	nread = 0;
-	header_len = ezcfg_socket_read(worker->client, buf, buf_len, 0);
+	buf_len = ezcfg_socket_get_buffer_len(worker->client);
 
-	ASSERT(nread >= header_len);
-
-	if (header_len <= 0) {
-		err(ezcfg, "request error\n");
-		goto exit;
-	}
-
-	info(ezcfg, "uevent=[%s]\n", buf);
-
-exit:
-	/* release buf memory */
-	if (buf != NULL)
-		free(buf);
+	info(ezcfg, "uevent=[%s], len=%d\n", buf, buf_len);
+	return;
 }
 
 static void init_protocol_data(struct ezcfg_worker *worker)

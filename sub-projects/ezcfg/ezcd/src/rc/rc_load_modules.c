@@ -58,7 +58,7 @@ int rc_load_modules(int flag)
 	case RC_BOOT :
 	case RC_START :
 		while (utils_file_get_line(file,
-			 buf, sizeof(buf), "#", "\r\n") == true) {
+			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 			ret = utils_install_kernel_module(buf, NULL);
 		}
 		ret = EXIT_SUCCESS;
@@ -66,7 +66,7 @@ int rc_load_modules(int flag)
 
 	case RC_STOP :
 		while (utils_file_get_line(file,
-			 buf, sizeof(buf), "#", "\r\n") == true) {
+			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 			ret = utils_remove_kernel_module(buf);
 		}
 		ret = EXIT_SUCCESS;

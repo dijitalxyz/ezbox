@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "utils.h"
 
 #if 0
 #define DBG(format, args...) do {\
@@ -67,7 +68,7 @@ char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
 
 	memset(buf, 0, sizeof(buf));
 
-	while(utils_file_get_line(file, buf, sizeof(buf), "#", "\r\n") == true) {
+	while (utils_file_get_line(file, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 
 		q = strstr(buf, keyword);
 		if (q == NULL)

@@ -354,11 +354,12 @@ static void master_load_common_conf(struct ezcfg_master *master)
 	}
 }
 
+/* don't remove ctrl, nvram and uevent socket */
 static void master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *sp;
-	struct ezcfg_socket *ctrl_sp, *nvram_sp;
+	struct ezcfg_socket *ctrl_sp, *nvram_sp, *uevent_sp;
 	char *p = NULL;
 	int domain, type, proto;
 	char address[256];
@@ -383,11 +384,18 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		return ;
 	}
 
+	uevent_sp = ezcfg_socket_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
+	if (uevent_sp == NULL) {
+		err(ezcfg, "ezcfg_socket_new(uevent_sp)\n");
+		return ;
+	}
+
 	/* tag listening_sockets to need_delete = true; */
 	sp = master->listening_sockets;
 	while(sp != NULL) {
 		if((ezcfg_socket_compare(sp, ctrl_sp) == false) &&
-		   (ezcfg_socket_compare(sp, nvram_sp) == false)) {
+		   (ezcfg_socket_compare(sp, nvram_sp) == false) &&
+		   (ezcfg_socket_compare(sp, uevent_sp) == false)) {
 			ezcfg_socket_set_need_delete(sp, true);
 		}
 		sp = ezcfg_socket_get_next(sp);
@@ -766,7 +774,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 }
 
 static bool accept_new_connection(struct ezcfg_master *master,
-                                  const struct ezcfg_socket *listener) {
+                                  struct ezcfg_socket *listener) {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *accepted;
 	bool allowed;
@@ -782,15 +790,38 @@ static bool accept_new_connection(struct ezcfg_master *master,
 		return false;
 	}
 
+	if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UEVENT) {
+		char buf[1024];
+		int len;
+
+		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
+		if (len > 0) {
+			buf[len - 1] = '\0';
+			if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
+				err(ezcfg, "set UEVENT socket buffer error.\n");
+				ezcfg_socket_delete(accepted);
+				return false;
+			}
+		}
+		else {
+			err(ezcfg, "read UEVENT socket error.\n");
+			ezcfg_socket_delete(accepted);
+			return false;
+		}
+	}
+
 	allowed = true;
 
 	if (allowed == true) {
 		put_socket(master, accepted);
+		/*FIXME: don't ezcfg_socket_delete(), it has been copy to queue */
+		free(accepted);
 	}
 	else {
-		ezcfg_socket_close_sock(accepted);
+		//ezcfg_socket_close_sock(accepted);
+		ezcfg_socket_delete(accepted);
 	}
-	free(accepted);
+
 	return true;
 }
 
@@ -920,12 +951,14 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-#if 0
+#if 1
 	/* setup uevent socket */
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
 
-	sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, EZCFG_SOCK_UEVENT_PATH);
+	//sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, EZCFG_SOCK_UEVENT_PATH);
+	sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
+	//sp = master_add_socket(master, AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, EZCFG_PROTO_UEVENT, "kernel");
 
 	/* unlock mutex after handling listening_sockets */
 	pthread_mutex_unlock(&(master->ls_mutex));
