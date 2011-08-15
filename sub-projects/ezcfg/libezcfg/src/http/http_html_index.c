@@ -42,7 +42,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	struct ezcfg *ezcfg;
 	struct ezcfg_html *html = NULL;
 	struct ezcfg_locale *locale = NULL;
-	int head_index, body_index, child_index;
+	int head_index, body_index, p_index, child_index;
 	char *msg = NULL;
 	int msg_len;
 	char buf[1024];
@@ -65,7 +65,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 	if (html == NULL) {
 		err(ezcfg, "can not alloc html.\n");
-		goto exit;
+		goto func_exit;
 	}
 
 	/* clean HTML structure info */
@@ -80,9 +80,19 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);
+	if (head_index < 0) {
+		err(ezcfg, "ezcfg_html_set_head error.\n");
+		goto func_exit;
+	}
+
 
 	/* HTML Meta charset */
 	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		goto func_exit;
+	}
+
 	/* HTML http-equiv content-type */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CONTENT_TYPE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
@@ -90,44 +100,132 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 	/* HTML Meta Cache-control */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		goto func_exit;
+	}
+
 	/* HTML http-equiv cache-control */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML Meta expires */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		goto func_exit;
+	}
+
 	/* HTML http-equiv expires */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_EXPIRES, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* HTML Meta pragma */
 	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_META_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		goto func_exit;
+	}
+
 	/* HTML http-equiv pragma */
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_HTTP_EQUIV_ATTRIBUTE_NAME, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_head_child_attribute(html, child_index, EZCFG_HTML_CONTENT_ATTRIBUTE_NAME, EZCFG_HTTP_PRAGMA_NO_CACHE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Welcome"));
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "Welcome to ezbox"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_head_child error.\n");
+		goto func_exit;
+	}
+
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
+	if (body_index < 0) {
+		err(ezcfg, "ezcfg_html_set_body error.\n");
+		goto func_exit;
+	}
+
+
+	child_index = -1;
+	/* HTML P */
+	child_index = ezcfg_html_add_body_child(html, body_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* save <p> index */
+	p_index = child_index;
+	child_index = -1;
+
+	child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "Administration Page"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	/* restore <p> index */
+	child_index = p_index;
 
 	/* HTML P */
-	child_index = ezcfg_html_add_body_child(html, body_index, -1, EZCFG_HTML_P_ELEMENT_NAME, ezcfg_locale_text(locale, "Hello World!"));
+	child_index = ezcfg_html_add_body_child(html, body_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* save <p> index */
+	p_index = child_index;
+	child_index = -1;
+
+	child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "ezbox Project Home Page"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <a href="http://code.google.com/p/ezbox/">ezbox Project Home Page</a> */
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZBOX_PROJECT_HOME_PAGE_URI, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	/* restore <p> index */
+	child_index = p_index;
+
+	/* HTML P */
+	child_index = ezcfg_html_add_body_child(html, body_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, NULL);
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* save <p> index */
+	p_index = child_index;
+	child_index = -1;
+
+	child_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_A_ELEMENT_NAME, ezcfg_locale_text(locale, "User Forum"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	/* <a href="http://code.google.com/p/ezbox/">User Forum</a> */
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZBOX_PROJECT_HOME_PAGE_URI, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	/* restore <p> index */
+	child_index = p_index;
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_html_get_message_length\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 	msg_len++; /* one more for '\0' */
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		err(ezcfg, "malloc error.\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	memset(msg, 0, msg_len);
@@ -135,7 +233,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	if (n < 0) {
 		err(ezcfg, "ezcfg_html_write_message\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	/* FIXME: name point to http->request_uri !!!
@@ -148,7 +246,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 	if (ezcfg_http_set_message_body(http, msg, n) == NULL) {
 		err(ezcfg, "ezcfg_http_set_message_body\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	/* HTML http-equiv content-type */
@@ -169,7 +267,7 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 
 	/* set return value */
 	rc = 0;
-exit:
+func_exit:
 	if (locale != NULL)
 		ezcfg_locale_delete(locale);
 
@@ -201,7 +299,7 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 
 	if (html == NULL) {
 		err(ezcfg, "can not alloc html.\n");
-		goto exit;
+		goto func_exit;
 	}
 
 	/* clean HTML structure info */
@@ -224,14 +322,14 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 	if (msg_len < 0) {
 		err(ezcfg, "ezcfg_html_get_message_length\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 	msg_len++; /* one more for '\0' */
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		err(ezcfg, "malloc error.\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	memset(msg, 0, msg_len);
@@ -239,7 +337,7 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 	if (n < 0) {
 		err(ezcfg, "ezcfg_html_write_message\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	/* FIXME: name point to http->request_uri !!!
@@ -252,12 +350,13 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 	if (ezcfg_http_set_message_body(http, msg, n) == NULL) {
 		err(ezcfg, "ezcfg_http_set_message_body\n");
 		rc = -1;
-		goto exit;
+		goto func_exit;
 	}
 
 	/* set return value */
 	rc = 0;
-exit:
+
+func_exit:
 	if (html != NULL)
 		ezcfg_html_delete(html);
 

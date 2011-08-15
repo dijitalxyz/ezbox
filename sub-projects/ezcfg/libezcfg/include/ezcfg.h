@@ -32,6 +32,8 @@
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+#define EZBOX_PROJECT_HOME_PAGE_URI	"http://code.google.com/p/ezbox/"
+
 #define EZCFG_INVALID_SOCKET      -1
 #define EZCFG_BUFFER_SIZE         8192
 #define EZCFG_PATH_MAX            128

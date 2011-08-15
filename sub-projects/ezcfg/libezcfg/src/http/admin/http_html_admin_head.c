@@ -86,7 +86,7 @@ int ezcfg_http_html_admin_set_html_head(
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, "http://code.google.com/p/ezbox/", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_HREF_ATTRIBUTE_NAME, EZBOX_PROJECT_HOME_PAGE_URI, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <h2>Open Platform for Embedded System Study</h2> */
 	child_index = ezcfg_html_add_body_child(html, head_index, h1_index, EZCFG_HTML_H2_ELEMENT_NAME, ezcfg_locale_text(locale, "Open Platform for Embedded System Study"));
