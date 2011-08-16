@@ -66,7 +66,18 @@ static int generate_latexit_sh(const char *path)
 	fprintf(file, "echo 1 > %s\n", LATEXIT_SH_FLAG_FILE);
 	fprintf(file, "while [ -f %s ]\n", LATEXIT_SH_FLAG_FILE);
 	fprintf(file, "do\n");
-	fprintf(file, "  echo 1 > /dev/null\n");
+	fprintf(file, "  sl=`halcmd gets sl`\n");
+	fprintf(file, "  nvram set %s $sl 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_MAX_INTERVAL));
+	fprintf(file, "  sj=`halcmd gets sj`\n");
+	fprintf(file, "  nvram set %s $sj 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_MAX_JITTER));
+	fprintf(file, "  st=`halcmd gets st`\n");
+	fprintf(file, "  nvram set %s $st 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_LAST_INTERVAL));
+	fprintf(file, "  bl=`halcmd gets bl`\n");
+	fprintf(file, "  nvram set %s $bl 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_MAX_INTERVAL));
+	fprintf(file, "  bj=`halcmd gets bj`\n");
+	fprintf(file, "  nvram set %s $bj 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_MAX_JITTER));
+	fprintf(file, "  bt=`halcmd gets bt`\n");
+	fprintf(file, "  nvram set %s $bt 2>&1 |>/dev/null\n", NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_LAST_INTERVAL));
 	fprintf(file, "done\n");
 
 	fclose(file);

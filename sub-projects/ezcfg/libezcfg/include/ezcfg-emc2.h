@@ -28,6 +28,12 @@
 #define EZCFG_EMC2_LAT_TEST_ENABLE          "lat_test_enable"
 #define EZCFG_EMC2_LAT_BASE_PERIOD          "lat_base_period"
 #define EZCFG_EMC2_LAT_SERVO_PERIOD         "lat_servo_period"
+#define EZCFG_EMC2_LAT_SERVO_MAX_INTERVAL   "lat_servo_max_interval"
+#define EZCFG_EMC2_LAT_SERVO_MAX_JITTER     "lat_servo_max_jitter"
+#define EZCFG_EMC2_LAT_SERVO_LAST_INTERVAL  "lat_servo_last_interval"
+#define EZCFG_EMC2_LAT_BASE_MAX_INTERVAL    "lat_base_max_interval"
+#define EZCFG_EMC2_LAT_BASE_MAX_JITTER      "lat_base_max_jitter"
+#define EZCFG_EMC2_LAT_BASE_LAST_INTERVAL   "lat_base_last_interval"
 
 /* ezcfg emc2 .ini config names */
 /* sections */

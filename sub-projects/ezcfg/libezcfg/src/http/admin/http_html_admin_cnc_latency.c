@@ -53,6 +53,7 @@ static int set_html_main_cnc_latency(
 	int content_index, child_index;
 	char buf[1024];
 	int ret = -1;
+	char *p = NULL;
 
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
@@ -122,10 +123,14 @@ static int set_html_main_cnc_latency(
 	}
 
 	/* <p>Max Interval (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_MAX_INTERVAL), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Max Interval (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -133,10 +138,14 @@ static int set_html_main_cnc_latency(
 	}
 
 	/* <p>Max Jitter (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_MAX_JITTER), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Max Jitter (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -145,10 +154,14 @@ static int set_html_main_cnc_latency(
 	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <p>Last Interval (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_LAST_INTERVAL), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Last Interval (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -166,10 +179,14 @@ static int set_html_main_cnc_latency(
 	}
 
 	/* <p>Max Interval (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_MAX_INTERVAL), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Max Interval (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -177,10 +194,14 @@ static int set_html_main_cnc_latency(
 	}
 
 	/* <p>Max Jitter (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_MAX_JITTER), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Max Jitter (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
@@ -189,10 +210,14 @@ static int set_html_main_cnc_latency(
 	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <p>Last Interval (ns) : 86400</p> */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_LAST_INTERVAL), &p);
 	snprintf(buf, sizeof(buf), "%s%s%s",
 		ezcfg_locale_text(locale, "Last Interval (ns)"),
 		ezcfg_locale_text(locale, " : "),
-		"86400");
+		(p != NULL) ? p : ezcfg_locale_text(locale, "Not Ready"));
+	if (p != NULL) {
+		free(p);
+	}
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
