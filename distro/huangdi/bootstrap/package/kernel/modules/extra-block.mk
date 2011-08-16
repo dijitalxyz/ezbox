@@ -170,3 +170,35 @@ endef
 
 $(eval $(call KernelPackage,pata-efar))
 
+
+define KernelPackage/pata-mpiix
+  TITLE:=Intel PATA MPIIX support
+  DEPENDS:=@PCI_SUPPORT
+  KCONFIG:=CONFIG_PATA_MPIIX
+  FILES=$(LINUX_DIR)/drivers/ata/pata_mpiix.ko
+  AUTOLOAD:=$(call AutoLoad,30,pata-mpiix,1)
+  $(call AddDepends/ata)
+endef
+
+define KernelPackage/pata-mpiix/description
+  Kernel module for MPIIX PATA support
+endef
+
+$(eval $(call KernelPackage,pata-mpiix))
+
+
+define KernelPackage/pata-oldpiix
+  TITLE:=Intel PATA old PIIX support
+  DEPENDS:=@PCI_SUPPORT
+  KCONFIG:=CONFIG_PATA_OLDPIIX
+  FILES=$(LINUX_DIR)/drivers/ata/pata_oldpiix.ko
+  AUTOLOAD:=$(call AutoLoad,30,pata-oldpiix,1)
+  $(call AddDepends/ata)
+endef
+
+define KernelPackage/pata-oldpiix/description
+  Kernel module for early PIIX PATA support
+endef
+
+$(eval $(call KernelPackage,pata-oldpiix))
+
