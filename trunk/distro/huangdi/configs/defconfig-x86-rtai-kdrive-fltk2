@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Thu Aug 11 15:12:00 2011
+# Tue Aug 16 15:49:36 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1368,6 +1368,8 @@ CONFIG_PACKAGE_kmod-pata-cs5530=y
 CONFIG_PACKAGE_kmod-pata-cs5535=y
 CONFIG_PACKAGE_kmod-pata-cs5536=y
 CONFIG_PACKAGE_kmod-pata-efar=y
+CONFIG_PACKAGE_kmod-pata-mpiix=y
+CONFIG_PACKAGE_kmod-pata-oldpiix=y
 CONFIG_PACKAGE_kmod-pata-sis=y
 CONFIG_PACKAGE_kmod-scsi-cdrom=y
 CONFIG_PACKAGE_kmod-scsi-generic=y
