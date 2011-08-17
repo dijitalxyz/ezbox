@@ -51,6 +51,7 @@ static int set_html_main_cnc_latency(
 	struct ezcfg_html *html;
 	int main_index;
 	int content_index, child_index;
+	int p_index, input_index;
 	char buf[1024];
 	int ret = -1;
 	char *p = NULL;
@@ -87,6 +88,144 @@ static int set_html_main_cnc_latency(
 	ezcfg_html_add_body_child_attribute(html, content_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
+	/* <h3>Latency Test Control</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Latency Test Control"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "1") == true) {
+		/* <p>Test has been started : <input type="radio" name="emc2_lat_test_start" value="0">Stop</input></p> */
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Test has been started"),
+			ezcfg_locale_text(locale, " : "));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> Stop </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "Stop"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		/* <p>Reset Test : <input type="radio" name="emc2_lat_test_reset" value="1">Yes</input></p> */
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Reset Test"),
+			ezcfg_locale_text(locale, " : "));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> Yes </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "Yes"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> No </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "No"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+	}
+	else {
+		/* <p>Test has been stopped : <input type="radio" name="emc2_lat_test_start" value="1">Start</input></p> */
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Test has been stopped"),
+			ezcfg_locale_text(locale, " : "));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> Start </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "Start"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+	}
+
 	/* <h3>Latency Test Information</h3> */
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Latency Test Information"));
 	if (child_index < 0) {
@@ -245,6 +384,34 @@ func_exit:
 	return ret;
 }
 
+static bool do_admin_cnc_latency_action(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+	list = admin->post_list;
+
+	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
+		ret = ezcfg_http_html_admin_save_settings(admin);
+	}
+	return ret;
+}
+
+static bool handle_admin_cnc_latency_post(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+
+	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
+		ret = do_admin_cnc_latency_action(admin);
+	}
+	return ret;
+}
+
 static int build_admin_cnc_latency_response(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
@@ -383,13 +550,54 @@ func_exit:
 int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
 	int ret = -1;
+	char old_start[2];
+	char *p;
 
 	ASSERT(admin != NULL);
 
 	ezcfg = admin->ezcfg;
+	http = admin->http;
+	nvram = admin->nvram;
 
 	/* admin status_lan uri=[/admin/cnc_latency] */
+	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
+		/* get old emc2_lat_test_start status */
+		old_start[0] = '\0';
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), &p);
+		if (p != NULL) {
+			snprintf(old_start, sizeof(old_start), "%s", p);
+			free(p);
+		}
+
+		/* do post handling */
+		handle_admin_cnc_latency_post(admin);
+
+		/* do service actions */
+		/* first check start/stop test */
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "1") == true) {
+			if (strcmp(old_start, "1") != 0) {
+				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_START, 0);
+				/* sleep a while */
+				sleep(1);
+			}
+		}
+		else if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "0") == true) {
+			if (strcmp(old_start, "1") == 0) {
+				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_STOP, 0);
+			}
+		}
+		/* then check reset test */
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "1") == true) {
+			ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_RELOAD, 0);
+			ezcfg_nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "0");
+			/* sleep a while */
+			sleep(1);
+		}
+	}
+
 	ret = build_admin_cnc_latency_response(admin);
 	return ret;
 }

@@ -61,6 +61,8 @@ char *save_cancel_buttons[] = {
 	"management_upgrade",
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
 	"cnc_setup",
+	"cnc_default",
+	"cnc_latency",
 #endif
 };
 

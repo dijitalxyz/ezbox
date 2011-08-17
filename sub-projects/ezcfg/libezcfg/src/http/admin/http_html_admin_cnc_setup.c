@@ -283,7 +283,7 @@ static int build_admin_cnc_setup_response(struct ezcfg_http_html_admin *admin)
 	}
 
 	/* HTML Title */
-	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "CNC Latency Test"));
+	child_index = ezcfg_html_add_head_child(html, head_index, child_index, EZCFG_HTML_TITLE_ELEMENT_NAME, ezcfg_locale_text(locale, "CNC Machine Configuration"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_head_child error.\n");
 		rc = -1;

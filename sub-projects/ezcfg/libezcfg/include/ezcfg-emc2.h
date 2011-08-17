@@ -24,8 +24,12 @@
 #define EZCFG_EMC2_RTAPI_DEBUG              "rtapi_debug"
 #define EZCFG_EMC2_INIFILE                  "inifile"
 
+#define EZCFG_EMC2_RESTORE_DEFAULTS         "restore_defaults"
+
 /* ezcfg emc2 latency test */
 #define EZCFG_EMC2_LAT_TEST_ENABLE          "lat_test_enable"
+#define EZCFG_EMC2_LAT_TEST_START           "lat_test_start"
+#define EZCFG_EMC2_LAT_TEST_RESET           "lat_test_reset"
 #define EZCFG_EMC2_LAT_BASE_PERIOD          "lat_base_period"
 #define EZCFG_EMC2_LAT_SERVO_PERIOD         "lat_servo_period"
 #define EZCFG_EMC2_LAT_SERVO_MAX_INTERVAL   "lat_servo_max_interval"

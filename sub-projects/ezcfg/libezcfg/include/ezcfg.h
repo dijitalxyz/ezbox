@@ -107,7 +107,8 @@
 #define EZCFG_RC_SERVICE_LOGIN             "login"
 #define EZCFG_RC_SERVICE_EZCFG_HTTPD       "ezcfg_httpd"
 #define EZCFG_RC_SERVICE_TELNETD           "telnetd"
-
+#define EZCFG_RC_SERVICE_EMC2              "emc2"
+#define EZCFG_RC_SERVICE_EMC2_LATENCY_TEST "emc2_latency_test"
 
 /* ezcfg service binding type */
 #define EZCFG_SERVICE_BINDING_UNKNOWN	0

@@ -566,13 +566,14 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
 	/* EMC2 enabled */
-	{ NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "0" },
 	{ NVRAM_SERVICE_OPTION(EMC2, MODULES),
 		"rtai_hal,rtai_sched,rtai_fifos,rtai_sem,rtai_math,emc2/rtapi,emc2/hal_lib" },
 	{ NVRAM_SERVICE_OPTION(EMC2, MODPATH), "/usr/realtime/modules" },
 	{ NVRAM_SERVICE_OPTION(EMC2, RTLIB_DIR), "/usr/realtime/modules/emc2" },
 	{ NVRAM_SERVICE_OPTION(EMC2, RTAPI_DEBUG), "5" },
 	{ NVRAM_SERVICE_OPTION(EMC2, INIFILE), "/root/emc2/configs/ezcnc.ini" },
+	{ NVRAM_SERVICE_OPTION(EMC2, RESTORE_DEFAULTS), "0" },
 	/* EMC2 Latency test */
 	{ NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE), "1" },
 	{ NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_PERIOD), "25000" },

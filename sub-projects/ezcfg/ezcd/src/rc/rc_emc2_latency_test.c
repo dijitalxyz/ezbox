@@ -226,6 +226,16 @@ int rc_emc2_latency_test(int flag)
 		sleep(1);
 		rc = rc_emc2_latency_test(RC_START);
 		break;
+
+	case RC_RELOAD :
+		/* $HALCMD sets reset 1 */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 1);
+		system(cmd);
+
+		/* $HALCMD sets reset 0 */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 0);
+		system(cmd);
+		break;
 	}
 	return (EXIT_SUCCESS);
 }

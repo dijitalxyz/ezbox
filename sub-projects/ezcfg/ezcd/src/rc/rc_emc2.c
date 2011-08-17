@@ -53,6 +53,24 @@
 #define DBG(format, args...)
 #endif
 
+static int clean_emc2_nvram(void)
+{
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, MODULES));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, MODPATH));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, RTLIB_DIR));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, RTAPI_DEBUG));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, INIFILE));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, RESTORE_DEFAULTS));
+        /* EMC2 Latency test */
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, LAT_BASE_PERIOD));
+	ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(EMC2, LAT_SERVO_PERIOD));
+
+	return (EXIT_SUCCESS);
+}
+
+
 int rc_emc2(int flag)
 {
 	int rc;
@@ -69,6 +87,11 @@ int rc_emc2(int flag)
 	case RC_START :
 		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1");
 		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
+
+		/* make sure the emc2 service has not been started */
+		if (utils_has_process_by_name("emcsvr") == true) {
 			return (EXIT_FAILURE);
 		}
 
@@ -206,6 +229,11 @@ int rc_emc2(int flag)
 		break;
 
 	case RC_STOP :
+		/* make sure the emc2 service has been started */
+		if (utils_has_process_by_name("emcsvr") == false) {
+			return (EXIT_FAILURE);
+		}
+
 		/* Stop display in foreground */
 		/* killall keystick */
 
@@ -260,6 +288,13 @@ int rc_emc2(int flag)
 		rc = rc_emc2(RC_STOP);
 		sleep(1);
 		rc = rc_emc2(RC_START);
+		break;
+
+	case RC_RELOAD :
+		/* first stop emc2 */
+		rc = rc_emc2(RC_STOP);
+		/* then restore the default emc2 settings */
+		clean_emc2_nvram();
 		break;
 	}
 	return (EXIT_SUCCESS);
