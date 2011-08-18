@@ -34,9 +34,13 @@ mkdir -p "$DIFF_DIR"
 while read LINE
 do
   echo $LINE
+  if [ "x$LINE" = "x" ] ; then
+    echo "LINE is empty."
+    continue;
+  fi
   FIRST_CHAR=${LINE:0:1}
   if [ $FIRST_CHAR = "#" ] ; then
-    echo "it's a comment"
+    echo "it's a comment."
   else
     ACTION=${LINE%:*}
     FILE_PATH=${LINE#*:}
