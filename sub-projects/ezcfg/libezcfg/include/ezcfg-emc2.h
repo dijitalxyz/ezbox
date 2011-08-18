@@ -68,6 +68,7 @@
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_LATCH_VEL      "home_latch_vel"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_USE_INDEX      "home_use_index"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_IGNORE_LIMITS  "home_ignore_limits"
+#define EZCFG_EMC2_CONF_KEYWORD_HOME_SEQUENCE       "home_sequence"
 
 /* [EMC] section */
 #define EZCFG_EMC2_CONF_EMC_VERSION         "conf_emc_version"

@@ -379,6 +379,13 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			if (rc > 0) {
 				fprintf(file, "HOME_IGNORE_LIMITS = %s\n", buf);
 			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_HOME_SEQUENCE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "HOME_SEQUENCE = %s\n", buf);
+			}
 		}
 
 		/* section for main IO controller parameters */
