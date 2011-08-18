@@ -51,6 +51,7 @@ static int set_html_main_cnc_setup(
 	struct ezcfg_html *html;
 	int main_index;
 	int content_index, child_index;
+	int p_index, input_index;
 	char buf[1024];
 	int ret = -1;
 
@@ -86,114 +87,104 @@ static int set_html_main_cnc_setup(
 	ezcfg_html_add_body_child_attribute(html, content_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_CONTENT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	child_index = -1;
+	/* <h3>Machine Control</h3> */
+	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Machine Control"));
+	if (child_index < 0) {
+		err(ezcfg, "ezcfg_html_add_body_child error.\n");
+		goto func_exit;
+	}
+
+	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1") == true) {
+		/* <p>Machine has been started : <input type="radio" name="rc_emc2_enable" value="0">Stop</input></p> */
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Machine has been started"),
+			ezcfg_locale_text(locale, " : "));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> Stop </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "Stop"));
+			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+	}
+	else {
+		/* <p>Machine has been stopped : <input type="radio" name="rc_emc2_enable" value="1">Start</input></p> */
+		snprintf(buf, sizeof(buf), "%s%s",
+			ezcfg_locale_text(locale, "Machine has been stopped"),
+			ezcfg_locale_text(locale, " : "));
+		child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* save <p> index */
+		p_index = child_index;
+		child_index = -1;
+
+		/* <input /> */
+		input_index = ezcfg_html_add_body_child(html, p_index, child_index, EZCFG_HTML_INPUT_ELEMENT_NAME, NULL);
+		if (input_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* <i> Start </i> */
+		snprintf(buf, sizeof(buf), " %s ",
+			ezcfg_locale_text(locale, "Start"));
+		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_html_add_body_child error.\n");
+			goto func_exit;
+		}
+
+		/* restore <p> index */
+		child_index = p_index;
+
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "1") == true) {
+			/* <p>Warning : Machine Latency Test is running, will stop it automatically!</p> */
+			snprintf(buf, sizeof(buf), "%s%s%s",
+				ezcfg_locale_text(locale, "Warning"),
+				ezcfg_locale_text(locale, " : "),
+				ezcfg_locale_text(locale, "Machine Latency Test is running, will stop it automatically!"));
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+		}
+	}
+
 	/* <h3>Machine Setup</h3> */
 	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Machine Setup"));
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Let this test run for a few minutes, then note the maximum Jitter.</p> */
-	snprintf(buf, sizeof(buf), "%s",
-		ezcfg_locale_text(locale, "Let this test run for a few minutes, then note the maximum Jitter."));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>You will use it while configuring CNC.</p> */
-	snprintf(buf, sizeof(buf), "%s",
-		ezcfg_locale_text(locale, "You will use it while configuring CNC."));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <h3>Servo Thread (1.0ms)</h3> */
-	snprintf(buf, sizeof(buf), "%s (%.2f%s)",
-		ezcfg_locale_text(locale, "Servo Thread"),
-		1.00, ezcfg_locale_text(locale, "ms"));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Max Interval (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Max Interval (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Max Jitter (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Max Jitter (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>Last Interval (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Last Interval (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <h3>Base Thread (25.0µs)</h3> */
-	snprintf(buf, sizeof(buf), "%s (%.2f%s)",
-		ezcfg_locale_text(locale, "Base Thread"),
-		25.00, ezcfg_locale_text(locale, "µs"));
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_H3_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Max Interval (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Max Interval (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-
-	/* <p>Max Jitter (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Max Jitter (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
-	if (child_index < 0) {
-		err(ezcfg, "ezcfg_html_add_body_child error.\n");
-		goto func_exit;
-	}
-	ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-
-	/* <p>Last Interval (ns) : 86400</p> */
-	snprintf(buf, sizeof(buf), "%s%s%s",
-		ezcfg_locale_text(locale, "Last Interval (ns)"),
-		ezcfg_locale_text(locale, " : "),
-		"86400");
-	child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
@@ -218,6 +209,34 @@ static int set_html_main_cnc_setup(
 
 func_exit:
 	return ret;
+}
+
+static bool do_admin_cnc_setup_action(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_link_list *list;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+	list = admin->post_list;
+
+	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
+		ret = ezcfg_http_html_admin_save_settings(admin);
+	}
+	return ret;
+}
+
+static bool handle_admin_cnc_setup_post(struct ezcfg_http_html_admin *admin)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+
+	ezcfg = admin->ezcfg;
+
+	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
+		ret = do_admin_cnc_setup_action(admin);
+	}
+        return ret;
 }
 
 static int build_admin_cnc_setup_response(struct ezcfg_http_html_admin *admin)
@@ -358,13 +377,55 @@ func_exit:
 int ezcfg_http_html_admin_cnc_setup_handler(struct ezcfg_http_html_admin *admin)
 {
 	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
 	int ret = -1;
+	char old_enable[2];
+	char *p;
 
 	ASSERT(admin != NULL);
 
 	ezcfg = admin->ezcfg;
+	http = admin->http;
+	nvram = admin->nvram;
 
-	/* admin status_lan uri=[/admin/cnc_setup] */
+	/* admin cnc_setup uri=[/admin/cnc_setup] */
+	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
+		/* get old rc_emc2_enable status */
+		old_enable[0] = '\0';
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), &p);
+		if (p != NULL) {
+			snprintf(old_enable, sizeof(old_enable), "%s", p);
+			free(p);
+		}
+
+		/* do post handling */
+		handle_admin_cnc_setup_post(admin);
+
+		/* do service actions */
+		/* first check start/stop machine */
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1") == true) {
+			if (strcmp(old_enable, "1") != 0) {
+				/* first check if the latency test is running */
+				if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "1") == true) {
+					ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_STOP, 0);
+					ezcfg_nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "0");
+				}
+				/* then start machine */
+				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2, EZCFG_RC_ACT_START, 0);
+				/* wait for a while */
+				sleep(5);
+			}
+		}
+		else if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "0") == true) {
+			if (strcmp(old_enable, "1") == 0) {
+				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2, EZCFG_RC_ACT_STOP, 0);
+				/* wait for a while */
+				sleep(5);
+			}
+		}
+	}
+
 	ret = build_admin_cnc_setup_response(admin);
 	return ret;
 }

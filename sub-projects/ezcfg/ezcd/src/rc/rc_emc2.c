@@ -241,8 +241,9 @@ int rc_emc2(int flag)
 		/* killall $EMCTASK */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_TASK_TASK), buf, sizeof(buf));
 		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n %s", buf);
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
 			system(cmd);
+			sleep(1);
 		}
 
 		/* stop the realtime stuff ticking */
@@ -263,7 +264,7 @@ int rc_emc2(int flag)
 		/* killall $HALUI */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HAL_HALUI), buf, sizeof(buf));
 		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n %s", buf);
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
 			system(cmd);
 		}
 
@@ -271,7 +272,7 @@ int rc_emc2(int flag)
 		/* killall $EMCIO */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_EMCIO), buf, sizeof(buf));
 		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n %s", buf);
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
 			system(cmd);
 		}
 
@@ -279,7 +280,7 @@ int rc_emc2(int flag)
 		rc_realtime(RC_STOP);
 
 		/* Stop emcserver in background, always (it owns/creates the NML buffers) */
-		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n emcsvr");
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, "emcsvr");
 		system(cmd);
 
 		break;

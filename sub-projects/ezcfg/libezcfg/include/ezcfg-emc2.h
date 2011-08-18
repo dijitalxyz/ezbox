@@ -76,7 +76,7 @@
 #define EZCFG_EMC2_CONF_EMC_NML_FILE        "conf_emc_nml_file"
 /* [DISPLAY] section */
 #define EZCFG_EMC2_CONF_DISPLAY_DISPLAY           "conf_display_display"
-#define EZCFG_EMC2_CONF_DISPLAY_CYCLE_TIME       "conf_display_cycle_time"
+#define EZCFG_EMC2_CONF_DISPLAY_CYCLE_TIME        "conf_display_cycle_time"
 #define EZCFG_EMC2_CONF_DISPLAY_HELP_FILE         "conf_display_help_file"
 #define EZCFG_EMC2_CONF_DISPLAY_POSITION_OFFSET   "conf_display_position_offset"
 #define EZCFG_EMC2_CONF_DISPLAY_POSITION_FEEDBACK "conf_display_position_feedback"

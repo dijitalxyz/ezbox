@@ -216,7 +216,7 @@ static int set_html_main_cnc_latency(
 		/* <i> Start </i> */
 		snprintf(buf, sizeof(buf), " %s ",
 			ezcfg_locale_text(locale, "Start"));
-			child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
+		child_index = ezcfg_html_add_body_child(html, p_index, input_index, EZCFG_HTML_I_ELEMENT_NAME, buf);
 		if (child_index < 0) {
 			err(ezcfg, "ezcfg_html_add_body_child error.\n");
 			goto func_exit;
@@ -224,6 +224,20 @@ static int set_html_main_cnc_latency(
 
 		/* restore <p> index */
 		child_index = p_index;
+
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1") == true) {
+			/* <p>Warning : Machine is running, will stop it automatically!</p> */
+			snprintf(buf, sizeof(buf), "%s%s%s",
+				ezcfg_locale_text(locale, "Warning"),
+				ezcfg_locale_text(locale, " : "),
+				ezcfg_locale_text(locale, "Machine is running, will stop it automatically!"));
+			child_index = ezcfg_html_add_body_child(html, content_index, child_index, EZCFG_HTML_P_ELEMENT_NAME, buf);
+			if (child_index < 0) {
+				err(ezcfg, "ezcfg_html_add_body_child error.\n");
+				goto func_exit;
+			}
+			ezcfg_html_add_body_child_attribute(html, child_index, EZCFG_HTML_CLASS_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_P_CLASS_WARNING, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+                }
 	}
 
 	/* <h3>Latency Test Information</h3> */
@@ -562,7 +576,7 @@ int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admi
 	http = admin->http;
 	nvram = admin->nvram;
 
-	/* admin status_lan uri=[/admin/cnc_latency] */
+	/* admin cnc_latency uri=[/admin/cnc_latency] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
 		/* get old emc2_lat_test_start status */
 		old_start[0] = '\0';
@@ -579,22 +593,28 @@ int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admi
 		/* first check start/stop test */
 		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "1") == true) {
 			if (strcmp(old_start, "1") != 0) {
+				/* first check if the machine is running */
+				if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1") == true) {
+					ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2, EZCFG_RC_ACT_STOP, 0);
+					ezcfg_nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "0");
+				}
+				/* then start machine latency test */
 				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_START, 0);
 				/* sleep a while */
-				sleep(1);
+				sleep(5);
+			}
+			/* now check reset test */
+			if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "1") == true) {
+				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_RELOAD, 0);
+				ezcfg_nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "0");
+				/* sleep a while */
+				sleep(3);
 			}
 		}
 		else if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_START), "0") == true) {
 			if (strcmp(old_start, "1") == 0) {
 				ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_STOP, 0);
 			}
-		}
-		/* then check reset test */
-		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "1") == true) {
-			ezcfg_util_rc(EZCFG_RC_SERVICE_EMC2_LATENCY_TEST, EZCFG_RC_ACT_RELOAD, 0);
-			ezcfg_nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_RESET), "0");
-			/* sleep a while */
-			sleep(1);
 		}
 	}
 
