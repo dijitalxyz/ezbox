@@ -77,7 +77,7 @@ int rc_emc2(int flag)
 	char *p;
 	char name[64];
 	char buf[64];
-	char cmd[128];
+	char cmd[256];
 	char ini_file[64];
 	char ini_dir[64];
 	char old_dir[64];
@@ -223,6 +223,48 @@ int rc_emc2(int flag)
 		/* Run display in foreground */
 		/* keystick -ini "$INIFILE" */
 
+		/* Run remote access in background */
+		/* emcrsh -- -ini "$INIFILE" */
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -b -n emcrsh -a /usr/bin/emcrsh -- -- -ini %s", ini_file);
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_PORT), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --port %s", buf);
+		}
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_NAME), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --name %s", buf);
+		}
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_CONNECTPW), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --connectpw %s", buf);
+		}
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_ENABLEPW), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --enablepw %s", buf);
+		}
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_SESSIONS), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --sessions %s", buf);
+		}
+
+		i = strlen(cmd);
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, EMCRSH_PATH), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd+i, sizeof(cmd)-i, " --path %s", buf);
+		}
+
+		system(cmd);
+
 		/* restore to original dir */
 		chdir(old_dir);
 
@@ -233,6 +275,11 @@ int rc_emc2(int flag)
 		if (utils_has_process_by_name("emcsvr") == false) {
 			return (EXIT_FAILURE);
 		}
+
+		/* Stop remote access in background */
+		/* emcrsh -- -ini "$INIFILE" */
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n emcrsh");
+		system(cmd);
 
 		/* Stop display in foreground */
 		/* killall keystick */

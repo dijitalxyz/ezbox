@@ -97,6 +97,7 @@
 #define EZCFG_EMC2_CONF_EMCMOT_COMM_WAIT          "conf_emcmot_comm_wait"
 #define EZCFG_EMC2_CONF_EMCMOT_BASE_PERIOD        "conf_emcmot_base_period"
 #define EZCFG_EMC2_CONF_EMCMOT_SERVO_PERIOD       "conf_emcmot_servo_period"
+#define EZCFG_EMC2_CONF_EMCMOT_TRAJ_PERIOD        "conf_emcmot_traj_period"
 /* [HAL] section */
 #define EZCFG_EMC2_CONF_HAL_HALFILE               "conf_hal_halfile"
 #define EZCFG_EMC2_CONF_HAL_HALFILE_NUM           "conf_hal_halfile_num"
@@ -280,5 +281,14 @@
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_LATCH_VEL      "conf_axis_8_home_latch_vel"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_USE_INDEX      "conf_axis_8_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_IGNORE_LIMITS  "conf_axis_8_home_ignore_limits"
+
+/* emcrsh config */
+#define EZCFG_EMC2_EMCRSH_PORT                     "emcrsh_port"
+#define EZCFG_EMC2_EMCRSH_NAME                     "emcrsh_name"
+#define EZCFG_EMC2_EMCRSH_CONNECTPW                "emcrsh_connectpw"
+#define EZCFG_EMC2_EMCRSH_ENABLEPW                 "emcrsh_enablepw"
+#define EZCFG_EMC2_EMCRSH_SESSIONS                 "emcrsh_sessions"
+//#define EZCFG_EMC2_EMCRSH_PATH                     "emcrsh_path"
+#define EZCFG_EMC2_EMCRSH_PATH                     EZCFG_EMC2_CONF_DISPLAY_PROGRAM_PREFIX
 
 #endif
