@@ -61,7 +61,7 @@ define Build/Configure
 		--with-module-dir="/usr/realtime/modules" \
 		--with-tclConfig="$(STAGING_DIR)/usr/lib/tclConfig.sh" \
 		--with-tkConfig="$(STAGING_DIR)/usr/lib/tkConfig.sh" \
-		--with-x="no" \
+		$(if $(CONFIG_FEATURE_drawing-backend_libX11), --with-x="yes", --with-x="no") \
 		, AR="$(TARGET_CROSS)ar" \
 		,src)
 endef
@@ -80,8 +80,12 @@ TARGET_LDFLAGS += \
 	$(TARGET_EXTRA_LIBS) \
 	$(if $(CONFIG_FEATURE_gui-toolkit_FLTK2), $(FLK2_EXTRA_LIBS), ) \
 	$(if $(CONFIG_FEATURE_gui-toolkit_GTK2), $(GTK2_EXTRA_LIBS), ) \
-	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lX11 -lnano-X, \
-	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11 -lXau -lXdmcp -lxcb, ))
+	$(if $(CONFIG_FEATURE_drawing-backend_nxlib), -lX11 -lnano-X, ) \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lX11 -lXau -lXdmcp -lxcb, )
+
+TARGET_LDFLAGS += \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -lXaw -lXext -lXmu -lXt -lXpm, ) \
+	$(if $(CONFIG_FEATURE_drawing-backend_libX11), -luuid -lICE -lSM, )
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src \
