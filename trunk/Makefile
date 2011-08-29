@@ -64,7 +64,9 @@ CONF_DIR:=$(DISTRO_DIR)/configs
 # set packages symbol links list directory
 ifeq ($(BUILD_TYPE),testing)
 PKGLIST_DIR:=$(DISTRO_DIR)/testing
-BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
+#BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
+BOOTSTRAP_DIR:=$(CUR_DIR)/pool/bootstrap
+PKGS_DIR:=$(CUR_DIR)/pool/packages
 endif
 ifeq ($(BUILD_TYPE),release)
 PKGLIST_DIR:=$(DISTRO_DIR)/release/$(RELEASE_VERSION)
@@ -102,24 +104,24 @@ prepare-bootstrap:
 clean-bootstrap-links:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
 
-ifeq ($(BUILD_TYPE),testing)
-prepare-packages:
-	cp -f $(CONF_DIR)/feeds.conf $(WK_DIR)/feeds.conf
-	cd $(WK_DIR) && ./scripts/feeds update -a
-	cd $(WK_DIR) && ./scripts/feeds install -a
-	sleep 3
+#ifeq ($(BUILD_TYPE),testing)
+#prepare-packages:
+#	cp -f $(CONF_DIR)/feeds.conf $(WK_DIR)/feeds.conf
+#	cd $(WK_DIR) && ./scripts/feeds update -a
+#	cd $(WK_DIR) && ./scripts/feeds install -a
+#	sleep 3
 
-clean-packages-links:
-	echo "do nothing for clean testing packages links"
-endif
+#clean-packages-links:
+#	echo "do nothing for clean testing packages links"
+#endif
 
-ifeq ($(BUILD_TYPE),release)
+#ifeq ($(BUILD_TYPE),release)
 prepare-packages:
 	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
 
 clean-packages-links:
 	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
-endif
+#endif
 
 prepare-download:
 	mkdir -p $(DL_DIR)

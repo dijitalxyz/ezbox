@@ -1,2 +1,2 @@
 # realtime packages
-realtime/rtai/package/rtai:package/rtai
+realtime/rtai/package/rtai/rtai-20110603:package/rtai
