@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue Aug 30 14:23:26 2011
+# Tue Aug 30 16:04:59 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1118,6 +1118,7 @@ CONFIG_PACKAGE_libopenssl=y
 # Configuration
 #
 CONFIG_OPENSSL_ENGINE=y
+CONFIG_PACKAGE_check=y
 CONFIG_PACKAGE_glib2=y
 CONFIG_PACKAGE_libcharset=y
 CONFIG_PACKAGE_libexpat=y
