@@ -8,22 +8,21 @@ include $(TOPDIR)/rules.mk
 
 ARCH:=mips
 BOARD:=ar71xx
-BOARDNAME:=Atheros AR71xx/AR7240/AR913x
+BOARDNAME:=Atheros AR71xx/AR7240/AR913x/AR934x
 FEATURES:=squashfs jffs2 targz
 CFLAGS:=-Os -pipe -mips32r2 -mtune=mips32r2 -fno-caller-saves
 SUBTARGETS:=generic nand
-INITRAMFS_EXTRA_FILES:=$(TOPDIR)/target/linux/$(BOARD)/image/initramfs-base-files.txt
 
-LINUX_VERSION:=2.6.37.4
+LINUX_VERSION:=2.6.39.4
 
 include $(INCLUDE_DIR)/target.mk
 
 DEFAULT_PACKAGES += \
 	kmod-leds-gpio kmod-input-core kmod-input-polldev \
-	kmod-input-gpio-buttons kmod-button-hotplug swconfig
+	kmod-input-gpio-keys-polled kmod-button-hotplug swconfig
 
 define Target/Description
-	Build firmware images for Atheros AR71xx/AR913x based boards.
+	Build firmware images for Atheros AR71xx/AR913x/AR934x based boards.
 endef
 
 $(eval $(call BuildTarget))
