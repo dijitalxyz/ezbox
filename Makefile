@@ -58,6 +58,7 @@ endif
 CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
 FD_DIR:=$(WK_DIR)/package/feeds/packages
+POOL_DIR:=$(CUR_DIR)/pool
 DISTRO_DIR:=$(CUR_DIR)/distro/$(DISTRO)
 DL_DIR:=$(BASE_DIR)/dl
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
@@ -160,6 +161,7 @@ clean-symbol-links: clean-packages-links clean-bootstrap-links
 
 
 prepare-build: clean-symbol-links prepare-basic-structure
+	[ ! -f $(PKGLIST_DIR)/customize.sh ] || $(PKGLIST_DIR)/customize.sh $(POOL_DIR) $(WK_DIR)
 	echo "prepare-build OK!"
 
 clean-build:
