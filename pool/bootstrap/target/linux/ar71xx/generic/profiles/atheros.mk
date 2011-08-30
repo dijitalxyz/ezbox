@@ -5,6 +5,28 @@
 # See /LICENSE for more information.
 #
 
+define Profile/AP121
+	NAME:=Atheros AP121 reference board
+	PACKAGES:=wpad-mini kmod-ath9k kmod-usb-core kmod-usb2
+endef
+
+define Profile/AP121/Description
+	Package set optimized for the Atheros AP121 reference board.
+endef
+
+$(eval $(call Profile,AP121))
+
+define Profile/AP121MINI
+	NAME:=Atheros AP121-MINI reference board
+	PACKAGES:=wpad-mini kmod-ath9k
+endef
+
+define Profile/AP121MINI/Description
+	Package set optimized for the Atheros AP121-MINI reference board.
+endef
+
+$(eval $(call Profile,AP121MINI))
+
 define Profile/AP81
 	NAME:=Atheros AP81 reference board
 	PACKAGES:=wpad-mini kmod-ath9k kmod-usb-core kmod-usb2
@@ -38,6 +60,17 @@ define Profile/AP96/Description
 endef
 
 $(eval $(call Profile,AP96))
+
+define Profile/DB120
+	NAME:=Atheros DB120 reference board
+	PACKAGES:=wpad-mini kmod-ath9k kmod-usb-core kmod-usb2 kmod-usb-storage
+endef
+
+define Profile/DB120/Description
+	Package set optimized for the Atheros DB120 reference board.
+endef
+
+$(eval $(call Profile,DB120))
 
 define Profile/PB42
 	NAME:=Atheros PB42 reference board

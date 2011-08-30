@@ -10,6 +10,12 @@ ar71xx_board_name() {
 	machine=$(awk 'BEGIN{FS="[ \t]+:[ \t]"} /machine/ {print $2}' /proc/cpuinfo)
 
 	case "$machine" in
+	*AP121)
+		name="ap121"
+		;;
+	*AP121-MINI)
+		name="ap121-mini"
+		;;
 	*AP81)
 		name="ap81"
 		;;
@@ -60,6 +66,9 @@ ar71xx_board_name() {
 		;;
 	*PB44)
 		name="pb44"
+		;;
+	*PB92)
+		name="pb92"
 		;;
 	*"RouterBOARD 411/A/AH")
 		name="rb-411"
@@ -144,6 +153,9 @@ ar71xx_board_name() {
 		;;
 	*WRT400N)
 		name="wrt400n"
+		;;
+	*WZR-HP-AG300H)
+		name="wzr-hp-ag300h"
 		;;
 	*WZR-HP-G300NH)
 		name="wzr-hp-g300nh"

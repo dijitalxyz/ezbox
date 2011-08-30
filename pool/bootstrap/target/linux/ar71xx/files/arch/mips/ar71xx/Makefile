@@ -15,7 +15,8 @@ obj-$(CONFIG_PCI)			+= pci.o
 
 obj-$(CONFIG_AR71XX_DEV_AP91_PCI)	+= dev-ap91-pci.o
 obj-$(CONFIG_AR71XX_DEV_AP94_PCI)	+= dev-ap94-pci.o
-obj-$(CONFIG_AR71XX_DEV_AR913X_WMAC)	+= dev-ar913x-wmac.o
+obj-$(CONFIG_AR71XX_DEV_AR9XXX_WMAC)	+= dev-ar9xxx-wmac.o
+obj-$(CONFIG_AR71XX_DEV_DB120_PCI)	+= dev-db120-pci.o
 obj-$(CONFIG_AR71XX_DEV_DSA)		+= dev-dsa.o
 obj-$(CONFIG_AR71XX_DEV_GPIO_BUTTONS)	+= dev-gpio-buttons.o
 obj-$(CONFIG_AR71XX_DEV_LEDS_GPIO)	+= dev-leds-gpio.o
@@ -25,13 +26,14 @@ obj-$(CONFIG_AR71XX_DEV_PB9X_PCI)	+= dev-pb9x-pci.o
 obj-$(CONFIG_AR71XX_DEV_USB)		+= dev-usb.o
 
 obj-$(CONFIG_AR71XX_NVRAM)		+= nvram.o
-obj-$(CONFIG_AR71XX_UBOOT_ENV)		+= uboot-env.o
 obj-$(CONFIG_AR71XX_PCI_ATH9K_FIXUP)	+= pci-ath9k-fixup.o
 
+obj-$(CONFIG_AR71XX_MACH_AP121)		+= mach-ap121.o
 obj-$(CONFIG_AR71XX_MACH_AP81)		+= mach-ap81.o
 obj-$(CONFIG_AR71XX_MACH_AP83)		+= mach-ap83.o
 obj-$(CONFIG_AR71XX_MACH_AP96)		+= mach-ap96.o
 obj-$(CONFIG_AR71XX_MACH_AW_NR580)	+= mach-aw-nr580.o
+obj-$(CONFIG_AR71XX_MACH_DB120)		+= mach-db120.o
 obj-$(CONFIG_AR71XX_MACH_DIR_600_A1)	+= mach-dir-600-a1.o
 obj-$(CONFIG_AR71XX_MACH_DIR_615_C1)	+= mach-dir-615-c1.o
 obj-$(CONFIG_AR71XX_MACH_DIR_825_B1)	+= mach-dir-825-b1.o
@@ -61,6 +63,5 @@ obj-$(CONFIG_AR71XX_MACH_WP543)		+= mach-wp543.o
 obj-$(CONFIG_AR71XX_MACH_WRT160NL)	+= mach-wrt160nl.o
 obj-$(CONFIG_AR71XX_MACH_WRT400N)	+= mach-wrt400n.o
 obj-$(CONFIG_AR71XX_MACH_WZR_HP_G300NH)	+= mach-wzr-hp-g300nh.o
+obj-$(CONFIG_AR71XX_MACH_WZR_HP_AG300H)	+= mach-wzr-hp-ag300h.o
 obj-$(CONFIG_AR71XX_MACH_ZCN_1523H)	+= mach-zcn-1523h.o
-obj-$(CONFIG_AR71XX_MACH_EZBOX_TL_WR740N_V4)	+= mach-ezbox-tl-wr740n_v4.o
-obj-$(CONFIG_AR71XX_MACH_EZBOX_MW150R_V2)	+= mach-ezbox-mw150r_v2.o
