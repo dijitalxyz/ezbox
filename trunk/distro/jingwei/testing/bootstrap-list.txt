@@ -1,0 +1,24 @@
+# basic packages
+package/crda/crda-1.1.1:package/crda
+package/dnsmasq/dnsmasq-2.57:package/dnsmasq
+package/dropbear/dropbear-0.53.1:package/dropbear
+package/e2fsprogs/e2fsprogs-1.41.12:package/e2fsprogs
+package/fuse/fuse-2.8.5:package/fuse
+package/hostapd/hostapd-20110527:package/hostapd
+package/iproute2/iproute2-2.6.35:package/iproute2
+package/iw/iw-0.9.22:package/iw
+# kernel modules package
+package/kernel/modules/extra-block.mk:package/kernel/modules/extra-block.mk
+package/libnl-tiny/libnl-tiny-0.1:package/libnl-tiny
+package/libreadline/libreadline-5.2:package/libreadline
+package/lua/lua-5.1.4:package/lua
+package/mac80211/mac80211-2011-06-22:package/mac80211
+package/ncurses/ncurses-5.7:package/ncurses
+package/openssl/openssl-1.0.0d:package/openssl
+package/wireless-tools/wireless-tools-29:package/wireless-tools
+package/zlib/zlib-1.2.5:package/zlib
+
+
+# target
+#FIXME: we need copy it to the workspace
+#target/linux/x86:target/linux/x86
