@@ -34,7 +34,8 @@ define Package/emc2
   +FEATURE_gui-toolkit_FLTK2:fltk2 \
   +FEATURE_gui-toolkit_GTK2:gtk2 \
   +FEATURE_drawing-backend_nxlib:nxlib \
-  +FEATURE_drawing-backend_libX11:libX11
+  +FEATURE_drawing-backend_libX11:libX11 \
+  +FEATURE_drawing-backend_libX11:libXaw
   URL:=http://www.linuxcnc.org/
 endef
 
