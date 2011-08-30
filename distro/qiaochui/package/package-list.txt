@@ -1,7 +1,0 @@
-dropbear
-e2fsprogs
-iproute2
-libreadline
-ncurses
-openssl
-zlib
