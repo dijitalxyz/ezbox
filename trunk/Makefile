@@ -57,6 +57,7 @@ endif
 # basic directories
 CUR_DIR:=${CURDIR}
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
+FD_DIR:=$(WK_DIR)/package/feeds/packages
 DISTRO_DIR:=$(CUR_DIR)/distro/$(DISTRO)
 DL_DIR:=$(BASE_DIR)/dl
 SCRIPTS_DIR:=$(CUR_DIR)/scripts
@@ -96,6 +97,7 @@ build-info:
 prepare-workspace:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
+	mkdir -p $(FD_DIR)
 
 prepare-bootstrap:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
@@ -117,10 +119,10 @@ clean-bootstrap-links:
 
 #ifeq ($(BUILD_TYPE),release)
 prepare-packages:
-	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(FD_DIR) $(PKGLIST_DIR)/packages-list.txt
 
 clean-packages-links:
-	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(FD_DIR) $(PKGLIST_DIR)/packages-list.txt
 #endif
 
 prepare-download:
