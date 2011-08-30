@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue Aug 30 17:30:54 2011
+# Tue Aug 30 18:47:56 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_ar71xx=y
@@ -9,15 +9,19 @@ CONFIG_TARGET_ar71xx_generic=y
 # CONFIG_TARGET_ar71xx_nand is not set
 CONFIG_TARGET_ar71xx_generic_Default=y
 # CONFIG_TARGET_ar71xx_generic_Minimal is not set
-# CONFIG_TARGET_ar71xx_generic_Madwifi is not set
+# CONFIG_TARGET_ar71xx_generic_ath5k is not set
+# CONFIG_TARGET_ar71xx_generic_AP121 is not set
+# CONFIG_TARGET_ar71xx_generic_AP121MINI is not set
 # CONFIG_TARGET_ar71xx_generic_AP81 is not set
 # CONFIG_TARGET_ar71xx_generic_AP83 is not set
 # CONFIG_TARGET_ar71xx_generic_AP96 is not set
+# CONFIG_TARGET_ar71xx_generic_DB120 is not set
 # CONFIG_TARGET_ar71xx_generic_PB42 is not set
 # CONFIG_TARGET_ar71xx_generic_PB44 is not set
 # CONFIG_TARGET_ar71xx_generic_PB92 is not set
 # CONFIG_TARGET_ar71xx_generic_A02RBW300N is not set
 # CONFIG_TARGET_ar71xx_generic_WZRHPG300NH is not set
+# CONFIG_TARGET_ar71xx_generic_WZRHPAG300H is not set
 # CONFIG_TARGET_ar71xx_generic_WP543 is not set
 # CONFIG_TARGET_ar71xx_generic_DIR600A1 is not set
 # CONFIG_TARGET_ar71xx_generic_DIR615C1 is not set
@@ -57,13 +61,13 @@ CONFIG_HAS_SUBTARGETS=y
 CONFIG_TARGET_BOARD="ar71xx"
 CONFIG_TARGET_ARCH_PACKAGES="ar71xx"
 CONFIG_DEFAULT_TARGET_OPTIMIZATION="-Os -pipe -mips32r2 -mtune=mips32r2 -fno-caller-saves"
-CONFIG_LINUX_2_6_37=y
+CONFIG_LINUX_2_6_39=y
 CONFIG_DEFAULT_busybox=y
 CONFIG_DEFAULT_ezcfg=y
 CONFIG_DEFAULT_kmod-ath9k=y
 CONFIG_DEFAULT_kmod-button-hotplug=y
 CONFIG_DEFAULT_kmod-input-core=y
-CONFIG_DEFAULT_kmod-input-gpio-buttons=y
+CONFIG_DEFAULT_kmod-input-gpio-keys-polled=y
 CONFIG_DEFAULT_kmod-input-polldev=y
 CONFIG_DEFAULT_kmod-leds-gpio=y
 CONFIG_DEFAULT_kmod-ledtrig-usbdev=y
@@ -73,7 +77,6 @@ CONFIG_DEFAULT_kmod-usb2=y
 CONFIG_DEFAULT_libc=y
 CONFIG_DEFAULT_libgcc=y
 CONFIG_DEFAULT_swconfig=y
-CONFIG_DEFAULT_uboot-ar71xx-nbg460n_550n_550nh=y
 CONFIG_DEFAULT_wpad-mini=y
 CONFIG_AUDIO_SUPPORT=y
 CONFIG_GPIO_SUPPORT=y
