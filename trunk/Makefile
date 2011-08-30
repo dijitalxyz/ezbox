@@ -101,7 +101,7 @@ prepare-workspace:
 
 prepare-bootstrap:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
-	[ ! -f $(PKGLIST_DIR)/target-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/target-list.txt
+	[ ! -f $(PKGLIST_DIR)/target-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/target-$(TARGET)-list.txt
 
 clean-bootstrap-links:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
@@ -133,11 +133,11 @@ prepare-download:
 prepare-realtime:
 	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
 	find $(WK_DIR)/target/linux/$(TARGET) -iname config-* |xargs rm -f
-	[ ! -f $(PKGLIST_DIR)/realtime-target-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt
 
 
 prepare-special-kernel:
-	[ ! -f $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-list.txt
+	[ ! -f $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-$(TARGET)-list.txt
 
 
 prepare-basic-structure: prepare-workspace prepare-bootstrap
