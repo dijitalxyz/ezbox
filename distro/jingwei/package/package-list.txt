@@ -1,9 +1,0 @@
-dnsmasq
-dropbear
-e2fsprogs
-iproute2
-libreadline
-lua
-ncurses
-openssl
-zlib
