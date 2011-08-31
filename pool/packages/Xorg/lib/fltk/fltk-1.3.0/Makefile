@@ -19,8 +19,8 @@ PKG_RELEASE:=1
 #PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-source.tar.gz
 #PKG_SOURCE_URL:=http://svn.easysw.com/public/fltk/fltk/trunk
-PKG_SOURCE_URL:=http://ftp.easysw.com/pub/fltk/$(PKG_VERSION)/$(PKG_SOURCE)
-PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
+PKG_SOURCE_URL:=http://ftp.easysw.com/pub/fltk/$(PKG_VERSION)
+PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_FIXUP:=libtool
 PKG_BUILD_PARALLEL:=1
