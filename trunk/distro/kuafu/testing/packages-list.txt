@@ -1,0 +1,2 @@
+libs/gettext-full/gettext-full-0.18.1.1:gettext-full
+libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
