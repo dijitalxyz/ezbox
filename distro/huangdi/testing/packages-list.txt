@@ -24,7 +24,7 @@ net/mongoose/mongoose-20101103:mongoose
 net/openvpn/openvpn-2.1.4:openvpn
 utils/emc2/emc2-20110710:emc2
 utils/ntfs-3g/ntfs-3g-2011.4.12:ntfs-3g
-Xorg/app/dillo/dillo-20110611:dillo
+Xorg/app/dillo/dillo-2.2.1:dillo
 Xorg/app/rxvt-unicode/rxvt-unicode-9.11:rxvt-unicode
 Xorg/font/dejavu-fonts-ttf/dejavu-fonts-ttf-2.23:dejavu-fonts-ttf
 Xorg/font/freefont-ttf/freefont-ttf-20100919:freefont-ttf
