@@ -74,7 +74,7 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/usr/bin $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/fltk $(1)/usr/include/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/FL $(1)/usr/include/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/fltk-config $(1)/usr/bin/
 	$(SED) \
 		's,^\(prefix\|exec_prefix\)=.*,\1="$(STAGING_DIR)/usr",g' \
