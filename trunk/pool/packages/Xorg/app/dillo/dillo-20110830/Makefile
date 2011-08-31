@@ -18,7 +18,7 @@ PKG_SOURCE_VERSION:=$(PKG_REV)
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://hg.dillo.org/dillo
-PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)/
+PKG_BUILD_DIR=$(BUILD_DIR)/Xorg/$(_CATEGORY)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -46,9 +46,9 @@ EXTRA_LDFLAGS+=-L$(ICONV_PREFIX)/lib -Wl,-rpath-link=$(STAGING_DIR)/usr/lib
 
 TARGET_LDFLAGS +=-ljpeg -lpng -liconv
 
-FLTK2_CONFIG := $(STAGING_DIR)/host/bin/fltk2-config
+FLTK_CONFIG := $(STAGING_DIR)/host/bin/fltk-config
 
-CONFIGURE_ARGS += --with-fltk2-config=$(FLTK2_CONFIG)
+CONFIGURE_ARGS += --with-fltk-config=$(FLTK_CONFIG)
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); ./autogen.sh );
