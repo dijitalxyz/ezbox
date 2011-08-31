@@ -16,11 +16,11 @@ libs/lzo/lzo-2.04:lzo
 libs/tiff/tiff-3.9.2:tiff
 utils/emc2/emc2-20110710:emc2
 utils/ntfs-3g/ntfs-3g-2011.4.12:ntfs-3g
-Xorg/app/dillo/dillo-20110611:dillo
+Xorg/app/dillo/dillo-20110830:dillo
 Xorg/app/rxvt-unicode/rxvt-unicode-9.11:rxvt-unicode
 Xorg/font/dejavu-fonts-ttf/dejavu-fonts-ttf-2.23:dejavu-fonts-ttf
 Xorg/font/wqy-zenhei-ttf/wqy-zenhei-ttf-0.9.45:wqy-zenhei-ttf
-Xorg/lib/fltk2/fltk2-r8800:fltk2
+Xorg/lib/fltk/fltk-1.3.0:fltk
 Xorg/lib/libdrm/libdrm-2.3.1:libdrm
 Xorg/lib/libmatchbox/libmatchbox-1.9:libmatchbox
 Xorg/lib/libxcb/libxcb-1.7:libxcb
