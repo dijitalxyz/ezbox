@@ -4,21 +4,21 @@
 
 # DISTRO set the ezbox distro to be build
 # support [kuafu|huangdi|jingwei|qiaochui]
-DISTRO := kuafu
+DISTRO := qiaochui
 
-# BUILD_TYPE set the ezbox distro build type
+# BUILD_TYPE set the ezbox distro release type
 # support [testing|release] 
 # testing : for development
-# release : for formal release
+# release : for formal announcement
 BUILD_TYPE := testing
 
 # RELEASE_VERSION set distro release version string
-# it takes no effect on building if RELEASE_TYPE is testing.
+# it takes no effect on building if BUILD_TYPE is testing.
 RELEASE_VERSION := 0.1
 
 # TARGET set the ezbox target running board
 # support [x86|ar71xx|brcm47xx|s3c24xx]
-TARGET := ar71xx
+TARGET := x86
 
 # DEVICE_TYPE set the openwrt device type
 # Should always be ezbox
@@ -26,7 +26,7 @@ DEVICE_TYPE := ezbox
 
 # ARCH set the CPU arch, please see README to set correct TARGET/ARCH
 # support [i386|mips|mipsel|arm]
-ARCH := mips
+ARCH := i386
 
 # KERNEL_VERSION set Linux kernel version string
 # support [default|2.6.32|2.6.37|...]
@@ -34,21 +34,21 @@ KERNEL_VERSION := default
 
 # RT_TYPE set the real-time Linux type
 # support [none|rtai|xenomai]
-RT_TYPE := none
+RT_TYPE := rtai
 
 # DRAWING_BACKEND set the Feature_drawing-backend
 # support [none|nanox|kdrive]
 # none : no graphic user interface support
 # nanox : use nxlib/nano-X archetecture
 # kdrive : use libX11/kdrive-fbdev archetecture
-DRAWING_BACKEND := none
+DRAWING_BACKEND := kdrive
 
 # GUI_TOOLKIT set the Feature_gui-toolkit
 # support [none|fltk2|fltk]
 # none : no graphic user interface toolkit support
 # fltk2 : use fltk2/(X window system) archetecture
 # fltk : use fltk1.3/(X window system) archetecture
-GUI_TOOLKIT := none
+GUI_TOOLKIT := fltk
 
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
@@ -56,5 +56,5 @@ GUI_TOOLKIT := none
 
 # LOG_LEVEL set openwrt build log verbose level
 # Set it to 99 for debugging
-# LOG_LEVEL := 99
+LOG_LEVEL := 99
 
