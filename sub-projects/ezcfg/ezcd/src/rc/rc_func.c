@@ -134,10 +134,12 @@ rc_func_t rc_functions[] = {
 		RC_RUN_LEVEL(99,99,99),
 		RC_RUN_LEVEL(1,1,1),
 		NULL },
+#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
 	{ "wpa_supplicant", RC_BOOT, rc_wpa_supplicant,
 		RC_RUN_LEVEL(99,99,99),
 		RC_RUN_LEVEL(1,1,1),
 		NULL },
+#endif
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	{ "wan", RC_BOOT, rc_wan,

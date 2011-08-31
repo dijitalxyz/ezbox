@@ -86,20 +86,10 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		if (rc > 0) {
 			fprintf(file, "DISPLAY = %s\n", buf);
 		}
-		/* Cycle time, in seconds, that display will sleep between polls */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_CYCLE_TIME), buf, sizeof(buf));
-		if (rc > 0) {
-			fprintf(file, "CYCLE_TIME = %s\n", buf);
-		}
-		/* Path to help file */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_HELP_FILE), buf, sizeof(buf));
-		if (rc > 0) {
-			fprintf(file, "HELP_FILE = %s\n", buf);
-		}
 		/* Initial display setting for position, RELATIVE or MACHINE */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_POSITION_OFFSET), buf, sizeof(buf));
 		if (rc > 0) {
-			fprintf(file, "POSITION_OFFSET = %s\n", "RELATIVE");
+			fprintf(file, "POSITION_OFFSET = %s\n", buf);
 		}
 		/* Initial display setting for position, COMMANDED or ACTUAL */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_POSITION_FEEDBACK), buf, sizeof(buf));
@@ -110,6 +100,16 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_MAX_FEED_OVERRIDE), buf, sizeof(buf));
 		if (rc > 0) {
 			fprintf(file, "MAX_FEED_OVERRIDE = %s\n", buf);
+		}
+		/* The minimum spindle override the user may select 0.5 = 50% */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_MIN_SPINDLE_OVERRIDE), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "MIN_SPINDLE_OVERRIDE = %s\n", buf);
+		}
+		/* The maximum spindle override the user may select 0.5 = 50% */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_MAX_SPINDLE_OVERRIDE), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "MAX_SPINDLE_OVERRIDE = %s\n", buf);
 		}
 		/* Prefix to be used */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_PROGRAM_PREFIX), buf, sizeof(buf));
@@ -124,6 +124,16 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_INTRO_TIME), buf, sizeof(buf));
 		if (rc > 0) {
 			fprintf(file, "INTRO_TIME = %s\n", buf);
+		}
+		/* Cycle time, in seconds, that display will sleep between polls */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_CYCLE_TIME), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "CYCLE_TIME = %s\n", buf);
+		}
+		/* Path to help file, not used in AXIS */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_DISPLAY_HELP_FILE), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "HELP_FILE = %s\n", buf);
 		}
 
 		/* Task controller section */
@@ -183,6 +193,11 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 
 		/* Hardware Abstraction Layer section */
 		fprintf(file, "[%s]\n", "HAL");
+		/* Use two pass processing for loading HAL comps */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HAL_TWOPASS), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "TWOPASS = %s\n", buf);
+		}
 		/* list of hal config files to run through halcmd
 		 * files are executed in the order in which they appear
 		 */
@@ -209,6 +224,19 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 					fprintf(file, "HALCMD = %s\n", buf);
 				}
 			}
+		}
+		/* Execute the file shutdown.hal when EMC is exiting */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HAL_SHUTDOWN), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "SHUTDOWN = %s\n", buf);
+		}
+
+		/* Hardware Abstraction Layer UI section */
+		fprintf(file, "[%s]\n", "HALUI");
+		/* Use two pass processing for loading HAL comps */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HALUI_MDI_COMMAND), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "MDI_COMMAND = %s\n", buf);
 		}
 
 		/* Trajectory planner section */
@@ -256,6 +284,10 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		if (rc > 0) {
 			fprintf(file, "MAX_ACCELERATION = %s\n", buf);
 		}
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_TRAJ_NO_FORCE_HOMING), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "NO_FORCE_HOMING = %s\n", buf);
+		}
 
 		/* Axes sections */
 		for (i = 0; i < axes; i++) {
@@ -269,10 +301,17 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
-				i, EZCFG_EMC2_CONF_KEYWORD_HOME);
+				i, EZCFG_EMC2_CONF_KEYWORD_WRAPPED_ROTARY);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
-				fprintf(file, "HOME = %s\n", buf);
+				fprintf(file, "WRAPPED_ROTARY = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_UNITS);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "UNITS = %s\n", buf);
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
@@ -286,14 +325,7 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 				i, EZCFG_EMC2_CONF_KEYWORD_MAX_ACCELERATION);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
-				fprintf(file, "MAX_ACCELERATION = %s\n", "500.0");
-			}
-			snprintf(name, sizeof(name), "%s_%d_%s",
-				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
-				i, EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXACCEL);
-			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-			if (rc > 0) {
-				fprintf(file, "STEPGEN_MAXACCEL = %s\n", buf);
+				fprintf(file, "MAX_ACCELERATION = %s\n", buf);
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
@@ -304,17 +336,17 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
-				i, EZCFG_EMC2_CONF_KEYWORD_SCALE);
+				i, EZCFG_EMC2_CONF_KEYWORD_COMP_FILE);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
-				fprintf(file, "SCALE = %s\n", buf);
+				fprintf(file, "COMP_FILE = %s\n", buf);
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
-				i, EZCFG_EMC2_CONF_KEYWORD_OUTPUT_SCALE);
+				i, EZCFG_EMC2_CONF_KEYWORD_COMP_FILE_TYPE);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
-				fprintf(file, "OUTPUT_SCALE = %s\n", buf);
+				fprintf(file, "COMP_FILE_TYPE = %s\n", buf);
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
@@ -332,17 +364,25 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_MIN_FERROR);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "MIN_FERROR = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
 				i, EZCFG_EMC2_CONF_KEYWORD_FERROR);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
 				fprintf(file, "FERROR = %s\n", buf);
 			}
+			/* homing */
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
-				i, EZCFG_EMC2_CONF_KEYWORD_MIN_FERROR);
+				i, EZCFG_EMC2_CONF_KEYWORD_HOME);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
-				fprintf(file, "MIN_FERROR = %s\n", buf);
+				fprintf(file, "HOME = %s\n", buf);
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
@@ -367,6 +407,13 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_HOME_FINAL_VEL);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "HOME_FINAL_VEL = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
 				i, EZCFG_EMC2_CONF_KEYWORD_HOME_USE_INDEX);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
@@ -381,10 +428,131 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 			}
 			snprintf(name, sizeof(name), "%s_%d_%s",
 				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_HOME_IS_SHARED);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "HOME_IS_SHARED = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
 				i, EZCFG_EMC2_CONF_KEYWORD_HOME_SEQUENCE);
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 			if (rc > 0) {
 				fprintf(file, "HOME_SEQUENCE = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_VOLATILE_HOME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "VOLATILE_HOME = %s\n", buf);
+			}
+			/* servo */
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_DEADBAND);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "DEADBAND = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_BIAS);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "BIAS = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_P);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "P = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_I);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "I = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_D);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "D = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_FF0);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "FF0 = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_FF1);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "FF1 = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_FF2);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "FF2 = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_OUTPUT_SCALE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "OUTPUT_SCALE = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_OUTPUT_OFFSET);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "OUTPUT_OFFSET = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_MAX_OUTPUT);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "MAX_OUTPUT = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_INPUT_SCALE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "INPUT_SCALE = %s\n", buf);
+			}
+			/* stepper */
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_SCALE);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "SCALE = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXACCEL);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "STEPGEN_MAXACCEL = %s\n", buf);
+			}
+			snprintf(name, sizeof(name), "%s_%d_%s",
+				NVRAM_SERVICE_OPTION(EMC2, CONF_SECTION_AXIS),
+				i, EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXVEL);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf(file, "STEPGEN_MAXVEL = %s\n", buf);
 			}
 		}
 
@@ -404,6 +572,31 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_TOOL_TABLE), buf, sizeof(buf));
 		if (rc > 0) {
 			fprintf(file, "TOOL_TABLE = %s\n", buf);
+		}
+		/* Specifies the location to move to when performing a tool change if three digits are used */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_TOOL_CHANGE_POSITION), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "TOOL_CHANGE_POSITION = %s\n", buf);
+		}
+		/* The spindle will be left on during the tool change when the value is 1 */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_TOOL_CHANGE_WITH_SPINDLE_ON), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "TOOL_CHANGE_WITH_SPINDLE_ON = %s\n", buf);
+		}
+		/* The Z axis will be moved to machine zero prior to the tool change when the value is 1 */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_TOOL_CHANGE_QUILL_UP), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "TOOL_CHANGE_QUILL_UP = %s\n", buf);
+		}
+		/* The machine is moved to reference point defined by parameters 5181-5186 for G30 if the value is 1 */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_TOOL_CHANGE_AT_G30), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "TOOL_CHANGE_AT_G30 = %s\n", buf);
+		}
+		/* This is for machines that cannot place the tool back into the pocket it came from */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_RANDOM_TOOLCHANGER), buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "RANDOM_TOOLCHANGER = %s\n", buf);
 		}
 
 		fclose(file);

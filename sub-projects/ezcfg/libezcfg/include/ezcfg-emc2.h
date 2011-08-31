@@ -52,23 +52,45 @@
 #define EZCFG_EMC2_CONF_SECTION_EMCIO       "conf_emcio"
 /* keywords */
 #define EZCFG_EMC2_CONF_KEYWORD_TYPE                "type"
-#define EZCFG_EMC2_CONF_KEYWORD_HOME                "home"
+#define EZCFG_EMC2_CONF_KEYWORD_WRAPPED_ROTARY      "wrapped_rotary"
+#define EZCFG_EMC2_CONF_KEYWORD_UNITS               "units"
 #define EZCFG_EMC2_CONF_KEYWORD_MAX_VELOCITY        "max_velocity"
 #define EZCFG_EMC2_CONF_KEYWORD_MAX_ACCELERATION    "max_acceleration"
-#define EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXACCEL    "stepgen_maxaccel"
 #define EZCFG_EMC2_CONF_KEYWORD_BACKLASH            "backlash"
-#define EZCFG_EMC2_CONF_KEYWORD_SCALE               "scale"
-#define EZCFG_EMC2_CONF_KEYWORD_OUTPUT_SCALE         "output_scale"
+#define EZCFG_EMC2_CONF_KEYWORD_COMP_FILE           "comp_file"
+#define EZCFG_EMC2_CONF_KEYWORD_COMP_FILE_TYPE      "comp_file_type"
 #define EZCFG_EMC2_CONF_KEYWORD_MIN_LIMIT           "min_limit"
 #define EZCFG_EMC2_CONF_KEYWORD_MAX_LIMIT           "max_limit"
-#define EZCFG_EMC2_CONF_KEYWORD_FERROR              "ferror"
 #define EZCFG_EMC2_CONF_KEYWORD_MIN_FERROR          "min_ferror"
+#define EZCFG_EMC2_CONF_KEYWORD_FERROR              "ferror"
+/* for homing */
+#define EZCFG_EMC2_CONF_KEYWORD_HOME                "home"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_OFFSET         "home_offset"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_SEARCH_VEL     "home_search_vel"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_LATCH_VEL      "home_latch_vel"
+#define EZCFG_EMC2_CONF_KEYWORD_HOME_FINAL_VEL      "home_final_vel"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_USE_INDEX      "home_use_index"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_IGNORE_LIMITS  "home_ignore_limits"
+#define EZCFG_EMC2_CONF_KEYWORD_HOME_IS_SHARED      "home_is_shared"
 #define EZCFG_EMC2_CONF_KEYWORD_HOME_SEQUENCE       "home_sequence"
+#define EZCFG_EMC2_CONF_KEYWORD_VOLATILE_HOME       "volatile_home"
+/* for servo system */
+#define EZCFG_EMC2_CONF_KEYWORD_DEADBAND            "deadband"
+#define EZCFG_EMC2_CONF_KEYWORD_BIAS                "bias"
+#define EZCFG_EMC2_CONF_KEYWORD_P                   "p"
+#define EZCFG_EMC2_CONF_KEYWORD_I                   "i"
+#define EZCFG_EMC2_CONF_KEYWORD_D                   "d"
+#define EZCFG_EMC2_CONF_KEYWORD_FF0                 "ff0"
+#define EZCFG_EMC2_CONF_KEYWORD_FF1                 "ff1"
+#define EZCFG_EMC2_CONF_KEYWORD_FF2                 "ff2"
+#define EZCFG_EMC2_CONF_KEYWORD_OUTPUT_SCALE        "output_scale"
+#define EZCFG_EMC2_CONF_KEYWORD_OUTPUT_OFFSET       "output_offset"
+#define EZCFG_EMC2_CONF_KEYWORD_MAX_OUTPUT          "max_output"
+#define EZCFG_EMC2_CONF_KEYWORD_INPUT_SCALE         "input_scale"
+/* for stepper system */
+#define EZCFG_EMC2_CONF_KEYWORD_SCALE               "scale"
+#define EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXACCEL    "stepgen_maxaccel"
+#define EZCFG_EMC2_CONF_KEYWORD_STEPGEN_MAXVEL      "stepgen_maxvel"
 
 /* [EMC] section */
 #define EZCFG_EMC2_CONF_EMC_VERSION         "conf_emc_version"
@@ -78,16 +100,20 @@
 /* [DISPLAY] section */
 #define EZCFG_EMC2_CONF_DISPLAY_DISPLAY           "conf_display_display"
 #define EZCFG_EMC2_CONF_DISPLAY_CYCLE_TIME        "conf_display_cycle_time"
-#define EZCFG_EMC2_CONF_DISPLAY_HELP_FILE         "conf_display_help_file"
 #define EZCFG_EMC2_CONF_DISPLAY_POSITION_OFFSET   "conf_display_position_offset"
 #define EZCFG_EMC2_CONF_DISPLAY_POSITION_FEEDBACK "conf_display_position_feedback"
 #define EZCFG_EMC2_CONF_DISPLAY_MAX_FEED_OVERRIDE "conf_display_max_feed_override"
+#define EZCFG_EMC2_CONF_DISPLAY_MIN_SPINDLE_OVERRIDE \
+	"conf_display_min_spindle_override"
+#define EZCFG_EMC2_CONF_DISPLAY_MAX_SPINDLE_OVERRIDE \
+	"conf_display_max_spindle_override"
 #define EZCFG_EMC2_CONF_DISPLAY_PROGRAM_PREFIX    "conf_display_program_prefix"
 #define EZCFG_EMC2_CONF_DISPLAY_INTRO_GRAPHIC     "conf_display_intro_graphic"
 #define EZCFG_EMC2_CONF_DISPLAY_INTRO_TIME        "conf_display_intro_time"
+#define EZCFG_EMC2_CONF_DISPLAY_HELP_FILE         "conf_display_help_file"
 /* [TASK] section */
-#define EZCFG_EMC2_CONF_TASK_TASK           "conf_task_task"
-#define EZCFG_EMC2_CONF_TASK_CYCLE_TIME     "conf_task_cycle_time"
+#define EZCFG_EMC2_CONF_TASK_TASK                 "conf_task_task"
+#define EZCFG_EMC2_CONF_TASK_CYCLE_TIME           "conf_task_cycle_time"
 /* [RS274NGC] section */
 #define EZCFG_EMC2_CONF_RS274NGC_PARAMETER_FILE   "conf_rs274ngc_parameter_file"
 #define EZCFG_EMC2_CONF_RS274NGC_LOG_FILE         "conf_rs274ngc_log_file"
@@ -99,11 +125,15 @@
 #define EZCFG_EMC2_CONF_EMCMOT_SERVO_PERIOD       "conf_emcmot_servo_period"
 #define EZCFG_EMC2_CONF_EMCMOT_TRAJ_PERIOD        "conf_emcmot_traj_period"
 /* [HAL] section */
+#define EZCFG_EMC2_CONF_HAL_TWOPASS               "conf_hal_twopass"
 #define EZCFG_EMC2_CONF_HAL_HALFILE               "conf_hal_halfile"
 #define EZCFG_EMC2_CONF_HAL_HALFILE_NUM           "conf_hal_halfile_num"
 #define EZCFG_EMC2_CONF_HAL_HALCMD                "conf_hal_halcmd"
 #define EZCFG_EMC2_CONF_HAL_HALCMD_NUM            "conf_hal_halcmd_num"
+#define EZCFG_EMC2_CONF_HAL_SHUTDOWN              "conf_hal_shutdown"
 #define EZCFG_EMC2_CONF_HAL_HALUI                 "conf_hal_halui"
+/* [HALUI] section */
+#define EZCFG_EMC2_CONF_HALUI_MDI_COMMAND         "conf_halui_mdi_command"
 /* [TRAJ] section */
 #define EZCFG_EMC2_CONF_TRAJ_AXES                 "conf_traj_axes"
 #define EZCFG_EMC2_CONF_TRAJ_COORDINATES          "conf_traj_coordinates"
@@ -115,10 +145,20 @@
 #define EZCFG_EMC2_CONF_TRAJ_MAX_VELOCITY         "conf_traj_max_velocity"
 #define EZCFG_EMC2_CONF_TRAJ_DEFAULT_ACCELERATION "conf_traj_default_acceleration"
 #define EZCFG_EMC2_CONF_TRAJ_MAX_ACCELERATION     "conf_traj_max_acceleration"
+#define EZCFG_EMC2_CONF_TRAJ_NO_FORCE_HOMING      "conf_traj_no_force_homing"
 /* [EMCIO] section */
 #define EZCFG_EMC2_CONF_EMCIO_EMCIO                "conf_emcio_emcio"
 #define EZCFG_EMC2_CONF_EMCIO_CYCLE_TIME           "conf_emcio_cycle_time"
 #define EZCFG_EMC2_CONF_EMCIO_TOOL_TABLE           "conf_emcio_tool_table"
+#define EZCFG_EMC2_CONF_EMCIO_TOOL_CHANGE_POSITION "conf_emcio_tool_change_position"
+#define EZCFG_EMC2_CONF_EMCIO_TOOL_CHANGE_WITH_SPINDLE_ON \
+	"conf_emcio_tool_change_with_spindle_on"
+#define EZCFG_EMC2_CONF_EMCIO_TOOL_CHANGE_QUILL_UP \
+	"conf_emcio_tool_change_quill_up"
+#define EZCFG_EMC2_CONF_EMCIO_TOOL_CHANGE_AT_G30 \
+	"conf_emcio_tool_change_at_g30"
+#define EZCFG_EMC2_CONF_EMCIO_RANDOM_TOOLCHANGER \
+	"conf_emcio_random_toolchanger"
 /* [AXIS_0] section */
 #define EZCFG_EMC2_CONF_AXIS_0_TYPE                "conf_axis_0_type"
 #define EZCFG_EMC2_CONF_AXIS_0_HOME                "conf_axis_0_home"
@@ -135,6 +175,7 @@
 #define EZCFG_EMC2_CONF_AXIS_0_HOME_OFFSET         "conf_axis_0_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_0_HOME_SEARCH_VEL     "conf_axis_0_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_0_HOME_LATCH_VEL      "conf_axis_0_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_0_HOME_FINAL_VEL      "conf_axis_0_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_0_HOME_USE_INDEX      "conf_axis_0_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_0_HOME_IGNORE_LIMITS  "conf_axis_0_home_ignore_limits"
 /* [AXIS_1] section */
@@ -153,6 +194,7 @@
 #define EZCFG_EMC2_CONF_AXIS_1_HOME_OFFSET         "conf_axis_1_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_1_HOME_SEARCH_VEL     "conf_axis_1_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_1_HOME_LATCH_VEL      "conf_axis_1_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_1_HOME_FINAL_VEL      "conf_axis_1_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_1_HOME_USE_INDEX      "conf_axis_1_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_1_HOME_IGNORE_LIMITS  "conf_axis_1_home_ignore_limits"
 /* [AXIS_2] section */
@@ -171,6 +213,7 @@
 #define EZCFG_EMC2_CONF_AXIS_2_HOME_OFFSET         "conf_axis_2_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_2_HOME_SEARCH_VEL     "conf_axis_2_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_2_HOME_LATCH_VEL      "conf_axis_2_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_2_HOME_FINAL_VEL      "conf_axis_2_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_2_HOME_USE_INDEX      "conf_axis_2_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_2_HOME_IGNORE_LIMITS  "conf_axis_2_home_ignore_limits"
 /* [AXIS_3] section */
@@ -189,6 +232,7 @@
 #define EZCFG_EMC2_CONF_AXIS_3_HOME_OFFSET         "conf_axis_3_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_3_HOME_SEARCH_VEL     "conf_axis_3_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_3_HOME_LATCH_VEL      "conf_axis_3_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_3_HOME_FINAL_VEL      "conf_axis_3_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_3_HOME_USE_INDEX      "conf_axis_3_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_3_HOME_IGNORE_LIMITS  "conf_axis_3_home_ignore_limits"
 /* [AXIS_4] section */
@@ -207,6 +251,7 @@
 #define EZCFG_EMC2_CONF_AXIS_4_HOME_OFFSET         "conf_axis_4_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_4_HOME_SEARCH_VEL     "conf_axis_4_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_4_HOME_LATCH_VEL      "conf_axis_4_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_4_HOME_FINAL_VEL      "conf_axis_4_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_4_HOME_USE_INDEX      "conf_axis_4_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_4_HOME_IGNORE_LIMITS  "conf_axis_4_home_ignore_limits"
 /* [AXIS_5] section */
@@ -225,6 +270,7 @@
 #define EZCFG_EMC2_CONF_AXIS_5_HOME_OFFSET         "conf_axis_5_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_5_HOME_SEARCH_VEL     "conf_axis_5_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_5_HOME_LATCH_VEL      "conf_axis_5_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_5_HOME_FINAL_VEL      "conf_axis_5_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_5_HOME_USE_INDEX      "conf_axis_5_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_5_HOME_IGNORE_LIMITS  "conf_axis_5_home_ignore_limits"
 /* [AXIS_6] section */
@@ -243,6 +289,7 @@
 #define EZCFG_EMC2_CONF_AXIS_6_HOME_OFFSET         "conf_axis_6_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_6_HOME_SEARCH_VEL     "conf_axis_6_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_6_HOME_LATCH_VEL      "conf_axis_6_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_6_HOME_FINAL_VEL      "conf_axis_6_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_6_HOME_USE_INDEX      "conf_axis_6_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_6_HOME_IGNORE_LIMITS  "conf_axis_6_home_ignore_limits"
 /* [AXIS_7] section */
@@ -261,6 +308,7 @@
 #define EZCFG_EMC2_CONF_AXIS_7_HOME_OFFSET         "conf_axis_7_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_7_HOME_SEARCH_VEL     "conf_axis_7_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_7_HOME_LATCH_VEL      "conf_axis_7_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_7_HOME_FINAL_VEL      "conf_axis_7_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_7_HOME_USE_INDEX      "conf_axis_7_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_7_HOME_IGNORE_LIMITS  "conf_axis_7_home_ignore_limits"
 /* [AXIS_8] section */
@@ -279,6 +327,7 @@
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_OFFSET         "conf_axis_8_home_offset"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_SEARCH_VEL     "conf_axis_8_home_search_vel"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_LATCH_VEL      "conf_axis_8_home_latch_vel"
+#define EZCFG_EMC2_CONF_AXIS_8_HOME_FINAL_VEL      "conf_axis_8_home_final_vel"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_USE_INDEX      "conf_axis_8_home_use_index"
 #define EZCFG_EMC2_CONF_AXIS_8_HOME_IGNORE_LIMITS  "conf_axis_8_home_ignore_limits"
 
