@@ -13,7 +13,7 @@ FEATURES:=jffs2
 CFLAGS:=-O2 -pipe -march=armv4t -mtune=arm920t -fno-caller-saves
 SUBTARGETS:=generic openmoko-gta02
 
-LINUX_VERSION:=2.6.32.27
+LINUX_VERSION:=2.6.37.6
 
 DEVICE_TYPE?=phone
 
