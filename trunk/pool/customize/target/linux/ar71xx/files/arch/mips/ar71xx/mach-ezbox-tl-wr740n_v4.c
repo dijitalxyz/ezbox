@@ -33,7 +33,9 @@
 
 #define EZBOX_TL_WR740N_V4_GPIO_USB_POWER	6
 
-#define EZBOX_TL_WR740N_V4_BUTTONS_POLL_INTERVAL	20
+#define EZBOX_TL_WR740N_V4_KEYS_POLL_INTERVAL	20	/* msecs */
+#define EZBOX_TL_WR740N_V4_KEYS_DEBOUNCE_INTERVAL (3 * EZBOX_TL_WR740N_V4_KEYS_POLL_INTERVAL)
+
 
 #define EZBOX_TL_WR740N_V4_UBOOT_ENV_ADDR	0x1f040000
 #define EZBOX_TL_WR740N_V4_UBOOT_ENV_SIZE	0x10000
@@ -97,19 +99,19 @@ static struct gpio_led ezbox_tl_wr740n_v4_leds_gpio[] __initdata = {
 	}
 };
 
-static struct gpio_button ezbox_tl_wr740n_v4_gpio_buttons[] __initdata = {
+static struct gpio_keys_button ezbox_tl_wr740n_v4_gpio_keys[] __initdata = {
 	{
 		.desc		= "reset",
 		.type		= EV_KEY,
 		.code		= KEY_RESTART,
-		.threshold	= 3,
+		.debounce_interval = EZBOX_TL_WR740N_V4_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		= EZBOX_TL_WR740N_V4_GPIO_BTN_RESET,
 		.active_low	= 1,
 	}, {
 		.desc		= "qss",
 		.type		= EV_KEY,
 		.code		= KEY_WPS_BUTTON,
-		.threshold	= 3,
+		.debounce_interval = EZBOX_TL_WR740N_V4_KEYS_DEBOUNCE_INTERVAL,
 		.gpio		= EZBOX_TL_WR740N_V4_GPIO_BTN_QSS,
 		.active_low	= 1,
 	}
@@ -119,7 +121,7 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 {
 	const char *nvram = (char *) KSEG1ADDR(EZBOX_TL_WR740N_V4_NVRAM_ADDR);
 	const char *ubootenv = (char *) KSEG1ADDR(EZBOX_TL_WR740N_V4_UBOOT_ENV_ADDR);
-	u8 *mac[6];
+	u8 mac[6];
 	u8 *ee = (u8 *) KSEG1ADDR(0x1fff1000);
 
 	/* enable power for the USB port */
@@ -131,9 +133,9 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 	ar71xx_add_device_leds_gpio(-1, ARRAY_SIZE(ezbox_tl_wr740n_v4_leds_gpio),
 					ezbox_tl_wr740n_v4_leds_gpio);
 
-	ar71xx_add_device_gpio_buttons(-1, EZBOX_TL_WR740N_V4_BUTTONS_POLL_INTERVAL,
-					ARRAY_SIZE(ezbox_tl_wr740n_v4_gpio_buttons),
-					ezbox_tl_wr740n_v4_gpio_buttons);
+	ar71xx_register_gpio_keys_polled(-1, EZBOX_TL_WR740N_V4_KEYS_POLL_INTERVAL,
+					ARRAY_SIZE(ezbox_tl_wr740n_v4_gpio_keys),
+					ezbox_tl_wr740n_v4_gpio_keys);
 
 	ar71xx_eth1_data.has_ar7240_switch = 1;
 	if (nvram_parse_mac_addr(nvram, EZBOX_TL_WR740N_V4_NVRAM_SIZE,
@@ -143,6 +145,11 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 	}
 	else if (ubootenv_parse_mac_addr(ubootenv, EZBOX_TL_WR740N_V4_UBOOT_ENV_SIZE,
 	                         "ethaddr=", mac) == 0) {
+		ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 0);
+		ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 1);
+	}
+	else {
+		memcpy(mac, (u8 *) KSEG1ADDR(0x1f01fc00), sizeof(mac));
 		ar71xx_init_mac(ar71xx_eth0_data.mac_addr, mac, 0);
 		ar71xx_init_mac(ar71xx_eth1_data.mac_addr, mac, 1);
 	}
