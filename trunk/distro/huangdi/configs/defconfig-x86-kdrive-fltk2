@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Wed Jul 20 17:54:47 2011
+# Wed Aug 31 10:38:13 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1063,13 +1063,38 @@ CONFIG_PACKAGE_libstdcpp=y
 CONFIG_PACKAGE_wireless-tools=y
 
 #
-# Real-Time
+# Utilities
 #
 
 #
-# RTAI
+# Filesystem
 #
-CONFIG_PACKAGE_rtai=y
+CONFIG_PACKAGE_badblocks=y
+# CONFIG_PACKAGE_blkid is not set
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_fuse-utils=y
+CONFIG_PACKAGE_ntfs-3g=y
+CONFIG_PACKAGE_NTFS-3G_USE_LIBFUSE=y
+CONFIG_PACKAGE_ntfs-3g-low=y
+CONFIG_PACKAGE_ntfs-3g-utils=y
+CONFIG_PACKAGE_ntfsprogs_ntfs-3g=y
+CONFIG_PACKAGE_resize2fs=y
+CONFIG_PACKAGE_tune2fs=y
+CONFIG_PACKAGE_uuidgen=y
+
+#
+# database
+#
+CONFIG_PACKAGE_sqlite3-cli=y
+# CONFIG_PACKAGE_dropbearconvert is not set
+CONFIG_PACKAGE_emc2=y
+CONFIG_PACKAGE_iconv=y
+# CONFIG_PACKAGE_jpeg-tools is not set
+CONFIG_PACKAGE_ldconfig=y
+# CONFIG_PACKAGE_ldd is not set
+# CONFIG_PACKAGE_ocf-crypto-headers is not set
+# CONFIG_PACKAGE_openssl-util is not set
+# CONFIG_PACKAGE_tiff-utils is not set
 
 #
 # Network
@@ -1117,7 +1142,6 @@ CONFIG_PACKAGE_freeswitch-config-minimal=y
 # CONFIG_PACKAGE_freeswitch-mod-bv is not set
 # CONFIG_PACKAGE_freeswitch-mod-cdr-csv is not set
 # CONFIG_PACKAGE_freeswitch-mod-celt is not set
-# CONFIG_PACKAGE_freeswitch-mod-cepstral is not set
 # CONFIG_PACKAGE_freeswitch-mod-cidlookup is not set
 # CONFIG_PACKAGE_freeswitch-mod-cluechoo is not set
 CONFIG_PACKAGE_freeswitch-mod-commands=y
@@ -1134,7 +1158,6 @@ CONFIG_PACKAGE_freeswitch-mod-dialplan-xml=y
 CONFIG_PACKAGE_freeswitch-mod-dptools=y
 # CONFIG_PACKAGE_freeswitch-mod-easyroute is not set
 # CONFIG_PACKAGE_freeswitch-mod-enum is not set
-# CONFIG_PACKAGE_freeswitch-mod-erlang-event is not set
 # CONFIG_PACKAGE_freeswitch-mod-esf is not set
 # CONFIG_PACKAGE_freeswitch-mod-event-multicast is not set
 CONFIG_PACKAGE_freeswitch-mod-event-socket=y
@@ -1147,30 +1170,19 @@ CONFIG_PACKAGE_freeswitch-mod-event-socket=y
 # CONFIG_PACKAGE_freeswitch-mod-g723-1 is not set
 # CONFIG_PACKAGE_freeswitch-mod-g729 is not set
 # CONFIG_PACKAGE_freeswitch-mod-h26x is not set
-# CONFIG_PACKAGE_freeswitch-mod-h323 is not set
 # CONFIG_PACKAGE_freeswitch-mod-ilbc is not set
-# CONFIG_PACKAGE_freeswitch-mod-java is not set
 # CONFIG_PACKAGE_freeswitch-mod-lcr is not set
-# CONFIG_PACKAGE_freeswitch-mod-ldap is not set
 # CONFIG_PACKAGE_freeswitch-mod-limit is not set
 CONFIG_PACKAGE_freeswitch-mod-local-stream=y
 # CONFIG_PACKAGE_freeswitch-mod-logfile is not set
 # CONFIG_PACKAGE_freeswitch-mod-loopback is not set
 # CONFIG_PACKAGE_freeswitch-mod-lua is not set
-# CONFIG_PACKAGE_freeswitch-mod-managed is not set
-# CONFIG_PACKAGE_freeswitch-mod-memcache is not set
 # CONFIG_PACKAGE_freeswitch-mod-native-file is not set
 # CONFIG_PACKAGE_freeswitch-mod-nibblebill is not set
-# CONFIG_PACKAGE_freeswitch-mod-opal is not set
 # CONFIG_PACKAGE_freeswitch-mod-openzap is not set
-# CONFIG_PACKAGE_freeswitch-mod-perl is not set
-# CONFIG_PACKAGE_freeswitch-mod-pocketsphinx is not set
 # CONFIG_PACKAGE_freeswitch-mod-portaudio is not set
 # CONFIG_PACKAGE_freeswitch-mod-portaudio-stream is not set
-# CONFIG_PACKAGE_freeswitch-mod-python is not set
-# CONFIG_PACKAGE_freeswitch-mod-radius-cdr is not set
 # CONFIG_PACKAGE_freeswitch-mod-rss is not set
-# CONFIG_PACKAGE_freeswitch-mod-sangoma-codec is not set
 # CONFIG_PACKAGE_freeswitch-mod-say-de is not set
 # CONFIG_PACKAGE_freeswitch-mod-say-en is not set
 # CONFIG_PACKAGE_freeswitch-mod-say-es is not set
@@ -1181,24 +1193,14 @@ CONFIG_PACKAGE_freeswitch-mod-local-stream=y
 # CONFIG_PACKAGE_freeswitch-mod-say-th is not set
 # CONFIG_PACKAGE_freeswitch-mod-say-zh is not set
 # CONFIG_PACKAGE_freeswitch-mod-shell-stream is not set
-# CONFIG_PACKAGE_freeswitch-mod-shout is not set
 # CONFIG_PACKAGE_freeswitch-mod-silk is not set
-# CONFIG_PACKAGE_freeswitch-mod-siren is not set
 # CONFIG_PACKAGE_freeswitch-mod-skinny is not set
-# CONFIG_PACKAGE_freeswitch-mod-skypopen is not set
 # CONFIG_PACKAGE_freeswitch-mod-snapshot is not set
 CONFIG_PACKAGE_freeswitch-mod-sndfile=y
 # CONFIG_PACKAGE_freeswitch-mod-snipe-hunt is not set
 # CONFIG_PACKAGE_freeswitch-mod-snom is not set
 CONFIG_PACKAGE_freeswitch-mod-sofia=y
-# CONFIG_PACKAGE_freeswitch-mod-soundtouch is not set
 # CONFIG_PACKAGE_freeswitch-mod-speex is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey-core_db is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey-curl is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey-odbc is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey-socket is not set
-# CONFIG_PACKAGE_freeswitch-mod-spidermonkey-teletone is not set
 # CONFIG_PACKAGE_freeswitch-mod-spy is not set
 # CONFIG_PACKAGE_freeswitch-mod-stress is not set
 CONFIG_PACKAGE_freeswitch-mod-syslog=y
@@ -1210,7 +1212,6 @@ CONFIG_PACKAGE_freeswitch-mod-tone-stream=y
 CONFIG_PACKAGE_freeswitch-mod-voipcodecs=y
 # CONFIG_PACKAGE_freeswitch-mod-xml-cdr is not set
 # CONFIG_PACKAGE_freeswitch-mod-xml-curl is not set
-# CONFIG_PACKAGE_freeswitch-mod-xml-ldap is not set
 # CONFIG_PACKAGE_freeswitch-mod-xml-rpc is not set
 # CONFIG_PACKAGE_freeswitch-mod-yaml is not set
 # CONFIG_PACKAGE_freeswitch-sounds-en is not set
@@ -1421,7 +1422,6 @@ CONFIG_PACKAGE_kmod-fs-mbcache=y
 CONFIG_PACKAGE_kmod-fs-msdos=y
 # CONFIG_PACKAGE_kmod-fs-nfs is not set
 # CONFIG_PACKAGE_kmod-fs-nfs-common is not set
-# CONFIG_PACKAGE_kmod-fs-nfs-common-v4 is not set
 # CONFIG_PACKAGE_kmod-fs-nfsd is not set
 CONFIG_PACKAGE_kmod-fs-ntfs=y
 # CONFIG_PACKAGE_kmod-fs-reiserfs is not set
@@ -1554,6 +1554,9 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
 # CONFIG_PACKAGE_kmod-ipv6 is not set
 # CONFIG_PACKAGE_kmod-isdn4linux is not set
+# CONFIG_PACKAGE_kmod-l2tp is not set
+# CONFIG_PACKAGE_kmod-l2tp-eth is not set
+# CONFIG_PACKAGE_kmod-l2tp-ip is not set
 # CONFIG_PACKAGE_kmod-misdn is not set
 # CONFIG_PACKAGE_kmod-mp-alg is not set
 # CONFIG_PACKAGE_kmod-netem is not set
@@ -1577,13 +1580,13 @@ CONFIG_PACKAGE_kmod-eeprom-93cx6=y
 # CONFIG_PACKAGE_kmod-eeprom-at24 is not set
 # CONFIG_PACKAGE_kmod-eeprom-at25 is not set
 # CONFIG_PACKAGE_kmod-gpio-cs5535 is not set
+# CONFIG_PACKAGE_kmod-gpio-cs5535-new is not set
 # CONFIG_PACKAGE_kmod-gpio-nsc is not set
 # CONFIG_PACKAGE_kmod-gpio-pc8736x is not set
 # CONFIG_PACKAGE_kmod-gpio-scx200 is not set
 CONFIG_PACKAGE_kmod-input-evdev=y
 CONFIG_PACKAGE_kmod-input-joydev=y
 CONFIG_PACKAGE_kmod-input-polldev=y
-CONFIG_PACKAGE_kmod-lp=y
 CONFIG_PACKAGE_kmod-mmc=y
 # CONFIG_PACKAGE_kmod-pwm is not set
 # CONFIG_PACKAGE_kmod-pwm-gpio is not set
@@ -1678,8 +1681,6 @@ CONFIG_B43_OPENFIRMWARE=y
 CONFIG_PACKAGE_B43_DEBUG=y
 CONFIG_PACKAGE_B43_PIO=y
 CONFIG_PACKAGE_B43_PHY_N=y
-CONFIG_PACKAGE_B43_PHY_HT=y
-CONFIG_PACKAGE_B43_PHY_LCN=y
 CONFIG_PACKAGE_kmod-b43legacy=y
 
 #
@@ -1719,7 +1720,6 @@ CONFIG_PACKAGE_kmod-mwl8k=y
 # CONFIG_PACKAGE_kmod-net-airo is not set
 CONFIG_PACKAGE_kmod-net-hermes=y
 CONFIG_PACKAGE_kmod-net-hermes-pci=y
-CONFIG_PACKAGE_kmod-net-hermes-pcmcia=y
 CONFIG_PACKAGE_kmod-net-hermes-plx=y
 CONFIG_PACKAGE_kmod-net-ipw2100=y
 CONFIG_PACKAGE_kmod-net-ipw2200=y
@@ -1749,40 +1749,6 @@ CONFIG_PACKAGE_kmod-rt73-usb=y
 CONFIG_PACKAGE_kmod-rtl8180=y
 CONFIG_PACKAGE_kmod-rtl8187=y
 CONFIG_PACKAGE_kmod-zd1211rw=y
-
-#
-# Utilities
-#
-
-#
-# Filesystem
-#
-CONFIG_PACKAGE_badblocks=y
-# CONFIG_PACKAGE_blkid is not set
-CONFIG_PACKAGE_e2fsprogs=y
-CONFIG_PACKAGE_fuse-utils=y
-CONFIG_PACKAGE_ntfs-3g=y
-CONFIG_PACKAGE_NTFS-3G_USE_LIBFUSE=y
-CONFIG_PACKAGE_ntfs-3g-low=y
-CONFIG_PACKAGE_ntfs-3g-utils=y
-CONFIG_PACKAGE_ntfsprogs_ntfs-3g=y
-CONFIG_PACKAGE_resize2fs=y
-CONFIG_PACKAGE_tune2fs=y
-CONFIG_PACKAGE_uuidgen=y
-
-#
-# database
-#
-CONFIG_PACKAGE_sqlite3-cli=y
-# CONFIG_PACKAGE_dropbearconvert is not set
-CONFIG_PACKAGE_emc2=y
-CONFIG_PACKAGE_iconv=y
-# CONFIG_PACKAGE_jpeg-tools is not set
-CONFIG_PACKAGE_ldconfig=y
-# CONFIG_PACKAGE_ldd is not set
-# CONFIG_PACKAGE_ocf-crypto-headers is not set
-# CONFIG_PACKAGE_openssl-util is not set
-# CONFIG_PACKAGE_tiff-utils is not set
 
 #
 # Languages
@@ -1922,7 +1888,6 @@ CONFIG_PACKAGE_pixman=y
 #
 # CONFIG_PACKAGE_microwin is not set
 CONFIG_PACKAGE_xserver-kdrive-common=y
-# CONFIG_PACKAGE_xserver-kdrive-xephyr is not set
 CONFIG_PACKAGE_xserver-kdrive-xfbdev=y
 
 #
