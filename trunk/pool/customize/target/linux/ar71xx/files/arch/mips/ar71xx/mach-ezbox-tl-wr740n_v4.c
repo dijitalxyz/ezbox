@@ -76,6 +76,7 @@ static struct mtd_partition ezbox_tl_wr740n_v4_partitions[] = {
 		.name		= "firmware",
 		.offset		= 0x050000,
 		.size		= 0x390000,
+		.mask_flags	= MTD_WRITEABLE,
 	}
 };
 #endif /* CONFIG_MTD_PARTITIONS */
@@ -170,7 +171,10 @@ static void __init ezbox_tl_wr740n_v4_setup(void)
 
 	ar71xx_add_device_usb();
 
+	ap91_pci_setup_wmac_led_pin(1);
+
 	ap91_pci_init(ee, mac);
 }
+
 MIPS_MACHINE(AR71XX_MACH_EZBOX_TL_WR740N_V4, "EZBOX-TL-WR740N-v4", "EZBOX on TL-WR740N v4",
 	     ezbox_tl_wr740n_v4_setup);
