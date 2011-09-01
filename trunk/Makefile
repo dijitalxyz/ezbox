@@ -67,16 +67,16 @@ CONF_DIR:=$(DISTRO_DIR)/configs
 ifeq ($(BUILD_TYPE),testing)
 PKGLIST_DIR:=$(DISTRO_DIR)/testing
 #BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
-BOOTSTRAP_DIR:=$(CUR_DIR)/pool/bootstrap
-PKGS_DIR:=$(CUR_DIR)/pool/packages
+BOOTSTRAP_DIR:=$(POOL_DIR)/bootstrap
+PKGS_DIR:=$(POOL_DIR)/packages
 endif
 ifeq ($(BUILD_TYPE),release)
 PKGLIST_DIR:=$(DISTRO_DIR)/release/$(RELEASE_VERSION)
-BOOTSTRAP_DIR:=$(CUR_DIR)/pool/bootstrap
-PKGS_DIR:=$(CUR_DIR)/pool/packages
+BOOTSTRAP_DIR:=$(POOL_DIR)/bootstrap
+PKGS_DIR:=$(POOL_DIR)/packages
 endif
 # set realtime symbol links directory
-RT_DIR:=$(BOOTSTRAP_DIR)/realtime/$(RT_TYPE)
+RT_DIR:=$(POOL_DIR)/realtime/$(RT_TYPE)
 
 all: $(DISTRO)-all
 
@@ -131,10 +131,10 @@ prepare-download:
 	rm -rf $(WK_DIR)/dl
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
-prepare-realtime:
-	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
+prepare-realtime: prepare-bootstrap
+	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(FD_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
 	find $(WK_DIR)/target/linux/$(TARGET) -iname config-* |xargs rm -f
-	[ ! -f $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(RT_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt
 
 
 prepare-special-kernel:
