@@ -127,7 +127,7 @@ clean-packages-links:
 #endif
 
 prepare-download:
-	mkdir -p $(DL_DIR)
+	[ ! -e $(DL_DIR) ] || mkdir -p $(DL_DIR)
 	rm -rf $(WK_DIR)/dl
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
