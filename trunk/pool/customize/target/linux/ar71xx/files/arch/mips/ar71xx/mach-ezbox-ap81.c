@@ -21,6 +21,8 @@
 #include "dev-gpio-buttons.h"
 #include "dev-leds-gpio.h"
 #include "dev-usb.h"
+#include "nvram.h"
+#include "uboot-env.h"
 
 #define EZBOX_AP81_GPIO_LED_STATUS	1
 #define EZBOX_AP81_GPIO_LED_AOSS	3
