@@ -170,7 +170,10 @@ static void __init ezbox_mw150r_v2_setup(void)
 
 	ar71xx_add_device_usb();
 
+	ap91_pci_setup_wmac_led_pin(1);
+
 	ap91_pci_init(ee, mac);
 }
+
 MIPS_MACHINE(AR71XX_MACH_EZBOX_MW150R_V2, "EZBOX-MW150R-v2", "EZBOX on MW150R v2",
 	     ezbox_mw150r_v2_setup);
