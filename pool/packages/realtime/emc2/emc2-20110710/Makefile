@@ -26,11 +26,12 @@ include $(INCLUDE_DIR)/nls.mk
 
 define Package/emc2
   SECTION:=utils
-  CATEGORY:=Utilities
+  CATEGORY:=Real-Time
   TITLE:=EMC (the Enhanced Machine Control)
   DEPENDS:=+rtai +glib2 +tcl +tk \
   +libreadline +libncurses \
   +USE_UCLIBC:librpc \
+  +FEATURE_gui-toolkit_FLTK:fltk \
   +FEATURE_gui-toolkit_FLTK2:fltk2 \
   +FEATURE_gui-toolkit_GTK2:gtk2 \
   +FEATURE_drawing-backend_nxlib:nxlib \
