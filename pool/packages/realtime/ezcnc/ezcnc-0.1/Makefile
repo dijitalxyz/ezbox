@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcnc
-PKG_REV:=1161
+PKG_REV:=1181
 PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -20,11 +20,16 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
+CMAKE_INSTALL:=1
 
 PKG_BUILD_DEPENDS:=opkg/host
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
+include $(INCLUDE_DIR)/cmake.mk
+
+TARGET_CFLAGS += $(TARGET_CPPFLAGS)
+EXTRA_CFLAGS += $(EXTRA_CPPFLAGS)
 
 # set to 1 to enable debugging
 DEBUG=0
@@ -47,23 +52,21 @@ endef
 #	source "$(SOURCE)/Config.in"
 #endef
 
-define Build/Configure
-	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
-	$(call Build/Configure/Default, )
-endef
+#define Build/Configure
+#	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
+#	$(call Build/Configure/Default, )
+#endef
 
-define Build/Compile
-	$(MAKE) -C $(PKG_BUILD_DIR)
-endef
+#define Build/Compile
+#	$(MAKE) -C $(PKG_BUILD_DIR)
+#endef
 
-define Build/InstallDev
-endef
+#define Build/InstallDev
+#endef
 
 define Package/ezcnc/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcnc.so* $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcnc $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/ezcnc $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,ezcnc))
