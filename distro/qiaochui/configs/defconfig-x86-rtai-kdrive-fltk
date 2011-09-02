@@ -1083,6 +1083,7 @@ CONFIG_PACKAGE_tune2fs=y
 CONFIG_PACKAGE_uuidgen=y
 # CONFIG_PACKAGE_dropbearconvert is not set
 CONFIG_PACKAGE_emc2=y
+CONFIG_PACKAGE_ezcnc=y
 CONFIG_PACKAGE_iconv=y
 # CONFIG_PACKAGE_jpeg-tools is not set
 CONFIG_PACKAGE_ldconfig=y
