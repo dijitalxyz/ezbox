@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcnc
-PKG_REV:=1181
+PKG_REV:=1184
 PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
