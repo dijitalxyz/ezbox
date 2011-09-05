@@ -187,6 +187,12 @@ if CONFIG_EZBOX_SERVICE_KDRIVE
 ezcd_SOURCES += src/rc/rc_kdrive.c
 endif
 
+# fontconfig service
+if CONFIG_EZBOX_SERVICE_FONTCONFIG
+ezcd_SOURCES += src/pop/pop_etc_fonts.c
+ezcd_SOURCES += src/rc/rc_fontconfig.c
+endif
+
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
 ezcd_SOURCES += src/pop/pop_etc_dillo_dillorc.c

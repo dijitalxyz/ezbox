@@ -25,6 +25,10 @@ extern int pop_etc_dnsmasq_conf(int flag);
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
 extern int pop_etc_l7_protocols(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
+extern int pop_etc_fonts_fonts_dtd(int flag);
+extern int pop_etc_fonts_fonts_conf(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 extern int pop_etc_dillo_dillorc(int flag);
 #endif

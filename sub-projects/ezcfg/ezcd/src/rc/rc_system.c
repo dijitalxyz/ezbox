@@ -264,6 +264,10 @@ int rc_system(int flag)
 		}
 #endif
 
+#if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
+		rc_fontconfig(RC_START);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 		rc_nano_x(RC_START);
 #elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)

@@ -163,6 +163,12 @@ rc_func_t rc_functions[] = {
 		RC_RUN_LEVEL(1,1,1),
 		NULL },
 #endif
+#if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
+	{ "fontconfig", RC_BOOT, rc_fontconfig,
+		RC_RUN_LEVEL(99,99,99),
+		RC_RUN_LEVEL(1,1,1),
+		NULL },
+#endif
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 	{ "nano_x", RC_BOOT, rc_nano_x,
 		RC_RUN_LEVEL(99,99,99),

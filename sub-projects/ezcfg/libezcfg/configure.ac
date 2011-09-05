@@ -304,6 +304,25 @@ AC_ARG_ENABLE([service-kdrive],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KDRIVE, test "x$config_ezbox_service_kdrive" = xyes)
 
+# Configure fontconfig service.
+config_ezbox_service_fontconfig=no
+AC_MSG_CHECKING([if fontconfig service is enabled])
+AC_ARG_ENABLE([service-fontconfig],
+	AS_HELP_STRING([--enable-service-fontconfig], [Enable fontconfig service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_FONTCONFIG], [1], [Enable fontconfig service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_fontconfig=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_FONTCONFIG, test "x$config_ezbox_service_fontconfig" = xyes)
+
 # Configure dillo web browser service.
 config_ezbox_service_dillo=no
 AC_MSG_CHECKING([if dillo web browser service is enabled])

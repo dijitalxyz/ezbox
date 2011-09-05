@@ -84,6 +84,10 @@ extern int rc_nano_x(int flag);
 extern int rc_kdrive(int flag);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
+extern int rc_fontconfig(int flag);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
 extern int rc_dillo(int flag);
 #endif
