@@ -24,6 +24,10 @@ else(APPLE)
   set(EZCNC_OS "${CMAKE_SYSTEM_NAME}")
 endif(APPLE)
 
+include(CheckTypeSize)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+
 macro(append_ezcnc_src DIRNAME FILES)
   foreach(FILE ${FILES})
     list(APPEND LIST ${DIRNAME}/${FILE})
@@ -37,6 +41,32 @@ macro(set_config_option VARNAME STRING)
   list(APPEND CONFIG_OPTIONS ${STRING})
   message(STATUS "Found " ${STRING})
 endmacro(set_config_option)
+
+add_subdirectory(Common)
+
+# process cmake environment variables so we can append them to the -I
+# include commands. This is not recommended (we should only use the
+# cache variables) but it is very convenient: otherwise we have to
+# remember providing the -D... options to cmake for each new build.
+set(ENV_CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH})
+set(ENV_CMAKE_INCLUDE_PATH $ENV{CMAKE_INCLUDE_PATH})
+if(UNIX)
+  if(ENV_CMAKE_PREFIX_PATH)
+    string(REPLACE ":" ";" ENV_CMAKE_PREFIX_PATH ${ENV_CMAKE_PREFIX_PATH})
+  endif(ENV_CMAKE_PREFIX_PATH)
+  if(ENV_CMAKE_INCLUDE_PATH)
+    string(REPLACE ":" ";" ENV_CMAKE_INCLUDE_PATH ${ENV_CMAKE_INCLUDE_PATH})
+  endif(ENV_CMAKE_INCLUDE_PATH)
+endif(UNIX)
+list(APPEND EXTERNAL_INCLUDES ${CMAKE_INCLUDE_PATH} ${ENV_CMAKE_INCLUDE_PATH})
+list(APPEND EXTERNAL_INCLUDES ${CMAKE_PREFIX_PATH} ${ENV_CMAKE_PREFIX_PATH})
+foreach(DIR ${CMAKE_PREFIX_PATH} ${ENV_CMAKE_PREFIX_PATH})
+  list(APPEND EXTERNAL_INCLUDES ${DIR}/include)
+endforeach(DIR)
+
+if(EXTERNAL_INCLUDES)
+  list(REMOVE_DUPLICATES EXTERNAL_INCLUDES)
+endif(EXTERNAL_INCLUDES)
 
 if(ENABLE_FLTK)
   # first, try to use fltk-config for fltk >= 1.3 (FindFLTK is buggy
@@ -126,12 +156,21 @@ if(ENABLE_FLTK)
   endif(HAVE_FLTK)
 endif(ENABLE_FLTK)
 
+check_include_file(pthread.h HAVE_PTHREAD)
+if(HAVE_PTHREAD)
+  add_definitions(-DHAVE_PTHREAD_H)
+endif (HAVE_PTHREAD)
 
 list(SORT CONFIG_OPTIONS)
 set(EZCNC_CONFIG_OPTIONS "")
 foreach(OPT ${CONFIG_OPTIONS})
   set(EZCNC_CONFIG_OPTIONS "${EZCNC_CONFIG_OPTIONS} ${OPT}")
 endforeach(OPT)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/EzcncConfig.h.in 
+               ${CMAKE_CURRENT_BINARY_DIR}/Common/EzcncConfig.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/EzcncVersion.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/Common/EzcncVersion.h)
 
 install(FILES LICENSE README DESTINATION share/doc/ezcnc)
 install(PROGRAMS ezcnc DESTINATION bin)
@@ -142,6 +181,21 @@ if(HAVE_FLTK)
 else(HAVE_FLTK)
   set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES})
 endif(HAVE_FLTK)
+
+# we could specify include dirs more selectively, but this is simpler
+include_directories(Common Fltk ${EXTERNAL_INCLUDES}
+    ${CMAKE_CURRENT_BINARY_DIR}/Common)
+
+# set this for external codes that might include this CMakeList file
+set(GMSH_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE 
+    STRING "External include directories")
+set(GMSH_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE 
+    STRING "External libraries")
+
+# group sources for easier navigation in IDEs
+foreach(DIR ${GMSH_DIRS})
+  source_group(${DIR} REGULAR_EXPRESSION ${DIR}/.*)
+endforeach(DIR)
 
 # binary targets
 if(HAVE_FLTK)
