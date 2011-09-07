@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Wed Aug 31 23:18:16 2011
+# Wed Sep  7 16:41:17 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -217,7 +217,6 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 CONFIG_FEATURE_drawing-backend_libX11=y
 # CONFIG_FEATURE_drawing-backend_nxlib is not set
 CONFIG_FEATURE_gui-toolkit_FLTK=y
-# CONFIG_FEATURE_gui-toolkit_FLTK2 is not set
 
 #
 # Base system
@@ -1063,34 +1062,15 @@ CONFIG_PACKAGE_libstdcpp=y
 CONFIG_PACKAGE_wireless-tools=y
 
 #
-# Utilities
+# Real-Time
 #
 
 #
-# Filesystem
+# RTAI
 #
-CONFIG_PACKAGE_badblocks=y
-# CONFIG_PACKAGE_blkid is not set
-CONFIG_PACKAGE_e2fsprogs=y
-CONFIG_PACKAGE_fuse-utils=y
-CONFIG_PACKAGE_ntfs-3g=y
-CONFIG_PACKAGE_NTFS-3G_USE_LIBFUSE=y
-CONFIG_PACKAGE_ntfs-3g-low=y
-CONFIG_PACKAGE_ntfs-3g-utils=y
-CONFIG_PACKAGE_ntfsprogs_ntfs-3g=y
-CONFIG_PACKAGE_resize2fs=y
-CONFIG_PACKAGE_tune2fs=y
-CONFIG_PACKAGE_uuidgen=y
-# CONFIG_PACKAGE_dropbearconvert is not set
+CONFIG_PACKAGE_rtai=y
 CONFIG_PACKAGE_emc2=y
 CONFIG_PACKAGE_ezcnc=y
-CONFIG_PACKAGE_iconv=y
-# CONFIG_PACKAGE_jpeg-tools is not set
-CONFIG_PACKAGE_ldconfig=y
-# CONFIG_PACKAGE_ldd is not set
-# CONFIG_PACKAGE_ocf-crypto-headers is not set
-# CONFIG_PACKAGE_openssl-util is not set
-# CONFIG_PACKAGE_tiff-utils is not set
 
 #
 # Network
@@ -1118,15 +1098,6 @@ CONFIG_DRIVER_11N_SUPPORT=y
 # CONFIG_PACKAGE_wpa-supplicant-mini is not set
 CONFIG_PACKAGE_wpad=y
 # CONFIG_PACKAGE_wpad-mini is not set
-
-#
-# Real-Time
-#
-
-#
-# RTAI
-#
-CONFIG_PACKAGE_rtai=y
 
 #
 # Libraries
@@ -1595,6 +1566,34 @@ CONFIG_PACKAGE_kmod-rtl8187=y
 CONFIG_PACKAGE_kmod-zd1211rw=y
 
 #
+# Utilities
+#
+
+#
+# Filesystem
+#
+CONFIG_PACKAGE_badblocks=y
+# CONFIG_PACKAGE_blkid is not set
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_fuse-utils=y
+CONFIG_PACKAGE_ntfs-3g=y
+CONFIG_PACKAGE_NTFS-3G_USE_LIBFUSE=y
+CONFIG_PACKAGE_ntfs-3g-low=y
+CONFIG_PACKAGE_ntfs-3g-utils=y
+CONFIG_PACKAGE_ntfsprogs_ntfs-3g=y
+CONFIG_PACKAGE_resize2fs=y
+CONFIG_PACKAGE_tune2fs=y
+CONFIG_PACKAGE_uuidgen=y
+# CONFIG_PACKAGE_dropbearconvert is not set
+CONFIG_PACKAGE_iconv=y
+# CONFIG_PACKAGE_jpeg-tools is not set
+CONFIG_PACKAGE_ldconfig=y
+# CONFIG_PACKAGE_ldd is not set
+# CONFIG_PACKAGE_ocf-crypto-headers is not set
+# CONFIG_PACKAGE_openssl-util is not set
+# CONFIG_PACKAGE_tiff-utils is not set
+
+#
 # Languages
 #
 
@@ -1645,7 +1644,6 @@ CONFIG_PACKAGE_fontconfig=y
 # framework
 #
 CONFIG_PACKAGE_fltk=y
-CONFIG_PACKAGE_fltk2=y
 
 #
 # libraries
@@ -1655,8 +1653,10 @@ CONFIG_PACKAGE_libSM=y
 CONFIG_PACKAGE_libX11=y
 CONFIG_PACKAGE_libXau=y
 CONFIG_PACKAGE_libXaw=y
+CONFIG_PACKAGE_libXdamage=y
 CONFIG_PACKAGE_libXdmcp=y
 CONFIG_PACKAGE_libXext=y
+CONFIG_PACKAGE_libXfixes=y
 CONFIG_PACKAGE_libXfont=y
 CONFIG_PACKAGE_libXft=y
 CONFIG_PACKAGE_libXi=y
@@ -1667,8 +1667,29 @@ CONFIG_PACKAGE_libXrender=y
 CONFIG_PACKAGE_libXt=y
 CONFIG_PACKAGE_libXtst=y
 CONFIG_PACKAGE_libXv=y
+CONFIG_PACKAGE_libXxf86vm=y
 CONFIG_PACKAGE_libdrm=y
 CONFIG_PACKAGE_libfontenc=y
+CONFIG_PACKAGE_libgl-mesa=y
+CONFIG_PACKAGE_libgl-mesa-dri-ffb=y
+CONFIG_PACKAGE_libgl-mesa-dri-i810=y
+CONFIG_PACKAGE_libgl-mesa-dri-i915=y
+CONFIG_PACKAGE_libgl-mesa-dri-i965=y
+CONFIG_PACKAGE_libgl-mesa-dri-mach64=y
+CONFIG_PACKAGE_libgl-mesa-dri-mga=y
+CONFIG_PACKAGE_libgl-mesa-dri-r128=y
+CONFIG_PACKAGE_libgl-mesa-dri-r200=y
+CONFIG_PACKAGE_libgl-mesa-dri-r300=y
+CONFIG_PACKAGE_libgl-mesa-dri-r600=y
+CONFIG_PACKAGE_libgl-mesa-dri-radeon=y
+CONFIG_PACKAGE_libgl-mesa-dri-s3v=y
+CONFIG_PACKAGE_libgl-mesa-dri-savage=y
+CONFIG_PACKAGE_libgl-mesa-dri-sis=y
+CONFIG_PACKAGE_libgl-mesa-dri-swrast=y
+CONFIG_PACKAGE_libgl-mesa-dri-tdfx=y
+CONFIG_PACKAGE_libgl-mesa-dri-trident=y
+CONFIG_PACKAGE_libgl-mesa-dri-unichrome=y
+CONFIG_PACKAGE_libglu-mesa=y
 CONFIG_PACKAGE_libmatchbox=y
 CONFIG_PACKAGE_libxcb=y
 CONFIG_PACKAGE_libxcb-composite=y
@@ -1703,8 +1724,10 @@ CONFIG_PACKAGE_pixman=y
 # CONFIG_PACKAGE_calibrateproto is not set
 # CONFIG_PACKAGE_compositeproto is not set
 # CONFIG_PACKAGE_damageproto is not set
+CONFIG_PACKAGE_dri2proto=y
 # CONFIG_PACKAGE_fixesproto is not set
 # CONFIG_PACKAGE_fontsproto is not set
+CONFIG_PACKAGE_glproto=y
 # CONFIG_PACKAGE_inputproto is not set
 # CONFIG_PACKAGE_kbproto is not set
 # CONFIG_PACKAGE_randrproto is not set
@@ -1716,6 +1739,7 @@ CONFIG_PACKAGE_pixman=y
 # CONFIG_PACKAGE_xextproto is not set
 # CONFIG_PACKAGE_xf86dgaproto is not set
 # CONFIG_PACKAGE_xf86driproto is not set
+CONFIG_PACKAGE_xf86vidmodeproto=y
 # CONFIG_PACKAGE_xineramaproto is not set
 # CONFIG_PACKAGE_xproto is not set
 
