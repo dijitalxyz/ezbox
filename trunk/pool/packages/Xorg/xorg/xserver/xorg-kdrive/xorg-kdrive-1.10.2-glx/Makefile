@@ -20,7 +20,7 @@ PKG_BUILD_DEPENDS:=randrproto renderproto fixesproto damageproto xcmiscproto \
 				   xextproto xproto bigreqsproto resourceproto \
 				   fontsproto inputproto kbproto videoproto \
 				   xf86dgaproto xtrans xf86driproto calibrateproto \
-				   compositeproto xineramaproto
+				   compositeproto xineramaproto libgl-mesa
 
 PKG_CONFIG_DEPENDS := \
 	CONFIG_PACKAGE-xserver-kdrive-fbdev \
@@ -110,7 +110,7 @@ define Build/Configure
 		--enable-xdmcp \
 		--disable-xdm-auth-1 \
 		--enable-glx \
-		--enable-dri \
+		--disable-dri \
 		--disable-dri2 \
 		--disable-xf86vidmode \
 		--disable-xace \
