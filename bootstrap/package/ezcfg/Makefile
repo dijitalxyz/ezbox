@@ -109,6 +109,12 @@ CONFIGURE_ARGS += \
 	--enable-service-kdrive
 endif
 
+# set fontconfig service
+ifneq ($(CONFIG_PACKAGE_fontconfig),)
+CONFIGURE_ARGS += \
+	--enable-service-fontconfig
+endif
+
 # set dillo web browser service
 ifneq ($(CONFIG_PACKAGE_dillo),)
 CONFIGURE_ARGS += \

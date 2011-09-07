@@ -47,6 +47,7 @@ FLTK_CONFIG := $(STAGING_DIR)/host/bin/fltk-config
 CONFIGURE_ARGS += --with-fltk-config=$(FLTK_CONFIG)
 
 define Build/Configure
+	$(CP) ./files/autogen.sh $(PKG_BUILD_DIR)
 	(cd $(PKG_BUILD_DIR); ./autogen.sh );
 	$(call Build/Configure/Default)
 endef
