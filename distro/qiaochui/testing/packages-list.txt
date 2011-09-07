@@ -23,7 +23,7 @@ Xorg/lib/fltk/fltk-1.3.0:fltk
 Xorg/lib/libdrm/libdrm-2.4.19:libdrm
 Xorg/lib/libmatchbox/libmatchbox-1.9:libmatchbox
 Xorg/lib/libxcb/libxcb-1.7:libxcb
-Xorg/lib/mesa/mesa-7.8:mesa
+Xorg/lib/mesa/mesa-7.9:mesa
 Xorg/lib/nxlib/nxlib-20110220:nxlib
 Xorg/lib/pixman/pixman-0.16.2:pixman
 Xorg/lib/tslib/tslib-1.0:tslib
