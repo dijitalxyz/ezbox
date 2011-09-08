@@ -65,6 +65,7 @@ define Build/Configure
 		--disable-glw \
 		--disable-glut \
 		--disable-gallium \
+		--with-x \
 		--with-driver=xlib \
 	)
 endef
