@@ -77,5 +77,5 @@ Xorg/xorg/proto/xf86driproto/xf86driproto-2.1.1:xf86driproto
 Xorg/xorg/proto/xf86vidmodeproto/xf86vidmodeproto-2.3:xf86vidmodeproto
 Xorg/xorg/proto/xineramaproto/xineramaproto-1.2.1:xineramaproto
 Xorg/xorg/proto/xproto/xproto-7.0.21:xproto
-Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2-glx:xorg-kdrive
+Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2:xorg-kdrive
 Xorg/xserver/microwin/microwin-20110220:microwin
