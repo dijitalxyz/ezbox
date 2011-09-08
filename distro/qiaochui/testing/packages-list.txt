@@ -19,7 +19,7 @@ Xorg/app/dillo/dillo-3.0:dillo
 Xorg/app/rxvt-unicode/rxvt-unicode-9.11:rxvt-unicode
 Xorg/font/dejavu-fonts-ttf/dejavu-fonts-ttf-2.23:dejavu-fonts-ttf
 Xorg/font/wqy-zenhei-ttf/wqy-zenhei-ttf-0.9.45:wqy-zenhei-ttf
-Xorg/lib/fltk/fltk-1.3.0:fltk
+Xorg/lib/fltk/fltk-1.3.0-gl:fltk
 Xorg/lib/libdrm/libdrm-2.4.19:libdrm
 Xorg/lib/libmatchbox/libmatchbox-1.9:libmatchbox
 Xorg/lib/libxcb/libxcb-1.7:libxcb
