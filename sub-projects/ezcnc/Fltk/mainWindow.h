@@ -27,10 +27,13 @@ class mainWindow{
   Fl_Text_Buffer *textbuf;
   Fl_Menu_Bar* menubar;
   char filename[FL_PATH_MAX];
+  int changed;
+  int loading;
  public:
   mainWindow();
   ~mainWindow();
   void show();
+  void set_title();
 };
 
 #endif
