@@ -37,7 +37,9 @@ void load_file(mainWindow *v, const char *newfile, int ipos) {
   if (!insert) strcpy(v->filename, "");
   if (!insert) r = v->textbuf->loadfile(newfile);
   else r = v->textbuf->insertfile(newfile, ipos);
+#if (FL_MAJOR_VERSION == 1) && (FL_MINOR_VERSION == 3)
   v->changed = v->changed || v->textbuf->input_file_was_transcoded;
+#endif
   if (r)
     fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
   else

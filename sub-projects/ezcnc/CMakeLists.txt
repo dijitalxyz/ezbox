@@ -6,6 +6,7 @@ project(ezcnc CXX C)
 
 option(ENABLE_FLTK "Build FLTK GUI" ON)
 option(ENABLE_FL_TREE "Enable FLTK tree browser widget" ON)
+option(ENABLE_NATIVE_FILE_CHOOSER "Enable native file chooser in GUI" ON)
 
 set(EZCNC_MAJOR_VERSION 0)
 set(EZCNC_MINOR_VERSION 1)
