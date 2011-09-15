@@ -11,6 +11,15 @@
 #include <math.h>
 #include "fltkGui.h"
 
+#if (FL_MAJOR_VERSION == 1) && (FL_MINOR_VERSION == 1) && (FL_PATCH_VERSION > 6)
+// OK
+#elif (FL_MAJOR_VERSION == 1) && (FL_MINOR_VERSION == 3)
+// also OK
+#else
+#error "ezcnc requires FLTK >= 1.1.7 or FLTK 1.3.x"
+#endif
+
+
 int main(int argc, char **argv)
 {
   // create the GUI
