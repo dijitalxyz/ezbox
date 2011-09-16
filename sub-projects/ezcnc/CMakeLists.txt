@@ -2,6 +2,14 @@
 
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
 
+# if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
+# build type to "Debug" prior to calling project()
+if(DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type")
+else(DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose build type")
+endif(DEFINED CMAKE_BUILD_TYPE)
+
 project(ezcnc CXX C)
 
 option(ENABLE_FLTK "Build FLTK GUI" ON)
@@ -188,13 +196,13 @@ include_directories(Common Fltk ${EXTERNAL_INCLUDES}
     ${CMAKE_CURRENT_BINARY_DIR}/Common)
 
 # set this for external codes that might include this CMakeList file
-set(GMSH_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE 
+set(EZCNC_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE 
     STRING "External include directories")
-set(GMSH_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE 
+set(EZCNC_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE 
     STRING "External libraries")
 
 # group sources for easier navigation in IDEs
-foreach(DIR ${GMSH_DIRS})
+foreach(DIR ${EZCNC_DIRS})
   source_group(${DIR} REGULAR_EXPRESSION ${DIR}/.*)
 endforeach(DIR)
 
