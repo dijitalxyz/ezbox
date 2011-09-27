@@ -39,6 +39,9 @@ fi
 if test "x$with_ezbox_distro" = xqiaochui; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_QIAOCHUI"
 fi
+if test "x$with_ezbox_distro" = xlilou; then
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_LILOU"
+fi
 AC_SUBST([EZBOX_DISTRO_DEFINE])
 
 # Not specified?
