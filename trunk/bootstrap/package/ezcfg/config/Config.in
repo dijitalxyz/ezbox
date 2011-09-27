@@ -35,6 +35,12 @@ config EZCFG_EZBOX_DISTRO_QIAOCHUI
 	help
 	  ezbox Qiaochui distro is for CNC machine control.
 
+config EZCFG_EZBOX_DISTRO_LILOU
+	bool "Lilou"
+	default n
+	help
+	  ezbox LiLou distro is for intelligent home security system.
+
 endchoice
 
 endmenu
