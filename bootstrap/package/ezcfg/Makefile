@@ -65,6 +65,10 @@ ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_QIAOCHUI),)
   EZBOX_DISTRO = "qiaochui"
 endif
 
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_LILOU),)
+  EZBOX_DISTRO = "lilou"
+endif
+
 CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
 
