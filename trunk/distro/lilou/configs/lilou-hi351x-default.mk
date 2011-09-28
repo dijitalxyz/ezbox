@@ -3,8 +3,8 @@
 #
 
 # DISTRO set the ezbox distro to be build
-# support [kuafu|huangdi|jingwei|qiaochui]
-DISTRO := kuafu
+# support [kuafu|huangdi|jingwei|qiaochui|lilou]
+DISTRO := lilou
 
 # BUILD_TYPE set the ezbox distro release type
 # support [testing|release] 
@@ -30,7 +30,7 @@ ARCH := arm
 
 # KERNEL_VERSION set Linux kernel version string
 # support [default|2.6.32|2.6.37|...]
-KERNEL_VERSION := default
+KERNEL_VERSION := 2.6.24
 
 # RT_TYPE set the real-time Linux type
 # support [none|rtai|xenomai]
