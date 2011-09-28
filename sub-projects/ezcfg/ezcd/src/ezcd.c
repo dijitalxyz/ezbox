@@ -37,7 +37,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <sys/poll.h>
-#include <sys/signalfd.h>
 
 #include "ezcd.h"
 
