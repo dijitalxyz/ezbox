@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1214
+PKG_REV:=1220
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -149,6 +149,9 @@ ifneq ($(CONFIG_PACKAGE_emc2),)
 CONFIGURE_ARGS += \
 	--enable-service-emc2
 endif
+
+CONFIGURE_VARS += \
+	ac_cv_func_malloc_0_nonnull=yes
 
 define Build/Configure
 	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
