@@ -45,3 +45,16 @@ diff -urNd linux-2.6.24/drivers/scsi/sd.c linux-2.6.24-hi3515/drivers/scsi/sd.c
  			return scsi_ioctl(sdp, cmd, p);
  		default:
  			error = scsi_cmd_ioctl(filp, disk->queue, disk, cmd, p);
+diff -urNd linux-2.6.24/include/scsi/scsi.h linux-2.6.24-hi3515/include/scsi/scsi.h
+--- linux-2.6.24/include/scsi/scsi.h	2008-01-25 06:58:37.000000000 +0800
++++ linux-2.6.24-hi3515/include/scsi/scsi.h	2010-03-16 10:41:03.000000000 +0800
+@@ -426,6 +426,9 @@
+ /* Used to obtain the PCI location of a device */
+ #define SCSI_IOCTL_GET_PCI		0x5387
+ 
++/* Used to obtain PHY State of a device for hisilicon */
++ #define SCSI_IOCTL_GET_PHY_STATE        0x5390
++
+ /* Pull a u32 out of a SCSI message (using BE SCSI conventions) */
+ static inline __u32 scsi_to_u32(__u8 *ptr)
+ {
