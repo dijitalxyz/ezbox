@@ -30,7 +30,7 @@ ARCH := arm
 
 # KERNEL_VERSION set Linux kernel version string
 # support [default|2.6.32|2.6.37|...]
-KERNEL_VERSION := default
+KERNEL_VERSION := 2.6.24
 
 # RT_TYPE set the real-time Linux type
 # support [none|rtai|xenomai]
@@ -41,13 +41,14 @@ RT_TYPE := none
 # none : no graphic user interface support
 # nanox : use nxlib/nano-X archetecture
 # kdrive : use libX11/kdrive-fbdev archetecture
-DRAWING_BACKEND := none
+DRAWING_BACKEND := kdrive
 
 # GUI_TOOLKIT set the Feature_gui-toolkit
-# support [none|fltk2]
+# support [none|fltk2|fltk]
 # none : no graphic user interface toolkit support
 # fltk2 : use fltk2/(X window system) archetecture
-GUI_TOOLKIT := none
+# fltk : use fltk1.3/(X window system) archetecture
+GUI_TOOLKIT := fltk
 
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
