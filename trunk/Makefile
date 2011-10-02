@@ -56,8 +56,11 @@ endif
 
 # basic directories
 CUR_DIR:=${CURDIR}
+# workspace directories
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
 FD_DIR:=$(WK_DIR)/package/feeds/packages
+CUSTOMIZE_DIR:=$(WK_DIR)/customize
+####################### 
 POOL_DIR:=$(CUR_DIR)/pool
 DISTRO_DIR:=$(CUR_DIR)/distro/$(DISTRO)
 DL_DIR:=$(BASE_DIR)/dl
@@ -98,7 +101,11 @@ build-info:
 prepare-workspace:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
+	# feeds directory
 	mkdir -p $(FD_DIR)
+	# customize directory
+	mkdir -p $(CUSTOMIZE_DIR)
+	mkdir -p $(CUSTOMIZE_DIR)/tools
 
 prepare-bootstrap:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
@@ -106,6 +113,9 @@ prepare-bootstrap:
 
 clean-bootstrap-links:
 	[ ! -f $(PKGLIST_DIR)/bootstrap-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(WK_DIR) $(PKGLIST_DIR)/bootstrap-list.txt
+
+prepare-customize:
+	[ ! -f $(PKGLIST_DIR)/customize-rootfs-$(SUFFIX).sh ] || cp -f $(PKGLIST_DIR)/customize-rootfs-$(SUFFIX).sh $(CUSTOMIZE_DIR)/tools/customize-rootfs.sh
 
 #ifeq ($(BUILD_TYPE),testing)
 #prepare-packages:
@@ -141,7 +151,7 @@ prepare-special-kernel:
 	[ ! -f $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/copy-list.sh $(BOOTSTRAP_DIR) $(WK_DIR) $(PKGLIST_DIR)/linux-$(KERNEL_VERSION)-$(TARGET)-list.txt
 
 
-prepare-basic-structure: prepare-workspace prepare-bootstrap
+prepare-basic-structure: prepare-workspace prepare-bootstrap prepare-customize
 # prepare realtime config
 ifneq ($(RT_TYPE),none)
 prepare-basic-structure: prepare-realtime
