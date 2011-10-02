@@ -1,0 +1,12 @@
+# basic packages
+package/e2fsprogs/e2fsprogs-1.41.12:package/e2fsprogs
+package/iproute2/iproute2-2.6.35:package/iproute2
+# kernel modules package
+package/libreadline/libreadline-5.2:package/libreadline
+package/ncurses/ncurses-5.7:package/ncurses
+package/openssl/openssl-1.0.0d:package/openssl
+package/zlib/zlib-1.2.5:package/zlib
+
+# target
+#FIXME: we need copy it to the workspace
+#target/linux/x86:target/linux/x86

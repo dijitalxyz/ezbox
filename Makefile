@@ -161,7 +161,7 @@ clean-symbol-links: clean-packages-links clean-bootstrap-links
 
 
 prepare-build: clean-symbol-links prepare-basic-structure
-	[ ! -f $(PKGLIST_DIR)/customize.sh ] || $(PKGLIST_DIR)/customize.sh $(POOL_DIR) $(WK_DIR)
+	[ ! -f $(PKGLIST_DIR)/customize-$(SUFFIX).sh ] || $(PKGLIST_DIR)/customize-$(SUFFIX).sh $(POOL_DIR) $(WK_DIR)
 	echo "prepare-build OK!"
 
 clean-build:
