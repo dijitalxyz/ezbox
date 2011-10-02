@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Sep 30 14:30:29 2011
+# Fri Sep 30 15:02:39 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_hi351x=y
@@ -1035,11 +1035,12 @@ CONFIG_LIBSTDCPP_FILE_SPEC="./lib/libstdc++.so.*"
 #
 # Filesystem
 #
-CONFIG_PACKAGE_ntfs-3g=y
-CONFIG_PACKAGE_NTFS-3G_USE_LIBFUSE=y
-CONFIG_PACKAGE_ntfs-3g-low=y
-CONFIG_PACKAGE_ntfs-3g-utils=y
-CONFIG_PACKAGE_ntfsprogs_ntfs-3g=y
+# CONFIG_PACKAGE_badblocks is not set
+# CONFIG_PACKAGE_blkid is not set
+CONFIG_PACKAGE_e2fsprogs=y
+# CONFIG_PACKAGE_resize2fs is not set
+CONFIG_PACKAGE_tune2fs=y
+CONFIG_PACKAGE_uuidgen=y
 CONFIG_PACKAGE_iconv=y
 # CONFIG_PACKAGE_jpeg-tools is not set
 CONFIG_PACKAGE_ldconfig=y
@@ -1051,11 +1052,40 @@ CONFIG_LDCONFIG_ROOT_DIR="/opt/hisi-linux/x86-arm/gcc-3.4.3-uClibc-0.9.28"
 CONFIG_LDCONFIG_FILE_SPEC="./sbin/ldconfig"
 # CONFIG_PACKAGE_ldd is not set
 # CONFIG_PACKAGE_ocf-crypto-headers is not set
+# CONFIG_PACKAGE_openssl-util is not set
 # CONFIG_PACKAGE_tiff-utils is not set
+
+#
+# Network
+#
+
+#
+# Routing and Redirection
+#
+CONFIG_PACKAGE_ip=y
+# CONFIG_PACKAGE_genl is not set
+CONFIG_PACKAGE_tc=y
 
 #
 # Libraries
 #
+
+#
+# Filesystem
+#
+CONFIG_PACKAGE_libblkid=y
+CONFIG_PACKAGE_libext2fs=y
+CONFIG_PACKAGE_libuuid=y
+
+#
+# SSL
+#
+CONFIG_PACKAGE_libopenssl=y
+
+#
+# Configuration
+#
+CONFIG_OPENSSL_ENGINE=y
 CONFIG_PACKAGE_glib2=y
 CONFIG_PACKAGE_libcharset=y
 CONFIG_PACKAGE_libexpat=y
@@ -1067,10 +1097,15 @@ CONFIG_PACKAGE_libintl-full=y
 CONFIG_PACKAGE_libjpeg=y
 # CONFIG_PACKAGE_libltdl is not set
 CONFIG_PACKAGE_liblzo=y
+CONFIG_PACKAGE_libncurses=y
+# CONFIG_PACKAGE_libncursesw is not set
 CONFIG_PACKAGE_libpng=y
+CONFIG_PACKAGE_libreadline=y
 # CONFIG_PACKAGE_librpc is not set
 CONFIG_PACKAGE_libtiff=y
 # CONFIG_PACKAGE_libtiffxx is not set
+CONFIG_PACKAGE_terminfo=y
+CONFIG_PACKAGE_zlib=y
 
 #
 # Kernel modules
@@ -1219,7 +1254,7 @@ CONFIG_PACKAGE_kmod-nls-base=y
 # CONFIG_PACKAGE_kmod-netem is not set
 # CONFIG_PACKAGE_kmod-pktgen is not set
 # CONFIG_PACKAGE_kmod-ppp is not set
-# CONFIG_PACKAGE_kmod-sched is not set
+CONFIG_PACKAGE_kmod-sched=y
 # CONFIG_PACKAGE_kmod-sctp is not set
 # CONFIG_PACKAGE_kmod-sit is not set
 # CONFIG_PACKAGE_kmod-tun is not set
@@ -1301,13 +1336,29 @@ CONFIG_PACKAGE_kmod-input-polldev=y
 CONFIG_PACKAGE_kmod-net-zd1201=y
 
 #
+# Languages
+#
+
+#
+# Python
+#
+# CONFIG_PACKAGE_python is not set
+# CONFIG_PACKAGE_python-doc is not set
+# CONFIG_PACKAGE_python-expat is not set
+# CONFIG_PACKAGE_python-gdbm is not set
+# CONFIG_PACKAGE_python-gzip is not set
+# CONFIG_PACKAGE_python-mini is not set
+# CONFIG_PACKAGE_python-openssl is not set
+# CONFIG_PACKAGE_python-shutil is not set
+# CONFIG_PACKAGE_python-sqlite3 is not set
+
+#
 # Xorg
 #
 
 #
 # app
 #
-CONFIG_PACKAGE_dillo=y
 CONFIG_PACKAGE_rxvt-unicode=y
 CONFIG_PACKAGE_xkbcomp=y
 
