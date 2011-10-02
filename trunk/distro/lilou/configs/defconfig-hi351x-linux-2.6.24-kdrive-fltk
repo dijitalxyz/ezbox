@@ -997,7 +997,7 @@ CONFIG_PACKAGE_libc=y
 # Configuration
 #
 CONFIG_LIBC_ROOT_DIR="/opt/hisi-linux/x86-arm/gcc-3.4.3-uClibc-0.9.28/usr/arm-hisi-linux"
-CONFIG_LIBC_FILE_SPEC="./lib/ld{-*.so,-*.so.*} ./lib/lib{anl,c,cidn,crypt,dl,m,nsl,nss_dns,nss_files,resolv,uClibc,util}{-*.so,.so.*}"
+CONFIG_LIBC_FILE_SPEC="./lib/ld{-*.so,-*.so.*} ./lib/lib{anl,c,cidn,crypt,dl,m,misc,nsl,nss_dns,nss_files,resolv,uClibc,util}{-*.so,.so.*}"
 CONFIG_PACKAGE_libgcc=y
 
 #

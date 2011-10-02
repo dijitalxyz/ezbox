@@ -47,6 +47,7 @@ DRAWING_BACKEND := none
 # support [none|fltk2]
 # none : no graphic user interface toolkit support
 # fltk2 : use fltk2/(X window system) archetecture
+# fltk : use fltk1.3/(X window system) archetecture
 GUI_TOOLKIT := none
 
 # LOG_FILE set default build log file name
