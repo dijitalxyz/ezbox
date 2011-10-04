@@ -92,7 +92,7 @@ int rc_preboot(int flag)
 
 		/* /dev */
 		mkdir("/dev", 0755);
-		mount("tmpfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
+		mount("devfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
 
 		/* /etc */
 		mkdir("/etc", 0755);

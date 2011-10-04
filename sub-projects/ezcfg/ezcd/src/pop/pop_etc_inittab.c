@@ -55,6 +55,7 @@ int pop_etc_inittab(int flag)
 	fprintf(file, "::shutdown:%s\n", buf);
 	fprintf(file, "tts/0::askfirst:%s\n", CMD_LOGIN);
 	fprintf(file, "ttyS0::askfirst:%s\n", CMD_LOGIN);
+	fprintf(file, "ttyAMA0::askfirst:%s\n", CMD_LOGIN);
 	fprintf(file, "tty1::askfirst:%s\n", CMD_LOGIN);
 	fprintf(file, "tty2::askfirst:%s\n", CMD_LOGIN);
 
