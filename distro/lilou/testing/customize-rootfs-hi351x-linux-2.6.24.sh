@@ -24,3 +24,8 @@ fi
 rm -rf $ROOTFS_DIR/lib/libintl.so.8
 ln -sf ../usr/lib/libintl.so.8 $ROOTFS_DIR/lib/libintl.so.8
 
+# clean /etc
+rm -rf $ROOTFS_DIR/etc
+mkdir -p $ROOTFS_DIR/etc
+
+
