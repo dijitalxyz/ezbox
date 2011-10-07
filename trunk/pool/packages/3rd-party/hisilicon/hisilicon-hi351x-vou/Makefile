@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-mmz
+PKG_NAME:=hisilicon-hi351x-vou
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-mmz/Default
+define Package/hisilicon-hi351x-vou/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-mmz
-  SUBMENU:=Proprietary HI351x media memory zone driver
+  DEPENDS:=@PACKAGE_kmod-hi351x-vou
+  SUBMENU:=Proprietary HI351x Video Output driver
   SUBMENUDEP:=@TARGET_hi351x
 endef
 
-define KernelPackage/hi351x-mmz/Default
-  $(call Package/hisilicon-hi351x-mmz/Default)
+define KernelPackage/hi351x-vou/Default
+  $(call Package/hisilicon-hi351x-vou/Default)
   SECTION:=kernel
   DEPENDS:=@TARGET_hi351x
   TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver/mmz.ko
-  AUTOLOAD:=$(call AutoLoad,30,mmz)
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_vou.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi351x_vou)
 endef
 
-define KernelPackage/hi351x-mmz/Default/description
- This package contains the proprietary media memory zone driver for the Hisilicon
+define KernelPackage/hi351x-vou/Default/description
+ This package contvouns the proprietary Video Output driver for the Hisilicon
  HI351x chipset.
 endef
 
-define KernelPackage/hi351x-mmz
-$(call KernelPackage/hi351x-mmz/Default,)
-  TITLE+= (normal version)
+define KernelPackage/hi3515-vou
+$(call KernelPackage/hi351x-vou/Default,-hi3515)
+  TITLE+= (hi3515)
 endef
 
-define KernelPackage/hi351x-mmz/description
-$(call KernelPackage/hi351x-mmz/Default/description)
+define KernelPackage/hi3515-vou/description
+$(call KernelPackage/hi351x-vou/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -54,7 +54,7 @@ MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/kmod" \
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)/driver
+	mkdir -p $(PKG_BUILD_DIR)/driver-hi3515
 endef
 
 define Build/Compile
@@ -63,11 +63,11 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/mmz.ko $(PKG_BUILD_DIR)/driver/
+	$(CP) files/hi3515_vou.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_vou.ko
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 endef
 
-$(eval $(call KernelPackage,hi351x-mmz))
+$(eval $(call KernelPackage,hi3515-vou))
