@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-vpp
+PKG_NAME:=hisilicon-hi35xx-md
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-vpp/Default
+define Package/hisilicon-hi35xx-md/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-vpp
-  SUBMENU:=Proprietary HI351x Video Pre-Process driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-md
+  SUBMENU:=Proprietary HI35xx Move Detect driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-vpp/Default
-  $(call Package/hisilicon-hi351x-vpp/Default)
+define KernelPackage/hi35xx-md/Default
+  $(call Package/hisilicon-hi35xx-md/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_vpp.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_vpp)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_md.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_md)
 endef
 
-define KernelPackage/hi351x-vpp/Default/description
- This package contvppns the proprietary Video Pre-Process driver for the Hisilicon
- HI351x chipset.
+define KernelPackage/hi35xx-md/Default/description
+ This package contmdns the proprietary Move Detect driver for the Hisilicon
+ HI35xx chipset.
 endef
 
-define KernelPackage/hi3515-vpp
-$(call KernelPackage/hi351x-vpp/Default,-hi3515)
+define KernelPackage/hi3515-md
+$(call KernelPackage/hi35xx-md/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
-define KernelPackage/hi3515-vpp/description
-$(call KernelPackage/hi351x-vpp/Default/description)
+define KernelPackage/hi3515-md/description
+$(call KernelPackage/hi35xx-md/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,11 +63,11 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_vpp.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_vpp.ko
+	$(CP) files/hi3515_md.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_md.ko
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 endef
 
-$(eval $(call KernelPackage,hi3515-vpp))
+$(eval $(call KernelPackage,hi3515-md))
