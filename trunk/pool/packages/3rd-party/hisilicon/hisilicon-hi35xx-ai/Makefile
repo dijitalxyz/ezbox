@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-ai
+PKG_NAME:=hisilicon-hi35xx-ai
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-ai/Default
+define Package/hisilicon-hi35xx-ai/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-ai
-  SUBMENU:=Proprietary HI351x Audio Input driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-ai
+  SUBMENU:=Proprietary HI35xx Audio Input driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-ai/Default
-  $(call Package/hisilicon-hi351x-ai/Default)
+define KernelPackage/hi35xx-ai/Default
+  $(call Package/hisilicon-hi35xx-ai/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_ai.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_ai)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_ai.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_ai)
 endef
 
-define KernelPackage/hi351x-ai/Default/description
+define KernelPackage/hi35xx-ai/Default/description
  This package contains the proprietary Audio Input driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-ai
-$(call KernelPackage/hi351x-ai/Default,-hi3515)
+$(call KernelPackage/hi35xx-ai/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-ai/description
-$(call KernelPackage/hi351x-ai/Default/description)
+$(call KernelPackage/hi35xx-ai/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_ai.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_ai.ko
+	$(CP) files/hi3515_ai.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_ai.ko
 endef
 
 define Build/InstallDev
