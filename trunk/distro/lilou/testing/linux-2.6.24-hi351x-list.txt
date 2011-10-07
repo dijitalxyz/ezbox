@@ -1,4 +1,0 @@
-#FIXME: we need copy it to the workspace
-
-# target
-target/linux/hi351x/Makefile-2.6.24:target/linux/hi351x/Makefile
