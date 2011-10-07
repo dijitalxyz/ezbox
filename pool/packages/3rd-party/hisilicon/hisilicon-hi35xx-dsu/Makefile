@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-dsu
+PKG_NAME:=hisilicon-hi35xx-dsu
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-dsu/Default
+define Package/hisilicon-hi35xx-dsu/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-dsu
-  SUBMENU:=Proprietary HI351x DSU driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-dsu
+  SUBMENU:=Proprietary HI35xx DSU driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-dsu/Default
-  $(call Package/hisilicon-hi351x-dsu/Default)
+define KernelPackage/hi35xx-dsu/Default
+  $(call Package/hisilicon-hi35xx-dsu/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_dsu.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_dsu)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_dsu.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_dsu)
 endef
 
-define KernelPackage/hi351x-dsu/Default/description
+define KernelPackage/hi35xx-dsu/Default/description
  This package contdsuns the proprietary DSU driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-dsu
-$(call KernelPackage/hi351x-dsu/Default,-hi3515)
+$(call KernelPackage/hi35xx-dsu/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-dsu/description
-$(call KernelPackage/hi351x-dsu/Default/description)
+$(call KernelPackage/hi35xx-dsu/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_dsu.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_dsu.ko
+	$(CP) files/hi3515_dsu.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_dsu.ko
 endef
 
 define Build/InstallDev
