@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Oct  7 16:50:30 2011
+# Sat Oct  8 02:01:15 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_hi35xx=y
@@ -1271,129 +1271,139 @@ CONFIG_PACKAGE_kmod-input-polldev=y
 #
 
 #
-# Proprietary HI351x Audio Decode driver
+# Proprietary HI35xx Audio Decode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-adec=y
 
 #
-# Proprietary HI351x Audio Encode driver
+# Proprietary HI35xx Audio Encode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-aenc=y
 
 #
-# Proprietary HI351x Audio Input driver
+# Proprietary HI35xx Audio Input driver
 #
 CONFIG_PACKAGE_kmod-hi3515-ai=y
 
 #
-# Proprietary HI351x Audio Output driver
+# Proprietary HI35xx Audio Output driver
 #
 CONFIG_PACKAGE_kmod-hi3515-ao=y
 
 #
-# Proprietary HI351x Base driver
+# Proprietary HI35xx Base driver
 #
 CONFIG_PACKAGE_kmod-hi3515-base=y
 
 #
-# Proprietary HI351x Channel driver
+# Proprietary HI35xx Channel driver
 #
 CONFIG_PACKAGE_kmod-hi3515-chnl=y
 
 #
-# Proprietary HI351x DMA Controller driver
+# Proprietary HI35xx DMA Controller driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-dmac=y
+CONFIG_PACKAGE_kmod-hi3515-dmac=y
 
 #
-# Proprietary HI351x DSU driver
+# Proprietary HI35xx DSU driver
 #
 CONFIG_PACKAGE_kmod-hi3515-dsu=y
 
 #
-# Proprietary HI351x Ethernet driver
+# Proprietary HI35xx Ethernet driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-eth=y
+CONFIG_PACKAGE_kmod-hi3515-eth=y
 
 #
-# Proprietary HI351x Frame Buffer driver
+# Proprietary HI35xx Frame Buffer driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-hifb=y
+CONFIG_PACKAGE_kmod-hi3515-hifb=y
 
 #
-# Proprietary HI351x Group driver
+# Proprietary HI35xx Group driver
 #
 CONFIG_PACKAGE_kmod-hi3515-group=y
 
 #
-# Proprietary HI351x H.264 Decode driver
+# Proprietary HI35xx H.264 Decode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-h264d=y
 
 #
-# Proprietary HI351x H.264 Encode driver
+# Proprietary HI35xx H.264 Encode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-h264e=y
 
 #
-# Proprietary HI351x JPEG Decode driver
+# Proprietary HI35xx JPEG Decode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-jpegd=y
 
 #
-# Proprietary HI351x JPEG Encode driver
+# Proprietary HI35xx JPEG Encode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-jpege=y
 
 #
-# Proprietary HI351x MPP system driver
+# Proprietary HI35xx MPP system driver
 #
 CONFIG_PACKAGE_kmod-hi3515-sys=y
 
 #
-# Proprietary HI351x Move Detect driver
+# Proprietary HI35xx Move Detect driver
 #
 CONFIG_PACKAGE_kmod-hi3515-md=y
 
 #
-# Proprietary HI351x SD/MMC host control driver
+# Proprietary HI35xx SD/MMC host control driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-mci=y
+CONFIG_PACKAGE_kmod-hi3515-mci=y
 
 #
-# Proprietary HI351x Sonic Input/Output driver
+# Proprietary HI35xx Sonic Input/Output driver
 #
 CONFIG_PACKAGE_kmod-hi3515-sio=y
 
 #
-# Proprietary HI351x Two Dimensional Engine driver
+# Proprietary HI35xx Two Dimensional Engine driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-tde=y
+CONFIG_PACKAGE_kmod-hi3515-tde=y
 
 #
-# Proprietary HI351x Video Decode driver
+# Proprietary HI35xx Video Decode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-vdec=y
 
 #
-# Proprietary HI351x Video Encode driver
+# Proprietary HI35xx Video Device driver
+#
+CONFIG_PACKAGE_kmod-hi3515-vd=y
+
+#
+# Proprietary HI35xx Video Encode driver
 #
 CONFIG_PACKAGE_kmod-hi3515-venc=y
 
 #
-# Proprietary HI351x Video Input driver
+# Proprietary HI35xx Video Input driver
 #
 CONFIG_PACKAGE_kmod-hi3515-viu=y
 
 #
-# Proprietary HI351x Video Output driver
+# Proprietary HI35xx Video Output driver
 #
 CONFIG_PACKAGE_kmod-hi3515-vou=y
 
 #
-# Proprietary HI351x media memory zone driver
+# Proprietary HI35xx Video Pre-Process driver
 #
-CONFIG_PACKAGE_kmod-hi35xx-mmz=y
+CONFIG_PACKAGE_kmod-hi3515-vpp=y
+
+#
+# Proprietary HI35xx media memory zone driver
+#
+CONFIG_PACKAGE_kmod-hi3515-mmz=y
 
 #
 # SPI Support
