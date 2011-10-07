@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-venc
+PKG_NAME:=hisilicon-hi35xx-venc
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-venc/Default
+define Package/hisilicon-hi35xx-venc/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-venc
-  SUBMENU:=Proprietary HI351x Video Encode driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-venc
+  SUBMENU:=Proprietary HI35xx Video Encode driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-venc/Default
-  $(call Package/hisilicon-hi351x-venc/Default)
+define KernelPackage/hi35xx-venc/Default
+  $(call Package/hisilicon-hi35xx-venc/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_venc.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_venc)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_venc.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_venc)
 endef
 
-define KernelPackage/hi351x-venc/Default/description
+define KernelPackage/hi35xx-venc/Default/description
  This package contvencns the proprietary Video Encode driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-venc
-$(call KernelPackage/hi351x-venc/Default,-hi3515)
+$(call KernelPackage/hi35xx-venc/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-venc/description
-$(call KernelPackage/hi351x-venc/Default/description)
+$(call KernelPackage/hi35xx-venc/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_venc.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_venc.ko
+	$(CP) files/hi3515_venc.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_venc.ko
 endef
 
 define Build/InstallDev
