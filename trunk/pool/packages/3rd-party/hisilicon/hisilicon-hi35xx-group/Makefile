@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-group
+PKG_NAME:=hisilicon-hi35xx-group
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-group/Default
+define Package/hisilicon-hi35xx-group/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-group
-  SUBMENU:=Proprietary HI351x Group driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-group
+  SUBMENU:=Proprietary HI35xx Group driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-group/Default
-  $(call Package/hisilicon-hi351x-group/Default)
+define KernelPackage/hi35xx-group/Default
+  $(call Package/hisilicon-hi35xx-group/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_group.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_group)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_group.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_group)
 endef
 
-define KernelPackage/hi351x-group/Default/description
+define KernelPackage/hi35xx-group/Default/description
  This package contgroupns the proprietary Group driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-group
-$(call KernelPackage/hi351x-group/Default,-hi3515)
+$(call KernelPackage/hi35xx-group/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-group/description
-$(call KernelPackage/hi351x-group/Default/description)
+$(call KernelPackage/hi35xx-group/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_group.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_group.ko
+	$(CP) files/hi3515_group.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_group.ko
 endef
 
 define Build/InstallDev
