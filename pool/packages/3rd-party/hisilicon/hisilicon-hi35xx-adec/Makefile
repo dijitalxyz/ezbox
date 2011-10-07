@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-aenc
+PKG_NAME:=hisilicon-hi35xx-adec
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-aenc/Default
+define Package/hisilicon-hi35xx-adec/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-aenc
-  SUBMENU:=Proprietary HI351x Audio Encode driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-adec
+  SUBMENU:=Proprietary HI35xx Audio Decode driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-aenc/Default
-  $(call Package/hisilicon-hi351x-aenc/Default)
+define KernelPackage/hi35xx-adec/Default
+  $(call Package/hisilicon-hi35xx-adec/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_aenc.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_aenc)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_adec.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_adec)
 endef
 
-define KernelPackage/hi351x-aenc/Default/description
- This package contains the proprietary Audio Encode driver for the Hisilicon
- HI351x chipset.
+define KernelPackage/hi35xx-adec/Default/description
+ This package contains the proprietary Audio Decode driver for the Hisilicon
+ HI35xx chipset.
 endef
 
-define KernelPackage/hi3515-aenc
-$(call KernelPackage/hi351x-aenc/Default,-hi3515)
+define KernelPackage/hi3515-adec
+$(call KernelPackage/hi35xx-adec/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
-define KernelPackage/hi3515-aenc/description
-$(call KernelPackage/hi351x-aenc/Default/description)
+define KernelPackage/hi3515-adec/description
+$(call KernelPackage/hi35xx-adec/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,11 +63,11 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_aenc.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_aenc.ko
+	$(CP) files/hi3515_adec.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_adec.ko
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 endef
 
-$(eval $(call KernelPackage,hi3515-aenc))
+$(eval $(call KernelPackage,hi3515-adec))
