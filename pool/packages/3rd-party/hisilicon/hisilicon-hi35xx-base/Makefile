@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-base
+PKG_NAME:=hisilicon-hi35xx-base
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-base/Default
+define Package/hisilicon-hi35xx-base/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-base
-  SUBMENU:=Proprietary HI351x Base driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-base
+  SUBMENU:=Proprietary HI35xx Base driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-base/Default
-  $(call Package/hisilicon-hi351x-base/Default)
+define KernelPackage/hi35xx-base/Default
+  $(call Package/hisilicon-hi35xx-base/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_base.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_base)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_base.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_base)
 endef
 
-define KernelPackage/hi351x-base/Default/description
+define KernelPackage/hi35xx-base/Default/description
  This package contbasens the proprietary Base driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-base
-$(call KernelPackage/hi351x-base/Default,-hi3515)
+$(call KernelPackage/hi35xx-base/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-base/description
-$(call KernelPackage/hi351x-base/Default/description)
+$(call KernelPackage/hi35xx-base/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_base.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_base.ko
+	$(CP) files/hi3515_base.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_base.ko
 endef
 
 define Build/InstallDev
