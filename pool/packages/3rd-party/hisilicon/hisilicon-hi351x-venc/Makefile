@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-eth
+PKG_NAME:=hisilicon-hi351x-venc
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-eth/Default
+define Package/hisilicon-hi351x-venc/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-eth
-  SUBMENU:=Proprietary HI351x Ethernet driver
+  DEPENDS:=@PACKAGE_kmod-hi351x-venc
+  SUBMENU:=Proprietary HI351x Video Encode driver
   SUBMENUDEP:=@TARGET_hi351x
 endef
 
-define KernelPackage/hi351x-eth/Default
-  $(call Package/hisilicon-hi351x-eth/Default)
+define KernelPackage/hi351x-venc/Default
+  $(call Package/hisilicon-hi351x-venc/Default)
   SECTION:=kernel
   DEPENDS:=@TARGET_hi351x
   TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver/hiether.ko
-  AUTOLOAD:=$(call AutoLoad,30,hiether)
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_venc.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi351x_venc)
 endef
 
-define KernelPackage/hi351x-eth/Default/description
- This package contains the proprietary ethernet driver for the Hisilicon
+define KernelPackage/hi351x-venc/Default/description
+ This package contvencns the proprietary Video Encode driver for the Hisilicon
  HI351x chipset.
 endef
 
-define KernelPackage/hi351x-eth
-$(call KernelPackage/hi351x-eth/Default,)
-  TITLE+= (normal version)
+define KernelPackage/hi3515-venc
+$(call KernelPackage/hi351x-venc/Default,-hi3515)
+  TITLE+= (hi3515)
 endef
 
-define KernelPackage/hi351x-eth/description
-$(call KernelPackage/hi351x-eth/Default/description)
+define KernelPackage/hi3515-venc/description
+$(call KernelPackage/hi351x-venc/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -54,7 +54,7 @@ MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/kmod" \
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)/driver
+	mkdir -p $(PKG_BUILD_DIR)/driver-hi3515
 endef
 
 define Build/Compile
@@ -63,11 +63,11 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hiether.ko $(PKG_BUILD_DIR)/driver/
+	$(CP) files/hi3515_venc.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_venc.ko
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 endef
 
-$(eval $(call KernelPackage,hi351x-eth))
+$(eval $(call KernelPackage,hi3515-venc))

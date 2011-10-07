@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-dmac
+PKG_NAME:=hisilicon-hi351x-chnl
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-dmac/Default
+define Package/hisilicon-hi351x-chnl/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-dmac
-  SUBMENU:=Proprietary HI351x DMA Controller driver
+  DEPENDS:=@PACKAGE_kmod-hi351x-chnl
+  SUBMENU:=Proprietary HI351x Channel driver
   SUBMENUDEP:=@TARGET_hi351x
 endef
 
-define KernelPackage/hi351x-dmac/Default
-  $(call Package/hisilicon-hi351x-dmac/Default)
+define KernelPackage/hi351x-chnl/Default
+  $(call Package/hisilicon-hi351x-chnl/Default)
   SECTION:=kernel
   DEPENDS:=@TARGET_hi351x
   TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver/hidmac.ko
-  AUTOLOAD:=$(call AutoLoad,30,hidmac)
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_chnl.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi351x_chnl)
 endef
 
-define KernelPackage/hi351x-dmac/Default/description
- This package contains the proprietary DMA controller driver for the Hisilicon
+define KernelPackage/hi351x-chnl/Default/description
+ This package contchnlns the proprietary Channel driver for the Hisilicon
  HI351x chipset.
 endef
 
-define KernelPackage/hi351x-dmac
-$(call KernelPackage/hi351x-dmac/Default,)
-  TITLE+= (normal version)
+define KernelPackage/hi3515-chnl
+$(call KernelPackage/hi351x-chnl/Default,-hi3515)
+  TITLE+= (hi3515)
 endef
 
-define KernelPackage/hi351x-dmac/description
-$(call KernelPackage/hi351x-dmac/Default/description)
+define KernelPackage/hi3515-chnl/description
+$(call KernelPackage/hi351x-chnl/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -54,7 +54,7 @@ MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
 		SUBDIRS="$(PKG_BUILD_DIR)/kmod" \
 
 define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)/driver
+	mkdir -p $(PKG_BUILD_DIR)/driver-hi3515
 endef
 
 define Build/Compile
@@ -63,11 +63,11 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hidmac.ko $(PKG_BUILD_DIR)/driver/
+	$(CP) files/hi3515_chnl.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_chnl.ko
 endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 endef
 
-$(eval $(call KernelPackage,hi351x-dmac))
+$(eval $(call KernelPackage,hi3515-chnl))
