@@ -17,8 +17,8 @@ BUILD_TYPE := testing
 RELEASE_VERSION := 0.1
 
 # TARGET set the ezbox target running board
-# support [x86|ar71xx|brcm47xx|cx9461x|s3c24xx|hi351x]
-TARGET := hi351x
+# support [x86|ar71xx|brcm47xx|cx9461x|s3c24xx|hi35xx]
+TARGET := hi35xx
 
 # DEVICE_TYPE set the openwrt device type
 # Should always be ezbox
@@ -41,14 +41,14 @@ RT_TYPE := none
 # none : no graphic user interface support
 # nanox : use nxlib/nano-X archetecture
 # kdrive : use libX11/kdrive-fbdev archetecture
-DRAWING_BACKEND := kdrive
+DRAWING_BACKEND := none
 
 # GUI_TOOLKIT set the Feature_gui-toolkit
-# support [none|fltk2|fltk]
+# support [none|fltk2]
 # none : no graphic user interface toolkit support
 # fltk2 : use fltk2/(X window system) archetecture
 # fltk : use fltk1.3/(X window system) archetecture
-GUI_TOOLKIT := fltk
+GUI_TOOLKIT := none
 
 # LOG_FILE set default build log file name
 # default name is at $(BASE_DIR)/$(shell date --iso=seconds)-$(DISTRO)-$(TARGET)-build.log
