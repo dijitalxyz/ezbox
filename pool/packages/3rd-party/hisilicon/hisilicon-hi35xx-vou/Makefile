@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_NAME:=hisilicon-hi351x-vou
+PKG_NAME:=hisilicon-hi35xx-vou
 #PKG_VERSION:=0.1
 PKG_RELEASE:=1
 
@@ -16,35 +16,35 @@ PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/hisilicon-hi351x-vou/Default
+define Package/hisilicon-hi35xx-vou/Default
   SECTION:=kernel
   CATEGORY:=Kernel modules
-  DEPENDS:=@PACKAGE_kmod-hi351x-vou
-  SUBMENU:=Proprietary HI351x Video Output driver
-  SUBMENUDEP:=@TARGET_hi351x
+  DEPENDS:=@PACKAGE_kmod-hi35xx-vou
+  SUBMENU:=Proprietary HI35xx Video Output driver
+  SUBMENUDEP:=@TARGET_hi35xx
 endef
 
-define KernelPackage/hi351x-vou/Default
-  $(call Package/hisilicon-hi351x-vou/Default)
+define KernelPackage/hi35xx-vou/Default
+  $(call Package/hisilicon-hi35xx-vou/Default)
   SECTION:=kernel
-  DEPENDS:=@TARGET_hi351x
-  TITLE:=Kernel driver for HI351x chipsets
-  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi351x_vou.ko
-  AUTOLOAD:=$(call AutoLoad,30,hi351x_vou)
+  DEPENDS:=@TARGET_hi35xx
+  TITLE:=Kernel driver for HI35xx chipsets
+  FILES:=$(PKG_BUILD_DIR)/driver$(1)/hi35xx_vou.ko
+  AUTOLOAD:=$(call AutoLoad,30,hi35xx_vou)
 endef
 
-define KernelPackage/hi351x-vou/Default/description
+define KernelPackage/hi35xx-vou/Default/description
  This package contvouns the proprietary Video Output driver for the Hisilicon
- HI351x chipset.
+ HI35xx chipset.
 endef
 
 define KernelPackage/hi3515-vou
-$(call KernelPackage/hi351x-vou/Default,-hi3515)
+$(call KernelPackage/hi35xx-vou/Default,-hi3515)
   TITLE+= (hi3515)
 endef
 
 define KernelPackage/hi3515-vou/description
-$(call KernelPackage/hi351x-vou/Default/description)
+$(call KernelPackage/hi35xx-vou/Default/description)
 endef
 
 MAKE_KMOD := $(MAKE) -C "$(LINUX_DIR)" \
@@ -63,7 +63,7 @@ define Build/Compile
 		SUBDIRS="$(PKG_BUILD_DIR)/driver" \
 		MODFLAGS="-DMODULE -mlong-calls" \
 		modules
-	$(CP) files/hi3515_vou.ko $(PKG_BUILD_DIR)/driver-hi3515/hi351x_vou.ko
+	$(CP) files/hi3515_vou.ko $(PKG_BUILD_DIR)/driver-hi3515/hi35xx_vou.ko
 endef
 
 define Build/InstallDev
