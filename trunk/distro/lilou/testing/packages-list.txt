@@ -98,3 +98,9 @@ Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2:xorg-kdrive
 3rd-party/hisilicon/hisilicon-hi35xx-vou:hi35xx-vou
 3rd-party/hisilicon/hisilicon-hi35xx-vd:hi35xx-vd
 3rd-party/hisilicon/hisilicon-hi35xx-vpp:hi35xx-vpp
+3rd-party/hisilicon/hisilicon-hi35xx-nvp1114a:hi35xx-nvp1114a
+3rd-party/hisilicon/hisilicon-hi35xx-tw2865:hi35xx-tw2865
+3rd-party/hisilicon/hisilicon-hi35xx-gpioi2c:hi35xx-gpioi2c
+3rd-party/hisilicon/hisilicon-hi35xx-fvideo:hi35xx-fvideo
+# board tools
+3rd-party/hisilicon/hisilicon-hi35xx-btools:hi35xx-btools
