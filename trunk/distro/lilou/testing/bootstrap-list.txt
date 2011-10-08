@@ -1,7 +1,7 @@
 # basic packages
 package/e2fsprogs/e2fsprogs-1.41.12:package/e2fsprogs
+package/fuse/fuse-2.8.5:package/fuse
 package/iproute2/iproute2-2.6.35:package/iproute2
-# kernel modules package
 package/libreadline/libreadline-5.2:package/libreadline
 package/ncurses/ncurses-5.7:package/ncurses
 package/openssl/openssl-1.0.0d:package/openssl

@@ -11,6 +11,7 @@ libs/libpng/libpng-1.2.44:libpng
 libs/libpthread-stubs/libpthread-stubs-0.1:libpthread-stubs
 libs/lzo/lzo-2.04:lzo
 libs/tiff/tiff-3.9.2:tiff
+utils/ntfs-3g/ntfs-3g-2011.4.12:ntfs-3g
 Xorg/app/rxvt-unicode/rxvt-unicode-9.11:rxvt-unicode
 Xorg/font/dejavu-fonts-ttf/dejavu-fonts-ttf-2.23:dejavu-fonts-ttf
 Xorg/font/wqy-zenhei-ttf/wqy-zenhei-ttf-0.9.45:wqy-zenhei-ttf

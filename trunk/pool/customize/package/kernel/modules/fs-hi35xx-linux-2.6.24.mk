@@ -76,7 +76,7 @@ define KernelPackage/fs-ext2
   SUBMENU:=$(FS_MENU)
   TITLE:=EXT2 filesystem support
   KCONFIG:=CONFIG_EXT2_FS
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
+  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @(LINUX_2_6_24||LINUX_2_6_30||LINUX_2_6_31)
   FILES:=$(LINUX_DIR)/fs/ext2/ext2.ko
   AUTOLOAD:=$(call AutoLoad,32,ext2,1)
 endef
@@ -94,7 +94,7 @@ define KernelPackage/fs-ext3
   KCONFIG:= \
 	CONFIG_EXT3_FS \
 	CONFIG_JBD
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
+  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @(LINUX_2_6_24||LINUX_2_6_30||LINUX_2_6_31)
   FILES:= \
 	$(LINUX_DIR)/fs/ext3/ext3.ko \
 	$(LINUX_DIR)/fs/jbd/jbd.ko
@@ -111,14 +111,24 @@ $(eval $(call KernelPackage,fs-ext3))
 define KernelPackage/fs-ext4
   SUBMENU:=$(FS_MENU)
   TITLE:=EXT4 filesystem support
+  DEPENDS:= $(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache)
+  ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.28)),1)
+  KCONFIG:= \
+	CONFIG_EXT4_FS \
+	CONFIG_JBD2
+  FILES:= \
+	$(LINUX_DIR)/fs/ext4/ext4.ko \
+	$(LINUX_DIR)/fs/jbd2/jbd2.ko
+  AUTOLOAD:=$(call AutoLoad,30,jbd2 ext4,1)
+  else
   KCONFIG:= \
 	CONFIG_EXT4DEV_FS \
 	CONFIG_JBD2
-  DEPENDS:= $(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache)
   FILES:= \
 	$(LINUX_DIR)/fs/ext4/ext4dev.ko \
 	$(LINUX_DIR)/fs/jbd2/jbd2.ko
   AUTOLOAD:=$(call AutoLoad,30,jbd2 ext4dev,1)
+  endif
   $(call AddDepends/crc16)
 endef
 
@@ -215,7 +225,11 @@ define KernelPackage/fs-msdos
   SUBMENU:=$(FS_MENU)
   TITLE:=MSDOS filesystem support
   KCONFIG:=CONFIG_MSDOS_FS
+  ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.28)),1)
   FILES:=$(LINUX_DIR)/fs/fat/msdos.ko
+  else
+  FILES:=$(LINUX_DIR)/fs/msdos/msdos.ko
+  endif
   AUTOLOAD:=$(call AutoLoad,40,msdos)
 $(call AddDepends/nls)
 endef
@@ -348,9 +362,15 @@ define KernelPackage/fs-vfat
   KCONFIG:= \
 	CONFIG_FAT_FS \
 	CONFIG_VFAT_FS
+  ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.28)),1)
   FILES:= \
 	$(LINUX_DIR)/fs/fat/fat.ko \
 	$(LINUX_DIR)/fs/fat/vfat.ko
+  else
+  FILES:= \
+	$(LINUX_DIR)/fs/fat/fat.ko \
+	$(LINUX_DIR)/fs/vfat/vfat.ko
+  endif
   AUTOLOAD:=$(call AutoLoad,30,fat vfat)
 $(call AddDepends/nls)
 endef
