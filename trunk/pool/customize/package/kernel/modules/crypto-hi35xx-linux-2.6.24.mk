@@ -337,7 +337,7 @@ define KernelPackage/crypto-misc
 	$(LINUX_DIR)/crypto/md4.ko \
 	$(LINUX_DIR)/crypto/serpent.ko \
 	$(LINUX_DIR)/crypto/sha256_generic.ko \
-	$(LINUX_DIR)/crypto/sha512_generic.ko \
+	$(LINUX_DIR)/crypto/sha512.ko \
 	$(LINUX_DIR)/crypto/tea.ko \
 	$(LINUX_DIR)/crypto/tgr192.ko \
 	$(LINUX_DIR)/crypto/twofish_common.ko \

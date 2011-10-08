@@ -34,6 +34,10 @@ do_customize() {
   cp -af $POOL_DIR/customize/package/kernel/modules/block-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/block.mk
   # kernel ext4dev fs
   cp -af $POOL_DIR/customize/package/kernel/modules/fs-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/fs.mk
+  # kernel crypto API
+  cp -af $POOL_DIR/customize/package/kernel/modules/crypto-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/crypto.mk
+  # kernel IPSec support
+  cp -af $POOL_DIR/customize/package/kernel/modules/netsupport-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/netsupport.mk
 }
 
 do_customize
