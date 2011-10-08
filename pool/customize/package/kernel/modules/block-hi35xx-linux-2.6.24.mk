@@ -538,7 +538,7 @@ $(eval $(call KernelPackage,pata-cs5536))
 define KernelPackage/libsas
   SUBMENU:=$(BLOCK_MENU)
   TITLE:=SAS Domain Transport Attributes
-  DEPENDS:=@TARGET_x86
+  DEPENDS:=@(TARGET_x86||TARGET_hi35xx)
   KCONFIG:=CONFIG_SCSI_SAS_LIBSAS \
 	CONFIG_SCSI_SAS_ATTRS \
 	CONFIG_SCSI_SAS_ATA=y \
@@ -645,7 +645,7 @@ define KernelPackage/scsi-cdrom
   DEPENDS:=+!TARGET_x86:kmod-scsi-core
   KCONFIG:= \
     CONFIG_BLK_DEV_SR \
-    CONFIG_BLK_DEV_SR_VENDOR=n
+    CONFIG_BLK_DEV_SR_VENDOR=y
   FILES:= \
     $(LINUX_DIR)/drivers/cdrom/cdrom.ko \
     $(LINUX_DIR)/drivers/scsi/sr_mod.ko
