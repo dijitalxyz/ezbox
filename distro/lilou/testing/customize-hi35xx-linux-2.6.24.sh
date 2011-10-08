@@ -30,6 +30,10 @@ do_customize() {
   ln -sf $POOL_DIR/customize/packages/Xorg/lib/mesa/mesa-7.9/patches/902-fix-pipe-atomic.patch $POOL_DIR/packages/Xorg/lib/mesa/mesa-7.9/patches/902-fix-pipe-atomic.patch
   # kdrive math patches
   ln -sf $POOL_DIR/customize/packages/Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2/Makefile-hi35xx $POOL_DIR/packages/Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2/Makefile
+  # kernel ata-ahci driver
+  cp -af $POOL_DIR/customize/package/kernel/modules/block-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/block.mk
+  # kernel ext4dev fs
+  cp -af $POOL_DIR/customize/package/kernel/modules/fs-hi35xx-linux-2.6.24.mk $WORK_DIR/package/kernel/modules/fs.mk
 }
 
 do_customize
