@@ -384,7 +384,7 @@ static void ag7240_get_ethaddr(struct eth_device *dev)
         ethaddr = getenv("ethaddr");
         if (ethaddr == NULL) {
             memset(eeprom, 0, sizeof(eeprom));
-        } else if (sscanf(ethaddr, "0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx:0x%02hhx",
+        } else if (sscanf(ethaddr, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
             &eeprom[0], &eeprom[1], &eeprom[2], &eeprom[3], &eeprom[4], &eeprom[5]) != 6) {
             memset(eeprom, 0, sizeof(eeprom));
         } else {
