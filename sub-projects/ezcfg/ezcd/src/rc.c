@@ -38,6 +38,7 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <dlfcn.h>
 
 #include "ezcd.h"
 #include "rc_func.h"
@@ -54,24 +55,27 @@
 #define DBG(format, args...)
 #endif
 
+#define RCSO_PATH_PREFIX "/lib/rc"
+
 int rc_main(int argc, char **argv)
 {
-	rc_func_t *f = NULL;
 	int flag = RC_BOOT;
 	int s = 0;
+	struct timespec req;
 	int fd = -1;
 	pid_t pid;
 	int ret = EXIT_FAILURE;
 	int key, semid;
 	struct sembuf require_res, release_res;
+	char *p;
+	char path[128];
+	char name[32];
+	void *handle;
+	int (*function)(int);
 
 	/* only accept two/three arguments */
 	if ((argc != 3) && (argc != 4))
 		return (EXIT_FAILURE);
-
-	if (argv[1] != NULL) {
-		f = utils_find_rc_func(argv[1]);
-	}
 
 	if (argv[2] != NULL) {
 		if (strcmp(argv[2], "restart") == 0)
@@ -85,17 +89,23 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* FIXME: for rc debug only */
+#if 0
 	if ((f != NULL) && (f->func == rc_debug)) {
-			flag = RC_DEBUG_UNKNOWN;
+		flag = RC_DEBUG_UNKNOWN;
 		if (strcmp(argv[2], "dump") == 0)
 			flag = RC_DEBUG_DUMP;
 		return f->func(flag);
 	}
+#endif
 
 	if (argc == 4) {
-		s = atoi(argv[3]);
-		if ((s < 1) || (s > 90)) {
-			return (EXIT_FAILURE);
+		req.tv_sec = strtol(argv[3], &p, 10);
+		if ((p != NULL) && (*p == '.')) {
+			p++;
+			req.tv_nsec = strtol(p, (char **) NULL, 10);
+		}
+		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
+			s = 1;
 		}
 	}
 
@@ -137,6 +147,23 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* child process main */
+	snprintf(name, sizeof(name), "rc_%s", argv[1]);
+	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
+	handle = dlopen(path, RTLD_NOW);
+	if (!handle) {
+		fprintf(stderr, "%s\n", dlerror());
+		return (EXIT_FAILURE);
+	}
+
+	/* clear any existing error */
+	dlerror();
+
+	*(void **) (&function) = dlsym(handle, name);
+
+	if ((p = dlerror()) != NULL)  {
+		fprintf(stderr, "%s\n", p);
+		goto rc_exit;
+	}
 
 	/* prepare semaphore */
 	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
@@ -164,12 +191,12 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* handle rc operations */
-	if (flag != RC_BOOT && f != NULL) {
+	if (flag != RC_BOOT) {
 		/* wait s seconds */
 		if (s > 0)
-			sleep(s);
+			nanosleep(&req, NULL);
 
-		ret = f->func(flag);
+		ret = function(flag);
 	}
 
 	/* now release resource */
@@ -183,6 +210,9 @@ int rc_main(int argc, char **argv)
 	}
 
 rc_exit:
+	/* close loader handle */
+	dlclose(handle);
+
 	/* special actions for rc_system stop/restart */
 	if (strcmp("system", argv[1]) == 0) {
 		if (flag == RC_STOP) {

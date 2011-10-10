@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
         -DEZCFG_DEBUG \
         -Wall
 
-AM_LDFLAGS = -L.
+AM_LDFLAGS = -L. -ldl
 
 # ezcd depends on libezcfg
 # LIBS += -lezcfg
