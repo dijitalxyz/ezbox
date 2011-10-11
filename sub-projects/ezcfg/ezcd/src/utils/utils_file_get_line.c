@@ -38,7 +38,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove)
 {

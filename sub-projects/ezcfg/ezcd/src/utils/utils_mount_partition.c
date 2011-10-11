@@ -38,7 +38,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
 #include "utils.h"
 
 #if 0

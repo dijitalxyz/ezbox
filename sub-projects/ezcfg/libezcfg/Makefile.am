@@ -6,6 +6,10 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = COPYING exported_symbols
 
+LIBEZCFG_CURRENT = 1
+LIBEZCFG_REVISION = 0
+LIBEZCFG_AGE = 0
+
 SUBDIRS = .
 
 AM_CPPFLAGS = \
@@ -29,7 +33,7 @@ lib_LTLIBRARIES = libezcfg.la
 libezcfg_la_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) -I$(srcdir)/api/include
 
 libezcfg_la_LDFLAGS = \
-	--version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \
+	-version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \
 	-export-symbols $(srcdir)/exported_symbols
 
 libezcfg_la_SOURCES = src/common/ezcfg.c

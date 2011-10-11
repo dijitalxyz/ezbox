@@ -38,7 +38,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
 
 int preinit_main(int argc, char **argv)
 {
@@ -46,11 +45,13 @@ int preinit_main(int argc, char **argv)
 	umask(0);
 
 	/* run boot processes */
-	rc_system(RC_BOOT);
+	//rc_system(RC_BOOT);
+	system("/sbin/rc action system_boot");
 
 	/* run init */
 	/* if cmdline has root= switch_root to new root device */
-	rc_init(RC_BOOT);
+	//rc_init(RC_BOOT);
+	system("/sbin/rc init boot");
 
 	return (EXIT_SUCCESS);
 }

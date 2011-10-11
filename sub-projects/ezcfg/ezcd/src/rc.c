@@ -41,7 +41,6 @@
 #include <dlfcn.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
 
 #if 0
 #define DBG(format, args...) do {\
@@ -56,11 +55,11 @@
 #endif
 
 #define RCSO_PATH_PREFIX "/lib/rc"
+#define RCSO_PATH_PREFIX2 "/usr/lib/rc"
 
 int rc_main(int argc, char **argv)
 {
-	int flag = RC_BOOT;
-	int s = 0;
+	bool b_sleep = false;
 	struct timespec req;
 	int fd = -1;
 	pid_t pid;
@@ -71,32 +70,14 @@ int rc_main(int argc, char **argv)
 	char path[128];
 	char name[32];
 	void *handle;
-	int (*function)(int);
+	int (*function)(char *);
 
 	/* only accept two/three arguments */
+	/* argv[1] : action */
+	/* argv[2] : arguments */
+	/* argv[3] : sleep seconds */
 	if ((argc != 3) && (argc != 4))
 		return (EXIT_FAILURE);
-
-	if (argv[2] != NULL) {
-		if (strcmp(argv[2], "restart") == 0)
-			flag = RC_RESTART;
-		else if (strcmp(argv[2], "start") == 0)
-			flag = RC_START;
-		else if (strcmp(argv[2], "stop") == 0)
-			flag = RC_STOP;
-		else if (strcmp(argv[2], "reload") == 0)
-			flag = RC_RELOAD;
-	}
-
-	/* FIXME: for rc debug only */
-#if 0
-	if ((f != NULL) && (f->func == rc_debug)) {
-		flag = RC_DEBUG_UNKNOWN;
-		if (strcmp(argv[2], "dump") == 0)
-			flag = RC_DEBUG_DUMP;
-		return f->func(flag);
-	}
-#endif
 
 	if (argc == 4) {
 		req.tv_sec = strtol(argv[3], &p, 10);
@@ -105,7 +86,7 @@ int rc_main(int argc, char **argv)
 			req.tv_nsec = strtol(p, (char **) NULL, 10);
 		}
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
-			s = 1;
+			b_sleep = true;
 		}
 	}
 
@@ -151,8 +132,13 @@ int rc_main(int argc, char **argv)
 	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
 	handle = dlopen(path, RTLD_NOW);
 	if (!handle) {
-		fprintf(stderr, "%s\n", dlerror());
-		return (EXIT_FAILURE);
+		DBG("<6>rc: dlopen(%s) error %s\n", path, dlerror());
+		snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX2, name);
+		handle = dlopen(path, RTLD_NOW);
+		if (!handle) {
+			DBG("<6>rc: dlopen(%s) error %s\n", path, dlerror());
+			return (EXIT_FAILURE);
+		}
 	}
 
 	/* clear any existing error */
@@ -161,14 +147,14 @@ int rc_main(int argc, char **argv)
 	*(void **) (&function) = dlsym(handle, name);
 
 	if ((p = dlerror()) != NULL)  {
-		fprintf(stderr, "%s\n", p);
+		DBG("<6>rc: dlsym error %s\n", p);
 		goto rc_exit;
 	}
 
 	/* prepare semaphore */
 	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
-		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
 		goto rc_exit;
 	}
 
@@ -191,13 +177,11 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* handle rc operations */
-	if (flag != RC_BOOT) {
-		/* wait s seconds */
-		if (s > 0)
-			nanosleep(&req, NULL);
+	/* wait s seconds */
+	if (b_sleep == true)
+		nanosleep(&req, NULL);
 
-		ret = function(flag);
-	}
+	ret = function(argv[2]);
 
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_RC_INDEX;
@@ -214,15 +198,16 @@ rc_exit:
 	dlclose(handle);
 
 	/* special actions for rc_system stop/restart */
+#if 0
 	if (strcmp("system", argv[1]) == 0) {
-		if (flag == RC_STOP) {
+		if (strcmp("stop", argv[2]) == 0) {
 			if (utils_ezcd_wait_down(0) == true) {
 				DBG("<6>rc: system stop.\n");
 				/* { SIGUSR1, SIGUSR2, SIGTERM } for ezbox init/halt, poweroff, reboot */
 				ret = kill(1, SIGUSR2);
 			}
 		}
-		else if (flag == RC_RESTART) {
+		else if (strcmp("restart", argv[2]) == 0) {
 			if (utils_ezcd_wait_down(0) == true) {
 				DBG("<6>rc: system restart.\n");
 				/* { SIGUSR1, SIGUSR2, SIGTERM } for ezbox init/halt, poweroff, reboot */
@@ -230,6 +215,7 @@ rc_exit:
 			}
 		}
 	}
+#endif
 
 	return (ret);
 }

@@ -74,13 +74,15 @@ typedef struct proc_stat_s {
 	char state;
 } proc_stat_t;
 
-/* rc state */
+/* rc action state */
 enum {
-	RC_BOOT = 0,
-	RC_START,
-	RC_STOP,
-	RC_RESTART,
-	RC_RELOAD,
+	RC_ACT_UNKNOWN = 0,
+	RC_ACT_BOOT,
+	RC_ACT_START,
+	RC_ACT_STOP,
+	RC_ACT_RESTART,
+	RC_ACT_RELOAD,
+	RC_ACT_COMBINED,
 };
 
 /* rc debug state */
