@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Sat Oct  8 23:11:37 2011
+# Sat Oct 15 01:05:02 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_hi35xx=y
@@ -995,6 +995,9 @@ CONFIG_EZCFG_EZBOX_DISTRO_LILOU=y
 # ezcfg IGRS Utilities
 #
 CONFIG_PACKAGE_hi3515-btools=y
+CONFIG_PACKAGE_hi3515-mpp-libs=y
+CONFIG_PACKAGE_hi3515-mpp-rcso=y
+CONFIG_PACKAGE_hi3515-mpp-sample=y
 CONFIG_PACKAGE_libc=y
 
 #

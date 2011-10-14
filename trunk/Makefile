@@ -81,6 +81,8 @@ endif
 # set realtime symbol links directory
 RT_DIR:=$(POOL_DIR)/realtime/$(RT_TYPE)
 
+default: $(DISTRO)
+
 all: $(DISTRO)-all
 
 $(DISTRO)-all: $(DISTRO)-distclean $(DISTRO)

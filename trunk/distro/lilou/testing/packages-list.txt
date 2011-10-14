@@ -105,3 +105,5 @@ Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2:xorg-kdrive
 3rd-party/hisilicon/hisilicon-hi35xx-fvideo:hi35xx-fvideo
 # board tools
 3rd-party/hisilicon/hisilicon-hi35xx-btools:hi35xx-btools
+# MPP libs
+3rd-party/hisilicon/hisilicon-hi35xx-mpp:hi35xx-mpp
