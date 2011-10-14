@@ -45,3 +45,9 @@ mv -f $ROOTFS_DIR/usr/lib/modules/2.6.24/jbd2.ko $ROOTFS_DIR/lib/modules/2.6.24/
 mv -f $ROOTFS_DIR/usr/lib/modules/2.6.24/mbcache.ko $ROOTFS_DIR/lib/modules/2.6.24/
 # remove the usr/lib/modules directory
 rm -rf $ROOTFS_DIR/usr/lib/modules
+
+# clean MPP samples
+rm -rf $ROOTFS_DIR/usr/share/mpp/sample/hifb
+rm -rf $ROOTFS_DIR/usr/share/mpp/sample/vdec
+rm -rf $ROOTFS_DIR/usr/share/mpp/sample/mixer
+rm -rf $ROOTFS_DIR/usr/share/mpp/sample/tde
