@@ -37,10 +37,16 @@ insert_ko()
     insmod hi35xx_ao.ko
     insmod hi35xx_aenc.ko
     insmod hi35xx_adec.ko
+
+    insmod libphy.ko 
+    insmod hi35xx_hiether.ko phyaddru=2
 }
 
 remove_ko()
 {
+    rmmod hi35xx_hiether
+    rmmod libphy.ko 
+
     rmmod hi35xx_adec
     rmmod hi35xx_aenc
     rmmod hi35xx_ai
