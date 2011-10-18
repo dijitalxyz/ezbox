@@ -54,9 +54,17 @@
 #define DBG(format, args...)
 #endif
 
-#define RCSO_PATH_PREFIX "/lib/rc"
-#define RCSO_PATH_PREFIX2 "/usr/lib/rc"
+#define RCSO_PATH_PREFIX "/lib/rcso"
+#define RCSO_PATH_PREFIX2 "/usr/lib/rcso"
 
+/* use example
+ * 1. call action directly
+ *    rc dnsmasq start
+ *
+ * 2. sleep before call action
+ *    rc 0.1 dnsmasq start
+ *    sleep 0.1 second then call "dnsmasq start"
+ */
 int rc_main(int argc, char **argv)
 {
 	bool b_sleep = false;
@@ -66,21 +74,26 @@ int rc_main(int argc, char **argv)
 	int ret = EXIT_FAILURE;
 	int key, semid;
 	struct sembuf require_res, release_res;
+	int i;
 	char *p;
-	char path[128];
+	char path[64];
 	char name[32];
 	void *handle;
-	int (*function)(char *);
+	int (*function)(int argc, char **argv);
 
-	/* only accept two/three arguments */
-	/* argv[1] : action */
-	/* argv[2] : arguments */
-	/* argv[3] : sleep seconds */
-	if ((argc != 3) && (argc != 4))
+	/* argv[0] : "rc" */
+	/* argv[1]/argv[2] : action name */
+	/* argv[2]/argv[3]... : action arguments */
+	if (argc < 3)
 		return (EXIT_FAILURE);
 
-	if (argc == 4) {
-		req.tv_sec = strtol(argv[3], &p, 10);
+	if (getuid() != 0) {
+		exit(EXIT_FAILURE);
+	}
+
+	i = 1;
+	if (isdigit(*argv[i])) {
+		req.tv_sec = strtol(argv[i], &p, 10);
 		if ((p != NULL) && (*p == '.')) {
 			p++;
 			req.tv_nsec = strtol(p, (char **) NULL, 10);
@@ -88,10 +101,7 @@ int rc_main(int argc, char **argv)
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
 			b_sleep = true;
 		}
-	}
-
-	if (getuid() != 0) {
-		exit(EXIT_FAILURE);
+		i++;
 	}
 
 	/* set umask before creating any file/directory */
@@ -128,7 +138,7 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* child process main */
-	snprintf(name, sizeof(name), "rc_%s", argv[1]);
+	snprintf(name, sizeof(name), "rc_%s", argv[i]);
 	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
 	handle = dlopen(path, RTLD_NOW);
 	if (!handle) {
@@ -181,7 +191,7 @@ int rc_main(int argc, char **argv)
 	if (b_sleep == true)
 		nanosleep(&req, NULL);
 
-	ret = function(argv[2]);
+	ret = function(argc - i, argv + i);
 
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_RC_INDEX;

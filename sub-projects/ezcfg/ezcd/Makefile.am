@@ -11,8 +11,8 @@ SUBDIRS = .
 AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
 	-I$(srcdir)/include \
-        -DSYSCONFDIR=\""$(sysconfdir)"\" \
-        -DDATADIR=\""$(datadir)"\" \
+        -DSYSCONFDIR="$(sysconfdir)" \
+        -DDATADIR="$(datadir)" \
         -DEZCFG_DEBUG \
         -Wall
 
@@ -187,7 +187,7 @@ if CONFIG_EZBOX_SERVICE_EMC2
 #ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
 endif
 
-ezcd_DEPENDENCIES = libezcfg.so
+ezcd_DEPENDENCIES = libezcfg.so $(RCSO_SO)
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LIBEZCFG_LIBS)
@@ -243,4 +243,20 @@ libezcd_la_SOURCES += src/utils/utils_crc32.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
+
+
+###############################
+# rcso
+###############################
+RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
+RCSO_CFLAGS += $(ezcd_CPPFLAGS)
+RCSO_SRC = rc_action.c
+RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
+
+%.so : %.o
+	$(CC) $(RCSO_CFLAGS) -shared $< -o $@
+
+%.o : src/rcso/%.c
+	$(CC) $(RCSO_CFLAGS) -o $@ -c $<
+
 
