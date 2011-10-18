@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_login(int flag)
+int rc_login(int argc, char **argv)
 {
 	FILE *fp;
 	char type[32];
@@ -48,30 +48,48 @@ int rc_login(int flag)
 	char passwd[64];
 	char buf[64];
 	pid_t pid;
+	int flag = RC_ACT_UNKNOWN;
 	int i, auth_number;
 	int rc = EXIT_FAILURE;
 
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "login")) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[1], "boot") == 0)
+		flag = RC_ACT_BOOT;
+	else if (strcmp(argv[1], "start") == 0)
+		flag = RC_ACT_START;
+	else if (strcmp(argv[1], "restart") == 0)
+		flag = RC_ACT_RESTART;
+	else
+		return (EXIT_FAILURE);
+
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		/* generate /etc/passwd */
-		pop_etc_passwd(RC_BOOT);
+		pop_etc_passwd(RC_ACT_BOOT);
 
 		/* generate /etc/group */
-		pop_etc_group(RC_BOOT);
+		pop_etc_group(RC_ACT_BOOT);
 
 		rc = EXIT_SUCCESS;
 		break;
 
-	case RC_START :
+	case RC_ACT_START :
 		/* generate /etc/passwd */
-		pop_etc_passwd(RC_START);
+		pop_etc_passwd(RC_ACT_START);
 
 		/* generate /etc/group */
-		pop_etc_group(RC_START);
+		pop_etc_group(RC_ACT_START);
 
 		/* fall down to change passwd */
 
-	case RC_RESTART :
+	case RC_ACT_RESTART :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf, sizeof(buf));
 		if (rc < 0) {
 			break;
