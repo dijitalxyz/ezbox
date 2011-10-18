@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1279
+PKG_REV:=1289
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -169,9 +169,11 @@ endef
 
 define Package/ezcfg/install
 	$(INSTALL_DIR) $(1)/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcd.so* $(1)/lib/
+	$(INSTALL_DIR) $(1)/lib/rcso
+	$(CP) $(PKG_BUILD_DIR)/ezcd/rc_*.so* $(1)/lib/rcso/
 	$(INSTALL_DIR) $(1)/sbin
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcd.so* $(1)/lib
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
 	$(LN) sbin/ezcd $(1)/init
 	$(LN) ezcd $(1)/sbin/ezcm
