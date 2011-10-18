@@ -54,9 +54,6 @@
 #define DBG(format, args...)
 #endif
 
-#define RCSO_PATH_PREFIX "/lib/rcso"
-#define RCSO_PATH_PREFIX2 "/usr/lib/rcso"
-
 /* use example
  * 1. call action directly
  *    rc dnsmasq start

@@ -251,12 +251,9 @@ pkgconfig_DATA = ezcd.pc
 RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
 RCSO_CFLAGS += $(ezcd_CPPFLAGS)
 RCSO_SRC = rc_action.c
+RCSO_SRC += rc_exec.c
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 
-%.so : %.o
+%.so : src/rcso/%.c
 	$(CC) $(RCSO_CFLAGS) -shared $< -o $@
-
-%.o : src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) -o $@ -c $<
-
 
