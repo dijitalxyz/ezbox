@@ -73,8 +73,8 @@ int pop_etc_passwd(int flag)
 		return (EXIT_FAILURE);
 
 	switch(flag) {
-	case RC_BOOT :
-	case RC_START :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
 		generate_boot_passwd(file);	
 		break;
 	}

@@ -1,120 +1,120 @@
 #ifndef _RC_FUNC_H_
 #define _RC_FUNC_H_
 
-extern int rc_debug(int flag);
-extern int rc_base_files(int flag);
-extern int rc_ldconfig(int flag);
-extern int rc_ezcd(int flag);
-extern int rc_nvram(int flag);
-extern int rc_ezcm(int flag);
+extern int rc_debug(int argc, char **argv);
+extern int rc_base_files(int argc, char **argv);
+extern int rc_ldconfig(int argc, char **argv);
+extern int rc_ezcd(int argc, char **argv);
+extern int rc_nvram(int argc, char **argv);
+extern int rc_ezcm(int argc, char **argv);
 
-extern int rc_ezcfg_httpd(int flag);
+extern int rc_ezcfg_httpd(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_ezcfg_httpd(int flag);
+extern int rc_lan_ezcfg_httpd(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_ezcfg_httpd(int flag);
+extern int rc_wan_ezcfg_httpd(int argc, char **argv);
 #endif
 
-extern int rc_preboot(int flag);
-//extern int rc_hotplug2(int flag);
-extern int rc_mdev(int flag);
-extern int rc_data_storage(int flag);
-extern int rc_init(int flag);
-extern int rc_load_modules(int flag);
-extern int rc_mount_system_fs(int flag);
-extern int rc_login(int flag);
-extern int rc_loopback(int flag);
-extern int rc_netbase(int flag);
-extern int rc_system(int flag);
+extern int rc_preboot(int argc, char **argv);
+//extern int rc_hotplug2(int argc, char **argv);
+extern int rc_mdev(int argc, char **argv);
+extern int rc_data_storage(int argc, char **argv);
+extern int rc_init(int argc, char **argv);
+extern int rc_load_modules(int argc, char **argv);
+extern int rc_mount_system_fs(int argc, char **argv);
+extern int rc_login(int argc, char **argv);
+extern int rc_loopback(int argc, char **argv);
+extern int rc_netbase(int argc, char **argv);
+extern int rc_system(int argc, char **argv);
 
 #if (HAVE_EZBOX_SERVICE_SYSLOGD == 1)
-extern int rc_syslogd(int flag);
+extern int rc_syslogd(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_syslogd(int flag);
+extern int rc_lan_syslogd(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_syslogd(int flag);
+extern int rc_wan_syslogd(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_KLOGD == 1)
-extern int rc_klogd(int flag);
+extern int rc_klogd(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_klogd(int flag);
+extern int rc_lan_klogd(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_klogd(int flag);
+extern int rc_wan_klogd(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_TELNETD == 1)
-extern int rc_telnetd(int flag);
+extern int rc_telnetd(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_telnetd(int flag);
+extern int rc_lan_telnetd(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_telnetd(int flag);
+extern int rc_wan_telnetd(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
-extern int rc_dnsmasq(int flag);
+extern int rc_dnsmasq(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_dnsmasq(int flag);
+extern int rc_lan_dnsmasq(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_dnsmasq(int flag);
+extern int rc_wan_dnsmasq(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
-extern int rc_iptables(int flag);
+extern int rc_iptables(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan_iptables(int flag);
+extern int rc_lan_iptables(int argc, char **argv);
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan_iptables(int flag);
+extern int rc_wan_iptables(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
-extern int rc_nano_x(int flag);
+extern int rc_nano_x(int argc, char **argv);
 #elif (HAVE_EZBOX_SERVICE_KDRIVE == 1)
-extern int rc_kdrive(int flag);
+extern int rc_kdrive(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
-extern int rc_fontconfig(int flag);
+extern int rc_fontconfig(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_DILLO == 1)
-extern int rc_dillo(int flag);
+extern int rc_dillo(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
-extern int rc_realtime(int flag);
-extern int rc_emc2(int flag);
-extern int rc_emc2_latency_test(int flag);
+extern int rc_realtime(int argc, char **argv);
+extern int rc_emc2(int argc, char **argv);
+extern int rc_emc2_latency_test(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_LAN_NIC == 1)
-extern int rc_lan(int flag);
-extern int rc_lan_if(int flag);
-extern int rc_lan_services(int flag);
+extern int rc_lan(int argc, char **argv);
+extern int rc_lan_if(int argc, char **argv);
+extern int rc_lan_services(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_WLAN_NIC == 1)
-extern int rc_wlan_if(int flag);
+extern int rc_wlan_if(int argc, char **argv);
 #if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
-extern int rc_wpa_supplicant(int flag);
+extern int rc_wpa_supplicant(int argc, char **argv);
 #endif
 #endif
 
 #if (HAVE_EZBOX_WAN_NIC == 1)
-extern int rc_wan(int flag);
-extern int rc_wan_if(int flag);
-extern int rc_wan_services(int flag);
+extern int rc_wan(int argc, char **argv);
+extern int rc_wan_if(int argc, char **argv);
+extern int rc_wan_services(int argc, char **argv);
 #endif
 
 #endif

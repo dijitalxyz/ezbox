@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (C) 2010 ezbox project
+# Copyright (C) 2010-2011 ezbox project
 # ------------------------------------------------------------------------------
 
 ACLOCAL_AMFLAGS = -I m4
@@ -87,11 +87,6 @@ ezcd_SOURCES += src/upfw.c
 # init
 #ezcd_SOURCES += src/pop/pop_etc_inittab.c
 #ezcd_SOURCES += src/rc/rc_init.c
-
-# login
-#ezcd_SOURCES += src/pop/pop_etc_passwd.c
-#ezcd_SOURCES += src/pop/pop_etc_group.c
-#ezcd_SOURCES += src/rc/rc_login.c
 
 # netbase
 #ezcd_SOURCES += src/pop/pop_etc_hosts.c
@@ -187,7 +182,7 @@ if CONFIG_EZBOX_SERVICE_EMC2
 #ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
 endif
 
-ezcd_DEPENDENCIES = libezcfg.so $(RCSO_SO)
+ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO)
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LIBEZCFG_LIBS)
@@ -241,6 +236,10 @@ libezcd_la_SOURCES += src/utils/utils_file_get_line.c
 libezcd_la_SOURCES += src/utils/utils_find_pid_by_name.c
 libezcd_la_SOURCES += src/utils/utils_crc32.c
 
+# login
+libezcd_la_SOURCES += src/pop/pop_etc_passwd.c
+libezcd_la_SOURCES += src/pop/pop_etc_group.c
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
 
@@ -252,8 +251,9 @@ RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
 RCSO_CFLAGS += $(ezcd_CPPFLAGS)
 RCSO_SRC = rc_action.c
 RCSO_SRC += rc_exec.c
+RCSO_SRC += rc_login.c
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 
 %.so : src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) -shared $< -o $@
+	$(CC) $(RCSO_CFLAGS) -L.libs -lezcd -shared $< -o $@
 
