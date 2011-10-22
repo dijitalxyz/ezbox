@@ -50,10 +50,10 @@ int pop_etc_ezcm_conf(int flag)
 	int auth_number = 0;
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-	case RC_RELOAD :
-	case RC_RESTART :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+	case RC_ACT_RELOAD :
+	case RC_ACT_RESTART :
 		/* get ezcm config from nvram */
 		file = fopen(EZCM_CONFIG_FILE_PATH, "w");
 		if (file == NULL)

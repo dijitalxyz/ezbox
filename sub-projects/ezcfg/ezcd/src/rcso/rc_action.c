@@ -142,7 +142,11 @@ func_exit:
 	return (ret);
 }
 
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
 int rc_action(int argc, char **argv)
+#endif
 {
 	static char buf[128];
 	char path[64];

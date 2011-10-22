@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-07-28   0.1       Write it from scratch
+ * 2011-10-20   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -74,12 +75,27 @@
 	} \
 } while(0)
 
-int rc_data_storage(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_data_storage(int argc, char **argv)
+#endif
 {
 	char buf[64];
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "data_storage")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		/* prepare dynamic data storage path */
 		utils_mount_data_partition_writable();
 
@@ -96,8 +112,13 @@ int rc_data_storage(int flag)
 		mkdir("/var/run", 0777);
 		mkdir("/var/tmp", 0777);
 
+		ret = EXIT_SUCCESS;
+		break;
+
+	default:
+		ret = EXIT_FAILURE;
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

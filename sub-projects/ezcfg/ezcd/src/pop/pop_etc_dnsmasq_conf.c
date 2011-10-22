@@ -55,12 +55,12 @@ int pop_etc_dnsmasq_conf(int flag)
 	switch (flag) {
 	case RC_START :
 		/* Never forward plain names (without a dot or domain part) */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
 			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));
 		}
 
 		/* get upstream servers from somewhere other that /etc/resolv.conf */
-		if (nvram_match(NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), "0") == 0) {
 			FILE *fp = NULL;
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, RESOLV_FILE), "/etc/resolv.conf.dnsmasq");
 			fp = fopen("/etc/resolv.conf.dnsmasq", "w");

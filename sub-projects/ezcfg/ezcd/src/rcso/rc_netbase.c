@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-11-03   0.1       Write it from scratch
+ * 2011-10-22   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -41,30 +42,52 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_netbase(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_netbase(int argc, char **argv)
+#endif
 {
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "netbase")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		/* manage network interfaces and configure some networking options */
 		mkdir("/etc/network", 0755);
 		mkdir("/etc/network/if-pre-up.d", 0755);
 		mkdir("/etc/network/if-up.d", 0755);
 		mkdir("/etc/network/if-down.d", 0755);
 		mkdir("/etc/network/if-post-down.d", 0755);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_RESTART :
-	case RC_START :
-		pop_etc_network_interfaces(RC_START);
-		pop_etc_hosts(RC_START);
-		pop_etc_protocols(RC_START);
-		pop_etc_mactab(RC_START);
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
+		pop_etc_network_interfaces(RC_ACT_START);
+		pop_etc_hosts(RC_ACT_START);
+		pop_etc_protocols(RC_ACT_START);
+		pop_etc_mactab(RC_ACT_START);
 		/* FIXME: do it after WAN interface is up */
 #if 0
-		pop_etc_resolv_conf(RC_START);
+		pop_etc_resolv_conf(RC_ACT_START);
 #endif
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

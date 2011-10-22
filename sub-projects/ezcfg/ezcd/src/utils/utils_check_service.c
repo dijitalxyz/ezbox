@@ -38,7 +38,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 #if 0
 #define DBG printf

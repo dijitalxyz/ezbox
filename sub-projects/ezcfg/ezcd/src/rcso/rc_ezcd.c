@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch
+ * 2011-10-21   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -38,7 +39,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "utils.h"
 #include "pop_func.h"
 
 #if 1
@@ -53,27 +53,43 @@
 #define DBG(format, args...)
 #endif
 
-int rc_ezcd(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_ezcd(int argc, char **argv)
+#endif
 {
 	char buf[256];
 	proc_stat_t *pidList;
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "ezcd")) {
+		return (EXIT_FAILURE);
+	}
+
+	ret = EXIT_SUCCESS;
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		/* FIXME: nvram is not ready now!!! */
-		pop_etc_ezcd_conf(RC_BOOT);
+		pop_etc_ezcd_conf(RC_ACT_BOOT);
 		/* ezcd config file should be prepared */
 		snprintf(buf, sizeof(buf), "%s -d", CMD_EZCD);
 		system(buf);
 
 		/* wait until nvram is ready */
 		if (utils_ezcd_wait_up(0) == false) {
-			return (EXIT_FAILURE);
+			ret = EXIT_FAILURE;
 		}
 
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 		pidList = utils_find_pid_by_name("ezcd");
 		while (pidList) {
 			int i;
@@ -86,12 +102,12 @@ int rc_ezcd(int flag)
 
 		/* wait until ezcd is exit */
 		if (utils_ezcd_wait_down(0) == false) {
-			return (EXIT_FAILURE);
+			ret = EXIT_FAILURE;
 		}
 
 		break;
 
-	case RC_RELOAD :
+	case RC_ACT_RELOAD :
 		/* re-generate ezcd config file */
 		pop_etc_ezcd_conf(flag);
 		/* set nvram config file path */
@@ -110,11 +126,15 @@ int rc_ezcd(int flag)
 
 		/* wait until nvram is ready */
 		if (utils_ezcd_wait_up(0) == false) {
-			return (EXIT_FAILURE);
+			ret = EXIT_FAILURE;
 		}
 
 		break;
+
+	default:
+		ret = EXIT_FAILURE;
+		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

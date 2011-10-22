@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-11-03   0.1       Write it from scratch
+ * 2011-10-16   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -40,7 +41,11 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
 int rc_login(int argc, char **argv)
+#endif
 {
 	FILE *fp;
 	char type[32];
@@ -48,9 +53,8 @@ int rc_login(int argc, char **argv)
 	char passwd[64];
 	char buf[64];
 	pid_t pid;
-	int flag = RC_ACT_UNKNOWN;
 	int i, auth_number;
-	int rc = EXIT_FAILURE;
+	int ret, flag;
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
@@ -60,14 +64,7 @@ int rc_login(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[1], "boot") == 0)
-		flag = RC_ACT_BOOT;
-	else if (strcmp(argv[1], "start") == 0)
-		flag = RC_ACT_START;
-	else if (strcmp(argv[1], "restart") == 0)
-		flag = RC_ACT_RESTART;
-	else
-		return (EXIT_FAILURE);
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
 	case RC_ACT_BOOT :
@@ -77,7 +74,7 @@ int rc_login(int argc, char **argv)
 		/* generate /etc/group */
 		pop_etc_group(RC_ACT_BOOT);
 
-		rc = EXIT_SUCCESS;
+		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_START :
@@ -90,23 +87,27 @@ int rc_login(int argc, char **argv)
 		/* fall down to change passwd */
 
 	case RC_ACT_RESTART :
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf, sizeof(buf));
-		if (rc < 0) {
+		ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf, sizeof(buf));
+		if (ret < 0) {
+			ret = EXIT_FAILURE;
 			break;
 		}
 		auth_number = atoi(buf);
 		if (auth_number < 1) {
+			ret = EXIT_FAILURE;
 			break;
 		}
 
 		/* get user name and password */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), user, sizeof(user));
-		if (rc < 0) {
+		ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), user, sizeof(user));
+		if (ret < 0) {
+			ret = EXIT_FAILURE;
 			break;
 		}
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET), passwd, sizeof(passwd));
-		if (rc < 0) {
+		ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET), passwd, sizeof(passwd));
+		if (ret < 0) {
+			ret = EXIT_FAILURE;
 			break;
 		}
 
@@ -122,8 +123,8 @@ int rc_login(int argc, char **argv)
 				EZCFG_EZCFG_NVRAM_PREFIX,
 				EZCFG_EZCFG_SECTION_AUTH,
 				i, EZCFG_EZCFG_KEYWORD_TYPE);
-			rc = ezcfg_api_nvram_get(buf, type, sizeof(type));
-			if (rc < 0) {
+			ret = ezcfg_api_nvram_get(buf, type, sizeof(type));
+			if (ret < 0) {
 				continue;
 			}
 			if (strcmp(type, EZCFG_AUTH_TYPE_HTTP_BASIC_STRING) != 0) {
@@ -134,8 +135,8 @@ int rc_login(int argc, char **argv)
 				EZCFG_EZCFG_NVRAM_PREFIX,
 				EZCFG_EZCFG_SECTION_AUTH,
 				i, EZCFG_EZCFG_KEYWORD_USER);
-			rc = ezcfg_api_nvram_get(buf, user, sizeof(user));
-			if (rc < 0) {
+			ret = ezcfg_api_nvram_get(buf, user, sizeof(user));
+			if (ret < 0) {
 				continue;
 			}
 
@@ -143,8 +144,8 @@ int rc_login(int argc, char **argv)
 				EZCFG_EZCFG_NVRAM_PREFIX,
 				EZCFG_EZCFG_SECTION_AUTH,
 				i, EZCFG_EZCFG_KEYWORD_SECRET);
-			rc = ezcfg_api_nvram_get(buf, passwd, sizeof(passwd));
-			if (rc < 0) {
+			ret = ezcfg_api_nvram_get(buf, passwd, sizeof(passwd));
+			if (ret < 0) {
 				continue;
 			}
 			fprintf(fp, "%s:%s\n", user, passwd);
@@ -155,8 +156,12 @@ int rc_login(int argc, char **argv)
 		snprintf(buf, sizeof(buf), "%s -rf /tmp/rc_login.%d", CMD_RM, pid);
 		system(buf);
 
-		rc = EXIT_SUCCESS;
+		ret = EXIT_SUCCESS;
+		break;
+
+	default:
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (rc);
+	return (ret);
 }

@@ -47,38 +47,6 @@ static void nvram_show_usage(void)
 	printf("\n");
 }
 
-int nvram_match(const char *name, const char *value)
-{
-	int rc = 0;
-	char *buf;
-	int buf_len;
-
-	if (name == NULL || value == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
-	buf = (char *)malloc(buf_len);
-	if (buf == NULL) {
-		return -EZCFG_E_SPACE ;
-	}
-
-	rc = ezcfg_api_nvram_get(name, buf, buf_len);
-	if (rc < 0) {
-		rc = -EZCFG_E_RESULT ;
-		goto exit;
-	}
-
-	if (strcmp(value, buf) != 0) {
-		rc = -EZCFG_E_RESULT ;
-		goto exit;
-	}
-exit:
-	if (buf != NULL)
-		free(buf);
-	return rc;
-}
-
 int nvram_main(int argc, char **argv)
 {
 	int rc = 0;

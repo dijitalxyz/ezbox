@@ -43,7 +43,6 @@
 #include <dirent.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 #define CRC32_INITIAL_REMAINDER	0xffffffffUL
 #define CRC32_FINAL_XOR_VALUE	0xffffffffUL

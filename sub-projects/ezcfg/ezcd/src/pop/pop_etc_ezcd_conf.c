@@ -68,7 +68,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
 	         EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
-	if (flag == RC_BOOT) {
+	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
 	else {
@@ -83,7 +83,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
 	         EZCFG_EZCFG_KEYWORD_RULES_PATH);
-	if (flag == RC_BOOT) {
+	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
 	else {
@@ -98,7 +98,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
 	         EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
-	if (flag == RC_BOOT) {
+	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
 	else {
@@ -114,7 +114,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
 	         EZCFG_EZCFG_KEYWORD_LOCALE);
-	if (flag == RC_BOOT) {
+	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
 	else {
@@ -129,7 +129,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
 	         EZCFG_EZCFG_KEYWORD_AUTH_NUMBER);
-	if (flag == RC_BOOT) {
+	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
 	else {
@@ -151,7 +151,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_NVRAM,
 		         i, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -165,7 +165,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_NVRAM,
 		         i, EZCFG_EZCFG_KEYWORD_BACKEND_TYPE);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -179,7 +179,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_NVRAM,
 		         i, EZCFG_EZCFG_KEYWORD_CODING_TYPE);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -193,7 +193,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_NVRAM,
 		         i, EZCFG_EZCFG_KEYWORD_STORAGE_PATH);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -214,7 +214,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_SOCKET,
 		         i, EZCFG_EZCFG_KEYWORD_DOMAIN);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -228,7 +228,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_SOCKET,
 		         i, EZCFG_EZCFG_KEYWORD_TYPE);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -242,7 +242,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_SOCKET,
 		         i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -256,7 +256,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_SOCKET,
 		         i, EZCFG_EZCFG_KEYWORD_ADDRESS);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -277,7 +277,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_AUTH,
 		         i, EZCFG_EZCFG_KEYWORD_TYPE);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -291,7 +291,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_AUTH,
 		         i, EZCFG_EZCFG_KEYWORD_USER);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -305,7 +305,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_AUTH,
 		         i, EZCFG_EZCFG_KEYWORD_REALM);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -319,7 +319,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_AUTH,
 		         i, EZCFG_EZCFG_KEYWORD_DOMAIN);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -333,7 +333,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_AUTH,
 		         i, EZCFG_EZCFG_KEYWORD_SECRET);
-		if (flag == RC_BOOT) {
+		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
 		else {
@@ -353,10 +353,10 @@ int pop_etc_ezcd_conf(int flag)
 	FILE *file;
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-	case RC_RELOAD :
-	case RC_RESTART :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+	case RC_ACT_RELOAD :
+	case RC_ACT_RESTART :
 		/* get ezcd config from nvram */
 		file = fopen(EZCD_CONFIG_FILE_PATH, "w");
 		if (file == NULL)

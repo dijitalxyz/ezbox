@@ -531,11 +531,11 @@ int pop_etc_mdev_conf(int flag)
 	generate_mdev_common_rules(file);
 
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		break;
 
-	case RC_RESTART :
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)
 		fprintf(file, "%s %d:%d %o\n", "rtai_shm*", 0, 0, 0666);
 		fprintf(file, "%s %d:%d %o\n", "rtf[0-9]*", 0, 0, 0666);

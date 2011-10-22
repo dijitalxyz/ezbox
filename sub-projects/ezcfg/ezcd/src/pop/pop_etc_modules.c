@@ -51,10 +51,10 @@ int pop_etc_modules(int flag)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_RESTART :
-	case RC_START :
-		if (flag == RC_BOOT) {
+	case RC_ACT_BOOT :
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
+		if (flag == RC_ACT_BOOT) {
 			/* get the kernel module name from boot.cfg */
 			rc = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, MODULES), buf, sizeof(buf));
 		}

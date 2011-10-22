@@ -56,30 +56,9 @@ endif
 # upgrade firmware support
 ezcd_SOURCES += src/upfw.c
 
-# ezcd
-#ezcd_SOURCES += src/pop/pop_etc_ezcd_conf.c
-#ezcd_SOURCES += src/rc/rc_ezcd.c
-#ezcd_SOURCES += src/rc/rc_ezcfg_httpd.c
-
-# nvram
-#ezcd_SOURCES += src/pop/pop_etc_nvram_conf.c
-#ezcd_SOURCES += src/rc/rc_nvram.c
-
-# ezcm
-#ezcd_SOURCES += src/pop/pop_etc_ezcm_conf.c
-#ezcd_SOURCES += src/rc/rc_ezcm.c
-
 # hotplug2
 #ezcd_SOURCES += src/pop/pop_etc_hotplug2_rules.c
 #ezcd_SOURCES += src/rc/rc_hotplug2.c
-
-# mdev
-#ezcd_SOURCES += src/pop/pop_etc_mdev_conf.c
-#ezcd_SOURCES += src/rc/rc_mdev.c
-
-# kernel modules
-#ezcd_SOURCES += src/pop/pop_etc_modules.c
-#ezcd_SOURCES += src/rc/rc_load_modules.c
 
 # mount system fs
 #ezcd_SOURCES += src/rc/rc_mount_system_fs.c
@@ -87,14 +66,6 @@ ezcd_SOURCES += src/upfw.c
 # init
 #ezcd_SOURCES += src/pop/pop_etc_inittab.c
 #ezcd_SOURCES += src/rc/rc_init.c
-
-# netbase
-#ezcd_SOURCES += src/pop/pop_etc_hosts.c
-#ezcd_SOURCES += src/pop/pop_etc_network_interfaces.c
-#ezcd_SOURCES += src/pop/pop_etc_protocols.c
-#ezcd_SOURCES += src/pop/pop_etc_mactab.c
-#ezcd_SOURCES += src/pop/pop_etc_resolv_conf.c
-#ezcd_SOURCES += src/rc/rc_netbase.c
 
 # network
 #ezcd_SOURCES += src/rc/rc_loopback.c
@@ -182,7 +153,7 @@ if CONFIG_EZBOX_SERVICE_EMC2
 #ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
 endif
 
-ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO)
+ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO) $(RCSO_EXE)
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LIBEZCFG_LIBS)
@@ -220,6 +191,7 @@ libezcd_la_SOURCES += src/utils/utils_check_service.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += src/utils/utils_check_wan_interface.c
 endif
+libezcd_la_SOURCES += src/utils/utils_nvram_match.c
 libezcd_la_SOURCES += src/utils/utils_file_get_keyword.c
 libezcd_la_SOURCES += src/utils/utils_get_kernel_modules.c
 libezcd_la_SOURCES += src/utils/utils_get_kernel_version.c
@@ -229,16 +201,40 @@ libezcd_la_SOURCES += src/utils/utils_get_bootcfg_keyword.c
 libezcd_la_SOURCES += src/utils/utils_get_device_info.c
 libezcd_la_SOURCES += src/utils/utils_sync_cfg_with_nvram.c
 libezcd_la_SOURCES += src/utils/utils_sync_nvram_with_cfg.c
+libezcd_la_SOURCES += src/utils/utils_get_rc_act_type.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += src/utils/utils_get_wan_type.c
 endif
 libezcd_la_SOURCES += src/utils/utils_file_get_line.c
 libezcd_la_SOURCES += src/utils/utils_find_pid_by_name.c
 libezcd_la_SOURCES += src/utils/utils_crc32.c
+libezcd_la_SOURCES += src/utils/utils_udev_trigger_pop.c
 
 # login
 libezcd_la_SOURCES += src/pop/pop_etc_passwd.c
 libezcd_la_SOURCES += src/pop/pop_etc_group.c
+
+# mdev
+#libezcd_la_SOURCES += src/pop/pop_etc_mdev_conf.c
+
+# kernel modules
+libezcd_la_SOURCES += src/pop/pop_etc_modules.c
+
+# nvram
+libezcd_la_SOURCES += src/pop/pop_etc_nvram_conf.c
+
+# ezcd
+libezcd_la_SOURCES += src/pop/pop_etc_ezcd_conf.c
+
+# ezcm
+libezcd_la_SOURCES += src/pop/pop_etc_ezcm_conf.c
+
+# netbase
+libezcd_la_SOURCES += src/pop/pop_etc_hosts.c
+libezcd_la_SOURCES += src/pop/pop_etc_network_interfaces.c
+libezcd_la_SOURCES += src/pop/pop_etc_protocols.c
+libezcd_la_SOURCES += src/pop/pop_etc_mactab.c
+libezcd_la_SOURCES += src/pop/pop_etc_resolv_conf.c
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
@@ -252,8 +248,23 @@ RCSO_CFLAGS += $(ezcd_CPPFLAGS)
 RCSO_SRC = rc_action.c
 RCSO_SRC += rc_exec.c
 RCSO_SRC += rc_login.c
+#RCSO_SRC += rc_mdev.c
+RCSO_SRC += rc_preboot.c
+RCSO_SRC += rc_load_modules.c
+RCSO_SRC += rc_mount_system_fs.c
+RCSO_SRC += rc_data_storage.c
+RCSO_SRC += rc_nvram.c
+RCSO_SRC += rc_ezcd.c
+RCSO_SRC += rc_ezcfg_httpd.c
+RCSO_SRC += rc_ezcm.c
+RCSO_SRC += rc_netbase.c
+
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
+RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 
 %.so : src/rcso/%.c
 	$(CC) $(RCSO_CFLAGS) -L.libs -lezcd -shared $< -o $@
+
+%.exe : src/rcso/%.c
+	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L.libs -lezcd $< -o $@
 

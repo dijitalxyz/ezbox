@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_load_modules.c
+ * Module Name  : rc_mdev.c
  *
- * Description  : ezbox run load kernel modules service
+ * Description  : ezbox run mdev to generate /dev/ node service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2011-08-11   0.1       Write it from scratch
+ * 2011-10-16   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -40,45 +41,59 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_load_modules(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_mdev(int argc, char **argv)
+#endif
 {
-	FILE *file = NULL;
-	char buf[32];
-	int ret = EXIT_FAILURE;
+	FILE *file;
+	char cmdline[256];
+	int flag, ret;
 
-	/* first generate /etc/modules */
-	pop_etc_modules(flag);
-
-	file = fopen("/etc/modules", "r");
-	if (file == NULL) {
+	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
+	if (strcmp(argv[0], "mdev")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		while (utils_file_get_line(file,
-			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-			ret = utils_install_kernel_module(buf, NULL);
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+	case RC_ACT_RESTART :
+		pop_etc_mdev_conf(flag);
+		file = fopen("/proc/sys/kernel/hotplug", "w");
+                if (file != NULL)
+		{
+			fprintf(file, "%s", CMD_MDEV);
+			fclose(file);
+		}
+
+		if (flag == RC_BOOT) {
+			snprintf(cmdline, sizeof(cmdline), "%s -s", CMD_MDEV);
+			ret = system(cmdline);
 		}
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		while (utils_file_get_line(file,
-			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-			ret = utils_remove_kernel_module(buf);
+	case RC_ACT_STOP :
+		file = fopen("/proc/sys/kernel/hotplug", "w");
+                if (file != NULL)
+		{
+			fprintf(file, "%s", "");
+			fclose(file);
 		}
 		ret = EXIT_SUCCESS;
 		break;
 
-	default :
+	default:
 		ret = EXIT_FAILURE;
 		break;
 	}
-
-	if (file != NULL)
-		fclose(file);
 
 	return (ret);
 }

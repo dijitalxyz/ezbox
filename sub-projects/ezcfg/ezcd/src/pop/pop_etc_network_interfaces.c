@@ -39,7 +39,6 @@
 #include <net/if.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 static int set_loopback_interface(FILE *file)
 {
@@ -221,14 +220,15 @@ static int set_wan_interface(FILE *file)
 int pop_etc_network_interfaces(int flag)
 {
 	FILE *file;
+	int ret;
 
 	file = fopen("/etc/network/interfaces", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
 		/* set loopback */
 		set_loopback_interface(file);
 
@@ -241,10 +241,14 @@ int pop_etc_network_interfaces(int flag)
 #if (HAVE_EZBOX_WAN_NIC == 1)
 		set_wan_interface(file);
 #endif
+		ret = EXIT_SUCCESS;
+		break;
 
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
 	fclose(file);
-	return (EXIT_SUCCESS);
+	return (ret);
 }

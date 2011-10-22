@@ -39,7 +39,6 @@
 #include <dirent.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 #define BUF_SIZE 254
 

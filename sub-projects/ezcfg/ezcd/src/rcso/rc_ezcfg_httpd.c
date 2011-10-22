@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-05-20   0.1       Write it from scratch
+ * 2011-10-21   0.1       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -38,22 +39,36 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "rc_func.h"
 
-int rc_ezcfg_httpd(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_ezcfg_httpd(int argc, char **argv)
+#endif
 {
-	int rc;
+	int rc = -1;
 	int ip[4];
 	char buf[256];
+	int flag;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "ezcfg_httpd")) {
+		return (EXIT_FAILURE);
+	}
 
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
+	if (strcmp(argv[1], "lan") == 0 &&
+	    utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
+	if (strcmp(argv[1], "wan") == 0 &&
+	    utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
@@ -75,9 +90,33 @@ int rc_ezcfg_httpd(int flag)
 		ip[0], ip[1], ip[2], ip[3],
 		EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
 
+	flag = utils_get_rc_act_type(argv[2]);
+
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		/* delete ezcfg httpd listening socket */
+		rc = ezcfg_api_nvram_remove_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_HTTP_STRING,
+			buf);
+
+		/* restart ezcfg daemon */
+		/* FIXME: do it in config file */
+#if 0
+		if (rc >= 0) {
+			rc_ezcd(RC_ACT_RELOAD);
+		}
+#endif
+		if (flag == RC_ACT_STOP) {
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
@@ -90,54 +129,17 @@ int rc_ezcfg_httpd(int flag)
 			buf);
 
 		/* restart ezcfg daemon */
+		/* FIXME: do it in config file */
+#if 0
 		if (rc >= 0) {
-			rc_ezcd(RC_RELOAD);
+			rc_ezcd(RC_ACT_RELOAD);
 		}
+#endif
 		break;
 
-	case RC_STOP :
-		/* delete ezcfg httpd listening socket */
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_HTTP_STRING,
-			buf);
-
-		/* restart ezcfg daemon */
-		if (rc >= 0) {
-			rc_ezcd(RC_RELOAD);
-		}
-		break;
-
-	case RC_RESTART :
-		rc_ezcfg_httpd(RC_STOP);
-		rc_ezcfg_httpd(RC_START);
-		break;
+	default:
+		return (EXIT_FAILURE);
 	}
 
 	return (EXIT_SUCCESS);
 }
-
-#if (HAVE_EZBOX_LAN_NIC == 1)
-int rc_lan_ezcfg_httpd(int flag)
-{
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
-		return rc_ezcfg_httpd(flag);
-	}
-	else {
-		return (EXIT_FAILURE);
-	}
-}
-#endif
-
-#if (HAVE_EZBOX_WAN_NIC == 1)
-int rc_wan_ezcfg_httpd(int flag)
-{
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
-		return rc_ezcfg_httpd(flag);
-	}
-	else {
-		return (EXIT_FAILURE);
-	}
-}
-#endif

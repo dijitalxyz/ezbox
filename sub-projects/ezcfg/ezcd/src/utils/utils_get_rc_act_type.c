@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_mdev.c
+ * Module Name  : utils_get_rc_act_type.c
  *
- * Description  : ezbox run mdev to generate /dev/ node service
+ * Description  : ezcfg get rc action type function
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-08-11   0.1       Write it from scratch
+ * 2011-10-19   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,48 +36,37 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <dirent.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
-int rc_mdev(int flag)
+/*
+ * Returns the rc action type enum in utils.h
+ */
+int utils_get_rc_act_type(char *act)
 {
-	FILE *file;
 	int ret;
-	char cmdline[256];
 
-
-	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-	case RC_RESTART :
-
-		pop_etc_mdev_conf(flag);
-
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-                if (file != NULL)
-		{
-			fprintf(file, "%s", CMD_MDEV);
-			fclose(file);
-		}
-
-		if (flag == RC_BOOT) {
-			snprintf(cmdline, sizeof(cmdline), "%s -s", CMD_MDEV);
-			ret = system(cmdline);
-		}
-
-		break;
-
-	case RC_STOP :
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-                if (file != NULL)
-		{
-			fprintf(file, "%s", "");
-			fclose(file);
-		}
-
-		break;
+	if (act == NULL) {
+		ret = RC_ACT_UNKNOWN;
 	}
-
-	return (EXIT_SUCCESS);
+	else if (strcmp(act, "boot") == 0) {
+		ret = RC_ACT_BOOT;
+	}
+	else if (strcmp(act, "start") == 0) {
+		ret = RC_ACT_START;
+	}
+	else if (strcmp(act, "stop") == 0) {
+		ret = RC_ACT_STOP;
+	}
+	else if (strcmp(act, "restart") == 0) {
+		ret = RC_ACT_RESTART;
+	}
+	else if (strcmp(act, "reload") == 0) {
+		ret = RC_ACT_RELOAD;
+	}
+	else {
+		ret = RC_ACT_UNKNOWN;
+        }
+	return (ret);
 }

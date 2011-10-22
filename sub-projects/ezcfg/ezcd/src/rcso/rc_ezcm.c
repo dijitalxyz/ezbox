@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_get_wan_type.c
+ * Module Name  : rc_ezcm.c
  *
- * Description  : ezcfg get WAN type function
+ * Description  : ezbox populate ezcm config file
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-03-01   0.1       Write it from scratch
+ * 2011-05-24   0.1       Write it from scratch
+ * 2011-10-22   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -36,33 +37,50 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <dirent.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
-/*
- * Returns the WAN type enum in utils.h
- */
-int utils_get_wan_type(void)
+#if 0
+#define DBG printf
+#else
+#define DBG(format, arg...)
+#endif
+
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_ezcm(int argc, char **argv)
+#endif
 {
-	char buf[64];
-	int rc;
+	int flag, ret;
 
-	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, TYPE), buf, sizeof(buf));
-	if (rc < 0) {
-		rc = WAN_TYPE_UNKNOWN;
+	if (argc < 2) {
+		return (EXIT_FAILURE);
 	}
-	else if (strcmp(buf, "dhcp") == 0) {
-		rc = WAN_TYPE_DHCP;
+
+	if (strcmp(argv[0], "ezcm")) {
+		return (EXIT_FAILURE);
 	}
-	else if (strcmp(buf, "static") == 0) {
-		rc = WAN_TYPE_STATIC;
+
+	flag = utils_get_rc_act_type(argv[1]);
+
+	switch (flag) {
+	case RC_ACT_BOOT :
+		/* generate ezcm config file */
+		pop_etc_ezcm_conf(flag);
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_RELOAD :
+		/* re-generate ezcm config file */
+		pop_etc_ezcm_conf(flag);
+		ret = EXIT_SUCCESS;
+		break;
+
+	default:
+		ret = EXIT_FAILURE;
+		break;
 	}
-	else if (strcmp(buf, "pppoe") == 0) {
-		rc = WAN_TYPE_PPPOE;
-	}
-	else {
-		rc = WAN_TYPE_UNKNOWN;
-        }
-	return rc;
+	return (ret);
 }

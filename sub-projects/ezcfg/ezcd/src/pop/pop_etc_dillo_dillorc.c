@@ -61,17 +61,17 @@ int pop_etc_dillo_dillorc(int flag)
 		}
 
 		/* Change this if you want to have text-only browsing from the start. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, LOAD_IMAGES), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, LOAD_IMAGES), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, LOAD_IMAGES), "NO");
 		}
 
 		/* Change this if you want to disable loading of CSS stylesheets initially. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, LOAD_STYLESHEETS), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, LOAD_STYLESHEETS), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, LOAD_STYLESHEETS), "NO");
 		}
 
 		/* Change this if you want to disable parsing of embedded CSS initially. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, PARSE_EMBEDDED_CSS), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, PARSE_EMBEDDED_CSS), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, PARSE_EMBEDDED_CSS), "NO");
 		}
 
@@ -149,12 +149,12 @@ int pop_etc_dillo_dillorc(int flag)
 		}
 
 		/* Show tooltip popups for UI and for HTML title attributes */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_TOOLTIP), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_TOOLTIP), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_TOOLTIP), "NO");
 		}
 
 		/* If you prefer more accurate HTML bug diagnosis over better rendering */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, W3C_PLUS_HEURISTICS), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, W3C_PLUS_HEURISTICS), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, W3C_PLUS_HEURISTICS), "NO");
 		}
 
@@ -238,14 +238,14 @@ int pop_etc_dillo_dillorc(int flag)
 		}
 
 		/* If your eyes suffer with white backgrounds, change this. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, ALLOW_WHITE_BG), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, ALLOW_WHITE_BG), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, ALLOW_WHITE_BG), "NO");
 		}
 
 		/* When set to YES, the page author's visited link color may be overridden                             
 		 * to allow better contrast with text/links/background
 		 */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, CONTRAST_VISITED_COLOR), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, CONTRAST_VISITED_COLOR), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, CONTRAST_VISITED_COLOR), "NO");
 		}
 
@@ -259,101 +259,101 @@ int pop_etc_dillo_dillorc(int flag)
 		/* When set to YES, the page author's visited link color may be overridden                             
 		 * to allow better contrast with text/links/background
 		 */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SMALL_ICONS), "1") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SMALL_ICONS), "1") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SMALL_ICONS), "YES");
 		}
 
 		/* Here you can choose to hide some widgets of the dillo panel... */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_BACK), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_BACK), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_BACK), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_FORW), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_FORW), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_FORW), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_HOME), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_HOME), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_HOME), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_RELOAD), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_RELOAD), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_RELOAD), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_SAVE), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_SAVE), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_SAVE), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_STOP), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_STOP), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_STOP), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_BOOKMARKS), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_BOOKMARKS), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_BOOKMARKS), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_TOOLS), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_TOOLS), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_TOOLS), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_FILEMENU), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_FILEMENU), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_FILEMENU), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_CLEAR_URL), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_CLEAR_URL), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_CLEAR_URL), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_URL), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_URL), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_URL), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_SEARCH), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_SEARCH), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_SEARCH), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_HELP), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_HELP), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_HELP), "NO");
 		}
 
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_PROGRESS_BOX), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_PROGRESS_BOX), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_PROGRESS_BOX), "NO");
 		}
 
 		/* Start dillo with the panels hidden? */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, FULLWINDOW_START), "1") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, FULLWINDOW_START), "1") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, FULLWINDOW_START), "YES");
 		}
 
 		/* When filling out forms, our default behaviour is to submit on enterpress,                           
 		 * but only when there's a single text entry (to avoid incomplete submits).
 		 */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, ENTERPRESS_FORCES_SUBMIT), "1") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, ENTERPRESS_FORCES_SUBMIT), "1") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, ENTERPRESS_FORCES_SUBMIT), "YES");
 		}
 
 		/* A mouse's middle click over a link opens a new Tab. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, MIDDLE_CLICK_OPENS_NEW_TAB), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, MIDDLE_CLICK_OPENS_NEW_TAB), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, MIDDLE_CLICK_OPENS_NEW_TAB), "NO");
 		}
 
 		/* Mouse middle click by default drives drag-scrolling. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, MIDDLE_CLICK_DRAGS_PAGE), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, MIDDLE_CLICK_DRAGS_PAGE), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, MIDDLE_CLICK_DRAGS_PAGE), "NO");
 		}
 
 		/* Focus follows new Tabs. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, FOCUS_NEW_TAB), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, FOCUS_NEW_TAB), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, FOCUS_NEW_TAB), "NO");
 		}
 
 		/* Generic messages (mainly for debugging specific parts) */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_MSG), "0") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_MSG), "0") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_MSG), "NO");
 		}
 
 		/* Accepted by the W3C validator but "strongly discouraged" by the SPEC. */
-		if (nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_EXTRA_WARNINGS), "1") == 0) {
+		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DILLO, SHOW_EXTRA_WARNINGS), "1") == 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_EXTRA_WARNINGS), "YES");
 		}
 

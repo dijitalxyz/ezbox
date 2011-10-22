@@ -45,18 +45,16 @@ int pop_etc_resolv_conf(int flag)
 	char buf[128];
 	//char *p, *token, *savep;
 	char name[32];
-	int i;
-	int rc = EXIT_FAILURE;
+	int i, rc, ret;
 
 	switch(flag) {
-	case RC_BOOT :
-	case RC_START :
-	case RC_RESTART :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+	case RC_ACT_RESTART :
 		/* generate /etc/resolv.conf */
 		file = fopen("/etc/resolv.conf", "w");
 		if (file == NULL) {
-			rc = EXIT_FAILURE;
-			goto exit_func;
+			return (EXIT_FAILURE);
 		}
 
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DOMAIN), buf, sizeof(buf));
@@ -72,18 +70,19 @@ int pop_etc_resolv_conf(int flag)
 				fprintf(file, "nameserver %s\n", buf);
 			}
 		}
-		rc = EXIT_SUCCESS;
+		fclose(file);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 		unlink("/etc/resolv.conf");
-		rc = EXIT_SUCCESS;
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
-exit_func:
-	if (file != NULL)
-		fclose(file);
-
-	return rc;
+	return ret;
 }

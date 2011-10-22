@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_ezcm.c
+ * Module Name  : utils_check_ezcd.c
  *
- * Description  : ezbox populate ezcm config file
+ * Description  : ezbox check ezcfg daemon service status
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-24   0.1       Write it from scratch
+ * 2011-05-09   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -38,27 +38,48 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "utils.h"
-#include "pop_func.h"
 
 #if 0
-#define DBG printf
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
 #else
-#define DBG(format, arg...)
+#define DBG(format, args...)
 #endif
 
-int rc_ezcm(int flag)
+int utils_nvram_match(const char *name, const char *value)
 {
-	switch (flag) {
-	case RC_BOOT :
-		/* generate ezcm config file */
-		pop_etc_ezcm_conf(flag);
-		break;
+	int rc = 0;
+	char *buf;
+	int buf_len;
 
-	case RC_RELOAD :
-		/* re-generate ezcm config file */
-		pop_etc_ezcm_conf(flag);
-		break;
+	if (name == NULL || value == NULL) {
+		return -EZCFG_E_ARGUMENT ;
 	}
-	return (EXIT_SUCCESS);
+
+	buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
+	buf = (char *)malloc(buf_len);
+	if (buf == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	rc = ezcfg_api_nvram_get(name, buf, buf_len);
+	if (rc < 0) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
+
+	if (strcmp(value, buf) != 0) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
+exit:
+	if (buf != NULL)
+		free(buf);
+	return rc;
 }
+

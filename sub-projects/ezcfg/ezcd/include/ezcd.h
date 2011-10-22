@@ -21,6 +21,8 @@ char *utils_file_get_keyword(char *filename, char *keyword);
 char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx);
 char *utils_get_kernel_version(void);
 
+int utils_udev_trigger(void);
+int utils_udev_pop_nodes(void);
 
 int utils_get_kernel_modules(char *buf, int buf_len);
 
@@ -55,7 +57,10 @@ char *utils_get_rc_func_name(int i);
 proc_stat_t *utils_find_pid_by_name(char *pidName);
 bool utils_has_process_by_name(char *pidName);
 uint32_t utils_crc32(unsigned char *data, int len);
+int utils_get_rc_act_type(char *act);
+#if (HAVE_EZBOX_WAN_NIC == 1)
 int utils_get_wan_type(void);
+#endif
 bool utils_ezcd_is_alive(void);
 bool utils_ezcd_is_ready(void);
 bool utils_ezcd_wait_up(int s);
@@ -71,7 +76,7 @@ bool utils_wan_interface_wait_down(int s);
 #endif
 
 /* nvram function */
-int nvram_match(const char *name, const char *value);
+int utils_nvram_match(const char *name, const char *value);
 
 /* command entry point */
 int preinit_main(int argc, char **argv);

@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_hosts.c
+ * Module Name  : rc_load_modules.c
  *
- * Description  : ezbox /etc/hosts file generating program
+ * Description  : ezbox run load kernel modules service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-06-13   0.1       Write it from scratch
+ * 2011-10-19   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -38,26 +39,51 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
-int pop_etc_hosts(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_load_modules(int argc, char **argv)
+#endif
 {
-        FILE *file = NULL;
-	int ret;
+	FILE *file = NULL;
+	char buf[32];
+	int ret, flag;
 
-	/* generate /etc/hosts */
-	file = fopen("/etc/hosts", "w");
-	if (file == NULL)
+	if (argc < 2) {
 		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "load_modules")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
+	/* first generate /etc/modules */
+	pop_etc_modules(flag);
+
+	file = fopen("/etc/modules", "r");
+	if (file == NULL) {
+		return (EXIT_FAILURE);
+	}
 
 	switch (flag) {
 	case RC_ACT_BOOT :
-		fprintf(file, "%s\t%s\n", "127.0.0.1", "localhost.");
+	case RC_ACT_START :
+		while (utils_file_get_line(file,
+			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			ret = utils_install_kernel_module(buf, NULL);
+		}
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_ACT_RESTART :
-	case RC_ACT_START :
-		fprintf(file, "%s\t%s\n", "127.0.0.1", "localhost.");
+	case RC_ACT_STOP :
+		while (utils_file_get_line(file,
+			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			ret = utils_remove_kernel_module(buf);
+		}
 		ret = EXIT_SUCCESS;
 		break;
 

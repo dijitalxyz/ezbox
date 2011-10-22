@@ -38,7 +38,6 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 int utils_sync_nvram_with_cfg(char *path)
 {

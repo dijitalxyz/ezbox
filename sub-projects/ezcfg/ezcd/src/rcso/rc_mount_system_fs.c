@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_exec.c
+ * Module Name  : rc_mount_system_fs.c
  *
- * Description  : implement execute application rcso
+ * Description  : ezbox mount system supported fs
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-10-18   0.1       Write it from scratch
+ * 2011-08-07   0.1       Write it from scratch
+ * 2011-10-20   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -38,6 +39,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "rc_func.h"
 #include "utils.h"
 
 #if 0
@@ -73,39 +75,98 @@
 	} \
 } while(0)
 
+static bool support_fs(char *fs)
+{
+	FILE *file = NULL;
+	char buf[64];
+	char *p;
+	bool ret = false;
+
+	file = fopen("/proc/filesystems", "r");
+	if (file == NULL)
+		return ret;
+
+	while (utils_file_get_line(file,
+		buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+		p = strchr(buf, '\t');
+		if (p != NULL) {
+			p++;
+			if (strcmp(fs, p) == 0) {
+				ret = true;
+				break;
+			}
+		}
+	}
+
+	fclose(file);
+	return ret;
+}
+
+static bool fs_not_mounted(char *fs)
+{
+	FILE *file = NULL;
+	char buf[64];
+	char *p;
+	bool ret = true;
+
+	file = fopen("/proc/mounts", "r");
+	if (file == NULL)
+		return ret;
+
+	while (utils_file_get_line(file,
+		buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+		p = strchr(buf, ' ');
+		if (p != NULL) {
+			*p = '\0';
+			if (strcmp(fs, buf) == 0) {
+				ret = false;
+				break;
+			}
+		}
+	}
+
+	fclose(file);
+	return ret;
+}
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_exec(int argc, char **argv)
+int rc_mount_system_fs(int argc, char **argv)
 #endif
 {
-	char path[64];
-	struct stat stat_buf;
-	int ret;
+	int flag, ret;
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "exec")) {
+	if (strcmp(argv[0], "mount_system_fs")) {
 		return (EXIT_FAILURE);
 	}
 
-	/* check first place */
-	snprintf(path, sizeof(path), "%s/%s", EXEC_PATH_PREFIX, argv[1]);
-	if ((stat(path, &stat_buf) != 0) ||
-	    (S_ISREG(stat_buf.st_mode) == 0 && S_ISLNK(stat_buf.st_mode))) {
-		/* check second place */
-		snprintf(path, sizeof(path), "%s/%s", EXEC_PATH_PREFIX2, argv[1]);
-		if ((stat(path, &stat_buf) != 0) ||
-	    	(S_ISREG(stat_buf.st_mode) == 0 && S_ISLNK(stat_buf.st_mode))) {
-			return (EXIT_FAILURE);
+	flag = utils_get_rc_act_type(argv[1]);
+
+	switch (flag) {
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+		if ((support_fs("debugfs") == true) &&
+		    (fs_not_mounted("debugfs") == true)){
+			mount("debugfs", "/sys/kernel/debug", "debugfs", MS_MGC_VAL, NULL);
 		}
+
+		if ((support_fs("usbfs") == true) &&
+		    (fs_not_mounted("usbfs") == true)){
+			mount("none", "/proc/bus/usb", "usbfs", MS_MGC_VAL, NULL);
+		}
+
+		ret = EXIT_SUCCESS;
+		break;
+
+	default:
+		ret = EXIT_FAILURE;
+		break;
 	}
 
-	ret = execv(path, argv + 1);
-	if (ret  == -1)
-		return (EXIT_FAILURE);
-
-	return (EXIT_SUCCESS);
+	return (ret);
 }
