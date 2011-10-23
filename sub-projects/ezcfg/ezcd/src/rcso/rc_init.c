@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_base_files.c
+ * Module Name  : rc_init.c
  *
- * Description  : ezbox run base files service
+ * Description  : ezbox run init service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,32 +39,47 @@
 
 #include "ezcd.h"
 #include "pop_func.h"
-#include "rc_func.h"
 
-int rc_base_files(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_init(int argc, char **argv)
+#endif
 {
-	char cmdline[256];
+	char *init_argv[] = { "/sbin/init", NULL };
+	int flag, ret;
 
-	switch (flag) {
-	case RC_START :
-		/* set hostname */
-		pop_etc_hostname(RC_START);
-		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
-		system(cmdline);
-
-		/* generate /etc/profile */
-		pop_etc_profile(RC_START);
-
-		/* generate /etc/banner */
-		pop_etc_banner(RC_START);
-
-		/* generate /etc/mtab */
-		pop_etc_mtab(RC_START);
-
-		/* load LD_LIBRARY_PATH */
-		rc_ldconfig(RC_START);
-		break;
+	if (argc < 2) {
+		return (EXIT_FAILURE);
 	}
 
-	return (EXIT_SUCCESS);
+	if (strcmp(argv[0], "init")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
+	switch (flag) {
+	case RC_ACT_BOOT :
+		/* run in root HOME path */
+		chdir(ROOT_HOME_PATH);
+		/* fall through */
+
+	case RC_ACT_START :
+		pop_etc_inittab(flag);
+		/* run init */
+		execv(init_argv[0], init_argv);
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_STOP :
+		kill(1, SIGKILL);
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
+		break;
+	}
+	return (ret);
 }

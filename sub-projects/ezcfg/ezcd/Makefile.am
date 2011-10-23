@@ -37,14 +37,6 @@ ezcd_SOURCES += src/rc.c
 #ezcd_SOURCES += src/rc/rc_func.c
 #ezcd_SOURCES += src/rc/rc_debug.c
 
-# base files
-#ezcd_SOURCES += src/pop/pop_etc_banner.c
-#ezcd_SOURCES += src/pop/pop_etc_hostname.c
-#ezcd_SOURCES += src/pop/pop_etc_mtab.c
-#ezcd_SOURCES += src/pop/pop_etc_profile.c
-#ezcd_SOURCES += src/rc/rc_base_files.c
-#ezcd_SOURCES += src/rc/rc_ldconfig.c
-
 # ubootenv support
 ezcd_SOURCES += src/ubootenv.c
 
@@ -62,10 +54,6 @@ ezcd_SOURCES += src/upfw.c
 
 # mount system fs
 #ezcd_SOURCES += src/rc/rc_mount_system_fs.c
-
-# init
-#ezcd_SOURCES += src/pop/pop_etc_inittab.c
-#ezcd_SOURCES += src/rc/rc_init.c
 
 # network
 #ezcd_SOURCES += src/rc/rc_loopback.c
@@ -104,12 +92,6 @@ endif
 if CONFIG_EZBOX_SERVICE_DNSMASQ
 #ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
 #ezcd_SOURCES += src/rc/rc_dnsmasq.c
-endif
-
-# iptables service
-if CONFIG_EZBOX_SERVICE_IPTABLES
-#ezcd_SOURCES += src/pop/pop_etc_l7_protocols.c
-#ezcd_SOURCES += src/rc/rc_iptables.c
 endif
 
 # LAN side binding services
@@ -157,6 +139,8 @@ ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO) $(RCSO_EXE)
 
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LIBEZCFG_LIBS)
+
+ezcd_LDFLAGS = $(AM_LDFLAGS) -L.libs -lezcd
 
 libezcfg.so: $(LIBEZCFG_LIB)
 	-rm -f libezcfg.so
@@ -236,6 +220,20 @@ libezcd_la_SOURCES += src/pop/pop_etc_protocols.c
 libezcd_la_SOURCES += src/pop/pop_etc_mactab.c
 libezcd_la_SOURCES += src/pop/pop_etc_resolv_conf.c
 
+# iptables service
+if CONFIG_EZBOX_SERVICE_IPTABLES
+libezcd_la_SOURCES += src/pop/pop_etc_l7_protocols.c
+endif
+
+# init
+libezcd_la_SOURCES += src/pop/pop_etc_inittab.c
+
+# base files
+libezcd_la_SOURCES += src/pop/pop_etc_banner.c
+libezcd_la_SOURCES += src/pop/pop_etc_hostname.c
+libezcd_la_SOURCES += src/pop/pop_etc_mtab.c
+libezcd_la_SOURCES += src/pop/pop_etc_profile.c
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
 
@@ -258,6 +256,12 @@ RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
 RCSO_SRC += rc_ezcm.c
 RCSO_SRC += rc_netbase.c
+if CONFIG_EZBOX_SERVICE_IPTABLES
+RCSO_SRC += rc_iptables.c
+endif
+RCSO_SRC += rc_init.c
+RCSO_SRC += rc_base_files.c
+RCSO_SRC += rc_ldconfig.c
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))

@@ -1,14 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_mdev.c
+ * Module Name  : rc_base_files.c
  *
- * Description  : ezbox run mdev to generate /dev/ node service
+ * Description  : ezbox run base files service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-08-11   0.1       Write it from scratch
- * 2011-10-16   0.2       Modify it to use rcso frame
+ * 2010-11-02   0.1       Write it from scratch
+ * 2011-10-22   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -41,25 +41,12 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-#if 0
-#define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
-	} \
-} while(0)
-#else
-#define DBG(format, args...)
-#endif
-
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_mdev(int argc, char **argv)
+int rc_base_files(int argc, char **argv)
 #endif
 {
-	FILE *file;
 	char cmdline[256];
 	int flag, ret;
 
@@ -67,42 +54,36 @@ int rc_mdev(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "mdev")) {
+	if (strcmp(argv[0], "base_files")) {
 		return (EXIT_FAILURE);
 	}
 
 	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_ACT_BOOT :
 	case RC_ACT_START :
-	case RC_ACT_RESTART :
-		pop_etc_mdev_conf(flag);
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-                if (file != NULL)
-		{
-			fprintf(file, "%s", CMD_MDEV);
-			fclose(file);
-		}
+		/* set hostname */
+		pop_etc_hostname(RC_ACT_START);
+		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
+		system(cmdline);
 
-		if (flag == RC_ACT_BOOT) {
-			snprintf(cmdline, sizeof(cmdline), "%s -s", CMD_MDEV);
-			ret = system(cmdline);
-		}
+		/* generate /etc/profile */
+		pop_etc_profile(RC_ACT_START);
+
+		/* generate /etc/banner */
+		pop_etc_banner(RC_ACT_START);
+
+		/* generate /etc/mtab */
+		pop_etc_mtab(RC_ACT_START);
+
+		/* load LD_LIBRARY_PATH */
+#if 0
+		rc_ldconfig(RC_ACT_START);
+#endif
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_ACT_STOP :
-		file = fopen("/proc/sys/kernel/hotplug", "w");
-                if (file != NULL)
-		{
-			fprintf(file, "%s", "");
-			fclose(file);
-		}
-		ret = EXIT_SUCCESS;
-		break;
-
-	default:
+	default :
 		ret = EXIT_FAILURE;
 		break;
 	}

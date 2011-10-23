@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-05-17   0.1       Write it from scratch
+ * 2011-10-22   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -41,52 +42,57 @@
 #include "pop_func.h"
 
 #if (HAVE_EZBOX_LAN_NIC == 1)
-int rc_lan_iptables(int flag)
+static int lan_iptables(int flag)
 {
 	int rc;
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
+	rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+
+		if (flag == RC_ACT_STOP) {
+			break;
+		}
+
+	/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
 		break;
 
-	case RC_STOP :
-		break;
-
-	case RC_RESTART :
-		rc = rc_lan_iptables(RC_STOP);
-		rc = rc_lan_iptables(RC_START);
-		break;
+	default :
+		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
 #endif
 
 #if (HAVE_EZBOX_WAN_NIC == 1)
-int rc_wan_iptables(int flag)
+static int wan_iptables(int flag)
 {
 	int rc;
-	rc = nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
+	rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
 
 	switch (flag) {
-	case RC_START :
-		pop_etc_l7_protocols(RC_START);
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		pop_etc_l7_protocols(RC_ACT_STOP);
+		if (flag == RC_ACT_STOP) {
+			break;
+		}
+
+	/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
+		pop_etc_l7_protocols(RC_ACT_START);
 		break;
 
-	case RC_STOP :
-		pop_etc_l7_protocols(RC_STOP);
-		break;
-
-	case RC_RESTART :
-		rc = rc_wan_iptables(RC_STOP);
-		rc = rc_wan_iptables(RC_START);
-		break;
+	default :
+		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
@@ -106,19 +112,25 @@ static char * iptables_modules[] = {
 	"xt_tcpudp",
 };
 
-int rc_load_iptables_modules(int flag)
+static int load_iptables_modules(int flag)
 {
 	int ret, i;
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_BOOT :
+		/* manage iptables configuration options */
+		mkdir("/etc/l7-protocols", 0755);
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_START :
 		for (i = 0; i < ARRAY_SIZE(iptables_modules); i++) {
 			utils_install_kernel_module(iptables_modules[i], NULL);
 		}
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 		for (i = ARRAY_SIZE(iptables_modules)-1; i >= 0; i--) {
 			utils_remove_kernel_module(iptables_modules[i]);
 		}
@@ -133,22 +145,38 @@ int rc_load_iptables_modules(int flag)
 	return ret;
 }
 
-int rc_iptables(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_iptables(int argc, char **argv)
+#endif
 {
-	switch (flag) {
-	case RC_BOOT :
-		/* manage iptables configuration options */
-		mkdir("/etc/l7-protocols", 0755);
-		break;
+	int flag;
 
-	case RC_START :
-		rc_load_iptables_modules(RC_START);
-		break;
-
-	case RC_STOP :
-		rc_load_iptables_modules(RC_STOP);
-		break;
+	if (argc < 3) {
+		return (EXIT_FAILURE);
 	}
-	return (EXIT_SUCCESS);
-}
 
+	if (strcmp(argv[0], "iptables")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[2]);
+
+	if (strcmp(argv[1], "load") == 0) {
+		return load_iptables_modules(flag);
+	}
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	else if (strcmp(argv[1], "lan") == 0) {
+		return lan_iptables(flag);
+	}
+#endif
+#if (HAVE_EZBOX_WAN_NIC == 1)
+	else if (strcmp(argv[1], "wan") == 0) {
+		return wan_iptables(flag);
+	}
+#endif
+	else {
+		return (EXIT_FAILURE);
+	}
+}

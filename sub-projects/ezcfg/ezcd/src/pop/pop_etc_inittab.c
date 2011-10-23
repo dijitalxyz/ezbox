@@ -49,7 +49,7 @@ int pop_etc_inittab(int flag)
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
-	snprintf(buf, sizeof(buf), "%s %s", CMD_RC, "system start");
+	snprintf(buf, sizeof(buf), "%s %s %s", CMD_RC, "action", "system_start");
 	fprintf(file, "::sysinit:%s\n", buf);
 	snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, "-a -f");
 	fprintf(file, "::shutdown:%s\n", buf);

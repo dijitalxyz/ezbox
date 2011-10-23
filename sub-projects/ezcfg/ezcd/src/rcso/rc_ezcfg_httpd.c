@@ -49,9 +49,9 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	int rc = -1;
 	int ip[4];
 	char buf[256];
-	int flag;
+	int flag, ret;
 
-	if (argc < 2) {
+	if (argc < 3) {
 		return (EXIT_FAILURE);
 	}
 
@@ -64,12 +64,18 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	if (strcmp(argv[1], "lan") == 0 &&
 	    utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
 	} else
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	if (strcmp(argv[1], "wan") == 0 &&
 	    utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
+		if (rc < 0) {
+			return (EXIT_FAILURE);
+		}
 	} else
 #endif
 #if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
@@ -78,9 +84,6 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	}
 #endif
 
-	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
 	rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
 	if (rc != 4) {
 		return (EXIT_FAILURE);
@@ -110,6 +113,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		}
 #endif
 		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
 			break;
 		}
 
@@ -135,11 +139,13 @@ int rc_ezcfg_httpd(int argc, char **argv)
 			rc_ezcd(RC_ACT_RELOAD);
 		}
 #endif
+		ret = EXIT_SUCCESS;
 		break;
 
 	default:
-		return (EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

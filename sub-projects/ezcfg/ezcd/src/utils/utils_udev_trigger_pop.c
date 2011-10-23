@@ -40,9 +40,9 @@
 
 #include "ezcd.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
+	FILE *fp = fopen("/usr/udev.log", "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \
 		fclose(fp); \
@@ -52,6 +52,7 @@
 #define DBG(format, args...)
 #endif
 
+#if 0
 #define DBG2() do {\
 	pid_t pid = getpid(); \
 	FILE *fp = fopen("/dev/kmsg", "a"); \
@@ -72,6 +73,7 @@
 		fclose(fp); \
 	} \
 } while(0)
+#endif
 
 #define PATH_MAX	512
 
@@ -155,7 +157,7 @@ static void make_device(const char *devpath)
 	node_name = filename;
 	if (major >= 0) {
 		if (mknod(node_name, mode | type, makedev(major, minor)) && errno != EEXIST) {
-			DBG("can't create '%s'", node_name);
+			DBG("can't create '%s'\n", node_name);
 		}
 	}
 
@@ -177,11 +179,11 @@ static int sysfs_resolve_link(char *devpath, size_t size)
 	if (len <= 0)
 		return -1;
 	link_target[len] = '\0';
-	DBG("path link '%s' points to '%s'", devpath, link_target);
+	DBG("path link '%s' points to '%s'\n", devpath, link_target);
 
 	for (back = 0; strncmp(&link_target[back * 3], "../", 3) == 0; back++)
 		;
-	DBG("base '%s', tail '%s', back %i", devpath, &link_target[back * 3], back);
+	DBG("base '%s', tail '%s', back %i\n", devpath, &link_target[back * 3], back);
 	for (i = 0; i <= back; i++) {
 		char *pos = strrchr(devpath, '/');
 
@@ -189,9 +191,10 @@ static int sysfs_resolve_link(char *devpath, size_t size)
 			return -1;
 		pos[0] = '\0';
 	}
-	DBG("after moving back '%s'", devpath);
-	strlcat(devpath, "/", size);
-	strlcat(devpath, &link_target[back * 3], size);
+	DBG("after moving back '%s'\n", devpath);
+	len = strlen(devpath);
+	snprintf(devpath+len, size - len, "/%s", &link_target[back * 3]);
+	DBG("devpath='%s'\n", devpath);
 	return 0;
 }
 
@@ -201,21 +204,43 @@ static int device_list_insert_op(const char *path, int op)
 	char devpath[PATH_MAX];
 	struct stat statbuf;
 
-	DBG("op=%d '%s'" , op, path);
+	DBG("op=%d '%s'\n" , op, path);
 
-	/* we only have a device, if we have an dev file */
-	//snprintf(filename, sizeof(filename), "%s/dev", path);
-	snprintf(filename, sizeof(filename), "%s%s", path, DEV_BASE);
-	if (stat(filename, &statbuf) < 0)
+	if (op == OP_TRIGGER) {
+		/* we only have a device, if we have an uevent file */
+		//snprintf(filename, sizeof(filename), "%s/uevent", path);
+		snprintf(filename, sizeof(filename), "%s%s", path, UEVENT_BASE);
+		DBG("filename='%s'\n" , filename);
+		if (stat(filename, &statbuf) < 0) {
+			return -1;
+		}
+		if (!(statbuf.st_mode & S_IWUSR)) {
+			return -1;
+		}
+	}
+	else if (op == OP_POP_NODE) {
+		/* we only have a device, if we have an dev file */
+		//snprintf(filename, sizeof(filename), "%s/dev", path);
+		snprintf(filename, sizeof(filename), "%s%s", path, DEV_BASE);
+		DBG("filename='%s'\n" , filename);
+		if (stat(filename, &statbuf) < 0) {
+			return -1;
+		}
+		if (!(statbuf.st_mode & S_IRUSR)) {
+			return -1;
+		}
+	}
+	else {
+		DBG("unknown op!\n");
 		return -1;
-	if (!(statbuf.st_mode & S_IWUSR))
-		return -1;
+	}
 
 	snprintf(devpath, sizeof(devpath), "%s", &path[4]);
 
 	/* resolve possible link to real target */
-	if (lstat(path, &statbuf) < 0)
+	if (lstat(path, &statbuf) < 0) {
 		return -1;
+	}
 	if (S_ISLNK(statbuf.st_mode))
 		if (sysfs_resolve_link(devpath, sizeof(devpath)) != 0)
 			return -1;

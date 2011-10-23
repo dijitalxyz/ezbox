@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-07-08   0.1       Write it from scratch
+ * 2011-10-22   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -52,17 +53,42 @@
 #define DBG(format, args...)
 #endif
 
-
-int rc_ldconfig(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_ldconfig(int argc, char **argv)
+#endif
 {
 	int rc;
 	char buf[128];
 	char cmd[128];
 	char *p, *q;
 	FILE *file;
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "ldconfig")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		/* stop ldconfig service */
+		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, "/etc/ld.so.conf");
+		system(cmd);
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
 		/* start ldconfig service */
 		/* get the LD_LIBRARY_PATH name for ldconfig */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, LD_LIBRARY_PATH), buf, sizeof(buf));
@@ -87,19 +113,12 @@ int rc_ldconfig(int flag)
 				system(cmd);
 			}
 		}
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		/* stop ldconfig service */
-		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, "/etc/ld.so.conf");
-		system(cmd);
-		break;
-
-	case RC_RESTART :
-		rc = rc_ldconfig(RC_STOP);
-		sleep(1);
-		rc = rc_ldconfig(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }

@@ -41,11 +41,9 @@
 
 static int generate_hotplug2_common_rules(FILE *file)
 {
-#if 1
 	fprintf(file, "%s\n", "DEVPATH is set {");
 	fprintf(file, "\t%s\n", "exec logger -s -t hotplug -p daemon.info \"name=%DEVICENAME%, path=%DEVPATH%\"");
 	fprintf(file, "%s\n", "}");
-#endif
 
 	fprintf(file, "%s\n", "$include /etc/hotplug2-platform.rules");
 
@@ -130,11 +128,9 @@ int pop_etc_hotplug2_rules(int flag)
 		return (EXIT_FAILURE);
 
 #if 0
-#if 1
 	fprintf(file, "%s\n", "DEVPATH is set {");
 	fprintf(file, "\t%s\n", "exec logger -s -t hotplug -p daemon.info \"name=%DEVICENAME%, path=%DEVPATH%\"");
 	fprintf(file, "%s\n", "}");
-#endif
 
 	fprintf(file, "%s\n", "$include /etc/hotplug2-platform.rules");
 

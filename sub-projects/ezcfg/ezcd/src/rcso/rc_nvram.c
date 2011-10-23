@@ -59,7 +59,7 @@ int rc_nvram(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "mdev")) {
+	if (strcmp(argv[0], "nvram")) {
 		return (EXIT_FAILURE);
 	}
 

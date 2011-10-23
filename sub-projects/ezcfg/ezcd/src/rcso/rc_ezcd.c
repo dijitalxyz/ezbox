@@ -41,7 +41,7 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \

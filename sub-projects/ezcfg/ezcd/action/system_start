@@ -1,0 +1,25 @@
+# restart ezcfg daemon
+ezcd reload
+# re-generate nvram config file
+nvram reload
+# re-generate ezcm config file
+ezcm reload
+# start syslog service
+#syslogd start
+# start klog service
+#klogd start
+# re-generate /dev/ node
+#mdev restart
+# re-generate network base files
+netbase restart
+# load kernel modules
+load_modules start
+# mount system supported fs
+mount_system_fs start
+# misc files for the base system
+base_files start
+# build /etc/passwd & /etc/group,
+# also setup root password
+login start
+# bring up loopback interface
+loopback start
