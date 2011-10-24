@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-11-03   0.1       Write it from scratch
+ * 2011-10-24   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -39,30 +40,49 @@
 
 #include "ezcd.h"
 
-int rc_loopback(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_loopback(int argc, char **argv)
+#endif
 {
-	int ret = 0;
 	char cmdline[256];
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "loopback")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		/* bring up loopback interface */
-		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
-		ret = system(cmdline);
-		break;
-
-	case RC_STOP :
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
 		/* bring down loopback interface */
 		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFDOWN);
 		ret = system(cmdline);
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+		/* bring up loopback interface */
+		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
+		ret = system(cmdline);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_RESTART :
-		ret = rc_loopback(RC_STOP);
-		ret = rc_loopback(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

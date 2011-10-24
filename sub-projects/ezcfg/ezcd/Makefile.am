@@ -56,7 +56,6 @@ ezcd_SOURCES += src/upfw.c
 #ezcd_SOURCES += src/rc/rc_mount_system_fs.c
 
 # network
-#ezcd_SOURCES += src/rc/rc_loopback.c
 if CONFIG_EZBOX_LAN_NIC
 #ezcd_SOURCES += src/rc/rc_lan_if.c
 #ezcd_SOURCES += src/rc/rc_lan.c
@@ -71,16 +70,6 @@ endif
 if CONFIG_EZBOX_WAN_NIC
 #ezcd_SOURCES += src/rc/rc_wan_if.c
 #ezcd_SOURCES += src/rc/rc_wan.c
-endif
-
-# syslogd service
-if CONFIG_EZBOX_SERVICE_SYSLOGD
-#ezcd_SOURCES += src/rc/rc_syslogd.c
-endif
-
-# klogd service
-if CONFIG_EZBOX_SERVICE_KLOGD
-#ezcd_SOURCES += src/rc/rc_klogd.c
 endif
 
 # telnet service
@@ -262,6 +251,16 @@ endif
 RCSO_SRC += rc_init.c
 RCSO_SRC += rc_base_files.c
 RCSO_SRC += rc_ldconfig.c
+# syslogd service
+if CONFIG_EZBOX_SERVICE_SYSLOGD
+RCSO_SRC += rc_syslogd.c
+endif
+# klogd service
+if CONFIG_EZBOX_SERVICE_KLOGD
+RCSO_SRC += rc_klogd.c
+endif
+RCSO_SRC += rc_loopback.c
+
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))

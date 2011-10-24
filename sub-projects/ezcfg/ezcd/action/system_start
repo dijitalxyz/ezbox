@@ -5,9 +5,9 @@ nvram reload
 # re-generate ezcm config file
 ezcm reload
 # start syslog service
-#syslogd start
+syslogd start
 # start klog service
-#klogd start
+klogd start
 # re-generate /dev/ node
 #mdev restart
 # re-generate network base files

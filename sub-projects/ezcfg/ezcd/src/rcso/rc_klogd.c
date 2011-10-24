@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-08-07   0.1       Write it from scratch
+ * 2011-10-24   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -39,28 +40,50 @@
 
 #include "ezcd.h"
 
-int rc_klogd(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_klogd(int argc, char **argv)
+#endif
 {
 	char cmd[128];
 	int rc;
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "klogd")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, KLOGD_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		system("start-stop-daemon -K -n klogd");
+
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, KLOGD_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -b -n klogd -a %s", CMD_KLOGD);
 		system(cmd);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		system("start-stop-daemon -K -n klogd");
-		break;
-
-	case RC_RESTART :
-		rc = rc_klogd(RC_STOP);
-		rc = rc_klogd(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }
