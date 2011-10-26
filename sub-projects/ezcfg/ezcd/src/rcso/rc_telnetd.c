@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-11-17   0.1       Write it from scratch
+ * 2011-10-27   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -39,20 +40,37 @@
 
 #include "ezcd.h"
 
-int rc_telnetd(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_telnetd(int argc, char **argv)
+#endif
 {
 	int rc;
 	int ip[4];
 	char buf[256];
+	int flag, ret;
+
+	if (argc < 3) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "telnetd")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+	if (strcmp(argv[1], "lan") == 0 &&
+	    utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
+	if (strcmp(argv[1], "wan") == 0 &&
+	    utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
 	} else
 #endif
@@ -62,58 +80,36 @@ int rc_telnetd(int flag)
 	}
 #endif
 
-	if (rc < 0) {
-		return (EXIT_FAILURE);
-	}
 	rc = sscanf(buf, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
 	if (rc != 4) {
 		return (EXIT_FAILURE);
 	}
 
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		system("start-stop-daemon -K -s KILL -n telnetd");
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+		sleep(1);
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, TELNETD_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n telnetd -a %s -- -l %s -b %d.%d.%d.%d", CMD_TELNETD, CMD_LOGIN, ip[0], ip[1], ip[2], ip[3]);
 		system(buf);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		system("start-stop-daemon -K -s KILL -n telnetd");
-		break;
-
-	case RC_RESTART :
-		rc = rc_telnetd(RC_STOP);
-		sleep(1);
-		rc = rc_telnetd(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }
-
-#if (HAVE_EZBOX_LAN_NIC == 1)
-int rc_lan_telnetd(int flag)
-{
-	if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
-		return rc_telnetd(flag);
-	}
-	else {
-		return (EXIT_FAILURE);
-	}
-}
-#endif
-
-#if (HAVE_EZBOX_WAN_NIC == 1)
-int rc_wan_telnetd(int flag)
-{
-	if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, TELNETD_BINDING)) == true) {
-		return rc_telnetd(flag);
-	}
-	else {
-		return (EXIT_FAILURE);
-	}
-}
-#endif

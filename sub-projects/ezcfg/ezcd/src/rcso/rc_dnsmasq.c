@@ -40,34 +40,61 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_dnsmasq(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_dnsmasq(int argc, char **argv)
+#endif
 {
 	int rc;
+	int flag, ret;
 
-	if ((utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false) &&
-	   (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == false)) {
+	if (argc < 3) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "dnsmasq")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
+
+	if (strcmp(argv[1], "lan") == 0 &&
+            utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
+		/* It's good */
+	}
+	else if (strcmp(argv[1], "wan") == 0 &&
+            utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
+		/* It's good */
+	}
+	else {
 		return (EXIT_FAILURE);
 	}
 
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		system("start-stop-daemon -K -n dnsmasq");
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
-		pop_etc_dnsmasq_conf(RC_START);
+		pop_etc_dnsmasq_conf(RC_ACT_START);
 		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		system("start-stop-daemon -K -n dnsmasq");
-		break;
-
-	case RC_RESTART :
-		rc = rc_dnsmasq(RC_STOP);
-		rc = rc_dnsmasq(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }

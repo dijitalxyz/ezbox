@@ -106,7 +106,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 			buf);
 
 		/* restart ezcfg daemon */
-		/* FIXME: do it in config file */
+		/* FIXME: do it in action config file */
 #if 0
 		if (rc >= 0) {
 			rc_ezcd(RC_ACT_RELOAD);

@@ -72,17 +72,6 @@ if CONFIG_EZBOX_WAN_NIC
 #ezcd_SOURCES += src/rc/rc_wan.c
 endif
 
-# telnet service
-if CONFIG_EZBOX_SERVICE_TELNETD
-#ezcd_SOURCES += src/rc/rc_telnetd.c
-endif
-
-# dhcp/dns service
-if CONFIG_EZBOX_SERVICE_DNSMASQ
-#ezcd_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
-#ezcd_SOURCES += src/rc/rc_dnsmasq.c
-endif
-
 # LAN side binding services
 if CONFIG_EZBOX_LAN_NIC
 #ezcd_SOURCES += src/rc/rc_lan_services.c
@@ -223,6 +212,11 @@ libezcd_la_SOURCES += src/pop/pop_etc_hostname.c
 libezcd_la_SOURCES += src/pop/pop_etc_mtab.c
 libezcd_la_SOURCES += src/pop/pop_etc_profile.c
 
+# dhcp/dns service
+if CONFIG_EZBOX_SERVICE_DNSMASQ
+libezcd_la_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
 
@@ -260,7 +254,14 @@ if CONFIG_EZBOX_SERVICE_KLOGD
 RCSO_SRC += rc_klogd.c
 endif
 RCSO_SRC += rc_loopback.c
-
+# telnet service
+if CONFIG_EZBOX_SERVICE_TELNETD
+RCSO_SRC += rc_telnetd.c
+endif
+# dhcp/dns service
+if CONFIG_EZBOX_SERVICE_DNSMASQ
+RCSO_SRC += rc_dnsmasq.c
+endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))

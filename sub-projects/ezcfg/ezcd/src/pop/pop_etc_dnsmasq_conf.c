@@ -53,7 +53,7 @@ int pop_etc_dnsmasq_conf(int flag)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		/* Never forward plain names (without a dot or domain part) */
 		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
 			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));
