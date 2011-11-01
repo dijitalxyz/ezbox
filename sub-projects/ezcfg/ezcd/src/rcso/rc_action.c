@@ -107,7 +107,10 @@ static int call_rc_function(int argc, char **argv)
 	char path[64];
 	char name[32];
 	void *handle;
-	int (*function)(int, char **);
+	union {
+		rc_function_t func;
+		void * obj;
+	} alias;
 	char *error;
 	int ret = EXIT_FAILURE;
 
@@ -126,7 +129,7 @@ static int call_rc_function(int argc, char **argv)
 	/* clear any existing error */
 	dlerror();
 
-	*(void **) (&function) = dlsym(handle, name);
+	alias.obj = dlsym(handle, name);
 
 	if ((error = dlerror()) != NULL)  {
 		fprintf(stderr, "%s\n", error);
@@ -134,7 +137,7 @@ static int call_rc_function(int argc, char **argv)
 	}
 
 	/* handle rc operations */
-	ret = function(argc, argv);
+	ret = alias.func(argc, argv);
 
 func_exit:
 	/* close loader handle */

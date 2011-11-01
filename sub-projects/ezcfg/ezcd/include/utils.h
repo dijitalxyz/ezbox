@@ -63,6 +63,8 @@
 #define RC_MAX_ARGS	8
 #define IS_BLANK(c)	((c) == ' ' || (c) == '\t')
 
+typedef int (*rc_function_t)(int, char **);
+
 typedef struct rc_func_s {
 	char *name;
 	int flag;

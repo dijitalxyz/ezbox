@@ -76,7 +76,10 @@ int rc_main(int argc, char **argv)
 	char path[64];
 	char name[32];
 	void *handle;
-	int (*function)(int argc, char **argv);
+	union {
+		rc_function_t func;
+		void * obj;
+	} alias;
 
 	/* argv[0] : "rc" */
 	/* argv[1]/argv[2] : action name */
@@ -151,7 +154,7 @@ int rc_main(int argc, char **argv)
 	/* clear any existing error */
 	dlerror();
 
-	*(void **) (&function) = dlsym(handle, name);
+	alias.obj = dlsym(handle, name);
 
 	if ((p = dlerror()) != NULL)  {
 		DBG("<6>rc: dlsym error %s\n", p);
@@ -188,7 +191,7 @@ int rc_main(int argc, char **argv)
 	if (b_sleep == true)
 		nanosleep(&req, NULL);
 
-	ret = function(argc - i, argv + i);
+	ret = alias.func(argc - i, argv + i);
 
 	/* now release resource */
 	release_res.sem_num = EZCFG_SEM_RC_INDEX;

@@ -75,6 +75,9 @@
 } while(0)
 #endif
 
+#ifdef PATH_MAX
+#undef PATH_MAX
+#endif
 #define PATH_MAX	512
 
 #define SYS_BASE	"/sys"

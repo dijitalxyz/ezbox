@@ -277,8 +277,8 @@ RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 
 %.so : src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) -L.libs -lezcd -shared $< -o $@
+	$(CC) $(RCSO_CFLAGS) -L.libs -lezcd -ldl -shared $< -o $@
 
 %.exe : src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L.libs -lezcd $< -o $@
+	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L.libs -lezcd -ldl $< -o $@
 

@@ -58,7 +58,10 @@ int init_main(int argc, char **argv)
 {
 	char *p;
 	void *handle;
-	int (*function)(int argc, char **argv);
+	union {
+		rc_function_t func;
+		void * obj;
+	} alias;
 	char *action_argv[] = {	"action", "system_start", NULL };
 	char *init_argv[] = { "/sbin/init", NULL };
 
@@ -76,7 +79,7 @@ int init_main(int argc, char **argv)
 	/* clear any existing error */
 	dlerror();
 
-	*(void **) (&function) = dlsym(handle, "rc_action");
+	alias.obj = dlsym(handle, "rc_action");
 
 	if ((p = dlerror()) != NULL)  {
 		DBG("<6>rc: dlsym error %s\n", p);
@@ -84,7 +87,7 @@ int init_main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	function(ARRAY_SIZE(action_argv) - 1, action_argv);
+	alias.func(ARRAY_SIZE(action_argv) - 1, action_argv);
 
 	/* close loader handle */
 	dlclose(handle);
