@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-06-01   0.1       Write it from scratch
+ * 2011-10-28   0.1       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -40,15 +41,39 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int rc_dillo(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_dillo(int argc, char **argv)
+#endif
 {
 	int rc;
 	char buf[64];
 	struct stat stat_buf;
+	int flag, ret;
 
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "dillo")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		system("start-stop-daemon -K -s KILL -n dillo");
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+		sleep(1);
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
@@ -61,23 +86,18 @@ int rc_dillo(int flag)
 			mkdir("/etc/dillo", 0755);
 		}
 
-		pop_etc_dillo_dillorc(RC_START);
+		pop_etc_dillo_dillorc(RC_ACT_START);
 
 		/* start dillo web browser */
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n dillo -a /usr/bin/dillo");
 		system(buf);
 
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		system("start-stop-daemon -K -s KILL -n dillo");
-		break;
-
-	case RC_RESTART :
-		rc = rc_dillo(RC_STOP);
-		sleep(1);
-		rc = rc_dillo(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }

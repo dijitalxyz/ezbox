@@ -49,7 +49,7 @@ int pop_etc_emc2_rtapi_conf(int flag)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 
 		break;
 	}

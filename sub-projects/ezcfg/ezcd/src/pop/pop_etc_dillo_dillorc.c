@@ -44,7 +44,7 @@ int pop_etc_dillo_dillorc(int flag)
         FILE *file = NULL;
 	char name[32];
 	char buf[64];
-	int rc;
+	int rc, ret;
 
 	/* generate /etc/dillo/dillorc */
 	file = fopen("/etc/dillo/dillorc", "w");
@@ -52,7 +52,7 @@ int pop_etc_dillo_dillorc(int flag)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		/* Set the desired initial browser size */
 		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DILLO, GEOMETRY));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
@@ -357,9 +357,14 @@ int pop_etc_dillo_dillorc(int flag)
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DILLO, SHOW_EXTRA_WARNINGS), "YES");
 		}
 
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
 	fclose(file);
-	return (EXIT_SUCCESS);
+	return (ret);
 }

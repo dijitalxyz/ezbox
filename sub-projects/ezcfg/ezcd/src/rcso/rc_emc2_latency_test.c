@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2011-07-05   0.1       Write it from scratch
+ * 2011-10-28   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -111,7 +112,11 @@ static int generate_test_hal_file(const char *path, long base_period, long servo
 	return EXIT_SUCCESS;
 }
 
-int rc_emc2_latency_test(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_emc2_latency_test(int argc, char **argv)
+#endif
 {
 	int rc;
 	char *p;
@@ -122,14 +127,48 @@ int rc_emc2_latency_test(int flag)
 	char old_dir[64];
 	char test_file[64];
 	long base_period, servo_period;
+	int flag, ret;
 
-	rc = nvram_match(NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE), "1");
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "emc2_latency_test")) {
+		return (EXIT_FAILURE);
+	}
+
+	rc = utils_nvram_match(NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
 
+	flag = utils_get_rc_act_type(argv[1]);
+
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		/* Stop latency test in background */
+		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, LATEXIT_SH_FLAG_FILE);
+		system(cmd);
+
+		/* $HALCMD stop */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd stop");
+		system(cmd);
+
+		/* $HALCMD unload all */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
+		system(cmd);
+
+		/* Stop REALTIME */
+		rc_realtime(RC_ACT_STOP);
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+		sleep(1);
+	case RC_ACT_START :
 		/* create configs dir */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, INIFILE), ini_file, sizeof(ini_file));
 		if (rc <= 0) {
@@ -151,9 +190,9 @@ int rc_emc2_latency_test(int flag)
 		snprintf(cmd, sizeof(cmd), "%s -p %s", CMD_MKDIR, ini_dir);
 		system(cmd);
 
-		pop_etc_emc2_rtapi_conf(RC_START);
+		pop_etc_emc2_rtapi_conf(RC_ACT_START);
 
-		pop_etc_emc2_configs(RC_START);
+		pop_etc_emc2_configs(RC_ACT_START);
 
 		/* generate latexit.sh */
 		snprintf(buf, sizeof(buf), "%s/latexit.sh", ini_dir);
@@ -189,7 +228,7 @@ int rc_emc2_latency_test(int flag)
 		chdir(ini_dir);
 
 		/* Start REALTIME */
-		rc_realtime(RC_START);
+		rc_realtime(RC_ACT_START);
 
 		/* sleep a second */
 		sleep(1);
@@ -202,32 +241,10 @@ int rc_emc2_latency_test(int flag)
 		/* restore to original dir */
 		chdir(old_dir);
 
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		/* Stop latency test in background */
-		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, LATEXIT_SH_FLAG_FILE);
-		system(cmd);
-
-		/* $HALCMD stop */
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd stop");
-		system(cmd);
-
-		/* $HALCMD unload all */
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
-		system(cmd);
-
-		/* Stop REALTIME */
-		rc_realtime(RC_STOP);
-		break;
-
-	case RC_RESTART :
-		rc = rc_emc2_latency_test(RC_STOP);
-		sleep(1);
-		rc = rc_emc2_latency_test(RC_START);
-		break;
-
-	case RC_RELOAD :
+	case RC_ACT_RELOAD :
 		/* $HALCMD sets reset 1 */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 1);
 		system(cmd);
@@ -235,6 +252,11 @@ int rc_emc2_latency_test(int flag)
 		/* $HALCMD sets reset 0 */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 0);
 		system(cmd);
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 	return (EXIT_SUCCESS);

@@ -48,7 +48,7 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 	int i, axes=0, num;
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		/* generate /root/emc2/ezcnc.ini */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, INIFILE), buf, sizeof(buf));
 		if (rc <= 0) {
@@ -603,7 +603,7 @@ static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 
 		break;
 	}
@@ -621,7 +621,7 @@ static int gen_etc_emc2_configs_ezcnc_hal(int flag)
 	int rc, i, j, num;
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, INIFILE), ini_dir, sizeof(ini_dir));
 		if (rc <= 0) {
 			return (EXIT_FAILURE);
@@ -762,7 +762,7 @@ static int gen_etc_emc2_configs_ezcnc_hal(int flag)
 #endif
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 		break;
 	}
 
@@ -779,7 +779,7 @@ static int gen_etc_emc2_configs_ezcnc_tbl(int flag)
 	int rc;
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, INIFILE), ini_dir, sizeof(ini_dir));
 		if (rc <= 0) {
 			return (EXIT_FAILURE);
@@ -810,7 +810,7 @@ static int gen_etc_emc2_configs_ezcnc_tbl(int flag)
 		fclose(file);
 		break;
 
-	case RC_STOP :
+	case RC_ACT_STOP :
 		break;
 	}
 
@@ -822,28 +822,31 @@ int pop_etc_emc2_configs(int flag)
 	int rc = EXIT_SUCCESS;
 
 	switch (flag) {
-	case RC_START :
-		rc = gen_etc_emc2_configs_ezcnc_ini(RC_START);
+	case RC_ACT_START :
+		rc = gen_etc_emc2_configs_ezcnc_ini(RC_ACT_START);
 		if (rc == EXIT_FAILURE)
 			return (rc);
 
-		rc = gen_etc_emc2_configs_ezcnc_hal(RC_START);
+		rc = gen_etc_emc2_configs_ezcnc_hal(RC_ACT_START);
 		if (rc == EXIT_FAILURE)
 			return (rc);
 
-		rc = gen_etc_emc2_configs_ezcnc_tbl(RC_START);
+		rc = gen_etc_emc2_configs_ezcnc_tbl(RC_ACT_START);
 		if (rc == EXIT_FAILURE)
 			return (rc);
 
 		break;
 
-	case RC_STOP :
-		gen_etc_emc2_configs_ezcnc_tbl(RC_STOP);
-		gen_etc_emc2_configs_ezcnc_hal(RC_STOP);
-		gen_etc_emc2_configs_ezcnc_ini(RC_STOP);
+	case RC_ACT_STOP :
+		gen_etc_emc2_configs_ezcnc_tbl(RC_ACT_STOP);
+		gen_etc_emc2_configs_ezcnc_hal(RC_ACT_STOP);
+		gen_etc_emc2_configs_ezcnc_ini(RC_ACT_STOP);
 
 		break;
 
+	default :
+		rc = EXIT_FAILURE;
+		break;
 	}
 
 	return (rc);

@@ -47,6 +47,9 @@ int main(int argc, char **argv)
 	if (!strcmp(argv[0], "/init")) {
 		return preinit_main(argc, argv);
 	}
+	else if (!strcmp(argv[0], "/sbin/init")) {
+		return init_main(argc, argv);
+	}
 	else if (!strcmp(name, "rc")) {
 		return rc_main(argc, argv);
 	}

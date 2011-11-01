@@ -71,7 +71,11 @@ static int clean_emc2_nvram(void)
 }
 
 
-int rc_emc2(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_emc2(int argc, char **argv)
+#endif
 {
 	int rc;
 	char *p;
@@ -82,10 +86,95 @@ int rc_emc2(int flag)
 	char ini_dir[64];
 	char old_dir[64];
 	int num, i;
+	int flag, ret;
+
+	if (argc < 2) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "emc2")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_START :
-		rc = nvram_match(NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1");
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		/* make sure the emc2 service has been started */
+		if (utils_has_process_by_name("emcsvr") == false) {
+			return (EXIT_FAILURE);
+		}
+
+		/* Stop remote access in background */
+		/* emcrsh -- -ini "$INIFILE" */
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n emcrsh");
+		system(cmd);
+
+		/* Stop display in foreground */
+		/* killall keystick */
+
+		/* Stop emctask in background */
+		/* killall $EMCTASK */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_TASK_TASK), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
+			system(cmd);
+			sleep(1);
+		}
+
+		/* stop the realtime stuff ticking */
+		/* $HALCMD stop */
+		/* force an unlock of the HAL mutex */
+#if 0
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd -R");
+		system(cmd);
+#endif
+		/* stop realtime threads */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd %s", "stop");
+		system(cmd);
+		/* unload all realtime stuff */
+		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
+		system(cmd);
+
+		/* Stop halui in background, if necessary */
+		/* killall $HALUI */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HAL_HALUI), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
+			system(cmd);
+		}
+
+		/* Stop emcio in background */
+		/* killall $EMCIO */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_EMCIO), buf, sizeof(buf));
+		if (rc > 0) {
+			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
+			system(cmd);
+		}
+
+		/* Stop REALTIME */
+		rc_realtime(RC_ACT_STOP);
+
+		/* Stop emcserver in background, always (it owns/creates the NML buffers) */
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, "emcsvr");
+		system(cmd);
+
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+		else if (flag == RC_ACT_RELOAD) {
+			/* then restore the default emc2 settings */
+			clean_emc2_nvram();
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+		sleep(1);
+	case RC_ACT_START :
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, EMC2_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
@@ -121,9 +210,9 @@ int rc_emc2(int flag)
 		snprintf(cmd, sizeof(cmd), "%s -p %s", CMD_MKDIR, ini_dir);
 		system(cmd);
 
-		pop_etc_emc2_rtapi_conf(RC_START);
+		pop_etc_emc2_rtapi_conf(RC_ACT_START);
 
-		pop_etc_emc2_configs(RC_START);
+		pop_etc_emc2_configs(RC_ACT_START);
 
 		/* export NML_FILE */
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMC_NML_FILE), buf, sizeof(buf));
@@ -145,7 +234,7 @@ int rc_emc2(int flag)
 		sleep(1);
 
 		/* Start REALTIME */
-		rc_realtime(RC_START);
+		rc_realtime(RC_ACT_START);
 
 		/* export the location of the HAL realtime modules so that
 		 * "halcmd loadrt" can find them
@@ -268,82 +357,12 @@ int rc_emc2(int flag)
 		/* restore to original dir */
 		chdir(old_dir);
 
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		/* make sure the emc2 service has been started */
-		if (utils_has_process_by_name("emcsvr") == false) {
-			return (EXIT_FAILURE);
-		}
-
-		/* Stop remote access in background */
-		/* emcrsh -- -ini "$INIFILE" */
-		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -n emcrsh");
-		system(cmd);
-
-		/* Stop display in foreground */
-		/* killall keystick */
-
-		/* Stop emctask in background */
-		/* killall $EMCTASK */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_TASK_TASK), buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
-			system(cmd);
-			sleep(1);
-		}
-
-		/* stop the realtime stuff ticking */
-		/* $HALCMD stop */
-		/* force an unlock of the HAL mutex */
-#if 0
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd -R");
-		system(cmd);
-#endif
-		/* stop realtime threads */
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd %s", "stop");
-		system(cmd);
-		/* unload all realtime stuff */
-		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
-		system(cmd);
-
-		/* Stop halui in background, if necessary */
-		/* killall $HALUI */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_HAL_HALUI), buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
-			system(cmd);
-		}
-
-		/* Stop emcio in background */
-		/* killall $EMCIO */
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(EMC2, CONF_EMCIO_EMCIO), buf, sizeof(buf));
-		if (rc > 0) {
-			snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, buf);
-			system(cmd);
-		}
-
-		/* Stop REALTIME */
-		rc_realtime(RC_STOP);
-
-		/* Stop emcserver in background, always (it owns/creates the NML buffers) */
-		snprintf(cmd, sizeof(cmd), "start-stop-daemon -K -s %d -n %s", SIGKILL, "emcsvr");
-		system(cmd);
-
-		break;
-
-	case RC_RESTART :
-		rc = rc_emc2(RC_STOP);
-		sleep(1);
-		rc = rc_emc2(RC_START);
-		break;
-
-	case RC_RELOAD :
-		/* first stop emc2 */
-		rc = rc_emc2(RC_STOP);
-		/* then restore the default emc2 settings */
-		clean_emc2_nvram();
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
-	return (EXIT_SUCCESS);
+	return (ret);
 }

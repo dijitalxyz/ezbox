@@ -26,6 +26,7 @@ sbin_PROGRAMS =	ezcd
 # basic functions
 ezcd_SOURCES = src/main.c
 ezcd_SOURCES += src/preinit.c
+ezcd_SOURCES += src/init.c
 ezcd_SOURCES += src/ezcd.c
 ezcd_SOURCES += src/ezcm.c
 ezcd_SOURCES += src/nvram.c
@@ -96,21 +97,6 @@ endif
 if CONFIG_EZBOX_SERVICE_FONTCONFIG
 #ezcd_SOURCES += src/pop/pop_etc_fonts.c
 #ezcd_SOURCES += src/rc/rc_fontconfig.c
-endif
-
-# dillo web browser service
-if CONFIG_EZBOX_SERVICE_DILLO
-#ezcd_SOURCES += src/pop/pop_etc_dillo_dillorc.c
-#ezcd_SOURCES += src/rc/rc_dillo.c
-endif
-
-# EMC2 Enhanced Machine Controller service
-if CONFIG_EZBOX_SERVICE_EMC2
-#ezcd_SOURCES += src/pop/pop_etc_emc2_rtapi_conf.c
-#ezcd_SOURCES += src/pop/pop_etc_emc2_configs.c
-#ezcd_SOURCES += src/rc/rc_realtime.c
-#ezcd_SOURCES += src/rc/rc_emc2.c
-#ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
 endif
 
 ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO) $(RCSO_EXE)
@@ -217,6 +203,20 @@ if CONFIG_EZBOX_SERVICE_DNSMASQ
 libezcd_la_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
 endif
 
+# dillo web browser service
+if CONFIG_EZBOX_SERVICE_DILLO
+libezcd_la_SOURCES += src/pop/pop_etc_dillo_dillorc.c
+endif
+
+# EMC2 Enhanced Machine Controller service
+if CONFIG_EZBOX_SERVICE_EMC2
+libezcd_la_SOURCES += src/pop/pop_etc_emc2_rtapi_conf.c
+libezcd_la_SOURCES += src/pop/pop_etc_emc2_configs.c
+#ezcd_SOURCES += src/rc/rc_realtime.c
+#ezcd_SOURCES += src/rc/rc_emc2.c
+#ezcd_SOURCES += src/rc/rc_emc2_latency_test.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = ezcd.pc
 
@@ -261,6 +261,16 @@ endif
 # dhcp/dns service
 if CONFIG_EZBOX_SERVICE_DNSMASQ
 RCSO_SRC += rc_dnsmasq.c
+endif
+# dillo web browser service
+if CONFIG_EZBOX_SERVICE_DILLO
+RCSO_SRC += rc_dillo.c
+endif
+# EMC2 Enhanced Machine Controller service
+if CONFIG_EZBOX_SERVICE_EMC2
+RCSO_SRC += rc_realtime.c
+RCSO_SRC += rc_emc2.c
+RCSO_SRC += rc_emc2_latency_test.c
 endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
