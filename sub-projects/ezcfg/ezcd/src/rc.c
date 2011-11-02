@@ -97,6 +97,8 @@ int rc_main(int argc, char **argv)
 		if ((p != NULL) && (*p == '.')) {
 			p++;
 			req.tv_nsec = strtol(p, (char **) NULL, 10);
+			if (req.tv_nsec > 999999999)
+				req.tv_nsec = 999999999;
 		}
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
 			b_sleep = true;

@@ -63,13 +63,11 @@ int init_main(int argc, char **argv)
 		void * obj;
 	} alias;
 	char *action_argv[] = {	"action", "system_start", NULL };
-	char *init_argv[] = { "/sbin/init", NULL };
 
 	/* unset umask */
 	umask(0);
 
-	/* run boot processes */
-	//rc_system(RC_BOOT);
+	/* run start processes */
 	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
 	if (!handle) {
 		DBG("<6>rc: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
@@ -92,9 +90,10 @@ int init_main(int argc, char **argv)
 	/* close loader handle */
 	dlclose(handle);
 
-	/* run init */
-	/* if cmdline has root= switch_root to new root device */
-	execv(init_argv[0], init_argv);
+	/* run main loop forever */
+	while (1) {
+	
+	}
 
 	return (EXIT_SUCCESS);
 }
