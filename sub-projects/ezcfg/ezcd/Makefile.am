@@ -31,6 +31,7 @@ ezcd_SOURCES += src/ezcd.c
 ezcd_SOURCES += src/ezcm.c
 ezcd_SOURCES += src/nvram.c
 ezcd_SOURCES += src/rc.c
+ezcd_SOURCES += src/shelld.c
 
 #ezcd_SOURCES += src/rc/rc_preboot.c
 #ezcd_SOURCES += src/rc/rc_data_storage.c
@@ -155,6 +156,9 @@ libezcd_la_SOURCES += src/utils/utils_get_wan_type.c
 endif
 libezcd_la_SOURCES += src/utils/utils_file_get_line.c
 libezcd_la_SOURCES += src/utils/utils_find_pid_by_name.c
+libezcd_la_SOURCES += src/utils/utils_device_open.c
+libezcd_la_SOURCES += src/utils/utils_parse_args.c
+libezcd_la_SOURCES += src/utils/utils_read_write.c
 libezcd_la_SOURCES += src/utils/utils_crc32.c
 libezcd_la_SOURCES += src/utils/utils_udev_trigger_pop.c
 
@@ -243,6 +247,7 @@ if CONFIG_EZBOX_SERVICE_IPTABLES
 RCSO_SRC += rc_iptables.c
 endif
 RCSO_SRC += rc_init.c
+RCSO_SRC += rc_shelld.c
 RCSO_SRC += rc_base_files.c
 RCSO_SRC += rc_ldconfig.c
 # syslogd service

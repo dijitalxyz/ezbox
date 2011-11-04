@@ -18,6 +18,11 @@ utils_remount_boot_partition_writable
 utils_remount_boot_partition_readonly
 utils_service_binding_lan
 utils_service_binding_wan
+utils_safe_read
+utils_safe_write
+utils_full_write
+utils_parse_args
+utils_device_open
 pop_etc_group
 pop_etc_passwd
 pop_etc_modules

@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : preinit.c
+ * Module Name  : rc_shelld.c
  *
- * Description  : ezbox initramfs preinit program
+ * Description  : ezbox console shell daemon program
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-06-13   0.1       Write it from scratch
+ * 2011-11-04   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -37,6 +37,8 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <dlfcn.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #include "ezcd.h"
 
@@ -52,45 +54,42 @@
 #define DBG(format, args...)
 #endif
 
-int preinit_main(int argc, char **argv)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_shelld(int argc, char **argv)
+#endif
 {
-	char *p;
-	void *handle;
-	union {
-		rc_function_t func;
-		void * obj;
-	} alias;
-	char *boot_argv[] = { "action", "system_boot", NULL };
+	char cmdline[256];
+	int flag, ret;
 
-	/* unset umask */
-	umask(0);
-
-	/* run boot processes */
-	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
-	if (!handle) {
-		DBG("<6>preinit: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
+	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	/* clear any existing error */
-	dlerror();
-
-	alias.obj = dlsym(handle, "rc_action");
-
-	if ((p = dlerror()) != NULL)  {
-		DBG("<6>preinit: dlsym error %s\n", p);
-		dlclose(handle);
+	if (strcmp(argv[0], "shelld")) {
 		return (EXIT_FAILURE);
 	}
 
-	alias.func(ARRAY_SIZE(boot_argv) - 1, boot_argv);
+	flag = utils_get_rc_act_type(argv[1]);
 
-	/* close loader handle */
-	dlclose(handle);
+	switch (flag) {
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+	case RC_ACT_RESTART :
+		snprintf(cmdline, sizeof(cmdline), "%s", CMD_SHELLD);
+		system(cmdline);
+		ret = EXIT_SUCCESS;
+		break;
 
-	/* run init */
-	/* if cmdline has root= switch_root to new root device */
-	init_main(argc, argv);
+	case RC_ACT_STOP :
+		ret = EXIT_SUCCESS;
+		break;
 
-	return (EXIT_SUCCESS);
+	default:
+		ret = EXIT_FAILURE;
+		break;
+	}
+
+	return (ret);
 }

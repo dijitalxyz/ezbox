@@ -23,6 +23,8 @@
 #define CMD_RM  		"/bin/rm"
 #define CMD_RMMOD  		"/sbin/rmmod"
 #define CMD_ROUTE  		"/sbin/route"
+#define CMD_SH  		"/bin/sh"
+#define CMD_SHELLD  		"/sbin/shelld"
 #define CMD_SYSLOGD  		"/sbin/syslogd"
 #define CMD_TELNETD  		"/sbin/telnetd"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
@@ -90,10 +92,15 @@ enum {
 	RC_ACT_COMBINED,
 };
 
-/* rc debug state */
+/* rc debug states */
 enum {
 	RC_DEBUG_UNKNOWN = 0,
 	RC_DEBUG_DUMP,
+};
+
+/* init states */
+enum {
+	INIT_IDLE,
 };
 
 /* WAN type */

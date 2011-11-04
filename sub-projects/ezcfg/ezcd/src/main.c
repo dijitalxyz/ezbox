@@ -62,6 +62,9 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "nvram")) {
 		return nvram_main(argc, argv);
 	}
+	else if (!strcmp(name, "shelld")) {
+		return shelld_main(argc, argv);
+	}
 	else if (!strcmp(name, "ubootenv")) {
 		return ubootenv_main(argc, argv);
 	}

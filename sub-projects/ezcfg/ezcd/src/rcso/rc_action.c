@@ -73,6 +73,7 @@
 	} \
 } while(0)
 
+#if 0
 static int parse_action_line(char *buf, size_t size, char **argv)
 {
 	char *p;
@@ -101,6 +102,7 @@ static int parse_action_line(char *buf, size_t size, char **argv)
 	argv[argc] = NULL;
 	return (argc);
 }
+#endif
 
 static int call_rc_function(int argc, char **argv)
 {
@@ -179,7 +181,7 @@ int rc_action(int argc, char **argv)
 
 	/* read action file */
 	while (utils_file_get_line(fp, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-		fargc = parse_action_line(buf, strlen(buf) + 1, fargv);
+		fargc = utils_parse_args(buf, strlen(buf) + 1, fargv);
 		if (fargc > 0) {
 			ret = call_rc_function(fargc, fargv);
 			if (ret == EXIT_FAILURE)

@@ -50,6 +50,13 @@ int utils_mount_data_partition_writable(void);
 int utils_sync_nvram_with_cfg(char *path);
 int utils_sync_cfg_with_nvram(char *path);
 
+ssize_t utils_safe_read(int fd, void *buf, size_t count);
+ssize_t utils_safe_write(int fd, const void *buf, size_t count);
+ssize_t utils_full_write(int fd, const void *buf, size_t len);
+
+int utils_parse_args(char *buf, size_t size, char **argv);
+int utils_device_open(const char *device, int mode);
+
 rc_func_t *utils_find_rc_func(char *name);
 int utils_get_rc_funcs_number(void);
 char *utils_get_rc_func_name(int i);
@@ -85,6 +92,7 @@ int ezcd_main(int argc, char **argv);
 int ezcm_main(int argc, char **argv);
 int nvram_main(int argc, char **argv);
 int rc_main(int argc, char **argv);
+int shelld_main(int argc, char **argv);
 int ubootenv_main(int argc, char **argv);
 int udhcpc_script_main(int argc, char **argv);
 int upfw_main(int argc, char **argv);

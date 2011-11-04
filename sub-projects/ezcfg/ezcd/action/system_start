@@ -23,3 +23,5 @@ base_files start
 login start
 # bring up loopback interface
 loopback start
+# start shell daemon
+shelld start
