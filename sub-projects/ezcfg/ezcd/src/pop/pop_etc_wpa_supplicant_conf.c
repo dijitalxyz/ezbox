@@ -77,7 +77,7 @@ int pop_etc_wpa_supplicant_conf(int flag)
 	s_name = name + strlen(EZCFG_WPA_SUPPLICANT_NVRAM_PREFIX);
 
 	switch (flag) {
-	case RC_START :
+	case RC_ACT_START :
 		/* Set the wpa_cli control interface */
 		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WPA_SUPPLICANT, CTRL_INTERFACE));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));

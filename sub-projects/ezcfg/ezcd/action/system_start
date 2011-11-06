@@ -25,3 +25,22 @@ login start
 loopback start
 # start shell daemon
 shelld start
+# bring up ethernet interface but not configurate it
+elan_if start
+# bring up WLAN interface but not configurate it
+wlan_if start
+# bring up WAN interface but not configurate it, LAN interface alias need it
+wan_if start
+# bring up LAN interface and configurate it
+lan start
+# start LAN side services
+# klogd
+klogd start
+# syslogd
+syslogd start
+# ezcfg httpd
+ezcfg_httpd lan start
+# telnetd
+telnetd lan start
+# dnsmasq
+dnsmasq lan start

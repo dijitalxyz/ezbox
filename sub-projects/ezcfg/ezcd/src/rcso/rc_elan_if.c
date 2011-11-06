@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dnsmasq.c
+ * Module Name  : rc_elan_if.c
  *
- * Description  : ezbox run dns & dhcp service
+ * Description  : ezbox run ethernet LAN interface service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
+ * 2010-11-03   0.1       Write it from scratch
+ * 2011-10-05   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -36,67 +37,51 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_dnsmasq(int argc, char **argv)
+int rc_elan_if(int argc, char **argv)
 #endif
 {
-	int rc;
+	char elan_ifname[IFNAMSIZ];
+	char cmdline[256];
 	int flag, ret;
 
-	if (argc < 3) {
+	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dnsmasq")) {
+	if (strcmp(argv[0], "elan_if")) {
 		return (EXIT_FAILURE);
 	}
 
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	if (strcmp(argv[1], "lan") == 0 &&
-            utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if (HAVE_EZBOX_WAN_NIC == 1)
-	if (strcmp(argv[1], "wan") == 0 &&
-            utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
-	{
-		return (EXIT_FAILURE);
-	}
-#endif
+	flag = utils_get_rc_act_type(argv[1]);
 
-	flag = utils_get_rc_act_type(argv[2]);
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, ELAN_NIC), elan_ifname, sizeof(elan_ifname));
+	if (ret < 0)
+		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -n dnsmasq");
+		/* bring down LAN interface */
+		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, elan_ifname);
+		ret = system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
 		}
 
 		/* RC_ACT_RESTART fall through */
+	case RC_ACT_BOOT :
 	case RC_ACT_START :
-		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
-		if (rc < 0) {
-			return (EXIT_FAILURE);
-		}
-
-		pop_etc_dnsmasq_conf(RC_ACT_START);
-		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
+		/* bring up LAN interface, but not config it */
+		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, elan_ifname);
+		ret = system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -104,5 +89,6 @@ int rc_dnsmasq(int argc, char **argv)
 		ret = EXIT_FAILURE;
 		break;
 	}
+
 	return (ret);
 }

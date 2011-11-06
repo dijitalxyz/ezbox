@@ -30,8 +30,9 @@
 #define EZCFG_SYS_RESTORE_DEFAULTS        "restore_defaults"
 #define EZCFG_SYS_UPGRADE_IMAGE           "upgrade_image"
 #define EZCFG_SYS_NICS                    "nics"
-#define EZCFG_SYS_LAN_NIC                 "lan_nic"
+#define EZCFG_SYS_ELAN_NIC                "elan_nic"
 #define EZCFG_SYS_WLAN_NIC                "wlan_nic"
+#define EZCFG_SYS_LAN_NIC                 "lan_nic"
 #define EZCFG_SYS_WAN_NIC                 "wan_nic"
 
 #define EZCFG_SYS_DATA_DEV                "data_dev"

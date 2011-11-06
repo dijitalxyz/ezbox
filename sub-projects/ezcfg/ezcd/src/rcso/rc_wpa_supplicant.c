@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dnsmasq.c
+ * Module Name  : rc_wpa_supplicant.c
  *
- * Description  : ezbox run dns & dhcp service
+ * Description  : ezbox run wpa_supplicant service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
+ * 2011-08-04   0.1       Write it from scratch
+ * 2011-10-05   0.2       Modify it to use rcso frame
  * ============================================================================
  */
 
@@ -36,67 +37,73 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/tmp/wpa_supplicant.debug", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_dnsmasq(int argc, char **argv)
+int rc_wpa_supplicant(int argc, char **argv)
 #endif
 {
+	char wlan_nic[IFNAMSIZ];
+	char cmd[256];
 	int rc;
 	int flag, ret;
 
-	if (argc < 3) {
+	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dnsmasq")) {
+	if (strcmp(argv[0], "wpa_supplicant")) {
 		return (EXIT_FAILURE);
 	}
 
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	if (strcmp(argv[1], "lan") == 0 &&
-            utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if (HAVE_EZBOX_WAN_NIC == 1)
-	if (strcmp(argv[1], "wan") == 0 &&
-            utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
-	{
-		return (EXIT_FAILURE);
-	}
-#endif
-
-	flag = utils_get_rc_act_type(argv[2]);
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -n dnsmasq");
+		system("start-stop-daemon -K -n wpa_supplicant");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
 		}
 
 		/* RC_ACT_RESTART fall through */
+		sleep(1);
 	case RC_ACT_START :
-		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
+		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, WPA_SUPPLICANT_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
-		pop_etc_dnsmasq_conf(RC_ACT_START);
-		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), wlan_nic, sizeof(wlan_nic));
+		if (rc <= 0) {
+			return (EXIT_FAILURE);
+		}
+
+		pop_etc_wpa_supplicant_conf(RC_ACT_START);
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -B -D%s -i%s -c/etc/wpa_supplicant-%s.conf", "nl80211", wlan_nic, wlan_nic);
+#if 0
+		system("start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i wlan0 -c /etc/wpa_supplicant-wlan0.conf");
+#else
+		system(cmd);
+#endif
 		ret = EXIT_SUCCESS;
 		break;
 

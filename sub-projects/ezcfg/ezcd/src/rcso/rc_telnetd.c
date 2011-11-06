@@ -59,8 +59,6 @@ int rc_telnetd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	flag = utils_get_rc_act_type(argv[1]);
-
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	if (strcmp(argv[1], "lan") == 0 &&
@@ -84,6 +82,8 @@ int rc_telnetd(int argc, char **argv)
 	if (rc != 4) {
 		return (EXIT_FAILURE);
 	}
+
+	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :

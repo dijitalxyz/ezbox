@@ -182,7 +182,7 @@ static pid_t do_command(struct action_s *a)
 	/* askfirst type */
 	if (a->type == 'a') {
 		static const char press_enter[] =
-			"\nPlease press Enter to activate this console. ";
+			"\nPlease press Enter to activate this console. \n";
 		char c;
 		DBG("waiting for enter to start '%s'"
 			"(pid %d, tty '%s')\n",

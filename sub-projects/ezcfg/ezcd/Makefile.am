@@ -54,26 +54,6 @@ ezcd_SOURCES += src/upfw.c
 #ezcd_SOURCES += src/pop/pop_etc_hotplug2_rules.c
 #ezcd_SOURCES += src/rc/rc_hotplug2.c
 
-# mount system fs
-#ezcd_SOURCES += src/rc/rc_mount_system_fs.c
-
-# network
-if CONFIG_EZBOX_LAN_NIC
-#ezcd_SOURCES += src/rc/rc_lan_if.c
-#ezcd_SOURCES += src/rc/rc_lan.c
-endif
-if CONFIG_EZBOX_WLAN_NIC
-#ezcd_SOURCES += src/rc/rc_wlan_if.c
-if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
-#ezcd_SOURCES += src/rc/rc_wpa_supplicant.c
-#ezcd_SOURCES += src/pop/pop_etc_wpa_supplicant_conf.c
-endif
-endif
-if CONFIG_EZBOX_WAN_NIC
-#ezcd_SOURCES += src/rc/rc_wan_if.c
-#ezcd_SOURCES += src/rc/rc_wan.c
-endif
-
 # LAN side binding services
 if CONFIG_EZBOX_LAN_NIC
 #ezcd_SOURCES += src/rc/rc_lan_services.c
@@ -202,6 +182,11 @@ libezcd_la_SOURCES += src/pop/pop_etc_hostname.c
 libezcd_la_SOURCES += src/pop/pop_etc_mtab.c
 libezcd_la_SOURCES += src/pop/pop_etc_profile.c
 
+# network
+if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
+libezcd_la_SOURCES += src/pop/pop_etc_wpa_supplicant_conf.c
+endif
+
 # dhcp/dns service
 if CONFIG_EZBOX_SERVICE_DNSMASQ
 libezcd_la_SOURCES += src/pop/pop_etc_dnsmasq_conf.c
@@ -259,6 +244,22 @@ if CONFIG_EZBOX_SERVICE_KLOGD
 RCSO_SRC += rc_klogd.c
 endif
 RCSO_SRC += rc_loopback.c
+# network
+if CONFIG_EZBOX_LAN_NIC
+RCSO_SRC += rc_elan_if.c
+RCSO_SRC += rc_lan.c
+endif
+if CONFIG_EZBOX_WLAN_NIC
+RCSO_SRC += rc_wlan_if.c
+endif
+if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
+RCSO_SRC += rc_wpa_supplicant.c
+endif
+if CONFIG_EZBOX_WAN_NIC
+RCSO_SRC += rc_wan_if.c
+#ezcd_SOURCES += src/rc/rc_wan.c
+endif
+
 # telnet service
 if CONFIG_EZBOX_SERVICE_TELNETD
 RCSO_SRC += rc_telnetd.c
