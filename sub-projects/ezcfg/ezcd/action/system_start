@@ -40,6 +40,8 @@ klogd start
 syslogd start
 # ezcfg httpd
 ezcfg_httpd lan start
+# ezcd reload for ezcfg httpd
+ezcd reload
 # telnetd
 telnetd lan start
 # dnsmasq
