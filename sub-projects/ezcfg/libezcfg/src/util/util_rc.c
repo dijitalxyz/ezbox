@@ -56,7 +56,7 @@ bool ezcfg_util_rc(char *func, char *act, int s)
 		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %s %s", func, act);
 	}
 	else {
-		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %s %s %d", func, act, s);
+		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %d %s %s", s, func, act);
 	}
 
 	if (i < sizeof(cmd)) {
