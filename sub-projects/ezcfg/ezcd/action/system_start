@@ -46,3 +46,5 @@ ezcd reload
 telnetd lan start
 # dnsmasq
 dnsmasq lan start
+# bring up WAN interface and configurate it
+wan start

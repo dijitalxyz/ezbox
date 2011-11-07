@@ -23,6 +23,7 @@ utils_safe_write
 utils_full_write
 utils_parse_args
 utils_device_open
+utils_get_wan_type
 pop_etc_group
 pop_etc_passwd
 pop_etc_modules

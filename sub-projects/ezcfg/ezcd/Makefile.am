@@ -257,7 +257,7 @@ RCSO_SRC += rc_wpa_supplicant.c
 endif
 if CONFIG_EZBOX_WAN_NIC
 RCSO_SRC += rc_wan_if.c
-#ezcd_SOURCES += src/rc/rc_wan.c
+RCSO_SRC += rc_wan.c
 endif
 
 # telnet service
