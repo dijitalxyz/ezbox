@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1289
+PKG_REV:=1306
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -101,6 +101,18 @@ CONFIGURE_ARGS += \
 	--enable-service-telnetd
 endif
 
+# set dnsmasq service
+ifneq ($(CONFIG_PACKAGE_dnsmasq),)
+CONFIGURE_ARGS += \
+	--enable-service-dnsmasq
+endif
+
+# set iptables service
+ifneq ($(CONFIG_PACKAGE_iptables),)
+CONFIGURE_ARGS += \
+	--enable-service-iptables
+endif
+
 # set nano-X service
 ifneq ($(CONFIG_PACKAGE_microwin),)
 CONFIGURE_ARGS += \
@@ -173,12 +185,15 @@ define Package/ezcfg/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcd.so* $(1)/lib/
 	$(INSTALL_DIR) $(1)/lib/rcso
 	$(CP) $(PKG_BUILD_DIR)/ezcd/rc_*.so* $(1)/lib/rcso/
+	$(INSTALL_DIR) $(1)/lib/rcso/action
+	$(CP) $(PKG_BUILD_DIR)/ezcd/action/* $(1)/lib/rcso/action/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
 	$(LN) sbin/ezcd $(1)/init
 	$(LN) ezcd $(1)/sbin/ezcm
 	$(LN) ezcd $(1)/sbin/nvram
 	$(LN) ezcd $(1)/sbin/rc
+	$(LN) ezcd $(1)/sbin/shelld
 	$(LN) ezcd $(1)/sbin/ubootenv
 	$(LN) ezcd $(1)/sbin/udhcpc.script
 	$(LN) ezcd $(1)/sbin/upfw
