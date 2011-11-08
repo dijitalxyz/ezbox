@@ -39,7 +39,6 @@
 #include <net/if.h>
 
 #include "ezcd.h"
-#include "utils.h"
 
 #if 0
 static int set_loopback_interface(FILE *file)
@@ -53,8 +52,8 @@ static int set_loopback_interface(FILE *file)
 int pop_etc_l7_protocols(int flag)
 {
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
 		break;
 	}
 

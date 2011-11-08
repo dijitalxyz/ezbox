@@ -271,8 +271,8 @@ int pop_etc_fonts_fonts_dtd(int flag)
 
 
 	switch (flag) {
-	case RC_RESTART :
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
 		generate_fonts_dtd(file);
 		break;
 	}
@@ -292,8 +292,8 @@ int pop_etc_fonts_fonts_conf(int flag)
 
 
 	switch (flag) {
-	case RC_RESTART :
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
 		generate_fonts_conf(file);
 		break;
 	}

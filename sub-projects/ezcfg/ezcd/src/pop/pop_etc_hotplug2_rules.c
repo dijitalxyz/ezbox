@@ -188,14 +188,14 @@ int pop_etc_hotplug2_rules(int flag)
 #endif
 
 	switch (flag) {
-	case RC_BOOT :
+	case RC_ACT_BOOT :
 		fprintf(file, "%s\n", "SUBSYSTEM ~~ button {");
 		fprintf(file, "\t%s\n", "exec kill -USR1 1");
 		fprintf(file, "%s\n", "}");
 		break;
 
-	case RC_RESTART :
-	case RC_START :
+	case RC_ACT_RESTART :
+	case RC_ACT_START :
 		fprintf(file, "%s\n", "SUBSYSTEM ~~ (^net$|^input$|^button$|^usb$|^platform$|^ieee1394$|^block$|^atm$|^zaptel$|^tty$) {");
 		fprintf(file, "\t%s\n", "exec /sbin/hotplug-call %SUBSYSTEM%");
 		fprintf(file, "%s\n", "}");
