@@ -101,11 +101,9 @@
 #define EZCFG_RC_ACT_RESTART               "restart"
 #define EZCFG_RC_ACT_RELOAD                "reload"
 
-/* ezcfg rc action string */
-#define EZCFG_RC_ACTION_SYSTEM_REBOOT      "system_reboot"
-
 /* ezcfg rc service string */
 #define EZCFG_RC_SERVICE_ACTION            "action"
+#define EZCFG_RC_SERVICE_SYSTEM            "system"
 #define EZCFG_RC_SERVICE_LOGIN             "login"
 #define EZCFG_RC_SERVICE_EZCFG_HTTPD       "ezcfg_httpd"
 #define EZCFG_RC_SERVICE_TELNETD           "telnetd"

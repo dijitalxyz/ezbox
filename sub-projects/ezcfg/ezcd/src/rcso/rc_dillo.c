@@ -8,7 +8,7 @@
  *
  * History      Rev       Description
  * 2011-06-01   0.1       Write it from scratch
- * 2011-10-28   0.1       Modify it to use rcso frame
+ * 2011-10-28   0.1       Modify it to use rcso framework
  * ============================================================================
  */
 
@@ -73,7 +73,7 @@ int rc_dillo(int argc, char **argv)
 		/* RC_ACT_RESTART fall through */
 		sleep(1);
 	case RC_ACT_START :
-		rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
+		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, DILLO_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}

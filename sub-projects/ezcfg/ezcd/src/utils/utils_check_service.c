@@ -51,10 +51,10 @@ bool utils_service_binding_lan(char *name)
 	int rc;
 
 	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-	if ((rc < 0) || (strcmp(buf, "lan") != 0)){
-		return false;
+	if ((rc == 3) && (strcmp(buf, "lan") == 0)){
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool utils_service_binding_wan(char *name)
@@ -63,9 +63,9 @@ bool utils_service_binding_wan(char *name)
 	int rc;
 
 	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-	if ((rc < 0) || (strcmp(buf, "wan") != 0)){
-		return false;
+	if ((rc == 3) && (strcmp(buf, "wan") == 0)){
+		return true;
 	}
-	return true;
+	return false;
 }
 

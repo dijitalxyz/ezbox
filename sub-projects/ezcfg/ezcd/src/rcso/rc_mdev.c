@@ -8,7 +8,7 @@
  *
  * History      Rev       Description
  * 2011-08-11   0.1       Write it from scratch
- * 2011-10-16   0.2       Modify it to use rcso frame
+ * 2011-10-16   0.2       Modify it to use rcso framework
  * ============================================================================
  */
 

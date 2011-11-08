@@ -93,7 +93,7 @@ static void init_halt_reboot_poweroff(int sig)
 	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
 	if (!handle) {
 		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
-		return (EXIT_FAILURE);
+		return;
 	}
 
 	/* clear any existing error */
@@ -104,7 +104,7 @@ static void init_halt_reboot_poweroff(int sig)
 	if ((p = dlerror()) != NULL)  {
 		DBG("<6>init: dlsym error %s\n", p);
 		dlclose(handle);
-		return (EXIT_FAILURE);
+		return;
 	}
 
 	alias.func(ARRAY_SIZE(stop_argv) - 1, stop_argv);

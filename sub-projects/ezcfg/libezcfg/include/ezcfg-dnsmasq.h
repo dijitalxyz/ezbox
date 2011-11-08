@@ -82,6 +82,7 @@
 #define EZCFG_DNSMASQ_DHCPD_ENABLE           "dhcpd_enable"
 #define EZCFG_DNSMASQ_DHCPD_START_IPADDR     "dhcpd_start_ipaddr"
 #define EZCFG_DNSMASQ_DHCPD_END_IPADDR       "dhcpd_end_ipaddr"
+#define EZCFG_DNSMASQ_DHCPD_NETMASK          "dhcpd_netmask"
 #define EZCFG_DNSMASQ_DHCPD_LEASE            "dhcpd_lease"
 #define EZCFG_DNSMASQ_DHCPD_GATEWAY          "dhcpd_gateway"
 #define EZCFG_DNSMASQ_DHCPD_WAN_DNS_ENABLE   "dhcpd_wan_dns_enable"
@@ -91,5 +92,13 @@
 #define EZCFG_DNSMASQ_DHCPD_DNS3             "dhcpd_dns3"
 #define EZCFG_DNSMASQ_DHCPD_DOMAIN           "dhcpd_domain"
 #define EZCFG_DNSMASQ_DHCPD_WINS             "dhcpd_wins"
+
+/* nvram default values */
+#define EZCFG_DNSMASQ_DEFAULT_DHCPD_START_IPADDR \
+	"192.168.1.100"
+#define EZCFG_DNSMASQ_DEFAULT_DHCPD_END_IPADDR \
+	"192.168.1.149"
+#define EZCFG_DNSMASQ_DEFAULT_DHCPD_LEASE \
+	"86400"
 
 #endif

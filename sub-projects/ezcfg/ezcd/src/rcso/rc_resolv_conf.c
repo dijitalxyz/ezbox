@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_wan_if.c
+ * Module Name  : rc_resolv_conf.c
  *
- * Description  : ezbox run network LAN interface service
+ * Description  : ezbox run /etc/resolv.conf file service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-04   0.1       Write it from scratch
+ * 2011-11-08   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,36 +39,46 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
-int rc_wan_if(int flag)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_resolv_conf(int argc, char **argv)
+#endif
 {
-	int ret = 0;
-	char wan_ifname[IFNAMSIZ];
-	char cmdline[256];
+	int flag, ret;
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WAN_NIC), wan_ifname, sizeof(wan_ifname));
-	if (ret < 0)
+	if (argc < 2) {
 		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "resolv_conf")) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		/* bring up LAN interface, but not config it */
-		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, wan_ifname);
-		ret = system(cmdline);
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		pop_etc_resolv_conf(RC_ACT_START);
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+		pop_etc_resolv_conf(RC_ACT_START);
+		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_STOP :
-		/* bring down LAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, wan_ifname);
-		ret = system(cmdline);
-		break;
-
-	case RC_RESTART :
-		ret = rc_wan_if(RC_STOP);
-		ret = rc_wan_if(RC_START);
+	default :
+		ret = EXIT_FAILURE;
 		break;
 	}
 
-	return (EXIT_SUCCESS);
+	return (ret);
 }

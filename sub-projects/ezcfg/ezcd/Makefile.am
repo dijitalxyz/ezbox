@@ -33,9 +33,6 @@ ezcd_SOURCES += src/nvram.c
 ezcd_SOURCES += src/rc.c
 ezcd_SOURCES += src/shelld.c
 
-#ezcd_SOURCES += src/rc/rc_preboot.c
-#ezcd_SOURCES += src/rc/rc_data_storage.c
-#ezcd_SOURCES += src/rc/rc_system.c
 #ezcd_SOURCES += src/rc/rc_func.c
 #ezcd_SOURCES += src/rc/rc_debug.c
 
@@ -120,7 +117,7 @@ libezcd_la_SOURCES += src/utils/utils_check_service.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += src/utils/utils_check_wan_interface.c
 endif
-libezcd_la_SOURCES += src/utils/utils_nvram_match.c
+libezcd_la_SOURCES += src/utils/utils_nvram_cmp.c
 libezcd_la_SOURCES += src/utils/utils_file_get_keyword.c
 libezcd_la_SOURCES += src/utils/utils_get_kernel_modules.c
 libezcd_la_SOURCES += src/utils/utils_get_kernel_version.c
@@ -220,6 +217,7 @@ RCSO_SRC += rc_exec.c
 RCSO_SRC += rc_login.c
 #RCSO_SRC += rc_mdev.c
 RCSO_SRC += rc_preboot.c
+RCSO_SRC += rc_system.c
 RCSO_SRC += rc_load_modules.c
 RCSO_SRC += rc_mount_system_fs.c
 RCSO_SRC += rc_data_storage.c
@@ -228,6 +226,7 @@ RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
 RCSO_SRC += rc_ezcm.c
 RCSO_SRC += rc_netbase.c
+RCSO_SRC += rc_resolv_conf.c
 if CONFIG_EZBOX_SERVICE_IPTABLES
 RCSO_SRC += rc_iptables.c
 endif

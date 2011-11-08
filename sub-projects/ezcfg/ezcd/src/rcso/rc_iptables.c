@@ -8,7 +8,7 @@
  *
  * History      Rev       Description
  * 2011-05-17   0.1       Write it from scratch
- * 2011-10-22   0.2       Modify it to use rcso frame
+ * 2011-10-22   0.2       Modify it to use rcso framework
  * ============================================================================
  */
 
@@ -45,7 +45,7 @@
 static int lan_iptables(int flag)
 {
 	int rc;
-	rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
+	rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
@@ -73,7 +73,7 @@ static int lan_iptables(int flag)
 static int wan_iptables(int flag)
 {
 	int rc;
-	rc = utils_nvram_match(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
+	rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1");
 	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}

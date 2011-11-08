@@ -13,7 +13,7 @@ utils_sync_cfg_with_nvram
 utils_udev_pop_nodes
 utils_mount_boot_partition_readonly
 utils_mount_data_partition_writable
-utils_nvram_match
+utils_nvram_cmp
 utils_remount_boot_partition_writable
 utils_remount_boot_partition_readonly
 utils_service_binding_lan
@@ -46,3 +46,4 @@ pop_etc_dillo_dillorc
 pop_etc_emc2_configs
 pop_etc_emc2_rtapi_conf
 pop_etc_wpa_supplicant_conf
+pop_etc_dnsmasq_conf

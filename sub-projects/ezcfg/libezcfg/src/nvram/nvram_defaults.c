@@ -453,6 +453,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* Last assignable DHCP address */
 	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR),
 	  EZCFG_DNSMASQ_DEFAULT_DHCPD_END_IPADDR },
+	/* DHCP IP address netmask */
+	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_NETMASK),
+	  EZCFG_LAN_DEFAULT_NETMASK },
 	/* LAN lease time in minutes */
 	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE),
 	  EZCFG_DNSMASQ_DEFAULT_DHCPD_LEASE },

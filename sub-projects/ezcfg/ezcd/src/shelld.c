@@ -81,7 +81,7 @@ static struct action_s {
 	{ 0, "/dev/tty5", 'a', CMD_LOGIN },
 	{ 0, "/dev/tty6", 'a', CMD_LOGIN },
 #endif
-	{ 0, NULL, NULL, 0 }
+	{ 0, NULL, 0, NULL }
 };
 
 /* set terminal settings to reasonable defaults */

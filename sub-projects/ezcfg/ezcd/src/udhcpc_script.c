@@ -62,9 +62,7 @@ static int udhcpc_deconfig(void)
 	if (iface == NULL)
 		return (EXIT_FAILURE);
 
-	/* FIXME: remove it use rc action */
-	//pop_etc_resolv_conf(RC_STOP);
-	system("/sbin/rc action remove_resolv_conf");
+	system("/sbin/rc resolv_conf stop");
 
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
@@ -171,11 +169,9 @@ static int udhcpc_bound(void)
 		}
 	}
 
-	//pop_etc_resolv_conf(RC_RESTART);
-	system("/sbin/rc action generate_resolv_conf");
+	system("/sbin/rc resolv_conf restart");
 
 	/* start WAN interface binding services */
-	//rc_wan_services(RC_START);
 	system("/sbin/rc action wan_services_start");
 
 	return (EXIT_SUCCESS);
@@ -268,11 +264,9 @@ static int udhcpc_renew(void)
 		}
 	}
 
-	//pop_etc_resolv_conf(RC_RESTART);
-	system("/sbin/rc action generate_resolv_conf");
+	system("/sbin/rc resolv_conf restart");
 
 	/* start WAN interface binding services */
-	//rc_wan_services(RC_START);
 	system("/sbin/rc action wan_services_start");
 
 	return (EXIT_SUCCESS);

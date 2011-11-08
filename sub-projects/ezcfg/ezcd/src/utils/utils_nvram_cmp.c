@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_lan.c
+ * Module Name  : utils_check_ezcd.c
  *
- * Description  : ezbox run network LAN config service
+ * Description  : ezbox check ezcfg daemon service status
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-04   0.1       Write it from scratch
+ * 2011-05-09   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,39 +36,50 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <net/if.h>
 
 #include "ezcd.h"
 
-int rc_lan(int flag)
+#if 0
+#define DBG(format, args...) do {\
+	FILE *fp = fopen("/dev/kmsg", "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+int utils_nvram_cmp(const char *name, const char *value)
 {
-	int ret = 0;
-	char lan_ifname[IFNAMSIZ];
-	char cmdline[256];
+	int rc = 0;
+	char *buf;
+	int buf_len;
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IFNAME), lan_ifname, sizeof(lan_ifname));
-	if (ret < 0)
-		return (EXIT_FAILURE);
-
-	switch (flag) {
-	case RC_BOOT :
-	case RC_START :
-		/* bring up LAN interface and config it */
-		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, lan_ifname);
-		ret = system(cmdline);
-		break;
-
-	case RC_STOP :
-		/* bring down LAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, lan_ifname);
-		ret = system(cmdline);
-		break;
-
-	case RC_RESTART :
-		ret = rc_lan(RC_STOP);
-		ret = rc_lan(RC_START);
-		break;
+	if (name == NULL || value == NULL) {
+		return -EZCFG_E_ARGUMENT ;
 	}
 
-	return (EXIT_SUCCESS);
+	buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
+	buf = (char *)malloc(buf_len);
+	if (buf == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	rc = ezcfg_api_nvram_get(name, buf, buf_len);
+	if (rc < 0) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
+
+	if (strcmp(value, buf) != 0) {
+		rc = -EZCFG_E_RESULT ;
+		goto exit;
+	}
+exit:
+	if (buf != NULL)
+		free(buf);
+	return rc;
 }
+

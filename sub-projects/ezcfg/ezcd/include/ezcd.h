@@ -83,7 +83,7 @@ bool utils_wan_interface_wait_down(int s);
 #endif
 
 /* nvram function */
-int utils_nvram_match(const char *name, const char *value);
+int utils_nvram_cmp(const char *name, const char *value);
 
 /* command entry point */
 int preinit_main(int argc, char **argv);

@@ -1,13 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_check_ezcd.c
+ * Module Name  : rc_system.c
  *
- * Description  : ezbox check ezcfg daemon service status
+ * Description  : ezbox run system services
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-09   0.1       Write it from scratch
+ * 2010-11-02   0.1       Write it from scratch
+ * 2011-10-08   0.2       Modify it to use rcso framework
  * ============================================================================
  */
 
@@ -51,35 +52,47 @@
 #define DBG(format, args...)
 #endif
 
-int utils_nvram_match(const char *name, const char *value)
+#ifdef _EXEC_
+int main(int argc, char **argv)
+#else
+int rc_system(int argc, char **argv)
+#endif
 {
-	int rc = 0;
-	char *buf;
-	int buf_len;
+	int flag, ret;
 
-	if (name == NULL || value == NULL) {
-		return -EZCFG_E_ARGUMENT ;
+	if (argc < 2) {
+		return (EXIT_FAILURE);
 	}
 
-	buf_len = EZCFG_NVRAM_BUFFER_SIZE ;
-	buf = (char *)malloc(buf_len);
-	if (buf == NULL) {
-		return -EZCFG_E_SPACE ;
+	if (strcmp(argv[0], "system")) {
+		return (EXIT_FAILURE);
 	}
 
-	rc = ezcfg_api_nvram_get(name, buf, buf_len);
-	if (rc < 0) {
-		rc = -EZCFG_E_RESULT ;
-		goto exit;
+	if(geteuid() != 0)
+	{
+		DBG("run rc_system euid is not 0!\n");
+		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(value, buf) != 0) {
-		rc = -EZCFG_E_RESULT ;
-		goto exit;
+	flag = utils_get_rc_act_type(argv[1]);
+
+	switch (flag) {
+	case RC_ACT_RESTART :
+		/* reboot */
+		kill(1, SIGTERM);
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_STOP :
+		/* poweroff */
+		kill(1, SIGUSR2);
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
+		break;
 	}
-exit:
-	if (buf != NULL)
-		free(buf);
-	return rc;
+
+	return (ret);
 }
-

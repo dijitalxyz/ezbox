@@ -92,13 +92,23 @@ int rc_main(int argc, char **argv)
 	}
 
 	i = 1;
+	req.tv_sec = 0;
+	req.tv_nsec = 0;
 	if (isdigit(*argv[i])) {
 		req.tv_sec = strtol(argv[i], &p, 10);
 		if ((p != NULL) && (*p == '.')) {
+			long base = 100000000;
 			p++;
+			while(isdigit(*p) && base > 0) {
+				req.tv_nsec += (*p - '0')*base;
+				base /= 10;
+				p++;
+			}
+#if 0
 			req.tv_nsec = strtol(p, (char **) NULL, 10);
 			if (req.tv_nsec > 999999999)
 				req.tv_nsec = 999999999;
+#endif
 		}
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
 			b_sleep = true;
@@ -190,8 +200,16 @@ int rc_main(int argc, char **argv)
 
 	/* handle rc operations */
 	/* wait s seconds */
-	if (b_sleep == true)
-		nanosleep(&req, NULL);
+	if (b_sleep == true) {
+		struct timespec rem;
+		DBG("<6>rc: sleep!\n");
+		if (nanosleep(&req, &rem) == -1) {
+			DBG("<6>rc: nanosleep error!\n");
+		}
+		else {
+			DBG("<6>rc: sleep finished!\n");
+		}
+	}
 
 	ret = alias.func(argc - i, argv + i);
 

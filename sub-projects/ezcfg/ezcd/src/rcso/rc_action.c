@@ -52,58 +52,6 @@
 #define DBG(format, args...)
 #endif
 
-#define DBG2() do {\
-	pid_t pid = getpid(); \
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		char buf[32]; \
-		FILE *fp2; \
-		int i; \
-		for(i=pid; i<pid+30; i++) { \
-			snprintf(buf, sizeof(buf), "/proc/%d/stat", i); \
-			fp2 = fopen(buf, "r"); \
-			if (fp2) { \
-				if (fgets(buf, sizeof(buf)-1, fp2) != NULL) { \
-					fprintf(fp, "pid=[%d] buf=%s\n", i, buf); \
-				} \
-				fclose(fp2); \
-			} \
-		} \
-		fclose(fp); \
-	} \
-} while(0)
-
-#if 0
-static int parse_action_line(char *buf, size_t size, char **argv)
-{
-	char *p;
-	int i;
-	int argc;
-
-	argc = 0;
-	i = 0;
-	p = buf;
-	while((argc < RC_MAX_ARGS - 1) && (*p != '\0')) {
-		/* skip blank char */
-		while(IS_BLANK(*p)) {
-			*p = '\0';
-			p++;
-		}
-		if (*p == '\0')
-			break;
-
-		/* find argv[] start */
-		argv[argc] = p;
-		argc++;
-		p++;
-		while(!IS_BLANK(*p) && (*p != '\0')) p++;
-	}
-	/* final argv[] must be NULL */
-	argv[argc] = NULL;
-	return (argc);
-}
-#endif
-
 static int call_rc_function(int argc, char **argv)
 {
 	char path[64];
@@ -184,13 +132,12 @@ int rc_action(int argc, char **argv)
 		fargc = utils_parse_args(buf, strlen(buf) + 1, fargv);
 		if (fargc > 0) {
 			ret = call_rc_function(fargc, fargv);
-			if (ret == EXIT_FAILURE)
-				goto func_exit;
+			if (ret == EXIT_FAILURE) {
+				DBG("<6> rc_action: %s error!\n", fargv[0]);
+			}
 		}
 	}
 
-func_exit:
 	fclose(fp);
 	return (ret);
 }
-

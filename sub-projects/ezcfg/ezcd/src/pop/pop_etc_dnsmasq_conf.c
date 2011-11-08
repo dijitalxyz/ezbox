@@ -36,6 +36,7 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
 
@@ -44,6 +45,11 @@ int pop_etc_dnsmasq_conf(int flag)
         FILE *file = NULL;
 	char name[32];
 	char buf[64];
+	char ifname[IFNAMSIZ];
+	int sip[4];
+	int eip[4];
+	int nmsk[4];
+	int lease;
 	int i;
 	int rc;
 
@@ -55,19 +61,19 @@ int pop_etc_dnsmasq_conf(int flag)
 	switch (flag) {
 	case RC_ACT_START :
 		/* Never forward plain names (without a dot or domain part) */
-		if (utils_nvram_match(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
+		if (utils_nvram_cmp(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
 			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));
 		}
 
 		/* get upstream servers from somewhere other that /etc/resolv.conf */
-		if (utils_nvram_match(NVRAM_SERVICE_OPTION(LAN, DHCPD_WAN_DNS_ENABLE), "0") == 0) {
+		if (utils_nvram_cmp(NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_WAN_DNS_ENABLE), "0") == 0) {
 			FILE *fp = NULL;
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, RESOLV_FILE), "/etc/resolv.conf.dnsmasq");
 			fp = fopen("/etc/resolv.conf.dnsmasq", "w");
 			if (fp != NULL) {
 				for (i = 1; i <= 3; i++) {
 					snprintf(name, sizeof(name), "%s%d",
-						NVRAM_SERVICE_OPTION(LAN, DHCPD_DNS), i);
+						NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_DNS), i);
 					rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 					if (rc >= 0) {
 						fprintf(file, "nameserver %s\n", buf);
@@ -84,19 +90,55 @@ int pop_etc_dnsmasq_conf(int flag)
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
 		}
 		if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
+			/* get interface */
 			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LAN, IFNAME));
-		}
-		else if (utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WAN, IFNAME));
-		}
-		else {
-			break;
-		}
-		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-		if (rc > 0) {
-			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
-		}
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc < 1) {
+				break;
+			}
+			snprintf(ifname, sizeof(ifname), "%s", buf);
 
+			/* get DHCP server start IP address */
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR));
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc < 0 || sscanf(buf, "%d.%d.%d.%d",
+				&sip[0], &sip[1], &sip[2], &sip[3]) != 4) {
+				break;
+			}
+
+
+			/* get DHCP server end IP address */
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR));
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc < 0 || sscanf(buf, "%d.%d.%d.%d",
+				&eip[0], &eip[1], &eip[2], &eip[3]) != 4) {
+				break;
+			}
+
+			/* get DHCP server IP netmask */
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_NETMASK));
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc < 0 || sscanf(buf, "%d.%d.%d.%d",
+				&nmsk[0], &nmsk[1], &nmsk[2], &nmsk[3]) != 4) {
+				break;
+			}
+
+			/* get DHCP server lease time */
+			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_LEASE));
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc < 0) {
+				break;
+			}
+			lease = atoi(buf);
+
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), ifname);
+			fprintf(file, "%s=%s:%s,%d.%d.%d.%d,%d.%d.%d.%d,%d.%d.%d.%d,%d\n", SERVICE_OPTION(DNSMASQ, DHCP_RANGE),
+				SERVICE_OPTION(DNSMASQ, INTERFACE), ifname,
+				sip[0], sip[1], sip[2], sip[3],
+				eip[0], eip[1], eip[2], eip[3],
+				nmsk[0], nmsk[1], nmsk[2], nmsk[3],
+				lease);
+		}
 		break;
 	}
 
