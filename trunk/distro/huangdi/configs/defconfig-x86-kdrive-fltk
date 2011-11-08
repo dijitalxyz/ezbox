@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Mon Oct 10 15:26:57 2011
+# Tue Nov  8 18:48:09 2011
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1108,7 +1108,21 @@ CONFIG_PACKAGE_ldconfig=y
 #
 # Firewall
 #
-# CONFIG_PACKAGE_iptables is not set
+CONFIG_PACKAGE_iptables=y
+CONFIG_PACKAGE_iptables-mod-conntrack=y
+CONFIG_PACKAGE_iptables-mod-conntrack-extra=y
+CONFIG_PACKAGE_iptables-mod-extra=y
+CONFIG_PACKAGE_iptables-mod-filter=y
+CONFIG_PACKAGE_iptables-mod-hashlimit=y
+CONFIG_PACKAGE_iptables-mod-ipopt=y
+CONFIG_PACKAGE_iptables-mod-iprange=y
+CONFIG_PACKAGE_iptables-mod-ipsec=y
+CONFIG_PACKAGE_iptables-mod-ipset=y
+CONFIG_PACKAGE_iptables-mod-nat=y
+CONFIG_PACKAGE_iptables-mod-nat-extra=y
+CONFIG_PACKAGE_iptables-mod-tproxy=y
+CONFIG_PACKAGE_iptables-mod-ulog=y
+CONFIG_PACKAGE_iptables-utils=y
 
 #
 # IP Addresses and Names
@@ -1263,11 +1277,11 @@ CONFIG_PACKAGE_libuuid=y
 #
 # Firewall
 #
-# CONFIG_PACKAGE_libip4tc is not set
+CONFIG_PACKAGE_libip4tc=y
 # CONFIG_PACKAGE_libip6tc is not set
 # CONFIG_PACKAGE_libipq is not set
 # CONFIG_PACKAGE_libiptc is not set
-# CONFIG_PACKAGE_libxtables is not set
+CONFIG_PACKAGE_libxtables=y
 
 #
 # Lua Server Pages (luasp)
@@ -1455,6 +1469,7 @@ CONFIG_PACKAGE_kmod-fuse=y
 # CONFIG_PACKAGE_kmod-ledtrig-heartbeat is not set
 # CONFIG_PACKAGE_kmod-ledtrig-morse is not set
 # CONFIG_PACKAGE_kmod-ledtrig-netdev is not set
+# CONFIG_PACKAGE_kmod-ledtrig-netfilter is not set
 # CONFIG_PACKAGE_kmod-ledtrig-usbdev is not set
 
 #
@@ -1465,7 +1480,7 @@ CONFIG_PACKAGE_kmod-crc-itu-t=y
 CONFIG_PACKAGE_kmod-crc16=y
 # CONFIG_PACKAGE_kmod-crc7 is not set
 # CONFIG_PACKAGE_kmod-libcrc32c is not set
-# CONFIG_PACKAGE_kmod-textsearch is not set
+CONFIG_PACKAGE_kmod-textsearch=y
 CONFIG_PACKAGE_kmod-zlib=y
 
 #
@@ -1492,8 +1507,26 @@ CONFIG_PACKAGE_kmod-nls-utf8=y
 # CONFIG_PACKAGE_kmod-arptables is not set
 # CONFIG_PACKAGE_kmod-ebtables is not set
 # CONFIG_PACKAGE_kmod-ip6tables is not set
-# CONFIG_PACKAGE_kmod-ipt-core is not set
-# CONFIG_PACKAGE_kmod-ipt-hashlimit is not set
+CONFIG_PACKAGE_kmod-ipt-core=y
+CONFIG_PACKAGE_kmod-ipt-conntrack=y
+CONFIG_PACKAGE_kmod-ipt-conntrack-extra=y
+# CONFIG_PACKAGE_kmod-ipt-debug is not set
+CONFIG_PACKAGE_kmod-ipt-extra=y
+CONFIG_PACKAGE_kmod-ipt-filter=y
+CONFIG_PACKAGE_kmod-ipt-hashlimit=y
+CONFIG_PACKAGE_kmod-ipt-ipopt=y
+CONFIG_PACKAGE_kmod-ipt-iprange=y
+CONFIG_PACKAGE_kmod-ipt-ipsec=y
+# CONFIG_PACKAGE_kmod-ipt-led is not set
+CONFIG_PACKAGE_kmod-ipt-nat=y
+CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+# CONFIG_PACKAGE_kmod-ipt-nathelper is not set
+# CONFIG_PACKAGE_kmod-ipt-nathelper-extra is not set
+# CONFIG_PACKAGE_kmod-ipt-queue is not set
+# CONFIG_PACKAGE_kmod-ipt-tee is not set
+CONFIG_PACKAGE_kmod-ipt-tproxy=y
+# CONFIG_PACKAGE_kmod-ipt-u32 is not set
+CONFIG_PACKAGE_kmod-ipt-ulog=y
 # CONFIG_PACKAGE_kmod-nf-conntrack-netlink is not set
 # CONFIG_PACKAGE_kmod-nfnetlink is not set
 # CONFIG_PACKAGE_kmod-nfnetlink-log is not set
