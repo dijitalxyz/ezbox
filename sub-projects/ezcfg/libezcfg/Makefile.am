@@ -43,6 +43,9 @@ libezcfg_la_SOURCES += src/common/link_list.c
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += src/thread/thread.c
 libezcfg_la_SOURCES += src/thread/master.c
+libezcfg_la_SOURCES += src/thread/master_load_common_conf.c
+libezcfg_la_SOURCES += src/thread/master_load_socket_conf.c
+libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
 libezcfg_la_SOURCES += src/thread/worker.c
 
 # ezcfg utils

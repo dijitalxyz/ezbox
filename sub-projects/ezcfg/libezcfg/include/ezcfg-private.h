@@ -535,9 +535,20 @@ struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time);
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
+int ezcfg_master_get_sq_len(struct ezcfg_master *master);
+struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master);
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
+
+/* thread/master_load_common_conf.c */
+void ezcfg_master_load_common_conf(struct ezcfg_master *master);
+
+/* thread/master_load_socket_conf.c */
+void ezcfg_master_load_socket_conf(struct ezcfg_master *master);
+
+/* thread/master_load_auth_conf.c */
+void ezcfg_master_load_auth_conf(struct ezcfg_master *master);
 
 /* thread/worker.c */
 struct ezcfg_worker;

@@ -295,7 +295,7 @@ int ezcd_main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (threads_max <= 0) {
+	if (threads_max < 2) {
 		int memsize = mem_size_mb();
 
 		/* set value depending on the amount of RAM */

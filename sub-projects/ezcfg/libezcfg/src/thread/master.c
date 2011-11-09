@@ -89,6 +89,8 @@ struct ezcfg_master {
 
 	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 
+	struct ezcfg_upnp *upnp; /* UPnP global state */
+
 	struct ezcfg_worker *workers; /* Worker list */
 };
 
@@ -104,6 +106,9 @@ static void master_delete(struct ezcfg_master *master)
 		else {
 			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
 		}
+	}
+	if (master->upnp) {
+		ezcfg_upnp_delete(master->upnp);
 	}
 	if (master->nvram) {
 		ezcfg_nvram_delete(master->nvram);
@@ -320,6 +325,7 @@ fail_exit:
 	return NULL;
 }
 
+#if 0
 static void master_load_common_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -353,8 +359,10 @@ static void master_load_common_conf(struct ezcfg_master *master)
 		DBG("%s(%d) locale='%s'\n", __func__, __LINE__, ezcfg_common_get_locale(ezcfg));
 	}
 }
+#endif
 
 /* don't remove ctrl, nvram and uevent socket */
+#if 0
 static void master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -524,7 +532,9 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		}
 	}
 }
+#endif
 
+#if 0
 static void master_load_auth_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -667,6 +677,7 @@ static void master_load_auth_conf(struct ezcfg_master *master)
 		}
 	}
 }
+#endif
 
 /*
  * Deallocate ezcfg master context, free up the resources
@@ -989,13 +1000,13 @@ load_other_sockets:
 
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
-	master_load_auth_conf(master);
+	ezcfg_master_load_auth_conf(master);
 	/* unlock mutex after handling auths */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
-	master_load_socket_conf(master);
+	ezcfg_master_load_socket_conf(master);
 	/* unlock mutex after handling listening_sockets */
 	pthread_mutex_unlock(&(master->ls_mutex));
 
@@ -1084,7 +1095,8 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	pthread_mutex_lock(&(master->auth_mutex));
 
 	/* initialize ezcfg common info */
-	master_load_common_conf(master);
+	//master_load_common_conf(master);
+	ezcfg_master_load_common_conf(master);
 
 	/* initialize nvram */
 	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
@@ -1094,9 +1106,10 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 		ezcfg_auth_list_delete(&(master->auths));
 		master->auths = NULL;
 	}
-	master_load_auth_conf(master);
 
-	master_load_socket_conf(master);
+	ezcfg_master_load_auth_conf(master);
+
+	ezcfg_master_load_socket_conf(master);
 
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
@@ -1233,6 +1246,28 @@ struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)
 	ezcfg = master->ezcfg;
 
 	return master->nvram;
+}
+
+int ezcfg_master_get_sq_len(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->sq_len;
+}
+
+struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->listening_sockets;
 }
 
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master)
