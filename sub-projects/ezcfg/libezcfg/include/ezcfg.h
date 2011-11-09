@@ -133,12 +133,15 @@
 #define EZCFG_PROTO_IGRS	3
 #define EZCFG_PROTO_ISDP	4
 #define EZCFG_PROTO_UEVENT	5
+#define EZCFG_PROTO_SSDP	6
+
 #define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
 #define EZCFG_SOCKET_PROTO_HTTP_STRING            "1"
 #define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "2"
 #define EZCFG_SOCKET_PROTO_IGRS_STRING            "3"
 #define EZCFG_SOCKET_PROTO_ISDP_STRING            "4"
 #define EZCFG_SOCKET_PROTO_UEVENT_STRING          "5"
+#define EZCFG_SOCKET_PROTO_SSDP_STRING            "6"
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
@@ -396,6 +399,16 @@ bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args
 char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs);
 bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
+
+/* upnp/ssdp.c */
+struct ezcfg_ssdp;
+void ezcfg_ssdp_delete(struct ezcfg_ssdp *ssdp);
+struct ezcfg_ssdp *ezcfg_ssdp_new(struct ezcfg *ezcfg);
+
+/* upnp/upnp.c */
+struct ezcfg_upnp;
+void ezcfg_upnp_delete(struct ezcfg_upnp *upnp);
+struct ezcfg_upnp *ezcfg_upnp_new(struct ezcfg *ezcfg);
 
 /* uuid/uuid.c */
 struct ezcfg_uuid;

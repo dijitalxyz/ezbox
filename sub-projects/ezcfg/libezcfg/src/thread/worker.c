@@ -1100,12 +1100,34 @@ static void process_uevent_new_connection(struct ezcfg_worker *worker)
 	uevent = (struct ezcfg_uevent *)(worker->proto_data);
 	buf = ezcfg_socket_get_buffer(worker->client);
 	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing igrs new connection\n");
+		err(ezcfg, "not enough memory for processing ssdp new connection\n");
 		return;
 	}
 	buf_len = ezcfg_socket_get_buffer_len(worker->client);
 
 	info(ezcfg, "uevent=[%s], len=%d\n", buf, buf_len);
+	return;
+}
+
+static void process_ssdp_new_connection(struct ezcfg_worker *worker)
+{
+	char *buf;
+	int buf_len;
+	struct ezcfg *ezcfg;
+	struct ezcfg_ssdp *ssdp;
+
+	ASSERT(worker != NULL);
+
+	ezcfg = worker->ezcfg;
+	ssdp = (struct ezcfg_ssdp *)(worker->proto_data);
+	buf = ezcfg_socket_get_buffer(worker->client);
+	if (buf == NULL) {
+		err(ezcfg, "not enough memory for processing ssdp new connection\n");
+		return;
+	}
+	buf_len = ezcfg_socket_get_buffer_len(worker->client);
+
+	info(ezcfg, "ssdp=[%s], len=%d\n", buf, buf_len);
 	return;
 }
 
@@ -1140,6 +1162,9 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 		worker->proto_data = ezcfg_uevent_new(ezcfg);
 		info(ezcfg, "UEVENT protocol\n");
 		break;
+	case EZCFG_PROTO_SSDP :
+		worker->proto_data = ezcfg_ssdp_new(ezcfg);
+		break;
 	default :
 		info(ezcfg, "unknown protocol\n");
 	}
@@ -1171,6 +1196,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		break;
 	case EZCFG_PROTO_UEVENT :
 		process_uevent_new_connection(worker);
+		break;
+	case EZCFG_PROTO_SSDP :
+		process_ssdp_new_connection(worker);
 		break;
 	default :
 		err(ezcfg, "unknown protocol\n");
@@ -1205,6 +1233,10 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		break;
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_uevent_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_SSDP :
+		ezcfg_ssdp_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 	default :

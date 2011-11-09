@@ -614,4 +614,7 @@ char *ezcfg_util_text_get_service_switch(bool v);
 bool ezcfg_util_rc(char *func, char *act, int s);
 bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);
 
+/* util/util_service_binding.c */
+int ezcfg_util_service_binding(char *interface);
+
 #endif

@@ -196,6 +196,12 @@ libezcfg_la_SOURCES += src/igrs/igrs_invoke_service.c
 # ezcfg ISDP protocol
 libezcfg_la_SOURCES += src/igrs/isdp.c
 
+# ezcfg UPNP protocol
+libezcfg_la_SOURCES += src/upnp/upnp.c
+
+# ezcfg SSDP protocol
+libezcfg_la_SOURCES += src/upnp/ssdp.c
+
 # ezcfg API wrap
 libezcfg_la_SOURCES += api/src/api-nvram.c
 libezcfg_la_SOURCES += api/src/api-ubootenv.c

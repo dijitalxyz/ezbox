@@ -904,7 +904,7 @@ static void sync_dnsmasq_settings(struct ezcfg_nvram *nvram)
 	char *p;
 	int i, ret;
 	int ip[4], mask[4], ip2[4];
-	bool ip_ok = false, mask_ok = false;
+	//bool ip_ok = false, mask_ok = false;
 	char buf[64];
 
 	ret = EZCFG_SERVICE_BINDING_UNKNOWN ;
