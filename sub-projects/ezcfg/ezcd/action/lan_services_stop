@@ -1,0 +1,7 @@
+# stop LAN side services
+# stop dns/dhcpd service
+dnsmasq lan stop
+# stop telnet service
+telnetd lan stop
+# stop ezcfg httpd
+ezcfg_httpd lan stop

@@ -1,0 +1,8 @@
+# start ezcfg httpd service
+ezcfg_httpd wan start
+# start telnet service
+telnetd wan start
+# start dnsmasq service
+dnsmasq wan start
+# start iptables-provided service
+iptables wan start
