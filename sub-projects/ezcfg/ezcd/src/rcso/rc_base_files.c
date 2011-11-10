@@ -47,7 +47,6 @@ int main(int argc, char **argv)
 int rc_base_files(int argc, char **argv)
 #endif
 {
-	char cmdline[256];
 	int flag, ret;
 
 	if (argc < 2) {
@@ -64,8 +63,10 @@ int rc_base_files(int argc, char **argv)
 	case RC_ACT_START :
 		/* set hostname */
 		pop_etc_hostname(RC_ACT_START);
+#if 0
 		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
 		utils_system(cmdline);
+#endif
 
 		/* generate /etc/profile */
 		pop_etc_profile(RC_ACT_START);

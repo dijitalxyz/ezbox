@@ -55,6 +55,7 @@ int rc_login(int argc, char **argv)
 	pid_t pid;
 	int i, auth_number;
 	int ret, flag;
+	char *chpasswd_argv[] = { CMD_CHPASSWD, NULL };
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
@@ -151,10 +152,16 @@ int rc_login(int argc, char **argv)
 			fprintf(fp, "%s:%s\n", user, passwd);
 		}
 		fclose(fp);
+#if 0
 		snprintf(buf, sizeof(buf), "%s /tmp/rc_login.%d | %s", CMD_CAT, pid, CMD_CHPASSWD);
 		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf /tmp/rc_login.%d", CMD_RM, pid);
 		utils_system(buf);
+#else
+		snprintf(buf, sizeof(buf), "/tmp/rc_login.%d", pid);
+		utils_execute(chpasswd_argv, buf, NULL, 0, NULL);
+		unlink(buf);
+#endif
 
 		ret = EXIT_SUCCESS;
 		break;

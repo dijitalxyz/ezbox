@@ -43,5 +43,5 @@ int utils_system(const char *command)
 	if (utils_parse_args(buf, strlen(buf) + 1, argv) < 1)
 		return -1;
 
-	return utils_execute(argv, NULL, 0, NULL);
+	return utils_execute(argv, NULL, NULL, 0, NULL);
 }

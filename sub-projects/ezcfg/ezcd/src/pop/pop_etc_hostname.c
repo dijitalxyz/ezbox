@@ -45,11 +45,17 @@ int pop_etc_hostname(int flag)
 
 	/* generate /etc/hostname */
 	file = fopen("/etc/hostname", "w");
-	if (file == NULL)
-		return (EXIT_FAILURE);
+	if (file) {
+		fprintf(file, "%s", "ezbox");
+		fclose(file);
+	}
 
-	fprintf(file, "%s", "ezbox");
-		
-	fclose(file);
+	/* also update /proc/sys/kernel/hostname */
+	file = fopen("/proc/sys/kernel/hostname", "w");
+	if (file) {
+		fprintf(file, "%s", "ezbox");
+		fclose(file);
+	}
+
 	return (EXIT_SUCCESS);
 }
