@@ -132,7 +132,7 @@ static int start_wan(void)
 
 		/* start DHCP client process */
 		snprintf(buf, sizeof(buf), "%s %s &", CMD_IFUP, wan_ifname);
-		system(buf);
+		utils_system(buf);
 
 		break;
 
@@ -143,7 +143,7 @@ static int start_wan(void)
 
 		/* config Static IP address */
 		snprintf(buf, sizeof(buf), "%s %s", CMD_IFUP, wan_ifname);
-		system(buf);
+		utils_system(buf);
 
 		config_wan_static();
 
@@ -178,7 +178,7 @@ static int stop_wan(void)
 
 		/* stop DHCP client process */
 		snprintf(buf, sizeof(buf), "%s %s", CMD_IFDOWN, wan_ifname);
-		system(buf);
+		utils_system(buf);
 
 		break;
 
@@ -191,7 +191,7 @@ static int stop_wan(void)
 
 		/* deconfig Static IP address */
 		snprintf(buf, sizeof(buf), "%s %s", CMD_IFDOWN, wan_ifname);
-		system(buf);
+		utils_system(buf);
 
 		break;
 

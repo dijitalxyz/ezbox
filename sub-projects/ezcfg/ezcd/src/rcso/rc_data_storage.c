@@ -100,17 +100,21 @@ int rc_data_storage(int argc, char **argv)
 		utils_mount_data_partition_writable();
 
 		snprintf(buf, sizeof(buf), "%s a+rwx /var", CMD_CHMOD);
-		system(buf);
+		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf /var/lock", CMD_RM);
-		system(buf);
+		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf /var/run", CMD_RM);
-		system(buf);
+		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf /var/tmp", CMD_RM);
-		system(buf);
+		utils_system(buf);
 		mkdir("/var/lock", 0777);
 		mkdir("/var/log", 0777);
 		mkdir("/var/run", 0777);
 		mkdir("/var/tmp", 0777);
+
+		/* some useful directories */
+		mkdir("/var/lib", 0777);
+		mkdir("/var/lib/misc", 0777);
 
 		ret = EXIT_SUCCESS;
 		break;

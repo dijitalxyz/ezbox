@@ -621,6 +621,9 @@ char *ezcfg_util_text_get_mtu_enable(int i);
 char *ezcfg_util_text_get_keep_enable(int i);
 char *ezcfg_util_text_get_service_switch(bool v);
 
+/* util/util_execute.c */
+int ezcfg_util_execute(char *const argv[], char *path, int timeout, int *ppid);
+
 /* util/util_rc.c */
 bool ezcfg_util_rc(char *func, char *act, int s);
 bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);

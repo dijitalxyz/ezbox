@@ -87,7 +87,7 @@ int rc_mdev(int argc, char **argv)
 
 		if (flag == RC_ACT_BOOT) {
 			snprintf(cmdline, sizeof(cmdline), "%s -s", CMD_MDEV);
-			ret = system(cmdline);
+			ret = utils_system(cmdline);
 		}
 		ret = EXIT_SUCCESS;
 		break;

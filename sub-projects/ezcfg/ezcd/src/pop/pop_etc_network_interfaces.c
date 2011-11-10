@@ -136,9 +136,9 @@ static int set_wan_interface(FILE *file)
 
 		/* also make udhcpc script symbol link */
 		snprintf(buf, sizeof(buf), "%s -p %s", CMD_MKDIR, UDHCPC_SCRIPT_PATH);
-		system(buf);
+		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_PATH);
-		system(buf);
+		utils_system(buf);
 		symlink("/sbin/udhcpc.script", UDHCPC_SCRIPT_PATH);
 		break;
 

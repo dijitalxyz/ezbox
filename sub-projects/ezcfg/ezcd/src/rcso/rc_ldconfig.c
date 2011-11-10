@@ -81,7 +81,7 @@ int rc_ldconfig(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* stop ldconfig service */
 		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, "/etc/ld.so.conf");
-		system(cmd);
+		utils_system(cmd);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -110,7 +110,7 @@ int rc_ldconfig(int argc, char **argv)
 				}
 				fclose(file);
 				snprintf(cmd, sizeof(cmd), "%s -f %s", CMD_LDCONFIG, "/etc/ld.so.conf");
-				system(cmd);
+				utils_system(cmd);
 			}
 		}
 		ret = EXIT_SUCCESS;

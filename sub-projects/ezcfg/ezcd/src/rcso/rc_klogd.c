@@ -63,7 +63,7 @@ int rc_klogd(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -n klogd");
+		utils_system("start-stop-daemon -K -n klogd");
 
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
@@ -77,7 +77,7 @@ int rc_klogd(int argc, char **argv)
 			return (EXIT_FAILURE);
 		}
 		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -b -n klogd -a %s", CMD_KLOGD);
-		system(cmd);
+		utils_system(cmd);
 		ret = EXIT_SUCCESS;
 		break;
 

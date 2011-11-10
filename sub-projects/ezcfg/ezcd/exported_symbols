@@ -24,6 +24,8 @@ utils_full_write
 utils_parse_args
 utils_device_open
 utils_get_wan_type
+utils_execute
+utils_system
 pop_etc_group
 pop_etc_passwd
 pop_etc_modules

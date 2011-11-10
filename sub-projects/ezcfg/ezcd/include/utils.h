@@ -62,7 +62,8 @@
 /* removed line tails */
 #define LINE_TAIL_STRING	" \t\r\n"
 
-#define RC_MAX_ARGS	8
+#define RC_MAX_ARGS	16
+#define RC_COMMAND_LINE_SIZE	256
 #define IS_BLANK(c)	((c) == ' ' || (c) == '\t')
 
 typedef int (*rc_function_t)(int, char **);

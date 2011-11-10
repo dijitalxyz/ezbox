@@ -40,6 +40,8 @@
 
 #include "ezcd.h"
 
+#define DNSMASQ_LEASE_FILE_DIR	"/var/lib/misc"
+
 int pop_etc_dnsmasq_conf(int flag)
 {
         FILE *file = NULL;
@@ -52,6 +54,7 @@ int pop_etc_dnsmasq_conf(int flag)
 	int lease;
 	int i;
 	int rc;
+	struct stat stat_buf;
 
 	/* generate /etc/hosts */
 	file = fopen("/etc/dnsmasq.conf", "w");
@@ -60,6 +63,15 @@ int pop_etc_dnsmasq_conf(int flag)
 
 	switch (flag) {
 	case RC_ACT_START :
+		if (stat(DNSMASQ_LEASE_FILE_DIR, &stat_buf) == 0 &&
+		    S_ISDIR(stat_buf.st_mode)) {
+			/* it's good. */
+		}
+		else {
+			utils_system("rm -rf " DNSMASQ_LEASE_FILE_DIR);
+			utils_system("mkdir -p " DNSMASQ_LEASE_FILE_DIR);
+		}
+
 		/* Never forward plain names (without a dot or domain part) */
 		if (utils_nvram_cmp(NVRAM_SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED), "1") == 0) {
 			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, DOMAIN_NEEDED));

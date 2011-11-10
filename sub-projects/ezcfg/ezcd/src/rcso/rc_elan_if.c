@@ -70,7 +70,7 @@ int rc_elan_if(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* bring down LAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, elan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -81,7 +81,7 @@ int rc_elan_if(int argc, char **argv)
 	case RC_ACT_START :
 		/* bring up LAN interface, but not config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, elan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 

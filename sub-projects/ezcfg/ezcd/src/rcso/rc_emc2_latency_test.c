@@ -149,15 +149,15 @@ int rc_emc2_latency_test(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* Stop latency test in background */
 		snprintf(cmd, sizeof(cmd), "%s -rf %s", CMD_RM, LATEXIT_SH_FLAG_FILE);
-		system(cmd);
+		utils_system(cmd);
 
 		/* $HALCMD stop */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd stop");
-		system(cmd);
+		utils_system(cmd);
 
 		/* $HALCMD unload all */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd unload all");
-		system(cmd);
+		utils_system(cmd);
 
 		/* Stop REALTIME */
 		rc_realtime(RC_ACT_STOP);
@@ -188,7 +188,7 @@ int rc_emc2_latency_test(int argc, char **argv)
 		}
 
 		snprintf(cmd, sizeof(cmd), "%s -p %s", CMD_MKDIR, ini_dir);
-		system(cmd);
+		utils_system(cmd);
 
 		pop_etc_emc2_rtapi_conf(RC_ACT_START);
 
@@ -236,7 +236,7 @@ int rc_emc2_latency_test(int argc, char **argv)
 		/* Run latency test in background */
 		/* $HALCMD -i "$INIFILE" -f $CFGFILE */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd -i %s -f %s &", ini_file, test_file);
-		system(cmd);
+		utils_system(cmd);
 
 		/* restore to original dir */
 		chdir(old_dir);
@@ -247,11 +247,11 @@ int rc_emc2_latency_test(int argc, char **argv)
 	case RC_ACT_RELOAD :
 		/* $HALCMD sets reset 1 */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 1);
-		system(cmd);
+		utils_system(cmd);
 
 		/* $HALCMD sets reset 0 */
 		snprintf(cmd, sizeof(cmd), "/usr/bin/halcmd sets %s %d", "reset", 0);
-		system(cmd);
+		utils_system(cmd);
 		ret = EXIT_SUCCESS;
 		break;
 

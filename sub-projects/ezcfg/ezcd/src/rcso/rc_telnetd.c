@@ -88,7 +88,7 @@ int rc_telnetd(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -s KILL -n telnetd");
+		utils_system("start-stop-daemon -K -s KILL -n telnetd");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -103,7 +103,7 @@ int rc_telnetd(int argc, char **argv)
 		}
 
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n telnetd -a %s -- -l %s -b %d.%d.%d.%d", CMD_TELNETD, CMD_LOGIN, ip[0], ip[1], ip[2], ip[3]);
-		system(buf);
+		utils_system(buf);
 		ret = EXIT_SUCCESS;
 		break;
 

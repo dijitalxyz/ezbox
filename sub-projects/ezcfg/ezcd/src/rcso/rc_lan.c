@@ -70,7 +70,7 @@ int rc_lan(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* bring down LAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFDOWN, lan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -81,7 +81,7 @@ int rc_lan(int argc, char **argv)
 	case RC_ACT_START :
 		/* bring up LAN interface and config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFUP, lan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 

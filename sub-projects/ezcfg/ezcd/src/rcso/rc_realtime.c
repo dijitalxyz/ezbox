@@ -102,7 +102,7 @@ int rc_realtime(int argc, char **argv)
 				/* rmmod kernel module */
 				snprintf(cmd, sizeof(cmd), "%s %s %s",
 					"/usr/bin/emc_module_helper", "remove", p);
-				system(cmd);
+				utils_system(cmd);
 				DBG("cmd=[%s]\n", cmd);
 
 				if (q != NULL)
@@ -137,7 +137,7 @@ int rc_realtime(int argc, char **argv)
 				/* insmod kernel module */
 				snprintf(cmd, sizeof(cmd), "%s %s %s/%s.ko",
 					"/usr/bin/emc_module_helper", "insert", modpath, p);
-				system(cmd);
+				utils_system(cmd);
 				DBG("cmd=[%s]\n", cmd);
 
 				if (q != NULL)

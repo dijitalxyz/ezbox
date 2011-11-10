@@ -43,7 +43,7 @@ int pop_etc_mtab(int flag)
 {
 	char cmdline[64];
 	snprintf(cmdline, sizeof(cmdline), "%s -rf /etc/mtab", CMD_RM);
-	system(cmdline);
+	utils_system(cmdline);
 	symlink("/proc/mounts", "/etc/mtab");
 	return (EXIT_SUCCESS);
 }

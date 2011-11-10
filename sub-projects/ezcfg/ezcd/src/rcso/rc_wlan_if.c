@@ -110,7 +110,7 @@ int rc_wlan_if(int argc, char **argv)
 #endif
 		/* bring down WLAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, wlan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -121,7 +121,7 @@ int rc_wlan_if(int argc, char **argv)
 	case RC_ACT_START :
 		/* bring up WLAN interface, but not config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, wlan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		/* setup WLAN interface phy link */
 #if 0
 		ret = start_wlan_if();

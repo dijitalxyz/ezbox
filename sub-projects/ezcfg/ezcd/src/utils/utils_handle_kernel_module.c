@@ -136,7 +136,7 @@ int utils_install_kernel_module(char *name, char *args)
 	p = malloc(i);
 	if (p != NULL) {
 		snprintf(p, i, "%s /lib/modules/%s/%s.ko %s", CMD_INSMOD, kver, name, q);
-		system(p);
+		utils_system(p);
 		free(p);
 	}
 	free(kver);
@@ -164,7 +164,7 @@ int utils_remove_kernel_module(char *name)
 		return ret;
 	}
 	snprintf(p, i, "%s %s", CMD_RMMOD, name);
-	system(p);
+	utils_system(p);
 	free(p);
 
 	/* then check if we can rmmod related kernel modules */

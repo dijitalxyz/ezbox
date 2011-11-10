@@ -70,7 +70,7 @@ int rc_wan_if(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* bring down WAN interface */
 		snprintf(cmdline, sizeof(cmdline), "%s %s down", CMD_IFCONFIG, wan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -81,7 +81,7 @@ int rc_wan_if(int argc, char **argv)
 	case RC_ACT_START :
 		/* bring up WAN interface, but not config it */
 		snprintf(cmdline, sizeof(cmdline), "%s %s up", CMD_IFCONFIG, wan_ifname);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 

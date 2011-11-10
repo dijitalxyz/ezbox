@@ -84,7 +84,7 @@ func_out:
 	if (file2 != NULL) {
 		fclose(file2);
 		snprintf(buf, sizeof(buf), "%s -f %s %s", CMD_MV, path2, path);
-		system(buf);
+		utils_system(buf);
 	}
 	return EXIT_SUCCESS;
 }

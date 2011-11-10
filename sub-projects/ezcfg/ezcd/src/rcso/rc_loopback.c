@@ -64,7 +64,7 @@ int rc_loopback(int argc, char **argv)
 	case RC_ACT_STOP :
 		/* bring down loopback interface */
 		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFDOWN);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -75,7 +75,7 @@ int rc_loopback(int argc, char **argv)
 	case RC_ACT_START :
 		/* bring up loopback interface */
 		snprintf(cmdline, sizeof(cmdline), "%s lo", CMD_IFUP);
-		ret = system(cmdline);
+		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 

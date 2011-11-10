@@ -78,7 +78,7 @@ int rc_wpa_supplicant(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -n wpa_supplicant");
+		utils_system("start-stop-daemon -K -n wpa_supplicant");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -100,9 +100,9 @@ int rc_wpa_supplicant(int argc, char **argv)
 		pop_etc_wpa_supplicant_conf(RC_ACT_START);
 		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -B -D%s -i%s -c/etc/wpa_supplicant-%s.conf", "nl80211", wlan_nic, wlan_nic);
 #if 0
-		system("start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i wlan0 -c /etc/wpa_supplicant-wlan0.conf");
+		utils_system("start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i wlan0 -c /etc/wpa_supplicant-wlan0.conf");
 #else
-		system(cmd);
+		utils_system(cmd);
 #endif
 		ret = EXIT_SUCCESS;
 		break;

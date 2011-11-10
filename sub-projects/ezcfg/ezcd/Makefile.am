@@ -136,6 +136,8 @@ libezcd_la_SOURCES += src/utils/utils_find_pid_by_name.c
 libezcd_la_SOURCES += src/utils/utils_device_open.c
 libezcd_la_SOURCES += src/utils/utils_parse_args.c
 libezcd_la_SOURCES += src/utils/utils_read_write.c
+libezcd_la_SOURCES += src/utils/utils_execute.c
+libezcd_la_SOURCES += src/utils/utils_system.c
 libezcd_la_SOURCES += src/utils/utils_crc32.c
 libezcd_la_SOURCES += src/utils/utils_udev_trigger_pop.c
 

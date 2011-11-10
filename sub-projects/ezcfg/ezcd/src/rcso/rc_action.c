@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 int rc_action(int argc, char **argv)
 #endif
 {
-	static char buf[128];
+	char buf[RC_COMMAND_LINE_SIZE];
 	char path[64];
 	int fargc;
 	char *fargv[RC_MAX_ARGS];

@@ -64,7 +64,7 @@ int rc_dillo(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -s KILL -n dillo");
+		utils_system("start-stop-daemon -K -s KILL -n dillo");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -82,7 +82,7 @@ int rc_dillo(int argc, char **argv)
 		if ((stat("/etc/dillo", &stat_buf) != 0) ||
 		    (S_ISDIR(stat_buf.st_mode) == 0)) {
 			snprintf(buf, sizeof(buf), "%s -rf /etc/dillo", CMD_RM);
-			system(buf);
+			utils_system(buf);
 			mkdir("/etc/dillo", 0755);
 		}
 
@@ -90,7 +90,7 @@ int rc_dillo(int argc, char **argv)
 
 		/* start dillo web browser */
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -b -n dillo -a /usr/bin/dillo");
-		system(buf);
+		utils_system(buf);
 
 		ret = EXIT_SUCCESS;
 		break;

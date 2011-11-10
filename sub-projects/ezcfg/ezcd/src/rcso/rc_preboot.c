@@ -123,9 +123,13 @@ int rc_preboot(int argc, char **argv)
 		mkdir("/var/run", 0777);
 		mkdir("/var/tmp", 0777);
 
+		/* useful /var directories */
+		mkdir("/var/lib", 0777);
+		mkdir("/var/lib/misc", 0777);
+
 		/* /tmp */
 		snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
-		system(buf);
+		utils_system(buf);
 		symlink("/var/tmp", "/tmp");
 
 		/* init shms */

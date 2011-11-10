@@ -152,9 +152,9 @@ int rc_login(int argc, char **argv)
 		}
 		fclose(fp);
 		snprintf(buf, sizeof(buf), "%s /tmp/rc_login.%d | %s", CMD_CAT, pid, CMD_CHPASSWD);
-		system(buf);
+		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf /tmp/rc_login.%d", CMD_RM, pid);
-		system(buf);
+		utils_system(buf);
 
 		ret = EXIT_SUCCESS;
 		break;

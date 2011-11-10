@@ -78,8 +78,8 @@ static struct action_s {
 	{ 0, "/dev/tty2", 'a', CMD_LOGIN },
 	{ 0, "/dev/tty3", 'a', CMD_LOGIN },
 	{ 0, "/dev/tty4", 'a', CMD_LOGIN },
-	{ 0, "/dev/tty5", 'a', CMD_LOGIN },
-	{ 0, "/dev/tty6", 'a', CMD_LOGIN },
+	{ 0, "/dev/tty5", 'a', CMD_SH },
+	{ 0, "/dev/tty6", 'a', CMD_SH },
 #endif
 	{ 0, NULL, 0, NULL }
 };
@@ -146,7 +146,7 @@ static int open_stdio_to_tty(const char* tty_name)
 static pid_t do_command(struct action_s *a)
 {
 	pid_t pid;
-	char buf[128];
+	char buf[RC_COMMAND_LINE_SIZE];
 	char *argv[RC_MAX_ARGS];
 	sigset_t set;
 
@@ -193,8 +193,9 @@ static pid_t do_command(struct action_s *a)
 	}
 
 	snprintf(buf, sizeof(buf), "%s", a->command);
-	utils_parse_args(buf, strlen(buf) + 1, argv);
-	execvp(argv[0], argv);
+	if (utils_parse_args(buf, strlen(buf) + 1, argv) > 0) {
+		execvp(argv[0], argv);
+	}
 	_exit(-1);
 }
 

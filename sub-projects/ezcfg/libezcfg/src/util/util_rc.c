@@ -49,23 +49,26 @@
 
 bool ezcfg_util_rc(char *func, char *act, int s)
 {
-	char cmd[64];
-	int i;
+	char buf[8];
+	char *argv[] = { "/sbin/rc", NULL, NULL, NULL, NULL };
+
+	if (func == NULL || act == NULL)
+		return false;
 
 	if (s < 1) {
-		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %s %s", func, act);
+		argv[1] = func;
+		argv[2] = act;
 	}
 	else {
-		i = snprintf(cmd, sizeof(cmd), "/sbin/rc %d %s %s", s, func, act);
+		snprintf(buf, sizeof(buf), "%d", s);
+		argv[1] = buf;
+		argv[2] = func;
+		argv[3] = act;
 	}
 
-	if (i < sizeof(cmd)) {
-		system(cmd);
-		return true;
-	}
-	else {
-		return false;
-	}
+	ezcfg_util_execute(argv, NULL, 0, NULL);
+
+	return true;
 }
 
 bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s)

@@ -65,7 +65,7 @@ int rc_base_files(int argc, char **argv)
 		/* set hostname */
 		pop_etc_hostname(RC_ACT_START);
 		snprintf(cmdline, sizeof(cmdline), "%s /etc/hostname > /proc/sys/kernel/hostname", CMD_CAT);		
-		system(cmdline);
+		utils_system(cmdline);
 
 		/* generate /etc/profile */
 		pop_etc_profile(RC_ACT_START);

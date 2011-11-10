@@ -62,7 +62,7 @@ static int udhcpc_deconfig(void)
 	if (iface == NULL)
 		return (EXIT_FAILURE);
 
-	system("/sbin/rc resolv_conf stop");
+	utils_system("/sbin/rc resolv_conf stop");
 
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
@@ -76,7 +76,7 @@ static int udhcpc_deconfig(void)
 
 #if 0
 	snprintf(buf, sizeof(buf), "%s %s %s", CMD_IFCONFIG, iface, "0.0.0.0");
-	system(buf);
+	utils_system(buf);
 #endif
 
 	return (EXIT_SUCCESS);
@@ -119,7 +119,7 @@ static int udhcpc_bound(void)
 	         subnet == NULL ? "" : subnet,
 	         bcast == NULL ? "" : "broadcast",
 	         bcast == NULL ? "" : bcast);
-	system(buf);
+	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
 	if (subnet != NULL) {
@@ -130,10 +130,10 @@ static int udhcpc_bound(void)
 	if (router != NULL) {
 		printf("deleting routers\n");
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
-		status = system(buf);
+		status = utils_system(buf);
 		while((WIFEXITED(status) == true) &&
 		      (WEXITSTATUS(status) == 0)) {
-			status = system(buf);
+			status = utils_system(buf);
 		}
 
 		for (i = 1, p = router; ; i++, p = NULL) {
@@ -142,7 +142,7 @@ static int udhcpc_bound(void)
 				break;
 			snprintf(buf, sizeof(buf), "%s add default gw %s dev %s metric %d",
 			         CMD_ROUTE, token, iface, i);
-			system(buf);
+			utils_system(buf);
 		}
 
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
@@ -169,10 +169,10 @@ static int udhcpc_bound(void)
 		}
 	}
 
-	system("/sbin/rc resolv_conf restart");
+	utils_system("/sbin/rc resolv_conf restart");
 
 	/* start WAN interface binding services */
-	system("/sbin/rc action wan_services_start");
+	utils_system("/sbin/rc action wan_services_start");
 
 	return (EXIT_SUCCESS);
 }
@@ -214,7 +214,7 @@ static int udhcpc_renew(void)
 	         subnet == NULL ? "" : subnet,
 	         bcast == NULL ? "" : "broadcast",
 	         bcast == NULL ? "" : bcast);
-	system(buf);
+	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
 	if (subnet != NULL) {
@@ -225,10 +225,10 @@ static int udhcpc_renew(void)
 	if (router != NULL) {
 		printf("deleting routers\n");
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
-		status = system(buf);
+		status = utils_system(buf);
 		while((WIFEXITED(status) == true) &&
 		      (WEXITSTATUS(status) == 0)) {
-			status = system(buf);
+			status = utils_system(buf);
 		}
 
 		for (i = 1, p = router; ; i++, p = NULL) {
@@ -237,7 +237,7 @@ static int udhcpc_renew(void)
 				break;
 			snprintf(buf, sizeof(buf), "%s add default gw %s dev %s metric %d",
 			         CMD_ROUTE, token, iface, i);
-			system(buf);
+			utils_system(buf);
 		}
 
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
@@ -264,10 +264,10 @@ static int udhcpc_renew(void)
 		}
 	}
 
-	system("/sbin/rc resolv_conf restart");
+	utils_system("/sbin/rc resolv_conf restart");
 
 	/* start WAN interface binding services */
-	system("/sbin/rc action wan_services_start");
+	utils_system("/sbin/rc action wan_services_start");
 
 	return (EXIT_SUCCESS);
 }

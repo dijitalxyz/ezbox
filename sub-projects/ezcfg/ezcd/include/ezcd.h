@@ -56,6 +56,8 @@ ssize_t utils_full_write(int fd, const void *buf, size_t len);
 
 int utils_parse_args(char *buf, size_t size, char **argv);
 int utils_device_open(const char *device, int mode);
+int utils_execute(char *const argv[], char *path, int timeout, int *ppid);
+int utils_system(const char *command);
 
 rc_func_t *utils_find_rc_func(char *name);
 int utils_get_rc_funcs_number(void);

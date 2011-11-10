@@ -65,6 +65,12 @@ int utils_parse_args(char *buf, size_t size, char **argv)
 		p++;
 		while(!IS_BLANK(*p) && (*p != '\0')) p++;
 	}
+
+	/* check if all string has been parsed */
+	if (*p != '\0') {
+		return -1;
+	}
+
 	/* final argv[] must be NULL */
 	argv[argc] = NULL;
 	return (argc);

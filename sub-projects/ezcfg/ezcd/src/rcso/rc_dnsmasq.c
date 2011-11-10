@@ -83,7 +83,7 @@ int rc_dnsmasq(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		system("start-stop-daemon -K -n dnsmasq");
+		utils_system("start-stop-daemon -K -n dnsmasq");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -97,7 +97,7 @@ int rc_dnsmasq(int argc, char **argv)
 		}
 
 		pop_etc_dnsmasq_conf(RC_ACT_START);
-		system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
+		utils_system("start-stop-daemon -S -n dnsmasq -a /usr/sbin/dnsmasq");
 		ret = EXIT_SUCCESS;
 		break;
 

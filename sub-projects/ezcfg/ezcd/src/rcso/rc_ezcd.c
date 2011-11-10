@@ -80,7 +80,7 @@ int rc_ezcd(int argc, char **argv)
 		pop_etc_ezcd_conf(RC_ACT_BOOT);
 		/* ezcd config file should be prepared */
 		snprintf(buf, sizeof(buf), "%s -d", CMD_EZCD);
-		system(buf);
+		utils_system(buf);
 
 		/* wait until nvram is ready */
 		if (utils_ezcd_wait_up(0) == false) {

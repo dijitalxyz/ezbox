@@ -109,7 +109,7 @@ int utils_mount_partition(char *dev, char *path, char *fs_type, char *args)
 	else {
 		snprintf(buf, sizeof(buf), "%s %s %s %s", CMD_MOUNT, p, dev, path);
 	}
-	system(buf);
+	utils_system(buf);
 	return (EXIT_SUCCESS);
 }
 
@@ -122,7 +122,7 @@ int utils_umount_partition(char *path)
 
 	/* umount dev from path */
 	snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, path);
-	system(buf);
+	utils_system(buf);
 	return (EXIT_SUCCESS);
 }
 
@@ -250,7 +250,7 @@ static int remount_boot_partition(char *args)
 
 	snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
 	snprintf(buf, sizeof(buf), "%s -o remount %s %s %s", CMD_MOUNT, args, dev_buf, "/boot");
-	system(buf);
+	utils_system(buf);
 	return (EXIT_SUCCESS);
 }
 #endif

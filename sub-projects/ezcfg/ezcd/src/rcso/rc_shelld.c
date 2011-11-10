@@ -78,7 +78,7 @@ int rc_shelld(int argc, char **argv)
 	case RC_ACT_START :
 	case RC_ACT_RESTART :
 		snprintf(cmdline, sizeof(cmdline), "%s", CMD_SHELLD);
-		system(cmdline);
+		utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 
