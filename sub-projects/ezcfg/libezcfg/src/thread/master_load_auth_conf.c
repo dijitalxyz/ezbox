@@ -61,7 +61,7 @@ void ezcfg_master_load_auth_conf(struct ezcfg_master *master)
 	int i;
 	int auth_number = -1;
 	struct ezcfg_auth *ap = NULL;
-	struct ezcfg_auth *master_auths = NULL;
+	struct ezcfg_auth **pap = NULL;
 
 	if (master == NULL)
 		return ;
@@ -179,16 +179,16 @@ void ezcfg_master_load_auth_conf(struct ezcfg_master *master)
 		}
 
 		/* check if auth is already set */
-		master_auths = ezcfg_master_get_auths(master);
-		if (ezcfg_auth_list_in(&master_auths, ap) == true) {
+		pap = ezcfg_master_get_p_auths(master);
+		if (ezcfg_auth_list_in(pap, ap) == true) {
 			info(ezcfg, "auth entry already set\n");
 			ezcfg_auth_delete(ap);
 			continue;
 		}
 
 		/* add new authentication */
-		master_auths = ezcfg_master_get_auths(master);
-		if (ezcfg_auth_list_insert(&master_auths, ap) == true) {
+		pap = ezcfg_master_get_p_auths(master);
+		if (ezcfg_auth_list_insert(pap, ap) == true) {
 			info(ezcfg, "insert auth entry successfully\n");
 			/* set ap to NULL to avoid delete it */
 			ap = NULL;

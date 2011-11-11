@@ -49,7 +49,7 @@
 #define DBG(format, args...)
 #endif
 
-int ezcfg_util_execute(char *const argv[], char *path, int timeout, int *ppid)
+int ezcfg_util_execute(char *const argv[], char *in_path, char *out_path, int timeout, int *ppid)
 {
 	pid_t pid;
 	int status;
@@ -67,22 +67,53 @@ int ezcfg_util_execute(char *const argv[], char *path, int timeout, int *ppid)
 		for (sig = 0; sig < (_NSIG-1); sig++)
 			signal(sig, SIG_DFL);
 
+		/* clean up */
+		ioctl(0, TIOCNOTTY, 0);
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
 		setsid();
 
-		/* redirect stdout to <path> */
-		if (path) {
-			flags = O_WRONLY | O_CREAT;
-			if (!strncmp(path, ">>", 2)) {
-				/* append to <path> */
-				flags |= O_APPEND;
-				path += 2;
-			} else if (!strncmp(path, ">", 1)) {
-				/* overwrite <path> */
-				flags |= O_TRUNC;
-				path += 1;
+		/* check if /dev/console is available */
+		if ((fd = open("/dev/console", O_RDWR)) < 0) {
+			(void) open("/dev/null", O_RDONLY);
+			(void) open("/dev/null", O_WRONLY);
+			(void) open("/dev/null", O_WRONLY);
+		}
+		else {
+			close(fd);
+			(void) open("/dev/console", O_RDONLY);
+			(void) open("/dev/console", O_WRONLY);
+			(void) open("/dev/console", O_WRONLY);
+		}
+
+		/* redirect stdin to <in_path> */
+		if (in_path) {
+			flags = O_RDONLY;
+			if ((fd = open(in_path, flags, 0644)) < 0) {
+				perror(in_path);
 			}
-			if ((fd = open(path, flags, 0644)) < 0)
-				perror(path);
+			else {
+				dup2(fd, STDIN_FILENO);
+				close(fd);
+			}
+		}
+
+		/* redirect stdout to <out_path> */
+		if (out_path) {
+			flags = O_WRONLY | O_CREAT;
+			if (!strncmp(out_path, ">>", 2)) {
+				/* append to <out_path> */
+				flags |= O_APPEND;
+				out_path += 2;
+			} else if (!strncmp(out_path, ">", 1)) {
+				/* overwrite <out_path> */
+				flags |= O_TRUNC;
+				out_path += 1;
+			}
+			if ((fd = open(out_path, flags, 0644)) < 0) {
+				perror(out_path);
+			}
 			else {
 				dup2(fd, STDOUT_FILENO);
 				close(fd);

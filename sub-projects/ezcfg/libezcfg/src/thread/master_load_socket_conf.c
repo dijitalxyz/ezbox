@@ -60,7 +60,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *sp;
 	struct ezcfg_socket *ctrl_sp, *nvram_sp, *uevent_sp;
-	struct ezcfg_socket *master_listening_sockets;
+	struct ezcfg_socket **psp;
 	char *p = NULL;
 	int domain, type, proto;
 	char address[256];
@@ -70,6 +70,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	if (master == NULL)
 		return ;
 
+	//ezcfg = master->ezcfg;
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
 	/* ctrl socket and nvram socket */
@@ -92,6 +93,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	}
 
 	/* tag listening_sockets to need_delete = true; */
+	//sp = master->listening_sockets;
 	sp = ezcfg_master_get_listening_sockets(master);
 	while(sp != NULL) {
 		if((ezcfg_socket_compare(sp, ctrl_sp) == false) &&
@@ -105,6 +107,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	/* delete unused sp */
 	ezcfg_socket_delete(ctrl_sp);
 	ezcfg_socket_delete(nvram_sp);
+	ezcfg_socket_delete(uevent_sp);
 
 	/* first get the socket number */
 	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
@@ -179,12 +182,13 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			continue;
 		}
 
-	    	master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-	    	if (ezcfg_socket_list_in(&master_listening_sockets, sp) == true) {
+	    	//if (ezcfg_socket_list_in(&(master->listening_sockets), sp) == true) {
+	    	psp = ezcfg_master_get_p_listening_sockets(master);
+	    	if (ezcfg_socket_list_in(psp, sp) == true) {
 			info(ezcfg, "socket already up\n");
 			/* don't delete this socket in listening_sockets */
-	    		master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-			ezcfg_socket_list_set_need_delete(&master_listening_sockets, sp, false);
+			//ezcfg_socket_list_set_need_delete(&(master->listening_sockets), sp, false);
+			ezcfg_socket_list_set_need_delete(psp, sp, false);
 			ezcfg_socket_delete(sp);
 			continue;
 		}
@@ -194,8 +198,9 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			ezcfg_socket_set_need_unlink(sp, true);
 		}
 
-	    	master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-		if (ezcfg_socket_list_insert(&master_listening_sockets, sp) < 0) {
+		//if (ezcfg_socket_list_insert(&(master->listening_sockets), sp) < 0) {
+	    	psp = ezcfg_master_get_p_listening_sockets(master);
+		if (ezcfg_socket_list_insert(psp, sp) < 0) {
 			err(ezcfg, "insert listener socket fail: %m\n");
 			ezcfg_socket_delete(sp);
 			continue;
@@ -203,15 +208,18 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
 			err(ezcfg, "enable socket [%s] receiving fail: %m\n", address);
-	    		master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-			ezcfg_socket_list_delete_socket(&master_listening_sockets, sp);
+			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+	    		psp = ezcfg_master_get_p_listening_sockets(master);
+			ezcfg_socket_list_delete_socket(psp, sp);
 			continue;
 		}
 
+		//if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
 		if (ezcfg_socket_enable_listening(sp, ezcfg_master_get_sq_len(master)) < 0) {
 			err(ezcfg, "enable socket [%s] listening fail: %m\n", address);
-	    		master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-			ezcfg_socket_list_delete_socket(&master_listening_sockets, sp);
+			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+	    		psp = ezcfg_master_get_p_listening_sockets(master);
+			ezcfg_socket_list_delete_socket(psp, sp);
 			continue;
 		}
 
@@ -219,11 +227,14 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	}
 
 	/* delete all sockets taged need_delete = true in need_listening_sockets */
+	//sp = master->listening_sockets;
 	sp = ezcfg_master_get_listening_sockets(master);
 	while(sp != NULL) {
 		if(ezcfg_socket_get_need_delete(sp) == true) {
-	    		master_listening_sockets = ezcfg_master_get_listening_sockets(master);
-			ezcfg_socket_list_delete_socket(&master_listening_sockets, sp);
+			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+	    		psp = ezcfg_master_get_p_listening_sockets(master);
+			ezcfg_socket_list_delete_socket(psp, sp);
+			//sp = master->listening_sockets;
 			sp = ezcfg_master_get_listening_sockets(master);
 		}
 		else {

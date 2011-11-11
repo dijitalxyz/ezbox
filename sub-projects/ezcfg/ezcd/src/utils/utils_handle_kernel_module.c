@@ -86,14 +86,33 @@ static mod_dep_t mod_depends[] = {
 int utils_install_kernel_module(char *name, char *args)
 {
 	mod_dep_t *mdp;
-	//char buf[128];
+        FILE *file = NULL;
+	char buf[128];
 	char *p, *q, *l;
 	char *kver;
 	int i;
 	int ret = EXIT_FAILURE;
 
 	if (name == NULL) {
-		return ret;
+		return (EXIT_FAILURE);
+	}
+
+	/* check if it's been installed */
+	file = fopen("/proc/modules", "r");
+	if (file != NULL) {
+		while (utils_file_get_line(file,
+			buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			p = strchr(buf, ' ');
+			if (p != NULL) {
+				*p = '\0';
+			}
+			if (strcmp(name, buf) == 0) {
+				/* already installed the module */
+				fclose(file);
+				return (EXIT_SUCCESS);
+			}
+		}
+		fclose(file);
 	}
 
 	/* first check if we should insmod related kernel modules */

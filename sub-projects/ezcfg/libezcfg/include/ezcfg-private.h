@@ -537,7 +537,9 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
 int ezcfg_master_get_sq_len(struct ezcfg_master *master);
 struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master);
+struct ezcfg_socket **ezcfg_master_get_p_listening_sockets(struct ezcfg_master *master);
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
+struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
 
@@ -622,7 +624,7 @@ char *ezcfg_util_text_get_keep_enable(int i);
 char *ezcfg_util_text_get_service_switch(bool v);
 
 /* util/util_execute.c */
-int ezcfg_util_execute(char *const argv[], char *path, int timeout, int *ppid);
+int ezcfg_util_execute(char *const argv[], char *in_path, char *out_path, int timeout, int *ppid);
 
 /* util/util_rc.c */
 bool ezcfg_util_rc(char *func, char *act, int s);

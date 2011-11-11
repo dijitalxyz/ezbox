@@ -66,7 +66,7 @@ bool ezcfg_util_rc(char *func, char *act, int s)
 		argv[3] = act;
 	}
 
-	ezcfg_util_execute(argv, NULL, 0, NULL);
+	ezcfg_util_execute(argv, NULL, NULL, 0, NULL);
 
 	return true;
 }

@@ -359,10 +359,8 @@ static void master_load_common_conf(struct ezcfg_master *master)
 		DBG("%s(%d) locale='%s'\n", __func__, __LINE__, ezcfg_common_get_locale(ezcfg));
 	}
 }
-#endif
 
 /* don't remove ctrl, nvram and uevent socket */
-#if 0
 static void master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -532,9 +530,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		}
 	}
 }
-#endif
 
-#if 0
 static void master_load_auth_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -1095,7 +1091,6 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	pthread_mutex_lock(&(master->auth_mutex));
 
 	/* initialize ezcfg common info */
-	//master_load_common_conf(master);
 	ezcfg_master_load_common_conf(master);
 
 	/* initialize nvram */
@@ -1270,6 +1265,17 @@ struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *mas
 	return master->listening_sockets;
 }
 
+struct ezcfg_socket **ezcfg_master_get_p_listening_sockets(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return &(master->listening_sockets);
+}
+
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -1279,6 +1285,17 @@ struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master)
 	ezcfg = master->ezcfg;
 
 	return master->auths;
+}
+
+struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return &(master->auths);
 }
 
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master)
