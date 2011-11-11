@@ -2,7 +2,7 @@
  * Project Name : ezbox Configuration Daemon
  * Module Name  : utils_parse_args.c
  *
- * Description  : implement running action command rcso
+ * Description  : parse command line to argv[] 
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *

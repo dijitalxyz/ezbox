@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
         -DSYSCONFDIR="$(sysconfdir)" \
         -DDATADIR="$(datadir)" \
         -DEZCFG_DEBUG \
-        -Wall
+        -Wall -Werror
 
 AM_LDFLAGS = -L. -ldl
 
@@ -138,6 +138,7 @@ libezcd_la_SOURCES += src/utils/utils_parse_args.c
 libezcd_la_SOURCES += src/utils/utils_read_write.c
 libezcd_la_SOURCES += src/utils/utils_execute.c
 libezcd_la_SOURCES += src/utils/utils_system.c
+libezcd_la_SOURCES += src/utils/utils_route_delete_default.c
 libezcd_la_SOURCES += src/utils/utils_crc32.c
 libezcd_la_SOURCES += src/utils/utils_udev_trigger_pop.c
 

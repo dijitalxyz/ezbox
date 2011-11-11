@@ -26,6 +26,7 @@ utils_device_open
 utils_get_wan_type
 utils_execute
 utils_system
+utils_route_delete_default
 pop_etc_group
 pop_etc_passwd
 pop_etc_modules

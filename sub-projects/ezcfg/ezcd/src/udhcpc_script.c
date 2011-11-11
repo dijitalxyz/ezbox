@@ -94,7 +94,8 @@ static int udhcpc_bound(void)
 	char *domain;
 	char *dns;
 	char *p, *savep, *token;
-	int status, i, rc;
+	int i, rc;
+	//int status, i, rc;
 
 	lease = getenv("lease");
 	if (lease == NULL) {
@@ -129,12 +130,16 @@ static int udhcpc_bound(void)
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
+#if 0
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
 		status = utils_system(buf);
 		while((WIFEXITED(status) == true) &&
 		      (WEXITSTATUS(status) == 0)) {
 			status = utils_system(buf);
 		}
+#else
+		utils_route_delete_default(iface);
+#endif
 
 		for (i = 1, p = router; ; i++, p = NULL) {
 			token = strtok_r(p, " ", &savep);
@@ -189,7 +194,8 @@ static int udhcpc_renew(void)
 	char *domain;
 	char *dns;
 	char *p, *savep, *token;
-	int status, i, rc;
+	int i, rc;
+	//int status, i, rc;
 
 	lease = getenv("lease");
 	if (lease == NULL) {
@@ -224,12 +230,16 @@ static int udhcpc_renew(void)
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
+#if 0
 		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
 		status = utils_system(buf);
 		while((WIFEXITED(status) == true) &&
 		      (WEXITSTATUS(status) == 0)) {
 			status = utils_system(buf);
 		}
+#else
+		utils_route_delete_default(iface);
+#endif
 
 		for (i = 1, p = router; ; i++, p = NULL) {
 			token = strtok_r(p, " ", &savep);
