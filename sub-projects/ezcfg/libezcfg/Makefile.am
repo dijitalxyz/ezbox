@@ -18,7 +18,7 @@ AM_CPPFLAGS = \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DDATADIR=\""$(datadir)"\" \
 	-DEZCFG_DEBUG \
-	-Wall
+	-Wall -Werror
 
 LDADD = libezcfg.la
 
@@ -47,6 +47,8 @@ libezcfg_la_SOURCES += src/thread/master_load_common_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_socket_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
 libezcfg_la_SOURCES += src/thread/worker.c
+libezcfg_la_SOURCES += src/thread/worker_http.c
+libezcfg_la_SOURCES += src/thread/worker_soap_http.c
 
 # ezcfg utils
 libezcfg_la_SOURCES += src/util/util.c

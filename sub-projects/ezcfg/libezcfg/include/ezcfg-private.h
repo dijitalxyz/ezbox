@@ -564,6 +564,20 @@ bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *nex
 void ezcfg_worker_thread(struct ezcfg_worker *worker);
 /* worker call this to notify master */
 void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);
+struct ezcfg *ezcfg_worker_get_ezcfg(struct ezcfg_worker *worker);
+struct ezcfg_master *ezcfg_worker_get_master(struct ezcfg_worker *worker);
+int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...);
+int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len);
+void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker);
+struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker);
+bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num);
+bool ezcfg_worker_set_birth_time(struct ezcfg_worker *worker, time_t time);
+
+/* thread/worker_http.c */
+void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker);
+
+/* thread/worker_soap_http.c */
+void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker);
 
 
 /* ctrl/ctrl.c - daemon runtime setup */

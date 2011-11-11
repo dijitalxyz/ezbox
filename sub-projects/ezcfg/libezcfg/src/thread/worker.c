@@ -327,72 +327,6 @@ static int worker_write(struct ezcfg_worker *worker, const char *buf, int len)
 	return ezcfg_socket_write(worker->client, buf, len, 0);
 }
 
-static void send_http_error(struct ezcfg_worker *worker, int status,
-                            const char *reason, const char *fmt, ...)
-{
-	char buf[EZCFG_BUFFER_SIZE];
-	va_list ap;
-	int len;
-	bool handled;
-
-	ezcfg_http_set_status_code(worker->proto_data, status);
-	handled = error_handler(worker);
-
-	if (handled == false) {
-		buf[0] = '\0';
-		len = 0;
-
-		/* Errors 1xx, 204 and 304 MUST NOT send a body */
-		if (status > 199 && status != 204 && status != 304) {
-			len = snprintf(buf, sizeof(buf),
-			               "Error %d: %s\n", status, reason);
-			va_start(ap, fmt);
-			len += vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
-			va_end(ap);
-			worker->num_bytes_sent = len;
-		}
-		worker_printf(worker,
-		              "HTTP/1.1 %d %s\r\n"
-		              "Content-Type: text/plain\r\n"
-		              "Content-Length: %d\r\n"
-		              "Connection: close\r\n"
-		              "\r\n%s", status, reason, len, buf);
-	}
-}
-
-static void send_soap_http_error(struct ezcfg_worker *worker, int status,
-                            const char *reason, const char *fmt, ...)
-{
-	char buf[EZCFG_BUFFER_SIZE];
-	va_list ap;
-	int len;
-	bool handled;
-
-	//ezcfg_http_set_status_code(worker->proto_data, status);
-	handled = error_handler(worker);
-
-	if (handled == false) {
-		buf[0] = '\0';
-		len = 0;
-
-		/* Errors 1xx, 204 and 304 MUST NOT send a body */
-		if (status > 199 && status != 204 && status != 304) {
-			len = snprintf(buf, sizeof(buf),
-			               "Error %d: %s\n", status, reason);
-			va_start(ap, fmt);
-			len += vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
-			va_end(ap);
-			worker->num_bytes_sent = len;
-		}
-		worker_printf(worker,
-		              "HTTP/1.1 %d %s\r\n"
-		              "Content-Type: text/plain\r\n"
-		              "Content-Length: %d\r\n"
-		              "Connection: close\r\n"
-		              "\r\n%s", status, reason, len, buf);
-	}
-}
-
 static void send_igrs_error(struct ezcfg_worker *worker, int status,
                             const char *reason, const char *fmt, ...)
 {
@@ -424,361 +358,6 @@ static void send_igrs_error(struct ezcfg_worker *worker, int status,
 		              "Connection: close\r\n"
 		              "\r\n%s", status, reason, len, buf);
 	}
-}
-
-static bool is_http_html_admin_request(const char *uri)
-{
-	if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-static void handle_http_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_nvram *nvram;
-	char *request_uri;
-	char *msg = NULL;
-	int msg_len;
-
-	ASSERT(worker != NULL);
-	ASSERT(worker->proto_data != NULL);
-
-	http = worker->proto_data;
-
-	ezcfg = worker->ezcfg;
-	nvram = ezcfg_master_get_nvram(worker->master);
-
-	request_uri = ezcfg_http_get_request_uri(http);
-	if (request_uri == NULL) {
-		err(ezcfg, "no request uri for HTTP GET method.\n");
-
-		/* clean http structure info */
-		ezcfg_http_reset_attributes(http);
-		ezcfg_http_set_status_code(http, 400);
-		ezcfg_http_set_state_response(http);
-
-		/* build HTTP error response */
-		msg_len = ezcfg_http_get_message_length(http);
-		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_http_get_message_length error.\n");
-			goto func_exit;
-		}
-		msg_len++; /* one more for '\0' */
-		msg = (char *)malloc(msg_len);
-		if (msg == NULL) {
-			err(ezcfg, "malloc msg error.\n");
-			goto func_exit;
-		}
-		memset(msg, 0, msg_len);
-		msg_len = ezcfg_http_write_message(http, msg, msg_len);
-		worker_write(worker, msg, msg_len);
-		goto func_exit;
-	}
-
-	if (is_http_html_admin_request(request_uri) == true) {
-		struct ezcfg_auth *auth, *auths;
-		bool ret;
-		char buf[1024];
-		char *p;
-
-		auth = ezcfg_auth_new(ezcfg);
-		if (auth == NULL) {
-			err(ezcfg, "ezcfg_auth_new error.\n");
-			goto func_exit;
-		}
-
-		if (ezcfg_http_parse_auth(http, auth) == false) {
-			err(ezcfg, "ezcfg_http_parse_auth error.\n");
-			goto need_authenticate;
-		}
-
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
-		if (p == NULL) {
-			err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
-			goto need_authenticate;
-		}
-		ret = ezcfg_auth_set_realm(auth, p);
-		free(p);
-		if (ret == false) {
-			err(ezcfg, "ezcfg_auth_set_realm error.\n");
-			goto need_authenticate;
-		}
-
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), &p);
-		if (p == NULL) {
-			err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
-			goto need_authenticate;
-		}
-		ret = ezcfg_auth_set_domain(auth, p);
-		free(p);
-		if (ret == false) {
-			err(ezcfg, "ezcfg_auth_set_domain error.\n");
-			goto need_authenticate;
-		}
-
-		/* lock auths */
-		ezcfg_master_auth_mutex_lock(worker->master);
-		auths = ezcfg_master_get_auths(worker->master);
-		ret = ezcfg_auth_check_authorized(&auths, auth);
-		/* unlock auths */
-		ezcfg_master_auth_mutex_unlock(worker->master);
-
-		if (ret == false) {
-need_authenticate:
-			/* clean http structure info */
-			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 401);
-			ezcfg_http_set_state_response(http);
-
-			/* http WWW-Authenticate */
-			ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
-			if (p == NULL) {
-				err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
-				goto func_exit;
-			}
-			snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", p);
-			free(p);
-			ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
-
-			/* build HTTP Unauthorized response */
-			msg_len = ezcfg_http_get_message_length(http);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto func_exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto func_exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_http_write_message(http, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto func_exit;
-		}
-
-		if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
-			/* clean http structure info */
-			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 400);
-			ezcfg_http_set_state_response(http);
-
-			/* build HTTP error response */
-			msg_len = ezcfg_http_get_message_length(http);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto func_exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto func_exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_http_write_message(http, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto func_exit;
-		}
-		else {
-			/* build HTTP response */
-			msg_len = ezcfg_http_get_message_length(http);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto func_exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto func_exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_http_write_message(http, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto func_exit;
-		}
-	}
-	else {
-		/* will always return index page if not find the uri */
-		if (ezcfg_http_handle_index_request(http, nvram) < 0) {
-			/* clean http structure info */
-			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 400);
-			ezcfg_http_set_state_response(http);
-
-			/* build HTTP error response */
-			msg_len = ezcfg_http_get_message_length(http);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto func_exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto func_exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_http_write_message(http, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto func_exit;
-		}
-		else {
-			/* build HTTP response */
-			msg_len = ezcfg_http_get_message_length(http);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_http_get_message_length error.\n");
-				goto func_exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto func_exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_http_write_message(http, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto func_exit;
-		}
-	}
-func_exit:
-	if (msg != NULL)
-		free(msg);
-}
-
-static bool is_soap_http_nvram_request(const char *uri)
-{
-	if (strncmp(uri, EZCFG_SOAP_HTTP_NVRAM_GET_URI"?name=", strlen(EZCFG_SOAP_HTTP_NVRAM_GET_URI) + 6) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_SET_URI) == 0) {
-		return true;
-	}
-	else if (strncmp(uri, EZCFG_SOAP_HTTP_NVRAM_UNSET_URI"?name=", strlen(EZCFG_SOAP_HTTP_NVRAM_UNSET_URI) + 6) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_LIST_URI) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_INFO_URI) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_COMMIT_URI) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_INSERT_SOCKET_URI) == 0) {
-		return true;
-	}
-	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SOCKET_URI) == 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-static void handle_soap_http_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_soap_http *sh;
-	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
-	struct ezcfg_nvram *nvram;
-	char *request_uri;
-	char *msg = NULL;
-	int msg_len;
-
-	ASSERT(worker != NULL);
-	ASSERT(worker->proto_data != NULL);
-
-	sh = worker->proto_data;
-
-	ezcfg = worker->ezcfg;
-	http = ezcfg_soap_http_get_http(sh);
-	soap = ezcfg_soap_http_get_soap(sh);
-	nvram = ezcfg_master_get_nvram(worker->master);
-
-	request_uri = ezcfg_http_get_request_uri(http);
-	if (request_uri == NULL) {
-		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
-
-		/* clean http structure info */
-		ezcfg_http_reset_attributes(http);
-		ezcfg_http_set_status_code(http, 400);
-		ezcfg_http_set_state_response(http);
-
-		/* build SOAP/HTTP binding error response */
-		msg_len = ezcfg_soap_http_get_message_length(sh);
-		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
-			goto exit;
-		}
-		msg_len++; /* one more for '\0' */
-		msg = (char *)malloc(msg_len);
-		if (msg == NULL) {
-			err(ezcfg, "malloc msg error.\n");
-			goto exit;
-		}
-		memset(msg, 0, msg_len);
-		msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
-		worker_write(worker, msg, msg_len);
-		goto exit;
-	}
-
-	if (is_soap_http_nvram_request(request_uri) == true) {
-		if (ezcfg_soap_http_handle_nvram_request(sh, nvram) < 0) {
-			/* clean http structure info */
-			ezcfg_http_reset_attributes(http);
-			ezcfg_http_set_status_code(http, 400);
-			ezcfg_http_set_state_response(http);
-
-			/* build SOAP/HTTP error response */
-			msg_len = ezcfg_soap_http_get_message_length(sh);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
-				goto exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto exit;
-		}
-		else {
-			/* build SOAP/HTTP binding response */
-			msg_len = ezcfg_soap_http_get_message_length(sh);
-			if (msg_len < 0) {
-				err(ezcfg, "ezcfg_soap_http_get_message_length error.\n");
-				goto exit;
-			}
-			msg_len++; /* one more for '\0' */
-			msg = (char *)malloc(msg_len);
-			if (msg == NULL) {
-				err(ezcfg, "malloc msg error.\n");
-				goto exit;
-			}
-			memset(msg, 0, msg_len);
-			msg_len = ezcfg_soap_http_write_message(sh, msg, msg_len);
-			worker_write(worker, msg, msg_len);
-			goto exit;
-		}
-	}
-exit:
-	if (msg != NULL)
-		free(msg);
 }
 
 static void handle_igrs_request(struct ezcfg_worker *worker)
@@ -870,144 +449,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 exit:
 	if (msg != NULL)
 		free(msg);
-}
-
-static void process_http_new_connection(struct ezcfg_worker *worker)
-{
-	int header_len, nread;
-	char *buf;
-	int buf_len;
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-
-	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
-	http = (struct ezcfg_http *)(worker->proto_data);
-	buf_len = EZCFG_HTTP_CHUNK_SIZE;
-
-	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing http new connection\n");
-		return;
-	}
-	nread = 0;
-	header_len = ezcfg_socket_read_http_header(worker->client, http, buf, buf_len, &nread);
-
-	ASSERT(nread >= header_len);
-
-	if (header_len <= 0) {
-		err(ezcfg, "request error\n");
-		free(buf);
-		return; /* Request is too large or format is not correct */
-	}
-
-	/* 0-terminate the request: parse http request uses sscanf
-	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
-	 */
-	//buf[header_len - 1] = '\0';
-	ezcfg_http_set_state_request(http);
-	if (ezcfg_http_parse_header(http, buf, header_len) == true) {
-		unsigned short major, minor;
-		char *p;
-		major = ezcfg_http_get_version_major(http);
-		minor = ezcfg_http_get_version_minor(http);
-		if (major != 1 || minor != 1) {
-			send_http_error(worker, 505,
-			                "HTTP version not supported",
-			                "%s", "Weird HTTP version");
-			goto exit;
-		}
-		p = ezcfg_socket_read_http_content(worker->client, http, buf, header_len, &buf_len, &nread);
-		if (p == NULL) {
-			send_http_error(worker, 400, "Bad Request", "");
-			goto exit;
-		}
-		buf = p;
-		if (nread > header_len) {
-			ezcfg_http_set_message_body(http, buf + header_len, nread - header_len);
-		}
-		worker->birth_time = time(NULL);
-		handle_http_request(worker);
-	} else {
-		/* Do not put garbage in the access log */
-		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
-	}
-
-exit:
-	/* release buf memory */
-	free(buf);
-}
-
-static void process_soap_http_new_connection(struct ezcfg_worker *worker)
-{
-	int header_len, nread;
-	char *buf;
-	int buf_len;
-	struct ezcfg *ezcfg;
-	struct ezcfg_soap_http *sh;
-	struct ezcfg_http *http;
-
-	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
-	sh = (struct ezcfg_soap_http *)(worker->proto_data);
-	http = ezcfg_soap_http_get_http(sh);
-	buf_len = EZCFG_SOAP_HTTP_CHUNK_SIZE ;
-
-	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing SOAP/HTTP new connection\n");
-		return;
-	}
-	nread = 0;
-	header_len = ezcfg_socket_read_http_header(worker->client, http, buf, buf_len, &nread);
-
-	ASSERT(nread >= header_len);
-
-	if (header_len <= 0) {
-		err(ezcfg, "request error\n");
-		free(buf);
-		return; /* Request is too large or format is not correct */
-	}
-
-	/* 0-terminate the request: parse http request uses sscanf
-	 * !!! never, be careful not mangle the "\r\n\r\n" string!!!
-	 */
-	//buf[header_len - 1] = '\0';
-	ezcfg_http_set_state_request(http);
-	if (ezcfg_soap_http_parse_header(sh, buf, header_len) == true) {
-		unsigned short major, minor;
-		char *p;
-		major = ezcfg_soap_http_get_http_version_major(sh);
-		minor = ezcfg_soap_http_get_http_version_minor(sh);
-		if ((major != 1) || (minor != 1)) {
-			send_soap_http_error(worker, 505,
-			                "SOAP/HTTP binding version not supported",
-			                "%s", "Weird HTTP version");
-			goto exit;
-		}
-		p = ezcfg_socket_read_http_content(worker->client, http, buf, header_len, &buf_len, &nread);
-		if (p == NULL) {
-			/* Do not put garbage in the access log */
-			send_soap_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
-			goto exit;
-		}
-		buf = p;
-		if (nread > header_len) {
-			ezcfg_soap_http_set_message_body(sh, buf + header_len, nread - header_len);
-			ezcfg_soap_http_parse_message_body(sh);
-		}
-		worker->birth_time = time(NULL);
-		handle_soap_http_request(worker);
-	} else {
-		/* Do not put garbage in the access log */
-		send_soap_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
-	}
-
-exit:
-	/* release buf memory */
-	free(buf);
 }
 
 static void process_igrs_new_connection(struct ezcfg_worker *worker)
@@ -1183,10 +624,12 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	/* dispatch protocol handler */
 	switch(worker->proto) {
 	case EZCFG_PROTO_HTTP :
-		process_http_new_connection(worker);
+		//process_http_new_connection(worker);
+		ezcfg_worker_process_http_new_connection(worker);
 		break;
 	case EZCFG_PROTO_SOAP_HTTP :
-		process_soap_http_new_connection(worker);
+		//process_soap_http_new_connection(worker);
+		ezcfg_worker_process_soap_http_new_connection(worker);
 		break;
 	case EZCFG_PROTO_IGRS :
 		process_igrs_new_connection(worker);
@@ -1368,4 +811,64 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 
 	/* Signal master that we're done with connection and exiting */
 	ezcfg_master_stop_worker(master, worker);
+}
+
+struct ezcfg *ezcfg_worker_get_ezcfg(struct ezcfg_worker *worker)
+{
+	return worker->ezcfg;
+}
+
+struct ezcfg_master *ezcfg_worker_get_master(struct ezcfg_worker *worker)
+{
+	return worker->master;
+}
+
+int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
+{
+	char *buf;
+	int buf_len;
+	int len;
+	int ret;
+	va_list ap;
+
+	buf_len = EZCFG_BUFFER_SIZE ;
+	buf = (char *)malloc(buf_len);
+	if (buf == NULL) {
+		return -1;
+	}
+
+	va_start(ap, fmt);
+	len = vsnprintf(buf, buf_len, fmt, ap);
+	va_end(ap);
+
+	ret = ezcfg_socket_write(worker->client, buf, len, 0);
+	free(buf);
+	return ret;
+}
+
+int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len)
+{
+	return ezcfg_socket_write(worker->client, buf, len, 0);
+}
+
+void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker)
+{
+	return worker->proto_data;
+}
+
+struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker)
+{
+	return worker->client;
+}
+
+bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num)
+{
+	worker->num_bytes_sent = num;
+	return true;
+}
+
+bool ezcfg_worker_set_birth_time(struct ezcfg_worker *worker, time_t t)
+{
+	worker->birth_time = t;
+	return true;
 }
