@@ -366,7 +366,6 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 	if (ezcfg_http_parse_header(http, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
-		time_t t;
 		major = ezcfg_http_get_version_major(http);
 		minor = ezcfg_http_get_version_minor(http);
 		if (major != 1 || minor != 1) {
@@ -384,9 +383,7 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 		if (nread > header_len) {
 			ezcfg_http_set_message_body(http, buf + header_len, nread - header_len);
 		}
-		if (time(&t) > 0) {
-			ezcfg_worker_set_birth_time(worker, t);
-		}
+		ezcfg_worker_set_birth_time(worker, time(NULL));
 		handle_http_request(worker);
 	} else {
 		/* Do not put garbage in the access log */

@@ -262,7 +262,6 @@ void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker)
 	if (ezcfg_soap_http_parse_header(sh, buf, header_len) == true) {
 		unsigned short major, minor;
 		char *p;
-		time_t t;
 		major = ezcfg_soap_http_get_http_version_major(sh);
 		minor = ezcfg_soap_http_get_http_version_minor(sh);
 		if ((major != 1) || (minor != 1)) {
@@ -282,9 +281,7 @@ void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker)
 			ezcfg_soap_http_set_message_body(sh, buf + header_len, nread - header_len);
 			ezcfg_soap_http_parse_message_body(sh);
 		}
-		if (time(&t) > 0) {
-			ezcfg_worker_set_birth_time(worker, t);
-		}
+		ezcfg_worker_set_birth_time(worker, time(NULL));
 		handle_soap_http_request(worker);
 	} else {
 		/* Do not put garbage in the access log */

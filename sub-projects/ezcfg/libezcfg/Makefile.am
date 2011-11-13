@@ -49,6 +49,9 @@ libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
 libezcfg_la_SOURCES += src/thread/worker.c
 libezcfg_la_SOURCES += src/thread/worker_http.c
 libezcfg_la_SOURCES += src/thread/worker_soap_http.c
+libezcfg_la_SOURCES += src/thread/worker_igrs.c
+libezcfg_la_SOURCES += src/thread/worker_uevent.c
+libezcfg_la_SOURCES += src/thread/worker_ssdp.c
 
 # ezcfg utils
 libezcfg_la_SOURCES += src/util/util.c

@@ -763,7 +763,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 
 		worker = ezcfg_worker_new(master);
 		if (worker != NULL) {
-			if (ezcfg_thread_start(ezcfg, stacksize, ezcfg_worker_get_thread_id(worker), (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
+			if (ezcfg_thread_start(ezcfg, stacksize, ezcfg_worker_get_p_thread_id(worker), (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
 				err(ezcfg, "Cannot start thread: %m\n");
 			} else {
 				master->num_threads++;
@@ -832,7 +832,7 @@ static bool accept_new_connection(struct ezcfg_master *master,
 	return true;
 }
 
-pthread_t *ezcfg_master_get_thread_id(struct ezcfg_master *master)
+pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master)
 {
 	return &(master->thread_id);
 }
