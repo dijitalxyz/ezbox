@@ -14,24 +14,6 @@
 #ifndef _EZCFG_HTML_H_
 #define _EZCFG_HTML_H_
 
-struct ezcfg_html {
-	struct ezcfg *ezcfg;
-	struct ezcfg_xml *xml;
-
-	/* HTML version info */
-	unsigned short version_major;
-	unsigned short version_minor;
-
-	/* HTML root element */
-	int root_index; /* HTML root element index in xml-root */
-
-	/* HTML Head Section */
-	int head_index; /* HTML HEAD element index in xml-root */
-
-	/* HTML Body Section */
-	int body_index; /* HTML BODY element index in xml->root */
-};
-
 /* ezcfg HTML4.01 element names */
 #define EZCFG_HTML_A_ELEMENT_NAME           "a"
 #define EZCFG_HTML_ABBR_ELEMENT_NAME        "abbr"

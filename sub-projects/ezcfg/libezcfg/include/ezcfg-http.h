@@ -17,6 +17,7 @@
 
 #include "ezcfg.h"
 
+#if 1
 typedef enum {
 	HTTP_REQUEST = 0,
 	HTTP_RESPONSE
@@ -43,6 +44,7 @@ struct ezcfg_http {
 	const char **method_strings;
 	unsigned char method_index; /* index of method_strings, should be > 0, 0 means error */
 
+	char *document_root; /* root dir for given URI */
 	char *request_uri; /* URL-decoded URI */
 
 	unsigned short version_major;
@@ -64,6 +66,7 @@ struct ezcfg_http {
 	bool is_ssl; /* true if SSL-ed, false if not */
 	bool is_extension; /* true if HTTP extension framework */
 };
+#endif
 
 /* ezcfg http define strings */
 #define EZCFG_HTTP_SP_STRING           " "

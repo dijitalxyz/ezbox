@@ -55,8 +55,8 @@ int ezcfg_http_html_admin_set_html_foot(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
         /* set locale info */
 	locale = ezcfg_locale_new(ezcfg);

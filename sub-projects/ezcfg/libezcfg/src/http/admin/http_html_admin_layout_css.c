@@ -52,8 +52,8 @@ static int build_admin_layout_css_response(struct ezcfg_http_html_admin *admin)
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	css = ezcfg_css_new(ezcfg);
 	if (css == NULL) {
@@ -785,7 +785,7 @@ int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* admin layout_css uri=[/admin/layout_css] */
 	ret = build_admin_layout_css_response(admin);

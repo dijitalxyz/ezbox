@@ -58,10 +58,10 @@ static int set_html_main_cnc_setup(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -217,8 +217,8 @@ static bool do_admin_cnc_setup_action(struct ezcfg_http_html_admin *admin)
 	struct ezcfg_link_list *list;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
-	list = admin->post_list;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		ret = ezcfg_http_html_admin_save_settings(admin);
@@ -231,7 +231,7 @@ static bool handle_admin_cnc_setup_post(struct ezcfg_http_html_admin *admin)
 	struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_cnc_setup_action(admin);
@@ -250,7 +250,7 @@ static int build_admin_cnc_setup_response(struct ezcfg_http_html_admin *admin)
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -268,7 +268,7 @@ static int build_admin_cnc_setup_response(struct ezcfg_http_html_admin *admin)
 	}
 
 	/* set admin->html */
-	admin->html = html;
+	ezcfg_http_html_admin_set_html(admin, html);
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -385,9 +385,9 @@ int ezcfg_http_html_admin_cnc_setup_handler(struct ezcfg_http_html_admin *admin)
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	nvram = admin->nvram;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
 
 	/* admin cnc_setup uri=[/admin/cnc_setup] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {

@@ -60,10 +60,10 @@ static int set_html_main_status_lan_dhcpd(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	content_index = pi;
 	child_index = si;
@@ -220,10 +220,10 @@ static int set_html_main_status_lan(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -369,7 +369,7 @@ static int build_admin_status_lan_response(struct ezcfg_http_html_admin *admin)
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -387,7 +387,7 @@ static int build_admin_status_lan_response(struct ezcfg_http_html_admin *admin)
 	}
 
 	/* set admin->html */
-	admin->html = html;
+	ezcfg_http_html_admin_set_html(admin, html);
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -500,7 +500,7 @@ int ezcfg_http_html_admin_status_lan_handler(struct ezcfg_http_html_admin *admin
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* admin status_lan uri=[/admin/status_lan] */
 	ret = build_admin_status_lan_response(admin);

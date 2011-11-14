@@ -60,9 +60,9 @@ static int set_html_main_setup_system(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
 	main_index = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -284,7 +284,7 @@ static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -302,7 +302,7 @@ static int build_admin_setup_system_response(struct ezcfg_http_html_admin *admin
 	}
 
 	/* set admin->html */
-	admin->html = html;
+	ezcfg_http_html_admin_set_html(admin, html);
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -411,8 +411,8 @@ static bool do_admin_setup_system_action(struct ezcfg_http_html_admin *admin)
 	char *tz_area, *tz_location;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
-	list = admin->post_list;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		/* set area and location */
@@ -441,7 +441,7 @@ static bool handle_admin_setup_system_post(struct ezcfg_http_html_admin *admin)
 	struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_setup_system_action(admin);
@@ -460,8 +460,8 @@ int ezcfg_http_html_admin_setup_system_handler(struct ezcfg_http_html_admin *adm
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* admin setup_system uri=[/admin/setup_system] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {

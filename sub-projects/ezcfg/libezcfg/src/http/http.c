@@ -487,6 +487,9 @@ void ezcfg_http_delete(struct ezcfg_http *http)
 
 	clear_http_headers(http);
 
+	if (http->document_root != NULL) {
+		free(http->document_root);
+	}
 	if (http->request_uri != NULL) {
 		free(http->request_uri);
 	}
@@ -700,7 +703,8 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 	reason_phrase = http->status_code_maps[http->status_code_index].reason_phrase;
 
 	info(ezcfg, "request_method=[%s]\n", http->method_strings[http->method_index]);
-	info(ezcfg, "uri=[%s]\n", http->request_uri);
+	info(ezcfg, "document_root=[%s]\n", http->document_root);
+	info(ezcfg, "request_uri=[%s]\n", http->request_uri);
 	info(ezcfg, "http_version=[%d.%d]\n", http->version_major, http->version_minor);
 	info(ezcfg, "message_body_len=[%d]\n", http->message_body_len);
 	info(ezcfg, "message_body=[%s]\n", http->message_body);
@@ -805,6 +809,40 @@ unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned shor
 	}
 
 	return 0;
+}
+
+char *ezcfg_http_get_document_root(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->document_root;
+}
+
+bool ezcfg_http_set_document_root(struct ezcfg_http *http, const char *root)
+{
+	struct ezcfg *ezcfg;
+	char *document_root;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	document_root = strdup(root);
+	if (document_root == NULL) {
+		return false;
+	}
+
+	if (http->document_root != NULL) {
+		free(http->document_root);
+	}
+
+	http->document_root = document_root;
+
+	return true;
 }
 
 char *ezcfg_http_get_request_uri(struct ezcfg_http *http)

@@ -273,6 +273,7 @@ struct ezcfg_html;
 void ezcfg_html_delete(struct ezcfg_html *html);
 struct ezcfg_html *ezcfg_html_new(struct ezcfg *ezcfg);
 void ezcfg_html_reset_attributes(struct ezcfg_html *html);
+struct ezcfg *ezcfg_html_get_ezcfg(struct ezcfg_html *html);
 unsigned short ezcfg_html_get_version_major(struct ezcfg_html *html);
 unsigned short ezcfg_html_get_version_minor(struct ezcfg_html *html);
 bool ezcfg_html_set_version_major(struct ezcfg_html *html, unsigned short major);
@@ -325,6 +326,12 @@ void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin);
 int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin);
 bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin);
 bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin);
+struct ezcfg *ezcfg_http_html_admin_get_ezcfg(struct ezcfg_http_html_admin *admin);
+struct ezcfg_http *ezcfg_http_html_admin_get_http(struct ezcfg_http_html_admin *admin);
+struct ezcfg_html *ezcfg_http_html_admin_get_html(struct ezcfg_http_html_admin *admin);
+bool ezcfg_http_html_admin_set_html(struct ezcfg_http_html_admin *admin, struct ezcfg_html *html);
+struct ezcfg_nvram *ezcfg_http_html_admin_get_nvram(struct ezcfg_http_html_admin *admin);
+struct ezcfg_link_list *ezcfg_http_html_admin_get_post_list(struct ezcfg_http_html_admin *admin);
 
 
 /* http/admin/http_html_admin_common_head.c */

@@ -29,6 +29,24 @@
 #include "ezcfg-private.h"
 #include "ezcfg-html.h"
 
+struct ezcfg_html {
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+
+	/* HTML version info */
+	unsigned short version_major;
+	unsigned short version_minor;
+
+	/* HTML root element */
+	int root_index; /* HTML root element index in xml-root */
+
+	/* HTML Head Section */
+	int head_index; /* HTML HEAD element index in xml-root */
+
+	/* HTML Body Section */
+	int body_index; /* HTML BODY element index in xml->root */
+};
+
 /**
  * Public functions
  **/
@@ -99,6 +117,13 @@ void ezcfg_html_reset_attributes(struct ezcfg_html *html)
 	html->root_index = -1;
 	html->head_index = -1;
 	html->body_index = -1;
+}
+
+struct ezcfg *ezcfg_html_get_ezcfg(struct ezcfg_html *html)
+{
+	ASSERT(html != NULL);
+
+	return html->ezcfg;
 }
 
 unsigned short ezcfg_html_get_version_major(struct ezcfg_html *html)

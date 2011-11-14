@@ -84,9 +84,9 @@ static int set_html_main_management_authz(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -459,7 +459,7 @@ static int build_admin_management_authz_response(struct ezcfg_http_html_admin *a
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -477,7 +477,7 @@ static int build_admin_management_authz_response(struct ezcfg_http_html_admin *a
 	}
 
 	/* set admin->html */
-	admin->html = html;
+	ezcfg_http_html_admin_set_html(admin, html);
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -591,9 +591,9 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 	char *telnetd_enable;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	list = admin->post_list;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		/* set administrator password */
@@ -678,7 +678,7 @@ static bool handle_admin_management_authz_post(struct ezcfg_http_html_admin *adm
 	struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_management_authz_action(admin);
@@ -698,8 +698,8 @@ int ezcfg_http_html_admin_management_authz_handler(struct ezcfg_http_html_admin 
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* admin management_authz uri=[/admin/management_authz] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {

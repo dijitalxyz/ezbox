@@ -54,8 +54,8 @@ int ezcfg_http_html_admin_set_html_common_head(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 0);
 
-	ezcfg = admin->ezcfg;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> */
 	child_index = ezcfg_html_add_head_child(html, pi, si, EZCFG_HTML_META_ELEMENT_NAME, NULL);
@@ -117,8 +117,8 @@ bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http_html_ad
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* HTML http-equiv content-type */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
@@ -164,8 +164,8 @@ bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http_html_adm
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* text/css charset=UTF-8 */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_CSS, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);

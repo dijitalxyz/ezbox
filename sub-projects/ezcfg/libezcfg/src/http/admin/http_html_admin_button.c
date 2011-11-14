@@ -92,9 +92,9 @@ int ezcfg_http_html_admin_set_html_button(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	p = ezcfg_http_get_request_uri(http);
 	section = p+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

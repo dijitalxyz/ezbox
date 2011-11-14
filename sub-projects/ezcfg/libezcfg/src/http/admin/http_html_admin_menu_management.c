@@ -46,7 +46,7 @@ static int submenu_management_authz(struct ezcfg_html *html, int pi, int si, str
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = ezcfg_html_get_ezcfg(html);
 
 	/* management_authz */
 	/* submenu <ul> <li> */
@@ -81,7 +81,7 @@ static int submenu_management_default(struct ezcfg_html *html, int pi, int si, s
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = ezcfg_html_get_ezcfg(html);
 
 	/* management_default */
 	/* submenu <ul> <li> */
@@ -116,7 +116,7 @@ static int submenu_management_upgrade(struct ezcfg_html *html, int pi, int si, s
 	ASSERT(html != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = html->ezcfg;
+	ezcfg = ezcfg_html_get_ezcfg(html);
 
 	/* management_upgrade */
 	/* submenu <ul> <li> */
@@ -163,10 +163,10 @@ int ezcfg_http_html_admin_html_menu_management(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);

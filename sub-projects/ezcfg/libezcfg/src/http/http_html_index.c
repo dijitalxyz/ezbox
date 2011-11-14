@@ -383,7 +383,8 @@ int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram 
 
 	request_uri = ezcfg_http_get_request_uri(http);
 
-	if (strcmp(request_uri, EZCFG_HTTP_HTML_HOME_INDEX_URI) == 0) {
+	if (request_uri != NULL &&
+	    strcmp(request_uri, EZCFG_HTTP_HTML_HOME_INDEX_URI) == 0) {
 		/* home index uri=[/] */
 		ret = build_home_index_response(http, nvram);
 	}

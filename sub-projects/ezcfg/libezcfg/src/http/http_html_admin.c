@@ -34,6 +34,14 @@
 #include "ezcfg-html.h"
 #include "ezcfg-http_html_admin.h"
 
+struct ezcfg_http_html_admin {
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_link_list *post_list;
+	struct ezcfg_html *html;
+};
+
 struct http_html_admin_handler {
 	char *section;
 	int (*handler)(struct ezcfg_http_html_admin *admin);
@@ -202,7 +210,9 @@ int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram 
 
 	request_uri = ezcfg_http_get_request_uri(http);
 
-	if (strncmp(request_uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
+	if (request_uri != NULL && 
+	    strncmp(request_uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI,
+		strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
 		/* admin prefix uri=[/admin/] */
 		section = request_uri+strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI);
 		if (*section == '\0') {
@@ -335,4 +345,50 @@ bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin)
 		ezcfg_nvram_commit(nvram);
 	}
 	return true;
+}
+
+struct ezcfg *ezcfg_http_html_admin_get_ezcfg(struct ezcfg_http_html_admin *admin)
+{
+	ASSERT(admin != NULL);
+
+	return admin->ezcfg;
+}
+
+struct ezcfg_http *ezcfg_http_html_admin_get_http(struct ezcfg_http_html_admin *admin)
+{
+	ASSERT(admin != NULL);
+
+	return admin->http;
+}
+
+struct ezcfg_html *ezcfg_http_html_admin_get_html(struct ezcfg_http_html_admin *admin)
+{
+	ASSERT(admin != NULL);
+
+	return admin->html;
+}
+
+bool ezcfg_http_html_admin_set_html(struct ezcfg_http_html_admin *admin, struct ezcfg_html *html)
+{
+	ASSERT(admin != NULL);
+
+	if (admin->html != NULL)
+		ezcfg_html_delete(html);
+
+	admin->html = html;
+	return true;
+}
+
+struct ezcfg_nvram *ezcfg_http_html_admin_get_nvram(struct ezcfg_http_html_admin *admin)
+{
+	ASSERT(admin != NULL);
+
+	return admin->nvram;
+}
+
+struct ezcfg_link_list *ezcfg_http_html_admin_get_post_list(struct ezcfg_http_html_admin *admin)
+{
+	ASSERT(admin != NULL);
+
+	return admin->post_list;
 }

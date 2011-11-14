@@ -20,16 +20,6 @@ enum {
 	HTTP_HTML_ADMIN_ACT_REFRESH
 };
 
-
-struct ezcfg_http_html_admin {
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_nvram *nvram;
-	struct ezcfg_link_list *post_list;
-	struct ezcfg_html *html;
-};
-
-
 /* ezcfg HTTP html admin request/response mode */
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_SYSTEM_DOMAIN     "admin_status_system"
 #define EZCFG_HTTP_HTML_ADMIN_STATUS_LAN_DOMAIN        "admin_status_lan"

@@ -58,9 +58,9 @@ static int set_setup_wan_static(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <p>IP Address : </p> */
 	snprintf(buf, sizeof(buf), "%s%s",
@@ -191,9 +191,9 @@ static int set_setup_wan_pppoe(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <p>Username : </p> */
 	snprintf(buf, sizeof(buf), "%s%s",
@@ -397,9 +397,9 @@ static int set_setup_wan_pptp(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <p>IP Address : </p> */
 	snprintf(buf, sizeof(buf), "%s%s",
@@ -709,9 +709,9 @@ static int set_setup_wan_l2tp(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <p>Server IP Addresse : </p> */
 	snprintf(buf, sizeof(buf), "%s%s",
@@ -934,9 +934,9 @@ static int set_setup_wan_optional_settings(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <h3>Optional Settings</h3> */
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_H3_ELEMENT_NAME, ezcfg_locale_text(locale, "Optional Settings"));
@@ -1090,9 +1090,9 @@ static int set_html_main_setup_wan(
 	ASSERT(admin != NULL);
 	ASSERT(pi > 1);
 
-	ezcfg = admin->ezcfg;
-	nvram = admin->nvram;
-	html = admin->html;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
 	si = ezcfg_html_add_body_child(html, pi, si, EZCFG_HTML_DIV_ELEMENT_NAME, NULL);
@@ -1223,7 +1223,7 @@ static int build_admin_setup_wan_response(struct ezcfg_http_html_admin *admin)
 	
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* set locale info */
 	locale = ezcfg_locale_new(ezcfg);
@@ -1241,7 +1241,7 @@ static int build_admin_setup_wan_response(struct ezcfg_http_html_admin *admin)
 	}
 
 	/* set admin->html */
-	admin->html = html;
+	ezcfg_http_html_admin_set_html(admin, html);
 
 	/* clean HTML structure info */
 	ezcfg_html_reset_attributes(html);
@@ -1349,8 +1349,8 @@ static bool do_admin_setup_wan_action(struct ezcfg_http_html_admin *admin)
 	struct ezcfg_link_list *list;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
-	list = admin->post_list;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		ret = ezcfg_http_html_admin_save_settings(admin);
@@ -1363,7 +1363,7 @@ static bool handle_admin_setup_wan_post(struct ezcfg_http_html_admin *admin)
 	struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = admin->ezcfg;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_setup_wan_action(admin);
@@ -1382,8 +1382,8 @@ int ezcfg_http_html_admin_setup_wan_handler(struct ezcfg_http_html_admin *admin)
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
-	http = admin->http;
+	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* admin setup_wan uri=[/admin/setup_wan] */
 	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0) {
