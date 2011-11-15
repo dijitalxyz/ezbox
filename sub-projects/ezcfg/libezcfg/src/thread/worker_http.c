@@ -56,6 +56,9 @@
 #define handle_error_en(en, msg) \
 	do { errno = en; perror(msg); } while (0)
 
+
+#define EZCFG_HTTP_HTML_SSI_EXTENSION	".shtm"
+
 static bool http_error_handler(struct ezcfg_worker *worker)
 {
 	return false;
@@ -96,7 +99,7 @@ static void send_http_error(struct ezcfg_worker *worker, int status,
 	}
 }
 
-static void handle_null_request(struct ezcfg_worker *worker)
+static void send_http_bad_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -109,8 +112,6 @@ static void handle_null_request(struct ezcfg_worker *worker)
 	ASSERT(http != NULL);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-
-	err(ezcfg, "no request uri for HTTP GET method.\n");
 
 	/* clean http structure info */
 	ezcfg_http_reset_attributes(http);
@@ -137,6 +138,21 @@ func_exit:
 		free(msg);
 }
 
+static bool is_http_html_ssi_request(const char *uri)
+{
+	int uri_len;
+
+	uri_len = strlen(uri);
+	if (uri_len > strlen(EZCFG_HTTP_HTML_SSI_EXTENSION)) {
+		uri_len -= strlen(EZCFG_HTTP_HTML_SSI_EXTENSION);
+		if (strcasecmp(uri+uri_len, EZCFG_HTTP_HTML_SSI_EXTENSION) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static bool is_http_html_admin_request(const char *uri)
 {
 	if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
@@ -147,7 +163,20 @@ static bool is_http_html_admin_request(const char *uri)
 	}
 }
 
-static void handle_admin_request(struct ezcfg_worker *worker)
+static bool need_authorization(const char *uri)
+{
+	if (is_http_html_admin_request(uri) == true) {
+		return true;
+	}
+	else if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+static bool is_authorized(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -156,7 +185,7 @@ static void handle_admin_request(struct ezcfg_worker *worker)
 	struct ezcfg_auth *auth, *auths;
 	char *msg = NULL;
 	int msg_len;
-	bool ret;
+	bool ret = false;
 	char buf[1024];
 	char *p;
 
@@ -177,31 +206,31 @@ static void handle_admin_request(struct ezcfg_worker *worker)
 
 	if (ezcfg_http_parse_auth(http, auth) == false) {
 		err(ezcfg, "ezcfg_http_parse_auth error.\n");
-		goto need_authenticate;
+		goto try_auth;
 	}
 
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
 	if (p == NULL) {
 		err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
-		goto need_authenticate;
+		goto try_auth;
 	}
 	ret = ezcfg_auth_set_realm(auth, p);
 	free(p);
 	if (ret == false) {
 		err(ezcfg, "ezcfg_auth_set_realm error.\n");
-		goto need_authenticate;
+		goto try_auth;
 	}
 
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), &p);
 	if (p == NULL) {
 		err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
-		goto need_authenticate;
+		goto try_auth;
 	}
 	ret = ezcfg_auth_set_domain(auth, p);
 	free(p);
 	if (ret == false) {
 		err(ezcfg, "ezcfg_auth_set_domain error.\n");
-		goto need_authenticate;
+		goto try_auth;
 	}
 
 	/* lock auths */
@@ -212,7 +241,7 @@ static void handle_admin_request(struct ezcfg_worker *worker)
 	ezcfg_master_auth_mutex_unlock(master);
 
 	if (ret == false) {
-need_authenticate:
+try_auth:
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 401);
@@ -246,13 +275,161 @@ need_authenticate:
 		goto func_exit;
 	}
 
-	if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
-		/* clean http structure info */
-		ezcfg_http_reset_attributes(http);
-		ezcfg_http_set_status_code(http, 400);
-		ezcfg_http_set_state_response(http);
+	/* OK, it's authenticated */
+	ret = true;
 
-		/* build HTTP error response */
+func_exit:
+	if (msg != NULL)
+		free(msg);
+	return (ret);
+}
+
+static void handle_auth_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	struct ezcfg_nvram *nvram;
+	char *msg = NULL;
+	int msg_len;
+	char buf[1024];
+	char *p;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	nvram = ezcfg_master_get_nvram(master);
+
+	/* clean http structure info */
+	ezcfg_http_reset_attributes(http);
+	ezcfg_http_set_status_code(http, 401);
+	ezcfg_http_set_state_response(http);
+
+	/* http WWW-Authenticate */
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), &p);
+	if (p == NULL) {
+		err(ezcfg, "ezcfg_nvram_get_entry_value error.\n");
+		goto func_exit;
+	}
+	snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", p);
+	free(p);
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
+
+	/* build HTTP Unauthorized response */
+	msg_len = ezcfg_http_get_message_length(http);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_http_get_message_length error.\n");
+		goto func_exit;
+	}
+	msg_len++; /* one more for '\0' */
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		err(ezcfg, "malloc msg error.\n");
+		goto func_exit;
+	}
+	memset(msg, 0, msg_len);
+	msg_len = ezcfg_http_write_message(http, msg, msg_len);
+	ezcfg_worker_write(worker, msg, msg_len);
+
+func_exit:
+	if (msg != NULL)
+		free(msg);
+}
+
+static size_t url_decode(const char *src, size_t src_len,
+	char *dst, size_t dst_len, int is_form_url_encoded) {
+	size_t i, j;
+	int a, b;
+#define HEXTOI(x) (isdigit(x) ? x - '0' : x - 'W')
+
+	for (i = j = 0; i < src_len && j < dst_len - 1; i++, j++) {
+		if (src[i] == '%' &&
+		    isxdigit(* (const unsigned char *) (src + i + 1)) &&
+		    isxdigit(* (const unsigned char *) (src + i + 2))) {
+			a = tolower(* (const unsigned char *) (src + i + 1));
+			b = tolower(* (const unsigned char *) (src + i + 2));
+			dst[j] = (char) ((HEXTOI(a) << 4) | HEXTOI(b));
+			i += 2;
+		} else if (is_form_url_encoded && src[i] == '+') {
+			dst[j] = ' ';
+		} else {
+			dst[j] = src[i];
+		}
+	}
+
+	dst[j] = '\0'; // Null-terminate the destination
+
+	return j;
+}
+
+static void handle_ssi_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_ssi *ssi;
+	char buf[1024];
+	char *request_uri;
+	int uri_len;
+	char *msg = NULL;
+	//int msg_len;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	nvram = ezcfg_master_get_nvram(master);
+
+	ssi = ezcfg_ssi_new(ezcfg);
+	if (ssi == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	request_uri = ezcfg_http_get_request_uri(http);
+	uri_len = strlen(request_uri);
+
+	/* set default document root */
+	snprintf(buf, sizeof(buf), "%s%s", "var/www", *request_uri == '/' ? "" : "/");
+	if (uri_len+1+strlen(buf) > sizeof(buf)) {
+		send_http_error(worker, 505,
+		                "Bad Request",
+		                "%s", "Request URL is too large");
+		goto func_exit;
+	}
+
+	url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
+	if (ezcfg_ssi_set_path(ssi, buf) == false) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	if (ezcfg_ssi_open_file(ssi, "r") == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Cannot open file");
+		goto func_exit;
+	}
+
+#if 0
+	if (ezcfg_http_handle_ssi_request(http, nvram) < 0) {
+		send_http_bad_request(worker);
+		goto func_exit;
+	}
+	else {
+		/* build HTTP response */
 		msg_len = ezcfg_http_get_message_length(http);
 		if (msg_len < 0) {
 			err(ezcfg, "ezcfg_http_get_message_length error.\n");
@@ -267,6 +444,40 @@ need_authenticate:
 		memset(msg, 0, msg_len);
 		msg_len = ezcfg_http_write_message(http, msg, msg_len);
 		ezcfg_worker_write(worker, msg, msg_len);
+
+		/* process SSI file */
+		goto func_exit;
+	}
+#endif
+
+func_exit:
+	if (msg != NULL)
+		free(msg);
+
+	if (ssi != NULL)
+		ezcfg_ssi_delete(ssi);
+}
+
+static void handle_admin_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	struct ezcfg_nvram *nvram;
+	char *msg = NULL;
+	int msg_len;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	nvram = ezcfg_master_get_nvram(master);
+
+	if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
+		send_http_bad_request(worker);
 		goto func_exit;
 	}
 	else {
@@ -311,26 +522,7 @@ static void handle_index_request(struct ezcfg_worker *worker)
 	nvram = ezcfg_master_get_nvram(master);
 
 	if (ezcfg_http_handle_index_request(http, nvram) < 0) {
-		/* clean http structure info */
-		ezcfg_http_reset_attributes(http);
-		ezcfg_http_set_status_code(http, 400);
-		ezcfg_http_set_state_response(http);
-
-		/* build HTTP error response */
-		msg_len = ezcfg_http_get_message_length(http);
-		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_http_get_message_length error.\n");
-			goto func_exit;
-		}
-		msg_len++; /* one more for '\0' */
-		msg = (char *)malloc(msg_len);
-		if (msg == NULL) {
-			err(ezcfg, "malloc msg error.\n");
-			goto func_exit;
-		}
-		memset(msg, 0, msg_len);
-		msg_len = ezcfg_http_write_message(http, msg, msg_len);
-		ezcfg_worker_write(worker, msg, msg_len);
+		send_http_bad_request(worker);
 		goto func_exit;
 	}
 	else {
@@ -371,11 +563,24 @@ static void handle_http_request(struct ezcfg_worker *worker)
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {
-		handle_null_request(worker);
+		err(ezcfg, "no request uri for HTTP GET method.\n");
+		send_http_bad_request(worker);
 		return;
 	}
 
-	if (is_http_html_admin_request(request_uri) == true) {
+	if (need_authorization(request_uri) == true &&
+	    is_authorized(worker) == false) {
+		/* handle authorization */
+		handle_auth_request(worker);
+		return ;
+	}
+
+	/* don't need authenticate or has been authenticated */
+	if (is_http_html_ssi_request(request_uri) == true) {
+		/* handle SSI enabled web page */
+		handle_ssi_request(worker);
+	}
+	else if (is_http_html_admin_request(request_uri) == true) {
 		/* handle administration web page */
 		handle_admin_request(worker);
 	}

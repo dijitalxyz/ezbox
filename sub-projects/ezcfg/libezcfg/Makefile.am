@@ -188,6 +188,9 @@ libezcfg_la_SOURCES += src/html/html.c
 # ezcfg CSS handling
 libezcfg_la_SOURCES += src/css/css.c
 
+# ezcfg SSI handling
+libezcfg_la_SOURCES += src/ssi/ssi.c
+
 # ezcfg SOAP protocol
 libezcfg_la_SOURCES += src/soap/soap.c
 

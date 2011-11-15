@@ -44,7 +44,6 @@ struct ezcfg_http {
 	const char **method_strings;
 	unsigned char method_index; /* index of method_strings, should be > 0, 0 means error */
 
-	char *document_root; /* root dir for given URI */
 	char *request_uri; /* URL-decoded URI */
 
 	unsigned short version_major;

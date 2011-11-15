@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <stdio.h>
 
 #include "ezcfg.h"
 
@@ -308,6 +309,14 @@ bool ezcfg_css_set_version_minor(struct ezcfg_css *css, unsigned short minor);
 int ezcfg_css_add_rule_set(struct ezcfg_css *css, char *selector, char *name, char *value);
 int ezcfg_css_get_message_length(struct ezcfg_css *css);
 int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
+
+
+/* ssi/ssi.c */
+struct ezcfg_ssi;
+struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg);
+void ezcfg_ssi_delete(struct ezcfg_ssi *ssi);
+bool ezcfg_ssi_set_path(struct ezcfg_ssi *ssi, const char *path);
+FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode);
 
 
 /* http/http_html_index.c */
