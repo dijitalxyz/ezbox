@@ -366,6 +366,27 @@ static size_t url_decode(const char *src, size_t src_len,
 	return j;
 }
 
+static void remove_double_dots_and_double_slashes(char *s)
+{
+	char *p = s;
+
+	while (*s != '\0') {
+		*p++ = *s++;
+		if (s[-1] == '/' || s[-1] == '\\') {
+			/* skip all following slashes and backslashes */
+			while (*s == '/' || *s == '\\') {
+				s++;
+			}
+
+			/* skip all double-dots */
+			while (*s == '.' && s[1] == '.') {
+				s += 2;
+			}
+		}
+	}
+	*p = '\0';
+}
+
 static void handle_ssi_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -377,7 +398,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	char *request_uri;
 	int uri_len;
 	char *msg = NULL;
-	//int msg_len;
+	int msg_len;
 
 	ASSERT(worker != NULL);
 
@@ -400,15 +421,25 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	uri_len = strlen(request_uri);
 
 	/* set default document root */
-	snprintf(buf, sizeof(buf), "%s%s", "var/www", *request_uri == '/' ? "" : "/");
-	if (uri_len+1+strlen(buf) > sizeof(buf)) {
-		send_http_error(worker, 505,
-		                "Bad Request",
-		                "%s", "Request URL is too large");
+	if (ezcfg_ssi_set_document_root(ssi, "/var/www") == false) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
 		goto func_exit;
 	}
 
+	/* set file path */
+	uri_len = strlen(request_uri);
+	if (uri_len+2 > sizeof(buf)) {
+		send_http_error(worker, 505,
+		                "Bad Request",
+		                "%s", "File name is too large");
+		goto func_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
 	url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
+	remove_double_dots_and_double_slashes(buf);
 	if (ezcfg_ssi_set_path(ssi, buf) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -421,6 +452,27 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		                "Internal Server Error",
 		                "%s", "Cannot open file");
 		goto func_exit;
+	}
+
+	/* build HTTP response */
+	msg_len = ezcfg_http_get_message_length(http);
+	if (msg_len < 0) {
+		err(ezcfg, "ezcfg_http_get_message_length error.\n");
+		goto func_exit;
+	}
+	msg_len++; /* one more for '\0' */
+	msg = (char *)malloc(msg_len);
+	if (msg == NULL) {
+		err(ezcfg, "malloc msg error.\n");
+		goto func_exit;
+	}
+	memset(msg, 0, msg_len);
+	msg_len = ezcfg_http_write_message(http, msg, msg_len);
+	ezcfg_worker_write(worker, msg, msg_len);
+
+	/* process SSI file */
+	while((msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf))) > 0) {
+		ezcfg_worker_write(worker, buf, msg_len);
 	}
 
 #if 0

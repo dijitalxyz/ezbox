@@ -315,8 +315,10 @@ int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
 struct ezcfg_ssi;
 struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg);
 void ezcfg_ssi_delete(struct ezcfg_ssi *ssi);
+bool ezcfg_ssi_set_document_root(struct ezcfg_ssi *ssi, const char *root);
 bool ezcfg_ssi_set_path(struct ezcfg_ssi *ssi, const char *path);
 FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode);
+int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size);
 
 
 /* http/http_html_index.c */

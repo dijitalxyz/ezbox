@@ -34,6 +34,7 @@
 struct ezcfg_ssi {
 	struct ezcfg *ezcfg;
 	struct ezcfg_nvram *nvram;
+	char *document_root;
 	char *path;
 	FILE *fp;
 };
@@ -55,6 +56,9 @@ void ezcfg_ssi_delete(struct ezcfg_ssi *ssi)
 	if (ssi->path != NULL) {
 		free(ssi->path);
 	}
+	if (ssi->document_root != NULL) {
+		free(ssi->document_root);
+	}
 
 	free(ssi);
 }
@@ -73,6 +77,25 @@ struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg)
 		ssi->fp = NULL;
 	}
 	return ssi;
+}
+
+bool ezcfg_ssi_set_document_root(struct ezcfg_ssi *ssi, const char *root)
+{
+	char *p;
+
+	ASSERT(ssi != NULL);
+	ASSERT(root != NULL);
+
+	p = strdup(root);
+	if (p == NULL) {
+		return false;
+	}
+
+	if (ssi->document_root != NULL) {
+		free(ssi->document_root);
+	}
+	ssi->document_root = p;
+	return true;
 }
 
 bool ezcfg_ssi_set_path(struct ezcfg_ssi *ssi, const char *path)
@@ -97,13 +120,15 @@ bool ezcfg_ssi_set_path(struct ezcfg_ssi *ssi, const char *path)
 FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode)
 {
 	FILE *fp;
+	char buf[256];
 
 	ASSERT(ssi != NULL);
 
-	if (ssi->path == NULL)
+	if (ssi->document_root == NULL || ssi->path == NULL)
 		return NULL;
 
-	fp = fopen(ssi->path, mode);
+	snprintf(buf, sizeof(buf), "%s%s", ssi->document_root, ssi->path);
+	fp = fopen(buf, mode);
 	if (fp == NULL)
 		return NULL;
 
@@ -112,4 +137,12 @@ FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode)
 	}
 	ssi->fp = fp;
 	return fp;
+}
+
+int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
+{
+	if (fgets(buf, size, ssi->fp) != NULL) {
+		return strlen(buf);
+	}
+	return -1;
 }
