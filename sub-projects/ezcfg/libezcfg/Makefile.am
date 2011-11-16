@@ -96,6 +96,9 @@ libezcfg_la_SOURCES += src/socket/socket_http.c
 # ezcfg HTTP protocol
 libezcfg_la_SOURCES += src/http/http.c
 
+# ezcfg HTTP SSI handling
+libezcfg_la_SOURCES += src/http/http_ssi.c
+
 # ezcfg HTML/HTTP index handling
 libezcfg_la_SOURCES += src/http/http_html_index.c
 

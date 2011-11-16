@@ -393,7 +393,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	struct ezcfg_http *http;
 	struct ezcfg_master *master;
 	struct ezcfg_nvram *nvram;
-	struct ezcfg_ssi *ssi;
+	struct ezcfg_ssi *ssi = NULL;
 	char buf[1024];
 	char *request_uri;
 	int uri_len;
@@ -454,29 +454,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		goto func_exit;
 	}
 
-	/* build HTTP response */
-	msg_len = ezcfg_http_get_message_length(http);
-	if (msg_len < 0) {
-		err(ezcfg, "ezcfg_http_get_message_length error.\n");
-		goto func_exit;
-	}
-	msg_len++; /* one more for '\0' */
-	msg = (char *)malloc(msg_len);
-	if (msg == NULL) {
-		err(ezcfg, "malloc msg error.\n");
-		goto func_exit;
-	}
-	memset(msg, 0, msg_len);
-	msg_len = ezcfg_http_write_message(http, msg, msg_len);
-	ezcfg_worker_write(worker, msg, msg_len);
-
-	/* process SSI file */
-	while((msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf))) > 0) {
-		ezcfg_worker_write(worker, buf, msg_len);
-	}
-
-#if 0
-	if (ezcfg_http_handle_ssi_request(http, nvram) < 0) {
+	if (ezcfg_http_handle_ssi_request(http, nvram, ssi) < 0) {
 		send_http_bad_request(worker);
 		goto func_exit;
 	}
@@ -498,9 +476,16 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		ezcfg_worker_write(worker, msg, msg_len);
 
 		/* process SSI file */
+		msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
+		while(msg_len >= 0) {
+			if (msg_len > 0) {
+				ezcfg_worker_write(worker, buf, msg_len);
+			}
+			msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
+		}
+
 		goto func_exit;
 	}
-#endif
 
 func_exit:
 	if (msg != NULL)

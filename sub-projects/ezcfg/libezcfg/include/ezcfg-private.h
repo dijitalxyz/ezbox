@@ -321,6 +321,20 @@ FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode);
 int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size);
 
 
+/* http/http_ssi.c */
+struct ezcfg_http_ssi;
+void ezcfg_http_ssi_delete(struct ezcfg_http_ssi *hs);
+struct ezcfg_http_ssi *ezcfg_http_ssi_new(
+	struct ezcfg *ezcfg,
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_ssi *ssi);
+int ezcfg_http_handle_ssi_request(
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram,
+	struct ezcfg_ssi *ssi);
+
+
 /* http/http_html_index.c */
 int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 

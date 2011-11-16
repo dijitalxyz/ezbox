@@ -85,7 +85,6 @@ static int build_home_index_response(struct ezcfg_http *http, struct ezcfg_nvram
 		goto func_exit;
 	}
 
-
 	/* HTML Meta charset */
 	child_index = ezcfg_html_add_head_child(html, head_index, -1, EZCFG_HTML_META_ELEMENT_NAME, NULL);
 	if (child_index < 0) {
