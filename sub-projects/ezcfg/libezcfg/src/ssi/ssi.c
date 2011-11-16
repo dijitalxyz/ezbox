@@ -31,15 +31,15 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-struct link_node {
-	char *attr;
-	char *value;
-	struct link_node *next;
+struct directive_format {
+	char *elem;
+	int argc;
+	char **argv;
 };
 
 struct ssi_directive_entry {
-	char *elem;
-	struct link_node *lists;
+	struct directive_format *format;
+	char **values;
 };
 
 struct ezcfg_ssi {
@@ -57,43 +57,136 @@ struct ezcfg_ssi {
 #define SSI_ENDING_SEQUENCE       "-->"
 #define SSI_ENDING_SEQUENCE_LEN   3
 
+#define SSI_ARGC_MAX              4
+
+static char *include_argv[] = { "virtual" };
+static char *exec_argv[] = { "cmd" };
+static char *echo_argv[] = { "var", "ns" };
+static struct directive_format supported_directives[] = {
+	{ "include", 1, include_argv, },
+	{ "exec", 1, exec_argv, },
+	{ "echo", 2, echo_argv, },
+	{ NULL, 0, NULL }
+};
+
 /**
  * Private functions
  **/
-struct ssi_directive_entry *parse_directive_entry(char *buf)
+void remove_escape_backslash(char *s)
 {
-	struct ssi_directive_entry *entry;
-
-	entry = calloc(1, sizeof(struct ssi_directive_entry));
-	if (entry != NULL) {
-		entry->elem = NULL;
-		entry->lists = NULL;
+	char *p = s;
+	while(*s != '\0') {
+		if (*s == '\\' && *(s+1) == '"') s++;
+		*p++ = *s++;
 	}
-	return entry;
-}
-
-int handle_directive_entry(
-	struct ssi_directive_entry *entry,
-	char *buf, size_t size)
-{
-	return 0;
+	*p = '\0';
 }
 
 void delete_directive_entry(struct ssi_directive_entry *entry)
 {
-	struct link_node *l;
-	while(entry->lists != NULL) {
-		l = entry->lists;
-		entry->lists = l->next;
-		if (l->attr != NULL)
-			free(l->attr);
-		if (l->value != NULL)
-			free(l->value);
-		free(l);
-	} 
-	if (entry->elem != NULL)
-		free(entry->elem);
+	int i, argc = 0;
+	char *p;
+
+	if (entry->format != NULL) {
+		argc = (entry->format)->argc;
+	}
+	for (i = 0; i < argc; i++) {
+		p = (entry->values)[i];
+		if (p != NULL) {
+			free(p);
+		}
+	}
 	free(entry);
+}
+
+bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
+{
+	struct ssi_directive_entry *entry;
+	struct directive_format *dfp;
+	bool ret = false;
+	char *s, *p;
+	int i, len;
+	char *values_s[SSI_ARGC_MAX];
+	char *values_e[SSI_ARGC_MAX];
+
+	entry = calloc(1, sizeof(struct ssi_directive_entry));
+	if (entry == NULL) {
+		return false;
+	}
+
+	entry->format = NULL;
+	entry->values = NULL;
+
+	/* find element */
+	for (dfp = supported_directives; dfp->elem != NULL; dfp++) {
+		s = dfp->elem;
+		len = strlen(s);
+		if (strncmp(s, buf, len) == 0 && buf[len] == ' ') {
+			/* find match element */
+			p = buf+len+1;
+			for (i = 0; i < dfp->argc; i++) {
+				while (*p == ' ') p++;
+				s = (dfp->argv)[i];
+				len = strlen(s);
+				if (strncmp(s, p, len) != 0)
+					break;
+				if (p[len] != '=')
+					break;
+				if (p[len+1] != '"')
+					break;
+				s = p+len+2;
+				/* try to find ending '"' */
+				p = strchr(s, '"');
+				while(p != NULL && *(p-1) == '\\')
+					p = strchr(p+1, '"');
+				if (p == NULL)
+					break;
+				values_s[i] = s; /* s point to charactor after '"' */
+				values_e[i] = p; /* p point to '"' */
+				p++;
+			}
+			if (i == dfp->argc) {
+				/* find match directive format */
+				entry->values = calloc(dfp->argc, sizeof(char *));
+				if (entry->values == NULL) {
+					goto func_exit;
+				}
+				/* copy values */
+				for (i = 0; i < dfp->argc; i++) {
+					s = values_s[i];
+					p = values_e[i];
+					len = p -s;
+					p = calloc(len+1, sizeof(char));
+					if(p == NULL) {
+						goto func_exit;
+					}
+					strncpy(p, s, len);
+					*(p+len) = '\0';
+					remove_escape_backslash(p);
+					(entry->values)[i] = p;
+				}
+			}
+		}
+	}
+
+	if (ssi->directive_entry != NULL) {
+		delete_directive_entry(ssi->directive_entry);
+	}
+	ssi->directive_entry = entry;
+	/* make entry undeleted */
+	entry = NULL;
+	ret = true;
+func_exit:
+	if (entry != NULL)
+		delete_directive_entry(entry);
+	return ret;
+}
+
+int ssi_handle_directive_entry(
+	struct ezcfg_ssi *ssi,
+	char *buf, size_t size)
+{
+	return 0;
 }
 
 /**
@@ -241,8 +334,7 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		/* then construct SSI directive entry */
 		p = s + SSI_STARTING_SEQUENCE_LEN;
 		*e = '\0';
-		ssi->directive_entry = parse_directive_entry(p);
-		if (ssi->directive_entry == NULL) {
+		if (ssi_parse_directive_entry(ssi, p) == false) {
 			return -1;
 		}
 
@@ -251,7 +343,7 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		ret = strlen(buf);
 	}
 	else {
-		ret = handle_directive_entry(ssi->directive_entry, buf, size);
+		ret = ssi_handle_directive_entry(ssi, buf, size);
 		if (ret == 0) {
 			delete_directive_entry(ssi->directive_entry);
 			ssi->directive_entry = NULL;
