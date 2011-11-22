@@ -313,7 +313,7 @@ int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
 
 /* ssi/ssi.c */
 struct ezcfg_ssi;
-struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg);
+struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg, struct ezcfg_nvram *nvram);
 void ezcfg_ssi_delete(struct ezcfg_ssi *ssi);
 bool ezcfg_ssi_set_document_root(struct ezcfg_ssi *ssi, const char *root);
 bool ezcfg_ssi_set_path(struct ezcfg_ssi *ssi, const char *path);

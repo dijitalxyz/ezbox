@@ -409,7 +409,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	master = ezcfg_worker_get_master(worker);
 	nvram = ezcfg_master_get_nvram(master);
 
-	ssi = ezcfg_ssi_new(ezcfg);
+	ssi = ezcfg_ssi_new(ezcfg, nvram);
 	if (ssi == NULL) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
