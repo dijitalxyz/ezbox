@@ -87,4 +87,7 @@
 #define EZCFG_EZCFG_HTTPD_HTTPS             "httpd_https"
 #define EZCFG_EZCFG_HTTPD_BINDING           "httpd_binding"
 
+#define EZCFG_EZCFG_UPNPD_ENABLE            "upnpd_enable"
+#define EZCFG_EZCFG_UPNPD_BINDING           "upnpd_binding"
+
 #endif

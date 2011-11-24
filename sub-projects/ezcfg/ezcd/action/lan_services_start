@@ -7,3 +7,7 @@ ezcd reload
 telnetd lan start
 # start dns/dhcpd service
 dnsmasq lan start
+# start ezcfg upnpd service
+ezcfg_upnpd lan start
+# ezcd reload for ezcfg upnpd
+ezcd reload

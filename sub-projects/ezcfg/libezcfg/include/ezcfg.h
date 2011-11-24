@@ -106,6 +106,7 @@
 #define EZCFG_RC_SERVICE_SYSTEM            "system"
 #define EZCFG_RC_SERVICE_LOGIN             "login"
 #define EZCFG_RC_SERVICE_EZCFG_HTTPD       "ezcfg_httpd"
+#define EZCFG_RC_SERVICE_EZCFG_UPNPD       "ezcfg_upnpd"
 #define EZCFG_RC_SERVICE_TELNETD           "telnetd"
 #define EZCFG_RC_SERVICE_EMC2              "emc2"
 #define EZCFG_RC_SERVICE_EMC2_LATENCY_TEST "emc2_latency_test"
@@ -145,6 +146,10 @@
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
+
+#define EZCFG_PROTO_SSDP_IPADDR_STRING           "239.255.255.250"
+#define EZCFG_PROTO_SSDP_PORT_NUMBER              1900
+#define EZCFG_PROTO_SSDP_PORT_NUMBER_STRING       "1900"
 
 
 /* ezcfg xml definitions */

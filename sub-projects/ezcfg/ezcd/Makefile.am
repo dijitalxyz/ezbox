@@ -227,6 +227,9 @@ RCSO_SRC += rc_data_storage.c
 RCSO_SRC += rc_nvram.c
 RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+RCSO_SRC += rc_ezcfg_upnpd.c
+endif
 RCSO_SRC += rc_ezcm.c
 RCSO_SRC += rc_netbase.c
 RCSO_SRC += rc_resolv_conf.c

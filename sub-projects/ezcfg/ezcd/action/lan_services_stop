@@ -1,4 +1,6 @@
 # stop LAN side services
+# stop ezcfg upnpd
+ezcfg_upnpd lan stop
 # stop dns/dhcpd service
 dnsmasq lan stop
 # stop telnet service

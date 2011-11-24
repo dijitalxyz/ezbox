@@ -51,7 +51,9 @@ libezcfg_la_SOURCES += src/thread/worker_http.c
 libezcfg_la_SOURCES += src/thread/worker_soap_http.c
 libezcfg_la_SOURCES += src/thread/worker_igrs.c
 libezcfg_la_SOURCES += src/thread/worker_uevent.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/thread/worker_ssdp.c
+endif
 
 # ezcfg utils
 libezcfg_la_SOURCES += src/util/util.c
@@ -212,11 +214,12 @@ libezcfg_la_SOURCES += src/igrs/igrs_invoke_service.c
 # ezcfg ISDP protocol
 libezcfg_la_SOURCES += src/igrs/isdp.c
 
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 # ezcfg UPNP protocol
 libezcfg_la_SOURCES += src/upnp/upnp.c
-
 # ezcfg SSDP protocol
 libezcfg_la_SOURCES += src/upnp/ssdp.c
+endif
 
 # ezcfg API wrap
 libezcfg_la_SOURCES += api/src/api-nvram.c

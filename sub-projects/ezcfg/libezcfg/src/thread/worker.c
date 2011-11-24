@@ -142,9 +142,11 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 		worker->proto_data = ezcfg_uevent_new(ezcfg);
 		info(ezcfg, "UEVENT protocol\n");
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		worker->proto_data = ezcfg_ssdp_new(ezcfg);
 		break;
+#endif
 	default :
 		info(ezcfg, "unknown protocol\n");
 	}
@@ -177,9 +179,11 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_worker_process_uevent_new_connection(worker);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		ezcfg_worker_process_ssdp_new_connection(worker);
 		break;
+#endif
 	default :
 		err(ezcfg, "unknown protocol\n");
 	}
@@ -215,10 +219,12 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		ezcfg_uevent_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		ezcfg_ssdp_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#endif
 	default :
 		err(ezcfg, "unknown protocol\n");
 	}

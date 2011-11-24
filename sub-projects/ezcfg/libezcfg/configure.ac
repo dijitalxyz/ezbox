@@ -212,6 +212,25 @@ AC_ARG_ENABLE([service-klogd],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KLOGD, test "x$config_ezbox_service_klogd" = xyes)
 
+# Configure ezcfg_upnpd service.
+config_ezbox_service_ezcfg_upnpd=no
+AC_MSG_CHECKING([if ezcfg_upnpd service is enabled])
+AC_ARG_ENABLE([service-ezcfg_upnpd],
+	AS_HELP_STRING([--enable-service-ezcfg_upnpd], [Enable ezcfg_upnpd service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_UPNPD], [1], [Enable ezcfg_upnpd service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_upnpd=yes
+	;;
+	*)
+		 AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_UPNPD, test "x$config_ezbox_service_ezcfg_upnpd" = xyes)
+
 # Configure telnet service.
 config_ezbox_service_telnetd=no
 AC_MSG_CHECKING([if telnetd service is enabled])

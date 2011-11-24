@@ -42,7 +42,9 @@ struct proto_pair ezcfg_support_protocols[] = {
 	{ EZCFG_PROTO_IGRS, EZCFG_SOCKET_PROTO_IGRS_STRING },
 	{ EZCFG_PROTO_ISDP, EZCFG_SOCKET_PROTO_ISDP_STRING },
 	{ EZCFG_PROTO_UEVENT, EZCFG_SOCKET_PROTO_UEVENT_STRING },
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	{ EZCFG_PROTO_SSDP, EZCFG_SOCKET_PROTO_SSDP_STRING },
+#endif
 };
 
 int ezcfg_util_socket_protocol_get_index(char *name)

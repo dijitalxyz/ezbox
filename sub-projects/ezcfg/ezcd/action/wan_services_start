@@ -4,5 +4,7 @@ ezcfg_httpd wan start
 telnetd wan start
 # start dnsmasq service
 dnsmasq wan start
+# start ezcfg upnpd service
+ezcfg_upnpd wan start
 # start iptables-provided service
 iptables wan start
