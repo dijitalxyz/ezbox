@@ -661,6 +661,9 @@ char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i);
 char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name);
 bool ezcfg_util_tzdata_check_area_location(char *area, char *location);
 
+/* util/util_socket_protocol.c */
+int ezcfg_util_socket_protocol_get_index(char *name);
+
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);
 char *ezcfg_util_lang_get_name_by_index(int i);

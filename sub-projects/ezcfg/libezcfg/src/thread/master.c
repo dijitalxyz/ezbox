@@ -459,7 +459,7 @@ static void master_load_socket_conf(struct ezcfg_master *master)
 		/* socket protocol */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		if (p != NULL) {
-			proto = atoi(p);
+			proto = ezcfg_util_socket_protocol_get_index(p);
 			free(p);
 		}
 

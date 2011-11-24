@@ -135,13 +135,13 @@
 #define EZCFG_PROTO_UEVENT	5
 #define EZCFG_PROTO_SSDP	6
 
-#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
-#define EZCFG_SOCKET_PROTO_HTTP_STRING            "1"
-#define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "2"
-#define EZCFG_SOCKET_PROTO_IGRS_STRING            "3"
-#define EZCFG_SOCKET_PROTO_ISDP_STRING            "4"
-#define EZCFG_SOCKET_PROTO_UEVENT_STRING          "5"
-#define EZCFG_SOCKET_PROTO_SSDP_STRING            "6"
+//#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
+#define EZCFG_SOCKET_PROTO_HTTP_STRING            "http"
+#define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "soap-http"
+#define EZCFG_SOCKET_PROTO_IGRS_STRING            "igrs"
+#define EZCFG_SOCKET_PROTO_ISDP_STRING            "isdp"
+#define EZCFG_SOCKET_PROTO_UEVENT_STRING          "uevent"
+#define EZCFG_SOCKET_PROTO_SSDP_STRING            "ssdp"
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
