@@ -88,8 +88,8 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(buf, sizeof(buf), "%s:%s",
-		EZCFG_PROTO_SSDP_IPADDR_STRING,
+	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+		ip[0], ip[1], ip[2], ip[3],
 		EZCFG_PROTO_SSDP_PORT_NUMBER_STRING);
 
 	flag = utils_get_rc_act_type(argv[2]);

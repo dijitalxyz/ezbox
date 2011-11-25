@@ -45,16 +45,17 @@ struct usa {
  */
 struct ezcfg_socket {
 	struct ezcfg *ezcfg;
-	struct ezcfg_socket *next;	/* Linkage                      */
-	int		sock;		/* Listening socket             */
-	int		proto;		/* Communication protocol 	*/
-	int		backlog;	/* Listening queue length 	*/
-	struct usa	lsa;		/* Local socket address         */
-	struct usa	rsa;		/* Remote socket address        */
-	bool		need_unlink;	/* Need to unlink socket node 	*/
-	bool		need_delete;	/* Need to delete socket node 	*/
-	char *		buffer;
-	int		buffer_len;
+	struct ezcfg_socket *next;      /* Linkage                      */
+	int                  sock;      /* Listening socket             */
+	int                  proto;     /* Communication protocol 	*/
+	int                  backlog;   /* Listening queue length 	*/
+	struct usa      lsa;            /* Local socket address         */
+	struct usa      rsa;            /* Remote socket address        */
+	struct ip_mreq  group;          /* multicast group              */
+	bool            need_unlink;    /* Need to unlink socket node 	*/
+	bool            need_delete;    /* Need to delete socket node 	*/
+	char *          buffer;
+	int             buffer_len;
 };
 
 #endif

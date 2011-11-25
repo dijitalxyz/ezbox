@@ -33,11 +33,30 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <sys/syscall.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-socket.h"
 #include "ezcfg-uevent.h"
+
+#define gettid() syscall(__NR_gettid)
+#if 1
+#define DBG(format, args...) do { \
+	pid_t pid; \
+	char path[256]; \
+	FILE *fp; \
+	pid = getpid(); \
+	snprintf(path, 256, "/tmp/%d.%d-debug.txt", pid, (int)gettid()); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
 
 static int set_non_blocking_mode(int sock)
 {
@@ -105,7 +124,8 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
-	char *addr = NULL, *port;
+	char *addr = NULL;
+	char *port = NULL;
 	int sock_protocol = -1;
 	int buf_size = 16 * 1024 * 1024;
 
@@ -123,7 +143,8 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 	    proto != EZCFG_PROTO_SOAP_HTTP &&
 	    proto != EZCFG_PROTO_IGRS &&
 	    proto != EZCFG_PROTO_ISDP &&
-	    proto != EZCFG_PROTO_UEVENT) {
+	    proto != EZCFG_PROTO_UEVENT &&
+	    proto != EZCFG_PROTO_SSDP) {
 		err(ezcfg, "unknown communication protocol %d\n", proto);
 		return NULL;
 	}
@@ -189,13 +210,48 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
 		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
-		usa->u.sin.sin_addr.s_addr = inet_addr(addr);
-		if (usa->u.sin.sin_addr.s_addr == 0) {
-			err(ezcfg, "convert IP address error\n");
-			goto fail_exit;
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+		if (proto == EZCFG_PROTO_SSDP) {
+			int reuse = 1;
+
+			usa->u.sin.sin_addr.s_addr = INADDR_ANY;
+
+			/*
+			 * enable SO_REUSEADDR to allow multiple instances of this
+			 * application to receive copies of the multicast datagrams.
+			 */
+			if(setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
+				err(ezcfg, "setting SO_REUSEADDR error\n");
+				goto fail_exit;
+			}
+
+			/*
+			 * join the multicast group 239.255.255.250 on the [addr] interface.
+			 * note that this IP_ADD_MEMBERSHIP option must be
+			 * called for each local interface over which the multicast
+			 * datagrams are to be received. */
+			sp->group.imr_multiaddr.s_addr = inet_addr(EZCFG_PROTO_SSDP_IPADDR_STRING);
+			sp->group.imr_interface.s_addr = inet_addr(addr);
+#if 0
+			if(setsockopt(sp->sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0) {
+				err(ezcfg, "Adding multicast group error\n");
+				goto fail_exit;
+			}
+#endif
+		}
+		else
+#endif
+		{
+			usa->u.sin.sin_addr.s_addr = inet_addr(addr);
+			if (usa->u.sin.sin_addr.s_addr == 0) {
+				err(ezcfg, "convert IP address error\n");
+				goto fail_exit;
+			}
 		}
 		usa->len = sizeof(usa->u.sin);
 		free(addr);
+		addr = NULL;
+
 		break;
 
 	case AF_NETLINK:
@@ -243,7 +299,6 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 			//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
 		}
 		usa->len = sizeof(usa->u.snl);
-
 		break;
 
 	default:
@@ -456,7 +511,7 @@ bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *cur;
-	struct usa *usa = NULL, *usa2 = NULL;
+	//struct usa *usa = NULL, *usa2 = NULL;
 
 	ASSERT(list != NULL);
 	ASSERT(sp != NULL);
@@ -464,8 +519,9 @@ bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 
 	cur = *list;
-	usa = &(sp->lsa);
+	//usa = &(sp->lsa);
 	while (cur != NULL) {
+#if 0
 		usa2 = &(cur->lsa);
 		if ((sp->proto == cur->proto) &&
 		    (usa->domain == usa2->domain) &&
@@ -476,6 +532,12 @@ bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 				return true;
 			}
 		}
+#else 
+		if (ezcfg_socket_compare(sp, cur) == true) {
+			info(ezcfg, "find match socket\n");
+			return true;
+		}
+#endif
 		cur = cur->next;
 	}
 	return false;
@@ -492,7 +554,7 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *cur;
-	struct usa *usa = NULL, *usa2 = NULL;
+	//struct usa *usa = NULL, *usa2 = NULL;
 	bool ret = false;
 
 	ASSERT(list != NULL);
@@ -501,8 +563,9 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 	ezcfg = sp->ezcfg;
 
 	cur = *list;
-	usa = &(sp->lsa);
+	//usa = &(sp->lsa);
 	while (cur != NULL) {
+#if 0
 		usa2 = &(cur->lsa);
 		if ((sp->proto == cur->proto) &&
 		    (usa->domain == usa2->domain) &&
@@ -514,6 +577,13 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 				ret = true;
 			}
 		}
+#else
+		if (ezcfg_socket_compare(sp, cur) == true) {
+			info(ezcfg, "find match socket\n");
+			cur->need_delete = need_delete;
+			ret = true;
+		}
+#endif
 		cur = cur->next;
 	}
 	return ret;
@@ -561,10 +631,51 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		return err;
 	}
 
+	if (sp->proto == EZCFG_PROTO_SSDP) {
+		err = setsockopt(sp->sock,
+			IPPROTO_IP, IP_ADD_MEMBERSHIP,
+			(char *)&(sp->group), sizeof(sp->group));
+	}
+
+	if (err < 0) {
+		return err;
+	}
+
 	/* enable receiving of sender credentials */
 	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
 	return 0;
 }
+
+/**
+ * ezcfg_socket_join_multicast_group:
+ * @sp: the listening socket which start receiving events
+ * Makes the @sp join multicast group on special interface.
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+#if 0
+int ezcfg_socket_join_multicast_group(struct ezcfg_socket *sp,
+	char *multiaddr, char *interface)
+{
+	int err = 0;
+	struct ip_mreq group;
+	struct ezcfg *ezcfg;
+
+	ASSERT(sp != NULL);
+	ASSERT(multiaddr != NULL);
+	ASSERT(interface != NULL);
+
+	ezcfg = sp->ezcfg;
+
+	group.imr_multiaddr.s_addr = inet_addr(multiaddr);
+	group.imr_interface.s_addr = inet_addr(interface);
+	err = setsockopt(sp->sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group));
+	if(err < 0) {
+		err(ezcfg, "adding multicast group error\n");
+		return err;
+	}
+	return 0;
+}
+#endif
 
 /**
  * ezcfg_socket_enable_listening:
@@ -591,10 +702,15 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 		if (usa->type == SOCK_STREAM) {
 			err = listen(sp->sock, backlog);
 		}
+		else if (usa->type == SOCK_DGRAM) {
+			info(ezcfg, "SOCK_DGRAM not need listen\n");
+		}
 		break;
 
 	case AF_NETLINK:
-		info(ezcfg, "UEVENT not need listen\n");
+		if (sp->proto == EZCFG_PROTO_UEVENT) {
+			info(ezcfg, "UEVENT not need listen\n");
+		}
 		break;
 
 	default:
@@ -603,6 +719,7 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 	}
 
 	if (err < 0) {
+		err(ezcfg, "enable listening error.\n");
 		return err;
 	}
 
@@ -811,8 +928,13 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	switch (listener->proto) {
 	case EZCFG_PROTO_UEVENT :
 		return new_accepted_socket_datagram(listener);
+		break;
+	case EZCFG_PROTO_SSDP :
+		return new_accepted_socket_datagram(listener);
+		break;
 	default :
 		return new_accepted_socket_stream(listener);
+		break;
 	}
 }
 

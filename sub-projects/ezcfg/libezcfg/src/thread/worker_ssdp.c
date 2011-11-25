@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/worker.c
+ * File Name    : thread/worker_ssdp.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -31,18 +31,20 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <sys/syscall.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
 
+#define gettid() syscall(__NR_gettid)
 #if 1
 #define DBG(format, args...) do { \
 	pid_t pid; \
 	char path[256]; \
 	FILE *fp; \
 	pid = getpid(); \
-	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	snprintf(path, 256, "/tmp/%d.%d-debug.txt", pid, (int)gettid()); \
 	fp = fopen(path, "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \

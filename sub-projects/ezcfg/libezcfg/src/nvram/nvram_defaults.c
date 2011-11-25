@@ -145,6 +145,17 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_BINDING), "wan" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	/* ezcfg UPnP server [1|0] */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_ENABLE), "1" },
+	/* ezcfg UPnP server binding interface */
+#if (HAVE_EZBOX_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING), "lan" },
+#else
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING), "wan" },
+#endif
+#endif
+
 	/*--------------------*/
 	/* Loopback H/W parameters */
 	/*--------------------*/

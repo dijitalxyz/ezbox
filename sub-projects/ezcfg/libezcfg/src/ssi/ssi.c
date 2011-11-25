@@ -144,8 +144,6 @@ bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 	char *values_e[SSI_ARGC_MAX];
 	char **values = NULL;
 
-	DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
-
 	/* find element */
 	for (entry = supported_directives; entry->elem != NULL; entry++) {
 		s = entry->elem;
@@ -154,21 +152,13 @@ bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 		/* find out argc */
 		for (argc = 0; entry->attrs[argc] != NULL; argc++)
 
-		DBG("mydebug: %s-%s(%d) s=[%s]\n", __FILE__, __func__, __LINE__, s);
-		DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
-		DBG("mydebug: %s-%s(%d) len=[%d]\n", __FILE__, __func__, __LINE__, len);
-		DBG("mydebug: %s-%s(%d) argc=[%d]\n", __FILE__, __func__, __LINE__, argc);
 		if (strncmp(s, buf, len) == 0 && buf[len] == ' ') {
 			/* find match element */
 			p = buf+len+1;
-			DBG("mydebug: %s-%s(%d) p=[%s]\n", __FILE__, __func__, __LINE__, p);
 			for (i = 0; i < argc; i++) {
 				while (*p == ' ') p++;
 				s = (entry->attrs)[i];
 				len = strlen(s);
-		DBG("mydebug: %s-%s(%d) s=[%s]\n", __FILE__, __func__, __LINE__, s);
-		DBG("mydebug: %s-%s(%d) p=[%s]\n", __FILE__, __func__, __LINE__, p);
-		DBG("mydebug: %s-%s(%d) len=[%d]\n", __FILE__, __func__, __LINE__, len);
 				if (strncmp(s, p, len) != 0)
 					break;
 				if (p[len] != '=')
@@ -182,18 +172,14 @@ bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 					p = strchr(p+1, '"');
 				if (p == NULL)
 					break;
-		DBG("mydebug: %s-%s(%d) s=[%s]\n", __FILE__, __func__, __LINE__, s);
-		DBG("mydebug: %s-%s(%d) p=[%s]\n", __FILE__, __func__, __LINE__, p);
 				values_s[i] = s; /* s point to charactor after '"' */
 				values_e[i] = p; /* p point to '"' */
 				p++;
 			}
-		DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			if (i == argc) {
 				/* find match directive format */
 				values = calloc(argc+1, sizeof(char *));
 				if (values == NULL) {
-		DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 					goto fail_exit;
 				}
 				/* copy values */
@@ -203,7 +189,6 @@ bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 					len = p -s;
 					values[i] = calloc(len+1, sizeof(char));
 					if(values[i] == NULL) {
-		DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 						goto fail_exit;
 					}
 					p = values[i];
@@ -214,7 +199,6 @@ bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 				/* NULL-terminated values */
 				values[argc] = NULL;
 
-		DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 				/* OK, finish parse */
 				ssi->directive_entry = entry;
 				ssi->directive_values = values;
@@ -307,16 +291,11 @@ static int echo_handler(struct ezcfg_ssi *ssi, char *buf, size_t size)
 {
 	struct ssi_directive_data *data;
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	data = ssi->directive_data;
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	if (buf == NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		/* clean up directive data buffer */
 		if (data != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			delete_directive_data(data);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			ssi->directive_data = NULL;
 		}
 		return 0;
@@ -326,92 +305,62 @@ static int echo_handler(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		char path[256];
 		FILE *fp;
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		data = calloc(1, sizeof(struct ssi_directive_data));
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (data == NULL) {
 			goto fail_exit;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		data->path = NULL;
 		data->fp = NULL;
 		data->need_unlink = false;
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		snprintf(path, sizeof(path), "/tmp/%d-%d-ssi-echo", getpid(), (int)time(NULL));
 
 		/* "var" value is in ssi->directive_values[0] */
 		/* "domain" value is in ssi->directive_values[1] */
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		data->path = malloc(strlen(path) + 1);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (data->path == NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			goto fail_exit;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		strcpy(data->path, path);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		fp = fopen(path, "w");
 		if (fp != NULL) {
 			char *value;
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			if (strcmp(ssi->directive_values[1], "nvram") == 0) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
-	DBG("mydebug: %s-%s(%d) ssi->nvram=[%x]\n", __FILE__, __func__, __LINE__, (unsigned int)ssi->nvram);
-	DBG("mydebug: %s-%s(%d) ssi->ssi->directive_values[0]=[%s]\n", __FILE__, __func__, __LINE__, ssi->directive_values[0]);
 				if (ezcfg_nvram_get_entry_value(ssi->nvram, ssi->directive_values[0], &value) == false) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 					fclose(fp);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 					goto fail_exit;
 				}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 				fprintf(fp, "%s", value);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 				free(value);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			fclose(fp);
 			data->need_unlink = true;
 		}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		data->fp = fopen(data->path, "r");
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (data->fp == NULL) {
 			goto fail_exit;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		ssi->directive_data = data;
 	}
 
 	/* OK, data is valid, should never run into fail_exit, or data will be freed !!! */
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	if (fgets(buf, size, data->fp) == NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (feof(data->fp) != 0 && ferror(data->fp) == 0) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			return 0;
 		}
 		else {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			return -1;
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	return strlen(buf);
 
 fail_exit:
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	if (data != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		delete_directive_data(data);
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	}
 	return -1;
 }
@@ -558,11 +507,9 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 			return -1;
 		}
 
-		DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
 		/* search SSI starting sequence */
 		s = strstr(buf, SSI_STARTING_SEQUENCE);
 		if (s == NULL) {
-			DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
 			return strlen(buf);
 		}
 
@@ -574,17 +521,14 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 				/* It's first time to handle this SSI entry */
 				ssi->remaining_data = strdup(s);
 				if (ssi->remaining_data == NULL) {
-					DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 					return -1;
 				}
 				/* cut off the buf and return first part */
 				*s = '\0';
-				DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
 				return strlen(buf);
 			}
 			else {
 				/* Sorry, we can only handle buffer size length SSI entry */
-				DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 				return -1;
 			}
 		}
@@ -593,29 +537,23 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		/* first store the data after SSI directive entry */
 		ssi->remaining_data = strdup(e+SSI_ENDING_SEQUENCE_LEN);
 		if (ssi->remaining_data == NULL) {
-			DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			return -1;
 		}
 
 		/* then construct SSI directive entry */
 		p = s + SSI_STARTING_SEQUENCE_LEN;
 		*e = '\0';
-		DBG("mydebug: %s-%s(%d) p=[%s]\n", __FILE__, __func__, __LINE__, p);
 		if (ssi_parse_directive_entry(ssi, p) == false) {
-			DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			return -1;
 		}
 
 		/* cut off the buf and return first part */
 		*s = '\0';
-		DBG("mydebug: %s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
 		return strlen(buf);
 	}
 	else {
 		ret = entry->handler(ssi, buf, size);
-		DBG("mydebug: %s-%s(%d) ret=[%d]\n", __FILE__, __func__, __LINE__, ret);
 		if (ret == 0) {
-		DBG("mydebug: %s-%s(%d) ret=[%d]\n", __FILE__, __func__, __LINE__, ret);
 			/* clean directive data buffer */
 			entry->handler(ssi, NULL, 0);
 			/* clean directive values buffer */

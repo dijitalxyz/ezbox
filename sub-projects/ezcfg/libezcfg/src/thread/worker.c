@@ -93,6 +93,11 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	case EZCFG_PROTO_UEVENT :
 		info(ezcfg, "UEVENT reset attributes\n");
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	case EZCFG_PROTO_SSDP :
+		info(ezcfg, "SSDP reset attributes\n");
+		break;
+#endif
 	default :
 		err(ezcfg, "unknown protocol\n");
 	}
@@ -145,6 +150,7 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		worker->proto_data = ezcfg_ssdp_new(ezcfg);
+		info(ezcfg, "SSDP protocol\n");
 		break;
 #endif
 	default :

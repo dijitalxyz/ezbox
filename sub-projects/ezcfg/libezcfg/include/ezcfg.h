@@ -274,6 +274,14 @@
 #define EZCFG_IGRS_HTTP_MAX_RESPONSE_SIZE   EZCFG_IGRS_HTTP_MAX_REQUEST_SIZE
 
 
+/* ezcfg uevent request/response mode */
+#define EZCFG_UEVENT_MAX_MESSAGE_SIZE       4096
+
+
+/* ezcfg ssdp request/response mode */
+#define EZCFG_SSDP_MAX_MESSAGE_SIZE         4096
+
+
 /*
  * ezcfg - library context
  *

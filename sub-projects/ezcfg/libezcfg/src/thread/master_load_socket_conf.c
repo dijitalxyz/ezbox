@@ -37,7 +37,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do { \
 	pid_t pid; \
 	char path[256]; \
@@ -70,7 +70,6 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	if (master == NULL)
 		return ;
 
-	//ezcfg = master->ezcfg;
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
 	/* ctrl socket and nvram socket */
@@ -93,7 +92,6 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	}
 
 	/* tag listening_sockets to need_delete = true; */
-	//sp = master->listening_sockets;
 	sp = ezcfg_master_get_listening_sockets(master);
 	while(sp != NULL) {
 		if((ezcfg_socket_compare(sp, ctrl_sp) == false) &&
@@ -182,12 +180,10 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			continue;
 		}
 
-	    	//if (ezcfg_socket_list_in(&(master->listening_sockets), sp) == true) {
 	    	psp = ezcfg_master_get_p_listening_sockets(master);
 	    	if (ezcfg_socket_list_in(psp, sp) == true) {
 			info(ezcfg, "socket already up\n");
 			/* don't delete this socket in listening_sockets */
-			//ezcfg_socket_list_set_need_delete(&(master->listening_sockets), sp, false);
 			ezcfg_socket_list_set_need_delete(psp, sp, false);
 			ezcfg_socket_delete(sp);
 			continue;
@@ -198,7 +194,6 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			ezcfg_socket_set_need_unlink(sp, true);
 		}
 
-		//if (ezcfg_socket_list_insert(&(master->listening_sockets), sp) < 0) {
 	    	psp = ezcfg_master_get_p_listening_sockets(master);
 		if (ezcfg_socket_list_insert(psp, sp) < 0) {
 			err(ezcfg, "insert listener socket fail: %m\n");
@@ -208,16 +203,39 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
 			err(ezcfg, "enable socket [%s] receiving fail: %m\n", address);
-			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 	    		psp = ezcfg_master_get_p_listening_sockets(master);
 			ezcfg_socket_list_delete_socket(psp, sp);
 			continue;
 		}
 
-		//if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
+#if 0
+		if (proto == EZCFG_PROTO_SSDP) {
+			int ret;
+			char *ip_addr = strdup(address);
+			if (ip_addr == NULL) {
+				err(ezcfg, "ssdp socket [%s] join multicast group not enough memory\n", address);
+	   	 		psp = ezcfg_master_get_p_listening_sockets(master);
+				ezcfg_socket_list_delete_socket(psp, sp);
+				continue;
+			}
+
+			p = strchr(ip_addr, ':');
+			if (p != NULL)
+				*p = '\0';
+
+			ret = ezcfg_socket_join_multicast_group(sp, EZCFG_PROTO_SSDP_IPADDR_STRING, ip_addr);
+			free(ip_addr);
+			if (ret < 0) {
+				err(ezcfg, "ssdp socket [%s] join multicast group fail: %m\n", address);
+	   	 		psp = ezcfg_master_get_p_listening_sockets(master);
+				ezcfg_socket_list_delete_socket(psp, sp);
+				continue;
+			}
+		}
+#endif
+
 		if (ezcfg_socket_enable_listening(sp, ezcfg_master_get_sq_len(master)) < 0) {
 			err(ezcfg, "enable socket [%s] listening fail: %m\n", address);
-			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 	    		psp = ezcfg_master_get_p_listening_sockets(master);
 			ezcfg_socket_list_delete_socket(psp, sp);
 			continue;
@@ -227,14 +245,11 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	}
 
 	/* delete all sockets taged need_delete = true in need_listening_sockets */
-	//sp = master->listening_sockets;
 	sp = ezcfg_master_get_listening_sockets(master);
 	while(sp != NULL) {
 		if(ezcfg_socket_get_need_delete(sp) == true) {
-			//ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 	    		psp = ezcfg_master_get_p_listening_sockets(master);
 			ezcfg_socket_list_delete_socket(psp, sp);
-			//sp = master->listening_sockets;
 			sp = ezcfg_master_get_listening_sockets(master);
 		}
 		else {

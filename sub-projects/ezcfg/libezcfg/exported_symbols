@@ -45,6 +45,8 @@ ezcfg_http_set_version_major
 ezcfg_http_set_version_minor
 ezcfg_http_add_header
 ezcfg_http_set_message_body
+ezcfg_upnp_new
+ezcfg_upnp_delete
 ezcfg_soap_http_new
 ezcfg_soap_http_delete
 ezcfg_soap_http_get_soap

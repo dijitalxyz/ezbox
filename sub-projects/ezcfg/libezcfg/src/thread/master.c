@@ -37,7 +37,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do { \
 	pid_t pid; \
 	char path[256]; \
@@ -89,7 +89,9 @@ struct ezcfg_master {
 
 	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	struct ezcfg_upnp *upnp; /* UPnP global state */
+#endif
 
 	struct ezcfg_worker *workers; /* Worker list */
 };
@@ -107,9 +109,11 @@ static void master_delete(struct ezcfg_master *master)
 			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
 		}
 	}
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	if (master->upnp) {
 		ezcfg_upnp_delete(master->upnp);
 	}
+#endif
 	if (master->nvram) {
 		ezcfg_nvram_delete(master->nvram);
 	}
@@ -325,356 +329,6 @@ fail_exit:
 	return NULL;
 }
 
-#if 0
-static void master_load_common_conf(struct ezcfg_master *master)
-{
-	struct ezcfg *ezcfg;
-	char *p;
-
-	if (master == NULL)
-		return ;
-
-	ezcfg = master->ezcfg;
-
-	/* get log_level keyword */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
-	if (p != NULL) {
-		ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
-		free(p);
-		DBG("%s(%d) log_priority='%d'\n", __func__, __LINE__, ezcfg_common_get_log_priority(ezcfg));
-	}
-
-	/* find rules_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
-	if (p != NULL) {
-		ezcfg_util_remove_trailing_char(p, '/');
-		ezcfg_common_set_rules_path(ezcfg, p);
-		DBG("%s(%d) rules_path='%s'\n", __func__, __LINE__, ezcfg_common_get_rules_path(ezcfg));
-	}
-
-	/* get locale */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
-	if (p != NULL) {
-		ezcfg_common_set_locale(ezcfg, p);
-		DBG("%s(%d) locale='%s'\n", __func__, __LINE__, ezcfg_common_get_locale(ezcfg));
-	}
-}
-
-/* don't remove ctrl, nvram and uevent socket */
-static void master_load_socket_conf(struct ezcfg_master *master)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_socket *sp;
-	struct ezcfg_socket *ctrl_sp, *nvram_sp, *uevent_sp;
-	char *p = NULL;
-	int domain, type, proto;
-	char address[256];
-	int i;
-	int socket_number = -1;
-
-	if (master == NULL)
-		return ;
-
-	ezcfg = master->ezcfg;
-
-	/* ctrl socket and nvram socket */
-	ctrl_sp = ezcfg_socket_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, EZCFG_SOCK_CTRL_PATH);
-	if (ctrl_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
-		return ;
-	}
-
-	nvram_sp = ezcfg_socket_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
-	if (nvram_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(nvram_sp)\n");
-		return ;
-	}
-
-	uevent_sp = ezcfg_socket_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
-	if (uevent_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(uevent_sp)\n");
-		return ;
-	}
-
-	/* tag listening_sockets to need_delete = true; */
-	sp = master->listening_sockets;
-	while(sp != NULL) {
-		if((ezcfg_socket_compare(sp, ctrl_sp) == false) &&
-		   (ezcfg_socket_compare(sp, nvram_sp) == false) &&
-		   (ezcfg_socket_compare(sp, uevent_sp) == false)) {
-			ezcfg_socket_set_need_delete(sp, true);
-		}
-		sp = ezcfg_socket_get_next(sp);
-	}
-
-	/* delete unused sp */
-	ezcfg_socket_delete(ctrl_sp);
-	ezcfg_socket_delete(nvram_sp);
-
-	/* first get the socket number */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);
-	if (p != NULL) {
-		socket_number = atoi(p);
-		free(p);
-	}
-	for (i = 0; i < socket_number; i++) {
-
-		/* initialize */
-		domain = -1;
-		type = -1;
-		proto = EZCFG_PROTO_UNKNOWN;
-		address[0] = '\0';
-		sp = NULL;
-
-		/* socket domain */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
-		if (p != NULL) {
-			if (strcmp(p, EZCFG_SOCKET_DOMAIN_LOCAL_STRING) == 0) {
-				domain = AF_LOCAL;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET_STRING) == 0) {
-				domain = AF_INET;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET6_STRING) == 0) {
-				domain = AF_INET6;
-			}
-			free(p);
-		}
-
-		/* socket type */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_TYPE);
-		if (p != NULL) {
-			if (strcmp(p, EZCFG_SOCKET_TYPE_STREAM_STRING) == 0) {
-				type = SOCK_STREAM;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_TYPE_DGRAM_STRING) == 0) {
-				type = SOCK_DGRAM;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_TYPE_RAW_STRING) == 0) {
-				type = SOCK_RAW;
-			}
-			free(p);
-		}
-
-		/* socket protocol */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_PROTOCOL);
-		if (p != NULL) {
-			proto = ezcfg_util_socket_protocol_get_index(p);
-			free(p);
-		}
-
-		/* socket address */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_ADDRESS);
-		if (p != NULL) {
-			snprintf(address, sizeof(address), "%s", p);
-			free(p);
-			p = NULL;
-		}
-		if ((domain < 0) ||
-		    (type < 0) ||
-		    (proto == EZCFG_PROTO_UNKNOWN) ||
-		    (address[0] == '\0')) {
-			err(ezcfg, "socket setting error\n");
-			continue;
-		}
-
-		sp = ezcfg_socket_new(ezcfg, domain, type, proto, address);
-		if (sp == NULL) {
-			err(ezcfg, "init socket fail: %m\n");
-			continue;
-		}
-
-	    	if (ezcfg_socket_list_in(&(master->listening_sockets), sp) == true) {
-			info(ezcfg, "socket already up\n");
-			/* don't delete this socket in listening_sockets */
-			ezcfg_socket_list_set_need_delete(&(master->listening_sockets), sp, false);
-			ezcfg_socket_delete(sp);
-			continue;
-		}
-
-		if ((domain == AF_LOCAL) &&
-		    (address[0] != '@')) {
-			ezcfg_socket_set_need_unlink(sp, true);
-		}
-
-		if (ezcfg_socket_list_insert(&(master->listening_sockets), sp) < 0) {
-			err(ezcfg, "insert listener socket fail: %m\n");
-			ezcfg_socket_delete(sp);
-			continue;
-		}
-
-		if (ezcfg_socket_enable_receiving(sp) < 0) {
-			err(ezcfg, "enable socket [%s] receiving fail: %m\n", address);
-			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-			continue;
-		}
-
-		if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-			err(ezcfg, "enable socket [%s] listening fail: %m\n", address);
-			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-			continue;
-		}
-
-		ezcfg_socket_set_close_on_exec(sp);
-	}
-
-	/* delete all sockets taged need_delete = true in need_listening_sockets */
-	sp = master->listening_sockets;
-	while(sp != NULL) {
-		if(ezcfg_socket_get_need_delete(sp) == true) {
-			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-			sp = master->listening_sockets;
-		}
-		else {
-			sp = ezcfg_socket_get_next(sp);
-		}
-	}
-}
-
-static void master_load_auth_conf(struct ezcfg_master *master)
-{
-	struct ezcfg *ezcfg;
-	char *p = NULL;
-	int i;
-	int auth_number = -1;
-	struct ezcfg_auth *ap = NULL;
-
-	if (master == NULL)
-		return ;
-
-	ezcfg = master->ezcfg;
-
-	/* first get the auth number */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_AUTH_NUMBER);
-	if (p != NULL) {
-		auth_number = atoi(p);
-		free(p);
-	}
-
-	for (i = 0; i < auth_number; i++) {
-		/* initialize */
-		ap = ezcfg_auth_new(ezcfg);
-
-		if (ap == NULL) {
-			continue;
-		}
-		/* authentication type */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_TYPE);
-		if (p == NULL) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check auth type */
-		if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_BASIC_STRING) == 0) {
-			if (ezcfg_auth_set_type(ap, p) == false) {
-				ezcfg_auth_delete(ap);
-				free(p);
-				continue;
-			}
-		}
-		else if (strcmp(p, EZCFG_AUTH_TYPE_HTTP_DIGEST_STRING) == 0) {
-			if (ezcfg_auth_set_type(ap, p) == false) {
-				ezcfg_auth_delete(ap);
-				free(p);
-				continue;
-			}
-		}
-		else {
-			/* unknown auth type */
-			ezcfg_auth_delete(ap);
-			free(p);
-			continue;
-		}
-		free(p);
-
-		/* authentication user */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_USER);
-		if (p == NULL) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check auth user */
-		if (ezcfg_auth_set_user(ap, p) == false) {
-			ezcfg_auth_delete(ap);
-			free(p);
-			continue;
-		}
-		free(p);
-
-		/* authentication realm */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_REALM);
-		if (p == NULL) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check auth realm */
-		if (ezcfg_auth_set_realm(ap, p) == false) {
-			ezcfg_auth_delete(ap);
-			free(p);
-			continue;
-		}
-		free(p);
-
-		/* authentication domain */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
-		if (p == NULL) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check auth domain */
-		if (ezcfg_auth_set_domain(ap, p) == false) {
-			ezcfg_auth_delete(ap);
-			free(p);
-			continue;
-		}
-		free(p);
-
-		/* authentication secret */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_AUTH, i, EZCFG_EZCFG_KEYWORD_SECRET);
-		if (p == NULL) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check auth secret */
-		if (ezcfg_auth_set_secret(ap, p) == false) {
-			ezcfg_auth_delete(ap);
-			free(p);
-			continue;
-		}
-		free(p);
-
-		/* check if auth is valid */
-		if (ezcfg_auth_is_valid(ap) == false) {
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* check if auth is already set */
-		if (ezcfg_auth_list_in(&(master->auths), ap) == true) {
-			info(ezcfg, "auth entry already set\n");
-			ezcfg_auth_delete(ap);
-			continue;
-		}
-
-		/* add new authentication */
-		if (ezcfg_auth_list_insert(&(master->auths), ap) == true) {
-			info(ezcfg, "insert auth entry successfully\n");
-			/* set ap to NULL to avoid delete it */
-			ap = NULL;
-		}
-		else {
-			err(ezcfg, "insert auth entry failed: %m\n");
-			ezcfg_auth_delete(ap);
-		}
-	}
-}
-#endif
-
 /*
  * Deallocate ezcfg master context, free up the resources
  */
@@ -798,7 +452,7 @@ static bool accept_new_connection(struct ezcfg_master *master,
 	}
 
 	if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UEVENT) {
-		char buf[1024];
+		char buf[EZCFG_UEVENT_MAX_MESSAGE_SIZE];
 		int len;
 
 		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
@@ -816,6 +470,27 @@ static bool accept_new_connection(struct ezcfg_master *master,
 			return false;
 		}
 	}
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	else if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_SSDP) {
+		char buf[EZCFG_SSDP_MAX_MESSAGE_SIZE];
+		int len;
+
+		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
+		if (len > 0) {
+			buf[len - 1] = '\0';
+			if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
+				err(ezcfg, "set SSDP socket buffer error.\n");
+				ezcfg_socket_delete(accepted);
+				return false;
+			}
+		}
+		else {
+			err(ezcfg, "read SSDP socket error.\n");
+			ezcfg_socket_delete(accepted);
+			return false;
+		}
+	}
+#endif
 
 	allowed = true;
 
@@ -867,7 +542,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 			add_to_set(ezcfg_socket_get_sock(sp), &read_set, &max_fd);
 		}
 
-		/* unlock mutex before handling listening_sockets */
+		/* unlock mutex after handling listening_sockets */
 		pthread_mutex_unlock(&(master->ls_mutex));
 
 		/* wait up to EZCFG_MASTER_WAIT_TIME seconds. */
@@ -903,7 +578,7 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 				}
 			}
 
-			/* unlock mutex before handling listening_sockets */
+			/* unlock mutex after handling listening_sockets */
 			pthread_mutex_unlock(&(master->ls_mutex));
 		}
 	}
@@ -958,7 +633,6 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 	ezcfg_socket_set_close_on_exec(sp);
 
-#if 1
 	/* setup uevent socket */
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
@@ -981,18 +655,9 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		goto load_other_sockets;
 	}
 
-#if 0
-	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
-		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto load_other_sockets;
-	}
-#endif
-
 	ezcfg_socket_set_close_on_exec(sp);
 
 load_other_sockets:
-#endif
 
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
