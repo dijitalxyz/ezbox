@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 #ifdef _EXEC_
 int main(int argc, char **argv)
@@ -123,6 +124,9 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
+
+		/* prepare UPnP device/service xml files */
+		pop_etc_ezcfg_upnpd(flag);
 
 		/* add ezcfg upnpd listening socket */
 		rc = ezcfg_api_nvram_insert_socket(

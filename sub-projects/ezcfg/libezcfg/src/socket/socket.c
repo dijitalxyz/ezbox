@@ -33,21 +33,17 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include <sys/syscall.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-socket.h"
 #include "ezcfg-uevent.h"
 
-#define gettid() syscall(__NR_gettid)
 #if 1
 #define DBG(format, args...) do { \
-	pid_t pid; \
 	char path[256]; \
 	FILE *fp; \
-	pid = getpid(); \
-	snprintf(path, 256, "/tmp/%d.%d-debug.txt", pid, (int)gettid()); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
 	fp = fopen(path, "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \
@@ -57,6 +53,10 @@
 #else
 #define DBG(format, args...)
 #endif
+
+/**
+ * private functions
+ */
 
 static int set_non_blocking_mode(int sock)
 {
@@ -88,39 +88,11 @@ static void close_socket_gracefully(int sock) {
 }
 
 /**
- * ezcfg_socket_delete:
- * Delete ezcfg unified socket.
- * Returns:
- **/
-void ezcfg_socket_delete(struct ezcfg_socket *sp)
-{
-	struct ezcfg *ezcfg;
-	ASSERT(sp != NULL);
-
-	ezcfg = sp->ezcfg;
-
-	if (sp->sock >= 0) {
-		close(sp->sock);
-		/* also remove the filesystem node */
-		if (sp->lsa.domain == AF_LOCAL && sp->need_unlink == true) {
-			
-			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
-				err(ezcfg, "unlink fail: %m\n");
-			}
-		}
-	}
-	if (sp->buffer != NULL) {
-		free(sp->buffer);
-	}
-	free(sp);
-}
-
-/**
- * ezcfg_socket_new:
+ * create_socket:
  * Create ezcfg unified socket.
  * Returns: a new ezcfg socket
  **/
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path)
+static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path, bool socket_flag)
 {
 	struct ezcfg_socket *sp = NULL;
 	struct usa *usa = NULL;
@@ -169,10 +141,13 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 
 	switch (domain) {
 	case AF_LOCAL:
-		sp->sock = socket(AF_LOCAL, type, sock_protocol);
-		if (sp->sock < 0) {
-			err(ezcfg, "socket error\n");
-			goto fail_exit;
+		/* create socket ? */
+		if (socket_flag == true) {
+			sp->sock = socket(AF_LOCAL, type, sock_protocol);
+			if (sp->sock < 0) {
+				err(ezcfg, "socket error\n");
+				goto fail_exit;
+			}
 		}
 		usa = &(sp->lsa);
 		usa->domain = AF_LOCAL;
@@ -200,10 +175,13 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		*port = '\0';
 		port++;
 
-		sp->sock = socket(AF_INET, type, sock_protocol);
-		if (sp->sock < 0) {
-			err(ezcfg, "socket error\n");
-			goto fail_exit;
+		/* create socket ? */
+		if (socket_flag == true) {
+			sp->sock = socket(AF_INET, type, sock_protocol);
+			if (sp->sock < 0) {
+				err(ezcfg, "socket error\n");
+				goto fail_exit;
+			}
 		}
 		usa = &(sp->lsa);
 		usa->domain = AF_INET;
@@ -220,9 +198,11 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 			 * enable SO_REUSEADDR to allow multiple instances of this
 			 * application to receive copies of the multicast datagrams.
 			 */
-			if(setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
-				err(ezcfg, "setting SO_REUSEADDR error\n");
-				goto fail_exit;
+			if (socket_flag == true) {
+				if(setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
+					err(ezcfg, "setting SO_REUSEADDR error\n");
+					goto fail_exit;
+				}
 			}
 
 			/*
@@ -232,12 +212,6 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 			 * datagrams are to be received. */
 			sp->group.imr_multiaddr.s_addr = inet_addr(EZCFG_PROTO_SSDP_IPADDR_STRING);
 			sp->group.imr_interface.s_addr = inet_addr(addr);
-#if 0
-			if(setsockopt(sp->sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0) {
-				err(ezcfg, "Adding multicast group error\n");
-				goto fail_exit;
-			}
-#endif
 		}
 		else
 #endif
@@ -255,17 +229,20 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 		break;
 
 	case AF_NETLINK:
-		sp->sock = socket(AF_NETLINK, type, sock_protocol);
-		if (sp->sock < 0) {
-			err(ezcfg, "socket error\n");
-			goto fail_exit;
-		}
-		/* set receive buffer size */
-		if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUFFORCE, &buf_size, sizeof(buf_size))) {
-			buf_size = 106496;
-			if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size))) {
-				err(ezcfg, "socket set receive buffer size error\n");
+		/* create socket ? */
+		if (socket_flag == true) {
+			sp->sock = socket(AF_NETLINK, type, sock_protocol);
+			if (sp->sock < 0) {
+				err(ezcfg, "socket error\n");
 				goto fail_exit;
+			}
+			/* set receive buffer size */
+			if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUFFORCE, &buf_size, sizeof(buf_size))) {
+				buf_size = 106496;
+				if (setsockopt(sp->sock, SOL_SOCKET, SO_RCVBUF, &buf_size, sizeof(buf_size))) {
+					err(ezcfg, "socket set receive buffer size error\n");
+					goto fail_exit;
+				}
 			}
 		}
 		usa = &(sp->lsa);
@@ -280,7 +257,7 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 			usa->u.snl.nl_groups = UEVENT_NLGRP_NONE;
 		}
 		//usa->u.snl.nl_pid = getpid();
-		{
+		if (socket_flag == true) {
 			int err = 0;
 			//const int on = 1;
 			struct sockaddr_nl snl;
@@ -321,6 +298,58 @@ fail_exit:
 		free(sp);
 	}
 	return NULL;
+}
+
+/**
+ * public functions
+ */
+
+/**
+ * ezcfg_socket_delete:
+ * Delete ezcfg unified socket.
+ * Returns:
+ **/
+void ezcfg_socket_delete(struct ezcfg_socket *sp)
+{
+	struct ezcfg *ezcfg;
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+
+	if (sp->sock >= 0) {
+		close(sp->sock);
+		/* also remove the filesystem node */
+		if (sp->lsa.domain == AF_LOCAL && sp->need_unlink == true) {
+			
+			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
+				err(ezcfg, "unlink fail: %m\n");
+			}
+		}
+	}
+	if (sp->buffer != NULL) {
+		free(sp->buffer);
+	}
+	free(sp);
+}
+
+/**
+ * ezcfg_socket_new:
+ * Create ezcfg unified socket.
+ * Returns: a new ezcfg socket
+ **/
+struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path)
+{
+	return create_socket(ezcfg, domain, type, proto, socket_path, true);
+}
+
+/**
+ * ezcfg_socket_fake_new:
+ * Create ezcfg unified socket.
+ * Returns: a new ezcfg socket
+ **/
+struct ezcfg_socket *ezcfg_socket_fake_new(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path)
+{
+	return create_socket(ezcfg, domain, type, proto, socket_path, false);
 }
 
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
@@ -511,7 +540,6 @@ bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *cur;
-	//struct usa *usa = NULL, *usa2 = NULL;
 
 	ASSERT(list != NULL);
 	ASSERT(sp != NULL);
@@ -519,25 +547,11 @@ bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 
 	cur = *list;
-	//usa = &(sp->lsa);
 	while (cur != NULL) {
-#if 0
-		usa2 = &(cur->lsa);
-		if ((sp->proto == cur->proto) &&
-		    (usa->domain == usa2->domain) &&
-		    (usa->type == usa2->type) &&
-		    (usa->len == usa2->len)) {
-			if (memcmp(&(usa->u.sa), &(usa2->u.sa), usa->len) == 0) {
-				info(ezcfg, "find match socket\n");
-				return true;
-			}
-		}
-#else 
 		if (ezcfg_socket_compare(sp, cur) == true) {
 			info(ezcfg, "find match socket\n");
 			return true;
 		}
-#endif
 		cur = cur->next;
 	}
 	return false;
@@ -554,7 +568,6 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *cur;
-	//struct usa *usa = NULL, *usa2 = NULL;
 	bool ret = false;
 
 	ASSERT(list != NULL);
@@ -563,27 +576,12 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 	ezcfg = sp->ezcfg;
 
 	cur = *list;
-	//usa = &(sp->lsa);
 	while (cur != NULL) {
-#if 0
-		usa2 = &(cur->lsa);
-		if ((sp->proto == cur->proto) &&
-		    (usa->domain == usa2->domain) &&
-		    (usa->type == usa2->type) &&
-		    (usa->len == usa2->len)) {
-			if (memcmp(&(usa->u.sa), &(usa2->u.sa), usa->len) == 0) {
-				info(ezcfg, "find match socket, and set need_delete\n");
-				cur->need_delete = need_delete;
-				ret = true;
-			}
-		}
-#else
 		if (ezcfg_socket_compare(sp, cur) == true) {
 			info(ezcfg, "find match socket\n");
 			cur->need_delete = need_delete;
 			ret = true;
 		}
-#endif
 		cur = cur->next;
 	}
 	return ret;
@@ -615,6 +613,16 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 	case AF_INET:
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sin, usa->len);
+		if (err < 0) {
+			break;
+		}
+
+		if (sp->proto == EZCFG_PROTO_SSDP) {
+			err = setsockopt(sp->sock,
+				IPPROTO_IP, IP_ADD_MEMBERSHIP,
+				(char *)&(sp->group), sizeof(sp->group));
+		}
+
 		break;
 
 	case AF_NETLINK:
@@ -631,51 +639,10 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		return err;
 	}
 
-	if (sp->proto == EZCFG_PROTO_SSDP) {
-		err = setsockopt(sp->sock,
-			IPPROTO_IP, IP_ADD_MEMBERSHIP,
-			(char *)&(sp->group), sizeof(sp->group));
-	}
-
-	if (err < 0) {
-		return err;
-	}
-
 	/* enable receiving of sender credentials */
 	//setsockopt(sp->sock, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on));
 	return 0;
 }
-
-/**
- * ezcfg_socket_join_multicast_group:
- * @sp: the listening socket which start receiving events
- * Makes the @sp join multicast group on special interface.
- * Returns: 0 on success, otherwise a negative error value.
- */
-#if 0
-int ezcfg_socket_join_multicast_group(struct ezcfg_socket *sp,
-	char *multiaddr, char *interface)
-{
-	int err = 0;
-	struct ip_mreq group;
-	struct ezcfg *ezcfg;
-
-	ASSERT(sp != NULL);
-	ASSERT(multiaddr != NULL);
-	ASSERT(interface != NULL);
-
-	ezcfg = sp->ezcfg;
-
-	group.imr_multiaddr.s_addr = inet_addr(multiaddr);
-	group.imr_interface.s_addr = inet_addr(interface);
-	err = setsockopt(sp->sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group));
-	if(err < 0) {
-		err(ezcfg, "adding multicast group error\n");
-		return err;
-	}
-	return 0;
-}
-#endif
 
 /**
  * ezcfg_socket_enable_listening:

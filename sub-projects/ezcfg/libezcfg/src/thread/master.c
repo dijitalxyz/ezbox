@@ -39,11 +39,9 @@
 
 #if 1
 #define DBG(format, args...) do { \
-	pid_t pid; \
 	char path[256]; \
 	FILE *fp; \
-	pid = getpid(); \
-	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
 	fp = fopen(path, "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \

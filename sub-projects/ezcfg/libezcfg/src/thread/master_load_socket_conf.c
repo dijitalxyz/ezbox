@@ -72,20 +72,22 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	/* ctrl socket and nvram socket */
-	ctrl_sp = ezcfg_socket_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, EZCFG_SOCK_CTRL_PATH);
+	/* ctrl fake socket */
+	ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, EZCFG_SOCK_CTRL_PATH);
 	if (ctrl_sp == NULL) {
 		err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
 		return ;
 	}
 
-	nvram_sp = ezcfg_socket_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
+	/* nvram fake socket */
+	nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
 	if (nvram_sp == NULL) {
 		err(ezcfg, "ezcfg_socket_new(nvram_sp)\n");
 		return ;
 	}
 
-	uevent_sp = ezcfg_socket_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
+	/* uevent fake socket */
+	uevent_sp = ezcfg_socket_fake_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
 	if (uevent_sp == NULL) {
 		err(ezcfg, "ezcfg_socket_new(uevent_sp)\n");
 		return ;
@@ -102,7 +104,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 		sp = ezcfg_socket_get_next(sp);
 	}
 
-	/* delete unused sp */
+	/* delete unused fake sockets */
 	ezcfg_socket_delete(ctrl_sp);
 	ezcfg_socket_delete(nvram_sp);
 	ezcfg_socket_delete(uevent_sp);
@@ -174,9 +176,9 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			continue;
 		}
 
-		sp = ezcfg_socket_new(ezcfg, domain, type, proto, address);
+		sp = ezcfg_socket_fake_new(ezcfg, domain, type, proto, address);
 		if (sp == NULL) {
-			err(ezcfg, "init socket fail: %m\n");
+			err(ezcfg, "init fake socket fail: %m\n");
 			continue;
 		}
 
@@ -186,6 +188,16 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			/* don't delete this socket in listening_sockets */
 			ezcfg_socket_list_set_need_delete(psp, sp, false);
 			ezcfg_socket_delete(sp);
+			continue;
+		}
+
+		/* not in listening sockets, create it now */
+		/* first delete the fake socket */
+		ezcfg_socket_delete(sp);
+		/* then create the socket */
+		sp = ezcfg_socket_new(ezcfg, domain, type, proto, address);
+		if (sp == NULL) {
+			err(ezcfg, "init socket fail: %m\n");
 			continue;
 		}
 
@@ -207,32 +219,6 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 			ezcfg_socket_list_delete_socket(psp, sp);
 			continue;
 		}
-
-#if 0
-		if (proto == EZCFG_PROTO_SSDP) {
-			int ret;
-			char *ip_addr = strdup(address);
-			if (ip_addr == NULL) {
-				err(ezcfg, "ssdp socket [%s] join multicast group not enough memory\n", address);
-	   	 		psp = ezcfg_master_get_p_listening_sockets(master);
-				ezcfg_socket_list_delete_socket(psp, sp);
-				continue;
-			}
-
-			p = strchr(ip_addr, ':');
-			if (p != NULL)
-				*p = '\0';
-
-			ret = ezcfg_socket_join_multicast_group(sp, EZCFG_PROTO_SSDP_IPADDR_STRING, ip_addr);
-			free(ip_addr);
-			if (ret < 0) {
-				err(ezcfg, "ssdp socket [%s] join multicast group fail: %m\n", address);
-	   	 		psp = ezcfg_master_get_p_listening_sockets(master);
-				ezcfg_socket_list_delete_socket(psp, sp);
-				continue;
-			}
-		}
-#endif
 
 		if (ezcfg_socket_enable_listening(sp, ezcfg_master_get_sq_len(master)) < 0) {
 			err(ezcfg, "enable socket [%s] listening fail: %m\n", address);

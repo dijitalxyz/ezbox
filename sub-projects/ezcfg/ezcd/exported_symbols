@@ -45,6 +45,7 @@ pop_etc_profile
 pop_etc_banner
 pop_etc_mtab
 pop_etc_mdev_conf
+pop_etc_ezcfg_upnpd
 pop_etc_dillo_dillorc
 pop_etc_emc2_configs
 pop_etc_emc2_rtapi_conf
