@@ -28,12 +28,14 @@
 #define EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER   "socket_number"
 #define EZCFG_EZCFG_KEYWORD_LOCALE          "locale"
 #define EZCFG_EZCFG_KEYWORD_AUTH_NUMBER     "auth_number"
+#define EZCFG_EZCFG_KEYWORD_UPNP_NUMBER     "upnp_number"
 
 #define EZCFG_EZCFG_COMMON_LOG_LEVEL        "common.log_level"
 #define EZCFG_EZCFG_COMMON_RULES_PATH       "common.rules_path"
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
 #define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 #define EZCFG_EZCFG_COMMON_AUTH_NUMBER      "common.auth_number"
+#define EZCFG_EZCFG_COMMON_UPNP_NUMBER      "common.upnp_number"
 
 /* ezcfg config [nvram] section */
 #define EZCFG_EZCFG_SECTION_NVRAM           "nvram"
@@ -74,6 +76,9 @@
 #define EZCFG_EZCFG_KEYWORD_REALM           "realm"
 //#define EZCFG_EZCFG_KEYWORD_DOMAIN          "domain"
 #define EZCFG_EZCFG_KEYWORD_SECRET          "secret"
+
+/* ezcfg config [upnp] section */
+#define EZCFG_EZCFG_SECTION_UPNP            "upnp"
 
 #define EZCFG_EZCFG_AUTH_0_TYPE             "auth.0.type"
 #define EZCFG_EZCFG_AUTH_0_USER             "auth.0.user"

@@ -185,6 +185,7 @@ libezcd_la_SOURCES += src/pop/pop_etc_profile.c
 # ezcfg_upnpd
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcd_la_SOURCES += src/pop/pop_etc_ezcfg_upnpd.c
+libezcd_la_SOURCES += src/pop/pop_etc_ezcfg_upnpd_igd1.c
 endif
 
 # network

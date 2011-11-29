@@ -49,6 +49,8 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 	int rc = -1;
 	int ip[4];
 	char buf[256];
+	char ssdp_addr[64];
+	char gena_addr[64];
 	int flag, ret;
 
 	if (argc < 3) {
@@ -89,21 +91,31 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+	snprintf(ssdp_addr, sizeof(ssdp_addr), "%d.%d.%d.%d:%d",
 		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_SSDP_PORT_NUMBER_STRING);
+		EZCFG_PROTO_SSDP_PORT_NUMBER);
+
+	snprintf(gena_addr, sizeof(gena_addr), "%d.%d.%d.%d:%d",
+		ip[0], ip[1], ip[2], ip[3],
+		EZCFG_PROTO_UPNP_GENA_PORT_NUMBER);
 
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		/* delete ezcfg upnpd listening socket */
+		/* delete ezcfg upnpd listening sockets */
 		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
 			EZCFG_SOCKET_PROTO_SSDP_STRING,
-			buf);
+			ssdp_addr);
+
+		rc = ezcfg_api_nvram_remove_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
+			gena_addr);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -128,12 +140,18 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		/* prepare UPnP device/service xml files */
 		pop_etc_ezcfg_upnpd(flag);
 
-		/* add ezcfg upnpd listening socket */
+		/* add ezcfg upnpd listening sockets */
 		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
 			EZCFG_SOCKET_PROTO_SSDP_STRING,
-			buf);
+			ssdp_addr);
+
+		rc = ezcfg_api_nvram_insert_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
+			gena_addr);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */

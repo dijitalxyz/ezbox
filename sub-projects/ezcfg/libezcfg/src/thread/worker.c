@@ -97,6 +97,9 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	case EZCFG_PROTO_SSDP :
 		info(ezcfg, "SSDP reset attributes\n");
 		break;
+	case EZCFG_PROTO_UPNP_GENA :
+		ezcfg_upnp_gena_reset_attributes(worker->proto_data);
+		break;
 #endif
 	default :
 		err(ezcfg, "unknown protocol\n");
@@ -152,6 +155,10 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 		worker->proto_data = ezcfg_ssdp_new(ezcfg);
 		info(ezcfg, "SSDP protocol\n");
 		break;
+	case EZCFG_PROTO_UPNP_GENA :
+		worker->proto_data = ezcfg_upnp_gena_new(ezcfg);
+		info(ezcfg, "UPNP/GENA protocol\n");
+		break;
 #endif
 	default :
 		info(ezcfg, "unknown protocol\n");
@@ -188,6 +195,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		ezcfg_worker_process_ssdp_new_connection(worker);
+		break;
+	case EZCFG_PROTO_UPNP_GENA :
+		ezcfg_worker_process_upnp_gena_new_connection(worker);
 		break;
 #endif
 	default :
@@ -228,6 +238,10 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_SSDP :
 		ezcfg_ssdp_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_UPNP_GENA :
+		ezcfg_upnp_gena_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 #endif

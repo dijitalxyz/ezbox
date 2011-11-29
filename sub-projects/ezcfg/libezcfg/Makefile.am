@@ -46,6 +46,9 @@ libezcfg_la_SOURCES += src/thread/master.c
 libezcfg_la_SOURCES += src/thread/master_load_common_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_socket_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcfg_la_SOURCES += src/thread/master_load_upnp_conf.c
+endif
 libezcfg_la_SOURCES += src/thread/worker.c
 libezcfg_la_SOURCES += src/thread/worker_http.c
 libezcfg_la_SOURCES += src/thread/worker_soap_http.c
@@ -53,6 +56,7 @@ libezcfg_la_SOURCES += src/thread/worker_igrs.c
 libezcfg_la_SOURCES += src/thread/worker_uevent.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/thread/worker_ssdp.c
+libezcfg_la_SOURCES += src/thread/worker_upnp_gena.c
 endif
 
 # ezcfg utils
@@ -219,6 +223,7 @@ if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/upnp/upnp.c
 # ezcfg SSDP protocol
 libezcfg_la_SOURCES += src/upnp/ssdp.c
+libezcfg_la_SOURCES += src/upnp/upnp_gena.c
 endif
 
 # ezcfg API wrap

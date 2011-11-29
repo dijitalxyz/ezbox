@@ -89,6 +89,7 @@ struct ezcfg_master {
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	struct ezcfg_upnp *upnp; /* UPnP global state */
+	pthread_mutex_t upnp_mutex; /* Protects upnp */
 #endif
 
 	struct ezcfg_worker *workers; /* Worker list */
@@ -206,6 +207,9 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	pthread_cond_init(&(master->thread_sync_cond), NULL);
 	pthread_mutex_init(&(master->ls_mutex), NULL);
 	pthread_mutex_init(&(master->auth_mutex), NULL);
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	pthread_mutex_init(&(master->upnp_mutex), NULL);
+#endif
 	pthread_cond_init(&(master->sq_empty_cond), NULL);
 	pthread_cond_init(&(master->sq_full_cond), NULL);
 
@@ -663,6 +667,14 @@ load_other_sockets:
 	/* unlock mutex after handling auths */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD ==  1)
+	/* lock mutex before handling upnp */
+	pthread_mutex_lock(&(master->upnp_mutex));
+	ezcfg_master_load_upnp_conf(master);
+	/* unlock mutex after handling auths */
+	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+
 	/* lock mutex before handling listening_sockets */
 	pthread_mutex_lock(&(master->ls_mutex));
 	ezcfg_master_load_socket_conf(master);
@@ -767,10 +779,21 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	ezcfg_master_load_auth_conf(master);
 
-	ezcfg_master_load_socket_conf(master);
-
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	/* lock upnp mutex */
+	pthread_mutex_lock(&(master->upnp_mutex));
+
+	ezcfg_master_load_upnp_conf(master);
+
+	/* unlock upnp mutex */
+	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+
+	/* reload sockets */
+	ezcfg_master_load_socket_conf(master);
 
 	/* unlock listening sockets mutex */
 	pthread_mutex_unlock(&(master->ls_mutex));

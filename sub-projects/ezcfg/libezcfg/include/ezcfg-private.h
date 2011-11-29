@@ -563,6 +563,12 @@ void ezcfg_isdp_delete(struct ezcfg_isdp *isdp);
 struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
 void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
 
+/* upnp/upnp_gena.c */
+struct ezcfg_upnp_gena;
+void ezcfg_upnp_gena_delete(struct ezcfg_upnp_gena *upnp_gena);
+struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg);
+void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *upnp_gena);
+
 /* thread/master.c */
 pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master);
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
@@ -587,6 +593,11 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master);
 
 /* thread/master_load_auth_conf.c */
 void ezcfg_master_load_auth_conf(struct ezcfg_master *master);
+
+/* thread/master_load_upnp_conf.c */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+void ezcfg_master_load_upnp_conf(struct ezcfg_master *master);
+#endif
 
 /* thread/worker.c */
 struct ezcfg_worker;
@@ -623,6 +634,9 @@ void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker);
 
 /* thread/worker_ssdp.c */
 void ezcfg_worker_process_ssdp_new_connection(struct ezcfg_worker *worker);
+
+/* thread/worker_upnp_gena.c */
+void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 
 
 /* ctrl/ctrl.c - daemon runtime setup */

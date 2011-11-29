@@ -135,6 +135,7 @@
 #define EZCFG_PROTO_ISDP	4
 #define EZCFG_PROTO_UEVENT	5
 #define EZCFG_PROTO_SSDP	6
+#define EZCFG_PROTO_UPNP_GENA	7
 
 //#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
 #define EZCFG_SOCKET_PROTO_HTTP_STRING            "http"
@@ -143,6 +144,7 @@
 #define EZCFG_SOCKET_PROTO_ISDP_STRING            "isdp"
 #define EZCFG_SOCKET_PROTO_UEVENT_STRING          "uevent"
 #define EZCFG_SOCKET_PROTO_SSDP_STRING            "ssdp"
+#define EZCFG_SOCKET_PROTO_UPNP_GENA_STRING       "upnp-gena"
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
@@ -150,6 +152,9 @@
 #define EZCFG_PROTO_SSDP_IPADDR_STRING           "239.255.255.250"
 #define EZCFG_PROTO_SSDP_PORT_NUMBER              1900
 #define EZCFG_PROTO_SSDP_PORT_NUMBER_STRING       "1900"
+
+#define EZCFG_PROTO_UPNP_GENA_PORT_NUMBER         61900
+#define EZCFG_PROTO_UPNP_GENA_PORT_NUMBER_STRING  "61900"
 
 
 /* ezcfg xml definitions */
