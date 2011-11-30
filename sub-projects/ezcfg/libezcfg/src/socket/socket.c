@@ -180,10 +180,24 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 		usa->domain = AF_INET;
 		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
-		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
+		if (
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+		    (proto == EZCFG_PROTO_IGRS_ISDP &&
+		     strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING) == 0) ||
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-		if (proto == EZCFG_PROTO_UPNP_SSDP) {
+		    (proto == EZCFG_PROTO_UPNP_SSDP &&
+		     strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING) == 0) ||
+#endif
+		 0 ) {
 			int reuse = 1;
+			char *if_addr = strchr(port, '@');
+			if (if_addr == NULL) {
+				err(ezcfg, "muticast socket_path format error.\n");
+				goto fail_exit;
+			}
+			*if_addr = '\0';
+			if_addr++;
 
 			usa->u.sin.sin_addr.s_addr = INADDR_ANY;
 
@@ -199,15 +213,14 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 
 			/*
-			 * join the multicast group 239.255.255.250 on the [addr] interface.
+			 * join the multicast group [addr](239.255.255.250) on the [if_addr] interface.
 			 * note that this IP_ADD_MEMBERSHIP option must be
 			 * called for each local interface over which the multicast
 			 * datagrams are to be received. */
-			sp->group.imr_multiaddr.s_addr = inet_addr(EZCFG_PROTO_UPNP_SSDP_IPADDR_STRING);
-			sp->group.imr_interface.s_addr = inet_addr(addr);
+			sp->group.imr_multiaddr.s_addr = inet_addr(addr);
+			sp->group.imr_interface.s_addr = inet_addr(if_addr);
 		}
 		else
-#endif
 		{
 			usa->u.sin.sin_addr.s_addr = inet_addr(addr);
 			if (usa->u.sin.sin_addr.s_addr == 0) {
@@ -215,6 +228,8 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 				goto fail_exit;
 			}
 		}
+		/* FIXME: must after dealing the address string, multicast socket path is a special case */
+		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
 		usa->len = sizeof(usa->u.sin);
 		free(addr);
 		addr = NULL;

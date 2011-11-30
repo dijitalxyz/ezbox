@@ -90,9 +90,10 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(isdp_addr, sizeof(isdp_addr), "%d.%d.%d.%d:%d",
-		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER);
+	snprintf(isdp_addr, sizeof(isdp_addr), "%s:%d@%d.%d.%d.%d",
+		EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING,
+		EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER,
+		ip[0], ip[1], ip[2], ip[3]);
 
 	flag = utils_get_rc_act_type(argv[2]);
 

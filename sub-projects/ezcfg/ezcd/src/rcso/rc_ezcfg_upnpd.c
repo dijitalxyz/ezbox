@@ -91,9 +91,10 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(ssdp_addr, sizeof(ssdp_addr), "%d.%d.%d.%d:%d",
-		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER);
+	snprintf(ssdp_addr, sizeof(ssdp_addr), "%s:%d@%d.%d.%d.%d",
+		EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+		EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER,
+		ip[0], ip[1], ip[2], ip[3]);
 
 	snprintf(gena_addr, sizeof(gena_addr), "%d.%d.%d.%d:%d",
 		ip[0], ip[1], ip[2], ip[3],
