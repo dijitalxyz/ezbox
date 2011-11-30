@@ -87,6 +87,11 @@ struct ezcfg_master {
 
 	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	struct ezcfg_igrs *igrs; /* IGRS global state */
+	pthread_mutex_t igrs_mutex; /* Protects igrs */
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	struct ezcfg_upnp *upnp; /* UPnP global state */
 	pthread_mutex_t upnp_mutex; /* Protects upnp */
@@ -207,6 +212,9 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	pthread_cond_init(&(master->thread_sync_cond), NULL);
 	pthread_mutex_init(&(master->ls_mutex), NULL);
 	pthread_mutex_init(&(master->auth_mutex), NULL);
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	pthread_mutex_init(&(master->igrs_mutex), NULL);
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	pthread_mutex_init(&(master->upnp_mutex), NULL);
 #endif
@@ -473,8 +481,8 @@ static bool accept_new_connection(struct ezcfg_master *master,
 		}
 	}
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	else if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_SSDP) {
-		char buf[EZCFG_SSDP_MAX_MESSAGE_SIZE];
+	else if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UPNP_SSDP) {
+		char buf[EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE];
 		int len;
 
 		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
@@ -667,6 +675,14 @@ load_other_sockets:
 	/* unlock mutex after handling auths */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD ==  1)
+	/* lock mutex before handling igrs */
+	pthread_mutex_lock(&(master->igrs_mutex));
+	ezcfg_master_load_igrs_conf(master);
+	/* unlock mutex after handling auths */
+	pthread_mutex_unlock(&(master->igrs_mutex));
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD ==  1)
 	/* lock mutex before handling upnp */
 	pthread_mutex_lock(&(master->upnp_mutex));
@@ -781,6 +797,16 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	/* lock igrs mutex */
+	pthread_mutex_lock(&(master->igrs_mutex));
+
+	ezcfg_master_load_igrs_conf(master);
+
+	/* unlock upnp mutex */
+	pthread_mutex_unlock(&(master->igrs_mutex));
+#endif
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	/* lock upnp mutex */

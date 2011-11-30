@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : igrs/isdp.c
+ * File Name    : igrs/igrs_isdp.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2010-07-27   0.1       Write it from scratch
+ * 2011-11-30   0.2       Rewrite it to conform with ISO/IEC 14543-5-1:2010
  * ============================================================================
  */
 
@@ -35,7 +36,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-struct ezcfg_isdp {
+struct ezcfg_igrs_isdp {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	unsigned short version_major;
@@ -50,7 +51,7 @@ struct ezcfg_isdp {
 	char *server;
 	char *usn; /* Unique Service Name */
 	/* M-SEARCH headers */
-	char *man; /* "ssdp:discover" */
+	char *man; /* "isdp:discover" */
 	char *mx; /* Maximum wait time in seconds */
 	char *st; /* Search Target */
 };
@@ -134,7 +135,49 @@ static const char *message_type_strings[] = {
 };
 #endif
 
-void ezcfg_isdp_dump(struct ezcfg_isdp *isdp)
+/**
+ * private functions
+ **/
+
+/**
+ * Public functions
+ **/
+void ezcfg_igrs_isdp_delete(struct ezcfg_igrs_isdp *isdp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(isdp != NULL);
+
+	ezcfg = isdp->ezcfg;
+
+	free(isdp);
+}
+
+/**
+ * ezcfg_igrs_isdp_new:
+ * Create ezcfg isdp protocol data structure
+ * Returns: a new ezcfg isdp protocol data structure
+ **/
+struct ezcfg_igrs_isdp *ezcfg_igrs_isdp_new(struct ezcfg *ezcfg)
+{
+	struct ezcfg_igrs_isdp *isdp;
+
+	ASSERT(ezcfg != NULL);
+
+	/* initialize isdp protocol data structure */
+	isdp = calloc(1, sizeof(struct ezcfg_igrs_isdp));
+	if (isdp == NULL) {
+		return NULL;
+	}
+
+	memset(isdp, 0, sizeof(struct ezcfg_igrs_isdp));
+	isdp->ezcfg = ezcfg;
+	//isdp->igrs = igrs;
+
+	return isdp;
+}
+
+void ezcfg_igrs_isdp_dump(struct ezcfg_igrs_isdp *isdp)
 {
 	struct ezcfg *ezcfg;
 
@@ -143,3 +186,4 @@ void ezcfg_isdp_dump(struct ezcfg_isdp *isdp)
 	ezcfg = isdp->ezcfg;
 
 }
+

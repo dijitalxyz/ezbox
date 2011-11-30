@@ -182,6 +182,11 @@ libezcd_la_SOURCES += src/pop/pop_etc_hostname.c
 libezcd_la_SOURCES += src/pop/pop_etc_mtab.c
 libezcd_la_SOURCES += src/pop/pop_etc_profile.c
 
+# ezcfg_igrsd
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+libezcd_la_SOURCES += src/pop/pop_etc_ezcfg_igrsd.c
+endif
+
 # ezcfg_upnpd
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcd_la_SOURCES += src/pop/pop_etc_ezcfg_upnpd.c
@@ -233,6 +238,9 @@ RCSO_SRC += rc_data_storage.c
 RCSO_SRC += rc_nvram.c
 RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+RCSO_SRC += rc_ezcfg_igrsd.c
+endif
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 RCSO_SRC += rc_ezcfg_upnpd.c
 endif

@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : upnp/upnp_gena.c
+ * File Name    : upnp/upnp_ssdp.c
  *
  * Description  : interface to configurate ezbox information
  *
@@ -34,7 +34,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-upnp_gena.h"
+#include "ezcfg-upnp_ssdp.h"
 
 /**
  * private functions
@@ -43,42 +43,38 @@
 /**
  * Public functions
  **/
-void ezcfg_upnp_gena_delete(struct ezcfg_upnp_gena *gena)
+void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp)
 {
 	struct ezcfg *ezcfg;
 
-	ASSERT(gena != NULL);
+	ASSERT(ssdp != NULL);
 
-	ezcfg = gena->ezcfg;
+	ezcfg = ssdp->ezcfg;
 
-	free(gena);
+	free(ssdp);
 }
 
 /**
- * ezcfg_upnp_gena_new:
- * Create ezcfg upnp gena protocol data structure
- * Returns: a new ezcfg upnp gena protocol data structure
+ * ezcfg_upnp_ssdp_new:
+ * Create ezcfg ssdp protocol data structure
+ * Returns: a new ezcfg ssdp protocol data structure
  **/
-struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg)
+struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_upnp_gena *gena;
+	struct ezcfg_upnp_ssdp *ssdp;
 
 	ASSERT(ezcfg != NULL);
 
-	/* initialize upnp gena protocol data structure */
-	gena = calloc(1, sizeof(struct ezcfg_upnp_gena));
-	if (gena == NULL) {
+	/* initialize ssdp protocol data structure */
+	ssdp = calloc(1, sizeof(struct ezcfg_upnp_ssdp));
+	if (ssdp == NULL) {
 		return NULL;
 	}
 
-	memset(gena, 0, sizeof(struct ezcfg_upnp_gena));
-	gena->ezcfg = ezcfg;
-	//gena->upnp = upnp;
+	memset(ssdp, 0, sizeof(struct ezcfg_upnp_ssdp));
+	ssdp->ezcfg = ezcfg;
+	//ssdp->upnp = upnp;
 
-	return gena;
+	return ssdp;
 }
 
-void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *gena)
-{
-	return;
-}

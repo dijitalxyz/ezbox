@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : ezcfg-ssdp.h
+ * File Name    : ezcfg-upnp_ssdp.h
  *
  * Description  : interface to configurate ezbox information
  *
@@ -11,17 +11,17 @@
  * ============================================================================
  */
 
-#ifndef _EZCFG_SSDP_H_
-#define _EZCFG_SSDP_H_
+#ifndef _EZCFG_UPNP_SSDP_H_
+#define _EZCFG_UPNP_SSDP_H_
 
 #include "ezcfg.h"
 #include "ezcfg-http.h"
 #include "ezcfg-upnp.h"
 
-struct ezcfg_ssdp {
+struct ezcfg_upnp_ssdp {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_upnp *upnp;
 };
 
-#endif /* _EZCFG_SSDP_H_ */
+#endif /* _EZCFG_UPNP_SSDP_H_ */

@@ -104,19 +104,12 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 	ASSERT(ezcfg != NULL);
 	ASSERT(socket_path != NULL);
 
-	if ((domain != AF_LOCAL) &&
-	    (domain != AF_INET) &&
-	    (domain != AF_NETLINK)){
+	if (ezcfg_util_socket_is_supported_domain(domain) == false) {
 		err(ezcfg, "unknown socket family %d\n", domain);
 		return NULL;
 	}
 
-	if (proto != EZCFG_PROTO_HTTP &&
-	    proto != EZCFG_PROTO_SOAP_HTTP &&
-	    proto != EZCFG_PROTO_IGRS &&
-	    proto != EZCFG_PROTO_ISDP &&
-	    proto != EZCFG_PROTO_UEVENT &&
-	    proto != EZCFG_PROTO_SSDP) {
+	if (ezcfg_util_socket_is_supported_protocol(proto) == false) {
 		err(ezcfg, "unknown communication protocol %d\n", proto);
 		return NULL;
 	}
@@ -189,7 +182,7 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 		usa->u.sin.sin_family = AF_INET;
 		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-		if (proto == EZCFG_PROTO_SSDP) {
+		if (proto == EZCFG_PROTO_UPNP_SSDP) {
 			int reuse = 1;
 
 			usa->u.sin.sin_addr.s_addr = INADDR_ANY;
@@ -210,7 +203,7 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			 * note that this IP_ADD_MEMBERSHIP option must be
 			 * called for each local interface over which the multicast
 			 * datagrams are to be received. */
-			sp->group.imr_multiaddr.s_addr = inet_addr(EZCFG_PROTO_SSDP_IPADDR_STRING);
+			sp->group.imr_multiaddr.s_addr = inet_addr(EZCFG_PROTO_UPNP_SSDP_IPADDR_STRING);
 			sp->group.imr_interface.s_addr = inet_addr(addr);
 		}
 		else
@@ -617,7 +610,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 			break;
 		}
 
-		if (sp->proto == EZCFG_PROTO_SSDP) {
+		if (sp->proto == EZCFG_PROTO_UPNP_SSDP) {
 			err = setsockopt(sp->sock,
 				IPPROTO_IP, IP_ADD_MEMBERSHIP,
 				(char *)&(sp->group), sizeof(sp->group));
@@ -896,7 +889,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 	case EZCFG_PROTO_UEVENT :
 		return new_accepted_socket_datagram(listener);
 		break;
-	case EZCFG_PROTO_SSDP :
+	case EZCFG_PROTO_UPNP_SSDP :
 		return new_accepted_socket_datagram(listener);
 		break;
 	default :

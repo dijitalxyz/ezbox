@@ -28,6 +28,7 @@
 #define EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER   "socket_number"
 #define EZCFG_EZCFG_KEYWORD_LOCALE          "locale"
 #define EZCFG_EZCFG_KEYWORD_AUTH_NUMBER     "auth_number"
+#define EZCFG_EZCFG_KEYWORD_IGRS_NUMBER     "igrs_number"
 #define EZCFG_EZCFG_KEYWORD_UPNP_NUMBER     "upnp_number"
 
 #define EZCFG_EZCFG_COMMON_LOG_LEVEL        "common.log_level"
@@ -77,15 +78,18 @@
 //#define EZCFG_EZCFG_KEYWORD_DOMAIN          "domain"
 #define EZCFG_EZCFG_KEYWORD_SECRET          "secret"
 
-/* ezcfg config [upnp] section */
-#define EZCFG_EZCFG_SECTION_UPNP            "upnp"
-
 #define EZCFG_EZCFG_AUTH_0_TYPE             "auth.0.type"
 #define EZCFG_EZCFG_AUTH_0_USER             "auth.0.user"
 #define EZCFG_EZCFG_AUTH_0_REALM            "auth.0.realm"
 #define EZCFG_EZCFG_AUTH_0_DOMAIN           "auth.0.domain"
 #define EZCFG_EZCFG_AUTH_0_SECRET           "auth.0.secret"
 #define EZCFG_EZCFG_AUTH_0_SECRET2          "auth.0.secret2"
+
+/* ezcfg config [igrs] section */
+#define EZCFG_EZCFG_SECTION_IGRS            "igrs"
+
+/* ezcfg config [upnp] section */
+#define EZCFG_EZCFG_SECTION_UPNP            "upnp"
 
 #define EZCFG_EZCFG_HTTPD_ENABLE            "httpd_enable"
 #define EZCFG_EZCFG_HTTPD_HTTP              "httpd_http"
@@ -94,5 +98,8 @@
 
 #define EZCFG_EZCFG_UPNPD_ENABLE            "upnpd_enable"
 #define EZCFG_EZCFG_UPNPD_BINDING           "upnpd_binding"
+
+#define EZCFG_EZCFG_IGRSD_ENABLE            "igrsd_enable"
+#define EZCFG_EZCFG_IGRSD_BINDING           "igrsd_binding"
 
 #endif

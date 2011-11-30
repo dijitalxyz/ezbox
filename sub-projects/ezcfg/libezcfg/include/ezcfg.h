@@ -120,6 +120,7 @@
 /* ezcfg socket domain string */
 #define EZCFG_SOCKET_DOMAIN_LOCAL_STRING   "local"
 #define EZCFG_SOCKET_DOMAIN_INET_STRING    "inet"
+#define EZCFG_SOCKET_DOMAIN_NETLINK_STRING "netlink"
 #define EZCFG_SOCKET_DOMAIN_INET6_STRING   "inet6"
 
 /* ezcfg socket type string */
@@ -132,26 +133,31 @@
 #define EZCFG_PROTO_HTTP	1
 #define EZCFG_PROTO_SOAP_HTTP	2
 #define EZCFG_PROTO_IGRS	3
-#define EZCFG_PROTO_ISDP	4
+#define EZCFG_PROTO_IGRS_ISDP	4
 #define EZCFG_PROTO_UEVENT	5
-#define EZCFG_PROTO_SSDP	6
+#define EZCFG_PROTO_UPNP_SSDP	6
 #define EZCFG_PROTO_UPNP_GENA	7
 
 //#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
 #define EZCFG_SOCKET_PROTO_HTTP_STRING            "http"
 #define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "soap-http"
 #define EZCFG_SOCKET_PROTO_IGRS_STRING            "igrs"
-#define EZCFG_SOCKET_PROTO_ISDP_STRING            "isdp"
+#define EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING       "igrs-isdp"
 #define EZCFG_SOCKET_PROTO_UEVENT_STRING          "uevent"
-#define EZCFG_SOCKET_PROTO_SSDP_STRING            "ssdp"
+#define EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING       "upnp-ssdp"
 #define EZCFG_SOCKET_PROTO_UPNP_GENA_STRING       "upnp-gena"
 
 #define EZCFG_PROTO_HTTP_PORT_NUMBER              80
 #define EZCFG_PROTO_HTTP_PORT_NUMBER_STRING       "80"
 
-#define EZCFG_PROTO_SSDP_IPADDR_STRING           "239.255.255.250"
-#define EZCFG_PROTO_SSDP_PORT_NUMBER              1900
-#define EZCFG_PROTO_SSDP_PORT_NUMBER_STRING       "1900"
+//#define EZCFG_PROTO_IGRS_ISDP_IPADDR_STRING       "224.0.0.110"
+#define EZCFG_PROTO_IGRS_ISDP_IPADDR_STRING       "239.255.255.250"
+#define EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER         3880
+#define EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER_STRING  "3880"
+
+#define EZCFG_PROTO_UPNP_SSDP_IPADDR_STRING       "239.255.255.250"
+#define EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER         1900
+#define EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING  "1900"
 
 #define EZCFG_PROTO_UPNP_GENA_PORT_NUMBER         61900
 #define EZCFG_PROTO_UPNP_GENA_PORT_NUMBER_STRING  "61900"
@@ -283,8 +289,8 @@
 #define EZCFG_UEVENT_MAX_MESSAGE_SIZE       4096
 
 
-/* ezcfg ssdp request/response mode */
-#define EZCFG_SSDP_MAX_MESSAGE_SIZE         4096
+/* ezcfg upnp ssdp request/response mode */
+#define EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE    4096
 
 
 /*
@@ -419,9 +425,9 @@ bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 
 /* upnp/ssdp.c */
-struct ezcfg_ssdp;
-void ezcfg_ssdp_delete(struct ezcfg_ssdp *ssdp);
-struct ezcfg_ssdp *ezcfg_ssdp_new(struct ezcfg *ezcfg);
+struct ezcfg_upnp_ssdp;
+void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
+struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
 
 /* upnp/upnp.c */
 struct ezcfg_upnp;

@@ -46,6 +46,9 @@ libezcfg_la_SOURCES += src/thread/master.c
 libezcfg_la_SOURCES += src/thread/master_load_common_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_socket_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+libezcfg_la_SOURCES += src/thread/master_load_igrs_conf.c
+endif
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/thread/master_load_upnp_conf.c
 endif
@@ -53,9 +56,12 @@ libezcfg_la_SOURCES += src/thread/worker.c
 libezcfg_la_SOURCES += src/thread/worker_http.c
 libezcfg_la_SOURCES += src/thread/worker_soap_http.c
 libezcfg_la_SOURCES += src/thread/worker_igrs.c
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+libezcfg_la_SOURCES += src/thread/worker_igrs_isdp.c
+endif
 libezcfg_la_SOURCES += src/thread/worker_uevent.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-libezcfg_la_SOURCES += src/thread/worker_ssdp.c
+libezcfg_la_SOURCES += src/thread/worker_upnp_ssdp.c
 libezcfg_la_SOURCES += src/thread/worker_upnp_gena.c
 endif
 
@@ -66,6 +72,8 @@ libezcfg_la_SOURCES += src/util/util_base64.c
 libezcfg_la_SOURCES += src/util/util_crc32.c
 libezcfg_la_SOURCES += src/util/util_conf.c
 libezcfg_la_SOURCES += src/util/util_socket_protocol.c
+libezcfg_la_SOURCES += src/util/util_socket_domain.c
+libezcfg_la_SOURCES += src/util/util_socket_type.c
 libezcfg_la_SOURCES += src/util/util_language.c
 libezcfg_la_SOURCES += src/util/util_execute.c
 libezcfg_la_SOURCES += src/util/util_rc.c
@@ -215,14 +223,16 @@ libezcfg_la_SOURCES += src/igrs/igrs.c
 libezcfg_la_SOURCES += src/igrs/igrs_create_session.c
 libezcfg_la_SOURCES += src/igrs/igrs_invoke_service.c
 
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
 # ezcfg ISDP protocol
-libezcfg_la_SOURCES += src/igrs/isdp.c
+libezcfg_la_SOURCES += src/igrs/igrs_isdp.c
+endif
 
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 # ezcfg UPNP protocol
 libezcfg_la_SOURCES += src/upnp/upnp.c
 # ezcfg SSDP protocol
-libezcfg_la_SOURCES += src/upnp/ssdp.c
+libezcfg_la_SOURCES += src/upnp/upnp_ssdp.c
 libezcfg_la_SOURCES += src/upnp/upnp_gena.c
 endif
 

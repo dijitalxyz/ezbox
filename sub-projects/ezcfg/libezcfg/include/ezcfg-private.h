@@ -557,11 +557,11 @@ char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int
 int ezcfg_igrs_http_get_message_length(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 
-/* igrs/isdp.c */
-struct ezcfg_isdp;
-void ezcfg_isdp_delete(struct ezcfg_isdp *isdp);
-struct ezcfg_isdp *ezcfg_isdp_new(struct ezcfg *ezcfg);
-void ezcfg_isdp_dump(struct ezcfg_isdp *isdp);
+/* igrs/igrs_isdp.c */
+struct ezcfg_igrs_isdp;
+void ezcfg_igrs_isdp_delete(struct ezcfg_igrs_isdp *isdp);
+struct ezcfg_igrs_isdp *ezcfg_igrs_isdp_new(struct ezcfg *ezcfg);
+void ezcfg_igrs_isdp_dump(struct ezcfg_igrs_isdp *isdp);
 
 /* upnp/upnp_gena.c */
 struct ezcfg_upnp_gena;
@@ -593,6 +593,11 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master);
 
 /* thread/master_load_auth_conf.c */
 void ezcfg_master_load_auth_conf(struct ezcfg_master *master);
+
+/* thread/master_load_igrs_conf.c */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+void ezcfg_master_load_igrs_conf(struct ezcfg_master *master);
+#endif
 
 /* thread/master_load_upnp_conf.c */
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
@@ -629,11 +634,14 @@ void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker);
 /* thread/worker_igrs.c */
 void ezcfg_worker_process_igrs_new_connection(struct ezcfg_worker *worker);
 
+/* thread/worker_igrs_isdp.c */
+void ezcfg_worker_process_igrs_isdp_new_connection(struct ezcfg_worker *worker);
+
 /* thread/worker_uevent.c */
 void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker);
 
-/* thread/worker_ssdp.c */
-void ezcfg_worker_process_ssdp_new_connection(struct ezcfg_worker *worker);
+/* thread/worker_upnp_ssdp.c */
+void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker);
 
 /* thread/worker_upnp_gena.c */
 void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
@@ -681,6 +689,15 @@ bool ezcfg_util_tzdata_check_area_location(char *area, char *location);
 
 /* util/util_socket_protocol.c */
 int ezcfg_util_socket_protocol_get_index(char *name);
+bool ezcfg_util_socket_is_supported_protocol(const int proto);
+
+/* util/util_socket_domain.c */
+int ezcfg_util_socket_domain_get_index(char *name);
+bool ezcfg_util_socket_is_supported_domain(const int domain);
+
+/* util/util_socket_type.c */
+int ezcfg_util_socket_type_get_index(char *name);
+bool ezcfg_util_socket_is_supported_type(const int type);
 
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);

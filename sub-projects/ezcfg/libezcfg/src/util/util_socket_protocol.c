@@ -2,7 +2,7 @@
  * Project Name : ezbox configuration utilities
  * Module Name  : util/util_socket_protocol.c
  *
- * Description  : system language settings
+ * Description  : socket protocol settings
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
@@ -35,15 +35,15 @@ struct proto_pair {
 	char *name;
 };
 
-struct proto_pair ezcfg_support_protocols[] = {
+static struct proto_pair ezcfg_support_protocols[] = {
 	{ EZCFG_PROTO_UNKNOWN, NULL },
 	{ EZCFG_PROTO_HTTP, EZCFG_SOCKET_PROTO_HTTP_STRING },
 	{ EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING },
 	{ EZCFG_PROTO_IGRS, EZCFG_SOCKET_PROTO_IGRS_STRING },
-	{ EZCFG_PROTO_ISDP, EZCFG_SOCKET_PROTO_ISDP_STRING },
+	{ EZCFG_PROTO_IGRS_ISDP, EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING },
 	{ EZCFG_PROTO_UEVENT, EZCFG_SOCKET_PROTO_UEVENT_STRING },
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	{ EZCFG_PROTO_SSDP, EZCFG_SOCKET_PROTO_SSDP_STRING },
+	{ EZCFG_PROTO_UPNP_SSDP, EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING },
 	{ EZCFG_PROTO_UPNP_GENA, EZCFG_SOCKET_PROTO_UPNP_GENA_STRING },
 #endif
 };
@@ -58,5 +58,17 @@ int ezcfg_util_socket_protocol_get_index(char *name)
 			return pip->index;
 	}
 	return EZCFG_PROTO_UNKNOWN;
+}
+
+bool ezcfg_util_socket_is_supported_protocol(const int proto)
+{
+	int i;
+	struct proto_pair *pip;
+	for (i = 1; i < ARRAY_SIZE(ezcfg_support_protocols); i++) {
+		pip = &(ezcfg_support_protocols[i]);
+		if (proto == pip->index)
+			return true;
+	}
+	return false;
 }
 

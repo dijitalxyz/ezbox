@@ -94,7 +94,7 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 		info(ezcfg, "UEVENT reset attributes\n");
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	case EZCFG_PROTO_SSDP :
+	case EZCFG_PROTO_UPNP_SSDP :
 		info(ezcfg, "SSDP reset attributes\n");
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
@@ -143,21 +143,18 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_IGRS :
 		worker->proto_data = ezcfg_igrs_new(ezcfg);
 		break;
-	case EZCFG_PROTO_ISDP :
-		//worker->proto_data = ezcfg_isdp_new(ezcfg);
+	case EZCFG_PROTO_IGRS_ISDP :
+		worker->proto_data = ezcfg_igrs_isdp_new(ezcfg);
 		break;
 	case EZCFG_PROTO_UEVENT :
 		worker->proto_data = ezcfg_uevent_new(ezcfg);
-		info(ezcfg, "UEVENT protocol\n");
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	case EZCFG_PROTO_SSDP :
-		worker->proto_data = ezcfg_ssdp_new(ezcfg);
-		info(ezcfg, "SSDP protocol\n");
+	case EZCFG_PROTO_UPNP_SSDP :
+		worker->proto_data = ezcfg_upnp_ssdp_new(ezcfg);
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
 		worker->proto_data = ezcfg_upnp_gena_new(ezcfg);
-		info(ezcfg, "UPNP/GENA protocol\n");
 		break;
 #endif
 	default :
@@ -186,15 +183,15 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_IGRS :
 		ezcfg_worker_process_igrs_new_connection(worker);
 		break;
-	case EZCFG_PROTO_ISDP :
-		//process_isdp_new_connection(worker);
+	case EZCFG_PROTO_IGRS_ISDP :
+		ezcfg_worker_process_igrs_isdp_new_connection(worker);
 		break;
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_worker_process_uevent_new_connection(worker);
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	case EZCFG_PROTO_SSDP :
-		ezcfg_worker_process_ssdp_new_connection(worker);
+	case EZCFG_PROTO_UPNP_SSDP :
+		ezcfg_worker_process_upnp_ssdp_new_connection(worker);
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
 		ezcfg_worker_process_upnp_gena_new_connection(worker);
@@ -227,17 +224,17 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		ezcfg_igrs_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
-	case EZCFG_PROTO_ISDP :
-		//ezcfg_isdp_delete(worker->proto_data);
-		//worker->proto_data = NULL;
+	case EZCFG_PROTO_IGRS_ISDP :
+		ezcfg_igrs_isdp_delete(worker->proto_data);
+		worker->proto_data = NULL;
 		break;
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_uevent_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	case EZCFG_PROTO_SSDP :
-		ezcfg_ssdp_delete(worker->proto_data);
+	case EZCFG_PROTO_UPNP_SSDP :
+		ezcfg_upnp_ssdp_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 	case EZCFG_PROTO_UPNP_GENA :

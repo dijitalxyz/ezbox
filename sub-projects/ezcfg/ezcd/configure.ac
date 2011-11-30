@@ -212,6 +212,26 @@ AC_ARG_ENABLE([service-klogd],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KLOGD, test "x$config_ezbox_service_klogd" = xyes)
 
+# Configure ezcfg_igrsd service.
+config_ezbox_service_ezcfg_igrsd=yes
+AC_MSG_CHECKING([if ezcfg_igrsd service is enabled])
+AC_ARG_ENABLE([service-ezcfg_igrsd],
+	AS_HELP_STRING([--enable-service-ezcfg_igrsd], [Enable ezcfg_igrsd service (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_service_ezcfg_igrsd=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_IGRSD], [1], [Enable ezcfg_igrsd service])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_IGRSD], [1], [Enable ezcfg_igrsd service])
+	[AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_IGRSD, test "x$config_ezbox_service_ezcfg_igrsd" = xyes)
+
 # Configure ezcfg_upnpd service.
 config_ezbox_service_ezcfg_upnpd=no
 AC_MSG_CHECKING([if ezcfg_upnpd service is enabled])
@@ -224,7 +244,7 @@ AC_ARG_ENABLE([service-ezcfg_upnpd],
 		config_ezbox_service_ezcfg_upnpd=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -243,7 +263,7 @@ AC_ARG_ENABLE([service-telnetd],
 		config_ezbox_service_telnetd=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -300,7 +320,7 @@ AC_ARG_ENABLE([service-nano_x],
 		config_ezbox_service_nano_x=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -319,7 +339,7 @@ AC_ARG_ENABLE([service-kdrive],
 		config_ezbox_service_kdrive=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -338,7 +358,7 @@ AC_ARG_ENABLE([service-fontconfig],
 		config_ezbox_service_fontconfig=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -357,7 +377,7 @@ AC_ARG_ENABLE([service-dillo],
 		config_ezbox_service_dillo=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -376,7 +396,7 @@ AC_ARG_ENABLE([service-wpa_supplicant],
 		config_ezbox_service_wpa_supplicant=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]
@@ -395,7 +415,7 @@ AC_ARG_ENABLE([service-emc2],
 		config_ezbox_service_emc2=yes
 	;;
 	*)
-		 AC_MSG_RESULT(no)
+		AC_MSG_RESULT(no)
 	;;
 	esac] ,
 	[AC_MSG_RESULT(no)]

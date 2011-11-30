@@ -125,30 +125,14 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 		/* socket domain */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_DOMAIN);
 		if (p != NULL) {
-			if (strcmp(p, EZCFG_SOCKET_DOMAIN_LOCAL_STRING) == 0) {
-				domain = AF_LOCAL;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET_STRING) == 0) {
-				domain = AF_INET;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_DOMAIN_INET6_STRING) == 0) {
-				domain = AF_INET6;
-			}
+			domain = ezcfg_util_socket_domain_get_index(p);
 			free(p);
 		}
 
 		/* socket type */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SOCKET, i, EZCFG_EZCFG_KEYWORD_TYPE);
 		if (p != NULL) {
-			if (strcmp(p, EZCFG_SOCKET_TYPE_STREAM_STRING) == 0) {
-				type = SOCK_STREAM;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_TYPE_DGRAM_STRING) == 0) {
-				type = SOCK_DGRAM;
-			}
-			else if (strcmp(p, EZCFG_SOCKET_TYPE_RAW_STRING) == 0) {
-				type = SOCK_RAW;
-			}
+			type = ezcfg_util_socket_type_get_index(p);
 			free(p);
 		}
 

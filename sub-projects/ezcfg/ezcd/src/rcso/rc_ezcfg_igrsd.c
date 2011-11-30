@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_ezcfg_upnpd.c
+ * Module Name  : rc_ezcfg_igrsd.c
  *
- * Description  : ezbox run ezcfg upnpd service
+ * Description  : ezbox run ezcfg igrsd service
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-11-24   0.1       Write it from scratch
+ * 2011-11-30   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -43,28 +43,27 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_ezcfg_upnpd(int argc, char **argv)
+int rc_ezcfg_igrsd(int argc, char **argv)
 #endif
 {
 	int rc = -1;
 	int ip[4];
 	char buf[256];
-	char ssdp_addr[64];
-	char gena_addr[64];
+	char isdp_addr[64];
 	int flag, ret;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "ezcfg_upnpd")) {
+	if (strcmp(argv[0], "ezcfg_igrsd")) {
 		return (EXIT_FAILURE);
 	}
 
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	if (strcmp(argv[1], "lan") == 0 &&
-	    utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING)) == true) {
+	    utils_service_binding_lan(NVRAM_SERVICE_OPTION(EZCFG, IGRSD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf));
 		if (rc < 0) {
 			return (EXIT_FAILURE);
@@ -73,7 +72,7 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	if (strcmp(argv[1], "wan") == 0 &&
-	    utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING)) == true) {
+	    utils_service_binding_wan(NVRAM_SERVICE_OPTION(EZCFG, IGRSD_BINDING)) == true) {
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf));
 		if (rc < 0) {
 			return (EXIT_FAILURE);
@@ -91,31 +90,21 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(ssdp_addr, sizeof(ssdp_addr), "%d.%d.%d.%d:%d",
+	snprintf(isdp_addr, sizeof(isdp_addr), "%d.%d.%d.%d:%d",
 		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER);
-
-	snprintf(gena_addr, sizeof(gena_addr), "%d.%d.%d.%d:%d",
-		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_UPNP_GENA_PORT_NUMBER);
+		EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER);
 
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		/* delete ezcfg upnpd listening sockets */
+		/* delete ezcfg igrsd listening sockets */
 		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
-			ssdp_addr);
-
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
-			gena_addr);
+			EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING,
+			isdp_addr);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -132,26 +121,20 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		/* RC_ACT_RESTART fall through */
 
 	case RC_ACT_START :
-		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EZCFG, UPNPD_ENABLE), "1");
+		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EZCFG, IGRSD_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
-		/* prepare UPnP device/service xml files */
-		pop_etc_ezcfg_upnpd(flag);
+		/* prepare IGRS xml files */
+		pop_etc_ezcfg_igrsd(flag);
 
-		/* add ezcfg upnpd listening sockets */
+		/* add ezcfg igrsd listening sockets */
 		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
-			ssdp_addr);
-
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
-			gena_addr);
+			EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING,
+			isdp_addr);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */

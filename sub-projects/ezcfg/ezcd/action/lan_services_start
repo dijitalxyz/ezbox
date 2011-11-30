@@ -1,13 +1,18 @@
 # start LAN side services
 # start ezcfg httpd
 ezcfg_httpd lan start
-# ezcd reload for ezcfg httpd
-ezcd reload
-# start telnet service
-telnetd lan start
-# start dns/dhcpd service
-dnsmasq lan start
+
+# start ezcfg igrsd service
+ezcfg_igrsd lan start
+
 # start ezcfg upnpd service
 ezcfg_upnpd lan start
-# ezcd reload for ezcfg upnpd
+
+# ezcd reload for ezcfg httpd/igrsd/upnpd
 ezcd reload
+
+# start telnet service
+telnetd lan start
+
+# start dns/dhcpd service
+dnsmasq lan start

@@ -1,10 +1,14 @@
 # stop iptables-provided service
 iptables wan stop
+
 # stop ezcfg upnpd service
 ezcfg_upnpd wan stop
+
 # stop dnsmasq service
 dnsmasq wan stop
+
 # stop telnet service
 telnetd wan stop
+
 # stop ezcfg httpd service
 ezcfg_httpd wan stop

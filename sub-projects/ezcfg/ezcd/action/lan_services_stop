@@ -1,9 +1,15 @@
 # stop LAN side services
 # stop ezcfg upnpd
 ezcfg_upnpd lan stop
+
+# stop ezcfg igrsd
+ezcfg_igrsd lan stop
+
 # stop dns/dhcpd service
 dnsmasq lan stop
+
 # stop telnet service
 telnetd lan stop
+
 # stop ezcfg httpd
 ezcfg_httpd lan stop

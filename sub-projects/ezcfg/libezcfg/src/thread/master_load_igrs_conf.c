@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/worker_ssdp.c
+ * File Name    : thread/master_load_igrs_conf.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-11-13   0.1       Split it from worker.c
+ * 2011-11-30   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -34,7 +36,6 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-soap_http.h"
 
 #if 1
 #define DBG(format, args...) do { \
@@ -51,26 +52,35 @@
 #define DBG(format, args...)
 #endif
 
-void ezcfg_worker_process_ssdp_new_connection(struct ezcfg_worker *worker)
+/* setup IGRS devices and groups */
+void ezcfg_master_load_igrs_conf(struct ezcfg_master *master)
 {
-	char *buf;
-	int buf_len;
 	struct ezcfg *ezcfg;
-	struct ezcfg_ssdp *ssdp;
+	char *p = NULL;
+	int domain, type, proto;
+	char address[256];
+	int i;
+	int igrs_number = -1;
 
-	ASSERT(worker != NULL);
+	if (master == NULL)
+		return ;
 
-	ssdp = (struct ezcfg_ssdp *)(ezcfg_worker_get_proto_data(worker));
-	ASSERT(ssdp != NULL);
+	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	buf = ezcfg_socket_get_buffer(ezcfg_worker_get_client(worker));
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing ssdp new connection\n");
-		return;
+	/* first get the igrs number */
+	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_IGRS_NUMBER);
+	if (p != NULL) {
+		igrs_number = atoi(p);
+		free(p);
 	}
-	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_client(worker));
+	for (i = 0; i < igrs_number; i++) {
 
-	info(ezcfg, "ssdp=[%s], len=%d\n", buf, buf_len);
-	return;
+		/* initialize */
+		domain = -1;
+		type = -1;
+		proto = EZCFG_PROTO_UNKNOWN;
+		address[0] = '\0';
+	}
+
+	/* delete all sockets taged need_delete = true in need_listening_sockets */
 }
