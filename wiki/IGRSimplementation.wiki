@@ -25,7 +25,8 @@
   # 
 
 = 相关协议文档 =
-  # <a href="http://hes-standards.org/doc/SC25_WG1_N1253.pdf"> IGRS Part 5-1:Core Protocol </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1253.pdf"> IGRS Part 5-1:Core Protocol (CD) </a>
+  # <a href="http://hes-standards.org/doc/SC25_WG1_N1314.doc"> IGRS Part 5-1:Core Protocol (FCD) </a>
   # <a href="http://hes-standards.org/doc/SC25_WG1_N1294.pdf"> IGRS Part 5-21:Application Profile – AV Profile </a>
   # <a href="http://hes-standards.org/doc/SC25_WG1_N1295.pdf"> IGRS Part 5-22:Application Profile – File Profile </a>
   # <a href="http://hes-standards.org/doc/SC25_WG1_N1255.pdf"> IGRS Part 5-4:Device Validation </a>
