@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/worker_uevent.c
+ * File Name    : thread/master_uevent.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-11-13   0.1       Split it from worker.c
+ * 2011-12-01   0.1       Split it from master.c
  * ============================================================================
  */
 
@@ -23,6 +23,8 @@
 #include <ctype.h>
 #include <limits.h>
 #include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -34,15 +36,12 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-soap_http.h"
 
 #if 1
 #define DBG(format, args...) do { \
-	pid_t pid; \
 	char path[256]; \
 	FILE *fp; \
-	pid = getpid(); \
-	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
 	fp = fopen(path, "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \
@@ -53,26 +52,33 @@
 #define DBG(format, args...)
 #endif
 
-void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker)
+bool ezcfg_master_handle_uevent_socket(
+	struct ezcfg_master *master,
+	struct ezcfg_socket *listener,
+	struct ezcfg_socket *accepted)
 {
-	char *buf;
-	int buf_len;
 	struct ezcfg *ezcfg;
-	struct ezcfg_uevent *uevent;
+	char buf[EZCFG_UEVENT_MAX_MESSAGE_SIZE];
+	int len;
 
-	ASSERT(worker != NULL);
+	ASSERT(master != NULL);
+	ASSERT(listener != NULL);
+	ASSERT(accepted != NULL);
 
-	uevent = (struct ezcfg_uevent *)ezcfg_worker_get_proto_data(worker);
-	ASSERT(uevent != NULL);
+	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	buf = ezcfg_socket_get_buffer(ezcfg_worker_get_client(worker));
-	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing uevent new connection\n");
-		return;
+	len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
+	if (len > 0) {
+		buf[len - 1] = '\0';
+		if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
+			err(ezcfg, "set UEVENT socket buffer error.\n");
+			return false;
+		}
 	}
-	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_client(worker));
+	else {
+		err(ezcfg, "read UEVENT socket error.\n");
+		return false;
+	}
 
-	info(ezcfg, "uevent=[%s], len=%d\n", buf, buf_len);
-	return;
+	return true;
 }

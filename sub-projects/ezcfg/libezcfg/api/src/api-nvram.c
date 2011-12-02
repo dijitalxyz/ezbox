@@ -130,7 +130,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (name == NULL || value == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -142,8 +142,8 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_get");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_get");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -193,11 +193,11 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -295,11 +295,11 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -311,15 +311,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -349,7 +349,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (name == NULL || value == NULL) {
 		return -EZCFG_E_ARGUMENT ;
@@ -361,8 +361,8 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_set");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+ 	ezcfg_log_init("nvram_set");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -452,11 +452,11 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -540,11 +540,11 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -556,15 +556,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -593,7 +593,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (name == NULL) {
 		return -EZCFG_E_ARGUMENT ;
@@ -605,8 +605,8 @@ int ezcfg_api_nvram_unset(const char *name)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_unset");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_unset");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -655,11 +655,11 @@ int ezcfg_api_nvram_unset(const char *name)
 	}
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -743,11 +743,11 @@ int ezcfg_api_nvram_unset(const char *name)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -759,15 +759,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -798,14 +798,14 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	int n, i;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (list == NULL || num < 1) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-        ezcfg_log_init("nvram_set_multi");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_set_multi");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -921,11 +921,11 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1009,11 +1009,11 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1025,15 +1025,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -1063,7 +1063,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	int l, n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (list == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -1075,8 +1075,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_list");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_list");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -1126,11 +1126,11 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1240,11 +1240,11 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1252,15 +1252,15 @@ sem_exit:
 
 exit:
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -1290,7 +1290,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	int l, n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (info == NULL || len < 1) {
 		return -EZCFG_E_ARGUMENT ;
@@ -1302,8 +1302,8 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_info");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_info");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -1353,11 +1353,11 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1467,11 +1467,11 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1479,15 +1479,15 @@ sem_exit:
 
 exit:
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -1515,7 +1515,7 @@ int ezcfg_api_nvram_commit(void)
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	ezcfg = ezcfg_new(config_file);
 	if (ezcfg == NULL) {
@@ -1523,8 +1523,8 @@ int ezcfg_api_nvram_commit(void)
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_commit");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_commit");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -1574,11 +1574,11 @@ int ezcfg_api_nvram_commit(void)
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1662,11 +1662,11 @@ int ezcfg_api_nvram_commit(void)
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1674,15 +1674,15 @@ sem_exit:
 
 exit:
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -1723,7 +1723,7 @@ int ezcfg_api_nvram_insert_socket(
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (domain == NULL || type == NULL ||
 	    protocol == NULL || address == NULL) {
@@ -1736,8 +1736,8 @@ int ezcfg_api_nvram_insert_socket(
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_insert_socket");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_insert_socket");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -1863,11 +1863,11 @@ int ezcfg_api_nvram_insert_socket(
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1951,11 +1951,11 @@ int ezcfg_api_nvram_insert_socket(
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -1967,15 +1967,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;
@@ -2011,7 +2011,7 @@ int ezcfg_api_nvram_remove_socket(
 	int n;
 	int rc = 0;
 	int key, semid = -1;
-	struct sembuf require_res, release_res;
+	struct sembuf res;
 
 	if (domain == NULL || type == NULL ||
 	    protocol == NULL || address == NULL) {
@@ -2024,8 +2024,8 @@ int ezcfg_api_nvram_remove_socket(
 		goto exit;
 	}
 
-        ezcfg_log_init("nvram_remove_socket");
-        ezcfg_common_set_log_fn(ezcfg, log_fn);
+	ezcfg_log_init("nvram_remove_socket");
+	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	sh = ezcfg_soap_http_new(ezcfg);
 	if (sh == NULL) {
@@ -2151,11 +2151,11 @@ int ezcfg_api_nvram_remove_socket(
 	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &require_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -2239,11 +2239,11 @@ int ezcfg_api_nvram_remove_socket(
 
 sem_exit:
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
+	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
 
-	if (semop(semid, &release_res, 1) == -1) {
+	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
@@ -2255,15 +2255,15 @@ exit:
 	}
 
         if (sh != NULL) {
-                ezcfg_soap_http_delete(sh);
+		ezcfg_soap_http_delete(sh);
 	}
 
         if (ezctrl != NULL) {
-                ezcfg_ctrl_delete(ezctrl);
+		ezcfg_ctrl_delete(ezctrl);
 	}
 
         if (ezcfg != NULL) {
-                ezcfg_delete(ezcfg);
+		ezcfg_delete(ezcfg);
 	}
 
 	return rc;

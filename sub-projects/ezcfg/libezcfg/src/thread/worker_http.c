@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/worker.c
+ * File Name    : thread/worker_http.c
  *
  * Description  : interface to configurate ezbox information
  *

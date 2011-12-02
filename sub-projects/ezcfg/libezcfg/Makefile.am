@@ -43,6 +43,7 @@ libezcfg_la_SOURCES += src/common/link_list.c
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += src/thread/thread.c
 libezcfg_la_SOURCES += src/thread/master.c
+libezcfg_la_SOURCES += src/thread/master_uevent.c
 libezcfg_la_SOURCES += src/thread/master_load_common_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_socket_conf.c
 libezcfg_la_SOURCES += src/thread/master_load_auth_conf.c
@@ -50,9 +51,11 @@ if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
 libezcfg_la_SOURCES += src/thread/master_load_igrs_conf.c
 endif
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcfg_la_SOURCES += src/thread/master_upnp_ssdp.c
 libezcfg_la_SOURCES += src/thread/master_load_upnp_conf.c
 endif
 libezcfg_la_SOURCES += src/thread/worker.c
+libezcfg_la_SOURCES += src/thread/worker_ctrl.c
 libezcfg_la_SOURCES += src/thread/worker_http.c
 libezcfg_la_SOURCES += src/thread/worker_soap_http.c
 libezcfg_la_SOURCES += src/thread/worker_igrs.c
@@ -74,6 +77,7 @@ libezcfg_la_SOURCES += src/util/util_conf.c
 libezcfg_la_SOURCES += src/util/util_socket_protocol.c
 libezcfg_la_SOURCES += src/util/util_socket_domain.c
 libezcfg_la_SOURCES += src/util/util_socket_type.c
+libezcfg_la_SOURCES += src/util/util_socket_mcast.c
 libezcfg_la_SOURCES += src/util/util_language.c
 libezcfg_la_SOURCES += src/util/util_execute.c
 libezcfg_la_SOURCES += src/util/util_rc.c
@@ -237,6 +241,8 @@ libezcfg_la_SOURCES += src/upnp/upnp_gena.c
 endif
 
 # ezcfg API wrap
+libezcfg_la_SOURCES += api/src/api-master.c
+libezcfg_la_SOURCES += api/src/api-ctrl.c
 libezcfg_la_SOURCES += api/src/api-nvram.c
 libezcfg_la_SOURCES += api/src/api-ubootenv.c
 libezcfg_la_SOURCES += api/src/api-firmware.c

@@ -50,6 +50,27 @@ void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 	free(ezctrl);
 }
 
+struct ezcfg_ctrl *ezcfg_ctrl_new(struct ezcfg *ezcfg)
+{
+	struct ezcfg_ctrl *ezctrl;
+
+	ASSERT(ezcfg != NULL);
+
+	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
+	if (ezctrl == NULL) {
+		err(ezcfg, "new controller fail: %m\n");
+		return NULL;
+	}
+	ezctrl->ezcfg = ezcfg;
+	ezctrl->socket = NULL;
+
+	return ezctrl;
+
+//fail_exit:
+	ezcfg_ctrl_delete(ezctrl);
+	return NULL;
+}
+
 struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path)
 {
 	struct ezcfg_ctrl *ezctrl;
@@ -126,4 +147,24 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl)
 {
 	return ezctrl->socket;
+}
+
+void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(ezctrl != NULL);
+
+	ezcfg = ezctrl->ezcfg;
+}
+
+int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(ezctrl != NULL);
+
+	ezcfg = ezctrl->ezcfg;
+
+	return -1;
 }

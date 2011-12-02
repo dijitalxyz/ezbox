@@ -23,6 +23,7 @@
 #include <sys/syscall.h>
 
 #include "ezcfg.h"
+#include "ezcfg-types.h"
 
 #define gettid() syscall(__NR_gettid)
 
@@ -49,6 +50,9 @@ typedef struct ezcfg_rc_triple_s {
 
 
 /* common/ezcfg.c */
+#include "ezcfg-priv_common.h"
+
+#if 0
 char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
 void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file);
 char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
@@ -59,9 +63,10 @@ int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg);
 int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg);
 struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
 struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
-
+#endif
 
 /* common/list.c */
+#if 0
 struct ezcfg_list_node {
 	struct ezcfg_list_node *next, *prev;
 };
@@ -88,9 +93,10 @@ void ezcfg_list_entry_insert_before(struct ezcfg_list_entry *new, struct ezcfg_l
 void ezcfg_list_entry_append(struct ezcfg_list_entry *new, struct ezcfg_list_node *list);
 void ezcfg_list_cleanup_entries(struct ezcfg *ezcfg, struct ezcfg_list_node *name_list);
 struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
-
+#endif
 
 /* common/link_list.c */
+#if 0
 struct ezcfg_link_list;
 struct ezcfg_link_list *ezcfg_link_list_new(struct ezcfg *ezcfg);
 void ezcfg_link_list_delete(struct ezcfg_link_list *list);
@@ -102,7 +108,7 @@ int ezcfg_link_list_get_length(struct ezcfg_link_list *list);
 char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name);
-
+#endif
 
 /* thread/thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,
@@ -177,6 +183,11 @@ char * ezcfg_locale_text(struct ezcfg_locale *locale, char *msgid);
 
 
 /* uuid/uuid.c */
+struct ezcfg_uuid;
+struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
+bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
+bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid);
 bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name);
 char *ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid);
@@ -194,7 +205,8 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
 void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
-unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp);
+bool ezcfg_socket_set_proto(struct ezcfg_socket *sp, const int proto);
+int ezcfg_socket_get_proto(const struct ezcfg_socket *sp);
 bool ezcfg_socket_set_buffer(struct ezcfg_socket *sp, char *buf, int buf_len);
 char *ezcfg_socket_get_buffer(const struct ezcfg_socket *sp);
 int ezcfg_socket_get_buffer_len(const struct ezcfg_socket *sp);
@@ -535,7 +547,34 @@ int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
 
 /* igrs/igrs.c */
+struct ezcfg_igrs;
 struct ezcfg_igrs_msg_op;
+void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
+struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
+bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
+bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
+int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs);
+unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type);
+bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
+char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
+char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id);
+unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_source_user_id(struct ezcfg_igrs *igrs, const char *user_id);
+char *ezcfg_igrs_get_source_user_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_service_security_id(struct ezcfg_igrs *igrs, const char *security_id);
+char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int client_id);
+unsigned int ezcfg_igrs_get_source_client_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_source_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
+unsigned int ezcfg_igrs_get_source_service_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
+unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args);
+char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs);
+bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
+int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs);
 struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs);
 struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs);
@@ -570,6 +609,11 @@ struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg);
 void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *upnp_gena);
 
 /* thread/master.c */
+struct ezcfg_master;
+struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
+void ezcfg_master_stop(struct ezcfg_master *master);
+void ezcfg_master_reload(struct ezcfg_master *master);
+void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master);
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
 void ezcfg_master_thread(struct ezcfg_master *master);
@@ -584,6 +628,16 @@ struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
 struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
+
+/* thread/master_uevent.c */
+bool ezcfg_master_handle_uevent_socket(struct ezcfg_master *master,
+	struct ezcfg_socket *listener,
+	struct ezcfg_socket *accepted);
+
+/* thread/master_upnp_ssdp.c */
+bool ezcfg_master_handle_upnp_ssdp_socket(struct ezcfg_master *master,
+	struct ezcfg_socket *listener,
+	struct ezcfg_socket *accepted);
 
 /* thread/master_load_common_conf.c */
 void ezcfg_master_load_common_conf(struct ezcfg_master *master);
@@ -625,6 +679,9 @@ struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker);
 bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num);
 bool ezcfg_worker_set_birth_time(struct ezcfg_worker *worker, time_t time);
 
+/* thread/worker_ctrl.c */
+void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker);
+
 /* thread/worker_http.c */
 void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker);
 
@@ -648,7 +705,14 @@ void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 
 
 /* ctrl/ctrl.c - daemon runtime setup */
+#include "ezcfg-priv_ctrl.h"
+#if 0
+void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
+struct ezcfg_ctrl *ezcfg_ctrl_new(struct ezcfg *ezcfg);
 struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl);
+void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl);
+#endif
 
 
 /* util/util.c */
@@ -699,6 +763,9 @@ bool ezcfg_util_socket_is_supported_domain(const int domain);
 int ezcfg_util_socket_type_get_index(char *name);
 bool ezcfg_util_socket_is_supported_type(const int type);
 
+/* util/util_socket_mcast.c */
+bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr);
+
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);
 char *ezcfg_util_lang_get_name_by_index(int i);
@@ -726,4 +793,27 @@ bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);
 /* util/util_service_binding.c */
 int ezcfg_util_service_binding(char *interface);
 
-#endif
+/* uevent/uevent.c */
+struct ezcfg_uevent;
+void ezcfg_uevent_delete(struct ezcfg_uevent *uevent);
+struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg);
+
+/* upnp/ssdp.c */
+struct ezcfg_upnp_ssdp;
+void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
+struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
+
+/* upnp/upnp.c */
+struct ezcfg_upnp;
+void ezcfg_upnp_delete(struct ezcfg_upnp *upnp);
+struct ezcfg_upnp *ezcfg_upnp_new(struct ezcfg *ezcfg);
+
+/* ctrl/ctrl.c - daemon runtime setup */
+struct ezcfg_ctrl;
+struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path);
+void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
+int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
+int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
+
+#endif /* _EZCFG_PRIVATE_H_ */

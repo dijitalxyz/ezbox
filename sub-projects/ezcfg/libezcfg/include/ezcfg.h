@@ -14,9 +14,6 @@
 #ifndef _EZCFG_H_
 #define _EZCFG_H_
 
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <syslog.h>
 #include <sys/stat.h>
 
@@ -42,15 +39,20 @@
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
 #define EZCFG_NVRAM_CONFIG_FILE_PATH	SYSCONFDIR "/nvram.conf"
 
+/* minimum number of worker threads */
+/* ctrl socket, nvram socket, uevent socket */
+#define EZCFG_THREAD_MIN_NUM	3
+
 #define EZCFG_ROOT_PATH		"/var/ezcfg"
 /* semaphore path */
 #define EZCFG_SEM_ROOT_PATH	EZCFG_ROOT_PATH "/sem"
 #define EZCFG_SEM_EZCFG_PATH	EZCFG_SEM_ROOT_PATH "/ezcfg"
 #define EZCFG_SEM_PROJID_EZCFG	'e'
 
-#define EZCFG_SEM_NVRAM_INDEX	0
-#define EZCFG_SEM_RC_INDEX	1
-#define EZCFG_SEM_NUMBER	2
+#define EZCFG_SEM_CTRL_INDEX	0
+#define EZCFG_SEM_NVRAM_INDEX	1
+#define EZCFG_SEM_RC_INDEX	2
+#define EZCFG_SEM_NUMBER	3
 
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH	"@/org/ezbox/ezcfg/sock"
@@ -130,15 +132,17 @@
 
 /* ezcfg supported protocols */
 #define EZCFG_PROTO_UNKNOWN	0
-#define EZCFG_PROTO_HTTP	1
-#define EZCFG_PROTO_SOAP_HTTP	2
-#define EZCFG_PROTO_IGRS	3
-#define EZCFG_PROTO_IGRS_ISDP	4
-#define EZCFG_PROTO_UEVENT	5
-#define EZCFG_PROTO_UPNP_SSDP	6
-#define EZCFG_PROTO_UPNP_GENA	7
+#define EZCFG_PROTO_CTRL	1
+#define EZCFG_PROTO_HTTP	2
+#define EZCFG_PROTO_SOAP_HTTP	3
+#define EZCFG_PROTO_IGRS	4
+#define EZCFG_PROTO_IGRS_ISDP	5
+#define EZCFG_PROTO_UEVENT	6
+#define EZCFG_PROTO_UPNP_SSDP	7
+#define EZCFG_PROTO_UPNP_GENA	8
 
 //#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
+#define EZCFG_SOCKET_PROTO_CTRL_STRING            "ctrl"
 #define EZCFG_SOCKET_PROTO_HTTP_STRING            "http"
 #define EZCFG_SOCKET_PROTO_SOAP_HTTP_STRING       "soap-http"
 #define EZCFG_SOCKET_PROTO_IGRS_STRING            "igrs"
@@ -260,6 +264,10 @@
 #define EZCFG_UUID_NIL_STRING	"00000000-0000-0000-0000-000000000000"
 
 
+/* ezcfg control request/response mode */
+#define EZCFG_CTRL_MAX_MESSAGE_SIZE         4096
+
+
 /* ezcfg nvram SOAP/HTTP binding */
 
 
@@ -292,162 +300,4 @@
 /* ezcfg upnp ssdp request/response mode */
 #define EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE    4096
 
-
-/*
- * ezcfg - library context
- *
- * load/save the ezbox config and system environment
- * allows custom logging
- */
-
-/*
- * common/ezcfg.c
- * ezbox config context
- */
-struct ezcfg;
-
-void ezcfg_log(struct ezcfg *ezcfg,
-               int priority, const char *file, int line, const char *fn,
-               const char *format, ...)
-               __attribute__((format(printf, 6, 7)));
-
-static inline void __attribute__((always_inline, format(printf, 2, 3)))
-ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
-
-#define ezcfg_log_cond(ezcfg, prio, arg...) \
-  do { \
-    if (ezcfg_common_get_log_priority(ezcfg) >= prio) \
-      ezcfg_log(ezcfg, prio, __FILE__, __LINE__, __FUNCTION__, ## arg); \
-  } while (0)
-
-/* FIXME: remove it later */
-#define ENABLE_LOGGING	1
-#define ENABLE_DEBUG	1
-
-#ifdef ENABLE_LOGGING
-#  ifdef ENABLE_DEBUG
-#    define dbg(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_DEBUG, ## arg)
-#  else
-#    define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  endif
-#  define info(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_INFO, ## arg)
-#  define err(ezcfg, arg...) ezcfg_log_cond(ezcfg, LOG_ERR, ## arg)
-#else
-#  define dbg(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  define info(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#  define err(ezcfg, arg...) ezcfg_log_null(ezcfg, ## arg)
-#endif
-
-
-static inline void ezcfg_log_init(const char *program_name)
-{
-	openlog(program_name, LOG_PID | LOG_CONS, LOG_DAEMON);
-}
-
-static inline void ezcfg_log_close(void)
-{
-	closelog();
-}
-
-void ezcfg_common_set_log_fn(struct ezcfg *ezcfg,
-                      void (*log_fn)(struct ezcfg *ezcfg,
-                                    int priority, const char *file, int line, const char *fn,
-                                    const char *format, va_list args));
-int ezcfg_common_get_log_priority(struct ezcfg *ezcfg);
-void ezcfg_common_set_log_priority(struct ezcfg *ezcfg, int priority);
-
-struct ezcfg *ezcfg_new(char *path);
-void ezcfg_delete(struct ezcfg *ezcfg);
-
-/*
- * commom/list.c
- * ezcfg_list
- *
- * access to ezcfg generated lists
- */
-struct ezcfg_list_entry;
-struct ezcfg_list_entry *ezcfg_list_entry_get_next(struct ezcfg_list_entry *list_entry);
-struct ezcfg_list_entry *ezcfg_list_entry_get_by_name(struct ezcfg_list_entry *list_entry, const char *name);
-const char *ezcfg_list_entry_get_name(struct ezcfg_list_entry *list_entry);
-const char *ezcfg_list_entry_get_value(struct ezcfg_list_entry *list_entry);
-
-/**
- * ezcfg_list_entry_foreach:
- * @list_entry: entry to store the current position
- * @first_entry: first entry to start with
- *
- * Helper to iterate over all entries of a list.
- */
-#define ezcfg_list_entry_foreach(list_entry, first_entry) \
-	for (list_entry = first_entry; \
-	     list_entry != NULL; \
-	     list_entry = ezcfg_list_entry_get_next(list_entry))
-
-/* thread/master.c */
-struct ezcfg_master;
-struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
-void ezcfg_master_stop(struct ezcfg_master *master);
-void ezcfg_master_reload(struct ezcfg_master *master);
-void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
-
-/* uevent/uevent.c */
-struct ezcfg_uevent;
-void ezcfg_uevent_delete(struct ezcfg_uevent *uevent);
-struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg);
-
-/* igrs/igrs.c */
-struct ezcfg_igrs;
-void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
-struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg);
-bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major);
-bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor);
-int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs);
-unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type);
-bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
-char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str);
-char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id);
-unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_source_user_id(struct ezcfg_igrs *igrs, const char *user_id);
-char *ezcfg_igrs_get_source_user_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_service_security_id(struct ezcfg_igrs *igrs, const char *security_id);
-char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int client_id);
-unsigned int ezcfg_igrs_get_source_client_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_source_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
-unsigned int ezcfg_igrs_get_source_service_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int service_id);
-unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args);
-char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs);
-bool ezcfg_igrs_build_message(struct ezcfg_igrs *igrs);
-int ezcfg_igrs_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
-
-/* upnp/ssdp.c */
-struct ezcfg_upnp_ssdp;
-void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
-struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
-
-/* upnp/upnp.c */
-struct ezcfg_upnp;
-void ezcfg_upnp_delete(struct ezcfg_upnp *upnp);
-struct ezcfg_upnp *ezcfg_upnp_new(struct ezcfg *ezcfg);
-
-/* uuid/uuid.c */
-struct ezcfg_uuid;
-struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version);
-bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_generate(struct ezcfg_uuid *uuid);
-bool ezcfg_uuid_export_str(struct ezcfg_uuid *uuid, char *buf, int len);
-
-/* ctrl/ctrl.c - daemon runtime setup */
-struct ezcfg_ctrl;
-struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path);
-void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl);
-int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags);
-int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags);
-
 #endif /* _EZCFG_H_ */
-

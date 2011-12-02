@@ -180,16 +180,7 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 		usa->domain = AF_INET;
 		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
-		if (
-#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
-		    (proto == EZCFG_PROTO_IGRS_ISDP &&
-		     strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING) == 0) ||
-#endif
-#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-		    (proto == EZCFG_PROTO_UPNP_SSDP &&
-		     strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING) == 0) ||
-#endif
-		 0 ) {
+		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
 			int reuse = 1;
 			char *if_addr = strchr(port, '@');
 			if (if_addr == NULL) {
@@ -366,7 +357,14 @@ int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
 	return sp->sock;
 }
 
-unsigned char ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
+bool ezcfg_socket_set_proto(struct ezcfg_socket *sp, const int proto)
+{
+	ASSERT(sp != NULL);
+	sp->proto = proto;
+	return true;
+}
+
+int ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
 	return sp->proto;

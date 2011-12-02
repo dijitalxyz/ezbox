@@ -1,8 +1,11 @@
 #ifndef _EZCD_H_
 #define _EZCD_H_
 
+#include <stdarg.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #include "ezcfg.h"
-#include "ezcfg-igrs.h"
 #include "ezcfg-api.h"
 
 #include "utils.h"

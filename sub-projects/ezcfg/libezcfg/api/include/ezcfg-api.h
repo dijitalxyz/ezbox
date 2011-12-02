@@ -3,6 +3,17 @@
 
 #include "ezcfg-api-errno.h"
 
+/* Master thread interface */
+struct ezcfg_master;
+int ezcfg_api_master_set_config_file(const char *path);
+struct ezcfg_master *ezcfg_api_master_start(const char *name, int threads_max);
+int ezcfg_api_master_stop(struct ezcfg_master *master);
+int ezcfg_api_master_reload(struct ezcfg_master *master);
+
+/* CTRL interface */
+int ezcfg_api_ctrl_set_config_file(const char *path);
+int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len);
+
 /* NVRAM interface */
 int ezcfg_api_nvram_set_config_file(const char *path);
 int ezcfg_api_nvram_get(const char *name, char *value, size_t len);

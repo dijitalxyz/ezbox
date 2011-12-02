@@ -69,27 +69,7 @@
 static bool debug = false;
 static int rc = EXIT_FAILURE;
 static pthread_t root_thread;
-static struct ezcfg *ezcfg = NULL;
 static struct ezcfg_master *master = NULL;
-
-static void log_fn(struct ezcfg *ezcfg, int priority,
-                   const char *file, int line, const char *fn,
-                   const char *format, va_list args)
-{
-	if (debug) {
-		char buf[1024];
-		struct timeval tv;
-		struct timezone tz;
-
-		vsnprintf(buf, sizeof(buf), format, args);
-		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
-		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, line, buf);
-	} else {
-		vsyslog(priority, format, args);
-	}
-}
 
 static void ezcd_show_usage(void)
 {
@@ -139,14 +119,12 @@ static void *sig_thread(void *arg)
 		DBG("<6>ezcd: Signal handling thread got signal %d\n", sig);
 		switch(sig) {
 		case SIGTERM :
-			ezcfg_master_stop(master);
-			ezcfg_delete(ezcfg);
-			ezcfg_log_close();
+			ezcfg_api_master_stop(master);
 			rc = EXIT_SUCCESS;
 			s = pthread_kill(root_thread, SIGHUP);
 			break;
 		case SIGUSR1 :
-			ezcfg_master_reload(master);
+			ezcfg_api_master_reload(master);
 			break;
 		case SIGCHLD :
 			/* do nothing for child exit */
@@ -277,34 +255,23 @@ int ezcd_main(int argc, char **argv)
 		handle_error_en(s, "pthread_create");
 	}
 
-	/* prepare master thread */
-	ezcfg = ezcfg_new(EZCD_CONFIG_FILE_PATH);
-	if (ezcfg == NULL) {
-		DBG("<6>ezcd: boot failed\n");
-		return (EXIT_FAILURE);
-	}
-
-	ezcfg_log_init("ezcd");
-	ezcfg_common_set_log_fn(ezcfg, log_fn);
-
-	master = ezcfg_master_start(ezcfg);
-	if (master == NULL) {
-		DBG("<6>ezcd: Cannot initialize ezcd master\n");
-		ezcfg_delete(ezcfg);
-		ezcfg_log_close();
-		return (EXIT_FAILURE);
-	}
-
-	if (threads_max < 2) {
+	if (threads_max < EZCFG_THREAD_MIN_NUM) {
 		int memsize = mem_size_mb();
 
 		/* set value depending on the amount of RAM */
 		if (memsize > 0)
-			threads_max = 2 + (memsize / 8);
+			threads_max = EZCFG_THREAD_MIN_NUM + (memsize / 8);
 		else
-			threads_max = 2;
+			threads_max = EZCFG_THREAD_MIN_NUM;
 	}
-	ezcfg_master_set_threads_max(master, threads_max);
+
+	/* prepare master thread */
+	master = ezcfg_api_master_start("ezcd", threads_max);
+	if (master == NULL) {
+		DBG("<6>ezcd: Cannot initialize ezcd master\n");
+		return (EXIT_FAILURE);
+	}
+
 	INFO("<6>ezcd: starting version " VERSION "\n");
 
 	/* wait for exit signal */

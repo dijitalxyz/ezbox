@@ -168,6 +168,10 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	}
 
 	/* initialize semaphore */
+	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
+	res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
+	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
+
 	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
 	res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
 	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
@@ -445,7 +449,8 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 }
 
 static bool accept_new_connection(struct ezcfg_master *master,
-                                  struct ezcfg_socket *listener) {
+                                  struct ezcfg_socket *listener)
+{
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *accepted;
 	bool allowed;
@@ -462,40 +467,14 @@ static bool accept_new_connection(struct ezcfg_master *master,
 	}
 
 	if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UEVENT) {
-		char buf[EZCFG_UEVENT_MAX_MESSAGE_SIZE];
-		int len;
-
-		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
-		if (len > 0) {
-			buf[len - 1] = '\0';
-			if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
-				err(ezcfg, "set UEVENT socket buffer error.\n");
-				ezcfg_socket_delete(accepted);
-				return false;
-			}
-		}
-		else {
-			err(ezcfg, "read UEVENT socket error.\n");
+		if (ezcfg_master_handle_uevent_socket(master, listener, accepted) == false) {
 			ezcfg_socket_delete(accepted);
 			return false;
 		}
 	}
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	else if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UPNP_SSDP) {
-		char buf[EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE];
-		int len;
-
-		len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
-		if (len > 0) {
-			buf[len - 1] = '\0';
-			if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
-				err(ezcfg, "set SSDP socket buffer error.\n");
-				ezcfg_socket_delete(accepted);
-				return false;
-			}
-		}
-		else {
-			err(ezcfg, "read SSDP socket error.\n");
+		if (ezcfg_master_handle_upnp_ssdp_socket(master, listener, accepted) == false) {
 			ezcfg_socket_delete(accepted);
 			return false;
 		}
@@ -510,7 +489,6 @@ static bool accept_new_connection(struct ezcfg_master *master,
 		free(accepted);
 	}
 	else {
-		//ezcfg_socket_close_sock(accepted);
 		ezcfg_socket_delete(accepted);
 	}
 
@@ -711,18 +689,26 @@ start_out:
 
 void ezcfg_master_stop(struct ezcfg_master *master)
 {
-	struct sembuf res;
+	struct sembuf res[EZCFG_SEM_NUMBER];
 	bool sem_required = true;
 
 	if (master == NULL)
 		return;
 
 	/* now require available resource */
-	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res.sem_op = -1;
-	res.sem_flg = 0;
+	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
+	res[EZCFG_SEM_CTRL_INDEX].sem_op = -1;
+	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
 
-	if (semop(master->semid, &res, 1) == -1) {
+	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_op = -1;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
+
+	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
+	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
+	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+
+	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		sem_required = false;
 	}
@@ -735,11 +721,19 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 	/* now release resource */
 	if (sem_required == true) {
-		res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-		res.sem_op = 1;
-		res.sem_flg = 0;
+		res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
+		res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
+		res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
 
-		if (semop(master->semid, &res, 1) == -1) {
+		res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
+		res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
+		res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
+
+		res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
+		res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't unlock rc */
+		res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+
+		if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 			DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		}
 	}
@@ -751,17 +745,25 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 void ezcfg_master_reload(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	struct sembuf res;
+	struct sembuf res[EZCFG_SEM_NUMBER];
 
 	if (master == NULL)
 		return;
 
 	/* now require available resource */
-	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res.sem_op = -1;
-	res.sem_flg = 0;
+	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
+	res[EZCFG_SEM_CTRL_INDEX].sem_op = -1;
+	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
 
-	if (semop(master->semid, &res, 1) == -1) {
+	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_op = -1;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
+
+	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
+	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
+	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+
+	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		return;
 	}
@@ -828,11 +830,19 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	pthread_mutex_unlock(&(master->thread_mutex));
 
 	/* now release resource */
-	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res.sem_op = 1;
-	res.sem_flg = 0;
+	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
+	res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
+	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
 
-	if (semop(master->semid, &res, 1) == -1) {
+	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
+	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
+
+	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
+	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't unlock rc */
+	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+
+	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		return;
 	}
