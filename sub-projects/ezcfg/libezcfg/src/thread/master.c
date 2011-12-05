@@ -315,7 +315,7 @@ static struct ezcfg_master *master_new_from_socket(struct ezcfg *ezcfg, const ch
 		return NULL;
 	}
 
-	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, socket_path);
+	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, socket_path);
 	if (sp == NULL) {
 		err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
 		goto fail_exit;

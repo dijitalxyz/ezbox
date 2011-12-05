@@ -38,11 +38,9 @@
 
 #if 1
 #define DBG(format, args...) do { \
-	pid_t pid; \
 	char path[256]; \
 	FILE *fp; \
-	pid = getpid(); \
-	snprintf(path, 256, "/tmp/%d-debug.txt", pid); \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
 	fp = fopen(path, "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \
@@ -53,79 +51,67 @@
 #define DBG(format, args...)
 #endif
 
-#if 0
 static bool ctrl_error_handler(struct ezcfg_worker *worker)
 {
 	return false;
 }
 
-static void send_ctrl_error(struct ezcfg_worker *worker, int status,
-                            const char *reason, const char *fmt, ...)
+static void send_ctrl_error(struct ezcfg_worker *worker, const char *reason)
 {
-	char buf[EZCFG_BUFFER_SIZE];
-	va_list ap;
-	int len;
 	bool handled;
 
 	handled = ctrl_error_handler(worker);
 
 	if (handled == false) {
-		buf[0] = '\0';
-		len = 0;
-
-		/* Errors 1xx, 204 and 304 MUST NOT send a body */
-		if (status > 199 && status != 204 && status != 304) {
-			len = snprintf(buf, sizeof(buf),
-			               "Error %d: %s\n", status, reason);
-			va_start(ap, fmt);
-			len += vsnprintf(buf + len, sizeof(buf) - len, fmt, ap);
-			va_end(ap);
-			ezcfg_worker_set_num_bytes_sent(worker, len);
+		if (reason != NULL) {
+			ezcfg_worker_printf(worker, "BAD %s", reason);
 		}
-		ezcfg_worker_printf(worker,
-		              "HTTP/1.1 %d %s\r\n"
-		              "Content-Type: text/plain\r\n"
-		              "Content-Length: %d\r\n"
-		              "Connection: close\r\n"
-		              "\r\n%s", status, reason, len, buf);
+		else {
+			ezcfg_worker_printf(worker, "BAD");
+		}
 	}
-}
-#endif
-
-static void handle_ctrl_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_ctrl *ctrl;
-	char *msg = NULL;
-	//int msg_len;
-
-	ASSERT(worker != NULL);
-
-	ctrl = (struct ezcfg_ctrl *)ezcfg_worker_get_proto_data(worker);
-	ASSERT(ctrl != NULL);
-
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-
-	if (ezcfg_ctrl_handle_message(ctrl) < 0) {
-		//ezcfg_worker_write(worker, msg, msg_len);
-	}
-	else {
-		//ezcfg_worker_write(worker, msg, msg_len);
-	}
-	if (msg != NULL)
-		free(msg);
 }
 
 void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_ctrl *ctrl;
+	struct ezcfg_socket *sp;
+	char buf[EZCFG_CTRL_MAX_MESSAGE_SIZE];
+	int len;
 
 	ASSERT(worker != NULL);
 
 	ctrl = (struct ezcfg_ctrl *)ezcfg_worker_get_proto_data(worker);
 	ASSERT(ctrl != NULL);
+	sp = ezcfg_ctrl_get_socket(ctrl);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	handle_ctrl_request(worker);
+	len = ezcfg_socket_read(ezcfg_worker_get_client(worker), buf, sizeof(buf), 0);
+	if (len > 0) {
+		buf[len - 1] = '\0';
+		if (ezcfg_ctrl_set_buffer(ctrl, buf, len) == false) {
+			err(ezcfg, "set CTRL socket buffer error.\n");
+			send_ctrl_error(worker, NULL);
+			return;
+                }
+	}
+	else {
+		err(ezcfg, "read CTRL socket error.\n");
+		send_ctrl_error(worker, NULL);
+		return;
+	}
+
+	len = ezcfg_ctrl_handle_message(ctrl, buf, sizeof(buf));
+	if (len < 0) {
+		err(ezcfg, "handle CTRL message error.\n");
+		send_ctrl_error(worker, NULL);
+		return;
+	}
+	else if (len == 0) {
+		ezcfg_worker_printf(worker, "OK");
+	}
+	else {
+		ezcfg_worker_printf(worker, "OK %s", buf);
+	}
 }

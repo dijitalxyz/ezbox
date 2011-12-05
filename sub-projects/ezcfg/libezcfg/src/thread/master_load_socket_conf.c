@@ -71,7 +71,7 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
 	/* ctrl fake socket */
-	ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_IGRS, EZCFG_SOCK_CTRL_PATH);
+	ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, EZCFG_SOCK_CTRL_PATH);
 	if (ctrl_sp == NULL) {
 		err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
 		return ;

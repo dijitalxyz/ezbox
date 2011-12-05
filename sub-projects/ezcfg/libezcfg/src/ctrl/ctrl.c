@@ -35,9 +35,26 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 struct ezcfg_ctrl {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *socket;
+	char *buffer;
+	int buffer_len;
 };
 
 void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
@@ -46,6 +63,9 @@ void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl)
 
 	if (ezctrl->socket != NULL) {
 		ezcfg_socket_delete(ezctrl->socket);
+	}
+	if (ezctrl->buffer != NULL) {
+		free(ezctrl->buffer);
 	}
 	free(ezctrl);
 }
@@ -61,8 +81,10 @@ struct ezcfg_ctrl *ezcfg_ctrl_new(struct ezcfg *ezcfg)
 		err(ezcfg, "new controller fail: %m\n");
 		return NULL;
 	}
+	memset(ezctrl, 0, sizeof(struct ezcfg_ctrl));
 	ezctrl->ezcfg = ezcfg;
 	ezctrl->socket = NULL;
+	ezctrl->buffer = NULL;
 
 	return ezctrl;
 
@@ -79,12 +101,20 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 	ASSERT(local_socket_path != NULL);
 	ASSERT(remote_socket_path != NULL);
 
+#if 0
 	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
 	if (ezctrl == NULL) {
 		err(ezcfg, "new controller fail: %m\n");
 		return NULL;
 	}
 	ezctrl->ezcfg = ezcfg;
+#else
+	ezctrl = ezcfg_ctrl_new(ezcfg);
+	if (ezctrl == NULL) {
+		err(ezcfg, "new controller fail: %m\n");
+		return NULL;
+	}
+#endif
 
 	ezctrl->socket = ezcfg_socket_new(ezcfg, family, SOCK_STREAM, proto, local_socket_path);
 	if (ezctrl->socket == NULL) {
@@ -144,9 +174,45 @@ int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int fl
 	return ezcfg_socket_write(ezctrl->socket, buf, len, flags);
 }
 
-struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl)
+struct ezcfg_socket *ezcfg_ctrl_get_socket(const struct ezcfg_ctrl *ezctrl)
 {
 	return ezctrl->socket;
+}
+
+bool ezcfg_ctrl_set_buffer(struct ezcfg_ctrl *ezctrl, char *buf, int buf_len)
+{
+        char *p;
+
+	ASSERT(ezctrl != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(buf_len >= 0);
+
+	p = malloc(buf_len);
+	if (p == NULL) {
+		return false;
+	}
+
+	memcpy(p, buf, buf_len);
+
+	if (ezctrl->buffer != NULL) {
+		free(ezctrl->buffer);
+	}
+	ezctrl->buffer = p;
+	ezctrl->buffer_len = buf_len;
+
+	return true;
+}
+
+char *ezcfg_ctrl_get_buffer(const struct ezcfg_ctrl *ezctrl)
+{
+	ASSERT(ezctrl != NULL);
+	return ezctrl->buffer;
+}
+
+int ezcfg_ctrl_get_buffer_len(const struct ezcfg_ctrl *ezctrl)
+{
+	ASSERT(ezctrl != NULL);
+	return ezctrl->buffer_len;
 }
 
 void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl)
@@ -158,13 +224,17 @@ void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl)
 	ezcfg = ezctrl->ezcfg;
 }
 
-int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl)
+int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len)
 {
 	struct ezcfg *ezcfg;
 
 	ASSERT(ezctrl != NULL);
+	ASSERT(output != NULL);
+	ASSERT(len > 0);
 
 	ezcfg = ezctrl->ezcfg;
 
-	return -1;
+	DBG("mydebug: %s-%s(%d) bufffer=[%s]\n", __FILE__, __func__, __LINE__, ezctrl->buffer);
+
+	return 0;
 }

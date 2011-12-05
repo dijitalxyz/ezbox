@@ -52,63 +52,6 @@ typedef struct ezcfg_rc_triple_s {
 /* common/ezcfg.c */
 #include "ezcfg-priv_common.h"
 
-#if 0
-char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
-void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file);
-char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_locale(struct ezcfg *ezcfg);
-void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale);
-int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg);
-int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg);
-struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
-struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
-#endif
-
-/* common/list.c */
-#if 0
-struct ezcfg_list_node {
-	struct ezcfg_list_node *next, *prev;
-};
-
-void ezcfg_list_init(struct ezcfg_list_node *list);
-bool ezcfg_list_is_empty(struct ezcfg_list_node *list);
-int ezcfg_list_get_num_nodes(struct ezcfg_list_node *list);
-void ezcfg_list_node_append(struct ezcfg_list_node *new, struct ezcfg_list_node *list);
-void ezcfg_list_node_remove(struct ezcfg_list_node *entry);
-#define ezcfg_list_node_foreach(node, list) \
-	for (node = (list)->next; \
-	     node != list; \
-	     node = (node)->next)
-#define ezcfg_list_node_foreach_safe(node, tmp, list) \
-	for (node = (list)->next, tmp = (node)->next; \
-	     node != list; \
-	     node = tmp, tmp = (tmp)->next)
-struct ezcfg_list_entry *ezcfg_list_entry_add(struct ezcfg *ezcfg, struct ezcfg_list_node *list,
-                                              const char *name, const char *value,
-                                              int unique, int sort);
-void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry);
-void ezcfg_list_entry_remove(struct ezcfg_list_entry *entry);
-void ezcfg_list_entry_insert_before(struct ezcfg_list_entry *new, struct ezcfg_list_entry *entry);
-void ezcfg_list_entry_append(struct ezcfg_list_entry *new, struct ezcfg_list_node *list);
-void ezcfg_list_cleanup_entries(struct ezcfg *ezcfg, struct ezcfg_list_node *name_list);
-struct ezcfg_list_entry *ezcfg_list_get_entry(struct ezcfg_list_node *list);
-#endif
-
-/* common/link_list.c */
-#if 0
-struct ezcfg_link_list;
-struct ezcfg_link_list *ezcfg_link_list_new(struct ezcfg *ezcfg);
-void ezcfg_link_list_delete(struct ezcfg_link_list *list);
-bool ezcfg_link_list_insert(struct ezcfg_link_list *list, char *name, char *value);
-bool ezcfg_link_list_append(struct ezcfg_link_list *list, char *name, char *value);
-bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name);
-bool ezcfg_link_list_in(struct ezcfg_link_list *list, char *name);
-int ezcfg_link_list_get_length(struct ezcfg_link_list *list);
-char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i);
-char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
-char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name);
-#endif
 
 /* thread/thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,
@@ -706,13 +649,6 @@ void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 
 /* ctrl/ctrl.c - daemon runtime setup */
 #include "ezcfg-priv_ctrl.h"
-#if 0
-void ezcfg_ctrl_delete(struct ezcfg_ctrl *ezctrl);
-struct ezcfg_ctrl *ezcfg_ctrl_new(struct ezcfg *ezcfg);
-struct ezcfg_socket *ezcfg_ctrl_get_socket(struct ezcfg_ctrl *ezctrl);
-void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl);
-int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl);
-#endif
 
 
 /* util/util.c */
