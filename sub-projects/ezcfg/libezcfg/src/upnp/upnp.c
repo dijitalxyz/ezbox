@@ -89,8 +89,8 @@ typedef struct upnp_control_point_s {
 
 struct ezcfg_upnp {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_xml *xml;
+	//struct ezcfg_http *http;
+	//struct ezcfg_xml *xml;
 
 	/* UPnP info */
 	unsigned short version_major; /* UPnP major version, must be 1 */

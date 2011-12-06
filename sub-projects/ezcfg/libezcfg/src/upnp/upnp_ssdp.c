@@ -34,7 +34,12 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-upnp_ssdp.h"
+
+struct ezcfg_upnp_ssdp {
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_upnp *upnp;
+};
 
 /**
  * private functions
@@ -50,6 +55,10 @@ void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp)
 	ASSERT(ssdp != NULL);
 
 	ezcfg = ssdp->ezcfg;
+
+	if (ssdp->http != NULL) {
+		ezcfg_http_delete(ssdp->http);
+	}
 
 	free(ssdp);
 }
@@ -73,8 +82,28 @@ struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg)
 
 	memset(ssdp, 0, sizeof(struct ezcfg_upnp_ssdp));
 	ssdp->ezcfg = ezcfg;
+
+	ssdp->http = ezcfg_http_new(ezcfg);
+	if (ssdp->http == NULL) {
+		goto fail_exit;
+	}
 	//ssdp->upnp = upnp;
 
 	return ssdp;
+
+fail_exit:
+	ezcfg_upnp_ssdp_delete(ssdp);
+	return NULL;
 }
 
+/**
+ * ezcfg_upnp_ssdp_set_upnp:
+ **/
+bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp)
+{
+	ASSERT(ssdp != NULL);
+
+	ssdp->upnp = upnp;
+
+	return true;
+}

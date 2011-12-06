@@ -33,11 +33,14 @@ struct ezcfg_uevent;
 /* igrs/igrs.c */
 struct ezcfg_igrs;
 
-/* upnp/ssdp.c */
-struct ezcfg_upnp_ssdp;
-
 /* upnp/upnp.c */
 struct ezcfg_upnp;
+
+/* upnp/upnp_ssdp.c */
+struct ezcfg_upnp_ssdp;
+
+/* upnp/upnp_gena.c */
+struct ezcfg_upnp_gena;
 
 /* uuid/uuid.c */
 struct ezcfg_uuid;

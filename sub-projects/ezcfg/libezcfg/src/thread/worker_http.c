@@ -232,11 +232,12 @@ static bool is_authorized(struct ezcfg_worker *worker)
 	}
 
 	/* lock auths */
-	ezcfg_master_auth_mutex_lock(master);
-	auths = ezcfg_master_get_auths(master);
-	ret = ezcfg_auth_check_authorized(&auths, auth);
-	/* unlock auths */
-	ezcfg_master_auth_mutex_unlock(master);
+	if (ezcfg_master_auth_mutex_lock(master) == 0) {
+		auths = ezcfg_master_get_auths(master);
+		ret = ezcfg_auth_check_authorized(&auths, auth);
+		/* unlock auths */
+		ezcfg_master_auth_mutex_unlock(master);
+	}
 
 	if (ret == false) {
 try_auth:

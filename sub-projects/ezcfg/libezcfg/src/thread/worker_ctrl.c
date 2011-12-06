@@ -102,7 +102,7 @@ void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 
-	len = ezcfg_ctrl_handle_message(ctrl, buf, sizeof(buf));
+	len = ezcfg_ctrl_handle_message(ctrl, buf, sizeof(buf), worker);
 	if (len < 0) {
 		err(ezcfg, "handle CTRL message error.\n");
 		send_ctrl_error(worker, NULL);

@@ -224,17 +224,36 @@ void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl)
 	ezcfg = ezctrl->ezcfg;
 }
 
-int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len)
+int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, void *rte)
 {
 	struct ezcfg *ezcfg;
+	char *argv[EZCFG_CTRL_MAX_ARGS];
+	int argc;
 
 	ASSERT(ezctrl != NULL);
 	ASSERT(output != NULL);
 	ASSERT(len > 0);
+	ASSERT(rte != NULL);
 
 	ezcfg = ezctrl->ezcfg;
 
-	DBG("mydebug: %s-%s(%d) bufffer=[%s]\n", __FILE__, __func__, __LINE__, ezctrl->buffer);
+	if (ezctrl->buffer == NULL) {
+		return -1;
+	}
 
-	return 0;
+	DBG("mydebug: %s-%s(%d) buffer=[%s]\n", __FILE__, __func__, __LINE__, ezctrl->buffer);
+
+	argc = ezcfg_util_parse_args(ezctrl->buffer, ezctrl->buffer_len, argv);
+	if (argc < 1) {
+		return -1;
+	}
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	if ((strcmp(argv[0], "upnp") == 0) && (argc > 1)) {
+		return ezcfg_ctrl_handle_upnp_message(argv, output, len, rte);
+	} else
+#endif
+	{
+		return -1;
+	}
 }

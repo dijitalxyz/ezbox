@@ -74,6 +74,7 @@ libezcfg_la_SOURCES += src/util/util_adler32.c
 libezcfg_la_SOURCES += src/util/util_base64.c
 libezcfg_la_SOURCES += src/util/util_crc32.c
 libezcfg_la_SOURCES += src/util/util_conf.c
+libezcfg_la_SOURCES += src/util/util_parse_args.c
 libezcfg_la_SOURCES += src/util/util_socket_protocol.c
 libezcfg_la_SOURCES += src/util/util_socket_domain.c
 libezcfg_la_SOURCES += src/util/util_socket_type.c
@@ -88,6 +89,9 @@ libezcfg_la_SOURCES += src/util/util_wan.c
 
 # ezcfg control
 libezcfg_la_SOURCES += src/ctrl/ctrl.c 
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcfg_la_SOURCES += src/ctrl/ctrl_upnp.c
+endif 
 
 # ezcfg nvram
 libezcfg_la_SOURCES += src/nvram/nvram.c

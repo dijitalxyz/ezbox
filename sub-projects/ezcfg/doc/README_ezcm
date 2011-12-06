@@ -10,3 +10,12 @@ on success
 	ok [output]
 on fail
 	bad [reason]
+
+2. Supported command
+
+2.1 upnp
+	ezcm upnp advertise alive
+	ezcm upnp advertise byebye
+	ezcm upnp advertise update
+
+	ezcm upnp search

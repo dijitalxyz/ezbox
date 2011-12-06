@@ -34,7 +34,12 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-upnp_gena.h"
+
+struct ezcfg_upnp_gena {
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_upnp *upnp;
+};
 
 /**
  * private functions
@@ -50,6 +55,10 @@ void ezcfg_upnp_gena_delete(struct ezcfg_upnp_gena *gena)
 	ASSERT(gena != NULL);
 
 	ezcfg = gena->ezcfg;
+
+	if (gena->http != NULL) {
+		ezcfg_http_delete(gena->http);
+	}
 
 	free(gena);
 }
@@ -73,9 +82,18 @@ struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg)
 
 	memset(gena, 0, sizeof(struct ezcfg_upnp_gena));
 	gena->ezcfg = ezcfg;
+	gena->http = ezcfg_http_new(ezcfg);
+	if (gena->http == NULL) {
+		goto fail_exit;
+	}
+
 	//gena->upnp = upnp;
 
 	return gena;
+
+fail_exit:
+	ezcfg_upnp_gena_delete(gena);
+	return NULL;
 }
 
 void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *gena)

@@ -552,25 +552,7 @@ struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg);
 void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *upnp_gena);
 
 /* thread/master.c */
-struct ezcfg_master;
-struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
-void ezcfg_master_stop(struct ezcfg_master *master);
-void ezcfg_master_reload(struct ezcfg_master *master);
-void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
-pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master);
-int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
-void ezcfg_master_thread(struct ezcfg_master *master);
-struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
-bool ezcfg_master_is_stop(struct ezcfg_master *master);
-bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time);
-struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
-int ezcfg_master_get_sq_len(struct ezcfg_master *master);
-struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master);
-struct ezcfg_socket **ezcfg_master_get_p_listening_sockets(struct ezcfg_master *master);
-struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
-struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master);
-int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
-int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
+#include "ezcfg-priv_master.h"
 
 /* thread/master_uevent.c */
 bool ezcfg_master_handle_uevent_socket(struct ezcfg_master *master,
@@ -676,6 +658,9 @@ uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 /* util/util_conf.c */
 char *ezcfg_util_get_conf_string(const char *path, const char *section, const int index, const char *keyword);
 
+/* util/util_parse_args.c */
+int ezcfg_util_parse_args(char *buf, size_t size, char **argv);
+
 /* util/util_tzdata.c */
 int ezcfg_util_tzdata_get_area_length(void);
 char *ezcfg_util_tzdata_get_area_name_by_index(int i);
@@ -738,6 +723,7 @@ struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg);
 struct ezcfg_upnp_ssdp;
 void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
 struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
+bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp);
 
 /* upnp/upnp.c */
 struct ezcfg_upnp;

@@ -266,6 +266,7 @@
 
 /* ezcfg control request/response mode */
 #define EZCFG_CTRL_MAX_MESSAGE_SIZE         4096
+#define EZCFG_CTRL_MAX_ARGS                 8
 
 
 /* ezcfg nvram SOAP/HTTP binding */

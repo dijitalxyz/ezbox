@@ -1041,3 +1041,73 @@ int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master)
 
 	return pthread_mutex_unlock(&(master->auth_mutex));
 }
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->igrs;
+}
+
+int ezcfg_master_igrs_mutex_lock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_lock(&(master->igrs_mutex));
+}
+
+int ezcfg_master_igrs_mutex_unlock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_unlock(&(master->igrs_mutex));
+}
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+struct ezcfg_upnp *ezcfg_master_get_upnp(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->upnp;
+}
+
+int ezcfg_master_upnp_mutex_lock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_lock(&(master->upnp_mutex));
+}
+
+int ezcfg_master_upnp_mutex_unlock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_unlock(&(master->upnp_mutex));
+}
+#endif
