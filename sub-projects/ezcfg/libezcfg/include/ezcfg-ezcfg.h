@@ -36,6 +36,7 @@
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
 #define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 #define EZCFG_EZCFG_COMMON_AUTH_NUMBER      "common.auth_number"
+#define EZCFG_EZCFG_COMMON_IGRS_NUMBER      "common.igrs_number"
 #define EZCFG_EZCFG_COMMON_UPNP_NUMBER      "common.upnp_number"
 
 /* ezcfg config [nvram] section */
@@ -90,6 +91,14 @@
 
 /* ezcfg config [upnp] section */
 #define EZCFG_EZCFG_SECTION_UPNP            "upnp"
+
+#define EZCFG_EZCFG_KEYWORD_ROLE            "role"
+//#define EZCFG_EZCFG_KEYWORD_TYPE            "type"
+#define EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH    "description_path"
+
+#define EZCFG_EZCFG_UPNP_0_ROLE             "upnp.0.role"
+#define EZCFG_EZCFG_UPNP_0_TYPE             "upnp.0.type"
+#define EZCFG_EZCFG_UPNP_0_DESCRIPTION_PATH "upnp.0.description_path"
 
 #define EZCFG_EZCFG_HTTPD_ENABLE            "httpd_enable"
 #define EZCFG_EZCFG_HTTPD_HTTP              "httpd_http"

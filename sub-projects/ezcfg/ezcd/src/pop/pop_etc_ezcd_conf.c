@@ -283,6 +283,151 @@ static int generate_auth_conf(FILE *file, int flag, int auth_number)
 	return EXIT_SUCCESS;
 }
 
+static int generate_igrs_conf(FILE *file, int flag, int igrs_number)
+{
+	char name[64];
+	char buf[256];
+	int rc;
+	int i;
+
+	for(i = 0; i < igrs_number; i++) {
+
+		fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_IGRS);
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_IGRS,
+		         i, EZCFG_EZCFG_KEYWORD_TYPE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_TYPE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_IGRS,
+		         i, EZCFG_EZCFG_KEYWORD_USER);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_USER, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_IGRS,
+		         i, EZCFG_EZCFG_KEYWORD_REALM);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_REALM, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_IGRS,
+		         i, EZCFG_EZCFG_KEYWORD_DOMAIN);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_DOMAIN, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_IGRS,
+		         i, EZCFG_EZCFG_KEYWORD_SECRET);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SECRET, buf);
+		}
+		fprintf(file, "\n");
+	}
+
+	return EXIT_SUCCESS;
+}
+
+static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
+{
+	char name[64];
+	char buf[256];
+	int rc;
+	int i;
+
+	for(i = 0; i < upnp_number; i++) {
+
+		fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_UPNP);
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_UPNP,
+		         i, EZCFG_EZCFG_KEYWORD_ROLE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_ROLE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_UPNP,
+		         i, EZCFG_EZCFG_KEYWORD_TYPE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_TYPE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_UPNP,
+		         i, EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH, buf);
+		}
+
+		fprintf(file, "\n");
+	}
+
+	return EXIT_SUCCESS;
+}
+
 static int generate_ezcd_conf_file(FILE *file, int flag)
 {
 	char name[64];
@@ -290,6 +435,8 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	int rc;
 	int socket_number = 0;
 	int auth_number = 0;
+	int igrs_number = 0;
+	int upnp_number = 0;
 
 	/* setup ezcfg common info */
 	fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_COMMON);
@@ -371,6 +518,38 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		auth_number = atoi(buf);
 	}
 
+	/* igrs_number */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_IGRS_NUMBER);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_IGRS_NUMBER, buf);
+		auth_number = atoi(buf);
+	}
+
+	/* upnp_number */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_UPNP_NUMBER);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_UPNP_NUMBER, buf);
+		auth_number = atoi(buf);
+	}
+
 	fprintf(file, "\n");
 
 	/* setup nvram storage info */
@@ -381,6 +560,12 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 
 	/* setup auth info */
 	generate_auth_conf(file, flag, auth_number);
+
+	/* setup igrs info */
+	generate_igrs_conf(file, flag, igrs_number);
+
+	/* setup upnp info */
+	generate_upnp_conf(file, flag, upnp_number);
 
 	return EXIT_SUCCESS;
 }
