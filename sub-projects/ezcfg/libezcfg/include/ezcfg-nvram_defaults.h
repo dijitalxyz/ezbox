@@ -28,6 +28,7 @@
 #include "ezcfg-kdrive.h"
 #include "ezcfg-dillo.h"
 #include "ezcfg-emc2.h"
+#include "ezcfg-upnp.h"
 
 #define GLUE2(a, b)      	a ## b
 #define GLUE3(a, b, c)   	a ## b ## c

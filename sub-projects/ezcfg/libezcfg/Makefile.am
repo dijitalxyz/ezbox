@@ -86,6 +86,10 @@ libezcfg_la_SOURCES += src/util/util_service_binding.c
 libezcfg_la_SOURCES += src/util/util_text.c
 libezcfg_la_SOURCES += src/util/util_tzdata.c
 libezcfg_la_SOURCES += src/util/util_wan.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcfg_la_SOURCES += src/util/util_upnp_role.c
+libezcfg_la_SOURCES += src/util/util_upnp_type.c
+endif
 
 # ezcfg control
 libezcfg_la_SOURCES += src/ctrl/ctrl.c 

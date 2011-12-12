@@ -60,10 +60,12 @@ int pop_etc_ezcfg_upnpd(int flag)
 	case RC_ACT_START :
 	case RC_ACT_RELOAD :
 	case RC_ACT_RESTART :
-		mkdir("/etc/ezcfg_upnpd", 0755);
+		mkdir(EZCFG_UPNP_CONF_ROOT_PATH, 0755);
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD_IGD1 == 1)
 		/* IGD1 root device */
 		if (pop_etc_ezcfg_upnpd_igd1(flag) == EXIT_FAILURE)
 			return (EXIT_FAILURE);
+#endif
 		break;
 
 	default :

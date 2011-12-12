@@ -632,7 +632,8 @@ void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 /* ctrl/ctrl.c - daemon runtime setup */
 #include "ezcfg-priv_ctrl.h"
 
-
+#include "ezcfg-priv_util.h"
+#if 0
 /* util/util.c */
 #define UTIL_PATH_SIZE				1024
 #define UTIL_NAME_SIZE				512
@@ -687,6 +688,12 @@ bool ezcfg_util_socket_is_supported_type(const int type);
 /* util/util_socket_mcast.c */
 bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr);
 
+/* util/util_upnp_role.c */
+int ezcfg_util_upnp_role(char *name);
+
+/* util/util_upnp_type.c */
+int ezcfg_util_upnp_type(char *name);
+
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);
 char *ezcfg_util_lang_get_name_by_index(int i);
@@ -713,6 +720,7 @@ bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);
 
 /* util/util_service_binding.c */
 int ezcfg_util_service_binding(char *interface);
+#endif
 
 /* uevent/uevent.c */
 struct ezcfg_uevent;
@@ -725,10 +733,13 @@ void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
 struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
 bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp);
 
+#include "ezcfg-priv_upnp.h"
+#if 0
 /* upnp/upnp.c */
 struct ezcfg_upnp;
 void ezcfg_upnp_delete(struct ezcfg_upnp *upnp);
 struct ezcfg_upnp *ezcfg_upnp_new(struct ezcfg *ezcfg);
+#endif
 
 /* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;

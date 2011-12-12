@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -422,6 +422,20 @@ static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
 			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH, buf);
 		}
 
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_UPNP,
+		         i, EZCFG_EZCFG_KEYWORD_INTERFACE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_INTERFACE, buf);
+		}
+
 		fprintf(file, "\n");
 	}
 
@@ -531,7 +545,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	}
 	if (rc >= 0) {
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_IGRS_NUMBER, buf);
-		auth_number = atoi(buf);
+		igrs_number = atoi(buf);
 	}
 
 	/* upnp_number */
@@ -547,7 +561,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	}
 	if (rc >= 0) {
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_UPNP_NUMBER, buf);
-		auth_number = atoi(buf);
+		upnp_number = atoi(buf);
 	}
 
 	fprintf(file, "\n");

@@ -30,6 +30,21 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 /*
  * Returns string from config file
  * It is the caller's duty to free the returned string.

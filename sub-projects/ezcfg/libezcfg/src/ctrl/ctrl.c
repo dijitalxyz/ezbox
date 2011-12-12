@@ -241,8 +241,6 @@ int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, 
 		return -1;
 	}
 
-	DBG("mydebug: %s-%s(%d) buffer=[%s]\n", __FILE__, __func__, __LINE__, ezctrl->buffer);
-
 	argc = ezcfg_util_parse_args(ezctrl->buffer, ezctrl->buffer_len, argv);
 	if (argc < 1) {
 		return -1;

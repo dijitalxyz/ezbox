@@ -95,10 +95,12 @@
 #define EZCFG_EZCFG_KEYWORD_ROLE            "role"
 //#define EZCFG_EZCFG_KEYWORD_TYPE            "type"
 #define EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH    "description_path"
+#define EZCFG_EZCFG_KEYWORD_INTERFACE       "interface"
 
 #define EZCFG_EZCFG_UPNP_0_ROLE             "upnp.0.role"
 #define EZCFG_EZCFG_UPNP_0_TYPE             "upnp.0.type"
 #define EZCFG_EZCFG_UPNP_0_DESCRIPTION_PATH "upnp.0.description_path"
+#define EZCFG_EZCFG_UPNP_0_INTERFACE        "upnp.0.interface"
 
 #define EZCFG_EZCFG_HTTPD_ENABLE            "httpd_enable"
 #define EZCFG_EZCFG_HTTPD_HTTP              "httpd_http"
@@ -107,6 +109,8 @@
 
 #define EZCFG_EZCFG_UPNPD_ENABLE            "upnpd_enable"
 #define EZCFG_EZCFG_UPNPD_BINDING           "upnpd_binding"
+
+#define EZCFG_EZCFG_UPNPD_IGD1_ENABLE       "upnpd_igd1_enable"
 
 #define EZCFG_EZCFG_IGRSD_ENABLE            "igrsd_enable"
 #define EZCFG_EZCFG_IGRSD_BINDING           "igrsd_binding"

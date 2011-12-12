@@ -50,24 +50,24 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
-# Configure LAN NIC.
-config_ezbox_lan_nic=yes
-AC_MSG_CHECKING([if LAN network interface is enabled])
+# Configure ELAN NIC.
+config_ezbox_elan_nic=yes
+AC_MSG_CHECKING([if Ethernet network interface is enabled])
 AC_ARG_ENABLE([lan-nic],
-	AS_HELP_STRING([--enable-lan-nic], [Enable LAN network interface (default yes)]),
+	AS_HELP_STRING([--enable-elan-nic], [Enable Ethernet network interface (default yes)]),
 	[case "$enableval" in
 	no)
 		AC_MSG_RESULT(no)
-		config_ezbox_lan_nic=no
+		config_ezbox_elan_nic=no
 	;;
 	*)
-		AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface])
+		AC_DEFINE([HAVE_EZBOX_ELAN_NIC], [1], [Enable Ethernet network interface])
 		AC_MSG_RESULT(yes)
 	;;
 	esac] ,
-	[AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface]) AC_MSG_RESULT(yes)]
+	[AC_DEFINE([HAVE_EZBOX_ELAN_NIC], [1], [Enable Ethernet network interface]) AC_MSG_RESULT(yes)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_LAN_NIC, test "x$config_ezbox_lan_nic" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_ELAN_NIC, test "x$config_ezbox_elan_nic" = xyes)
 
 # Configure WLAN NIC.
 config_ezbox_wlan_nic=yes
@@ -87,6 +87,44 @@ AC_ARG_ENABLE([wlan-nic],
 	[AC_DEFINE([HAVE_EZBOX_WLAN_NIC], [1], [Enable WLAN network interface]) AC_MSG_RESULT(yes)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_WLAN_NIC, test "x$config_ezbox_wlan_nic" = xyes)
+
+# Configure bridge NIC.
+config_ezbox_bridge_nic=yes
+AC_MSG_CHECKING([if bridge network interface is enabled])
+AC_ARG_ENABLE([bridge-nic],
+	AS_HELP_STRING([--enable-bridge-nic], [Enable bridge network interface (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_bridge_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_BRIDGE_NIC], [1], [Enable bridge network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_BRIDGE_NIC], [1], [Enable bridge network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_BRIDGE_NIC, test "x$config_ezbox_bridge_nic" = xyes)
+
+# Configure LAN NIC.
+config_ezbox_lan_nic=yes
+AC_MSG_CHECKING([if LAN network interface is enabled])
+AC_ARG_ENABLE([lan-nic],
+	AS_HELP_STRING([--enable-lan-nic], [Enable LAN network interface (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_lan_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_LAN_NIC], [1], [Enable LAN network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_LAN_NIC, test "x$config_ezbox_lan_nic" = xyes)
 
 # Configure WAN NIC.
 config_ezbox_wan_nic=yes
@@ -250,6 +288,25 @@ AC_ARG_ENABLE([service-ezcfg_upnpd],
 	[AC_MSG_RESULT(no)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_UPNPD, test "x$config_ezbox_service_ezcfg_upnpd" = xyes)
+
+# Configure ezcfg_upnpd_igd1 service.
+config_ezbox_service_ezcfg_upnpd_igd1=no
+AC_MSG_CHECKING([if UPnP IGD1 service is enabled])
+AC_ARG_ENABLE([service-ezcfg_upnpd_igd1],
+	AS_HELP_STRING([--enable-service-ezcfg_upnpd_igd1], [Enable UPnP IGD1 service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_UPNPD_IGD1], [1], [Enable UPnP IGD1 service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_upnpd_igd1=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_UPNPD_IGD1, test "x$config_ezbox_service_ezcfg_upnpd_igd1" = xyes)
 
 # Configure telnet service.
 config_ezbox_service_telnetd=no

@@ -26,12 +26,21 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
 	/* system network interfaces, LAN_NIC+WAN_NIC+WLAN_NIC */
 	{ NVRAM_SERVICE_OPTION(SYS, NICS), "" },
-#if (HAVE_EZBOX_LAN_NIC == 1)
+#if (HAVE_EZBOX_ELAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, ELAN_NIC), "eth0" },
-	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
 #endif
 #if (HAVE_EZBOX_WLAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), "wlan0" },
+#endif
+#if (HAVE_EZBOX_BRIDGE_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, BRIDGE_NICS), "eth0,wlan0" },
+#endif
+#if (HAVE_EZBOX_LAN_NIC == 1)
+#if (HAVE_EZBOX_BRIDGE_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br0" },
+#else
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
+#endif
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WAN_NIC), "eth1" },
@@ -76,6 +85,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	  EZCFG_COMMON_DEFAULT_LOCALE_STRING },
 	/* EZCFG common authentication number */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), "1" },
+	/* EZCFG common IGRS number */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_IGRS_NUMBER), "1" },
+	/* EZCFG common UPnP number */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_UPNP_NUMBER), "1" },
 	/* EZCFG NVRAM buffer size */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_BUFFER_SIZE),
 	  EZCFG_NVRAM_BUFFER_SIZE_STRING },
@@ -130,6 +143,26 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET),
 	  EZCFG_AUTH_SECRET_ADMIN_STRING },
 
+	/* EZCFG UPnP role */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_ROLE), EZCFG_UPNP_ROLE_DEVICE_STRING },
+	/* EZCFG UPnP type */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_TYPE), EZCFG_UPNP_TYPE_IGD1_STRING },
+	/* EZCFG UPnP root device description */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_DESCRIPTION_PATH),
+	  EZCFG_UPNP_IGD1_ROOT_DEVICE_XML_FILE },
+	/* EZCFG UPnP binding interfaces */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_INTERFACE),
+#if (HAVE_EZBOX_LAN_NIC == 1)
+#if (HAVE_EZBOX_BRIDGE_NIC == 1)
+	  "br0"
+#else
+	  "eth0"
+#endif
+#else
+	  "eth1"
+#endif
+	},
+
 	/* ezcfg HTTP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1" },
 	/* Support HTTP protocol */
@@ -164,6 +197,12 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING), "lan" },
 #else
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_BINDING), "wan" },
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD_IGD1 == 1)
+	/* ezcfg UPnP IGD1 device [1|0] */
+	{ NVRAM_SERVICE_OPTION(EZCFG, UPNPD_IGD1_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(UPNP, IGD1_DESCRIPTION_PATH),
+	  EZCFG_UPNP_IGD1_ROOT_DEVICE_XML_FILE },
 #endif
 #endif
 

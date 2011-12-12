@@ -57,16 +57,17 @@
 	fprintf(fp, format, ## args); \
 } while(0)
 
-#define IGD_XML_PATH	"/etc/ezcfg_upnpd/igd1/InternetGatewayDevice1.xml"
-#define L3F_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/Layer3Forwarding1.xml"
-#define WCIC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANCommonInterfaceConfig1.xml"
-#define WCLC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANCableLinkConfig1.xml"
-#define WDLC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANDSLLinkConfig1.xml"
-#define WELC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANEthernetLinkConfig1.xml"
-#define WPLC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANPOTSLinkConfig1.xml"
-#define WPC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANPPPConnection1.xml"
-#define WIC_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/WANIPConnection1.xml"
-#define LHCM_XML_PATH	"/etc/ezcfg_upnpd/igd1/service/LANHostConfigManagement1.xml"
+//#define IGD_XML_PATH	"/etc/ezcfg_upnpd/igd1/InternetGatewayDevice1.xml"
+#define IGD_XML_PATH	EZCFG_UPNP_IGD1_ROOT_DEVICE_XML_FILE
+#define L3F_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/Layer3Forwarding1.xml"
+#define WCIC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANCommonInterfaceConfig1.xml"
+#define WCLC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANCableLinkConfig1.xml"
+#define WDLC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANDSLLinkConfig1.xml"
+#define WELC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANEthernetLinkConfig1.xml"
+#define WPLC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANPOTSLinkConfig1.xml"
+#define WPC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANPPPConnection1.xml"
+#define WIC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANIPConnection1.xml"
+#define LHCM_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/LANHostConfigManagement1.xml"
 
 static int gen_igd1_InternetGatewayDevice1_xml(const char *path, int flag)
 {

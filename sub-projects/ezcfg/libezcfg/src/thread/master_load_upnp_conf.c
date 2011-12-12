@@ -56,9 +56,12 @@
 void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	char *p = NULL;
-	int domain, type, proto;
-	char address[256];
+	struct ezcfg_upnp *up;
+	//struct ezcfg_upnp **pup;
+	char *p, *q, *r;
+	int role, type;
+	char path[256];
+	char ifname[IFNAMSIZ];
 	int i;
 	int upnp_number = -1;
 
@@ -73,14 +76,79 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 		upnp_number = atoi(p);
 		free(p);
 	}
+
 	for (i = 0; i < upnp_number; i++) {
-
 		/* initialize */
-		domain = -1;
-		type = -1;
-		proto = EZCFG_PROTO_UNKNOWN;
-		address[0] = '\0';
-	}
+		up = ezcfg_upnp_new(ezcfg);
 
-	/* delete all sockets taged need_delete = true in need_listening_sockets */
+		if (up == NULL) {
+			continue;
+		}
+
+		/* UPnP device role */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_ROLE);
+		if (p == NULL) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+
+		role = ezcfg_util_upnp_role(p);
+		free(p);
+
+		if (role == EZCFG_UPNP_ROLE_UNKNOWN) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+		ezcfg_upnp_set_role(up, role);
+
+		/* UPnP device type */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_TYPE);
+		if (p == NULL) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+
+		type = ezcfg_util_upnp_type(p);
+		free(p);
+
+		if (type == EZCFG_UPNP_TYPE_UNKNOWN) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+		ezcfg_upnp_set_type(up, type);
+
+		/* UPnP description */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH);
+		if (p == NULL) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+		snprintf(path, sizeof(path), "%s", p);
+		free(p);
+
+		/* UPnP interface */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_INTERFACE);
+		if (p == NULL) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+		q = p;
+		while(q != NULL) {
+			r = strchr(q, ',');
+			if (r != NULL) {
+				*r = '\0';
+				r++;
+			}
+			snprintf(ifname, sizeof(ifname), "%s", q);
+			ezcfg_upnp_if_list_insert(up, ifname);
+			q = r;
+		}
+		free(p);
+
+		/* Add upnp info structure */
+		if (ezcfg_upnp_parse_description(up, path) == false) {
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+	}
 }

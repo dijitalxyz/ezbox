@@ -57,6 +57,12 @@ int ezcm_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
+	rc = ezcfg_api_ctrl_set_config_file(EZCM_CONFIG_FILE_PATH);
+	if (rc < 0) {
+		printf("ERROR\n");
+		return rc;
+	}
+
 	buf_len = sizeof(buf);
 	rc = ezcfg_api_ctrl_exec(&(argv[1]), buf, buf_len);
 	if (rc < 0) {

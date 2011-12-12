@@ -266,6 +266,11 @@ int ezcd_main(int argc, char **argv)
 	}
 
 	/* prepare master thread */
+	if (ezcfg_api_master_set_config_file(EZCD_CONFIG_FILE_PATH) < 0) {
+		DBG("<6>ezcd: Set config file path\n");
+		return (EXIT_FAILURE);
+	};
+
 	master = ezcfg_api_master_start("ezcd", threads_max);
 	if (master == NULL) {
 		DBG("<6>ezcd: Cannot initialize ezcd master\n");
