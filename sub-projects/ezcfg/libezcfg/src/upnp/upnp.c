@@ -266,17 +266,17 @@ static void upnp_delete_if_list(upnp_if_t **list)
 static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 {
 	int pi, si, ci;
-	char *p, *q;
+	char *p;
 
 	/* get <specVersion> */
-	pi = 1; si = 0;
+	pi = 0; si = -1;
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SPEC_VERSION_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
 
 	/* get <major> */
-	pi = ci; si = 0;
+	pi = ci; si = -1;
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MAJOR_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
@@ -307,19 +307,190 @@ static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 	}
 
 	/* get <URLBase> FIXME: UDA-1.0 only!!!*/
-	pi = 1; si = 0;
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_URL_BASE_ELEMENT_NAME);
+	if ((upnp->version_major == 1) &&
+	    (upnp->version_minor == 0)) {
+		pi = 0; si = -1;
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_URL_BASE_ELEMENT_NAME);
+		if (ci > pi) {
+			p = ezcfg_xml_get_element_content_by_index(xml, ci);
+			if (p != NULL) {
+				upnp->URLBase = strdup(p);
+				if (upnp->URLBase == NULL) {
+					return false;
+				}
+			}
+		}
+	}
+
+	/* get <device> */
+	pi = 0; si = -1;
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	pi = ci; si = -1;
+	/* get <deviceType>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	(upnp->u).dev.deviceType = strdup(p);
+	if ((upnp->u).dev.deviceType == NULL) {
+		return false;
+	}
+
+	/* get <friendlyName>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	(upnp->u).dev.friendlyName = strdup(p);
+	if ((upnp->u).dev.friendlyName == NULL) {
+		return false;
+	}
+
+	/* get <manufacturer>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	(upnp->u).dev.manufacturer = strdup(p);
+	if ((upnp->u).dev.manufacturer == NULL) {
+		return false;
+	}
+
+	/* get <manufacturerURL>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-			q = strdup(p);
-			if (q == NULL) {
+			(upnp->u).dev.manufacturerURL = strdup(p);
+			if ((upnp->u).dev.manufacturerURL == NULL) {
 				return false;
 			}
-			if (upnp->URLBase != NULL) {
-				free(upnp->URLBase);
+		}
+	}
+
+	/* get <modelDescription>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.modelDescription = strdup(p);
+			if ((upnp->u).dev.modelDescription == NULL) {
+				return false;
 			}
-			upnp->URLBase = q;
+		}
+	}
+
+	/* get <modelName>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	(upnp->u).dev.modelName = strdup(p);
+	if ((upnp->u).dev.modelName == NULL) {
+		return false;
+	}
+
+	/* get <modelNumber>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.modelNumber = strdup(p);
+			if ((upnp->u).dev.modelNumber == NULL) {
+				return false;
+			}
+		}
+	}
+
+	/* get <modelURL>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.modelURL = strdup(p);
+			if ((upnp->u).dev.modelURL == NULL) {
+				return false;
+			}
+		}
+	}
+
+	/* get <serialNumber>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.serialNumber = strdup(p);
+			if ((upnp->u).dev.serialNumber == NULL) {
+				return false;
+			}
+		}
+	}
+
+	/* get <UDN>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	(upnp->u).dev.UDN = strdup(p);
+	if ((upnp->u).dev.UDN == NULL) {
+		return false;
+	}
+
+	/* get <UPC>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.UPC = strdup(p);
+			if ((upnp->u).dev.UPC == NULL) {
+				return false;
+			}
+		}
+	}
+
+#if 0
+	if (dev.iconList != NULL)
+		upnp_device_delete_icon_list(&(dev.iconList));
+
+	if (dev.serviceList != NULL)
+		upnp_device_delete_service_list(&(dev.serviceList));
+
+	if (dev.deviceList != NULL)
+		upnp_device_delete_list(&(dev.deviceList));
+#endif
+
+	/* get <presentationURL>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+			(upnp->u).dev.presentationURL = strdup(p);
+			if ((upnp->u).dev.presentationURL == NULL) {
+				return false;
+			}
 		}
 	}
 

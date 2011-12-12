@@ -42,6 +42,7 @@ struct ezcfg_xml_element {
 	struct elem_attribute *attr_tail;
 	char *content;
 	int etag_index; /* etag index in root stack */
+	int parent_index; /* parent index in root stack */
 };
 
 struct ezcfg_xml {
@@ -1412,6 +1413,7 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
 
 	memset(elem, 0, sizeof(struct ezcfg_xml_element));
 
+	elem->parent_index = -1;
 	elem->name = strdup(name);
 	if (elem->name == NULL) {
 		err(ezcfg, "initialize xml element name error.\n");
@@ -1614,6 +1616,10 @@ int ezcfg_xml_add_element(
 		root[i+1] = elem;
 		xml->num_elements++;
 	}
+
+	/* set parent index */
+	elem->parent_index = pi;
+
 	return i;
 }
 
@@ -1935,7 +1941,9 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 
 	for (i = (si == -1) ? pi+1 : si+1 ; i < xml->num_elements; i++) {
 		elem = xml->root[i];
-		if (strcmp(elem->name, p) == 0 && (elem->etag_index != i)) {
+		if (strcmp(elem->name, p) == 0 &&
+		    (elem->etag_index != i) &&
+		    (elem->parent_index == pi)) {
 			return i;
 		}
 	}
