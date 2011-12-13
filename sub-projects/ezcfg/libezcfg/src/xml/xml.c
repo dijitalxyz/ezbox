@@ -42,7 +42,6 @@ struct ezcfg_xml_element {
 	struct elem_attribute *attr_tail;
 	char *content;
 	int etag_index; /* etag index in root stack */
-	int parent_index; /* parent index in root stack */
 };
 
 struct ezcfg_xml {
@@ -1413,7 +1412,6 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
 
 	memset(elem, 0, sizeof(struct ezcfg_xml_element));
 
-	elem->parent_index = -1;
 	elem->name = strdup(name);
 	if (elem->name == NULL) {
 		err(ezcfg, "initialize xml element name error.\n");
@@ -1616,9 +1614,6 @@ int ezcfg_xml_add_element(
 		root[i+1] = elem;
 		xml->num_elements++;
 	}
-
-	/* set parent index */
-	elem->parent_index = pi;
 
 	return i;
 }
@@ -1918,7 +1913,7 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
-	int i;
+	int i, pi_etag_index;
 	char *p;
 
 	ASSERT(xml != NULL);
@@ -1939,14 +1934,22 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 		p++;
 	}
 
-	for (i = (si == -1) ? pi+1 : si+1 ; i < xml->num_elements; i++) {
+	/* find pi end tag index */
+	elem = (pi == -1) ? xml->root[0] : xml->root[pi];
+	pi_etag_index = elem->etag_index;
+
+	/* find target element index */
+	i = (si == -1) ? pi+1 : si+1;
+	while (i < pi_etag_index) {
 		elem = xml->root[i];
 		if (strcmp(elem->name, p) == 0 &&
-		    (elem->etag_index != i) &&
-		    (elem->parent_index == pi)) {
+		    (elem->etag_index != i)) {
 			return i;
 		}
+		/* move to next sibling element slot */
+		i = elem->etag_index + 1;
 	}
+
 	return -1;
 }
 
@@ -2000,4 +2003,19 @@ char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int i)
 
 	elem = xml->root[i];
 	return elem->content;
+}
+
+int ezcfg_xml_get_element_etag_index_by_index(struct ezcfg_xml *xml, const int i)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml_element *elem;
+
+	ASSERT(xml != NULL);
+	ASSERT(xml->root != NULL);
+	ASSERT(i < xml->num_elements);
+
+	ezcfg = xml->ezcfg;
+
+	elem = xml->root[i];
+	return elem->etag_index;
 }

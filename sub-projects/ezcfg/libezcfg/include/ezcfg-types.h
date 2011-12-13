@@ -48,4 +48,8 @@ struct ezcfg_uuid;
 /* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 
+/* xml/xml.c - daemon runtime setup */
+struct ezcfg_xml_element;
+struct ezcfg_xml;
+
 #endif /* _EZCFG_TYPES_H_ */

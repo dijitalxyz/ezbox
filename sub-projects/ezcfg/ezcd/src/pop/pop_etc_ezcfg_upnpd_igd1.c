@@ -250,7 +250,7 @@ static int gen_igd1_InternetGatewayDevice1_xml(const char *path, int flag)
 	/* <modelDescription> */
 	fprintf_indent(i, fp, "%s\n", "<modelDescription>WanConnectionDevice on ezbox IGD</modelDescription>");
 	/* <modelName> */
-	fprintf_indent(i, fp, "%s\n", "<modelDescription>ezbox IGD</modelDescription>");
+	fprintf_indent(i, fp, "%s\n", "<modelName>ezbox IGD</modelName>");
 	/* <modelNumber> */
 	fprintf_indent(i, fp, "%s\n", "<modelNumber>1.00</modelNumber>");
 	/* <modelURL> */

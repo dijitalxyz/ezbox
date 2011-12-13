@@ -263,6 +263,474 @@ static void upnp_delete_if_list(upnp_if_t **list)
 	}
 }
 
+static bool upnp_device_parse_icon_list(device_icon_t **list, struct ezcfg_xml *xml, const int root_idx)
+{
+	device_icon_t *ip;
+	char *p;
+	int root_etag_idx, icon_idx;
+	int pi, si, ci;
+
+	root_etag_idx = ezcfg_xml_get_element_etag_index_by_index(xml, root_idx);
+	/* find first <icon>, RECOMMENDED */
+	icon_idx = -1;
+	icon_idx = ezcfg_xml_get_element_index(xml, root_idx, icon_idx, EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+	while((icon_idx > root_idx) && (icon_idx < root_etag_idx)) {
+		ip = calloc(1, sizeof(device_icon_t));
+		if (ip == NULL) {
+			goto fail_exit;
+		}
+		memset(ip, 0, sizeof(device_icon_t));
+		/* put to icon list */
+		ip->next = *list;
+		*list = ip;
+
+		pi = icon_idx; si = -1;
+		/* get <mimetype>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		ip->mimetype = strdup(p);
+		if (ip->mimetype == NULL) {
+			goto fail_exit;
+		}
+
+		/* get <width>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		ip->width = atoi(p);
+
+		/* get <height>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		ip->height = atoi(p);
+
+		/* get <depth>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		ip->depth = atoi(p);
+
+		/* get <url>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		ip->url = strdup(p);
+		if (ip->url == NULL) {
+			goto fail_exit;
+		}
+
+		/* move to next <icon> section */
+		icon_idx = ezcfg_xml_get_element_index(xml, root_idx, icon_idx, EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+	}
+
+	return true;
+
+fail_exit:
+	upnp_device_delete_icon_list(list);
+	*list = NULL;
+	return false;
+}
+
+static bool upnp_device_parse_service_list(upnp_service_t **list, struct ezcfg_xml *xml, const int root_idx)
+{
+	upnp_service_t *sp;
+	char *p;
+	int root_etag_idx, service_idx;
+	int pi, si, ci;
+
+	root_etag_idx = ezcfg_xml_get_element_etag_index_by_index(xml, root_idx);
+	/* find first <service>, OPTIONAL */
+	service_idx = -1;
+	service_idx = ezcfg_xml_get_element_index(xml, root_idx, service_idx, EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+	while((service_idx > root_idx) && (service_idx < root_etag_idx)) {
+		sp = calloc(1, sizeof(upnp_service_t));
+		if (sp == NULL) {
+			goto fail_exit;
+		}
+		memset(sp, 0, sizeof(upnp_service_t));
+		/* put to service list */
+		sp->next = *list;
+		*list = sp;
+
+		pi = service_idx; si = -1;
+		/* get <serviceType>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		sp->serviceType = strdup(p);
+		if (sp->serviceType == NULL) {
+			goto fail_exit;
+		}
+
+		/* get <serviceId>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		sp->serviceId = strdup(p);
+		if (sp->serviceId == NULL) {
+			goto fail_exit;
+		}
+
+		/* get <SCPDURL>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SCPD_URL_ID_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		sp->SCPDURL = strdup(p);
+		if (sp->SCPDURL == NULL) {
+			goto fail_exit;
+		}
+
+		/* get <controlURL>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_CONTROL_URL_ID_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		sp->controlURL = strdup(p);
+		if (sp->controlURL == NULL) {
+			goto fail_exit;
+		}
+
+		/* get <eventSubURL>, REQUIRED */
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_EVENT_SUB_URL_ID_ELEMENT_NAME);
+		if (ci < pi) {
+			goto fail_exit;
+		}
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p == NULL) {
+			goto fail_exit;
+		}
+		sp->eventSubURL = strdup(p);
+		if (sp->eventSubURL == NULL) {
+			goto fail_exit;
+		}
+
+		/* move to next <service> section */
+		service_idx = ezcfg_xml_get_element_index(xml, root_idx, service_idx, EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+	}
+
+	return true;
+
+fail_exit:
+	upnp_device_delete_service_list(list);
+	*list = NULL;
+	return false;
+}
+
+static bool upnp_device_parse_device(upnp_device_t *dp, struct ezcfg_xml *xml, const int root_idx);
+
+static bool upnp_device_parse_device_list(upnp_device_t **list, struct ezcfg_xml *xml, const int root_idx)
+{
+	upnp_device_t *dp;
+	int root_etag_idx, device_idx;
+
+	root_etag_idx = ezcfg_xml_get_element_etag_index_by_index(xml, root_idx);
+	/* find first <service>, OPTIONAL */
+	device_idx = -1;
+	device_idx = ezcfg_xml_get_element_index(xml, root_idx, device_idx, EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+	while((device_idx > root_idx) && (device_idx < root_etag_idx)) {
+		dp = calloc(1, sizeof(upnp_device_t));
+		if (dp == NULL) {
+			goto fail_exit;
+		}
+		memset(dp, 0, sizeof(upnp_device_t));
+		/* put to service list */
+		dp->next = *list;
+		*list = dp;
+
+		if (upnp_device_parse_device(dp, xml, device_idx) == false) {
+			goto fail_exit;
+		}
+
+		/* move to next <device> section */
+		device_idx = ezcfg_xml_get_element_index(xml, root_idx, device_idx, EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+	}
+
+	return true;
+
+fail_exit:
+	upnp_device_delete_list(list);
+	*list = NULL;
+	return false;
+}
+
+static bool upnp_device_parse_device(upnp_device_t *dp, struct ezcfg_xml *xml, const int root_idx)
+{
+	char *p;
+	int pi, si, ci;
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	pi = root_idx; si = -1;
+	/* get <deviceType>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	dp->deviceType = strdup(p);
+	if (dp->deviceType == NULL) {
+		return false;
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <friendlyName>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	dp->friendlyName = strdup(p);
+	if (dp->friendlyName == NULL) {
+		return false;
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <manufacturer>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	dp->manufacturer = strdup(p);
+	if (dp->manufacturer == NULL) {
+		return false;
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <manufacturerURL>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->manufacturerURL = strdup(p);
+			if (dp->manufacturerURL == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <modelDescription>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->modelDescription = strdup(p);
+			if (dp->modelDescription == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <modelName>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	dp->modelName = strdup(p);
+	if (dp->modelName == NULL) {
+		return false;
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <modelNumber>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->modelNumber = strdup(p);
+			if (dp->modelNumber == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <modelURL>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->modelURL = strdup(p);
+			if (dp->modelURL == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <serialNumber>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->serialNumber = strdup(p);
+			if (dp->serialNumber == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <UDN>, REQUIRED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+	if (ci < pi) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	p = ezcfg_xml_get_element_content_by_index(xml, ci);
+	if (p == NULL) {
+		return false;
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	dp->UDN = strdup(p);
+	if (dp->UDN == NULL) {
+		return false;
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <UPC>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->UPC = strdup(p);
+			if (dp->UPC == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <iconList>, Required if and only if device has one or more icons. */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+	if (ci > pi) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		if (upnp_device_parse_icon_list(&(dp->iconList), xml, ci) == false) {
+			return false;
+		}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <serviceList>, OPTIONAL */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+	if (ci > pi) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		if (upnp_device_parse_service_list(&(dp->serviceList), xml, ci) == false) {
+			return false;
+		}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <deviceList>, REQUIRED if and only if root device has embedded devices. */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
+	if (ci > pi) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		if (upnp_device_parse_device_list(&(dp->deviceList), xml, ci) == false) {
+			return false;
+		}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	}
+
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* get <presentationURL>, RECOMMENDED */
+	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME);
+	if (ci > pi) {
+		p = ezcfg_xml_get_element_content_by_index(xml, ci);
+		if (p != NULL) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+			dp->presentationURL = strdup(p);
+			if (dp->presentationURL == NULL) {
+				return false;
+			}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+		}
+	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+
+	return true;
+}
+
 static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 {
 	int pi, si, ci;
@@ -328,171 +796,13 @@ static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 	if (ci < pi) {
 		return false;
 	}
-	pi = ci; si = -1;
-	/* get <deviceType>, REQUIRED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
-	if (ci < pi) {
-		return false;
-	}
-	p = ezcfg_xml_get_element_content_by_index(xml, ci);
-	if (p == NULL) {
-		return false;
-	}
-	(upnp->u).dev.deviceType = strdup(p);
-	if ((upnp->u).dev.deviceType == NULL) {
-		return false;
-	}
 
-	/* get <friendlyName>, REQUIRED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
-	if (ci < pi) {
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	/* parse <device> section */
+	if (upnp_device_parse_device(&((upnp->u).dev), xml, ci) == false) {
 		return false;
 	}
-	p = ezcfg_xml_get_element_content_by_index(xml, ci);
-	if (p == NULL) {
-		return false;
-	}
-	(upnp->u).dev.friendlyName = strdup(p);
-	if ((upnp->u).dev.friendlyName == NULL) {
-		return false;
-	}
-
-	/* get <manufacturer>, REQUIRED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
-	if (ci < pi) {
-		return false;
-	}
-	p = ezcfg_xml_get_element_content_by_index(xml, ci);
-	if (p == NULL) {
-		return false;
-	}
-	(upnp->u).dev.manufacturer = strdup(p);
-	if ((upnp->u).dev.manufacturer == NULL) {
-		return false;
-	}
-
-	/* get <manufacturerURL>, OPTIONAL */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.manufacturerURL = strdup(p);
-			if ((upnp->u).dev.manufacturerURL == NULL) {
-				return false;
-			}
-		}
-	}
-
-	/* get <modelDescription>, RECOMMENDED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.modelDescription = strdup(p);
-			if ((upnp->u).dev.modelDescription == NULL) {
-				return false;
-			}
-		}
-	}
-
-	/* get <modelName>, REQUIRED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
-	if (ci < pi) {
-		return false;
-	}
-	p = ezcfg_xml_get_element_content_by_index(xml, ci);
-	if (p == NULL) {
-		return false;
-	}
-	(upnp->u).dev.modelName = strdup(p);
-	if ((upnp->u).dev.modelName == NULL) {
-		return false;
-	}
-
-	/* get <modelNumber>, RECOMMENDED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.modelNumber = strdup(p);
-			if ((upnp->u).dev.modelNumber == NULL) {
-				return false;
-			}
-		}
-	}
-
-	/* get <modelURL>, OPTIONAL */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.modelURL = strdup(p);
-			if ((upnp->u).dev.modelURL == NULL) {
-				return false;
-			}
-		}
-	}
-
-	/* get <serialNumber>, RECOMMENDED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.serialNumber = strdup(p);
-			if ((upnp->u).dev.serialNumber == NULL) {
-				return false;
-			}
-		}
-	}
-
-	/* get <UDN>, REQUIRED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
-	if (ci < pi) {
-		return false;
-	}
-	p = ezcfg_xml_get_element_content_by_index(xml, ci);
-	if (p == NULL) {
-		return false;
-	}
-	(upnp->u).dev.UDN = strdup(p);
-	if ((upnp->u).dev.UDN == NULL) {
-		return false;
-	}
-
-	/* get <UPC>, OPTIONAL */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.UPC = strdup(p);
-			if ((upnp->u).dev.UPC == NULL) {
-				return false;
-			}
-		}
-	}
-
-#if 0
-	if (dev.iconList != NULL)
-		upnp_device_delete_icon_list(&(dev.iconList));
-
-	if (dev.serviceList != NULL)
-		upnp_device_delete_service_list(&(dev.serviceList));
-
-	if (dev.deviceList != NULL)
-		upnp_device_delete_list(&(dev.deviceList));
-#endif
-
-	/* get <presentationURL>, RECOMMENDED */
-	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME);
-	if (ci > pi) {
-		p = ezcfg_xml_get_element_content_by_index(xml, ci);
-		if (p != NULL) {
-			(upnp->u).dev.presentationURL = strdup(p);
-			if ((upnp->u).dev.presentationURL == NULL) {
-				return false;
-			}
-		}
-	}
+	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 
 	return true;
 }
