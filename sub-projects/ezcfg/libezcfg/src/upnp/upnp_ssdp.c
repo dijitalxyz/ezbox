@@ -52,6 +52,7 @@
 
 struct ezcfg_upnp_ssdp {
 	struct ezcfg *ezcfg;
+	struct ezcfg_socket *socket;
 	struct ezcfg_http *http;
 	struct ezcfg_upnp *upnp;
 };
@@ -102,7 +103,6 @@ struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg)
 	if (ssdp->http == NULL) {
 		goto fail_exit;
 	}
-	//ssdp->upnp = upnp;
 
 	return ssdp;
 
@@ -117,8 +117,70 @@ fail_exit:
 bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp)
 {
 	ASSERT(ssdp != NULL);
+	ASSERT(upnp != NULL);
 
 	ssdp->upnp = upnp;
 
 	return true;
+}
+
+/**
+ * ezcfg_upnp_ssdp_advertise_alive:
+ **/
+bool ezcfg_upnp_ssdp_advertise_alive(struct ezcfg_upnp_ssdp *ssdp)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_upnp *upnp;
+	struct ezcfg_http *http;
+	struct ezcfg_socket *socket = NULL;
+	int domain, type, proto;
+	char socket_path[128];
+	char buf[256];
+	char *iplist, *p, *q;
+	bool ret = false;
+	
+
+	ASSERT(ssdp != NULL);
+
+	ezcfg = ssdp->ezcfg;
+	upnp = ssdp->upnp;
+	http = ssdp->http;
+
+	domain = ezcfg_util_socket_domain_get_index(EZCFG_SOCKET_DOMAIN_INET_STRING);
+	type = ezcfg_util_socket_type_get_index(EZCFG_SOCKET_TYPE_DGRAM_STRING);
+	proto = ezcfg_util_socket_protocol_get_index(EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING);
+
+	iplist = ezcfg_upnp_get_ifs_iplist(upnp);
+	if (iplist == NULL) {
+		return false;
+	}
+	p = iplist;
+	while(p != NULL) {
+		q = strchr(p, ',');
+		if (q != NULL) {
+			*q = '\0';
+			q++;
+		}
+	
+		snprintf(socket_path, sizeof(socket_path), "%s:%s@%s",
+			EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+			EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, p);
+
+		socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
+		if (socket == NULL) {
+			goto func_exit;
+		}
+		ezcfg_socket_enable_sending(socket);
+		snprintf(buf, sizeof(buf), "%s", "SSDP ALIVE TEST!");
+		ezcfg_socket_write(socket, buf, strlen(buf)+1, 0);
+		ezcfg_socket_delete(socket);
+		socket = NULL;
+		p = q;
+	}
+
+	ret = true;
+
+func_exit:
+	free(iplist);
+	return ret;
 }

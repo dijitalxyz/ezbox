@@ -35,7 +35,6 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-socket.h"
 #include "ezcfg-http.h"
 
 /* Check whether full HTTP header is buffered. Return:
@@ -82,7 +81,7 @@ int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *ht
 	ASSERT(sp != NULL);
 	ASSERT(http != NULL);
 
-	ezcfg = sp->ezcfg;
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	len = 0;
 
@@ -114,7 +113,7 @@ char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http 
 	ASSERT(sp != NULL);
 	ASSERT(http != NULL);
 
-	ezcfg = sp->ezcfg;
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 	buf_len = *bufsiz;
 
 	if ((p = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH)) != NULL) {

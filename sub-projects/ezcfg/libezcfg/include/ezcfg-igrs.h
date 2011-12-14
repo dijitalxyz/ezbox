@@ -65,6 +65,8 @@ struct ezcfg_igrs {
 	char *man; /* "ssdp:discover" */
 	char *mx; /* Maximum wait time in seconds */
 	char *st; /* Search Target */
+
+	struct ezcfg_igrs *next; /* linklist */
 };
 
 /* igrs/igrs_create_session.c */

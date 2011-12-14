@@ -24,5 +24,14 @@ bool ezcfg_upnp_set_role(struct ezcfg_upnp *upnp, int role);
 bool ezcfg_upnp_set_type(struct ezcfg_upnp *upnp, int type);
 bool ezcfg_upnp_if_list_insert(struct ezcfg_upnp *upnp, char ifname[IFNAMSIZ]);
 bool ezcfg_upnp_parse_description(struct ezcfg_upnp *upnp, const char *path);
+char *ezcfg_upnp_get_ifs_iplist(struct ezcfg_upnp *upnp);
+bool ezcfg_upnp_list_insert(struct ezcfg_upnp **list, struct ezcfg_upnp *upnp);
+void ezcfg_upnp_list_delete(struct ezcfg_upnp **list);
+
+/* upnp/upnp_ssdp.c */
+void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
+struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
+bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp);
+bool ezcfg_upnp_ssdp_advertise_alive(struct ezcfg_upnp_ssdp *ssdp);
 
 #endif /* _EZCFG_PRIV_UPNP_H_ */

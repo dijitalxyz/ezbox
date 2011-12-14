@@ -1043,3 +1043,17 @@ int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len)
 
 	return (p-buf);
 }
+
+void ezcfg_igrs_list_delete(struct ezcfg_igrs **list)
+{
+	struct ezcfg_igrs *ip;
+
+	ASSERT(list != NULL);
+
+	ip = *list;
+	while (ip != NULL) {
+		*list = ip->next;
+		ezcfg_igrs_delete(ip);
+		ip = *list;
+	}
+}

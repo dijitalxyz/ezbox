@@ -804,6 +804,11 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	/* lock igrs mutex */
 	pthread_mutex_lock(&(master->igrs_mutex));
 
+	if (master->igrs != NULL) {
+		ezcfg_igrs_list_delete(&(master->igrs));
+		master->igrs = NULL;
+	}
+
 	ezcfg_master_load_igrs_conf(master);
 
 	/* unlock upnp mutex */
@@ -813,6 +818,11 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	/* lock upnp mutex */
 	pthread_mutex_lock(&(master->upnp_mutex));
+
+	if (master->upnp != NULL) {
+		ezcfg_upnp_list_delete(&(master->upnp));
+		master->upnp = NULL;
+	}
 
 	ezcfg_master_load_upnp_conf(master);
 
@@ -1054,6 +1064,17 @@ struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master)
 	return master->igrs;
 }
 
+struct ezcfg_igrs **ezcfg_master_get_p_igrs(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return &(master->igrs);
+}
+
 int ezcfg_master_igrs_mutex_lock(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
@@ -1087,6 +1108,17 @@ struct ezcfg_upnp *ezcfg_master_get_upnp(struct ezcfg_master *master)
 	ezcfg = master->ezcfg;
 
 	return master->upnp;
+}
+
+struct ezcfg_upnp **ezcfg_master_get_p_upnp(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return &(master->upnp);
 }
 
 int ezcfg_master_upnp_mutex_lock(struct ezcfg_master *master)

@@ -504,95 +504,78 @@ static bool upnp_device_parse_device(upnp_device_t *dp, struct ezcfg_xml *xml, c
 	char *p;
 	int pi, si, ci;
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	pi = root_idx; si = -1;
 	/* get <deviceType>, REQUIRED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	p = ezcfg_xml_get_element_content_by_index(xml, ci);
 	if (p == NULL) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	dp->deviceType = strdup(p);
 	if (dp->deviceType == NULL) {
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <friendlyName>, REQUIRED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	p = ezcfg_xml_get_element_content_by_index(xml, ci);
 	if (p == NULL) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	dp->friendlyName = strdup(p);
 	if (dp->friendlyName == NULL) {
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <manufacturer>, REQUIRED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	p = ezcfg_xml_get_element_content_by_index(xml, ci);
 	if (p == NULL) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	dp->manufacturer = strdup(p);
 	if (dp->manufacturer == NULL) {
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <manufacturerURL>, OPTIONAL */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->manufacturerURL = strdup(p);
 			if (dp->manufacturerURL == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <modelDescription>, RECOMMENDED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->modelDescription = strdup(p);
 			if (dp->modelDescription == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <modelName>, REQUIRED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	p = ezcfg_xml_get_element_content_by_index(xml, ci);
 	if (p == NULL) {
 		return false;
@@ -602,131 +585,103 @@ static bool upnp_device_parse_device(upnp_device_t *dp, struct ezcfg_xml *xml, c
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <modelNumber>, RECOMMENDED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->modelNumber = strdup(p);
 			if (dp->modelNumber == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <modelURL>, OPTIONAL */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->modelURL = strdup(p);
 			if (dp->modelURL == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <serialNumber>, RECOMMENDED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->serialNumber = strdup(p);
 			if (dp->serialNumber == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <UDN>, REQUIRED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
 	if (ci < pi) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	p = ezcfg_xml_get_element_content_by_index(xml, ci);
 	if (p == NULL) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	dp->UDN = strdup(p);
 	if (dp->UDN == NULL) {
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <UPC>, OPTIONAL */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->UPC = strdup(p);
 			if (dp->UPC == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <iconList>, Required if and only if device has one or more icons. */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
 	if (ci > pi) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (upnp_device_parse_icon_list(&(dp->iconList), xml, ci) == false) {
 			return false;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <serviceList>, OPTIONAL */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
 	if (ci > pi) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (upnp_device_parse_service_list(&(dp->serviceList), xml, ci) == false) {
 			return false;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <deviceList>, REQUIRED if and only if root device has embedded devices. */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
 	if (ci > pi) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		if (upnp_device_parse_device_list(&(dp->deviceList), xml, ci) == false) {
 			return false;
 		}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* get <presentationURL>, RECOMMENDED */
 	ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME);
 	if (ci > pi) {
 		p = ezcfg_xml_get_element_content_by_index(xml, ci);
 		if (p != NULL) {
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 			dp->presentationURL = strdup(p);
 			if (dp->presentationURL == NULL) {
 				return false;
 			}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		}
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 
 	return true;
 }
@@ -797,12 +752,10 @@ static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 		return false;
 	}
 
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	/* parse <device> section */
 	if (upnp_device_parse_device(&((upnp->u).dev), xml, ci) == false) {
 		return false;
 	}
-	DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
 
 	return true;
 }
@@ -982,4 +935,21 @@ func_out:
 		ezcfg_xml_delete(xml);
 
 	return ret;
+}
+
+/*
+ * function caller must free the memory manually
+ */
+char *ezcfg_upnp_get_ifs_iplist(struct ezcfg_upnp *upnp)
+{
+	char *p;
+
+	ASSERT(upnp != NULL);
+
+	p = malloc(strlen("192.168.56.2") + 1);
+	if (p != NULL) {
+		strcpy(p, "192.168.56.2");
+	}
+
+	return p;
 }

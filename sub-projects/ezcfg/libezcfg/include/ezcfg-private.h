@@ -139,48 +139,7 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
 
 /* socket/socket.c */
-struct ezcfg_socket;
-void ezcfg_socket_delete(struct ezcfg_socket *sp);
-struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int family, const int type, const int proto, const char *socket_path);
-struct ezcfg_socket *ezcfg_socket_fake_new(struct ezcfg *ezcfg, const int family, const int type, const int proto, const char *socket_path);
-struct ezcfg_socket *ezcfg_socket_calloc(struct ezcfg *ezcfg, int size);
-struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener);
-void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
-void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
-int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
-bool ezcfg_socket_set_proto(struct ezcfg_socket *sp, const int proto);
-int ezcfg_socket_get_proto(const struct ezcfg_socket *sp);
-bool ezcfg_socket_set_buffer(struct ezcfg_socket *sp, char *buf, int buf_len);
-char *ezcfg_socket_get_buffer(const struct ezcfg_socket *sp);
-int ezcfg_socket_get_buffer_len(const struct ezcfg_socket *sp);
-struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp);
-int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp);
-int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp);
-char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp);
-int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp);
-int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp);
-char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
-int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
-int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
-int ezcfg_socket_enable_again(struct ezcfg_socket *sp);
-int ezcfg_socket_set_receive_buffer_size(struct ezcfg_socket *sp, int size);
-bool ezcfg_socket_compare(struct ezcfg_socket *sp1, struct ezcfg_socket *sp2);
-void ezcfg_socket_list_delete(struct ezcfg_socket **list);
-bool ezcfg_socket_list_delete_socket(struct ezcfg_socket **list, struct ezcfg_socket *sp);
-int ezcfg_socket_list_insert(struct ezcfg_socket **list, struct ezcfg_socket *sp);
-bool ezcfg_socket_list_in(struct ezcfg_socket **list, struct ezcfg_socket *sp);
-bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_socket *sp, bool need_delete);
-struct ezcfg_socket * ezcfg_socket_list_next(struct ezcfg_socket **list);
-int ezcfg_socket_queue_get_socket(const struct ezcfg_socket *queue, int pos, struct ezcfg_socket *sp);
-int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int pos, const struct ezcfg_socket *sp);
-void ezcfg_socket_set_need_unlink(struct ezcfg_socket *sp, bool need_unlink);
-void ezcfg_socket_set_need_delete(struct ezcfg_socket *sp, bool need_delete);
-bool ezcfg_socket_get_need_delete(struct ezcfg_socket *sp);
-int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path);
-int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
-int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);
-int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int flags);
-
+#include "ezcfg-priv_socket.h"
 
 /* http/http.c */
 struct ezcfg_http;
@@ -407,11 +366,6 @@ int ezcfg_http_html_admin_cnc_default_handler(struct ezcfg_http_html_admin *admi
 int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admin);
 #endif
 
-/* socket/socket_http.c */
-int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread);
-char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int header_len, int *bufsiz, int *nread);
-
-
 /* xml/xml.c */
 #include "ezcfg-priv_xml.h"
 
@@ -462,6 +416,8 @@ int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh);
 int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len);
 
 /* igrs/igrs.c */
+#include "ezcfg-priv_igrs.h"
+#if 0
 struct ezcfg_igrs;
 struct ezcfg_igrs_msg_op;
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs);
@@ -510,6 +466,7 @@ bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs);
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len);
 int ezcfg_igrs_http_get_message_length(struct ezcfg_igrs *igrs);
 int ezcfg_igrs_http_write_message(struct ezcfg_igrs *igrs, char *buf, int len);
+#endif
 
 /* igrs/igrs_isdp.c */
 struct ezcfg_igrs_isdp;
@@ -526,6 +483,7 @@ void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *upnp_gena);
 /* thread/master.c */
 #include "ezcfg-priv_master.h"
 
+#if 0
 /* thread/master_uevent.c */
 bool ezcfg_master_handle_uevent_socket(struct ezcfg_master *master,
 	struct ezcfg_socket *listener,
@@ -554,8 +512,11 @@ void ezcfg_master_load_igrs_conf(struct ezcfg_master *master);
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 void ezcfg_master_load_upnp_conf(struct ezcfg_master *master);
 #endif
+#endif
 
 /* thread/worker.c */
+#include "ezcfg-priv_worker.h"
+#if 0
 struct ezcfg_worker;
 /* worker inherits master's resource */
 void ezcfg_worker_delete(struct ezcfg_worker *worker);
@@ -599,7 +560,7 @@ void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker);
 
 /* thread/worker_upnp_gena.c */
 void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
-
+#endif
 
 /* ctrl/ctrl.c - daemon runtime setup */
 #include "ezcfg-priv_ctrl.h"
@@ -611,12 +572,6 @@ void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 struct ezcfg_uevent;
 void ezcfg_uevent_delete(struct ezcfg_uevent *uevent);
 struct ezcfg_uevent *ezcfg_uevent_new(struct ezcfg *ezcfg);
-
-/* upnp/ssdp.c */
-struct ezcfg_upnp_ssdp;
-void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp);
-struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg);
-bool ezcfg_upnp_ssdp_set_upnp(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_upnp *upnp);
 
 /* upnp/upnp.c */
 #include "ezcfg-priv_upnp.h"

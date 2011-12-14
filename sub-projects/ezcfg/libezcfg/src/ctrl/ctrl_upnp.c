@@ -84,7 +84,22 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 			return -1;
 		}
 
-		if (strcmp(argv[2], "byebye") == 0) {
+		if (strcmp(argv[2], "alive") == 0) {
+			if (ezcfg_master_upnp_mutex_lock(master) == 0) {
+				upnp = ezcfg_master_get_upnp(master);
+				if (upnp != NULL) {
+					ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
+					ezcfg_upnp_ssdp_advertise_alive(ssdp);
+				}
+				else {
+					DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+				}
+				ezcfg_master_upnp_mutex_unlock(master);
+				ezcfg_upnp_ssdp_delete(ssdp);
+				return 0;
+			}
+		}
+		else if (strcmp(argv[2], "byebye") == 0) {
 			if (ezcfg_master_upnp_mutex_lock(master) == 0) {
 				upnp = ezcfg_master_get_upnp(master);
 				ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);

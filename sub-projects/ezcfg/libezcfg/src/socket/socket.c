@@ -33,10 +33,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <linux/netlink.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
-#include "ezcfg-socket.h"
 #include "ezcfg-uevent.h"
 
 #if 1
@@ -53,6 +53,43 @@
 #else
 #define DBG(format, args...)
 #endif
+
+/*
+ * unified socket address. For IPv6 support, add IPv6 address structure
+ * in the union u.
+ */
+struct usa {
+	socklen_t len;
+	int domain;
+	int type;
+	union {
+		struct sockaddr sa;
+		struct sockaddr_un sun;
+		struct sockaddr_in sin;
+		struct sockaddr_nl snl;
+        } u;
+};
+
+/*
+ * structure used to describe listening socket, or socket which was
+ * accept()-ed by the master thread and queued for future handling
+ * by the worker thread.
+ */
+struct ezcfg_socket {
+	struct ezcfg *ezcfg;
+	struct ezcfg_socket *next;      /* Linkage                      */
+	int                  sock;      /* Listening socket             */
+	int                  proto;     /* Communication protocol 	*/
+	int                  backlog;   /* Listening queue length 	*/
+	struct usa      lsa;            /* Local socket address         */
+	struct usa      rsa;            /* Remote socket address        */
+	struct ip_mreq  group;          /* multicast group              */
+	bool            need_unlink;    /* Need to unlink socket node 	*/
+	bool            need_delete;    /* Need to delete socket node 	*/
+	char *          buffer;
+	int             buffer_len;
+};
+
 
 /**
  * private functions
@@ -349,6 +386,12 @@ struct ezcfg_socket *ezcfg_socket_new(struct ezcfg *ezcfg, const int domain, con
 struct ezcfg_socket *ezcfg_socket_fake_new(struct ezcfg *ezcfg, const int domain, const int type, const int proto, const char *socket_path)
 {
 	return create_socket(ezcfg, domain, type, proto, socket_path, false);
+}
+
+struct ezcfg *ezcfg_socket_get_ezcfg(const struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return sp->ezcfg;
 }
 
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
@@ -747,6 +790,72 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 	}
 
         ezcfg_socket_set_close_on_exec(sp);
+
+	return 0;
+}
+
+/**
+ * ezcfg_socket_enable_sending:
+ * @sp: the socket which should send packets
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
+{
+	int err = 0;
+	struct usa *lusa = NULL, *rusa = NULL;
+	struct ezcfg *ezcfg;
+
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+	lusa = &(sp->lsa);
+	rusa = &(sp->rsa);
+
+	switch(lusa->domain) {
+	case AF_LOCAL:
+		break;
+
+	case AF_INET:
+		if (sp->proto == EZCFG_PROTO_UPNP_SSDP) {
+			char loopch = 0;
+
+			memset((char *) &rusa->u.sin, 0, sizeof(rusa->u.sin));
+			rusa->u.sin.sin_family = lusa->u.sin.sin_family;
+			rusa->u.sin.sin_addr.s_addr = sp->group.imr_multiaddr.s_addr;
+			rusa->u.sin.sin_port = lusa->u.sin.sin_port;
+			rusa->len = sizeof(rusa->u.sin);
+
+			/* Disable loopback so you do not receive your own datagrams. */
+			err = setsockopt(sp->sock, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&loopch, sizeof(loopch));
+			if (err < 0) {
+				break;
+			}
+
+			/* Set local interface for outbound multicast datagrams. */
+			/* The IP address specified must be associated with a local, */
+			/* multicast capable interface. */
+			err = setsockopt(sp->sock,
+				IPPROTO_IP, IP_MULTICAST_IF,
+				(char *)&(sp->group.imr_interface), sizeof(sp->group.imr_interface));
+			if (err < 0) {
+				break;
+			}
+
+			err = connect(sp->sock, (struct sockaddr *)&(rusa->u.sin), rusa->len);
+		}
+		break;
+
+	case AF_NETLINK:
+		break;
+
+	default:
+		err(ezcfg, "unknown family [%d]\n", lusa->domain);
+		return -EINVAL;
+	}
+
+	if (err < 0) {
+		return err;
+	}
 
 	return 0;
 }

@@ -57,7 +57,7 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp *up;
-	//struct ezcfg_upnp **pup;
+	struct ezcfg_upnp **pup;
 	char *p, *q, *r;
 	int role, type;
 	char path[256];
@@ -149,6 +149,28 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 		if (ezcfg_upnp_parse_description(up, path) == false) {
 			ezcfg_upnp_delete(up);
 			continue;
+		}
+
+#if 0
+		/* check if upnp is already set */
+		pup = ezcfg_master_get_p_upnp(master);
+		if (ezcfg_upnp_list_in(pup, up) == true) {
+			info(ezcfg, "upnp entry already set\n");
+			ezcfg_upnp_delete(up);
+			continue;
+		}
+#endif
+
+		/* add new upnp */
+		pup = ezcfg_master_get_p_upnp(master);
+		if (ezcfg_upnp_list_insert(pup, up) == true) {
+			info(ezcfg, "insert upnp entry successfully\n");
+			/* set up to NULL to avoid delete it */
+			up = NULL;
+		}
+		else {
+			err(ezcfg, "insert upnp entry failed: %m\n");
+			ezcfg_upnp_delete(up);
 		}
 	}
 }

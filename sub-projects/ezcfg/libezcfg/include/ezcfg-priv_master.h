@@ -14,7 +14,7 @@
 #ifndef _EZCFG_PRIV_MASTER_H_
 #define _EZCFG_PRIV_MASTER_H_
 
-struct ezcfg_master;
+/* thread/master.c */
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg);
 void ezcfg_master_stop(struct ezcfg_master *master);
 void ezcfg_master_reload(struct ezcfg_master *master);
@@ -35,13 +35,44 @@ int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master);
+struct ezcfg_igrs **ezcfg_master_get_p_igrs(struct ezcfg_master *master);
 int ezcfg_master_igrs_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_igrs_mutex_unlock(struct ezcfg_master *master);
 #endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 struct ezcfg_upnp *ezcfg_master_get_upnp(struct ezcfg_master *master);
+struct ezcfg_upnp **ezcfg_master_get_p_upnp(struct ezcfg_master *master);
 int ezcfg_master_upnp_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_upnp_mutex_unlock(struct ezcfg_master *master);
+#endif
+
+/* thread/master_uevent.c */
+bool ezcfg_master_handle_uevent_socket(struct ezcfg_master *master,
+	struct ezcfg_socket *listener,
+	struct ezcfg_socket *accepted);
+
+/* thread/master_upnp_ssdp.c */
+bool ezcfg_master_handle_upnp_ssdp_socket(struct ezcfg_master *master,
+	struct ezcfg_socket *listener,
+	struct ezcfg_socket *accepted);
+
+/* thread/master_load_common_conf.c */
+void ezcfg_master_load_common_conf(struct ezcfg_master *master);
+
+/* thread/master_load_socket_conf.c */
+void ezcfg_master_load_socket_conf(struct ezcfg_master *master);
+
+/* thread/master_load_auth_conf.c */
+void ezcfg_master_load_auth_conf(struct ezcfg_master *master);
+
+/* thread/master_load_igrs_conf.c */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+void ezcfg_master_load_igrs_conf(struct ezcfg_master *master);
+#endif
+
+/* thread/master_load_upnp_conf.c */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+void ezcfg_master_load_upnp_conf(struct ezcfg_master *master);
 #endif
 
 #endif /* _EZCFG_PRIV_MASTER_H_ */

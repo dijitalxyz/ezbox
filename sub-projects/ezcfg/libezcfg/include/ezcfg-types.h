@@ -27,11 +27,15 @@ struct ezcfg;
 /* thread/master.c */
 struct ezcfg_master;
 
+/* thread/worker.c */
+struct ezcfg_worker;
+
 /* uevent/uevent.c */
 struct ezcfg_uevent;
 
 /* igrs/igrs.c */
 struct ezcfg_igrs;
+struct ezcfg_igrs_msg_op;
 
 /* upnp/upnp.c */
 struct ezcfg_upnp;
@@ -51,5 +55,11 @@ struct ezcfg_ctrl;
 /* xml/xml.c - daemon runtime setup */
 struct ezcfg_xml_element;
 struct ezcfg_xml;
+
+/* socket/socket.c */
+struct ezcfg_socket;
+
+/* http/http.c */
+struct ezcfg_http;
 
 #endif /* _EZCFG_TYPES_H_ */
