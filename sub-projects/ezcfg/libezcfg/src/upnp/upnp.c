@@ -31,6 +31,7 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <netinet/in.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -942,13 +943,30 @@ func_out:
  */
 char *ezcfg_upnp_get_ifs_iplist(struct ezcfg_upnp *upnp)
 {
-	char *p;
+	char *p = NULL, *q;
+	int i = 0;
+	char ip[INET_ADDRSTRLEN];
+	upnp_if_t *ifp;
 
 	ASSERT(upnp != NULL);
 
-	p = malloc(strlen("192.168.56.2") + 1);
-	if (p != NULL) {
-		strcpy(p, "192.168.56.2");
+	ifp = upnp->ifs;
+	while (ifp != NULL) {
+		if (ezcfg_util_if_get_ipaddr(ifp->ifname, ip) == true) {
+			q = realloc(p, strlen(ip)+1);
+			if (q != NULL) {
+				if (i == 0) {
+					sprintf(q+i, "%s", ip);
+					i = strlen(ip);
+				}
+				else {
+					sprintf(q+i, ",%s", ip);
+					i += (strlen(ip) + 1);
+				}
+				p = q;
+			}
+		}
+		ifp = ifp->next;
 	}
 
 	return p;

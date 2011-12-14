@@ -15,6 +15,7 @@
 #define _EZCFG_PRIV_UPNP_H_
 
 #include "ezcfg-types.h"
+/* for IFNAMSIZ */
 #include <net/if.h>
 
 /* upnp/upnp.c */

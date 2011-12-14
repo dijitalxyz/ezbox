@@ -14,6 +14,12 @@
 #ifndef _EZCFG_PRIV_UTIL_H_
 #define _EZCFG_PRIV_UTIL_H_
 
+#include "ezcfg-types.h"
+/* for INET_ADDRSTRLEN */
+#include <netinet/in.h>
+/* for IFNAMSIZ */
+#include <net/if.h>
+
 /* util/util.c */
 #define UTIL_PATH_SIZE				1024
 #define UTIL_NAME_SIZE				512
@@ -100,5 +106,8 @@ bool ezcfg_util_rc_list(ezcfg_rc_triple_t *list, char *func, char *act, int s);
 
 /* util/util_service_binding.c */
 int ezcfg_util_service_binding(char *interface);
+
+/* util/util_if_ipaddr.c */
+bool ezcfg_util_if_get_ipaddr(const char ifname[IFNAMSIZ], char ip[INET_ADDRSTRLEN]);
 
 #endif /* _EZCFG_PRIV_UTIL_H_ */

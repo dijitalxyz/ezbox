@@ -79,6 +79,7 @@ libezcfg_la_SOURCES += src/util/util_socket_protocol.c
 libezcfg_la_SOURCES += src/util/util_socket_domain.c
 libezcfg_la_SOURCES += src/util/util_socket_type.c
 libezcfg_la_SOURCES += src/util/util_socket_mcast.c
+libezcfg_la_SOURCES += src/util/util_if_ipaddr.c
 libezcfg_la_SOURCES += src/util/util_language.c
 libezcfg_la_SOURCES += src/util/util_execute.c
 libezcfg_la_SOURCES += src/util/util_rc.c
