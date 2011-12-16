@@ -34,6 +34,21 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	fp = fopen(path, "a"); \
+	if (fp) { \
+		fprintf(fp, format, ## args); \
+		fclose(fp); \
+        } \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 bool ezcfg_util_if_get_ipaddr(const char ifname[IFNAMSIZ], char ip[INET_ADDRSTRLEN])
 {
 	int s;
@@ -53,18 +68,18 @@ bool ezcfg_util_if_get_ipaddr(const char ifname[IFNAMSIZ], char ip[INET_ADDRSTRL
 	if (ioctl(s, SIOCGIFCONF, &ifconf) == -1) {
 		return false;
 	}
+	close(s);
 
 	ifs = ifconf.ifc_len / sizeof(ifr[0]);
 	for (i = 0; i < ifs; i++) {
 		struct sockaddr_in *s_in = (struct sockaddr_in *) &ifr[i].ifr_addr;
-
-		if ((strcmp(ifname, ifr[i].ifr_name) == 0) && 
-		    (inet_ntop(AF_INET, &s_in->sin_addr, ip, sizeof(ip)) != NULL)) {
-			close(s);
+		if (strcmp(ifname, ifr[i].ifr_name) == 0) {
+			if (inet_ntop(AF_INET, &s_in->sin_addr, ip, INET_ADDRSTRLEN) == NULL) {
+				return false;
+			}
 			return true;
 		}
 	}
 
-	close(s);
 	return false;
 }

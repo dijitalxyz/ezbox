@@ -34,6 +34,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+#include "ezcfg-upnp.h"
 
 #if 1
 #define DBG(format, args...) do { \
@@ -55,6 +56,29 @@ struct ezcfg_upnp_ssdp {
 	struct ezcfg_socket *socket;
 	struct ezcfg_http *http;
 	struct ezcfg_upnp *upnp;
+};
+
+/* for HTTP/1.1 request methods */
+static const char *upnp_ssdp_method_strings[] = {
+	/* bad method string */
+	NULL ,
+	/* UPnP SSDP used methods */
+	EZCFG_UPNP_HTTP_METHOD_NOTIFY ,
+	EZCFG_UPNP_HTTP_METHOD_MSEARCH ,
+};
+
+/* for HTTP/1.1 known header */
+static const char *upnp_ssdp_header_strings[] = {
+	/* bad header string */
+	NULL ,
+	/* UPnP SSDP known HTTP headers */
+	EZCFG_UPNP_HTTP_HEADER_HOST ,
+	EZCFG_UPNP_HTTP_HEADER_CACHE_CONTROL ,
+	EZCFG_UPNP_HTTP_HEADER_LOCATION ,
+	EZCFG_UPNP_HTTP_HEADER_NT ,
+	EZCFG_UPNP_HTTP_HEADER_NTS ,
+	EZCFG_UPNP_HTTP_HEADER_SERVER ,
+	EZCFG_UPNP_HTTP_HEADER_USN ,
 };
 
 /**
@@ -97,12 +121,15 @@ struct ezcfg_upnp_ssdp *ezcfg_upnp_ssdp_new(struct ezcfg *ezcfg)
 	}
 
 	memset(ssdp, 0, sizeof(struct ezcfg_upnp_ssdp));
-	ssdp->ezcfg = ezcfg;
 
 	ssdp->http = ezcfg_http_new(ezcfg);
 	if (ssdp->http == NULL) {
 		goto fail_exit;
 	}
+
+	ssdp->ezcfg = ezcfg;
+	ezcfg_http_set_method_strings(ssdp->http, upnp_ssdp_method_strings, ARRAY_SIZE(upnp_ssdp_method_strings) - 1);
+	ezcfg_http_set_known_header_strings(ssdp->http, upnp_ssdp_header_strings, ARRAY_SIZE(upnp_ssdp_header_strings) - 1);
 
 	return ssdp;
 
@@ -136,9 +163,10 @@ bool ezcfg_upnp_ssdp_advertise_alive(struct ezcfg_upnp_ssdp *ssdp)
 	int domain, type, proto;
 	char socket_path[128];
 	char buf[256];
-	char *iplist, *p, *q;
-	bool ret = false;
-	
+	upnp_if_t *ifp;
+	char ip[INET_ADDRSTRLEN];
+	char *msg;
+	int msg_len;
 
 	ASSERT(ssdp != NULL);
 
@@ -150,37 +178,112 @@ bool ezcfg_upnp_ssdp_advertise_alive(struct ezcfg_upnp_ssdp *ssdp)
 	type = ezcfg_util_socket_type_get_index(EZCFG_SOCKET_TYPE_DGRAM_STRING);
 	proto = ezcfg_util_socket_protocol_get_index(EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING);
 
-	iplist = ezcfg_upnp_get_ifs_iplist(upnp);
-	if (iplist == NULL) {
-		return false;
-	}
-	p = iplist;
-	while(p != NULL) {
-		q = strchr(p, ',');
-		if (q != NULL) {
-			*q = '\0';
-			q++;
+	ifp = upnp->ifs;
+	while(ifp != NULL) {
+		if (ezcfg_util_if_get_ipaddr(ifp->ifname, ip) == true) {
+			snprintf(socket_path, sizeof(socket_path), "%s:%s@%s",
+				EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+				EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, ip);
+
+			socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
+			if (socket == NULL) {
+				return false;
+			}
+			ezcfg_socket_enable_sending(socket);
+
+			/* build HTTP request line */
+			ezcfg_http_set_request_method(http, EZCFG_UPNP_HTTP_METHOD_NOTIFY);
+			ezcfg_http_set_request_uri(http, "*");
+			ezcfg_http_set_version_major(http, 1);
+			ezcfg_http_set_version_minor(http, 1);
+			ezcfg_http_set_state_request(http);
+
+			/* Host: 239.255.255.250:1900 */
+			snprintf(buf, sizeof(buf), "%s:%s",
+			         EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+			         EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING);
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_HOST, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* Cache-Control: max-age=1800 */
+			snprintf(buf, sizeof(buf), "max-age=%d", 1800);
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_CACHE_CONTROL, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* Location: http://192.168.1.1:61900/igd1/InternetGatewayDevice1.xml */
+			snprintf(buf, sizeof(buf), "http://%s:%s%s",
+			         ip, EZCFG_PROTO_UPNP_GENA_PORT_NUMBER_STRING,
+			         ezcfg_util_upnp_get_type_description_path(upnp->type));
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_LOCATION, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* NT: Notification Type, for root device */
+			snprintf(buf, sizeof(buf), "%s", "upnp:rootdevice");
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_NT, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* NTS: Notification Sub Type, must be "ssdp:alive" */
+			snprintf(buf, sizeof(buf), "%s", "ssdp:alive");
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_NTS, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* Server: OS/version UPnP/1.0 product/version */
+			snprintf(buf, sizeof(buf), "Linux/2.6 UPnP/%d.%d ezbox/1.0",
+			         upnp->version_major, upnp->version_minor);
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_SERVER, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			/* USN: Unique Service Name */
+			snprintf(buf, sizeof(buf), "%s::%s", upnp->u.dev.UDN, "upnp:rootdevice");
+			if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_NTS, buf) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				return false;
+			}
+
+			msg_len = ezcfg_http_get_message_length(http);
+			if (msg_len < 0) {
+				err(ezcfg, "HTTP message length error.\n");
+				return false;
+			}
+			msg_len++; /* one more for '\0' */
+
+			if (msg_len <= sizeof(buf)) {
+				msg = buf;
+			}
+			else {
+				msg = malloc(msg_len);
+				if (msg == NULL) {
+					err(ezcfg, "HTTP malloc msg buffer error.\n");
+					return false;
+				}
+			}
+
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_http_write_message(http, msg, msg_len);
+
+			ezcfg_socket_write(socket, msg, msg_len, 0);
+
+			if (msg != buf) {
+				free(msg);
+			}
+
+			ezcfg_socket_delete(socket);
+			socket = NULL;
 		}
-	
-		snprintf(socket_path, sizeof(socket_path), "%s:%s@%s",
-			EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
-			EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, p);
-
-		socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
-		if (socket == NULL) {
-			goto func_exit;
-		}
-		ezcfg_socket_enable_sending(socket);
-		snprintf(buf, sizeof(buf), "%s", "SSDP ALIVE TEST!");
-		ezcfg_socket_write(socket, buf, strlen(buf)+1, 0);
-		ezcfg_socket_delete(socket);
-		socket = NULL;
-		p = q;
+		ifp = ifp->next;
 	}
 
-	ret = true;
-
-func_exit:
-	free(iplist);
-	return ret;
+	return true;
 }

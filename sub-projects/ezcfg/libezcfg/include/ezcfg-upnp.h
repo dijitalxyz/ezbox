@@ -14,6 +14,90 @@
 #ifndef _EZCFG_UPNP_H_
 #define _EZCFG_UPNP_H_
 
+/* for IFNAMSIZ */
+#include <net/if.h>
+
+/*----------------------------*/
+/* data structure */
+typedef struct device_icon_s {
+	/* icon elements */
+	char *mimetype;
+	int width;
+	int height;
+	int depth;
+	char *url;
+	/* link */
+	struct device_icon_s *next;
+} device_icon_t;
+
+typedef struct upnp_service_s {
+	/* service elements */
+	char *serviceType;
+	char *serviceId;
+	char *SCPDURL;
+	char *controlURL;
+	char *eventSubURL;
+	/* link */
+	struct upnp_service_s *next;
+} upnp_service_t;
+
+typedef struct upnp_device_s {
+	/* device elements */
+	char *deviceType;
+	char *friendlyName;
+	char *manufacturer;
+	char *manufacturerURL;
+	char *modelDescription;
+	char *modelName;
+	char *modelNumber;
+	char *modelURL;
+	char *serialNumber;
+	char *UDN;
+	char *UPC;
+	device_icon_t *iconList;
+	upnp_service_t *serviceList;
+	struct upnp_device_s *deviceList; /* first child node */
+	char *presentationURL;
+	/* link */
+	struct upnp_device_s *next; /* sibling node */
+	/* implement info */
+	void *data;
+} upnp_device_t;
+
+typedef struct upnp_control_point_s {
+	/* monitoring root devices */
+	int root_dev_max_num;
+	upnp_device_t *root_devs;
+} upnp_control_point_t;
+
+typedef struct upnp_if_s {
+	/* monitoring root devices */
+	char ifname[IFNAMSIZ];
+	struct upnp_if_s *next;
+} upnp_if_t;
+
+struct ezcfg_upnp {
+	struct ezcfg *ezcfg;
+
+	int role; /* controlled device/control point */
+	int type; /* standardizeddcps */
+	upnp_if_t *ifs;
+
+	/* UPnP info */
+	int version_major; /* UPnP major version, must be 1 */
+	int version_minor; /* UPnP minor version, should be 0 or 1 */
+
+	char *URLBase; /* UPnP UDA 1.0 defined, UPnP UDA 1.1 deprecated */
+
+	union {
+		upnp_device_t dev;
+		upnp_control_point_t cp;
+	} u;
+
+	struct ezcfg_upnp *next; /* link pointer */
+};
+
+/*----------------------------*/
 /* ezcfg nvram name prefix */
 #define EZCFG_UPNP_NVRAM_PREFIX            "upnp_"
 
@@ -73,18 +157,15 @@
 #define EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME   "presentationURL"
 
 /* ezcfg upnp http methods */
-#define EZCFG_UPNP_HTTP_METHOD_POST         "POST"
-#define EZCFG_UPNP_HTTP_METHOD_POST_EXT     "M-POST"
+#define EZCFG_UPNP_HTTP_METHOD_NOTIFY       "NOTIFY"
+#define EZCFG_UPNP_HTTP_METHOD_MSEARCH      "MSEARCH"
 /* ezcfg upnp http headers */
 #define EZCFG_UPNP_HTTP_HEADER_HOST                 "Host"
-#define EZCFG_UPNP_HTTP_HEADER_CONTENT_TYPE         "Content-Type"
-#define EZCFG_UPNP_HTTP_HEADER_CONTENT_LENGTH       "Content-Length"
-#define EZCFG_UPNP_HTTP_HEADER_MAN                  "Man"
-#define EZCFG_UPNP_HTTP_HEADER_01_UPNP_VERSION      "01-UPNPVersion"
-#define EZCFG_UPNP_HTTP_HEADER_01_UPNP_MESSAGE_TYPE "01-UPNPMessageType"
-#define EZCFG_UPNP_HTTP_HEADER_01_TARGET_DEVICE_ID  "01-TargetDeviceId"
-#define EZCFG_UPNP_HTTP_HEADER_01_SOURCE_DEVICE_ID  "01-SourceDeviceId"
-#define EZCFG_UPNP_HTTP_HEADER_01_SEQUENCE_ID       "01-SequenceId"
-#define EZCFG_UPNP_HTTP_HEADER_02_SOAP_ACTION       "02-SoapAction"
+#define EZCFG_UPNP_HTTP_HEADER_CACHE_CONTROL        "Cache-Control"
+#define EZCFG_UPNP_HTTP_HEADER_LOCATION             "Location"
+#define EZCFG_UPNP_HTTP_HEADER_NT                   "NT"
+#define EZCFG_UPNP_HTTP_HEADER_NTS                  "NTS"
+#define EZCFG_UPNP_HTTP_HEADER_SERVER               "Server"
+#define EZCFG_UPNP_HTTP_HEADER_USN                  "USN"
 
 #endif /* _EZCFG_UPNP_H_ */

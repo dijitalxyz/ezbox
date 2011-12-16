@@ -52,6 +52,7 @@
 #define DBG(format, args...)
 #endif
 
+#if 0
 typedef struct device_icon_s {
 	/* icon elements */
 	char *mimetype;
@@ -129,6 +130,7 @@ struct ezcfg_upnp {
 
 	struct ezcfg_upnp *next; /* link pointer */
 };
+#endif
 
 /**
  * private functions
@@ -936,38 +938,4 @@ func_out:
 		ezcfg_xml_delete(xml);
 
 	return ret;
-}
-
-/*
- * function caller must free the memory manually
- */
-char *ezcfg_upnp_get_ifs_iplist(struct ezcfg_upnp *upnp)
-{
-	char *p = NULL, *q;
-	int i = 0;
-	char ip[INET_ADDRSTRLEN];
-	upnp_if_t *ifp;
-
-	ASSERT(upnp != NULL);
-
-	ifp = upnp->ifs;
-	while (ifp != NULL) {
-		if (ezcfg_util_if_get_ipaddr(ifp->ifname, ip) == true) {
-			q = realloc(p, strlen(ip)+1);
-			if (q != NULL) {
-				if (i == 0) {
-					sprintf(q+i, "%s", ip);
-					i = strlen(ip);
-				}
-				else {
-					sprintf(q+i, ",%s", ip);
-					i += (strlen(ip) + 1);
-				}
-				p = q;
-			}
-		}
-		ifp = ifp->next;
-	}
-
-	return p;
 }

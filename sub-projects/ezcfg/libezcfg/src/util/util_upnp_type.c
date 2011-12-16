@@ -30,6 +30,17 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+struct type_desc_pair {
+	int index;
+	char *path;
+};
+
+static struct type_desc_pair ezcfg_support_upnp_type_descs[] = {
+	{ EZCFG_UPNP_TYPE_UNKNOWN, NULL },
+	{ EZCFG_UPNP_TYPE_IGD1, "/igd1/InternetGatewayDevice1.xml" },
+};
+
+
 int ezcfg_util_upnp_type(char *name)
 {
 	if (name == NULL)
@@ -39,4 +50,16 @@ int ezcfg_util_upnp_type(char *name)
 		return EZCFG_UPNP_TYPE_IGD1;
 	else
 		return EZCFG_UPNP_TYPE_UNKNOWN;
+}
+
+char *ezcfg_util_upnp_get_type_description_path(int type)
+{
+	int i;
+	struct type_desc_pair *tdp;
+	for (i = 1; i < ARRAY_SIZE(ezcfg_support_upnp_type_descs); i++) {
+		tdp = &(ezcfg_support_upnp_type_descs[i]);
+		if (tdp->index == type)
+			return tdp->path;
+        }
+	return NULL;
 }

@@ -34,6 +34,7 @@
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+#include "ezcfg-upnp.h"
 
 struct ezcfg_upnp_gena {
 	struct ezcfg *ezcfg;
