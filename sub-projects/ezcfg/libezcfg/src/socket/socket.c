@@ -219,15 +219,35 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 		usa->u.sin.sin_family = AF_INET;
 		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
 			int reuse = 1;
-			char *if_addr = strchr(port, '@');
+			char *if_addr, *if_port;
+			if_addr = strchr(port, '@');
 			if (if_addr == NULL) {
 				err(ezcfg, "muticast socket_path format error.\n");
 				goto fail_exit;
 			}
 			*if_addr = '\0';
 			if_addr++;
+			if_port = strchr(if_addr, ':');
+			if (if_port != NULL) {
+				*if_port = '\0';
+				if_port++;
+			}
+			else {
+				/* set to multicast port */
+				if_port = port;
+			}
+			usa->u.sin.sin_port = htons((uint16_t)atoi(if_port));
+			usa->u.sin.sin_addr.s_addr = inet_addr(if_addr);
+			usa->len = sizeof(usa->u.sin);
 
-			usa->u.sin.sin_addr.s_addr = INADDR_ANY;
+			/* set remote pear info */
+			usa = &(sp->rsa);
+			usa->domain = AF_INET;
+			usa->type = type;
+			usa->u.sin.sin_family = AF_INET;
+			usa->u.sin.sin_addr.s_addr = inet_addr(addr);
+			usa->u.sin.sin_port = htons((uint16_t)atoi(port));
+			usa->len = sizeof(usa->u.sin);
 
 			/*
 			 * enable SO_REUSEADDR to allow multiple instances of this
@@ -255,10 +275,10 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 				err(ezcfg, "convert IP address error\n");
 				goto fail_exit;
 			}
+			usa->u.sin.sin_port = htons((uint16_t)atoi(port));
+			usa->len = sizeof(usa->u.sin);
 		}
 		/* FIXME: must after dealing the address string, multicast socket path is a special case */
-		usa->u.sin.sin_port = htons((uint16_t)atoi(port));
-		usa->len = sizeof(usa->u.sin);
 		free(addr);
 		addr = NULL;
 
@@ -637,6 +657,51 @@ bool ezcfg_socket_list_set_need_delete(struct ezcfg_socket **list, struct ezcfg_
 }
 
 /**
+ * ezcfg_socket_binding:
+ * @sp: the listening socket which should receive events
+ * Binds the @sp to the event source.
+ * Returns: 0 on success, otherwise a negative error value.
+ */
+int ezcfg_socket_binding(struct ezcfg_socket *sp)
+{
+	int err = 0;
+	struct usa *usa = NULL;
+	struct ezcfg *ezcfg;
+
+	ASSERT(sp != NULL);
+
+	ezcfg = sp->ezcfg;
+	usa = &(sp->lsa);
+
+	switch(usa->domain) {
+	case AF_LOCAL:
+		err = bind(sp->sock,
+		           (struct sockaddr *)&usa->u.sun, usa->len);
+		break;
+
+	case AF_INET:
+		err = bind(sp->sock,
+		           (struct sockaddr *)&usa->u.sin, usa->len);
+		break;
+
+	case AF_NETLINK:
+		err = bind(sp->sock,
+		           (struct sockaddr *)&usa->u.snl, usa->len);
+		break;
+
+	default:
+		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		return -EINVAL;
+	}
+
+	if (err < 0) {
+		return err;
+	}
+
+	return 0;
+}
+
+/**
  * ezcfg_socket_enable_receiving:
  * @sp: the listening socket which should receive events
  * Binds the @sp to the event source.
@@ -802,28 +867,21 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	struct usa *lusa = NULL, *rusa = NULL;
+	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
 	ASSERT(sp != NULL);
 
 	ezcfg = sp->ezcfg;
-	lusa = &(sp->lsa);
-	rusa = &(sp->rsa);
+	usa = &(sp->rsa);
 
-	switch(lusa->domain) {
+	switch(usa->domain) {
 	case AF_LOCAL:
 		break;
 
 	case AF_INET:
 		if (sp->proto == EZCFG_PROTO_UPNP_SSDP) {
 			char loopch = 0;
-
-			memset((char *) &rusa->u.sin, 0, sizeof(rusa->u.sin));
-			rusa->u.sin.sin_family = lusa->u.sin.sin_family;
-			rusa->u.sin.sin_addr.s_addr = sp->group.imr_multiaddr.s_addr;
-			rusa->u.sin.sin_port = lusa->u.sin.sin_port;
-			rusa->len = sizeof(rusa->u.sin);
 
 			/* Disable loopback so you do not receive your own datagrams. */
 			err = setsockopt(sp->sock, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&loopch, sizeof(loopch));
@@ -841,7 +899,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 				break;
 			}
 
-			err = connect(sp->sock, (struct sockaddr *)&(rusa->u.sin), rusa->len);
+			err = connect(sp->sock, (struct sockaddr *)&(usa->u.sin), usa->len);
 		}
 		break;
 
@@ -849,7 +907,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 		break;
 
 	default:
-		err(ezcfg, "unknown family [%d]\n", lusa->domain);
+		err(ezcfg, "unknown family [%d]\n", usa->domain);
 		return -EINVAL;
 	}
 

@@ -78,8 +78,8 @@ bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr);
 int ezcfg_util_upnp_role(char *name);
 
 /* util/util_upnp_type.c */
-int ezcfg_util_upnp_type(char *name);
-char *ezcfg_util_upnp_get_type_description_path(int type);
+int ezcfg_util_upnp_device_type(char *name);
+char *ezcfg_util_upnp_get_device_type_description_path(int type);
 
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);

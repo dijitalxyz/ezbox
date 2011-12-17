@@ -38,6 +38,7 @@ char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp);
 int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp);
 int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
+int ezcfg_socket_binding(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp);
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog);
 int ezcfg_socket_enable_again(struct ezcfg_socket *sp);

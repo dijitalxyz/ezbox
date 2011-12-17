@@ -306,5 +306,7 @@
 
 /* ezcfg upnp ssdp request/response mode */
 #define EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE    4096
+/* UPnP SSDP advertisement interval 60 seconds */
+#define EZCFG_UPNP_SSDP_ADVERTISE_EXPIRE_TIME   60
 
 #endif /* _EZCFG_H_ */

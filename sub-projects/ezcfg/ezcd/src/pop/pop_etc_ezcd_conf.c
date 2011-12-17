@@ -397,7 +397,7 @@ static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
 		snprintf(name, sizeof(name), "%s%s.%d.%s",
 		         EZCFG_EZCFG_NVRAM_PREFIX,
 		         EZCFG_EZCFG_SECTION_UPNP,
-		         i, EZCFG_EZCFG_KEYWORD_TYPE);
+		         i, EZCFG_EZCFG_KEYWORD_DEVICE_TYPE);
 		if (flag == RC_ACT_BOOT) {
 			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 		}
@@ -405,7 +405,7 @@ static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
 			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		}
 		if (rc >= 0) {
-			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_TYPE, buf);
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_DEVICE_TYPE, buf);
 		}
 
 		snprintf(name, sizeof(name), "%s%s.%d.%s",

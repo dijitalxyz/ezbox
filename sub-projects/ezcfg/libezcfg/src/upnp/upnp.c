@@ -52,86 +52,6 @@
 #define DBG(format, args...)
 #endif
 
-#if 0
-typedef struct device_icon_s {
-	/* icon elements */
-	char *mimetype;
-	int width;
-	int height;
-	int depth;
-	char *url;
-	/* link */
-	struct device_icon_s *next;
-} device_icon_t;
-
-typedef struct upnp_service_s {
-	/* service elements */
-	char *serviceType;
-	char *serviceId;
-	char *SCPDURL;
-	char *controlURL;
-	char *eventSubURL;
-	/* link */
-	struct upnp_service_s *next;
-} upnp_service_t;
-
-typedef struct upnp_device_s {
-	/* device elements */
-	char *deviceType;
-	char *friendlyName;
-	char *manufacturer;
-	char *manufacturerURL;
-	char *modelDescription;
-	char *modelName;
-	char *modelNumber;
-	char *modelURL;
-	char *serialNumber;
-	char *UDN;
-	char *UPC;
-	device_icon_t *iconList;
-	upnp_service_t *serviceList;
-	struct upnp_device_s *deviceList; /* first child node */
-	char *presentationURL;
-	/* link */
-	struct upnp_device_s *next; /* sibling node */
-	/* implement info */
-	void *data;
-} upnp_device_t;
-
-typedef struct upnp_control_point_s {
-	/* monitoring root devices */
-	int root_dev_max_num;
-	upnp_device_t *root_devs;
-} upnp_control_point_t;
-
-typedef struct upnp_if_s {
-	/* monitoring root devices */
-	char ifname[IFNAMSIZ];
-	struct upnp_if_s *next;
-} upnp_if_t;
-
-struct ezcfg_upnp {
-	struct ezcfg *ezcfg;
-
-	int role; /* controlled device/control point */
-	int type; /* standardizeddcps */
-	upnp_if_t *ifs;
-
-	/* UPnP info */
-	int version_major; /* UPnP major version, must be 1 */
-	int version_minor; /* UPnP minor version, should be 0 or 1 */
-
-	char *URLBase; /* UPnP UDA 1.0 defined, UPnP UDA 1.1 deprecated */
-
-	union {
-		upnp_device_t dev;
-		upnp_control_point_t cp;
-	} u;
-
-	struct ezcfg_upnp *next; /* link pointer */
-};
-#endif
-
 /**
  * private functions
  **/
@@ -756,11 +676,14 @@ static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
 	}
 
 	/* parse <device> section */
-	if (upnp_device_parse_device(&((upnp->u).dev), xml, ci) == false) {
-		return false;
+	if (upnp->role == EZCFG_UPNP_ROLE_DEVICE) {
+		return upnp_device_parse_device(&((upnp->u).dev), xml, ci);
+	}
+	else if (upnp->role == EZCFG_UPNP_ROLE_CONTROL_POINT) {
+		return upnp_device_parse_device(&((upnp->u).cp.device_template), xml, ci);
 	}
 
-	return true;
+	return false;
 }
 
 /**
@@ -825,16 +748,16 @@ bool ezcfg_upnp_set_role(struct ezcfg_upnp *upnp, int role)
 	return true;
 }
 
-bool ezcfg_upnp_set_type(struct ezcfg_upnp *upnp, int type)
+bool ezcfg_upnp_set_device_type(struct ezcfg_upnp *upnp, int type)
 {
 	ASSERT(upnp != NULL);
 
-	upnp->type = type;
+	upnp->device_type = type;
 
 	return true;
 }
 
-bool ezcfg_upnp_if_list_insert(struct ezcfg_upnp *upnp, char ifname[IFNAMSIZ])
+bool ezcfg_upnp_if_list_insert(struct ezcfg_upnp *upnp, char ifname[IFNAMSIZ], int life_time)
 {
 	upnp_if_t *ifp;
 
@@ -847,6 +770,7 @@ bool ezcfg_upnp_if_list_insert(struct ezcfg_upnp *upnp, char ifname[IFNAMSIZ])
 
 	memset(ifp, 0, sizeof(upnp_if_t));
 	strncpy(ifp->ifname, ifname, IFNAMSIZ);
+	ifp->life_time = life_time;
 	ifp->next = upnp->ifs;
 	upnp->ifs = ifp;
 	return true;

@@ -57,6 +57,7 @@ void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker)
 	int buf_len;
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp_ssdp *ssdp;
+	struct ezcfg_http *http;
 
 	ASSERT(worker != NULL);
 
@@ -72,5 +73,9 @@ void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker)
 	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_client(worker));
 
 	info(ezcfg, "ssdp=[%s], len=%d\n", buf, buf_len);
+	DBG("mydebug: %s-%s(%d)ssdp=[%s], len=%d\n", __FILE__, __func__, __LINE__, buf, buf_len);
+
+	http = ezcfg_upnp_ssdp_get_http(ssdp);
+
 	return;
 }

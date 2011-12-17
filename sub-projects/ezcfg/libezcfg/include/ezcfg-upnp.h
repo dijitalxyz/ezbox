@@ -67,12 +67,14 @@ typedef struct upnp_device_s {
 typedef struct upnp_control_point_s {
 	/* monitoring root devices */
 	int root_dev_max_num;
+	upnp_device_t device_template;
 	upnp_device_t *root_devs;
 } upnp_control_point_t;
 
 typedef struct upnp_if_s {
 	/* monitoring root devices */
 	char ifname[IFNAMSIZ];
+	int life_time;
 	struct upnp_if_s *next;
 } upnp_if_t;
 
@@ -80,7 +82,7 @@ struct ezcfg_upnp {
 	struct ezcfg *ezcfg;
 
 	int role; /* controlled device/control point */
-	int type; /* standardizeddcps */
+	int device_type; /* standardizeddcps */
 	upnp_if_t *ifs;
 
 	/* UPnP info */
@@ -110,11 +112,11 @@ struct ezcfg_upnp {
 #define EZCFG_UPNP_ROLE_CONTROL_POINT_STRING "control-point"
 
 
-/* ezcfg UPnP type string */
-#define EZCFG_UPNP_TYPE_UNKNOWN         0
-#define EZCFG_UPNP_TYPE_IGD1            1
+/* ezcfg UPnP device type string */
+#define EZCFG_UPNP_DEV_TYPE_UNKNOWN         0
+#define EZCFG_UPNP_DEV_TYPE_IGD1            1
 
-#define EZCFG_UPNP_TYPE_IGD1_STRING     "igd1"
+#define EZCFG_UPNP_DEV_TYPE_IGD1_STRING     "igd1"
 
 
 /* IGD1 config nvram name */
@@ -158,7 +160,7 @@ struct ezcfg_upnp {
 
 /* ezcfg upnp http methods */
 #define EZCFG_UPNP_HTTP_METHOD_NOTIFY       "NOTIFY"
-#define EZCFG_UPNP_HTTP_METHOD_MSEARCH      "MSEARCH"
+#define EZCFG_UPNP_HTTP_METHOD_MSEARCH      "M-SEARCH"
 /* ezcfg upnp http headers */
 #define EZCFG_UPNP_HTTP_HEADER_HOST                 "Host"
 #define EZCFG_UPNP_HTTP_HEADER_CACHE_CONTROL        "Cache-Control"
@@ -167,5 +169,10 @@ struct ezcfg_upnp {
 #define EZCFG_UPNP_HTTP_HEADER_NTS                  "NTS"
 #define EZCFG_UPNP_HTTP_HEADER_SERVER               "Server"
 #define EZCFG_UPNP_HTTP_HEADER_USN                  "USN"
+#define EZCFG_UPNP_HTTP_HEADER_MAN                  "Man"
+#define EZCFG_UPNP_HTTP_HEADER_MX                   "MX"
+#define EZCFG_UPNP_HTTP_HEADER_ST                   "ST"
+#define EZCFG_UPNP_HTTP_HEADER_DATE                 "Date"
+#define EZCFG_UPNP_HTTP_HEADER_EXT                  "Ext"
 
 #endif /* _EZCFG_UPNP_H_ */

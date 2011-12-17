@@ -74,7 +74,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	master = ezcfg_worker_get_master(worker);
 
-	if (strcmp(argv[1], "advertise") == 0) {
+	if (strcmp(argv[1], "ssdp") == 0) {
 		if (argv[2] == NULL) {
 			return -1;
 		}
@@ -84,25 +84,43 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 			return -1;
 		}
 
-		if (strcmp(argv[2], "alive") == 0) {
+		if (strcmp(argv[2], "notify_alive") == 0) {
 			if (ezcfg_master_upnp_mutex_lock(master) == 0) {
 				upnp = ezcfg_master_get_upnp(master);
 				if (upnp != NULL) {
 					ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
-					ezcfg_upnp_ssdp_advertise_alive(ssdp);
-				}
-				else {
-					DBG("mydebug: %s-%s(%d)\n", __FILE__, __func__, __LINE__);
+					ezcfg_upnp_ssdp_notify_alive(ssdp);
 				}
 				ezcfg_master_upnp_mutex_unlock(master);
 				ezcfg_upnp_ssdp_delete(ssdp);
 				return 0;
 			}
 		}
-		else if (strcmp(argv[2], "byebye") == 0) {
+		else if (strcmp(argv[2], "notify_byebye") == 0) {
 			if (ezcfg_master_upnp_mutex_lock(master) == 0) {
 				upnp = ezcfg_master_get_upnp(master);
-				ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
+				if (upnp != NULL) {
+					ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
+					ezcfg_upnp_ssdp_notify_byebye(ssdp);
+				}
+				ezcfg_master_upnp_mutex_unlock(master);
+				ezcfg_upnp_ssdp_delete(ssdp);
+				return 0;
+			}
+		}
+		else if (strcmp(argv[2], "msearch_request") == 0) {
+			char *ST = argv[3];
+			if ((ST == NULL) || (*ST == '\0')) {
+				ST = "ssdp:all";
+			}
+			if (ezcfg_master_upnp_mutex_lock(master) == 0) {
+				upnp = ezcfg_master_get_upnp(master);
+				if (upnp != NULL) {
+					ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
+					if (ezcfg_upnp_ssdp_set_priv_data(ssdp, ST) == true) {
+						ezcfg_upnp_ssdp_msearch_request(ssdp);
+					}
+				}
 				ezcfg_master_upnp_mutex_unlock(master);
 				ezcfg_upnp_ssdp_delete(ssdp);
 				return 0;

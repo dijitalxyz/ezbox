@@ -102,20 +102,20 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 		ezcfg_upnp_set_role(up, role);
 
 		/* UPnP device type */
-		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_TYPE);
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_DEVICE_TYPE);
 		if (p == NULL) {
 			ezcfg_upnp_delete(up);
 			continue;
 		}
 
-		type = ezcfg_util_upnp_type(p);
+		type = ezcfg_util_upnp_device_type(p);
 		free(p);
 
-		if (type == EZCFG_UPNP_TYPE_UNKNOWN) {
+		if (type == EZCFG_UPNP_DEV_TYPE_UNKNOWN) {
 			ezcfg_upnp_delete(up);
 			continue;
 		}
-		ezcfg_upnp_set_type(up, type);
+		ezcfg_upnp_set_device_type(up, type);
 
 		/* UPnP description */
 		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_UPNP, i, EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH);
@@ -134,13 +134,26 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 		}
 		q = p;
 		while(q != NULL) {
+			char *p_life_time;
+			int life_time;
+
 			r = strchr(q, ',');
 			if (r != NULL) {
 				*r = '\0';
 				r++;
 			}
+
+			life_time = EZCFG_UPNP_SSDP_ADVERTISE_EXPIRE_TIME;
+
+			p_life_time = strchr(q, '@');
+			if (p_life_time != NULL) {
+				*p_life_time = '\0';
+				p_life_time++;
+				life_time = atoi(p_life_time);
+			}
+
 			snprintf(ifname, sizeof(ifname), "%s", q);
-			ezcfg_upnp_if_list_insert(up, ifname);
+			ezcfg_upnp_if_list_insert(up, ifname, life_time);
 			q = r;
 		}
 		free(p);
