@@ -62,8 +62,11 @@ bool ezcfg_master_handle_upnp_ssdp_socket(
 	struct ezcfg_socket *accepted)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	char buf[EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE];
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	struct ezcfg_upnp_ssdp *ssdp = NULL;
+	struct ezcfg_http *http = NULL;
+#endif
+	char buf[EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE+1];
 	int len;
 	bool ret = false;
 
@@ -73,26 +76,40 @@ bool ezcfg_master_handle_upnp_ssdp_socket(
 
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	http = ezcfg_http_new(ezcfg);
-	if (http == NULL) {
-		err(ezcfg, "not enough memory to handle SSDP.\n");
-		return false;
-	}
-
-	len = ezcfg_socket_read(listener, buf, sizeof(buf), 0);
+	len = ezcfg_socket_read(listener, buf, EZCFG_UPNP_SSDP_MAX_MESSAGE_SIZE, 0);
 	if (len < 1) {
 		err(ezcfg, "read SSDP socket error.\n");
 		goto func_out;
 	}
 
-	buf[len - 1] = '\0';
+	buf[len] = '\0';
+	len++; /* one more for '\0' */
+
+	/* FIXME: set buffer must be before parse HTTP headers,
+	 * since parsing HTTP headers will mangle buffer data.
+	 */
+	if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
+		err(ezcfg, "set SSDP socket buffer error.\n");
+		goto func_out;
+	}
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	ssdp = ezcfg_upnp_ssdp_new(ezcfg);
+	if (ssdp == NULL) {
+		err(ezcfg, "not enough memory to handle SSDP.\n");
+		return false;
+	}
+	/* FIXME: must get http from upnp_ssdp, since supported HTTP method
+	 * and headers is special for SSDP
+	 */
+	http = ezcfg_upnp_ssdp_get_http(ssdp);
+	ezcfg_http_set_state_request(http);
 
 	if (ezcfg_http_parse_header(http, buf, len) == false) {
 		err(ezcfg, "SSDP packet format error.\n");
                 goto func_out;
         }
 
-#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	/* check legacy IGRS ssdp package */
 	if (ezcfg_http_get_header_value(http, EZCFG_IGRS_HTTP_HEADER_01_IGRS_VERSION) != NULL) {
 		/* it's a legacy IGRS ssdp package */
@@ -100,16 +117,13 @@ bool ezcfg_master_handle_upnp_ssdp_socket(
 	}
 #endif
 
-	if (ezcfg_socket_set_buffer(accepted, buf, len) == false) {
-		err(ezcfg, "set SSDP socket buffer error.\n");
-		goto func_out;
-	}
-
 	ret = true;
 
 func_out:
-	if (http != NULL)
-		ezcfg_http_delete(http);
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	if (ssdp != NULL)
+		ezcfg_upnp_ssdp_delete(ssdp);
+#endif
 
 	return ret;
 }

@@ -725,6 +725,10 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		break;
 
 	case AF_INET:
+		if (sp->proto == EZCFG_PROTO_UPNP_SSDP) {
+			usa->u.sin.sin_addr.s_addr = INADDR_ANY;
+		}
+
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sin, usa->len);
 		if (err < 0) {
