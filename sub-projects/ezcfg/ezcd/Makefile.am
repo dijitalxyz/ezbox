@@ -32,6 +32,12 @@ ezcd_SOURCES += src/ezcm.c
 ezcd_SOURCES += src/nvram.c
 ezcd_SOURCES += src/rc.c
 ezcd_SOURCES += src/shelld.c
+if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+ezcd_SOURCES += src/igrs_monitor.c
+endif
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+ezcd_SOURCES += src/upnp_monitor.c
+endif
 
 #ezcd_SOURCES += src/rc/rc_func.c
 #ezcd_SOURCES += src/rc/rc_debug.c

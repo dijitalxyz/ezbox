@@ -65,6 +65,16 @@ int main(int argc, char **argv)
 	else if (!strcmp(name, "shelld")) {
 		return shelld_main(argc, argv);
 	}
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	else if (!strcmp(name, "igrs_monitor")) {
+		return igrs_monitor_main(argc, argv);
+	}
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	else if (!strcmp(name, "upnp_monitor")) {
+		return upnp_monitor_main(argc, argv);
+	}
+#endif
 	else if (!strcmp(name, "ubootenv")) {
 		return ubootenv_main(argc, argv);
 	}

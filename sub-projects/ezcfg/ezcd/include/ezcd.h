@@ -99,6 +99,12 @@ int ezcm_main(int argc, char **argv);
 int nvram_main(int argc, char **argv);
 int rc_main(int argc, char **argv);
 int shelld_main(int argc, char **argv);
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+int igrs_monitor_main(int argc, char **argv);
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+int upnp_monitor_main(int argc, char **argv);
+#endif
 int ubootenv_main(int argc, char **argv);
 int udhcpc_script_main(int argc, char **argv);
 int upfw_main(int argc, char **argv);
