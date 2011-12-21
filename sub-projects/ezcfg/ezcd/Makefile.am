@@ -20,8 +20,15 @@ AM_LDFLAGS = -L. -ldl
 
 # ezcd depends on libezcfg
 # LIBS += -lezcfg
+ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO) $(RCSO_EXE)
+ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
+#ezcd_LDADD = $(LDADD) -L.libs -lezcd
+ezcd_LDFLAGS = $(AM_LDFLAGS) -L.libs -lezcd
 
 sbin_PROGRAMS =	ezcd
+
+#ezcd : src/rcso/%.c
+#	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L.libs -lezcd -ldl $< -o $@
 
 # basic functions
 ezcd_SOURCES = src/main.c
@@ -82,13 +89,6 @@ if CONFIG_EZBOX_SERVICE_FONTCONFIG
 #ezcd_SOURCES += src/pop/pop_etc_fonts.c
 #ezcd_SOURCES += src/rc/rc_fontconfig.c
 endif
-
-ezcd_DEPENDENCIES = libezcfg.so $(lib_LTLIBRARIES) $(RCSO_SO) $(RCSO_EXE)
-
-ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
-#ezcd_LDADD = $(LIBEZCFG_LIBS)
-
-ezcd_LDFLAGS = $(AM_LDFLAGS) -L.libs -lezcd
 
 libezcfg.so: $(LIBEZCFG_LIB)
 	-rm -f libezcfg.so

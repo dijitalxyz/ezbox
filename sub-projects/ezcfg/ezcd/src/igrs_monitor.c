@@ -61,9 +61,10 @@ int igrs_monitor_main(int argc, char **argv)
 	pid = fork();
 	if (pid < 0) {
 		DBG("<6>igrs_monitor: can't fork");
+		return (EXIT_FAILURE);
 	}
-	if (pid) {
-		return pid; /* parent or error */
+	if (pid > 0) {
+		return (EXIT_SUCCESS); /* parent */
 	}
 
 	/* child */
