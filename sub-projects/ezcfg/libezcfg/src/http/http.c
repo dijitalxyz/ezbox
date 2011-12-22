@@ -201,23 +201,27 @@ static char *get_http_header_value(struct ezcfg_http *http, char *name)
 	return NULL;
 }
 
+static void delete_http_header(struct http_header *h)
+{
+	if (h->is_known_header == false) {
+		free(h->name);
+	}
+	if (h->value != NULL) {
+		free(h->value);
+	}
+	free(h);
+}
+
 static void clear_http_headers(struct ezcfg_http *http)
 {
 	struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	ASSERT(http != NULL);
-
 	ezcfg = http->ezcfg;
 	while(http->header_head != NULL) {
 		h = http->header_head;
 		http->header_head = h->next;
-		if (h->is_known_header == false) {
-			free(h->name);
-		}
-		if (h->value != NULL) {
-			free(h->value);
-		}
+		delete_http_header(h);
 	}
 	http->header_tail = NULL;
 }
@@ -528,6 +532,9 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 	http->num_status_codes = ARRAY_SIZE(default_status_code_maps) - 1; /* first item is NULL */
 	http->status_code_maps = default_status_code_maps;
 
+	http->header_head = NULL;
+	http->header_tail = NULL;
+
 	return http;
 }
 
@@ -601,7 +608,6 @@ void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 		http->message_body = NULL;
 		http->message_body_len = 0;
 	}
-
 }
 
 bool ezcfg_http_parse_header(struct ezcfg_http *http, char *buf, int len)
@@ -1216,7 +1222,7 @@ bool ezcfg_http_add_header(struct ezcfg_http *http, char *name, char *value)
 
 	if (value[0] != '\0') {
 		h->value = strdup(value);
-		if (h->name == NULL) {
+		if (h->value == NULL) {
 			err(ezcfg, "HTTP add header no memory 3.\n");
 			if (h->is_known_header == false) {
 				free(h->name);
