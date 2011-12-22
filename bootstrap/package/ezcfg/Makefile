@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1340
+PKG_REV:=1352
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -206,6 +206,8 @@ define Package/ezcfg/install
 	$(LN) ezcd $(1)/sbin/nvram
 	$(LN) ezcd $(1)/sbin/rc
 	$(LN) ezcd $(1)/sbin/shelld
+	$(LN) ezcd $(1)/sbin/upnp_monitor
+	$(LN) ezcd $(1)/sbin/igrs_monitor
 	$(LN) ezcd $(1)/sbin/ubootenv
 	$(LN) ezcd $(1)/sbin/udhcpc.script
 	$(LN) ezcd $(1)/sbin/upfw
