@@ -58,21 +58,29 @@
 typedef struct task_node_s {
 	char *cmd;
 	long time;
+	int interval;
 	struct task_node_s *next;
 } task_node_t;
 
-static bool running = false;
+static bool running = true;
 static bool alarmed = false;
+static task_node_t *task_queue = NULL;
 
 static void terminate_handler(int sig)
 {
 	DBG("<6>upnp_monitor: terminated\n");
 	running = false;
+	/* alarm process a second later */
+	alarm(1);
 }
 
 static void alarm_handler(int sig)
 {
 	DBG("<6>upnp_monitor: alarmed\n");
+	if (running == false) {
+		/* alarm to stop process a second later */
+		alarm(1);
+	}
 	alarmed = true;
 }
 
@@ -116,12 +124,78 @@ static task_node_t *insert_task(task_node_t *head, task_node_t *task)
 	}
 }
 
+static void read_task()
+{
+	FILE *fp;
+	char buf[256];
+	int fargc;
+	char *fargv[RC_MAX_ARGS];
+	task_node_t *pre_task, *task;
+	int interval;
+
+	/* read new task from task file */
+	fp = fopen("/etc/upnp_monitor/tasks", "r+");
+	if (fp != NULL) {
+		/* read task file */
+		while (utils_file_get_line(fp, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			fargc = utils_parse_upnp_task(buf, strlen(buf) + 1, fargv);
+			if (fargc < 4) {
+				continue;
+			}
+
+			if (strcmp(fargv[0], "add") == 0) {
+				task = malloc(sizeof(task_node_t));
+				if (task != NULL) {
+					memset(task, 0, sizeof(task_node_t));
+					task->cmd = strdup(fargv[1]); /* command */
+					if (task->cmd != NULL) {
+						task->time = atol(fargv[2]); /* execute time */
+						task->interval = atoi(fargv[3]); /* repeat interval */
+						task->next = NULL;
+						task_queue = insert_task(task_queue, task);
+					}
+					else {
+						/* strdup command string error! */
+						DBG("<6>upnp_monitor: strdup\n");
+						free(task);
+					}
+				}
+			}
+			else if (strcmp(fargv[0], "del") == 0) {
+				interval = atoi(fargv[3]);
+				pre_task = NULL;
+				task = task_queue;
+				while (task != NULL) {
+					if ((strcmp(task->cmd, fargv[1]) == 0) && (interval == task->interval)){
+						if (pre_task == NULL) {
+							/* first task node match */
+							task_queue = task->next;
+							delete_task(task);
+							task = task_queue;
+						}
+						else {
+							pre_task->next = task->next;
+							delete_task(task);
+							task = pre_task->next;
+						}
+					}
+					else {
+						pre_task = task;
+						task = pre_task->next;
+					}
+				}
+			}
+		}
+		fclose(fp);
+		unlink("/etc/upnp_monitor/tasks");
+	}
+}
+
 int upnp_monitor_main(int argc, char **argv)
 {
 	pid_t pid;
 	proc_stat_t *pidList;
-	task_node_t *task_queue = NULL, *task;
-	struct sysinfo si;
+	task_node_t *task;
 	int i;
 
 	/* first check if upnp_monitor has run */
@@ -163,17 +237,13 @@ int upnp_monitor_main(int argc, char **argv)
 	alarmed = false;
 	/* main loop */
 	while (running == true) {
+		struct sysinfo si;
+
+		/* clean alarmed flag */
+		alarmed = false;
+
 		/* read new task from task file */
-		if (sysinfo(&si) == 0) {
-			task = malloc(sizeof(task_node_t));
-			if (task != NULL) {
-				memset(task, 0, sizeof(task_node_t));
-				task->cmd = strdup("ezcm upnp ssdp notify_alive");
-				task->time = si.uptime+20;
-				task->next = NULL;
-				task_queue = insert_task(task_queue, task);
-			}
-		}
+		read_task();
 
 		/* execute task in queue */
 		if (sysinfo(&si) < 0) {
@@ -182,24 +252,24 @@ int upnp_monitor_main(int argc, char **argv)
 		}
 		task = task_queue;
 		while((task != NULL) && (task->time <= si.uptime)) {
-			if (task->cmd != NULL) {
-				utils_system(task->cmd);
-			}
+			utils_system(task->cmd);
 			task_queue = task->next;
-			delete_task(task);
+			task->next = NULL;
+			if (task->interval > 0) {
+				task->time = si.uptime + task->interval;
+				task_queue = insert_task(task_queue, task);
+			}
+			else {
+				delete_task(task);
+			}
 			task = task_queue;
-		}
-
-		/* do next loop if alarmed */
-		if (alarmed == true) {
-			alarmed = false;
-			continue;
 		}
 
 		/* setup sleep time */
 		if (task == NULL) {
 			/* wait for signal */
-			pause();
+			if (alarmed == false)
+				sleep(10);
 		}
 		else {
 			if (sysinfo(&si) < 0) {
@@ -207,11 +277,25 @@ int upnp_monitor_main(int argc, char **argv)
 				continue;
 			}
 			if (task->time > si.uptime) {
-				sleep(task->time - si.uptime);
+				if (alarmed == false)
+					sleep(task->time - si.uptime);
 			}
 		}
 	}
 
-	/* clean up */
+	/* read task from task file */
+	read_task();
+
+	/* clean up task queue */
+	task = task_queue;
+	while (task != NULL) {
+		if (task->time == 0) {
+			utils_system(task->cmd);
+		}
+		task_queue = task->next;
+		delete_task(task);
+		task = task_queue;
+	}
+		
 	return (EXIT_SUCCESS);
 }

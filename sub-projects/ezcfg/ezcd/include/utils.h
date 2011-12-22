@@ -29,6 +29,7 @@
 #define CMD_TELNETD  		"/sbin/telnetd"
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 #define CMD_UMOUNT		"/bin/umount"
+#define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
 
 /* boot config file path */
 #define BOOT_CONFIG_FILE_PATH   "/boot/ezbox_boot.cfg"
@@ -65,6 +66,7 @@
 #define RC_MAX_ARGS	16
 #define RC_COMMAND_LINE_SIZE	256
 #define IS_BLANK(c)	((c) == ' ' || (c) == '\t')
+#define IS_COLON(c)	((c) == ':')
 
 typedef int (*rc_function_t)(int, char **);
 

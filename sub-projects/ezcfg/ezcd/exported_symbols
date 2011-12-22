@@ -23,6 +23,7 @@ utils_safe_read
 utils_safe_write
 utils_full_write
 utils_parse_args
+utils_parse_upnp_task
 utils_device_open
 utils_get_wan_type
 utils_execute

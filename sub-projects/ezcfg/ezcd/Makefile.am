@@ -141,6 +141,9 @@ libezcd_la_SOURCES += src/utils/utils_file_get_line.c
 libezcd_la_SOURCES += src/utils/utils_find_pid_by_name.c
 libezcd_la_SOURCES += src/utils/utils_device_open.c
 libezcd_la_SOURCES += src/utils/utils_parse_args.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcd_la_SOURCES += src/utils/utils_parse_upnp_task.c
+endif
 libezcd_la_SOURCES += src/utils/utils_read_write.c
 libezcd_la_SOURCES += src/utils/utils_execute.c
 libezcd_la_SOURCES += src/utils/utils_system.c
@@ -251,6 +254,7 @@ RCSO_SRC += rc_ezcfg_igrsd.c
 endif
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 RCSO_SRC += rc_ezcfg_upnpd.c
+RCSO_SRC += rc_upnp_monitor.c
 endif
 RCSO_SRC += rc_ezcm.c
 RCSO_SRC += rc_netbase.c

@@ -4,6 +4,9 @@ iptables wan stop
 # stop ezcfg upnpd service
 ezcfg_upnpd wan stop
 
+# stop upnp monitor
+upnp_monitor wan stop
+
 # stop dnsmasq service
 dnsmasq wan stop
 

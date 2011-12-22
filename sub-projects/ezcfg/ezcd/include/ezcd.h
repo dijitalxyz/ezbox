@@ -58,6 +58,8 @@ ssize_t utils_safe_write(int fd, const void *buf, size_t count);
 ssize_t utils_full_write(int fd, const void *buf, size_t len);
 
 int utils_parse_args(char *buf, size_t size, char **argv);
+int utils_parse_upnp_task(char *buf, size_t size, char **argv);
+
 int utils_device_open(const char *device, int mode);
 int utils_execute(char *const argv[], char *in_path, char *out_path, int timeout, int *ppid);
 int utils_system(const char *command);

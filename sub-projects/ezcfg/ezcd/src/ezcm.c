@@ -36,8 +36,10 @@
 
 static void ezcm_show_usage(void)
 {
-	printf("Usage: ezcm <command> [args]\n");
+	printf("Usage: ezcm [-q] <command> [args]\n");
 	printf("\n");
+	printf("  [-q]--\n");
+	printf("    run in quiet mode\n");
 	printf("  <command>--\n");
 	printf("    ezcfg control supported commands\n");
 	printf("  [args]--\n");
@@ -48,6 +50,8 @@ static void ezcm_show_usage(void)
 int ezcm_main(int argc, char **argv)
 {
 	int rc = 0;
+	int i;
+	bool quiet_mode = false;
 	char buf[EZCFG_CTRL_MAX_MESSAGE_SIZE];
 	int buf_len;
 
@@ -63,13 +67,20 @@ int ezcm_main(int argc, char **argv)
 		return rc;
 	}
 
-	buf_len = sizeof(buf);
-	rc = ezcfg_api_ctrl_exec(&(argv[1]), buf, buf_len);
-	if (rc < 0) {
-		printf("ERROR\n");
+	i = 1;
+	if (strcmp(argv[i], "-q") == 0) {
+		quiet_mode = true;
+		i++;
 	}
-	else {
-		printf("%s=%s\n", argv[1], buf);
+	buf_len = sizeof(buf);
+	rc = ezcfg_api_ctrl_exec(&(argv[i]), buf, buf_len);
+	if (quiet_mode == false) {
+		if (rc < 0) {
+			printf("ERROR\n");
+		}
+		else {
+			printf("%s=%s\n", argv[i], buf);
+		}
 	}
         return rc;
 }

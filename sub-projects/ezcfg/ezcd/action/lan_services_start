@@ -16,3 +16,6 @@ telnetd lan start
 
 # start dns/dhcpd service
 dnsmasq lan start
+
+# start upnp monitor
+upnp_monitor lan start
