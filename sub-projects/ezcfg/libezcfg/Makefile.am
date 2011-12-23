@@ -253,6 +253,10 @@ endif
 libezcfg_la_SOURCES += api/src/api-master.c
 libezcfg_la_SOURCES += api/src/api-ctrl.c
 libezcfg_la_SOURCES += api/src/api-nvram.c
+libezcfg_la_SOURCES += api/src/api-rc.c
+if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+libezcfg_la_SOURCES += api/src/api-upnp.c
+endif
 libezcfg_la_SOURCES += api/src/api-ubootenv.c
 libezcfg_la_SOURCES += api/src/api-firmware.c
 

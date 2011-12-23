@@ -139,7 +139,7 @@ static void master_delete(struct ezcfg_master *master)
 static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
-	int key;
+	int i;
 	struct sembuf res[EZCFG_SEM_NUMBER];
 
 	ASSERT(ezcfg != NULL);
@@ -153,32 +153,26 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	memset(master, 0, sizeof(struct ezcfg_master));
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
+	i = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (i == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto fail_exit;
 	}
 
 	/* create a semaphore set */
 	/* this is the first place to create the semaphore, must IPC_EXCL */
-	master->semid = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
+	master->semid = semget(i, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
 	if (master->semid < 0) {
 		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
 		goto fail_exit;
 	}
 
 	/* initialize semaphore */
-	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
-	res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
-	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
-
-	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
-
-	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-	res[EZCFG_SEM_RC_INDEX].sem_op = 1;
-	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+	for (i=0; i<EZCFG_SEM_NUMBER; i++) {
+		res[i].sem_num = i;
+		res[i].sem_op = 1;
+		res[i].sem_flg = 0;
+	}
 
 	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
@@ -691,22 +685,22 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 {
 	struct sembuf res[EZCFG_SEM_NUMBER];
 	bool sem_required = true;
+	int i;
 
 	if (master == NULL)
 		return;
 
 	/* now require available resource */
-	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
-	res[EZCFG_SEM_CTRL_INDEX].sem_op = -1;
-	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
-
-	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_op = -1;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
-
+	for (i=0; i<EZCFG_SEM_NUMBER; i++) {
+		res[i].sem_num = i;
+		res[i].sem_op = -1;
+		res[i].sem_flg = 0;
+	}
+#if 0
 	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
 	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
 	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+#endif
 
 	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
@@ -721,17 +715,16 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 	/* now release resource */
 	if (sem_required == true) {
-		res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
-		res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
-		res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
-
-		res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
-		res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
-		res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
-
+		for (i=0; i<EZCFG_SEM_NUMBER; i++) {
+			res[i].sem_num = i;
+			res[i].sem_op = 1;
+			res[i].sem_flg = 0;
+		}
+#if 0
 		res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
 		res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't unlock rc */
 		res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+#endif
 
 		if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 			DBG("<6>pid=[%d] semop release_res error\n", getpid());
@@ -746,22 +739,22 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 	struct sembuf res[EZCFG_SEM_NUMBER];
+	int i;
 
 	if (master == NULL)
 		return;
 
 	/* now require available resource */
-	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
-	res[EZCFG_SEM_CTRL_INDEX].sem_op = -1;
-	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
-
-	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_op = -1;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
-
+	for (i=0; i<EZCFG_SEM_NUMBER; i++) {
+		res[i].sem_num = i;
+		res[i].sem_op = -1;
+		res[i].sem_flg = 0;
+	}
+#if 0
 	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
 	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
 	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+#endif
 
 	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
@@ -840,17 +833,16 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	pthread_mutex_unlock(&(master->thread_mutex));
 
 	/* now release resource */
-	res[EZCFG_SEM_CTRL_INDEX].sem_num = EZCFG_SEM_CTRL_INDEX;
-	res[EZCFG_SEM_CTRL_INDEX].sem_op = 1;
-	res[EZCFG_SEM_CTRL_INDEX].sem_flg = 0;
-
-	res[EZCFG_SEM_NVRAM_INDEX].sem_num = EZCFG_SEM_NVRAM_INDEX;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_op = 1;
-	res[EZCFG_SEM_NVRAM_INDEX].sem_flg = 0;
-
+	for (i=0; i<EZCFG_SEM_NUMBER; i++) {
+		res[i].sem_num = i;
+		res[i].sem_op = 1;
+		res[i].sem_flg = 0;
+	}
+#if 0
 	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't unlock rc */
+	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
 	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
+#endif
 
 	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());

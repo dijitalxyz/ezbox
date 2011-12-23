@@ -134,7 +134,7 @@ static void read_task()
 	int interval;
 
 	/* read new task from task file */
-	fp = fopen("/etc/upnp_monitor/tasks", "r+");
+	fp = ezcfg_api_upnp_open_task_file("r");
 	if (fp != NULL) {
 		/* read task file */
 		while (utils_file_get_line(fp, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
@@ -186,8 +186,7 @@ static void read_task()
 				}
 			}
 		}
-		fclose(fp);
-		unlink("/etc/upnp_monitor/tasks");
+		ezcfg_api_upnp_close_task_file(fp);
 	}
 }
 

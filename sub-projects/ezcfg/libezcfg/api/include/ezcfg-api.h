@@ -35,6 +35,15 @@ int ezcfg_api_nvram_remove_socket(
 	const char *protocol,
 	const char *address);
 
+/* rc interface */
+bool ezcfg_api_rc_require_semaphore(void);
+bool ezcfg_api_rc_release_semaphore(void);
+
+/* UPnP interface */
+int ezcfg_api_upnp_set_task_file(const char *path);
+FILE *ezcfg_api_upnp_open_task_file(const char *mode);
+bool ezcfg_api_upnp_close_task_file(FILE *fp);
+
 /* u-boot-env interface */
 int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
 int ezcfg_api_ubootenv_set(char *name, char *value);

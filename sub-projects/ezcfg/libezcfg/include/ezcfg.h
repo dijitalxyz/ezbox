@@ -38,6 +38,7 @@
 
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
 #define EZCFG_NVRAM_CONFIG_FILE_PATH	SYSCONFDIR "/nvram.conf"
+#define EZCFG_UPNP_TASK_FILE_PATH	SYSCONFDIR "/upnp_tasks"
 
 /* minimum number of worker threads */
 /* ctrl socket, nvram socket, uevent socket */
@@ -52,7 +53,8 @@
 #define EZCFG_SEM_CTRL_INDEX	0
 #define EZCFG_SEM_NVRAM_INDEX	1
 #define EZCFG_SEM_RC_INDEX	2
-#define EZCFG_SEM_NUMBER	3
+#define EZCFG_SEM_UPNP_INDEX	3
+#define EZCFG_SEM_NUMBER	4
 
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH	"@/org/ezbox/ezcfg/sock"

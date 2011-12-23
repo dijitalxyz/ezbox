@@ -69,8 +69,6 @@ int rc_main(int argc, char **argv)
 	int fd = -1;
 	pid_t pid;
 	int ret = EXIT_FAILURE;
-	int key, semid;
-	struct sembuf require_res, release_res;
 	int i;
 	char *p;
 	char path[64];
@@ -174,27 +172,8 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
-		goto rc_exit;
-	}
-
-	/* create a semaphore set that only includes one semaphore */
-	/* rc semaphore has been initialized in ezcd */
-	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
-	if (semid < 0) {
-		DBG("<6>rc: semget error\n");
-		goto rc_exit;
-	}
-
-	/* now require available resource */
-	require_res.sem_num = EZCFG_SEM_RC_INDEX;
-	require_res.sem_op = -1;
-	require_res.sem_flg = 0;
-
-	if (semop(semid, &require_res, 1) == -1) {
-		DBG("<6>rc: semop require_res error\n");
+	if (ezcfg_api_rc_require_semaphore() == false) {
+		DBG("<6>rc:pid=[%d] require semaphore error.\n", getpid());
 		goto rc_exit;
 	}
 
@@ -214,12 +193,8 @@ int rc_main(int argc, char **argv)
 	ret = alias.func(argc - i, argv + i);
 
 	/* now release resource */
-	release_res.sem_num = EZCFG_SEM_RC_INDEX;
-	release_res.sem_op = 1;
-	release_res.sem_flg = 0;
-
-	if (semop(semid, &release_res, 1) == -1) {
-		DBG("<6>rc: semop release_res error\n");
+	if (ezcfg_api_rc_release_semaphore() == false) {
+		DBG("<6>rc:pid=[%d] release semaphore error.\n", getpid());
 		goto rc_exit;
 	}
 
