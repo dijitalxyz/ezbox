@@ -31,6 +31,7 @@
 #include <sys/time.h>
 #include <sys/un.h>
 #include <pthread.h>
+#include <sys/sysinfo.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -57,6 +58,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 	struct ezcfg_master *master;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_upnp_ssdp *ssdp;
+	int rc;
 
 	if (argv == NULL || argv[0] == NULL) {
 		return -1;
@@ -74,7 +76,80 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	master = ezcfg_worker_get_master(worker);
 
-	if (strcmp(argv[1], "ssdp") == 0) {
+	if (strcmp(argv[1], "monitor") == 0) {
+		FILE *fp;
+		struct sysinfo si;
+		char buf[256];
+
+		if (argv[2] == NULL) {
+			return -1;
+		}
+
+		if (strcmp(argv[2], "start") == 0) {
+			if (sysinfo(&si) < 0) {
+				return -1;
+			}
+
+			if (ezcfg_util_upnp_monitor_lock_task_file() == false) {
+				return -1;
+			}
+			rc = ezcfg_util_upnp_monitor_get_task_file(buf, sizeof(buf));
+			if (rc < 0) {
+				return (rc);
+			}
+			rc = -1;
+			fp = fopen(buf, "a");
+			if (fp != NULL) {
+				/* add notify alive task */
+				fprintf(fp, "%s:%s:%ld:%d\n",
+					"add",
+					"ezcm -q upnp ssdp notify_alive",
+					si.uptime, 30);
+				fclose(fp);
+				rc = 0;
+			}
+			ezcfg_util_upnp_monitor_unlock_task_file();
+			return (rc);
+		}
+		else if (strcmp(argv[2], "stop") == 0) {
+			if (sysinfo(&si) < 0) {
+				return -1;
+			}
+
+			if (ezcfg_util_upnp_monitor_lock_task_file() == false) {
+				return -1;
+			}
+			rc = ezcfg_util_upnp_monitor_get_task_file(buf, sizeof(buf));
+			if (rc < 0) {
+				return (rc);
+			}
+			rc = -1;
+			fp = fopen(buf, "a");
+			if (fp != NULL) {
+				/* delete notify alive task */
+				fprintf(fp, "%s:%s:%ld:%d\n",
+					"del",
+					"ezcm -q upnp ssdp notify_alive",
+					si.uptime, 30);
+				/* add notify byebye task */
+				fprintf(fp, "%s:%s:%ld:%d\n",
+					"add",
+					"ezcm -q upnp ssdp notify_byebye",
+					0L, 0);
+				fclose(fp);
+				rc = 0;
+			}
+			ezcfg_util_upnp_monitor_unlock_task_file();
+			return (rc);
+		}
+		else if (strcmp(argv[2], "task_file") == 0) {
+			if (argv[3] == NULL) {
+				return -1;
+			}
+			return ezcfg_util_upnp_monitor_set_task_file(argv[3]);
+		}
+	}
+	else if (strcmp(argv[1], "ssdp") == 0) {
 		if (argv[2] == NULL) {
 			return -1;
 		}

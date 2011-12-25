@@ -6,6 +6,7 @@
 #define CMD_CHMOD		"/bin/chmod"
 #define CMD_CHPASSWD		"/sbin/chpasswd"
 #define CMD_EZCD		"/sbin/ezcd"
+#define CMD_EZCM		"/sbin/ezcm"
 //#define CMD_HOTPLUG2		"/sbin/hotplug2"
 #define CMD_IFCONFIG		"/sbin/ifconfig"
 #define CMD_IFDOWN		"/sbin/ifdown"
@@ -48,6 +49,9 @@
 
 /* nvram command config file path */
 #define NVRAM_CONFIG_FILE_PATH	"/etc/nvram.conf"
+
+/* upnp_monitor task file path */
+#define UPNP_MONITOR_TASK_FILE_PATH	"/etc/upnp_monitor/tasks"
 
 /* udhcpc script path */
 #define UDHCPC_SCRIPT_PATH	"/usr/share/udhcpc/default.script"

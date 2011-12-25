@@ -95,9 +95,26 @@ int rc_upnp_monitor(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		/* stop upnp_monitor first */
+		/* trigger ezcd upnp_monitor stop */
+		snprintf(buf, sizeof(buf), "%s upnp monitor stop", CMD_EZCM);
+		utils_system(buf);
+
+		/* notify upnp_monitor first */
 		pidList = utils_find_pid_by_name("upnp_monitor");
-		while (pidList) {
+		if (pidList != NULL) {
+			int i;
+			for (i = 0; pidList[i].pid > 0; i++) {
+				kill(pidList[i].pid, SIGALRM);
+			}
+			free(pidList);
+		}
+
+		/* wait a second to send out SSDP byebye */
+		sleep(1);
+
+		/* stop upnp_monitor */
+		pidList = utils_find_pid_by_name("upnp_monitor");
+		while (pidList != NULL) {
 			int i;
 			for (i = 0; pidList[i].pid > 0; i++) {
 				kill(pidList[i].pid, SIGTERM);
@@ -122,7 +139,31 @@ int rc_upnp_monitor(int argc, char **argv)
 
 		mkdir("/etc/upnp_monitor", 0755);
 
+		/* setup upnp_monitor task file path in ezcd */
+		snprintf(buf, sizeof(buf), "%s upnp monitor task_file %s",
+			CMD_EZCM, UPNP_MONITOR_TASK_FILE_PATH);
+		utils_system(buf);
+
+		/* start upnp_monitor */
 		utils_system(CMD_UPNP_MONITOR);
+
+		/* wait upnp_monitor start up */
+		while (utils_has_process_by_name("upnp_monitor") == false) {
+			sleep(1);
+		}
+
+		/* trigger ezcd upnp_monitor start */
+		snprintf(buf, sizeof(buf), "%s upnp monitor start", CMD_EZCM);
+		utils_system(buf);
+
+		pidList = utils_find_pid_by_name("upnp_monitor");
+		if (pidList != NULL) {
+			int i;
+			for (i = 0; pidList[i].pid > 0; i++) {
+				kill(pidList[i].pid, SIGALRM);
+			}
+			free(pidList);
+		}
 
 		ret = EXIT_SUCCESS;
 		break;

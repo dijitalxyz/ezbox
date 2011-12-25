@@ -25,8 +25,7 @@ LDADD = libezcfg.la
 libezcfgincludedir = $(includedir)/libezcfg
 
 libezcfginclude_HEADERS = \
-	api/include/ezcfg-api.h \
-	api/include/ezcfg-api-errno.h
+	api/include/ezcfg-api.h
 
 lib_LTLIBRARIES = libezcfg.la
 
@@ -90,6 +89,7 @@ libezcfg_la_SOURCES += src/util/util_wan.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/util/util_upnp_role.c
 libezcfg_la_SOURCES += src/util/util_upnp_device_type.c
+libezcfg_la_SOURCES += src/util/util_upnp_monitor.c
 endif
 
 # ezcfg control

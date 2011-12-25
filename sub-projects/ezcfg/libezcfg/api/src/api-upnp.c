@@ -56,7 +56,7 @@
 #define DBG(format, args...)
 #endif
 
-static char task_file[EZCFG_PATH_MAX] = EZCFG_UPNP_TASK_FILE_PATH;
+//static char task_file[EZCFG_PATH_MAX] = EZCFG_UPNP_TASK_FILE_PATH;
 
 /**
  * ezcfg_api_upnp_set_task_file:
@@ -64,97 +64,32 @@ static char task_file[EZCFG_PATH_MAX] = EZCFG_UPNP_TASK_FILE_PATH;
  **/
 int ezcfg_api_upnp_set_task_file(const char *path)
 {
-	int rc = 0;
-	if (path == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	rc = strlen(path);
-	if (rc >= sizeof(task_file)) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	rc = snprintf(task_file, sizeof(task_file), "%s", path);
-	if (rc < 0) {
-		rc = -EZCFG_E_SPACE ;
-	}
-	return rc;
+	return ezcfg_util_upnp_monitor_set_task_file(path);
 }
 
 /**
- * ezcfg_api_upnp_open_task_file:
+ * ezcfg_api_upnp_get_task_file:
  *
  **/
-FILE *ezcfg_api_upnp_open_task_file(const char *mode)
+int ezcfg_api_upnp_get_task_file(char *path, int len)
 {
-	int key, semid;
-	struct sembuf res;
-
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("<6>upnp:pid=[%d] open task ftok error.\n", getpid());
-		return NULL;
-	}
-
-	/* create a semaphore set that only includes one semaphore */
-	/* rc semaphore has been initialized in ezcd */
-	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
-	if (semid < 0) {
-		DBG("<6>upnp:pid=[%d] open task semget error.\n", getpid());
-		return NULL;
-	}
-
-	/* now require available resource */
-	res.sem_num = EZCFG_SEM_UPNP_INDEX;
-	res.sem_op = -1;
-	res.sem_flg = 0;
-
-	if (semop(semid, &res, 1) == -1) {
-		DBG("<6>upnp: open task semop require res error\n");
-		return NULL;
-	}
-
-	return fopen(task_file, mode);
+	return ezcfg_util_upnp_monitor_get_task_file(path, len);
 }
 
 /**
- * ezcfg_api_upnp_close_task_file:
+ * ezcfg_api_upnp_lock_task_file:
  *
  **/
-bool ezcfg_api_upnp_close_task_file(FILE *fp)
+bool ezcfg_api_upnp_lock_task_file(void)
 {
-	int key, semid;
-	struct sembuf res;
+	return ezcfg_util_upnp_monitor_lock_task_file();
+}
 
-	if (fp == NULL) {
-		return false;
-	}
-
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("<6>upnp:pid=[%d] close ftok error.\n", getpid());
-		return false;
-	}
-
-	/* create a semaphore set that only includes one semaphore */
-	/* rc semaphore has been initialized in ezcd */
-	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
-	if (semid < 0) {
-		DBG("<6>upnp:pid close task semget error\n");
-		return false;
-	}
-
-	res.sem_num = EZCFG_SEM_UPNP_INDEX;
-	res.sem_op = 1;
-	res.sem_flg = 0;
-
-	fclose(fp);
-	unlink(task_file);
-
-	if (semop(semid, &res, 1) == -1) {
-		DBG("<6>upnp: close task semop release res error\n");
-		return false;
-	}
-
-	return true;
+/**
+ * ezcfg_api_upnp_unlock_task_file:
+ *
+ **/
+bool ezcfg_api_upnp_unlock_task_file(void)
+{
+	return ezcfg_util_upnp_monitor_unlock_task_file();
 }

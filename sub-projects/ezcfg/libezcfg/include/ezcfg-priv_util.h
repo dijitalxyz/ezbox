@@ -74,12 +74,20 @@ bool ezcfg_util_socket_is_supported_type(const int type);
 /* util/util_socket_mcast.c */
 bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr);
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 /* util/util_upnp_role.c */
 int ezcfg_util_upnp_role(char *name);
 
 /* util/util_upnp_type.c */
 int ezcfg_util_upnp_device_type(char *name);
 char *ezcfg_util_upnp_get_device_type_description_path(int type);
+
+/* util/util_upnp_monitor.c */
+int ezcfg_util_upnp_monitor_set_task_file(const char *path);
+int ezcfg_util_upnp_monitor_get_task_file(char *path, int len);
+bool ezcfg_util_upnp_monitor_lock_task_file(void);
+bool ezcfg_util_upnp_monitor_unlock_task_file(void);
+#endif
 
 /* util/util_language.c */
 int ezcfg_util_lang_get_length(void);

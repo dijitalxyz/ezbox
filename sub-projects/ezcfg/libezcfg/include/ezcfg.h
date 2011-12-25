@@ -19,6 +19,7 @@
 
 #include "ezcfg-ezbox_distro.h"
 #include "ezcfg-nvram_defaults.h"
+#include "ezcfg-errno.h"
 
 #ifdef EZCFG_DEBUG
 #include <assert.h>

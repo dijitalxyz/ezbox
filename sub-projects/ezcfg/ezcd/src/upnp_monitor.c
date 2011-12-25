@@ -128,13 +128,20 @@ static void read_task()
 {
 	FILE *fp;
 	char buf[256];
+	char task_file[64];
 	int fargc;
 	char *fargv[RC_MAX_ARGS];
 	task_node_t *pre_task, *task;
 	int interval;
 
 	/* read new task from task file */
-	fp = ezcfg_api_upnp_open_task_file("r");
+	if (ezcfg_api_upnp_get_task_file(task_file, sizeof(task_file)) < 0) {
+		return;
+	}
+	if (ezcfg_api_upnp_lock_task_file() == false) {
+		return;
+	}
+	fp = fopen(task_file, "r");
 	if (fp != NULL) {
 		/* read task file */
 		while (utils_file_get_line(fp, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
@@ -186,8 +193,10 @@ static void read_task()
 				}
 			}
 		}
-		ezcfg_api_upnp_close_task_file(fp);
+		fclose(fp);
+		unlink(task_file);
 	}
+	ezcfg_api_upnp_unlock_task_file();
 }
 
 int upnp_monitor_main(int argc, char **argv)
@@ -231,6 +240,9 @@ int upnp_monitor_main(int argc, char **argv)
 
 	signal(SIGTERM, terminate_handler);
 	signal(SIGALRM, alarm_handler);
+
+	/* set task file path */
+	ezcfg_api_upnp_set_task_file(UPNP_MONITOR_TASK_FILE_PATH);
 
 	running = true;
 	alarmed = false;

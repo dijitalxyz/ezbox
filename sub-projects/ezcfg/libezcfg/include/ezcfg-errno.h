@@ -1,5 +1,5 @@
-#ifndef _EZCFG_API_ERRNO_H_
-#define _EZCFG_API_ERRNO_H_
+#ifndef _EZCFG_ERRNO_H_
+#define _EZCFG_ERRNO_H_
 
 enum {
 	EZCFG_E_ARGUMENT = 1, /* function arguments error */

@@ -1,8 +1,6 @@
 #ifndef _EZCFG_API_H_
 #define _EZCFG_API_H_
 
-#include "ezcfg-api-errno.h"
-
 /* Master thread interface */
 struct ezcfg_master;
 int ezcfg_api_master_set_config_file(const char *path);
@@ -41,8 +39,9 @@ bool ezcfg_api_rc_release_semaphore(void);
 
 /* UPnP interface */
 int ezcfg_api_upnp_set_task_file(const char *path);
-FILE *ezcfg_api_upnp_open_task_file(const char *mode);
-bool ezcfg_api_upnp_close_task_file(FILE *fp);
+int ezcfg_api_upnp_get_task_file(char *path, int len);
+bool ezcfg_api_upnp_lock_task_file(void);
+bool ezcfg_api_upnp_unlock_task_file(void);
 
 /* u-boot-env interface */
 int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
