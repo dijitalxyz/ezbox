@@ -37,6 +37,6 @@ bool ezcfg_upnp_ssdp_set_priv_data(struct ezcfg_upnp_ssdp *ssdp, const char *dat
 bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp);
 bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp);
 bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp);
-bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp);
+bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_socket *sp);
 
 #endif /* _EZCFG_PRIV_UPNP_H_ */

@@ -1014,31 +1014,34 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
  * for controlled device
  * ezcfg_upnp_ssdp_msearch_response:
  **/
-bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
+bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_socket *sp)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
-	struct ezcfg_socket *socket = NULL;
-	int domain, type, proto;
-	char socket_path[128];
 	upnp_if_t *ifp;
 	char ip[INET_ADDRSTRLEN];
+	char if_ip[INET_ADDRSTRLEN];
 	upnp_ssdp_device_param_t param;
 	upnp_service_t *usp;
 	upnp_device_t *udp;
 	upnp_device_t **device_queue = NULL, **p_udp;
 	int qi = 0, queue_size = 0;
+	char *st = NULL;
 
 	ASSERT(ssdp != NULL);
+	ASSERT(sp != NULL);
 
 	ezcfg = ssdp->ezcfg;
 	upnp = ssdp->upnp;
 	http = ssdp->http;
-
-	domain = ezcfg_util_socket_domain_get_index(EZCFG_SOCKET_DOMAIN_INET_STRING);
-	type = ezcfg_util_socket_type_get_index(EZCFG_SOCKET_TYPE_DGRAM_STRING);
-	proto = ezcfg_util_socket_protocol_get_index(EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING);
+	/* FIXME: http will be mangle by upnp_send_ssdp_respond() */
+	st = strdup(ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_ST));
+	if (st == NULL) {
+		return false;
+	}
+	/* get socket interface ip */
+	snprintf(if_ip, sizeof(if_ip), "%s", ezcfg_socket_get_group_interface_ip(sp));
 
 	while(upnp != NULL) {
 		/* check device role */
@@ -1049,17 +1052,8 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 
 		ifp = upnp->ifs;
 		while(ifp != NULL) {
-			if (ezcfg_util_if_get_ipaddr(ifp->ifname, ip) == true) {
-				snprintf(socket_path, sizeof(socket_path), "%s:%s@%s",
-					EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
-					EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, ip);
-
-				socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
-				if (socket == NULL) {
-					return false;
-				}
-				ezcfg_socket_enable_sending(socket);
-
+			if ((ezcfg_util_if_get_ipaddr(ifp->ifname, ip) == true) &&
+			    (strcmp(if_ip, ip) == 0)) {
 				/* for root device, ST ::= upnp:rootdevice */
 				/* initialize SSDP param data structure */
 				param.upnp_version_major = upnp->version_major;
@@ -1070,7 +1064,10 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 				param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
 				param.ST = "upnp:rootdevice";
 				param.UDN = upnp->u.dev.UDN;
-				upnp_send_ssdp_respond(socket, http, &param);
+				if ((strcmp(st, "ssdp:all") == 0) ||
+				    (strcmp(st, param.ST) == 0)) {
+					upnp_send_ssdp_respond(sp, http, &param);
+				}
 
 				udp = &(upnp->u.dev);
 				while (udp != NULL) {
@@ -1084,7 +1081,10 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
 					param.ST = udp->UDN;
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_respond(socket, http, &param);
+					if ((strcmp(st, "ssdp:all") == 0) ||
+					    (strcmp(st, param.ST) == 0)) {
+						upnp_send_ssdp_respond(sp, http, &param);
+					}
 
 					/* for device, NT ::= urn:schemas-upnp-org:device:deviceType:v or
 					 * NT ::= urn:domain-name:device:deviceType:v */
@@ -1097,7 +1097,10 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
 					param.ST = udp->deviceType;
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_respond(socket, http, &param);
+					if ((strcmp(st, "ssdp:all") == 0) ||
+					    (strcmp(st, param.ST) == 0)) {
+						upnp_send_ssdp_respond(sp, http, &param);
+					}
 
 					/* for service list */
 					usp = udp->serviceList;
@@ -1113,7 +1116,10 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 						param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
 						param.ST = usp->serviceType;
 						param.UDN = udp->UDN;
-						upnp_send_ssdp_respond(socket, http, &param);
+						if ((strcmp(st, "ssdp:all") == 0) ||
+						    (strcmp(st, param.ST) == 0)) {
+							upnp_send_ssdp_respond(sp, http, &param);
+						}
 
 						usp = usp->next;
 					}
@@ -1142,10 +1148,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 						}
 					}
 				}
-
 				/* finish sending SSDP search response */
-				ezcfg_socket_delete(socket);
-				socket = NULL;
 			}
 			ifp = ifp->next;
 		}
@@ -1154,5 +1157,6 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp)
 		upnp = upnp->next;
 	}
 
+	free(st);
 	return true;
 }

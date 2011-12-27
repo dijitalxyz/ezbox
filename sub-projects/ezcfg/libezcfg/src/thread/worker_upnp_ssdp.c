@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <limits.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -51,13 +52,61 @@
 #define DBG(format, args...)
 #endif
 
+/**
+ * Private functions
+ **/
+static bool check_valid_msearch_request(struct ezcfg_http *http)
+{
+	char *p;
+
+	/* check HOST: */
+	p = ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_HOST);
+	if (p == NULL) {
+		return false;
+	}
+	if (strcmp(p, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING \
+		":" \
+		EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING) != 0) {
+		return false;
+	}
+
+	/* check MAN: */
+	p = ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_MAN);
+	if (p == NULL) {
+		return false;
+	}
+	if (strcmp(p, "\"ssdp:discover\"") != 0) {
+		return false;
+	}
+
+	/* check MX: */
+	p = ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_MX);
+	if (p == NULL) {
+		return false;
+	}
+
+	/* check ST: */
+	p = ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_ST);
+	if (p == NULL) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Public functions
+ **/
 void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker)
 {
 	char *buf;
-	int buf_len;
+	int len;
 	struct ezcfg *ezcfg;
+	struct ezcfg_socket *sp;
 	struct ezcfg_upnp_ssdp *ssdp;
+	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
+	struct ezcfg_master *master;
 
 	ASSERT(worker != NULL);
 
@@ -65,17 +114,41 @@ void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker)
 	ASSERT(ssdp != NULL);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	buf = ezcfg_socket_get_buffer(ezcfg_worker_get_client(worker));
+	master = ezcfg_worker_get_master(worker);
+
+	sp = ezcfg_worker_get_client(worker);
+	buf = ezcfg_socket_get_buffer(sp);
 	if (buf == NULL) {
 		err(ezcfg, "not enough memory for processing ssdp new connection\n");
 		return;
 	}
-	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_client(worker));
-
-	info(ezcfg, "ssdp=[%s], len=%d\n", buf, buf_len);
-	DBG("mydebug: %s-%s(%d)ssdp=[%s], len=%d\n", __FILE__, __func__, __LINE__, buf, buf_len);
-
+	len = ezcfg_socket_get_buffer_len(sp);
 	http = ezcfg_upnp_ssdp_get_http(ssdp);
+	ezcfg_http_set_state_request(http);
+	/* FIXME: socket->buffer will mangle by ezcfg_http_parse_header() */
+	if (ezcfg_http_parse_header(http, buf, len) == false) {
+		err(ezcfg, "SSDP packet format error.\n");
+		return;
+	}
 
-	return;
+	/* check valid SSDP M-SEARCH packet */
+	if (check_valid_msearch_request(http) == true) {
+		int mx;
+		struct timespec ts;
+		mx = atoi(ezcfg_http_get_header_value(http, EZCFG_UPNP_HTTP_HEADER_MX));
+		if (mx > 0) {
+			ts.tv_sec = random() % mx;
+			ts.tv_nsec = random() % 1000*1000*1000;
+			nanosleep(&ts, NULL);
+		}
+		if (ezcfg_master_upnp_mutex_lock(master) == 0) {
+			upnp = ezcfg_master_get_upnp(master);
+			if (upnp != NULL) {
+				ezcfg_upnp_ssdp_set_upnp(ssdp, upnp);
+				ezcfg_upnp_ssdp_msearch_response(ssdp, sp);
+			}
+			ezcfg_master_upnp_mutex_unlock(master);
+		}
+		return;
+	}
 }

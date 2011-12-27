@@ -493,6 +493,18 @@ char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp)
 	return sp->lsa.u.sun.sun_path;
 }
 
+char *ezcfg_socket_get_local_socket_ip(struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return inet_ntoa(sp->lsa.u.sin.sin_addr);
+}
+
+char *ezcfg_socket_get_group_interface_ip(struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return inet_ntoa(sp->group.imr_interface);
+}
+
 int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
@@ -989,9 +1001,13 @@ static struct ezcfg_socket *new_accepted_socket_stream(const struct ezcfg_socket
 	accepted->sock = -1;
 	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
+	accepted->rsa = listener->rsa;
+	accepted->group = listener->group;
 	accepted->need_unlink = listener->need_unlink;
 	domain = listener->lsa.domain;
 	accepted->rsa.domain = domain;
+	accepted->rsa.type = listener->lsa.type;
+	accepted->buffer = NULL;
 
 	switch(domain) {
 	case AF_LOCAL:
@@ -1042,6 +1058,7 @@ static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_sock
 {
 	struct ezcfg_socket *accepted;
 	struct ezcfg *ezcfg;
+	int domain, type, sock_protocol;
 
 	ezcfg = listener->ezcfg;
 
@@ -1055,9 +1072,36 @@ static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_sock
 	accepted->sock = -1;
 	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
+	accepted->rsa = listener->rsa;
+	accepted->group = listener->group;
 	accepted->need_unlink = listener->need_unlink;
-	accepted->rsa.domain = listener->lsa.domain;
+	domain = listener->lsa.domain;
+	type = listener->lsa.type;
+	accepted->rsa.domain = domain;
+	accepted->rsa.type = type;
 	accepted->buffer = NULL;
+
+	/* FIXME: should change sock_protocol w/r proto */
+	if (accepted->proto == EZCFG_PROTO_UEVENT) {
+		sock_protocol = NETLINK_KOBJECT_UEVENT;
+	}
+	else {
+		sock_protocol = 0;
+	}
+
+	switch(domain) {
+	case AF_INET:
+		accepted->sock = socket(domain, type, sock_protocol);
+		if (accepted->sock == -1) {
+			free(accepted);
+			return NULL;
+		}
+		break;
+
+	default:
+		info(ezcfg, "not handling socket family [%d]\n", domain);
+		break;
+	}
 
 	return accepted;
 }
@@ -1192,6 +1236,7 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 	char * p;
 	int status, n;
 	int sock;
+	struct usa *lsa, *rsa;
 
 	ASSERT(sp != NULL);
 	ASSERT(buf != NULL);
@@ -1202,9 +1247,19 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 	status = 0;
 	sock = sp->sock;
 	memset(buf, '\0', len);
+	lsa = &(sp->lsa);
+	rsa = &(sp->rsa);
 
 	while (status == 0) {
-		n = read(sock, p + status, len - status);
+		/* handle inet dgram */
+		if ((lsa->domain == AF_INET) && (lsa->type == SOCK_DGRAM)) {
+			n = recvfrom(sock, p + status, len - status, flags,
+				(struct sockaddr *)&(rsa->u.sin), &(rsa->len));
+
+		}
+		else {
+			n = read(sock, p + status, len - status);
+		}
 
 		if (n < 0) {
 			if (errno == EPIPE) {
@@ -1216,7 +1271,7 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 				continue;
 			}
 			else {
-				err(ezcfg, "write fail: %m\n");
+				err(ezcfg, "read fail: %m\n");
 				return -errno;
 			}
 		}
@@ -1238,6 +1293,7 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	const char *p;
 	int status, n;
 	int sock;
+	struct usa *lsa, *rsa;
 
 	ASSERT(sp != NULL);
 	ASSERT(buf != NULL);
@@ -1247,9 +1303,18 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	p = buf;
 	status = 0;
 	sock = sp->sock;
+	lsa = &(sp->lsa);
+	rsa = &(sp->rsa);
 
 	while (status != len) {
-		n = write(sock, p + status, len - status);
+		/* handle inet dgram */
+		if ((rsa->domain == AF_INET) && (rsa->type == SOCK_DGRAM)) {
+			n = sendto(sock, p + status, len - status, flags,
+				(struct sockaddr *)&(rsa->u.sin), rsa->len);
+		}
+		else {
+			n = write(sock, p + status, len - status);
+		}
 		if (n < 0) {
 			if (errno == EPIPE) {
 				info(ezcfg, "remote end closed connection: %m\n");

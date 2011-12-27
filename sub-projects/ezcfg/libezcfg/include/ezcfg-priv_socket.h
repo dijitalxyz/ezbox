@@ -35,6 +35,8 @@ struct ezcfg_socket *ezcfg_socket_get_next(const struct ezcfg_socket *sp);
 int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp);
 int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp);
+char *ezcfg_socket_get_local_socket_ip(struct ezcfg_socket *sp);
+char *ezcfg_socket_get_group_interface_ip(struct ezcfg_socket *sp);
 int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp);
 int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp);
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp);
