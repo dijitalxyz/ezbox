@@ -88,15 +88,23 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_soap_http_reset_attributes(worker->proto_data);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	case EZCFG_PROTO_IGRS :
 		ezcfg_igrs_reset_attributes(worker->proto_data);
 		break;
+	case EZCFG_PROTO_IGRS_ISDP :
+		info(ezcfg, "IGRS ISDP reset attributes\n");
+		break;
+#endif
 	case EZCFG_PROTO_UEVENT :
 		info(ezcfg, "UEVENT reset attributes\n");
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_UPNP_SSDP :
-		info(ezcfg, "SSDP reset attributes\n");
+		ezcfg_upnp_ssdp_reset_attributes(worker->proto_data);
+		break;
+	case EZCFG_PROTO_UPNP_HTTP :
+		ezcfg_http_reset_attributes(worker->proto_data);
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
 		ezcfg_upnp_gena_reset_attributes(worker->proto_data);
@@ -144,18 +152,23 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_SOAP_HTTP :
 		worker->proto_data = ezcfg_soap_http_new(ezcfg);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	case EZCFG_PROTO_IGRS :
 		worker->proto_data = ezcfg_igrs_new(ezcfg);
 		break;
 	case EZCFG_PROTO_IGRS_ISDP :
 		worker->proto_data = ezcfg_igrs_isdp_new(ezcfg);
 		break;
+#endif
 	case EZCFG_PROTO_UEVENT :
 		worker->proto_data = ezcfg_uevent_new(ezcfg);
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_UPNP_SSDP :
 		worker->proto_data = ezcfg_upnp_ssdp_new(ezcfg);
+		break;
+	case EZCFG_PROTO_UPNP_HTTP :
+		worker->proto_data = ezcfg_http_new(ezcfg);
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
 		worker->proto_data = ezcfg_upnp_gena_new(ezcfg);
@@ -187,18 +200,23 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_worker_process_soap_http_new_connection(worker);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	case EZCFG_PROTO_IGRS :
 		ezcfg_worker_process_igrs_new_connection(worker);
 		break;
 	case EZCFG_PROTO_IGRS_ISDP :
 		ezcfg_worker_process_igrs_isdp_new_connection(worker);
 		break;
+#endif
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_worker_process_uevent_new_connection(worker);
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_UPNP_SSDP :
 		ezcfg_worker_process_upnp_ssdp_new_connection(worker);
+		break;
+	case EZCFG_PROTO_UPNP_HTTP :
+		ezcfg_worker_process_upnp_http_new_connection(worker);
 		break;
 	case EZCFG_PROTO_UPNP_GENA :
 		ezcfg_worker_process_upnp_gena_new_connection(worker);
@@ -231,6 +249,7 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		ezcfg_soap_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	case EZCFG_PROTO_IGRS :
 		ezcfg_igrs_delete(worker->proto_data);
 		worker->proto_data = NULL;
@@ -239,6 +258,7 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		ezcfg_igrs_isdp_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#endif
 	case EZCFG_PROTO_UEVENT :
 		ezcfg_uevent_delete(worker->proto_data);
 		worker->proto_data = NULL;
@@ -246,6 +266,10 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	case EZCFG_PROTO_UPNP_SSDP :
 		ezcfg_upnp_ssdp_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_UPNP_HTTP :
+		ezcfg_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 	case EZCFG_PROTO_UPNP_GENA :

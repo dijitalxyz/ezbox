@@ -152,7 +152,7 @@ static bool upnp_send_ssdp_alive(
 		return false;
 	}
 
-	/* Location: http://192.168.1.1:61900/igd1/InternetGatewayDevice1.xml */
+	/* Location: http://192.168.1.1:60080/igd1/InternetGatewayDevice1.xml */
 	snprintf(buf, sizeof(buf), "http://%s:%d%s",
 	         param->host_ipaddr, param->host_port,
 	         ezcfg_util_upnp_get_device_type_description_path(param->upnp_device_type));
@@ -436,7 +436,7 @@ static bool upnp_send_ssdp_respond(
 		return false;
 	}
 
-	if (strftime(buf, sizeof(buf), "%a, %d %b %Y %T %z", tmp) == 0) {
+	if (strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tmp) == 0) {
 		err(ezcfg, "strftime returned 0\n");
 		return false;
 	}
@@ -452,7 +452,7 @@ static bool upnp_send_ssdp_respond(
 		return false;
 	}
 
-	/* Location: http://192.168.1.1:61900/igd1/InternetGatewayDevice1.xml */
+	/* Location: http://192.168.1.1:60080/igd1/InternetGatewayDevice1.xml */
 	snprintf(buf, sizeof(buf), "http://%s:%d%s",
 	         param->host_ipaddr, param->host_port,
 	         ezcfg_util_upnp_get_device_type_description_path(param->upnp_device_type));
@@ -679,7 +679,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 				param.upnp_device_type = upnp->device_type;
 				param.life_time = ifp->life_time;
 				param.host_ipaddr = ip;
-				param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+				param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 				param.NT = "upnp:rootdevice";
 				param.NTS = "ssdp:alive";
 				param.UDN = upnp->u.dev.UDN;
@@ -694,7 +694,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.NT = udp->UDN;
 					param.NTS = "ssdp:alive";
 					param.UDN = udp->UDN;
@@ -708,7 +708,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.NT = udp->deviceType;
 					param.NTS = "ssdp:alive";
 					param.UDN = udp->UDN;
@@ -725,7 +725,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 						param.upnp_device_type = upnp->device_type;
 						param.life_time = ifp->life_time;
 						param.host_ipaddr = ip;
-						param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+						param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 						param.NT = usp->serviceType;
 						param.NTS = "ssdp:alive";
 						param.UDN = udp->UDN;
@@ -836,7 +836,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 				param.upnp_device_type = upnp->device_type;
 				param.life_time = ifp->life_time;
 				param.host_ipaddr = ip;
-				param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+				param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 				param.NT = "upnp:rootdevice";
 				param.NTS = "ssdp:byebye";
 				param.UDN = upnp->u.dev.UDN;
@@ -851,7 +851,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.NT = udp->UDN;
 					param.NTS = "ssdp:byebye";
 					param.UDN = udp->UDN;
@@ -865,7 +865,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.NT = udp->deviceType;
 					param.NTS = "ssdp:byebye";
 					param.UDN = udp->UDN;
@@ -882,7 +882,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 						param.upnp_device_type = upnp->device_type;
 						param.life_time = ifp->life_time;
 						param.host_ipaddr = ip;
-						param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+						param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 						param.NT = usp->serviceType;
 						param.NTS = "ssdp:byebye";
 						param.UDN = udp->UDN;
@@ -991,7 +991,7 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
 				param.upnp_device_type = upnp->device_type;
 				param.wait_time = 3;
 				param.host_ipaddr = ip;
-				param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+				param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 				param.MAN = "ssdp:discover";
 				param.ST = ssdp->priv_data;
 				upnp_send_ssdp_discover(socket, http, &param);
@@ -1061,7 +1061,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 				param.upnp_device_type = upnp->device_type;
 				param.life_time = ifp->life_time;
 				param.host_ipaddr = ip;
-				param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+				param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 				param.ST = "upnp:rootdevice";
 				param.UDN = upnp->u.dev.UDN;
 				if ((strcmp(st, "ssdp:all") == 0) ||
@@ -1078,7 +1078,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.ST = udp->UDN;
 					param.UDN = udp->UDN;
 					if ((strcmp(st, "ssdp:all") == 0) ||
@@ -1094,7 +1094,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 					param.upnp_device_type = upnp->device_type;
 					param.life_time = ifp->life_time;
 					param.host_ipaddr = ip;
-					param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+					param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 					param.ST = udp->deviceType;
 					param.UDN = udp->UDN;
 					if ((strcmp(st, "ssdp:all") == 0) ||
@@ -1113,7 +1113,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 						param.upnp_device_type = upnp->device_type;
 						param.life_time = ifp->life_time;
 						param.host_ipaddr = ip;
-						param.host_port = EZCFG_PROTO_UPNP_GENA_PORT_NUMBER;
+						param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 						param.ST = usp->serviceType;
 						param.UDN = udp->UDN;
 						if ((strcmp(st, "ssdp:all") == 0) ||
@@ -1159,4 +1159,15 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 
 	free(st);
 	return true;
+}
+
+void ezcfg_upnp_ssdp_reset_attributes(struct ezcfg_upnp_ssdp *ssdp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(ssdp != NULL);
+
+	ezcfg = ssdp->ezcfg;
+
+	ezcfg_http_reset_attributes(ssdp->http);
 }

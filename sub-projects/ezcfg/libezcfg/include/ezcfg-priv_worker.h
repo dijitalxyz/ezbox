@@ -57,6 +57,9 @@ void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker);
 /* thread/worker_upnp_ssdp.c */
 void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker);
 
+/* thread/worker_upnp_http.c */
+void ezcfg_worker_process_upnp_http_new_connection(struct ezcfg_worker *worker);
+
 /* thread/worker_upnp_gena.c */
 void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
 

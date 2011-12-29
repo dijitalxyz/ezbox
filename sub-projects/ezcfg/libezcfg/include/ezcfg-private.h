@@ -142,6 +142,8 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 #include "ezcfg-priv_socket.h"
 
 /* http/http.c */
+#include "ezcfg-priv_http.h"
+#if 0
 struct ezcfg_http;
 void ezcfg_http_delete(struct ezcfg_http *http);
 struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg);
@@ -185,7 +187,7 @@ int ezcfg_http_get_message_length(struct ezcfg_http *http);
 int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len);
 bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth);
 bool ezcfg_http_parse_post_data(struct ezcfg_http *http, struct ezcfg_link_list *list);
-
+#endif
 
 /* html/html.c */
 struct ezcfg_html;
@@ -516,51 +518,6 @@ void ezcfg_master_load_upnp_conf(struct ezcfg_master *master);
 
 /* thread/worker.c */
 #include "ezcfg-priv_worker.h"
-#if 0
-struct ezcfg_worker;
-/* worker inherits master's resource */
-void ezcfg_worker_delete(struct ezcfg_worker *worker);
-struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master);
-pthread_t *ezcfg_worker_get_p_thread_id(struct ezcfg_worker *worker);
-void ezcfg_worker_close_connection(struct ezcfg_worker *worker);
-struct ezcfg_worker *ezcfg_worker_get_next(struct ezcfg_worker *worker);
-bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *next);
-void ezcfg_worker_thread(struct ezcfg_worker *worker);
-/* worker call this to notify master */
-void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);
-struct ezcfg *ezcfg_worker_get_ezcfg(struct ezcfg_worker *worker);
-struct ezcfg_master *ezcfg_worker_get_master(struct ezcfg_worker *worker);
-int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...);
-int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len);
-void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker);
-struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker);
-bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num);
-bool ezcfg_worker_set_birth_time(struct ezcfg_worker *worker, time_t time);
-
-/* thread/worker_ctrl.c */
-void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_http.c */
-void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_soap_http.c */
-void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_igrs.c */
-void ezcfg_worker_process_igrs_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_igrs_isdp.c */
-void ezcfg_worker_process_igrs_isdp_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_uevent.c */
-void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_upnp_ssdp.c */
-void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker);
-
-/* thread/worker_upnp_gena.c */
-void ezcfg_worker_process_upnp_gena_new_connection(struct ezcfg_worker *worker);
-#endif
 
 /* ctrl/ctrl.c - daemon runtime setup */
 #include "ezcfg-priv_ctrl.h"

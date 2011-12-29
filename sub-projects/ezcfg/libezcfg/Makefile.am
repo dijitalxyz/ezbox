@@ -64,6 +64,7 @@ endif
 libezcfg_la_SOURCES += src/thread/worker_uevent.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += src/thread/worker_upnp_ssdp.c
+libezcfg_la_SOURCES += src/thread/worker_upnp_http.c
 libezcfg_la_SOURCES += src/thread/worker_upnp_gena.c
 endif
 

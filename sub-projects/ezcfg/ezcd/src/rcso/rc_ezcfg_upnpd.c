@@ -50,6 +50,7 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 	int ip[4];
 	char buf[256];
 	char ssdp_addr[64];
+	char http_addr[64];
 	char gena_addr[64];
 	int flag, ret;
 
@@ -96,6 +97,10 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER,
 		ip[0], ip[1], ip[2], ip[3]);
 
+	snprintf(http_addr, sizeof(http_addr), "%d.%d.%d.%d:%d",
+		ip[0], ip[1], ip[2], ip[3],
+		EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER);
+
 	snprintf(gena_addr, sizeof(gena_addr), "%d.%d.%d.%d:%d",
 		ip[0], ip[1], ip[2], ip[3],
 		EZCFG_PROTO_UPNP_GENA_PORT_NUMBER);
@@ -111,6 +116,12 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
 			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
 			ssdp_addr);
+
+		rc = ezcfg_api_nvram_remove_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING,
+			http_addr);
 
 		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
@@ -147,6 +158,12 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 			EZCFG_SOCKET_TYPE_DGRAM_STRING,
 			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
 			ssdp_addr);
+
+		rc = ezcfg_api_nvram_insert_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING,
+			http_addr);
 
 		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,

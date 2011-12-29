@@ -30,6 +30,9 @@ struct ezcfg_master;
 /* thread/worker.c */
 struct ezcfg_worker;
 
+/* http/http.c */
+struct ezcfg_http;
+
 /* uevent/uevent.c */
 struct ezcfg_uevent;
 

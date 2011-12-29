@@ -38,5 +38,6 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp);
 bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp);
 bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp);
 bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_socket *sp);
+void ezcfg_upnp_ssdp_reset_attributes(struct ezcfg_upnp_ssdp *ssdp);
 
 #endif /* _EZCFG_PRIV_UPNP_H_ */

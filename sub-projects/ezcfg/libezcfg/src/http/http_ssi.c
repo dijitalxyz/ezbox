@@ -48,7 +48,7 @@ static int build_http_ssi_response(struct ezcfg_http *http,
 	struct ezcfg_ssi *ssi)
 {
 	struct ezcfg *ezcfg;
-	char buf[1024];
+	//char buf[1024];
 	int rc = 0;
 	
 	ASSERT(http != NULL);
@@ -64,6 +64,7 @@ static int build_http_ssi_response(struct ezcfg_http *http,
 	ezcfg_http_set_status_code(http, 200);
 	ezcfg_http_set_state_response(http);
 
+#if 0
 	/* HTTP header content-type */
 	snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
 	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf);
@@ -76,6 +77,7 @@ static int build_http_ssi_response(struct ezcfg_http *http,
 
 	/* HTTP header pragma */
 	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE);
+#endif
 
 	/* set return value */
 	rc = 0;

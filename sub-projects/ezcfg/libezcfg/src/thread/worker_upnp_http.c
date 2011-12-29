@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : thread/worker_http.c
+ * File Name    : thread/worker_upnp_http.c
  *
  * Description  : interface to configurate ezbox information
  *
  * Copyright (C) 2008-2011 by ezbox-project
  *
  * History      Rev       Description
- * 2011-11-12   0.1       Split it from worker.c
+ * 2011-12-28   0.1       Derive from worker_http.c for UPnP
  * ============================================================================
  */
 
@@ -57,6 +57,9 @@
 
 #define EZCFG_HTTP_HTML_SSI_EXTENSION	".shtm"
 
+/**
+ * Private functions
+ **/
 static bool http_error_handler(struct ezcfg_worker *worker)
 {
 	return false;
@@ -134,21 +137,6 @@ static void send_http_bad_request(struct ezcfg_worker *worker)
 func_exit:
 	if (msg != NULL)
 		free(msg);
-}
-
-static bool is_http_html_ssi_request(const char *uri)
-{
-	int uri_len;
-
-	uri_len = strlen(uri);
-	if (uri_len > strlen(EZCFG_HTTP_HTML_SSI_EXTENSION)) {
-		uri_len -= strlen(EZCFG_HTTP_HTML_SSI_EXTENSION);
-		if (strcasecmp(uri+uri_len, EZCFG_HTTP_HTML_SSI_EXTENSION) == 0) {
-			return true;
-		}
-	}
-
-	return false;
 }
 
 static bool is_http_html_admin_request(const char *uri)
@@ -254,10 +242,7 @@ try_auth:
 		}
 		snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", p);
 		free(p);
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf) == false) {
-			err(ezcfg, "HTTP add header error.\n");
-			goto func_exit;
-		}
+		ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
 
 		/* build HTTP Unauthorized response */
 		msg_len = ezcfg_http_get_message_length(http);
@@ -319,10 +304,7 @@ static void handle_auth_request(struct ezcfg_worker *worker)
 	}
 	snprintf(buf, sizeof(buf), "Basic realm=\"%s\"", p);
 	free(p);
-	if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf) == false) {
-		err(ezcfg, "HTTP add header error.\n");
-		goto func_exit;
-	}
+	ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_WWW_AUTHENTICATE, buf);
 
 	/* build HTTP Unauthorized response */
 	msg_len = ezcfg_http_get_message_length(http);
@@ -401,9 +383,14 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	struct ezcfg_ssi *ssi = NULL;
 	char buf[1024];
 	char *request_uri;
+	char *accept_language = NULL;
 	int uri_len;
 	char *msg = NULL;
 	int msg_len;
+	char *p;
+	int len;
+	time_t t;
+	struct tm *tmp;
 
 	ASSERT(worker != NULL);
 
@@ -413,6 +400,14 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	master = ezcfg_worker_get_master(worker);
 	nvram = ezcfg_master_get_nvram(master);
+
+	/* HTTP header has been parsed */
+	p = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_ACCEPT_LANGUAGE);
+	if (p != NULL) {
+		accept_language = strdup(p);
+		if (accept_language == NULL)
+			goto func_exit;
+	}
 
 	ssi = ezcfg_ssi_new(ezcfg, nvram);
 	if (ssi == NULL) {
@@ -426,7 +421,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	uri_len = strlen(request_uri);
 
 	/* set default document root */
-	if (ezcfg_ssi_set_document_root(ssi, "/var/www") == false) {
+	if (ezcfg_ssi_set_document_root(ssi, "/etc/ezcfg_upnpd") == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");
@@ -464,28 +459,71 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		goto func_exit;
 	}
 	else {
+		/* process SSI file */
+		msg_len = 0;
+		msg = NULL;
+		len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
+		while(len >= 0) {
+			if (len > 0) {
+				p = realloc(msg, msg_len+len);
+				if (p == NULL) {
+					goto func_exit;
+				}
+				msg = p;
+				p += msg_len;
+				strncpy(p, buf, len);
+				msg_len += len;
+			}
+			len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
+		}
+
+		p = ezcfg_http_set_message_body(http, msg, msg_len);
+		if (p == NULL) {
+			goto func_exit;
+		}
+
+		/* clean msg */
+		free(msg);
+		msg = NULL;
+
 		/* build HTTP response */
-		/* HTTP header content-type */
-		snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+		/* HTTP header Content-Language */
+		if (accept_language != NULL) {
+			if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_LANGUAGE, accept_language) == false) {
+				err(ezcfg, "HTTP add header error.\n");
+				goto func_exit;
+			}
+		}
+
+		/* HTTP header Content-Length */
+		snprintf(buf, sizeof(buf), "%d", msg_len);
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH, buf) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header Content-Type */
+		snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_XML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
 		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
 			err(ezcfg, "HTTP add header error.\n");
 			goto func_exit;
 		}
 
-		/* HTTP header cache-control */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE) == false) {
-			err(ezcfg, "HTTP add header error.\n");
+		/* HTTP header Date */
+		/* Date: Thu, 01 Jan 1970 00:00:45 GMT */
+		t = time(NULL);
+		tmp = localtime(&t);
+		if (tmp == NULL) {
+			err(ezcfg, "localtime error.\n");
 			goto func_exit;
 		}
 
-		/* HTTP header expires */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0") == false) {
-			err(ezcfg, "HTTP add header error.\n");
+		if (strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", tmp) == 0) {
+			err(ezcfg, "strftime returned 0\n");
 			goto func_exit;
 		}
 
-		/* HTTP header pragma */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE) == false) {
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_DATE, buf) == false) {
 			err(ezcfg, "HTTP add header error.\n");
 			goto func_exit;
 		}
@@ -505,19 +543,13 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		msg_len = ezcfg_http_write_message(http, msg, msg_len);
 		ezcfg_worker_write(worker, msg, msg_len);
 
-		/* process SSI file */
-		msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
-		while(msg_len >= 0) {
-			if (msg_len > 0) {
-				ezcfg_worker_write(worker, buf, msg_len);
-			}
-			msg_len = ezcfg_ssi_file_get_line(ssi, buf, sizeof(buf));
-		}
-
 		goto func_exit;
 	}
 
 func_exit:
+	if (accept_language != NULL)
+		free(accept_language);
+
 	if (msg != NULL)
 		free(msg);
 
@@ -525,97 +557,7 @@ func_exit:
 		ezcfg_ssi_delete(ssi);
 }
 
-static void handle_admin_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_master *master;
-	struct ezcfg_nvram *nvram;
-	char *msg = NULL;
-	int msg_len;
-
-	ASSERT(worker != NULL);
-
-	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
-	ASSERT(http != NULL);
-
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	master = ezcfg_worker_get_master(worker);
-	nvram = ezcfg_master_get_nvram(master);
-
-	if (ezcfg_http_handle_admin_request(http, nvram) < 0) {
-		send_http_bad_request(worker);
-		goto func_exit;
-	}
-	else {
-		/* build HTTP response */
-		msg_len = ezcfg_http_get_message_length(http);
-		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_http_get_message_length error.\n");
-			goto func_exit;
-		}
-		msg_len++; /* one more for '\0' */
-		msg = (char *)malloc(msg_len);
-		if (msg == NULL) {
-			err(ezcfg, "malloc msg error.\n");
-			goto func_exit;
-		}
-		memset(msg, 0, msg_len);
-		msg_len = ezcfg_http_write_message(http, msg, msg_len);
-		ezcfg_worker_write(worker, msg, msg_len);
-		goto func_exit;
-	}
-func_exit:
-	if (msg != NULL)
-		free(msg);
-}
-
-static void handle_index_request(struct ezcfg_worker *worker)
-{
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_master *master;
-	struct ezcfg_nvram *nvram;
-	char *msg = NULL;
-	int msg_len;
-
-	ASSERT(worker != NULL);
-
-	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
-	ASSERT(http != NULL);
-
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	master = ezcfg_worker_get_master(worker);
-	nvram = ezcfg_master_get_nvram(master);
-
-	if (ezcfg_http_handle_index_request(http, nvram) < 0) {
-		send_http_bad_request(worker);
-		goto func_exit;
-	}
-	else {
-		/* build HTTP response */
-		msg_len = ezcfg_http_get_message_length(http);
-		if (msg_len < 0) {
-			err(ezcfg, "ezcfg_http_get_message_length error.\n");
-			goto func_exit;
-		}
-		msg_len++; /* one more for '\0' */
-		msg = (char *)malloc(msg_len);
-		if (msg == NULL) {
-			err(ezcfg, "malloc msg error.\n");
-			goto func_exit;
-		}
-		memset(msg, 0, msg_len);
-		msg_len = ezcfg_http_write_message(http, msg, msg_len);
-		ezcfg_worker_write(worker, msg, msg_len);
-		goto func_exit;
-	}
-func_exit:
-	if (msg != NULL)
-		free(msg);
-}
-
-static void handle_http_request(struct ezcfg_worker *worker)
+static void handle_upnp_http_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
@@ -643,21 +585,14 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 
 	/* don't need authenticate or has been authenticated */
-	if (is_http_html_ssi_request(request_uri) == true) {
-		/* handle SSI enabled web page */
-		handle_ssi_request(worker);
-	}
-	else if (is_http_html_admin_request(request_uri) == true) {
-		/* handle administration web page */
-		handle_admin_request(worker);
-	}
-	else {
-		/* will always return index page if not find the uri */
-		handle_index_request(worker);
-	}
+	/* handle SSI enabled web page */
+	handle_ssi_request(worker);
 }
 
-void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
+/**
+ * Public functions
+ **/
+void ezcfg_worker_process_upnp_http_new_connection(struct ezcfg_worker *worker)
 {
 	int header_len, nread;
 	char *buf;
@@ -715,7 +650,7 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 			ezcfg_http_set_message_body(http, buf + header_len, nread - header_len);
 		}
 		ezcfg_worker_set_birth_time(worker, time(NULL));
-		handle_http_request(worker);
+		handle_upnp_http_request(worker);
 	} else {
 		/* Do not put garbage in the access log */
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
