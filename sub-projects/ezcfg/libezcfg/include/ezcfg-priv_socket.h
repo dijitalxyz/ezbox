@@ -58,6 +58,8 @@ int ezcfg_socket_queue_set_socket(struct ezcfg_socket *queue, int pos, const str
 void ezcfg_socket_set_need_unlink(struct ezcfg_socket *sp, bool need_unlink);
 void ezcfg_socket_set_need_delete(struct ezcfg_socket *sp, bool need_delete);
 bool ezcfg_socket_get_need_delete(struct ezcfg_socket *sp);
+bool ezcfg_socket_sync_lsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp);
+bool ezcfg_socket_sync_rsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp);
 int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path);
 int ezcfg_socket_connect_remote(struct ezcfg_socket *sp);
 int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags);

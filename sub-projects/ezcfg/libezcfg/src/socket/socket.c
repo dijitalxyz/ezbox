@@ -1170,6 +1170,40 @@ bool ezcfg_socket_get_need_delete(struct ezcfg_socket *sp)
 	return (sp->need_delete);
 }
 
+bool ezcfg_socket_sync_lsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(dsp != NULL);
+	ASSERT(ssp != NULL);
+	ezcfg = dsp->ezcfg;
+
+	if (dsp->proto != ssp->proto) {
+		return false;
+	}
+
+	dsp->lsa = ssp->lsa;
+
+	return true;
+}
+
+bool ezcfg_socket_sync_rsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(dsp != NULL);
+	ASSERT(ssp != NULL);
+	ezcfg = dsp->ezcfg;
+
+	if (dsp->proto != ssp->proto) {
+		return false;
+	}
+
+	dsp->rsa = ssp->rsa;
+
+	return true;
+}
+
 int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *socket_path)
 {
 	struct ezcfg *ezcfg;

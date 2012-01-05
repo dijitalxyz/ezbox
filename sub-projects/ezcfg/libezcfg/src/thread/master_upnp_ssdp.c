@@ -93,11 +93,17 @@ bool ezcfg_master_handle_upnp_ssdp_socket(
 		goto func_out;
 	}
 
+	/* update remote socket address in accepted */
+	if (ezcfg_socket_sync_rsa(accepted, listener) == false) {
+		err(ezcfg, "sync rsa error.\n");
+		goto func_out;
+	}
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	ssdp = ezcfg_upnp_ssdp_new(ezcfg);
 	if (ssdp == NULL) {
 		err(ezcfg, "not enough memory to handle SSDP.\n");
-		return false;
+		goto func_out;
 	}
 	/* FIXME: must get http from upnp_ssdp, since supported HTTP method
 	 * and headers is special for SSDP

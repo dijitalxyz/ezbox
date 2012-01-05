@@ -99,6 +99,7 @@ static bool gen_uuid_v1(struct ezcfg_uuid *uuid)
 	ts = ( time_now.tv_sec * 10000000 ) + ( time_now.tv_usec * 10 ) + UUID_TIMEOFFSET;
 
 	/* Get the current node ID */
+	srandom(time_now.tv_usec);
 	ezcfg_uuid_v1_enforce_multicast_mac(uuid);
 
 	/* If the state was unavailable (e.g., non-existent or corrupted),
@@ -145,19 +146,19 @@ bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid)
 
 	switch(uuid->version) {
 	case 1:
-		if (uuid->u.mac)
+		if (uuid->u.mac != NULL)
 			free(uuid->u.mac);
 		break;
 	case 3:
-		if (uuid->u.md5)
+		if (uuid->u.md5 != NULL)
 			free(uuid->u.md5);
 		break;
 	case 4:
-		if (uuid->u.prng)
+		if (uuid->u.prng != NULL)
 			free(uuid->u.prng);
 		break;
 	case 5:
-		if (uuid->u.sha1)
+		if (uuid->u.sha1 != NULL)
 			free(uuid->u.sha1);
 		break;
 	}
@@ -188,42 +189,41 @@ struct ezcfg_uuid *ezcfg_uuid_new(struct ezcfg *ezcfg, int version)
 		uuid->u.mac = calloc(6, sizeof(unsigned char));
 		if (uuid->u.mac == NULL) {
 			err(ezcfg, "no enough memory for uuid mac.\n");
-			free(uuid);
-			return NULL;
+			goto fail_exit;
 		}
 		break;
 	case 3:
 		uuid->u.md5 = calloc(6, sizeof(unsigned char));
 		if (uuid->u.md5 == NULL) {
 			err(ezcfg, "no enough memory for uuid md5.\n");
-			free(uuid);
-			return NULL;
+			goto fail_exit;
 		}
 		break;
 	case 4:
 		uuid->u.prng = calloc(6, sizeof(unsigned char));
 		if (uuid->u.prng == NULL) {
 			err(ezcfg, "no enough memory for uuid prng.\n");
-			free(uuid);
-			return NULL;
+			goto fail_exit;
 		}
 		break;
 	case 5:
 		uuid->u.sha1 = calloc(6, sizeof(unsigned char));
 		if (uuid->u.sha1 == NULL) {
 			err(ezcfg, "no enough memory for uuid sha1.\n");
-			free(uuid);
-			return NULL;
+			goto fail_exit;
 		}
 		break;
 	default:
 		err(ezcfg, "unknown uuid version.\n");
-		free(uuid);
-		return NULL;
+		goto fail_exit;
 	}
 	/* set random seed */
 	srand((unsigned)time(&t));
 	return uuid;
+
+fail_exit:
+	ezcfg_uuid_delete(uuid);
+	return NULL;
 }
 
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid)
@@ -366,7 +366,7 @@ bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid)
 	}
 
 	for(i=0; i<6; i++) {
-		uuid->u.mac[i] = rand() & 0xFF;
+		uuid->u.mac[i] = random() & 0xFF;
 	}
 
 	/* set to local multicast MAC address */

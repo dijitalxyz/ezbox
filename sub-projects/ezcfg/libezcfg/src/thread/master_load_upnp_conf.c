@@ -56,8 +56,8 @@
 void ezcfg_master_load_upnp_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_upnp *up;
-	struct ezcfg_upnp **pup;
+	struct ezcfg_upnp *up = NULL;
+	struct ezcfg_upnp **pup = NULL;
 	char *p, *q, *r;
 	int role, type;
 	char path[256];

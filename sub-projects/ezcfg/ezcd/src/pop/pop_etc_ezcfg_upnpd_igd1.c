@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -69,10 +69,1104 @@
 #define WIC_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/WANIPConnection1.xml"
 #define LHCM_XML_PATH	EZCFG_UPNP_IGD1_CONF_PATH "/service/LANHostConfigManagement1.xml"
 
+static int gen_igd1_WANConnectionDevice1_xml(FILE *fp, int i, int flag, int wan_device_idx)
+{
+	int j, k;
+	char name[128];
+	char buf[256];
+	int rc;
+	int wan_connection_device_number, number;
+
+	snprintf(name, sizeof(name), "%s.%d.%s",
+		NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+		EZCFG_UPNP_WANCD_NUMBER_STRING);
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		wan_connection_device_number = atoi(buf);
+		for (j = 1; j <= wan_connection_device_number; j++) {
+			/* <device> */
+			fprintf_indent(i, fp, "<%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+			i++;
+
+			/* <deviceType> */
+			fprintf_indent(i, fp, "<%s>%s</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME,
+				"urn:schemas-upnp-org:device:WANConnectionDevice:1",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
+
+			/* <friendlyName> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			}
+
+			/* <manufacturer> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			}
+
+			/* <manufacturerURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			}
+
+			/* <modelDescription> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			}
+
+			/* <modelName> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			}
+
+			/* <modelNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <modelURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			}
+
+			/* <serialNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <UDN> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc == 0) {
+				/* initialize UDN for this device */
+				char uuid_str[EZCFG_UUID_STRING_LEN+1];
+
+				if (ezcfg_api_uuid1_string(uuid_str, sizeof(uuid_str)) == EZCFG_UUID_STRING_LEN) {
+					snprintf(buf, sizeof(buf), "uuid:%s", uuid_str);
+					ezcfg_api_nvram_set(name, buf);
+				}
+			}
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			}
+
+			/* <UPC> */
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_ICON_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <iconList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <icon> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+						i++;
+
+						/* <mimetype> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						}
+
+						/* <width>118</width> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						}
+
+						/* <height>119</height> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						}
+
+						/* <depth>8</depth> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						}
+
+						/* <url>/igd.gif</url> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						}
+
+						/* </icon> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+					}
+
+					/* </iconList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+				}
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+				EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+				EZCFG_UPNP_SERVICE_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <serviceList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <service> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+						i++;
+
+						/* <serviceType> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						}
+
+						/* <serviceId> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						}
+
+						/* <SCPDURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						}
+
+						/* <controlURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						}
+
+						/* <eventSubURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), wan_device_idx,
+							EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING, j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						}
+
+						/* </service> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+					}
+
+					/* </serviceList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+				}
+			}
+
+			/* </device> */
+			i--;
+			fprintf_indent(i, fp, "</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+		} /* end of for (j = 1; j <= number; j++) */
+	} /* end of if (rc > 0) */
+
+	return (EXIT_SUCCESS);
+}
+
+static int gen_igd1_WANDevice1_xml(FILE *fp, int i, int flag)
+{
+	int j, k;
+	char name[64];
+	char buf[256];
+	int rc;
+	int wan_device_number, number;
+
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		wan_device_number = atoi(buf);
+		for (j = 1; j <= wan_device_number; j++) {
+			/* <device> */
+			fprintf_indent(i, fp, "<%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+			i++;
+
+			/* <deviceType> */
+			fprintf_indent(i, fp, "<%s>%s</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME,
+				"urn:schemas-upnp-org:device:WANDevice:1",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
+
+			/* <friendlyName> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			}
+
+			/* <manufacturer> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			}
+
+			/* <manufacturerURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			}
+
+			/* <modelDescription> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			}
+
+			/* <modelName> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			}
+
+			/* <modelNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <modelURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			}
+
+			/* <serialNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <UDN> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc == 0) {
+				/* initialize UDN for this device */
+				char uuid_str[EZCFG_UUID_STRING_LEN+1];
+
+				if (ezcfg_api_uuid1_string(uuid_str, sizeof(uuid_str)) == EZCFG_UUID_STRING_LEN) {
+					snprintf(buf, sizeof(buf), "uuid:%s", uuid_str);
+					ezcfg_api_nvram_set(name, buf);
+				}
+			}
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			}
+
+			/* <UPC> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_ICON_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <iconList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <icon> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+						i++;
+
+						/* <mimetype> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						}
+
+						/* <width>118</width> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						}
+
+						/* <height>119</height> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						}
+
+						/* <depth>8</depth> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						}
+
+						/* <url>/igd.gif</url> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						}
+
+						/* </icon> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+					}
+
+					/* </iconList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+				}
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_SERVICE_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <serviceList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <service> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+						i++;
+
+						/* <serviceType> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						}
+
+						/* <serviceId> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						}
+
+						/* <SCPDURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						}
+
+						/* <controlURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						}
+
+						/* <eventSubURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						}
+
+						/* </service> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+					}
+
+					/* </serviceList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+				}
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND), j,
+				EZCFG_UPNP_WANCD_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <deviceList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
+					i++;
+
+					/* generate WANConnectinoDevice */
+					gen_igd1_WANConnectionDevice1_xml(fp, i, flag, j);
+
+					/* </deviceList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
+				}
+			}
+
+			/* </device> */
+			i--;
+			fprintf_indent(i, fp, "</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+		}
+	}
+
+	return (EXIT_SUCCESS);
+}
+
+static int gen_igd1_LANDevice1_xml(FILE *fp, int i, int flag)
+{
+	int j, k;
+	char name[64];
+	char buf[256];
+	int rc;
+	int lan_device_number, number;
+
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		lan_device_number = atoi(buf);
+		for (j = 1; j <= lan_device_number; j++) {
+			/* <device> */
+			fprintf_indent(i, fp, "<%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+			i++;
+
+			/* <deviceType> */
+			fprintf_indent(i, fp, "<%s>%s</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME,
+				"urn:schemas-upnp-org:device:LANDevice:1",
+				EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
+
+			/* <friendlyName> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+			}
+
+			/* <manufacturer> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+			}
+
+			/* <manufacturerURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+			}
+
+			/* <modelDescription> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+			}
+
+			/* <modelName> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+			}
+
+			/* <modelNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <modelURL> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+			}
+
+			/* <serialNumber> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+			}
+
+			/* <UDN> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc == 0) {
+				/* initialize UDN for this device */
+				char uuid_str[EZCFG_UUID_STRING_LEN+1];
+
+				if (ezcfg_api_uuid1_string(uuid_str, sizeof(uuid_str)) == EZCFG_UUID_STRING_LEN) {
+					snprintf(buf, sizeof(buf), "uuid:%s", uuid_str);
+					ezcfg_api_nvram_set(name, buf);
+				}
+			}
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+			}
+
+			/* <UPC> */
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				fprintf_indent(i, fp, "<%s>%s</%s>\n",
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME,
+					buf,
+					EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_ICON_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <iconList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <icon> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+						i++;
+
+						/* <mimetype> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+						}
+
+						/* <width>118</width> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+						}
+
+						/* <height>119</height> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+						}
+
+						/* <depth>8</depth> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+						}
+
+						/* <url>/igd.gif</url> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_ICON_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+						}
+
+						/* </icon> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+					}
+
+					/* </iconList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+				}
+			}
+
+			snprintf(name, sizeof(name), "%s.%d.%s",
+				NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+				EZCFG_UPNP_SERVICE_NUMBER_STRING);
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+			if (rc > 0) {
+				number = atoi(buf);
+				if (number > 0) {
+					/* <serviceList> */
+					fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+					i++;
+
+					for (k = 1; k <= number; k++) {
+						/* <service> */
+						fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+						i++;
+
+						/* <serviceType> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+						}
+
+						/* <serviceId> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+						}
+
+						/* <SCPDURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+						}
+
+						/* <controlURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+						}
+
+						/* <eventSubURL> */
+						snprintf(name, sizeof(name), "%s.%d.%s.%d.%s",
+							NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND), j,
+							EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME, k,
+							EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+						if (rc > 0) {
+							fprintf_indent(i, fp, "<%s>%s</%s>\n",
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME,
+								buf,
+								EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+						}
+
+						/* </service> */
+						i--;
+						fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+					}
+
+					/* </serviceList> */
+					i--;
+					fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+
+				}
+			}
+
+			/* </device> */
+			i--;
+			fprintf_indent(i, fp, "</%s>\n",
+				EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
+		}
+	}
+
+	return (EXIT_SUCCESS);
+}
+
+/* root device */
 static int gen_igd1_InternetGatewayDevice1_xml(const char *path, int flag)
 {
-	int i;
+	int i, j;
 	FILE *fp;
+	char name[64];
+	char buf[256];
+	int rc;
+	int number;
 
 	fp = fopen(path, "w");
 	if (fp == NULL)
@@ -87,330 +1181,340 @@ static int gen_igd1_InternetGatewayDevice1_xml(const char *path, int flag)
 	i++;
 
 	/* <specVersion> */
-	fprintf_indent(i, fp, "%s\n", "<specVersion>");
+	fprintf_indent(i, fp, "<%s>\n",
+		EZCFG_UPNP_DESC_SPEC_VERSION_ELEMENT_NAME);
 	i++;
 
-	fprintf_indent(i, fp, "%s\n", "<major>1</major>");
-	fprintf_indent(i, fp, "%s\n", "<minor>0</minor>");
+	fprintf_indent(i, fp, "<%s>%d</%s>\n",
+		EZCFG_UPNP_DESC_MAJOR_ELEMENT_NAME, 1,
+		EZCFG_UPNP_DESC_MAJOR_ELEMENT_NAME);
+	fprintf_indent(i, fp, "<%s>%d</%s>\n",
+		EZCFG_UPNP_DESC_MINOR_ELEMENT_NAME, 0,
+		EZCFG_UPNP_DESC_MINOR_ELEMENT_NAME);
 
 	/* </specVersion> */
 	i--;
-	fprintf_indent(i, fp, "%s\n", "</specVersion>");
+	fprintf_indent(i, fp, "</%s>\n",
+		EZCFG_UPNP_DESC_SPEC_VERSION_ELEMENT_NAME);
 
 	/* <device> */
-	fprintf_indent(i, fp, "%s\n", "<device>");
+	fprintf_indent(i, fp, "<%s>\n",
+		EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
 	i++;
 
 	/* <deviceType> */
-	fprintf_indent(i, fp, "%s\n", "<deviceType>urn:schemas-upnp-org:device:InternetGatewayDevice:1</deviceType>");
+	fprintf_indent(i, fp, "<%s>%s</%s>\n",
+		EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME,
+		"urn:schemas-upnp-org:device:InternetGatewayDevice:1",
+		EZCFG_UPNP_DESC_DEVICE_TYPE_ELEMENT_NAME);
 
 	/* <friendlyName> */
-	fprintf_indent(i, fp, "%s\n", "<friendlyName>ezbox Internet Gateway Device</friendlyName>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_FRIENDLY_NAME), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_FRIENDLY_NAME_ELEMENT_NAME);
+	}
 
 	/* <manufacturer> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturer>ezbox Project</manufacturer>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MANUFACTURER), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MANUFACTURER_ELEMENT_NAME);
+	}
 
 	/* <manufacturerURL> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturerURL>http://code.google.com/p/ezbox/</manufacturerURL>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MANUFACTURER_URL), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MANUFACTURER_URL_ELEMENT_NAME);
+	}
 
-	/* <modelName> */
-	fprintf_indent(i, fp, "%s\n", "<modelName>ezbox IGD Version 1.00</modelName>");
-
-	/* <UDN> */
-	fprintf_indent(i, fp, "%s\n", "<UDN>uuid:75802409-bccb-40e7-8e6c-fa095ecce13e</UDN>");
-
-	/* <iconList> */
-	fprintf_indent(i, fp, "%s\n", "<iconList>");
-	i++;
-
-	/* <icon> */
-	fprintf_indent(i, fp, "%s\n", "<icon>");
-	i++;
-
-	/* <mimetype> */
-	fprintf_indent(i, fp, "%s\n", "<mimetype>image/gif</mimetype>");
-	/* <width>118</width> */
-	fprintf_indent(i, fp, "%s\n", "<width>118</width>");
-	/* <height>119</height> */
-	fprintf_indent(i, fp, "%s\n", "<height>119</height>");
-	/* <depth>8</depth> */
-	fprintf_indent(i, fp, "%s\n", "<depth>8</depth>");
-	/* <url>/igd.gif</url> */
-	fprintf_indent(i, fp, "%s\n", "<url>/igd.gif</url>");
-
-	/* </icon> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</icon>");
-
-	/* </iconList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</iconList>");
-
-	/* <serviceList> */
-	fprintf_indent(i, fp, "%s\n", "<serviceList>");
-	i++;
-
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
-
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:Layer3Forwarding:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:Layer3Forwarding1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/Layer3Forwarding1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?Layer3Forwarding1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?Layer3Forwarding1</eventSubURL>");
-
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
-
-	/* </serviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</serviceList>");
-
-	/* <deviceList> */
-	fprintf_indent(i, fp, "%s\n", "<deviceList>");
-	i++;
-
-	/* <device> */
-	fprintf_indent(i, fp, "%s\n", "<device>");
-	i++;
-
-	/* <deviceType> */
-	fprintf_indent(i, fp, "%s\n", "<deviceType>urn:schemas-upnp-org:device:WANDevice:1</deviceType>");
-	/* <friendlyName> */
-	fprintf_indent(i, fp, "%s\n", "<friendlyName>WANDevice</friendlyName>");
-	/* <manufacturer> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturer>ezbox Project</manufacturer>");
-	/* <manufacturerURL> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturerURL>http://code.google.com/p/ezbox/</manufacturerURL>");
 	/* <modelDescription> */
-	fprintf_indent(i, fp, "%s\n", "<modelDescription>WAN Device on ezbox IGD</modelDescription>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MODEL_DESCRIPTION), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MODEL_DESCRIPTION_ELEMENT_NAME);
+	}
+
 	/* <modelName> */
-	fprintf_indent(i, fp, "%s\n", "<modelName>ezbox IGD</modelName>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MODEL_NAME), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MODEL_NAME_ELEMENT_NAME);
+	}
+
 	/* <modelNumber> */
-	fprintf_indent(i, fp, "%s\n", "<modelNumber>1.00</modelNumber>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MODEL_NUMBER), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MODEL_NUMBER_ELEMENT_NAME);
+	}
+
 	/* <modelURL> */
-	fprintf_indent(i, fp, "%s\n", "<modelURL>http://code.google.com/p/ezbox/</modelURL>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_MODEL_URL), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_MODEL_URL_ELEMENT_NAME);
+	}
+
 	/* <serialNumber> */
-	fprintf_indent(i, fp, "%s\n", "<serialNumber>1.00</serialNumber>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERIAL_NUMBER), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_SERIAL_NUMBER_ELEMENT_NAME);
+	}
+
 	/* <UDN> */
-	fprintf_indent(i, fp, "%s\n", "<UDN>uuid:75802409-bccb-40e7-8e6c-fa095ecce13e</UDN>");
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_UDN));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc == 0) {
+		/* initialize UDN for this device */
+		char uuid_str[EZCFG_UUID_STRING_LEN+1];
+
+		if (ezcfg_api_uuid1_string(uuid_str, sizeof(uuid_str)) == EZCFG_UUID_STRING_LEN) {
+			snprintf(buf, sizeof(buf), "uuid:%s", uuid_str);
+			ezcfg_api_nvram_set(name, buf);
+		}
+	}
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_UDN_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_UDN_ELEMENT_NAME);
+	}
+
 	/* <UPC> */
-	fprintf_indent(i, fp, "%s\n", "<UPC>ezbox IGD</UPC>");
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_UPC), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf_indent(i, fp, "<%s>%s</%s>\n",
+			EZCFG_UPNP_DESC_UPC_ELEMENT_NAME,
+			buf,
+			EZCFG_UPNP_DESC_UPC_ELEMENT_NAME);
+	}
 
-	/* <serviceList> */
-	fprintf_indent(i, fp, "%s\n", "<serviceList>");
-	i++;
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		number = atoi(buf);
+		if (number > 0) {
+			/* <iconList> */
+			fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+			i++;
 
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
+			for (j=1; j<=number; j++) {
+				/* <icon> */
+				fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+				i++;
 
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:WANCommonIFC1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/WANCommonInterfaceConfig1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?WANCommonIFC1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?WANCommonIFC1</eventSubURL>");
+				/* <mimetype> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON), j,
+					EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_MIME_TYPE_ELEMENT_NAME);
+				}
 
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
+				/* <width>118</width> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON), j,
+					EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_WIDTH_ELEMENT_NAME);
+				}
 
-	/* </serviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</serviceList>");
+				/* <height>119</height> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON), j,
+					EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_HEIGHT_ELEMENT_NAME);
+				}
 
-	/* <deviceList> */
-	fprintf_indent(i, fp, "%s\n", "<deviceList>");
-	i++;
+				/* <depth>8</depth> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON), j,
+					EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_DEPTH_ELEMENT_NAME);
+				}
 
-	/* <device> */
-	fprintf_indent(i, fp, "%s\n", "<device>");
-	i++;
+				/* <url>/igd.gif</url> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_ICON), j,
+					EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_URL_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_URL_ELEMENT_NAME);
+				}
 
-	/* <deviceType> */
-	fprintf_indent(i, fp, "%s\n", "<deviceType>urn:schemas-upnp-org:device:WANConnectionDevice:1</deviceType>");
-	/* <friendlyName> */
-	fprintf_indent(i, fp, "%s\n", "<friendlyName>WANConnectionDevice</friendlyName>");
-	/* <manufacturer> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturer>ezbox Project</manufacturer>");
-	/* <manufacturerURL> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturerURL>http://code.google.com/p/ezbox/</manufacturerURL>");
-	/* <modelDescription> */
-	fprintf_indent(i, fp, "%s\n", "<modelDescription>WanConnectionDevice on ezbox IGD</modelDescription>");
-	/* <modelName> */
-	fprintf_indent(i, fp, "%s\n", "<modelName>ezbox IGD</modelName>");
-	/* <modelNumber> */
-	fprintf_indent(i, fp, "%s\n", "<modelNumber>1.00</modelNumber>");
-	/* <modelURL> */
-	fprintf_indent(i, fp, "%s\n", "<modelURL>http://code.google.com/p/ezbox/</modelURL>");
-	/* <serialNumber> */
-	fprintf_indent(i, fp, "%s\n", "<serialNumber>1.00</serialNumber>");
-	/* <UDN> */
-	fprintf_indent(i, fp, "%s\n", "<UDN>uuid:75802409-bccb-40e7-8e6c-fa095ecce13e</UDN>");
-	/* <UPC> */
-	fprintf_indent(i, fp, "%s\n", "<UPC>ezbox IGD</UPC>");
+				/* </icon> */
+				i--;
+				fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
+			}
 
-	/* <serviceList> */
-	fprintf_indent(i, fp, "%s\n", "<serviceList>");
-	i++;
+			/* </iconList> */
+			i--;
+			fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_ICON_LIST_ELEMENT_NAME);
+		}
+	}
 
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		number = atoi(buf);
+		if (number > 0) {
+			/* <serviceList> */
+			fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+			i++;
 
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:WANEthernetLinkConfig:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:WANEthernetLinkCfg1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/WANEthernetLinkConfig1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?WANEthernetLinkCfg1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?WANEthernetLinkCfg1</eventSubURL>");
+			for (j = 1; j <= number; j++) {
+				/* <service> */
+				fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+				i++;
 
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
+				/* <serviceType> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE), j,
+					EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME);
+				}
 
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
+				/* <serviceId> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE), j,
+					EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME);
+				}
 
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:WANPPPConnection:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:WANPPPConn1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/WANPPPConnection1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?WANPPPConn1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?WANPPPConn1</eventSubURL>");
+				/* <SCPDURL> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE), j,
+					EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
+				}
 
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
+				/* <controlURL> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE), j,
+					EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
+				}
 
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
+				/* <eventSubURL> */
+				snprintf(name, sizeof(name), "%s.%d.%s",
+					NVRAM_SERVICE_OPTION(UPNP, IGD1_IGD_SERVICE), j,
+					EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+				rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+				if (rc > 0) {
+					fprintf_indent(i, fp, "<%s>%s</%s>\n",
+						EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME,
+						buf,
+						EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
+				}
 
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:WANIPConnection:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:WANIPConn1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/WANIPConnection1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?WANIPConn1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?WANIPConn1</eventSubURL>");
+				/* </service> */
+				i--;
+				fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
+			}
 
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
+			/* </serviceList> */
+			i--;
+			fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_SERVICE_LIST_ELEMENT_NAME);
+		}
+	}
 
-	/* </serviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</serviceList>");
+	number = 0;
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_WAND_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		number += atoi(buf);
+	}
+	snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(UPNP, IGD1_LAND_NUMBER));
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if (rc > 0) {
+		number += atoi(buf);
+	}
+	if (number > 0) {
+		/* <deviceList> */
+		fprintf_indent(i, fp, "<%s>\n", EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
+		i++;
+
+		/* generate WANDevice */
+		gen_igd1_WANDevice1_xml(fp, i, flag);
+
+		/* generate LANDevice */
+		gen_igd1_LANDevice1_xml(fp, i, flag);
+
+		/* </deviceList> */
+		i--;
+		fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME);
+	}
 
 	/* </device> */
 	i--;
-	fprintf_indent(i, fp, "%s\n", "</device>");
-
-	/* </deviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</deviceList>");
-
-	/* </device> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</device>");
-
-	/* <device> */
-	fprintf_indent(i, fp, "%s\n", "<device>");
-	i++;
-
-	/* <deviceType> */
-	fprintf_indent(i, fp, "%s\n", "<deviceType>urn:schemas-upnp-org:device:LANDevice:1</deviceType>");
-	/* <friendlyName> */
-	fprintf_indent(i, fp, "%s\n", "<friendlyName>LANDevice</friendlyName>");
-	/* <manufacturer> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturer>ezbox Project</manufacturer>");
-	/* <manufacturerURL> */
-	fprintf_indent(i, fp, "%s\n", "<manufacturerURL>http://code.google.com/p/ezbox/</manufacturerURL>");
-	/* <modelDescription> */
-	fprintf_indent(i, fp, "%s\n", "<modelDescription>LAN Device on ezbox IGD</modelDescription>");
-	/* <modelName> */
-	fprintf_indent(i, fp, "%s\n", "<modelName>ezbox IGD</modelName>");
-	/* <modelNumber> */
-	fprintf_indent(i, fp, "%s\n", "<modelNumber>1.00</modelNumber>");
-	/* <modelURL> */
-	fprintf_indent(i, fp, "%s\n", "<modelURL>http://code.google.com/p/ezbox/</modelURL>");
-	/* <serialNumber> */
-	fprintf_indent(i, fp, "%s\n", "<serialNumber>1.00</serialNumber>");
-	/* <UDN> */
-	fprintf_indent(i, fp, "%s\n", "<UDN>uuid:00000000-0000-0000-0000-000000000000</UDN>");
-	/* <UPC> */
-	fprintf_indent(i, fp, "%s\n", "<UPC>ezbox IGD</UPC>");
-
-	/* <serviceList> */
-	fprintf_indent(i, fp, "%s\n", "<serviceList>");
-	i++;
-
-	/* <service> */
-	fprintf_indent(i, fp, "%s\n", "<service>");
-	i++;
-
-	/* <serviceType> */
-	fprintf_indent(i, fp, "%s\n", "<serviceType>urn:schemas-upnp-org:service:LANHostConfigManagement:1</serviceType>");
-	/* <serviceId> */
-	fprintf_indent(i, fp, "%s\n", "<serviceId>urn:upnp-org:serviceId:LANHostCfg1</serviceId>");
-	/* <SCPDURL> */
-	fprintf_indent(i, fp, "%s\n", "<SCPDURL>/service/LANHostConfigManagement1.xml</SCPDURL>");
-	/* <controlURL> */
-	fprintf_indent(i, fp, "%s\n", "<controlURL>/control?LANHostCfg1</controlURL>");
-	/* <eventSubURL> */
-	fprintf_indent(i, fp, "%s\n", "<eventSubURL>/event?LANHostCfg1</eventSubURL>");
-
-	/* </service> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</service>");
-
-	/* </serviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</serviceList>");
-
-	/* </device> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</device>");
-
-	/* </deviceList> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</deviceList>");
-
-	/* </device> */
-	i--;
-	fprintf_indent(i, fp, "%s\n", "</device>");
+	fprintf_indent(i, fp, "</%s>\n", EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
 
 	/* </root> */
 	i--;
-	fprintf_indent(i, fp, "%s\n", "</root>");
+	fprintf_indent(i, fp, "</root>\n");
 
 	fclose(fp);
-
 	return (EXIT_SUCCESS);
 }
 

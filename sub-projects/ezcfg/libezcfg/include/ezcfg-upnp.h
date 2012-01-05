@@ -122,7 +122,39 @@ struct ezcfg_upnp {
 /* IGD1 config nvram name */
 #define EZCFG_UPNP_IGD1_DESCRIPTION_PATH   "igd1_description_path"
 #define EZCFG_UPNP_IGD1_ROOT_DEVICE_XML_FILE	EZCFG_UPNP_IGD1_CONF_PATH "/InternetGatewayDevice1.xml"
+/* IGD device nvram name */
+#define EZCFG_UPNP_IGD1_IGD_FRIENDLY_NAME	"igd1_IGD.friendlyName"
+#define EZCFG_UPNP_IGD1_IGD_MANUFACTURER	"igd1_IGD.manufacturer"
+#define EZCFG_UPNP_IGD1_IGD_MANUFACTURER_URL	"igd1_IGD.manufacturerURL"
+#define EZCFG_UPNP_IGD1_IGD_MODEL_DESCRIPTION	"igd1_IGD.modelDescription"
+#define EZCFG_UPNP_IGD1_IGD_MODEL_NAME		"igd1_IGD.modelName"
+#define EZCFG_UPNP_IGD1_IGD_MODEL_NUMBER	"igd1_IGD.modelNumber"
+#define EZCFG_UPNP_IGD1_IGD_MODEL_URL		"igd1_IGD.modelURL"
+#define EZCFG_UPNP_IGD1_IGD_SERIAL_NUMBER	"igd1_IGD.serialNumber"
+#define EZCFG_UPNP_IGD1_IGD_UDN			"igd1_IGD.UDN"
+#define EZCFG_UPNP_IGD1_IGD_UPC			"igd1_IGD.UPC"
+#define EZCFG_UPNP_IGD1_IGD_UPC			"igd1_IGD.UPC"
+#define EZCFG_UPNP_IGD1_IGD_ICON_NUMBER		"igd1_IGD_icon_number"
+#define EZCFG_UPNP_IGD1_IGD_ICON		"igd1_IGD.icon"
+#define EZCFG_UPNP_IGD1_IGD_SERVICE_NUMBER	"igd1_IGD_service_number"
+#define EZCFG_UPNP_IGD1_IGD_SERVICE		"igd1_IGD.service"
+/* WANDevice device nvram name */
+#define EZCFG_UPNP_IGD1_WAND_NUMBER		"igd1_WANDevice_number"
+#define EZCFG_UPNP_IGD1_WAND			"igd1_WANDevice"
+/* WANConnectionDevice device nvram name */
+#define EZCFG_UPNP_IGD1_WANCD			"igd1_WANConnectionDevice"
+/* LANDevice device nvram name */
+#define EZCFG_UPNP_IGD1_LAND_NUMBER		"igd1_LANDevice_number"
+#define EZCFG_UPNP_IGD1_LAND			"igd1_LANDevice"
 
+/* Device name string */
+#define EZCFG_UPNP_WAN_DEVCIE_STRING                    "WANDevice"
+#define EZCFG_UPNP_LAN_DEVCIE_STRING                    "LANDevice"
+#define EZCFG_UPNP_WAN_CONNECTION_DEVCIE_STRING         "WANConnectionDevice"
+#define EZCFG_UPNP_NUMBER_STRING                        "number"
+#define EZCFG_UPNP_ICON_NUMBER_STRING                   "icon_number"
+#define EZCFG_UPNP_SERVICE_NUMBER_STRING                "service_number"
+#define EZCFG_UPNP_WANCD_NUMBER_STRING                  "WANConnectionDevice_number"
 
 /* UPnP Description XML string */
 #define EZCFG_UPNP_DESC_SPEC_VERSION_ELEMENT_NAME       "specVersion"
@@ -152,9 +184,9 @@ struct ezcfg_upnp {
 #define EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME            "service"
 #define EZCFG_UPNP_DESC_SERVICE_TYPE_ELEMENT_NAME       "serviceType"
 #define EZCFG_UPNP_DESC_SERVICE_ID_ELEMENT_NAME         "serviceId"
-#define EZCFG_UPNP_DESC_SCPD_URL_ID_ELEMENT_NAME        "SCPDURL"
-#define EZCFG_UPNP_DESC_CONTROL_URL_ID_ELEMENT_NAME     "controlURL"
-#define EZCFG_UPNP_DESC_EVENT_SUB_URL_ID_ELEMENT_NAME   "eventSubURL"
+#define EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME           "SCPDURL"
+#define EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME        "controlURL"
+#define EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME      "eventSubURL"
 #define EZCFG_UPNP_DESC_DEVICE_LIST_ELEMENT_NAME        "deviceList"
 #define EZCFG_UPNP_DESC_PRESENTATION_URL_ELEMENT_NAME   "presentationURL"
 

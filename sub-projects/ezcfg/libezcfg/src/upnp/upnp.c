@@ -198,7 +198,7 @@ static bool upnp_device_parse_icon_list(device_icon_t **list, struct ezcfg_xml *
 	icon_idx = -1;
 	icon_idx = ezcfg_xml_get_element_index(xml, root_idx, icon_idx, EZCFG_UPNP_DESC_ICON_ELEMENT_NAME);
 	while((icon_idx > root_idx) && (icon_idx < root_etag_idx)) {
-		ip = calloc(1, sizeof(device_icon_t));
+		ip = malloc(sizeof(device_icon_t));
 		if (ip == NULL) {
 			goto fail_exit;
 		}
@@ -293,7 +293,7 @@ static bool upnp_device_parse_service_list(upnp_service_t **list, struct ezcfg_x
 	service_idx = -1;
 	service_idx = ezcfg_xml_get_element_index(xml, root_idx, service_idx, EZCFG_UPNP_DESC_SERVICE_ELEMENT_NAME);
 	while((service_idx > root_idx) && (service_idx < root_etag_idx)) {
-		sp = calloc(1, sizeof(upnp_service_t));
+		sp = malloc(sizeof(upnp_service_t));
 		if (sp == NULL) {
 			goto fail_exit;
 		}
@@ -332,7 +332,7 @@ static bool upnp_device_parse_service_list(upnp_service_t **list, struct ezcfg_x
 		}
 
 		/* get <SCPDURL>, REQUIRED */
-		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SCPD_URL_ID_ELEMENT_NAME);
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_SCPD_URL_ELEMENT_NAME);
 		if (ci < pi) {
 			goto fail_exit;
 		}
@@ -346,7 +346,7 @@ static bool upnp_device_parse_service_list(upnp_service_t **list, struct ezcfg_x
 		}
 
 		/* get <controlURL>, REQUIRED */
-		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_CONTROL_URL_ID_ELEMENT_NAME);
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_CONTROL_URL_ELEMENT_NAME);
 		if (ci < pi) {
 			goto fail_exit;
 		}
@@ -360,7 +360,7 @@ static bool upnp_device_parse_service_list(upnp_service_t **list, struct ezcfg_x
 		}
 
 		/* get <eventSubURL>, REQUIRED */
-		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_EVENT_SUB_URL_ID_ELEMENT_NAME);
+		ci = ezcfg_xml_get_element_index(xml, pi, si, EZCFG_UPNP_DESC_EVENT_SUB_URL_ELEMENT_NAME);
 		if (ci < pi) {
 			goto fail_exit;
 		}
@@ -397,7 +397,7 @@ static bool upnp_device_parse_device_list(upnp_device_t **list, struct ezcfg_xml
 	device_idx = -1;
 	device_idx = ezcfg_xml_get_element_index(xml, root_idx, device_idx, EZCFG_UPNP_DESC_DEVICE_ELEMENT_NAME);
 	while((device_idx > root_idx) && (device_idx < root_etag_idx)) {
-		dp = calloc(1, sizeof(upnp_device_t));
+		dp = malloc(sizeof(upnp_device_t));
 		if (dp == NULL) {
 			goto fail_exit;
 		}
@@ -584,6 +584,12 @@ static bool upnp_device_parse_device(upnp_device_t *dp, struct ezcfg_xml *xml, c
 		if (upnp_device_parse_service_list(&(dp->serviceList), xml, ci) == false) {
 			return false;
 		}
+		do {
+			upnp_service_t *sp = dp->serviceList;
+			while (sp != NULL) {
+				sp = sp->next;
+			}
+		} while (0);
 	}
 
 	/* get <deviceList>, REQUIRED if and only if root device has embedded devices. */
@@ -724,11 +730,10 @@ struct ezcfg_upnp *ezcfg_upnp_new(struct ezcfg *ezcfg)
 	ASSERT(ezcfg != NULL);
 
 	/* initialize upnp protocol data structure */
-	upnp = calloc(1, sizeof(struct ezcfg_upnp));
+	upnp = malloc(sizeof(struct ezcfg_upnp));
 	if (upnp == NULL) {
 		return NULL;
 	}
-
 	memset(upnp, 0, sizeof(struct ezcfg_upnp));
 	upnp->ezcfg = ezcfg;
 	upnp->role = EZCFG_UPNP_ROLE_UNKNOWN;
@@ -764,7 +769,7 @@ bool ezcfg_upnp_if_list_insert(struct ezcfg_upnp *upnp, char ifname[IFNAMSIZ], i
 	ASSERT(upnp != NULL);
 
 	/* initialize upnp_if_t data structure */
-	ifp = calloc(1, sizeof(upnp_if_t));
+	ifp = malloc(sizeof(upnp_if_t));
 	if (ifp == NULL)
 		return false;
 
@@ -817,9 +822,10 @@ bool ezcfg_upnp_parse_description(struct ezcfg_upnp *upnp, const char *path)
 		return false;
 
 	buf_len = stat_buf.st_size + 1;
-	buf = calloc(buf_len, 1);
-	if (buf == NULL)
-		return false;
+	buf = malloc(buf_len);
+	if (buf == NULL) {
+		goto func_out;
+	}
 
 	memset(buf, 0, buf_len);
 
@@ -852,14 +858,17 @@ bool ezcfg_upnp_parse_description(struct ezcfg_upnp *upnp, const char *path)
 	ret = true;
 
 func_out:
-	if (fp != NULL)
+	if (fp != NULL) {
 		fclose(fp);
+	}
 
-	if (buf != NULL)
+	if (buf != NULL) {
 		free(buf);
+	}
 
-	if (xml != NULL)
+	if (xml != NULL) {
 		ezcfg_xml_delete(xml);
+	}
 
 	return ret;
 }

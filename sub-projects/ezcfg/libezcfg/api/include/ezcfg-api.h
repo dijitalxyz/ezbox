@@ -37,6 +37,13 @@ int ezcfg_api_nvram_remove_socket(
 bool ezcfg_api_rc_require_semaphore(void);
 bool ezcfg_api_rc_release_semaphore(void);
 
+/* UUID interface */
+int ezcfg_api_uuid_set_config_file(const char *path);
+int ezcfg_api_uuid1_string(char *str, int len);
+int ezcfg_api_uuid3_string(char *str, int len);
+int ezcfg_api_uuid4_string(char *str, int len);
+int ezcfg_api_uuid5_string(char *str, int len);
+
 /* UPnP interface */
 int ezcfg_api_upnp_set_task_file(const char *path);
 int ezcfg_api_upnp_get_task_file(char *path, int len);
