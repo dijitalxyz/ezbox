@@ -46,7 +46,7 @@ static struct domain_pair ezcfg_support_domains[] = {
 
 int ezcfg_util_socket_domain_get_index(char *name)
 {
-	int i;
+	size_t i;
 	struct domain_pair *dip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_domains); i++) {
 		dip = &(ezcfg_support_domains[i]);
@@ -58,7 +58,7 @@ int ezcfg_util_socket_domain_get_index(char *name)
 
 bool ezcfg_util_socket_is_supported_domain(const int domain)
 {
-	int i;
+	size_t i;
 	struct domain_pair *dip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_domains); i++) {
 		dip = &(ezcfg_support_domains[i]);

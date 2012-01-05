@@ -97,7 +97,7 @@ typedef struct ubootenv_info_s {
 static int init_ubootenv_info(ubootenv_info_t *info)
 {
 	char line[128];
-	int index;
+	int idx;
 	unsigned long long size;
 	int erasesize;
 	char name[64];
@@ -108,16 +108,16 @@ static int init_ubootenv_info(ubootenv_info_t *info)
 	if (fgets(line, sizeof(line), fp) != (char *) NULL) {
 		/* read mtd device info */
 		for (; fgets(line, sizeof(line), fp);) {
-			if (sscanf(line, "mtd%d: %8llx %8x %s\n", &index, &size, &erasesize, name) != 4) {
+			if (sscanf(line, "mtd%d: %8llx %8x %s\n", &idx, &size, &erasesize, name) != 4) {
 				continue;
 			}
 			if (strcmp(name, "\"u-boot-env\"") == 0) {
-				sprintf(info->ubootenv_dev_name, "/dev/mtd%d", index);
+				sprintf(info->ubootenv_dev_name, "/dev/mtd%d", idx);
 				info->ubootenv_size = size;
 				info->ubootenv_erasesize = erasesize;
 			}
 			if (strcmp(name, "\"u-boot-env2\"") == 0) {
-				sprintf(info->ubootenv2_dev_name, "/dev/mtd%d", index);
+				sprintf(info->ubootenv2_dev_name, "/dev/mtd%d", idx);
 				info->ubootenv2_size = size;
 				info->ubootenv2_erasesize = erasesize;
 				info->ubootenv_redundant = true;
@@ -153,6 +153,7 @@ static char *find_entry_position(char *data, char *name)
 static int read_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 {
 	FILE *fp;
+	size_t count;
 
 	fp = fopen(info.ubootenv_dev_name, "r");
 	if (fp == NULL) {
@@ -160,7 +161,7 @@ static int read_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 	}
 
 	/* read u-boot environment data */
-	fread(buf, info.ubootenv_size, 1, fp);
+	count = fread(buf, info.ubootenv_size, 1, fp);
 	fclose(fp);
 
 	return 0;
@@ -214,7 +215,7 @@ static int check_ubootenv_name(char *tmp, char *name, ezcfg_nv_pair_t *checklist
 {
 	ezcfg_nv_pair_t *cp;
 	char *value;
-	int i = 0;
+	size_t i = 0;
 
 	for (i = 0; i < len; i++) {
 		cp = &(checklist[i]);
@@ -287,7 +288,7 @@ int ezcfg_api_ubootenv_get(char *name, char *value, size_t len)
 	char *buf = NULL;
 	char *data = NULL, *end = NULL;
 	char *tmp = NULL;
-	int name_len, entry_len, cmp_len;
+	size_t name_len, entry_len, cmp_len;
 	uint32_t crc = 0;
 	ubootenv_info_t info;
 
@@ -609,7 +610,7 @@ func_out:
  * ezcfg_api_ubootenv_size:
  *
  **/
-int ezcfg_api_ubootenv_size(void)
+size_t ezcfg_api_ubootenv_size(void)
 {
 	int rc = 0;
 	ubootenv_info_t info;

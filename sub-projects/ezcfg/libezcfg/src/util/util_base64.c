@@ -55,19 +55,19 @@ int ezcfg_util_base64_encode(unsigned char *src, unsigned char *dst, size_t src_
 {
 	unsigned char c[3];
 	int count = 0;
-	int div = src_len / 3;
-	int mod = src_len % 3;
-	int i;
+	size_t b64_div = src_len / 3;
+	size_t b64_mod = src_len % 3;
+	size_t i;
 
 	if ((src == NULL) || (dst == NULL)) {
 		return -1;
 	}
 
-	if (dst_len < ((div + ((mod + 2) / 3)) * 4 + 1)) {
+	if (dst_len < ((b64_div + ((b64_mod + 2) / 3)) * 4 + 1)) {
 		return -1;
 	}
  
-	for (i = 0; i < div; i++) {
+	for (i = 0; i < b64_div; i++) {
 		c[0] = *src++;
 		c[1] = *src++;
 		c[2] = *src++;
@@ -79,7 +79,7 @@ int ezcfg_util_base64_encode(unsigned char *src, unsigned char *dst, size_t src_
 		count += 4;
 	}
 
-	if (mod == 1) {
+	if (b64_mod == 1) {
 		c[0] = *src++;
 		*dst++ = b64_encode_table[(c[0] & 0xfc) >> 2];
 		*dst++ = b64_encode_table[(c[0] & 0x03) << 4];
@@ -87,7 +87,7 @@ int ezcfg_util_base64_encode(unsigned char *src, unsigned char *dst, size_t src_
 		*dst++ = '=';
 		count += 4;
 	}
-	else if (mod == 2) {
+	else if (b64_mod == 2) {
 		c[0] = *src++;
 		c[1] = *src++;
 		*dst++ = b64_encode_table[(c[0] & 0xfc) >> 2];
@@ -105,7 +105,7 @@ int ezcfg_util_base64_decode(unsigned char *src, unsigned char *dst, size_t src_
 {
 	int32_t val;
 	int count = 0;
-	int i;
+	size_t i;
 
 	if ((src == NULL) || (dst == NULL)) {
 		return -1;

@@ -90,7 +90,7 @@ int utils_install_kernel_module(char *name, char *args)
 	char buf[128];
 	char *p, *q, *l;
 	char *kver;
-	int i;
+	size_t i;
 	int ret = EXIT_FAILURE;
 
 	if (name == NULL) {
@@ -169,7 +169,7 @@ int utils_remove_kernel_module(char *name)
 	mod_dep_t *mdp;
 	//char buf[128];
 	char *p, *q, *l;
-	int i;
+	size_t i;
 	int ret = EXIT_FAILURE;
 
 	if (name == NULL) {

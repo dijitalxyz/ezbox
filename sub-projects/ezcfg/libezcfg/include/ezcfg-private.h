@@ -94,6 +94,7 @@ bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_li
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path);
 bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram);
+bool ezcfg_nvram_load(struct ezcfg_nvram *nvram, int flag);
 bool ezcfg_nvram_reload(struct ezcfg_nvram *nvram);
 bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2);
 bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value);

@@ -423,7 +423,7 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 	return(0);
 }
 
-static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
+static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int idx)
 {
 	char buf[32];
 	int i;
@@ -439,12 +439,12 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		free(value);
 	}
 
-	if (i < index) {
+	if (i < idx) {
 		return false;
 	}
 
 	/* put the last socket to index-th socket place */
-	if (index < i) {
+	if (idx < i) {
 		/* get nvram socket domain */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
@@ -459,7 +459,7 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		/* set nvram socket domain */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
 			EZCFG_EZCFG_KEYWORD_DOMAIN);
 		ret = nvram_set_entry(nvram, buf, value);
 		free(value);
@@ -481,7 +481,7 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		/* set nvram socket type */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
 			EZCFG_EZCFG_KEYWORD_TYPE);
 		ret = nvram_set_entry(nvram, buf, value);
 		free(value);
@@ -503,7 +503,7 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		/* set nvram socket protocol */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
 			EZCFG_EZCFG_KEYWORD_PROTOCOL);
 		ret = nvram_set_entry(nvram, buf, value);
 		free(value);
@@ -525,7 +525,7 @@ static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int index)
 		/* set nvram socket address */
 		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
 			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, index-1,
+			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
 			EZCFG_EZCFG_KEYWORD_ADDRESS);
 		ret = nvram_set_entry(nvram, buf, value);
 		free(value);
@@ -628,7 +628,7 @@ static bool nvram_load_by_defaults(struct ezcfg_nvram *nvram, const int flag)
 	return true;
 }
 
-static bool nvram_load_from_file(struct ezcfg_nvram *nvram, const int index, const int flag)
+static bool nvram_load_from_file(struct ezcfg_nvram *nvram, const int idx, const int flag)
 {
 	struct ezcfg *ezcfg;
 	struct nvram_header *header;
@@ -642,7 +642,7 @@ static bool nvram_load_from_file(struct ezcfg_nvram *nvram, const int index, con
 
 	ezcfg = nvram->ezcfg;
 
-	fp = fopen(nvram->storage[index].path, "r");
+	fp = fopen(nvram->storage[idx].path, "r");
 	if (fp == NULL) {
 		err(ezcfg, "can't open file for nvram load\n");
 		return false;
@@ -706,28 +706,28 @@ load_exit:
 	return ret;
 }
 
-static bool nvram_load_from_flash(struct ezcfg_nvram *nvram, const int index, const int flag)
+static bool nvram_load_from_flash(struct ezcfg_nvram *nvram, const int idx, const int flag)
 {
 	return true;
 }
 
-static void generate_nvram_header(struct ezcfg_nvram *nvram, const int index)
+static void generate_nvram_header(struct ezcfg_nvram *nvram, const int idx)
 {
 	struct nvram_header *header;
 	char *data;
 	int i;
 
-	if (index >= EZCFG_NVRAM_STORAGE_NUM)
+	if (idx >= EZCFG_NVRAM_STORAGE_NUM)
 		return;
 
 	header = (struct nvram_header *)nvram->buffer;
 	data = nvram->buffer + sizeof(struct nvram_header);
 
 	for (i=0; i<4; i++) {
-		header->magic[i] = default_magics[nvram->storage[index].backend][i];
+		header->magic[i] = default_magics[nvram->storage[idx].backend][i];
 	}
 	for (i=0; i<4; i++) {
-		header->coding[i] = default_codings[nvram->storage[index].coding][i];
+		header->coding[i] = default_codings[nvram->storage[idx].coding][i];
 	}
 	for (i=0; i<4; i++) {
 		header->version[i] = default_version[i];
@@ -746,7 +746,7 @@ static void nvram_header_copy(struct nvram_header *dest, const struct nvram_head
 }
 #endif
 
-static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int index)
+static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int idx)
 {
 	struct ezcfg *ezcfg;
 	FILE *fp = NULL;
@@ -755,9 +755,9 @@ static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int index)
 	ezcfg = nvram->ezcfg;
 
 	/* generate nvram header info */
-	generate_nvram_header(nvram, index);
+	generate_nvram_header(nvram, idx);
 
-	fp = fopen(nvram->storage[index].path, "w");
+	fp = fopen(nvram->storage[idx].path, "w");
 	if (fp == NULL) {
 		err(ezcfg, "can't open file for nvram commit\n");
 		ret = false;
@@ -780,7 +780,7 @@ commit_exit:
 	return ret;
 }
 
-static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int index)
+static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int idx)
 {
 	return true;
 }
@@ -1085,43 +1085,43 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	return nvram;
 }
 
-bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int index, const int type)
+bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int idx, const int type)
 {
 	struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(type >= 0);
 
 	ezcfg = nvram->ezcfg;
 
-	nvram->storage[index].backend = type;
+	nvram->storage[idx].backend = type;
 
 	return true;
 }
 
-bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int index, const int type)
+bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int idx, const int type)
 {
 	struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(type >= 0);
 
 	ezcfg = nvram->ezcfg;
 
-	nvram->storage[index].coding = type;
+	nvram->storage[idx].coding = type;
 
 	return true;
 }
 
-bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int index, const char *path)
+bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int idx, const char *path)
 {
 	struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(path != NULL);
 
 	ezcfg = nvram->ezcfg;
@@ -1132,10 +1132,10 @@ bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int index, co
 		return false;
 	}
 
-	if (nvram->storage[index].path) {
-		free(nvram->storage[index].path);
+	if (nvram->storage[idx].path) {
+		free(nvram->storage[idx].path);
 	}
-	nvram->storage[index].path = p;
+	nvram->storage[idx].path = p;
 
 	return true;
 }
@@ -1153,7 +1153,7 @@ bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_spac
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
-	if (total_space < sizeof(struct nvram_header) + nvram->used_space) {
+	if (total_space < (int)sizeof(struct nvram_header) + nvram->used_space) {
 		ret = false;
 		goto func_exit;
 	}
@@ -1166,7 +1166,7 @@ bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_spac
 	}
 
 	nvram->free_space = total_space-sizeof(struct nvram_header)-nvram->used_space;
-	if (total_space > sizeof(struct nvram_header)+nvram->used_space) {
+	if (total_space > (int)sizeof(struct nvram_header)+nvram->used_space) {
 		memset(buf+sizeof(struct nvram_header)+nvram->used_space, '\0', nvram->free_space);
 	}
 	nvram->buffer = buf;
@@ -1231,20 +1231,20 @@ bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t
 	return true;
 }
 
-bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
 	struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index >= 0);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx >= 0);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
 	ezcfg = nvram->ezcfg;
 
-	i = nvram->storage[index].backend;
+	i = nvram->storage[idx].backend;
 
 	snprintf(buf, len, "%c%c%c%c", 
 	         default_magics[i][0],
@@ -1255,20 +1255,20 @@ bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int
 	return true;
 }
 
-bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
 	struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index >= 0);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx >= 0);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
 	ezcfg = nvram->ezcfg;
 
-	i = nvram->storage[index].coding;
+	i = nvram->storage[idx].coding;
 
 	snprintf(buf, len, "%c%c%c%c", 
 	         default_codings[i][0],
@@ -1279,21 +1279,21 @@ bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int 
 	return true;
 }
 
-bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int index, char *buf, size_t len)
+bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
 	struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
-	ASSERT(index >= 0);
-	ASSERT(index < EZCFG_NVRAM_STORAGE_NUM);
+	ASSERT(idx >= 0);
+	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
 	ezcfg = nvram->ezcfg;
 
 	buf[0] = '\0';
-	if (nvram->storage[index].path != NULL) {
-		snprintf(buf, len, "%s", nvram->storage[index].path);
+	if (nvram->storage[idx].path != NULL) {
+		snprintf(buf, len, "%s", nvram->storage[idx].path);
 	}
 
 	return true;
@@ -1306,12 +1306,14 @@ bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t
 	return true;
 }
 
+#if 0
 bool ezcfg_nvram_set_default_validators(struct ezcfg_nvram *nvram, ezcfg_nv_validator_t *validators, int num_validators)
 {
 	nvram->default_validators = validators;
 	nvram->num_default_validators = num_validators;
 	return true;
 }
+#endif
 
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {

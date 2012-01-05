@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcfg.h"
+#include "ezcfg-private.h"
 
 #define IS_BLANK(c)	((c) == ' ')
 

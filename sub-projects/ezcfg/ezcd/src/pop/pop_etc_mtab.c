@@ -38,12 +38,15 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int pop_etc_mtab(int flag)
 {
 	char cmdline[64];
 	snprintf(cmdline, sizeof(cmdline), "%s -rf /etc/mtab", CMD_RM);
 	utils_system(cmdline);
-	symlink("/proc/mounts", "/etc/mtab");
+	if (symlink("/proc/mounts", "/etc/mtab") < 0)
+		return (EXIT_FAILURE);
+
 	return (EXIT_SUCCESS);
 }

@@ -91,20 +91,20 @@ func_out:
  * It is the caller's duty to free the returned string.
  */
 char *ezcfg_util_get_conf_string(const char *path,
-	const char *section, const int index, const char *keyword)
+	const char *section, const int idx, const char *keyword)
 {
 	FILE *file;
 	char *p = NULL;
 	char *v = NULL;
 	char line[128];
 	int i;
-	int section_len;
-	int keyword_len;
+	size_t section_len;
+	size_t keyword_len;
 
 	if ((path == NULL) || (section == NULL) ||(keyword == NULL))
 		return NULL;
 
-	if (index < 0)
+	if (idx < 0)
 		return NULL;
 
 	section_len = strlen(section);
@@ -134,12 +134,12 @@ char *ezcfg_util_get_conf_string(const char *path,
 		    (line[section_len+1] == ']')) {
 			i++;
 		}
-		if (i == index) {
+		if (i == idx) {
 			break;
 		}
 	}
 
-	if (i == index) {
+	if (i == idx) {
 		/* find target section */
 		while (fgets(line, sizeof(line), file) != NULL) {
 			if (line[0] == '[') {

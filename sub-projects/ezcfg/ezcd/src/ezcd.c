@@ -180,7 +180,7 @@ int ezcd_main(int argc, char **argv)
 	if (EZCFG_ROOT_PATH[0] == '/') {
 		mkdir(EZCFG_ROOT_PATH, 0777);
 		mkdir(EZCFG_SEM_ROOT_PATH, 0777);
-		fd = open(EZCFG_SEM_EZCFG_PATH, O_CREAT|O_RDWR);
+		fd = open(EZCFG_SEM_EZCFG_PATH, O_CREAT|O_RDWR, S_IRWXU);
 		if (fd < 0) {
 			fprintf(stderr, "cannot open %s\n", EZCFG_SEM_EZCFG_PATH);
 			exit(EXIT_FAILURE);

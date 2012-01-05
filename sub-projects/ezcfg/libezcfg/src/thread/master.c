@@ -494,10 +494,12 @@ pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master)
 	return &(master->thread_id);
 }
 
+#if 0
 void ezcfg_master_set_sigset(struct ezcfg_master *master, sigset_t *sigset)
 {
 	master->sigset = sigset;
 }
+#endif
 
 void ezcfg_master_thread(struct ezcfg_master *master) 
 {

@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove)
+bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *rm)
 {
 	while(fgets(buf, size, fp) != NULL)
 	{
@@ -49,7 +49,7 @@ bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *
 
 			while((len > 0) && 
 			      (buf[len] == '\0' || 
-			       (strchr(remove, buf[len]) != NULL)))
+			       (strchr(rm, buf[len]) != NULL)))
 			{
 				buf[len] = '\0';
 				len --;

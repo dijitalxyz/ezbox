@@ -586,7 +586,9 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 	char *p;
 	char *passwd, *passwd2;
 	char *httpd_enable;
+#if (HAVE_EZBOX_SERVICE_TELNETD == 1)
 	char *telnetd_enable;
+#endif
 	bool ret = false;
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);

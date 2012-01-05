@@ -55,7 +55,7 @@ int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);
 int ezcfg_api_ubootenv_set(char *name, char *value);
 int ezcfg_api_ubootenv_list(char *list, size_t len);
 int ezcfg_api_ubootenv_check(void);
-int ezcfg_api_ubootenv_size(void);
+size_t ezcfg_api_ubootenv_size(void);
 
 /* firmware interface */
 int ezcfg_api_firmware_upgrade(char *name, char *model);

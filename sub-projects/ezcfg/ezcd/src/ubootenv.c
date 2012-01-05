@@ -44,7 +44,7 @@ int ubootenv_main(int argc, char **argv)
 {
 	int rc = 0;
 	char *buf;
-	int buf_len;
+	size_t buf_len;
 
 	if (argc < 2) {
 		printf("need more arguments.\n");

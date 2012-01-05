@@ -39,6 +39,7 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 static int set_loopback_interface(FILE *file)
 {
@@ -139,7 +140,9 @@ static int set_wan_interface(FILE *file)
 		utils_system(buf);
 		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_PATH);
 		utils_system(buf);
-		symlink("/sbin/udhcpc.script", UDHCPC_SCRIPT_PATH);
+		rc = symlink("/sbin/udhcpc.script", UDHCPC_SCRIPT_PATH);
+		if (rc < 0)
+			return (EXIT_FAILURE);
 		break;
 
 	case WAN_TYPE_STATIC :

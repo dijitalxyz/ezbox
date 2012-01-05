@@ -57,7 +57,7 @@ char *ezcfg_util_lang_get_desc_by_index(int i)
 
 char *ezcfg_util_lang_get_desc_by_name(char *name)
 {
-	int i;
+	size_t i;
 	struct lc_pair *lcp;
 	for (i = 0; i < ARRAY_SIZE(ezcfg_support_langs); i++) {
 		lcp = &(ezcfg_support_langs[i]);

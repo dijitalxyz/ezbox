@@ -99,7 +99,7 @@ static struct ssi_directive_entry supported_directives[] = {
 /**
  * Private functions
  **/
-void remove_escape_backslash(char *s)
+static void remove_escape_backslash(char *s)
 {
 	char *p = s;
 	while(*s != '\0') {
@@ -109,7 +109,7 @@ void remove_escape_backslash(char *s)
 	*p = '\0';
 }
 
-void delete_directive_values(char **values)
+static void delete_directive_values(char **values)
 {
 	int i;
 
@@ -119,7 +119,7 @@ void delete_directive_values(char **values)
 	free(values);
 }
 
-void delete_directive_data(struct ssi_directive_data *data)
+static void delete_directive_data(struct ssi_directive_data *data)
 {
 	if (data->fp != NULL) {
 		fclose(data->fp);
@@ -133,7 +133,7 @@ void delete_directive_data(struct ssi_directive_data *data)
 	free(data);
 }
 
-bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
+static bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 {
 	struct ssi_directive_entry *entry;
 	char *s, *p;
@@ -478,7 +478,7 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size)
 {
 	struct ssi_directive_entry *entry;
 	char *s, *e, *p;
-	int len;
+	size_t len;
 	int ret;
 
 	entry = ssi->directive_entry;

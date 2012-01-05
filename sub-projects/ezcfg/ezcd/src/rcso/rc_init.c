@@ -63,7 +63,7 @@ int rc_init(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_BOOT :
 		/* run in root HOME path */
-		chdir(ROOT_HOME_PATH);
+		ret = chdir(ROOT_HOME_PATH);
 		/* fall through */
 
 	case RC_ACT_START :

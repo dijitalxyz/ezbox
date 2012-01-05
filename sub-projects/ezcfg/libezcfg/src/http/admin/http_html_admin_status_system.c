@@ -199,7 +199,7 @@ static int set_html_main_status_system(
 	lang[0] = '\0';
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), &p);
 	if (p != NULL) {
-		snprintf(lang, sizeof(lang), p);
+		snprintf(lang, sizeof(lang), "%s", p);
 		free(p);
 	}
 	p = ezcfg_util_lang_get_desc_by_name(lang);
@@ -226,13 +226,13 @@ static int set_html_main_status_system(
 	tz_area[0] = '\0';
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
 	if (p != NULL) {
-		snprintf(tz_area, sizeof(tz_area), p);
+		snprintf(tz_area, sizeof(tz_area), "%s", p);
 		free(p);
 	}
 	tz_location[0] = '\0';
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
 	if (p != NULL) {
-		snprintf(tz_location, sizeof(tz_location), p);
+		snprintf(tz_location, sizeof(tz_location), "%s", p);
 		free(p);
 	}
 	p = ezcfg_util_tzdata_get_area_desc_by_name(tz_area);
@@ -283,10 +283,10 @@ static int set_html_main_status_system(
 	memcpy(&tms, localtime(&tm), sizeof(struct tm));
 	p = NULL;
 	if ((bool_flag == true) &&
-	    (time(0) > (unsigned long)60*60*24*365)) {
+	    (time(0) > (time_t)60*60*24*365)) {
 		p = malloc(256);
 		if (p != NULL) {
-			strftime(p, 255, "%c", &tms);
+			strftime(p, 255, "%Y-%m-%d %H:%M:%S", &tms);
 		}
 	}
 	snprintf(buf, sizeof(buf), "%s%s%s",

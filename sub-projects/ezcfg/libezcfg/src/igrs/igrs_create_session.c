@@ -44,7 +44,7 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 	struct ezcfg_soap *soap;
 	char buf[1024];
 	char *msg;
-	int msg_len;
+	size_t msg_len;
 	int n;
 	int body_index, session_index, userinfo_index, child_index;
 
@@ -99,12 +99,12 @@ bool ezcfg_igrs_build_create_session_request(struct ezcfg_igrs *igrs)
 
 	child_index = ezcfg_soap_add_body_child(soap, userinfo_index, child_index, EZCFG_IGRS_SOAP_TOKEN_ELEMENT_NAME, "");
 
-	msg_len = ezcfg_soap_get_message_length(soap);
-	if (msg_len < 0) {
+	n = ezcfg_soap_get_message_length(soap);
+	if (n < 0) {
 		err(ezcfg, "ezcfg_soap_get_message_length\n");
 		return false;
 	}
-	msg_len++; /* one more for \0 */
+	msg_len = n+1; /* one more for \0 */
 	if (msg_len <= sizeof(buf)) {
 		msg = buf;
 	}

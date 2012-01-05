@@ -89,12 +89,13 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 int ezcfg_api_ctrl_set_config_file(const char *path)
 {
 	int rc = 0;
+	size_t len;
 	if (path == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-	rc = strlen(path);
-	if (rc >= sizeof(config_file)) {
+	len = strlen(path);
+	if (len >= sizeof(config_file)) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -116,7 +117,7 @@ int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len)
 {
 	char buf[256];
 	char msg[EZCFG_CTRL_MAX_MESSAGE_SIZE];
-	int msg_len;
+	size_t msg_len;
 	struct ezcfg *ezcfg = NULL;
 	struct ezcfg_ctrl *ezctrl = NULL;
 	int i, rc = 0;

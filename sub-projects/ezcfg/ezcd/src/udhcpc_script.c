@@ -161,8 +161,6 @@ static int udhcpc_bound(void)
 	dns = getenv("dns");
 	if (dns != NULL) {
 		char name[32];
-		int i;
-		char *p, *savep;
 		snprintf(buf, sizeof(buf), "%s", dns);
 		for (i = 1, p = buf; i <= 3; p = NULL, i++) {
 			dns = strtok_r(p, " ", &savep);
@@ -261,8 +259,6 @@ static int udhcpc_renew(void)
 	dns = getenv("dns");
 	if (dns != NULL) {
 		char name[32];
-		int i;
-		char *p, *savep;
 		snprintf(buf, sizeof(buf), "%s", dns);
 		for (i = 1, p = buf; i <= 3; p = NULL, i++) {
 			dns = strtok_r(p, " ", &savep);

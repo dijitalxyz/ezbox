@@ -96,7 +96,7 @@ char *ezcfg_util_lang_get_desc_by_index(int i);
 char *ezcfg_util_lang_get_desc_by_name(char *name);
 
 /* util/util_wan.c */
-int ezcfg_util_wan_get_type_length(void);
+size_t ezcfg_util_wan_get_type_length(void);
 char *ezcfg_util_wan_get_type_name_by_index(int i);
 char *ezcfg_util_wan_get_type_desc_by_index(int i);
 char *ezcfg_util_wan_get_type_desc_by_name(char *name);

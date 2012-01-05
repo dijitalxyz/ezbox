@@ -89,7 +89,7 @@ typedef struct firmware_part_s {
 static int get_part_device_path(firmware_part_t *part, char *path, int len)
 {
 	char line[128];
-	int index;
+	int idx;
 	unsigned long long size;
 	int erasesize;
 	char name[32];
@@ -100,12 +100,12 @@ static int get_part_device_path(firmware_part_t *part, char *path, int len)
 	if (fgets(line, sizeof(line), fp) != (char *) NULL) {
 		/* read mtd device info */
 		for (; fgets(line, sizeof(line), fp);) {
-			if (sscanf(line, "mtd%d: %8llx %8x %s\n", &index, &size, &erasesize, name) != 4) {
+			if (sscanf(line, "mtd%d: %8llx %8x %s\n", &idx, &size, &erasesize, name) != 4) {
 				continue;
 			}
 			sprintf(line, "\"%s\"", part->name);
 			if (strcmp(name, line) == 0) {
-				snprintf(path, len, "/dev/mtd%d", index);
+				snprintf(path, len, "/dev/mtd%d", idx);
 				break;
                         }
                 }
@@ -227,7 +227,7 @@ static int read_firmware_body(char *name, size_t len, char *body)
 {
 	int fd = -1;
 	int ret = 0;
-	int count = 0;
+	size_t count = 0;
 
 	fd = open(name, O_RDONLY);
 	if (fd < 0) {
@@ -299,7 +299,8 @@ static int write_firmware(char *path, char *name)
 {
 	int mtd_fd = -1;
 	int fw_fd = 1;
-	int count;
+	size_t count;
+	ssize_t s_count;
 	mtd_info_t mtd_info;
 	erase_info_t erase_info;
 	char *buf = NULL;
@@ -334,28 +335,33 @@ static int write_firmware(char *path, char *name)
 
 	erase_info.start = 0;
 	do {
+		count = 0;
+
 		/* read a block from firmware file */
 		memset(buf, 0, erase_info.length);
-		count = read(fw_fd, buf, erase_info.length);
+		s_count = read(fw_fd, buf, erase_info.length);
+		if (s_count > 0) {
+			count = s_count;
 
-		/* erase mtd block */
-		(void) ioctl(mtd_fd, MEMUNLOCK, &erase_info);
-		if (ioctl(mtd_fd, MEMERASE, &erase_info) != 0) {
-			perror(path);
-			rc = -EZCFG_E_RESOURCE ;
-			goto func_out;
+			/* erase mtd block */
+			(void) ioctl(mtd_fd, MEMUNLOCK, &erase_info);
+			if (ioctl(mtd_fd, MEMERASE, &erase_info) != 0) {
+				perror(path);
+				rc = -EZCFG_E_RESOURCE ;
+				goto func_out;
+			}
+
+			/* write it to mtd block */
+			s_count = write(mtd_fd, buf+erase_info.start, count);
+			if ((s_count < 0) || ((size_t)s_count != count)) {
+				perror(path);
+				rc = -EZCFG_E_RESOURCE ;
+				goto func_out ;
+			}
+
+			/* check next mtd block */
+			erase_info.start += erase_info.length;
 		}
-
-		/* write it to mtd block */
-		if (write(mtd_fd, buf+erase_info.start, count) != count) {
-			perror(path);
-			rc = -EZCFG_E_RESOURCE ;
-			goto func_out ;
-		}
-
-		/* check next mtd block */
-		erase_info.start += erase_info.length;
-
 	} while ((count == erase_info.length) && (erase_info.start < mtd_info.size));
 
 func_out:

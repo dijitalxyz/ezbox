@@ -50,7 +50,7 @@ struct wan_pair ezcfg_wan_types[] = {
 	{ "disabled", "Disabled" },
 };
 
-int ezcfg_util_wan_get_type_length(void)
+size_t ezcfg_util_wan_get_type_length(void)
 {
 	return ARRAY_SIZE(ezcfg_wan_types);
 }
@@ -67,7 +67,7 @@ char *ezcfg_util_wan_get_type_desc_by_index(int i)
 
 char *ezcfg_util_wan_get_type_desc_by_name(char *name)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < ARRAY_SIZE(ezcfg_wan_types); i++) {
 		if (strcmp(ezcfg_wan_types[i].name, name) == 0)
 			return ezcfg_wan_types[i].desc;

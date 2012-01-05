@@ -45,7 +45,7 @@ static struct type_pair ezcfg_support_types[] = {
 
 int ezcfg_util_socket_type_get_index(char *name)
 {
-	int i;
+	size_t i;
 	struct type_pair *tip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_types); i++) {
 		tip = &(ezcfg_support_types[i]);
@@ -57,7 +57,7 @@ int ezcfg_util_socket_type_get_index(char *name)
 
 bool ezcfg_util_socket_is_supported_type(const int type)
 {
-	int i;
+	size_t i;
 	struct type_pair *tip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_types); i++) {
 		tip = &(ezcfg_support_types[i]);

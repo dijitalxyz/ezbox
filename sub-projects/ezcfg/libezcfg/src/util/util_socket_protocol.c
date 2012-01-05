@@ -52,7 +52,7 @@ static struct proto_pair ezcfg_support_protocols[] = {
 
 int ezcfg_util_socket_protocol_get_index(char *name)
 {
-	int i;
+	size_t i;
 	struct proto_pair *pip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_protocols); i++) {
 		pip = &(ezcfg_support_protocols[i]);
@@ -64,7 +64,7 @@ int ezcfg_util_socket_protocol_get_index(char *name)
 
 bool ezcfg_util_socket_is_supported_protocol(const int proto)
 {
-	int i;
+	size_t i;
 	struct proto_pair *pip;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_protocols); i++) {
 		pip = &(ezcfg_support_protocols[i]);

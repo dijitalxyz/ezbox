@@ -85,7 +85,7 @@ int ezcfg_http_html_admin_set_html_button(
 	int button_index;
 	int input_index;
 	char *p;
-	int i;
+	size_t i;
 	char *section;
 	int ret = -1;
 

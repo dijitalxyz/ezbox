@@ -128,7 +128,7 @@ char *ezcfg_util_tzdata_get_area_desc_by_index(int i)
 
 char *ezcfg_util_tzdata_get_area_desc_by_name(char *name)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < ARRAY_SIZE(ezcfg_support_areas); i++) {
 		if (strcmp(ezcfg_support_areas[i].tz_name, name) == 0)
 			return ezcfg_support_areas[i].tz_desc;
@@ -138,7 +138,7 @@ char *ezcfg_util_tzdata_get_area_desc_by_name(char *name)
 
 int ezcfg_util_tzdata_get_location_length(char *area)
 {
-	int i, j;
+	size_t i, j;
 	struct tz_pair *tzp;
 	for (i = 0; i < ARRAY_SIZE(ezcfg_support_areas); i++) {
 		if (strcmp(ezcfg_support_areas[i].tz_name, area) == 0) {
@@ -156,7 +156,7 @@ int ezcfg_util_tzdata_get_location_length(char *area)
 
 char *ezcfg_util_tzdata_get_location_name_by_index(char *area, int i)
 {
-	int j;
+	size_t j;
 	struct tz_pair *tzp;
 	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
 		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {
@@ -169,7 +169,7 @@ char *ezcfg_util_tzdata_get_location_name_by_index(char *area, int i)
 
 char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i)
 {
-	int j;
+	size_t j;
 	struct tz_pair *tzp;
 	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
 		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {
@@ -182,7 +182,7 @@ char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i)
 
 char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name)
 {
-	int j;
+	size_t j;
 	struct tz_pair *tzp;
 	for (j = 0; j < ARRAY_SIZE(ezcfg_support_areas); j++) {
 		if (strcmp(ezcfg_support_areas[j].tz_name, area) == 0) {

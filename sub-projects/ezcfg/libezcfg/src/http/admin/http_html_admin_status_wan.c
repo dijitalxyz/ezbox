@@ -404,7 +404,7 @@ static int set_html_main_status_wan(
 	char buf[1024];
 	char wan_type[16];
 	char *p = NULL;
-	int i;
+	size_t i;
 	bool bool_flag;
 	int ret = -1;
 

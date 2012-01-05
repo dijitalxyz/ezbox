@@ -32,6 +32,7 @@
 #define EZCFG_SYS_NICS                    "nics"
 #define EZCFG_SYS_ELAN_NIC                "elan_nic"
 #define EZCFG_SYS_WLAN_NIC                "wlan_nic"
+#define EZCFG_SYS_BRIDGE_NICS             "bridge_nics"
 #define EZCFG_SYS_LAN_NIC                 "lan_nic"
 #define EZCFG_SYS_WAN_NIC                 "wan_nic"
 

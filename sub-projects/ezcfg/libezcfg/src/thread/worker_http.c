@@ -138,7 +138,7 @@ func_exit:
 
 static bool is_http_html_ssi_request(const char *uri)
 {
-	int uri_len;
+	size_t uri_len;
 
 	uri_len = strlen(uri);
 	if (uri_len > strlen(EZCFG_HTTP_HTML_SSI_EXTENSION)) {
@@ -401,7 +401,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	struct ezcfg_ssi *ssi = NULL;
 	char buf[1024];
 	char *request_uri;
-	int uri_len;
+	size_t uri_len;
 	char *msg = NULL;
 	int msg_len;
 

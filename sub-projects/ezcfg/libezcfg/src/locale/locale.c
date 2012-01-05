@@ -81,7 +81,7 @@ bool ezcfg_locale_set_domain(struct ezcfg_locale *locale, char *domain)
 	ezcfg = locale->ezcfg;
 
 	n = snprintf(locale->domain, sizeof(locale->domain), "%s", domain);
-	if (strlen(domain) == n) {
+	if ((n >= 0) && (strcmp(locale->domain, domain) == 0)) {
 		return true;
 	}
 	else {
@@ -100,7 +100,7 @@ bool ezcfg_locale_set_dir(struct ezcfg_locale *locale, char *dir)
 	ezcfg = locale->ezcfg;
 
 	n = snprintf(locale->dir, sizeof(locale->dir), "%s", dir);
-	if (strlen(dir) == n) {
+	if ((n >= 0) && (strcmp(locale->dir, dir) == 0)) {
 		return true;
 	}
 	else {

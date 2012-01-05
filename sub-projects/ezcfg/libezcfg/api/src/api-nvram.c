@@ -89,12 +89,13 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 int ezcfg_api_nvram_set_config_file(const char *path)
 {
 	int rc = 0;
+	size_t len;
 	if (path == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-	rc = strlen(path);
-	if (rc >= sizeof(config_file)) {
+	len = strlen(path);
+	if (len >= sizeof(config_file)) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 

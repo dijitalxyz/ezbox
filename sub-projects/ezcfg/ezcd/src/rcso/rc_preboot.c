@@ -130,7 +130,7 @@ int rc_preboot(int argc, char **argv)
 		/* /tmp */
 		snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
 		utils_system(buf);
-		symlink("/var/tmp", "/tmp");
+		ret = symlink("/var/tmp", "/tmp");
 
 		/* init shms */
 		mkdir("/dev/shm", 0777);
@@ -145,7 +145,7 @@ int rc_preboot(int argc, char **argv)
 		/* run in root HOME path */
 		mkdir(ROOT_HOME_PATH, 0755);
 		setenv("HOME", ROOT_HOME_PATH, 1);
-		chdir(ROOT_HOME_PATH);
+		ret = chdir(ROOT_HOME_PATH);
 
 		/* get the kernel module name from /proc/cmdline */
 		ret = utils_get_kernel_modules(buf, sizeof(buf));
