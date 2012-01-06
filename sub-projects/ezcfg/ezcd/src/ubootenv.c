@@ -62,7 +62,7 @@ int ubootenv_main(int argc, char **argv)
 		if (strlen(argv[2]) > 0) {
 			buf_len = ezcfg_api_ubootenv_size();
 			if (buf_len < UBOOTENV_HEADER_SIZE) {
-				printf("error! ubootenv size is [%d]\n", buf_len);
+				printf("error! ubootenv size is [%d]\n", (int)buf_len);
 				return -EZCFG_E_ARGUMENT ;
 			}
 			buf = (char *)malloc(buf_len);
@@ -113,7 +113,7 @@ int ubootenv_main(int argc, char **argv)
 		if (argc == 2) {
 			buf_len = ezcfg_api_ubootenv_size();
 			if (buf_len < UBOOTENV_HEADER_SIZE) {
-				printf("error! ubootenv size is [%d]\n", buf_len);
+				printf("error! ubootenv size is [%d]\n", (int)buf_len);
 				return -EZCFG_E_ARGUMENT ;
 			}
 			buf = (char *)malloc(buf_len);
