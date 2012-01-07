@@ -479,14 +479,6 @@ AC_ARG_ENABLE([service-emc2],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
 
-# Checks for libraries.
-# This macro is defined in check.m4 and tests if check.h and
-# libcheck.a are installed in your system. It sets CHECK_CFLAGS and
-# CHECK_LIBS accordingly.  
-#  AM_PATH_CHECK([MINIMUM-VERSION,
-#                [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
-AM_PATH_CHECK()
-
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netinet/in.h stddef.h stdlib.h string.h sys/mount.h sys/socket.h sys/time.h unistd.h])
 
@@ -554,7 +546,6 @@ AC_SUBST(HAVE_LIBINTL)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
-	tests/Makefile
 	libezcfg.pc
 ])
 AC_OUTPUT

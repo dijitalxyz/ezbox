@@ -10,7 +10,7 @@ LIBEZCFG_CURRENT = 1
 LIBEZCFG_REVISION = 0
 LIBEZCFG_AGE = 0
 
-SUBDIRS = . tests
+SUBDIRS = .
 
 AM_CPPFLAGS = \
 	-include $(top_builddir)/config.h \
