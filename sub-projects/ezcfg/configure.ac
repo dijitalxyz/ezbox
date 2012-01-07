@@ -38,7 +38,7 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
-AC_CONFIG_SUBDIRS([libezcfg ezcd])
+AC_CONFIG_SUBDIRS([libezcfg ezcd tests])
 
 AC_CONFIG_FILES([
 	Makefile

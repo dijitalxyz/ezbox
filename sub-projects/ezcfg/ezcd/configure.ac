@@ -601,7 +601,9 @@ fi
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
-	ezcd.pc
+	lib/Makefile
+	lib/libezcd.pc
+	bin/Makefile
 ])
 AC_OUTPUT
 AC_MSG_RESULT([
