@@ -6,5 +6,5 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = COPYING
 
-SUBDIRS = . lib
+SUBDIRS = . lib bin
 

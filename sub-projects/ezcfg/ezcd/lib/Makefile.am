@@ -30,8 +30,8 @@ LIBEZCD_AGE = 0
 libezcdincludedir = $(includedir)/libezcd
 
 libezcdinclude_HEADERS = \
-        include/utils.h \
-        include/ezcd.h
+        $(top_builddir)/include/utils.h \
+        $(top_builddir)/include/ezcd.h
 
 lib_LTLIBRARIES = libezcd.la
 
