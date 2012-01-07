@@ -562,13 +562,13 @@ if test -z "$LIBEZCFG_LIB"; then
   # Check for libezcfg as a sub-project.
   if test -d "$srcdir/libezcfg"; then
 	AC_CONFIG_SUBDIRS([libezcfg])
-	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/.libs'
+	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/lib/.libs'
 	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
 	LIBEZCFG_API_INC='$(top_srcdir)/libezcfg/api/include'
   else
     # Check for libezcfg as a super-project.
     if test -d "$srcdir/../libezcfg"; then
-	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/.libs'
+	LIBEZCFG_LIB='$(top_srcdir)/../libezcfg/lib/.libs'
 	LIBEZCFG_INC='$(top_srcdir)/../libezcfg/include'
 	LIBEZCFG_API_INC='$(top_srcdir)/../libezcfg/api/include'
     fi

@@ -547,6 +547,7 @@ AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
 	libezcfg.pc
+	lib/Makefile
 ])
 AC_OUTPUT
 AC_MSG_RESULT([
