@@ -42,12 +42,13 @@
 #if 1
 #define DBG(format, args...) do { \
 	char path[256]; \
-	FILE *fp; \
+	FILE *dbg_fp; \
 	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else

@@ -848,7 +848,7 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 }
 
 /* \0-terminated the message body */
-char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len)
+char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, const int len)
 {
 	struct ezcfg *ezcfg;
 	char *message_body;
@@ -859,7 +859,7 @@ char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int
 
 	ezcfg = http->ezcfg;
 
-	message_body = calloc(len+1, sizeof(char));
+	message_body = malloc(len+1);
 	if (message_body == NULL) {
 		return NULL;
 	}

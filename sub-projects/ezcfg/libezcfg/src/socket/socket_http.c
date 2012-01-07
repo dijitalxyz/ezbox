@@ -37,6 +37,23 @@
 #include "ezcfg-private.h"
 #include "ezcfg-http.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *dbg_fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 /* Check whether full HTTP header is buffered. Return:
  *   -1  if HTTP header is malformed
  *    0  if HTTP header is not yet fully buffered
@@ -85,7 +102,7 @@ int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *ht
 
 	len = 0;
 
-	while (*nread < bufsiz && len == 0) {
+	while ((*nread < bufsiz) && (len == 0)) {
 		n = ezcfg_socket_read(sp, buf + *nread, bufsiz - *nread, 0);
 		if (n <= 0) {
 			break;

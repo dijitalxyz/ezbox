@@ -39,12 +39,13 @@
 #if 1
 #define DBG(format, args...) do { \
 	char path[256]; \
-	FILE *fp; \
+	FILE *dbg_fp; \
 	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -236,11 +237,12 @@ void ezcfg_worker_process_soap_http_new_connection(struct ezcfg_worker *worker)
 	http = ezcfg_soap_http_get_http(sh);
 	buf_len = EZCFG_SOAP_HTTP_CHUNK_SIZE ;
 
-	buf = calloc(buf_len+1, sizeof(char)); /* +1 for \0 */
+	buf = malloc(buf_len+1); /* +1 for \0 */
 	if (buf == NULL) {
 		err(ezcfg, "not enough memory for processing SOAP/HTTP new connection\n");
 		return;
 	}
+	memset(buf, 0, buf_len+1);
 	nread = 0;
 	header_len = ezcfg_socket_read_http_header(ezcfg_worker_get_client(worker), http, buf, buf_len, &nread);
 

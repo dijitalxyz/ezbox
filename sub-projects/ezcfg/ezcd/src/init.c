@@ -49,12 +49,12 @@
 #  define RB_AUTOBOOT     0x01234567
 #endif
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -130,7 +130,7 @@ static void init_halt_reboot_poweroff(int sig)
 		p = "poweroff";
 		rb = RB_POWER_OFF;
 	}
-        DBG("<6> init: Requesting system %s", m);
+        DBG("<6> init: Requesting system %s", p);
 	pid = vfork();
 	if (pid == 0) { /* child */
 		reboot(rb);

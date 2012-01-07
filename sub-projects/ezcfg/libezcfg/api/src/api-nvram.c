@@ -169,7 +169,8 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	msg_len = EZCFG_BUFFER_SIZE;
+	n = ezcfg_soap_http_get_message_length(sh)+1; /* one more for 0-terminated */
+	msg_len = (n > EZCFG_BUFFER_SIZE) ? n : EZCFG_BUFFER_SIZE;
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		rc = -EZCFG_E_SPACE ;
@@ -217,7 +218,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto sem_exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, n, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
 		goto sem_exit;
 	}
@@ -632,7 +633,8 @@ int ezcfg_api_nvram_unset(const char *name)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	msg_len = EZCFG_BUFFER_SIZE;
+	n = ezcfg_soap_http_get_message_length(sh)+1; /* one more for 0-terminated */
+	msg_len = (n > EZCFG_BUFFER_SIZE) ? n : EZCFG_BUFFER_SIZE;
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		rc = -EZCFG_E_SPACE ;
@@ -679,7 +681,7 @@ int ezcfg_api_nvram_unset(const char *name)
 		goto sem_exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, n, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
 		goto sem_exit;
 	}
@@ -1102,7 +1104,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	msg_len = EZCFG_BUFFER_SIZE;
+	n = ezcfg_soap_http_get_message_length(sh)+1; /* one more for 0-terminated */
+	msg_len = (n > EZCFG_BUFFER_SIZE) ? n : EZCFG_BUFFER_SIZE;
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		rc = -EZCFG_E_SPACE ;
@@ -1110,6 +1113,10 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	}
 	memset(msg, 0, msg_len);
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
+	if (n < 0) {
+		DBG("<6>pid=[%d] ezcfg_soap_http_write_message error.\n", getpid());
+		goto exit;
+	}
 
 	/* prepare semaphore */
 	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
@@ -1150,7 +1157,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		goto sem_exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, n, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
 		goto sem_exit;
 	}
@@ -1329,7 +1336,8 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	msg_len = EZCFG_BUFFER_SIZE;
+	n = ezcfg_soap_http_get_message_length(sh)+1; /* one more for 0-terminated */
+	msg_len = (n > EZCFG_BUFFER_SIZE) ? n : EZCFG_BUFFER_SIZE;
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		rc = -EZCFG_E_SPACE ;
@@ -1377,7 +1385,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		goto sem_exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, n, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
 		goto sem_exit;
 	}
@@ -1550,7 +1558,8 @@ int ezcfg_api_nvram_commit(void)
 	snprintf(buf, sizeof(buf), "%s", "application/soap+xml");
 	ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_ACCEPT, buf);
 
-	msg_len = EZCFG_BUFFER_SIZE;
+	n = ezcfg_soap_http_get_message_length(sh)+1; /* one more for 0-terminated */
+	msg_len = (n > EZCFG_BUFFER_SIZE) ? n : EZCFG_BUFFER_SIZE;
 	msg = (char *)malloc(msg_len);
 	if (msg == NULL) {
 		rc = -EZCFG_E_SPACE ;
@@ -1598,7 +1607,7 @@ int ezcfg_api_nvram_commit(void)
 		goto sem_exit;
 	}
 
-	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
+	if (ezcfg_ctrl_write(ezctrl, msg, n, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
 		goto sem_exit;
 	}

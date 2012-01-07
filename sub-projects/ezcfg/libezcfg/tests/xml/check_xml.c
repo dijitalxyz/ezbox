@@ -60,6 +60,35 @@ START_TEST(test_ezcfg_xml_parse)
 }
 END_TEST
 
+START_TEST(test_ezcfg_xml_parse_nil)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_xml *xml;
+	char *buf;
+	int buf_len;
+
+	buf_len = 100;
+	buf = malloc(buf_len);
+	fail_if(buf == NULL,
+		"malloc %d bytes", buf_len);
+
+	memset(buf, 0, buf_len);
+
+	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
+	xml = ezcfg_xml_new(ezcfg);
+	fail_if(xml == NULL, 
+		"ezcfg_xml_new fail on creation");
+
+	fail_if(ezcfg_xml_parse(xml, buf, buf_len) == true,
+		"ezcfg_xml_parse_nil fail");
+
+	free(buf);
+
+	ezcfg_xml_delete(xml);
+	ezcfg_delete(ezcfg);
+}
+END_TEST
+
 static Suite * ezcfg_xml_suite(void)
 {
 	Suite *s = suite_create("ezcfg_xml");
@@ -68,6 +97,7 @@ static Suite * ezcfg_xml_suite(void)
 	TCase *tc_core = tcase_create("core");
 	tcase_add_test(tc_core, test_ezcfg_xml_new);
 	tcase_add_test(tc_core, test_ezcfg_xml_parse);
+	tcase_add_test(tc_core, test_ezcfg_xml_parse_nil);
 	suite_add_tcase(s, tc_core);
 
 	return s;

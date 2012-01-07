@@ -29,6 +29,23 @@
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *dbg_fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 /* for SOAP/HTTP binding request methods */
 static const char *soap_http_method_strings[] = {
 	/* bad method string */
@@ -308,7 +325,7 @@ bool ezcfg_soap_http_parse_message_body(struct ezcfg_soap_http *sh)
 	return true;
 }
 
-char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, int len)
+char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, const int len)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;

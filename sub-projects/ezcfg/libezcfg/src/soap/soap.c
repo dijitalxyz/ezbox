@@ -28,6 +28,23 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
+#if 1
+#define DBG(format, args...) do { \
+	char path[256]; \
+	FILE *dbg_fp; \
+	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 struct ezcfg_soap {
 	struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;

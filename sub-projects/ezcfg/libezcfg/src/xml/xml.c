@@ -38,10 +38,10 @@ struct elem_attribute {
 struct ezcfg_xml_element {
 	char *prefix;
 	char *name;
-	struct elem_attribute *attr_head;
-	struct elem_attribute *attr_tail;
 	char *content;
 	int etag_index; /* etag index in root stack */
+	struct elem_attribute *attr_head;
+	struct elem_attribute *attr_tail;
 };
 
 struct ezcfg_xml {
@@ -1389,6 +1389,7 @@ void ezcfg_xml_element_delete(struct ezcfg_xml_element *elem)
 	if (elem->content != NULL) {
 		free(elem->content);
 	}
+
 	free(elem);
 }
 
@@ -1674,6 +1675,9 @@ bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 
 	/* normalize XML document */
 	i = ezcfg_xml_normalize_document(xml, buf, len);
+	if (i < 1) {
+		return false;
+	}
 
 	/* XML document ::= prolog element Misc* */
 	if (parse_xml_document_prolog(xml, &p, &i) == false) {
