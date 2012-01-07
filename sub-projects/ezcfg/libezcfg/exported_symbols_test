@@ -32,3 +32,4 @@ ezcfg_new
 ezcfg_delete
 ezcfg_xml_new
 ezcfg_xml_delete
+ezcfg_xml_parse

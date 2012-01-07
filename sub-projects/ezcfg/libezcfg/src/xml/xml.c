@@ -109,6 +109,8 @@ static void delete_attribute(struct elem_attribute *a)
 	if (a->value != NULL) {
 		free(a->value);
 	}
+
+	free(a);
 }
 
 static void delete_elements(struct ezcfg_xml *xml)
@@ -1454,19 +1456,17 @@ bool ezcfg_xml_element_add_attribute(
 
 	ezcfg = xml->ezcfg;
 
-	a = calloc(1, sizeof(struct elem_attribute));
+	a = malloc(sizeof(struct elem_attribute));
 	if (a == NULL) {
 		err(ezcfg, "no memory for element attribute\n");
 		return false;
 	}
-
 	memset(a, 0, sizeof(struct elem_attribute));
-
+	a->prefix = NULL;
 	a->name = strdup(name);
 	if (a->name == NULL) {
 		err(ezcfg, "no memory for element attribute name\n");
-		free(a);
-		return false;
+		goto fail_exit;
 	}
 	/* find the prefix */
 	p = strchr(a->name, ':');
@@ -1480,8 +1480,7 @@ bool ezcfg_xml_element_add_attribute(
 	a->value = strdup(value);
 	if (a->value == NULL) {
 		err(ezcfg, "no memory for element attribute value\n");
-		delete_attribute(a);
-		return false;
+		goto fail_exit;
 	}
 
 	if (pos == EZCFG_XML_ELEMENT_ATTRIBUTE_HEAD) {
@@ -1501,10 +1500,13 @@ bool ezcfg_xml_element_add_attribute(
 		}
 	} else {
 		err(ezcfg, "not support element attribute position\n");
-		delete_attribute(a);
-		return false;
+		goto fail_exit;
 	}
 	return true;
+
+fail_exit:
+	delete_attribute(a);
+	return false;
 }
 
 int ezcfg_xml_add_element(
