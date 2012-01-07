@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1352
+PKG_REV:=1373
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -86,6 +86,10 @@ ifeq ($(EZBOX_DISTRO), "qiaochui")
 CONFIGURE_ARGS += \
 	--disable-lan-nic
 endif
+
+# set check unit test settings
+CONFIGURE_ARGS += \
+	--disable-ezcfg_test
 
 # set syslog service
 ifneq ($(CONFIG_BUSYBOX_CONFIG_SYSLOGD),)
@@ -196,7 +200,7 @@ define Package/ezcfg/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcfg.so* $(1)/lib/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libezcd.so* $(1)/lib/
 	$(INSTALL_DIR) $(1)/lib/rcso
-	$(CP) $(PKG_BUILD_DIR)/ezcd/rc_*.so* $(1)/lib/rcso/
+	$(CP) $(PKG_BUILD_DIR)/ezcd/bin/rc_*.so* $(1)/lib/rcso/
 	$(INSTALL_DIR) $(1)/lib/rcso/action
 	$(CP) $(PKG_BUILD_DIR)/ezcd/action/* $(1)/lib/rcso/action/
 	$(INSTALL_DIR) $(1)/sbin
