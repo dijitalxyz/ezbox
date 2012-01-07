@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = COPYING exported_symbols
 
-SUBDIRS = . lib
+SUBDIRS = . lib tests
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg.pc

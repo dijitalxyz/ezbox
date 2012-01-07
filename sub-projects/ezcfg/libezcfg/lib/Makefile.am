@@ -6,6 +6,12 @@ LIBEZCFG_CURRENT = 1
 LIBEZCFG_REVISION = 0
 LIBEZCFG_AGE = 0
 
+if CONFIG_EZBOX_EZCFG_TEST
+EXPORTED_SYMBOLS = exported_symbols_test
+else
+EXPORTED_SYMBOLS = exported_symbols
+endif
+
 SUBDIRS = .
 
 AM_CPPFLAGS = \
@@ -30,7 +36,7 @@ libezcfg_la_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) -I$(top_builddir)/a
 
 libezcfg_la_LDFLAGS = \
 	-version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \
-	-export-symbols $(top_builddir)/exported_symbols
+	-export-symbols $(top_builddir)/$(EXPORTED_SYMBOLS)
 
 libezcfg_la_SOURCES = $(top_builddir)/src/common/ezcfg.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/list.c

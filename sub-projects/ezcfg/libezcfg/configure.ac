@@ -50,6 +50,26 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
 
+# Configure check unit test support.
+config_ezbox_ezcfg_test=yes
+AC_MSG_CHECKING([if ezcfg_test is enabled])
+AC_ARG_ENABLE([ezcfg_test],
+	AS_HELP_STRING([--enable-ezcfg_test], [Enable ezcfg_test (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_test=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
+	[AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
+
 # Configure ELAN NIC.
 config_ezbox_elan_nic=yes
 AC_MSG_CHECKING([if Ethernet network interface is enabled])
@@ -479,6 +499,14 @@ AC_ARG_ENABLE([service-emc2],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
 
+# Checks for libraries.
+# This macro is defined in check.m4 and tests if check.h and
+# libcheck.a are installed in your system. It sets CHECK_CFLAGS and
+# CHECK_LIBS accordingly.  
+#  AM_PATH_CHECK([MINIMUM-VERSION,
+#                [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
+AM_PATH_CHECK()
+
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netinet/in.h stddef.h stdlib.h string.h sys/mount.h sys/socket.h sys/time.h unistd.h])
 
@@ -548,6 +576,7 @@ AC_CONFIG_FILES([
 	Makefile
 	libezcfg.pc
 	lib/Makefile
+	tests/Makefile
 ])
 AC_OUTPUT
 AC_MSG_RESULT([
