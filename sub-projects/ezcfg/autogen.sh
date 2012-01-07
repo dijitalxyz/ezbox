@@ -31,5 +31,7 @@ libdir() {
 args="--prefix=/usr/local \
 --sysconfdir=/etc"
 
+#--enable-service-ezcfg_upnpd
+
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"
 ./configure $args $@

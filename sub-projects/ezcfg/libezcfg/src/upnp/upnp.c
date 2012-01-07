@@ -834,7 +834,7 @@ bool ezcfg_upnp_parse_description(struct ezcfg_upnp *upnp, const char *path)
 		goto func_out;
 	}
 
-	if (fread(buf, 1, stat_buf.st_size, fp) != stat_buf.st_size) {
+	if (fread(buf, 1, stat_buf.st_size, fp) != (size_t)stat_buf.st_size) {
 		goto func_out;
 	}
 	buf[buf_len -1] = '\0';

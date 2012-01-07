@@ -1631,13 +1631,12 @@ int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len)
 	p = buf;
 	q = buf;
 
-	while(q < buf + len) {
-		if (q[0] == 0x0d && q[1] == 0x0a) {
-			q++;
-			*p = *q;
-		}
-		else if (q[0] == 0x0d && q[1] != 0x0a) {
+	while(*q != '\0') {
+		if (*q == 0x0d) {
 			*p = 0x0a;
+			if (*(q+1) == 0x0a) {
+				q++;
+			}
 		}
 		else {
 			*p = *q;

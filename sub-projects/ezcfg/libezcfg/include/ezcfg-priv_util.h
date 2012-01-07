@@ -84,7 +84,7 @@ char *ezcfg_util_upnp_get_device_type_description_path(int type);
 
 /* util/util_upnp_monitor.c */
 int ezcfg_util_upnp_monitor_set_task_file(const char *path);
-int ezcfg_util_upnp_monitor_get_task_file(char *path, int len);
+int ezcfg_util_upnp_monitor_get_task_file(char *path, size_t len);
 bool ezcfg_util_upnp_monitor_lock_task_file(void);
 bool ezcfg_util_upnp_monitor_unlock_task_file(void);
 #endif

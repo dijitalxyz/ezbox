@@ -73,7 +73,7 @@ int ezcfg_util_upnp_monitor_set_task_file(const char *path)
 	}
 
 	rc = strlen(path);
-	if (rc >= sizeof(task_file)) {
+	if (rc >= (int)sizeof(task_file)) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -88,7 +88,7 @@ int ezcfg_util_upnp_monitor_set_task_file(const char *path)
  * ezcfg_util_upnp_monitor_get_task_file:
  *
  **/
-int ezcfg_util_upnp_monitor_get_task_file(char *path, int len)
+int ezcfg_util_upnp_monitor_get_task_file(char *path, size_t len)
 {
 	int rc = 0;
 	if (path == NULL) {

@@ -33,3 +33,7 @@ ezcfg_delete
 ezcfg_xml_new
 ezcfg_xml_delete
 ezcfg_xml_parse
+ezcfg_upnp_new
+ezcfg_upnp_delete
+ezcfg_upnp_parse_description
+ezcfg_upnp_set_role

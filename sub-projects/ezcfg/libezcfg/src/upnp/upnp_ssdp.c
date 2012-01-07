@@ -77,7 +77,7 @@ typedef struct upnp_ssdp_cp_param_s {
 
 struct ezcfg_upnp_ssdp {
 	struct ezcfg *ezcfg;
-	struct ezcfg_socket *socket;
+	struct ezcfg_socket *sp;
 	struct ezcfg_http *http;
 	struct ezcfg_upnp *upnp;
 	char *priv_data;
@@ -115,16 +115,17 @@ static const char *upnp_ssdp_header_strings[] = {
  * private functions
  **/
 static bool upnp_send_ssdp_alive(
-	struct ezcfg_socket *socket,
+	struct ezcfg_socket *sp,
 	struct ezcfg_http *http,
 	upnp_ssdp_device_param_t *param)
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
 	char *msg;
-	int msg_len;
+	size_t msg_len;
+	int rc;
 
-	ezcfg = ezcfg_socket_get_ezcfg(socket);
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	/* reset HTTP data structure */
 	ezcfg_http_reset_attributes(http);
@@ -197,12 +198,12 @@ static bool upnp_send_ssdp_alive(
 		return false;
 	}
 
-	msg_len = ezcfg_http_get_message_length(http);
-	if (msg_len < 0) {
+	rc = ezcfg_http_get_message_length(http);
+	if (rc < 0) {
 		err(ezcfg, "HTTP message length error.\n");
 		return false;
 	}
-	msg_len++; /* one more for '\0' */
+	msg_len = rc+1; /* one more for '\0' */
 
 	if (msg_len <= sizeof(buf)) {
 		msg = buf;
@@ -218,7 +219,7 @@ static bool upnp_send_ssdp_alive(
 	memset(msg, 0, msg_len);
 	msg_len = ezcfg_http_write_message(http, msg, msg_len);
 
-	ezcfg_socket_write(socket, msg, msg_len, 0);
+	ezcfg_socket_write(sp, msg, msg_len, 0);
 
 	if (msg != buf) {
 		free(msg);
@@ -228,16 +229,17 @@ static bool upnp_send_ssdp_alive(
 }
 
 static bool upnp_send_ssdp_byebye(
-	struct ezcfg_socket *socket,
+	struct ezcfg_socket *sp,
 	struct ezcfg_http *http,
 	upnp_ssdp_device_param_t *param)
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
 	char *msg;
-	int msg_len;
+	size_t msg_len;
+	int rc;
 
-	ezcfg = ezcfg_socket_get_ezcfg(socket);
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	/* reset HTTP data structure */
 	ezcfg_http_reset_attributes(http);
@@ -286,12 +288,12 @@ static bool upnp_send_ssdp_byebye(
 		return false;
 	}
 
-	msg_len = ezcfg_http_get_message_length(http);
-	if (msg_len < 0) {
+	rc = ezcfg_http_get_message_length(http);
+	if (rc < 0) {
 		err(ezcfg, "HTTP message length error.\n");
 		return false;
 	}
-	msg_len++; /* one more for '\0' */
+	msg_len = rc+1; /* one more for '\0' */
 
 	if (msg_len <= sizeof(buf)) {
 		msg = buf;
@@ -307,7 +309,7 @@ static bool upnp_send_ssdp_byebye(
 	memset(msg, 0, msg_len);
 	msg_len = ezcfg_http_write_message(http, msg, msg_len);
 
-	ezcfg_socket_write(socket, msg, msg_len, 0);
+	ezcfg_socket_write(sp, msg, msg_len, 0);
 
 	if (msg != buf) {
 		free(msg);
@@ -317,16 +319,17 @@ static bool upnp_send_ssdp_byebye(
 }
 
 static bool upnp_send_ssdp_discover(
-	struct ezcfg_socket *socket,
+	struct ezcfg_socket *sp,
 	struct ezcfg_http *http,
 	upnp_ssdp_cp_param_t *param)
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
 	char *msg;
-	int msg_len;
+	size_t msg_len;
+	int rc;
 
-	ezcfg = ezcfg_socket_get_ezcfg(socket);
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	/* reset HTTP data structure */
 	ezcfg_http_reset_attributes(http);
@@ -368,12 +371,12 @@ static bool upnp_send_ssdp_discover(
 		return false;
 	}
 
-	msg_len = ezcfg_http_get_message_length(http);
-	if (msg_len < 0) {
+	rc = ezcfg_http_get_message_length(http);
+	if (rc < 0) {
 		err(ezcfg, "HTTP message length error.\n");
 		return false;
 	}
-	msg_len++; /* one more for '\0' */
+	msg_len = rc+1; /* one more for '\0' */
 
 	if (msg_len <= sizeof(buf)) {
 		msg = buf;
@@ -389,7 +392,7 @@ static bool upnp_send_ssdp_discover(
 	memset(msg, 0, msg_len);
 	msg_len = ezcfg_http_write_message(http, msg, msg_len);
 
-	ezcfg_socket_write(socket, msg, msg_len, 0);
+	ezcfg_socket_write(sp, msg, msg_len, 0);
 
 	if (msg != buf) {
 		free(msg);
@@ -399,18 +402,19 @@ static bool upnp_send_ssdp_discover(
 }
 
 static bool upnp_send_ssdp_respond(
-	struct ezcfg_socket *socket,
+	struct ezcfg_socket *sp,
 	struct ezcfg_http *http,
 	upnp_ssdp_device_param_t *param)
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
 	char *msg;
-	int msg_len;
+	size_t msg_len;
+	int rc;
 	time_t t;
 	struct tm *tmp;
 
-	ezcfg = ezcfg_socket_get_ezcfg(socket);
+	ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	/* reset HTTP data structure */
 	ezcfg_http_reset_attributes(http);
@@ -490,12 +494,12 @@ static bool upnp_send_ssdp_respond(
 		return false;
 	}
 
-	msg_len = ezcfg_http_get_message_length(http);
-	if (msg_len < 0) {
+	rc = ezcfg_http_get_message_length(http);
+	if (rc < 0) {
 		err(ezcfg, "HTTP message length error.\n");
 		return false;
 	}
-	msg_len++; /* one more for '\0' */
+	msg_len = rc+1; /* one more for '\0' */
 
 	if (msg_len <= sizeof(buf)) {
 		msg = buf;
@@ -511,7 +515,7 @@ static bool upnp_send_ssdp_respond(
 	memset(msg, 0, msg_len);
 	msg_len = ezcfg_http_write_message(http, msg, msg_len);
 
-	ezcfg_socket_write(socket, msg, msg_len, 0);
+	ezcfg_socket_write(sp, msg, msg_len, 0);
 
 	if (msg != buf) {
 		free(msg);
@@ -631,7 +635,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
-	struct ezcfg_socket *socket = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int domain, type, proto;
 	char socket_path[128];
 	upnp_if_t *ifp;
@@ -666,11 +670,11 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 					EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
 					EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, ip);
 
-				socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
-				if (socket == NULL) {
+				sp = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
+				if (sp == NULL) {
 					return false;
 				}
-				ezcfg_socket_enable_sending(socket);
+				ezcfg_socket_enable_sending(sp);
 
 				/* for root device, NT ::= upnp:rootdevice */
 				/* initialize SSDP param data structure */
@@ -683,7 +687,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 				param.NT = "upnp:rootdevice";
 				param.NTS = "ssdp:alive";
 				param.UDN = upnp->u.dev.UDN;
-				upnp_send_ssdp_alive(socket, http, &param);
+				upnp_send_ssdp_alive(sp, http, &param);
 
 				udp = &(upnp->u.dev);
 				while (udp != NULL) {
@@ -698,7 +702,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 					param.NT = udp->UDN;
 					param.NTS = "ssdp:alive";
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_alive(socket, http, &param);
+					upnp_send_ssdp_alive(sp, http, &param);
 
 					/* for device, NT ::= urn:schemas-upnp-org:device:deviceType:v or
 					 * NT ::= urn:domain-name:device:deviceType:v */
@@ -712,7 +716,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 					param.NT = udp->deviceType;
 					param.NTS = "ssdp:alive";
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_alive(socket, http, &param);
+					upnp_send_ssdp_alive(sp, http, &param);
 
 					/* for service list */
 					usp = udp->serviceList;
@@ -729,7 +733,7 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 						param.NT = usp->serviceType;
 						param.NTS = "ssdp:alive";
 						param.UDN = udp->UDN;
-						upnp_send_ssdp_alive(socket, http, &param);
+						upnp_send_ssdp_alive(sp, http, &param);
 
 						usp = usp->next;
 					}
@@ -765,8 +769,8 @@ bool ezcfg_upnp_ssdp_notify_alive(struct ezcfg_upnp_ssdp *ssdp)
 				}
 
 				/* finish sending SSDP advertisement */
-				ezcfg_socket_delete(socket);
-				socket = NULL;
+				ezcfg_socket_delete(sp);
+				sp = NULL;
 			}
 			/* check next interface */
 			ifp = ifp->next;
@@ -788,7 +792,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
-	struct ezcfg_socket *socket = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int domain, type, proto;
 	char socket_path[128];
 	upnp_if_t *ifp;
@@ -823,11 +827,11 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 					EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
 					EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING, ip);
 
-				socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
-				if (socket == NULL) {
+				sp = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
+				if (sp == NULL) {
 					return false;
 				}
-				ezcfg_socket_enable_sending(socket);
+				ezcfg_socket_enable_sending(sp);
 
 				/* for root device, NT ::= upnp:rootdevice */
 				/* initialize SSDP param data structure */
@@ -840,7 +844,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 				param.NT = "upnp:rootdevice";
 				param.NTS = "ssdp:byebye";
 				param.UDN = upnp->u.dev.UDN;
-				upnp_send_ssdp_byebye(socket, http, &param);
+				upnp_send_ssdp_byebye(sp, http, &param);
 
 				udp = &(upnp->u.dev);
 				while (udp != NULL) {
@@ -855,7 +859,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 					param.NT = udp->UDN;
 					param.NTS = "ssdp:byebye";
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_byebye(socket, http, &param);
+					upnp_send_ssdp_byebye(sp, http, &param);
 
 					/* for device, NT ::= urn:schemas-upnp-org:device:deviceType:v or
 					 * NT ::= urn:domain-name:device:deviceType:v */
@@ -869,7 +873,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 					param.NT = udp->deviceType;
 					param.NTS = "ssdp:byebye";
 					param.UDN = udp->UDN;
-					upnp_send_ssdp_byebye(socket, http, &param);
+					upnp_send_ssdp_byebye(sp, http, &param);
 
 					/* for service list */
 					usp = udp->serviceList;
@@ -886,7 +890,7 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 						param.NT = usp->serviceType;
 						param.NTS = "ssdp:byebye";
 						param.UDN = udp->UDN;
-						upnp_send_ssdp_byebye(socket, http, &param);
+						upnp_send_ssdp_byebye(sp, http, &param);
 
 						usp = usp->next;
 					}
@@ -922,8 +926,8 @@ bool ezcfg_upnp_ssdp_notify_byebye(struct ezcfg_upnp_ssdp *ssdp)
 				}
 
 				/* finish sending SSDP advertisement */
-				ezcfg_socket_delete(socket);
-				socket = NULL;
+				ezcfg_socket_delete(sp);
+				sp = NULL;
 			}
 			ifp = ifp->next;
 		}
@@ -944,7 +948,7 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
 	struct ezcfg *ezcfg;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
-	struct ezcfg_socket *socket = NULL;
+	struct ezcfg_socket *sp = NULL;
 	int domain, type, proto;
 	char socket_path[128];
 	upnp_if_t *ifp;
@@ -977,13 +981,13 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
 					EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING,
 					ip, EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING);
 
-				socket = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
-				if (socket == NULL) {
+				sp = ezcfg_socket_new(ezcfg, domain, type, proto, socket_path);
+				if (sp == NULL) {
 					return false;
 				}
 
-				ezcfg_socket_binding(socket);
-				ezcfg_socket_enable_sending(socket);
+				ezcfg_socket_binding(sp);
+				ezcfg_socket_enable_sending(sp);
 
 				/* initialize SSDP param data structure */
 				param.upnp_version_major = upnp->version_major;
@@ -994,11 +998,11 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
 				param.host_port = EZCFG_PROTO_UPNP_HTTP_PORT_NUMBER;
 				param.MAN = "ssdp:discover";
 				param.ST = ssdp->priv_data;
-				upnp_send_ssdp_discover(socket, http, &param);
+				upnp_send_ssdp_discover(sp, http, &param);
 
 				/* finish sending SSDP search request */
-				ezcfg_socket_delete(socket);
-				socket = NULL;
+				ezcfg_socket_delete(sp);
+				sp = NULL;
 			}
 			ifp = ifp->next;
 		}

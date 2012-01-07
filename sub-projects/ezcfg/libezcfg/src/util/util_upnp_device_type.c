@@ -44,7 +44,7 @@ static struct upnp_device_type_tuple ezcfg_support_upnp_device_types[] = {
 
 int ezcfg_util_upnp_device_type(char *name)
 {
-	int i;
+	size_t i;
 	struct upnp_device_type_tuple *dtp;
 
 	if (name == NULL) {
@@ -62,7 +62,7 @@ int ezcfg_util_upnp_device_type(char *name)
 
 char *ezcfg_util_upnp_get_device_type_description_path(int type)
 {
-	int i;
+	size_t i;
 	struct upnp_device_type_tuple *dtp;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_upnp_device_types); i++) {
 		dtp = &(ezcfg_support_upnp_device_types[i]);

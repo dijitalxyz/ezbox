@@ -384,7 +384,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	char buf[1024];
 	char *request_uri;
 	char *accept_language = NULL;
-	int uri_len;
+	size_t uri_len;
 	char *msg = NULL;
 	int msg_len;
 	char *p;

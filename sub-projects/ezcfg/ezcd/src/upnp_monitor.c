@@ -45,10 +45,10 @@
 
 #if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -124,7 +124,7 @@ static task_node_t *insert_task(task_node_t *head, task_node_t *task)
 	}
 }
 
-static void read_task()
+static void read_task(void)
 {
 	FILE *fp;
 	char buf[256];
