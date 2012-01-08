@@ -38,7 +38,8 @@ struct upnp_device_type_tuple {
 
 static struct upnp_device_type_tuple ezcfg_support_upnp_device_types[] = {
 	{ EZCFG_UPNP_DEV_TYPE_UNKNOWN, NULL, NULL },
-	{ EZCFG_UPNP_DEV_TYPE_IGD1, EZCFG_UPNP_DEV_TYPE_IGD1_STRING, "/igd1/InternetGatewayDevice1.xml" },
+	{ EZCFG_UPNP_DEV_TYPE_IGD1, EZCFG_UPNP_DEV_TYPE_IGD1_STRING,
+		"/" EZCFG_UPNP_DEV_TYPE_IGD1_STRING "/InternetGatewayDevice1.xml" },
 };
 
 

@@ -118,6 +118,9 @@ struct ezcfg_upnp {
 
 #define EZCFG_UPNP_DEV_TYPE_IGD1_STRING     "igd1"
 
+/* upnp conf path */
+#define EZCFG_UPNP_CONF_ROOT_PATH       SYSCONFDIR "/ezcfg_upnpd"
+#define EZCFG_UPNP_IGD1_CONF_PATH       EZCFG_UPNP_CONF_ROOT_PATH "/" EZCFG_UPNP_DEV_TYPE_IGD1_STRING
 
 /* IGD1 config nvram name */
 #define EZCFG_UPNP_IGD1_DESCRIPTION_PATH   "igd1_description_path"

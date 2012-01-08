@@ -65,11 +65,6 @@
 #define EZCFG_SOCK_MASTER_PATH	EZCFG_SOCK_ROOT_PATH "/master"
 
 
-/* upnp conf path */
-#define EZCFG_UPNP_CONF_ROOT_PATH	SYSCONFDIR "/ezcfg_upnpd"
-#define EZCFG_UPNP_IGD1_CONF_PATH	EZCFG_UPNP_CONF_ROOT_PATH "/igd1"
-
-
 /* thread config definitions */
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 #define EZCFG_MASTER_WAIT_TIME	5
