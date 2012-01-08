@@ -4,7 +4,7 @@
  *
  * Description  : compute the Adler-32 checksum of a data stream.
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-06   0.1       Write it from scratch

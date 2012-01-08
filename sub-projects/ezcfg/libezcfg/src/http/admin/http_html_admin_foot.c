@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-18   0.1       Write it from scratch
@@ -73,8 +73,8 @@ int ezcfg_http_html_admin_set_html_foot(
 	}
 	ezcfg_html_add_body_child_attribute(html, foot_index, EZCFG_HTML_ID_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_DIV_ID_FOOT, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
-	/* <p>2008-2011 &#169; ezbox</p> */
-	child_index = ezcfg_html_add_body_child(html, foot_index, -1, EZCFG_HTML_P_ELEMENT_NAME, ezcfg_locale_text(locale, "2008-2011 &#169; ezbox"));
+	/* <p>2008-2012 &#169; ezbox</p> */
+	child_index = ezcfg_html_add_body_child(html, foot_index, -1, EZCFG_HTML_P_ELEMENT_NAME, ezcfg_locale_text(locale, "2008-2012 &#169; ezbox"));
 	if (child_index < 0) {
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;

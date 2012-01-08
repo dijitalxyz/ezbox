@@ -25,6 +25,8 @@ login start
 loopback start
 # start shell daemon
 shelld start
+# load iptables kernel modules
+iptables load start
 # bring up ethernet interface but not configurate it
 elan_if start
 # bring up WLAN interface but not configurate it

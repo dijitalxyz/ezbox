@@ -4,7 +4,7 @@
  *
  * Description  : ezbox check ezcfg daemon service status
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-09   0.1       Write it from scratch

@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/wpa_supplicant.conf file generating program
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-08-02   0.1       Write it from scratch

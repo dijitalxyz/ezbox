@@ -4,7 +4,7 @@
  *
  * Description  : firewall and port-mapping
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-17   0.1       Write it from scratch
@@ -53,13 +53,14 @@ static int lan_iptables(int flag)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-
+		pop_etc_l7_protocols(RC_ACT_STOP);
 		if (flag == RC_ACT_STOP) {
 			break;
 		}
 
 	/* RC_ACT_RESTART fall through */
 	case RC_ACT_START :
+		pop_etc_l7_protocols(RC_ACT_START);
 		break;
 
 	default :
@@ -98,42 +99,106 @@ static int wan_iptables(int flag)
 }
 #endif
 
-/* FIXME: be careful of the sequences */
-static char * iptables_modules[] = {
-	"x_tables",
-	"ip_tables",
-	"iptable_filter",
-	"nf_conntrack",
-	"nf_defrag_ipv4",
-	"nf_conntrack_ipv4",
-	"nf_nat",
-	"iptable_nat",
-	"xt_state",
-	"xt_tcpudp",
-};
-
 static int load_iptables_modules(int flag)
 {
-	int ret, i;
+	int ret;
+	FILE *file = NULL;
+	char buf[32];
 
 	switch (flag) {
 	case RC_ACT_BOOT :
 		/* manage iptables configuration options */
 		mkdir("/etc/l7-protocols", 0755);
+		mkdir("/etc/iptables", 0755);
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_ACT_START :
-		for (i = 0; i < ARRAY_SIZE(iptables_modules); i++) {
-			utils_install_kernel_module(iptables_modules[i], NULL);
-		}
-		ret = EXIT_SUCCESS;
-		break;
-
+	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		for (i = ARRAY_SIZE(iptables_modules)-1; i >= 0; i--) {
-			utils_remove_kernel_module(iptables_modules[i]);
+		/* first generate /etc/iptables/modules */
+		pop_etc_iptables_modules(RC_ACT_STOP);
+
+		file = fopen("/etc/iptalbes/modules", "r");
+		if (file == NULL) {
+			return (EXIT_FAILURE);
 		}
+
+		/* remove iptables kernel modules */
+		while (utils_file_get_line(file,
+			buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			ret = utils_remove_kernel_module(buf);
+		}
+
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
+		/* first generate /etc/iptables/modules */
+		pop_etc_iptables_modules(RC_ACT_START);
+
+		file = fopen("/etc/iptalbes/modules", "r");
+		if (file == NULL) {
+			return (EXIT_FAILURE);
+		}
+
+		/* install iptables kernel modules */
+		while (utils_file_get_line(file,
+			buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			ret = utils_install_kernel_module(buf, NULL);
+		}
+
+		ret = EXIT_SUCCESS;
+		break;
+
+	default :
+		ret = EXIT_FAILURE;
+		break;
+	}
+
+	if (file != NULL)
+		fclose(file);
+
+	return ret;
+}
+
+static int iptables_firewall(int flag)
+{
+	int ret;
+	char buf[256];
+
+	switch (flag) {
+	case RC_ACT_RESTART :
+	case RC_ACT_STOP :
+		/* first remove /etc/iptables/firewall */
+		pop_etc_iptables_firewall(RC_ACT_STOP);
+
+		/* stop firewall */
+	#if 0
+		utils_system("iptables -t mangle -F");
+		utils_system("iptables -t nat -F");
+		utils_system("iptables -t filter -F");
+		utils_system("rmmod xt_tcpmss");
+		utils_system("rmmod xt_TCPMSS");
+		utils_system("rmmod iptable_mangle");
+		/* also clean conntrack */
+	#endif
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
+
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_START :
+		/* first generate /etc/iptables/firewall */
+		pop_etc_iptables_firewall(RC_ACT_START);
+
+		/* finally restore the firewall rules */
+		snprintf(buf, sizeof(buf), "%s %s", CMD_IPTABLES_RESTORE, "/etc/iptables/firewall");
+		utils_system(buf);
+
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -165,6 +230,9 @@ int rc_iptables(int argc, char **argv)
 
 	if (strcmp(argv[1], "load") == 0) {
 		return load_iptables_modules(flag);
+	}
+	else if (strcmp(argv[1], "firewall") == 0) {
+		return iptables_firewall(flag);
 	}
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	else if (strcmp(argv[1], "lan") == 0) {

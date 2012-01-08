@@ -5,7 +5,7 @@
  * Description  : ezbox /etc/fonts/fonts.dtd &
                   /etc/fonts/fonts.conf file generating program
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-09-02   0.1       Write it from scratch

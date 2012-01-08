@@ -4,7 +4,7 @@
  *
  * Description  : ezcfg install/remove kernel modules function
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-07-28   0.1       Write it from scratch

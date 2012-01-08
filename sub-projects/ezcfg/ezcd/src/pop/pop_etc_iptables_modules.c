@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_hosts.c
+ * Module Name  : pop_etc_iptables_modules.c
  *
- * Description  : ezbox /etc/hosts file generating program
+ * Description  : ezbox /etc/iptables/modules generating program
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-02   0.1       Write it from scratch
+ * 2012-01-08   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -40,33 +40,46 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int pop_etc_hosts(int flag)
+int pop_etc_iptables_modules(int flag)
 {
-        FILE *file = NULL;
-	int ret;
+	FILE *file;
+	char *p, *q;
+	char buf[KERNEL_COMMAND_LINE_SIZE];
+	int rc;
 
-	/* generate /etc/hosts */
-	file = fopen("/etc/hosts", "w");
+	file = fopen("/etc/iptables/modules", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 
 	switch (flag) {
 	case RC_ACT_BOOT :
-		fprintf(file, "%s\t%s\n", "127.0.0.1", "localhost.");
-		ret = EXIT_SUCCESS;
-		break;
-
 	case RC_ACT_RESTART :
 	case RC_ACT_START :
-		fprintf(file, "%s\t%s\n", "127.0.0.1", "localhost.");
-		ret = EXIT_SUCCESS;
-		break;
+		if (flag == RC_ACT_BOOT) {
+			/* get the kernel module name from boot.cfg */
+			rc = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, IPTABLES_MODULES), buf, sizeof(buf));
+		}
+		else {
+			/* get the kernel module name from nvram */
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, IPTABLES_MODULES), buf, sizeof(buf));
+		}
 
-	default :
-		ret = EXIT_FAILURE;
+		if (rc > 0) {
+			p = buf;
+			while(p != NULL) {
+				q = strchr(p, ',');
+				if (q != NULL)
+					*q = '\0';
+				fprintf(file, "%s\n", p);
+				if (q != NULL)
+					p = q+1;
+				else
+					p = NULL;
+			}
+		}
 		break;
 	}
 
 	fclose(file);
-	return (ret);
+	return (EXIT_SUCCESS);
 }

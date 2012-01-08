@@ -4,7 +4,7 @@
  *
  * Description  : upnp device type settings
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-12-09   0.1       Write it from scrach

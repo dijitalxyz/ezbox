@@ -4,7 +4,7 @@
  *
  * Description  : implement Non-Volatile RAM default settings
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2010-08-20   0.1       Write it from scratch
@@ -50,6 +50,20 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV), "" },
 	/* kernel modules */
 	{ NVRAM_SERVICE_OPTION(SYS, MODULES), "" },
+#if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
+	/* iptables kernel modules */
+	{ NVRAM_SERVICE_OPTION(SYS, IPTABLES_MODULES),
+		"x_tables," \
+		"ip_tables," \
+		"iptable_filter," \
+		"nf_conntrack," \
+		"nf_defrag_ipv4," \
+		"nf_conntrack_ipv4," \
+		"nf_nat," \
+		"iptable_nat," \
+		"xt_state," \
+		"xt_tcpudp" },
+#endif
 	/* LD_LIBRARY_PATH */
 	{ NVRAM_SERVICE_OPTION(SYS, LD_LIBRARY_PATH),
 #if (HAVE_EZBOX_SERVICE_EMC2 == 1)

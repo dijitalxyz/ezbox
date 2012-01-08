@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_resolv_conf.c
+ * Module Name  : pop_etc_iptables_firewall.c
  *
- * Description  : ezbox /etc/resolv.conf file generating program
+ * Description  : ezbox /etc/iptables/firewall generating program
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-03   0.1       Write it from scratch
+ * 2012-01-08   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -40,43 +40,21 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int pop_etc_resolv_conf(int flag)
+int pop_etc_iptables_firewall(int flag)
 {
-        FILE *file = NULL;
-	char buf[128];
-	//char *p, *token, *savep;
-	char name[32];
-	int i, rc, ret;
+	FILE *file;
+	int ret;
 
-	switch(flag) {
-	case RC_ACT_BOOT :
-	case RC_ACT_START :
-	case RC_ACT_RESTART :
-		/* generate /etc/resolv.conf */
-		file = fopen("/etc/resolv.conf", "w");
-		if (file == NULL) {
-			return (EXIT_FAILURE);
-		}
+	file = fopen("/etc/iptables/firewall", "w");
+	if (file == NULL)
+		return (EXIT_FAILURE);
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DOMAIN), buf, sizeof(buf));
-		if ((rc == 0) && (*buf != '\0')) {
-			fprintf(file, "domain %s\n", buf);
-		}
-
-		for (i = 1; i <= 3; i++) {
-			snprintf(name, sizeof(name), "%s%d",
-				NVRAM_SERVICE_OPTION(WAN, DNS), i);
-			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-			if (rc > 0) {
-				fprintf(file, "nameserver %s\n", buf);
-			}
-		}
-		fclose(file);
+	switch (flag) {
+	case RC_ACT_STOP :
 		ret = EXIT_SUCCESS;
 		break;
 
-	case RC_ACT_STOP :
-		unlink("/etc/resolv.conf");
+	case RC_ACT_START :
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -85,5 +63,6 @@ int pop_etc_resolv_conf(int flag)
 		break;
 	}
 
-	return ret;
+	fclose(file);
+	return (ret);
 }

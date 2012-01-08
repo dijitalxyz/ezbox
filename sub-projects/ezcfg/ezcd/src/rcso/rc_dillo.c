@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run dillo web browser
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-06-01   0.1       Write it from scratch

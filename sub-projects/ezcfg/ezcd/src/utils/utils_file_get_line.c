@@ -4,7 +4,7 @@
  *
  * Description  : get a line from file
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-18   0.1       Write it from scratch

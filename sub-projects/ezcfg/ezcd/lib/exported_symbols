@@ -42,6 +42,8 @@ pop_etc_mactab
 pop_etc_resolv_conf
 pop_etc_inittab
 pop_etc_l7_protocols
+pop_etc_iptables_modules
+pop_etc_iptables_firewall
 pop_etc_hostname
 pop_etc_profile
 pop_etc_banner

@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/l7-protocols/xxx.pat generating program
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-17   0.1       Write it from scratch
@@ -39,15 +39,7 @@
 #include <net/if.h>
 
 #include "ezcd.h"
-
-#if 0
-static int set_loopback_interface(FILE *file)
-{
-	fprintf(file, "iface lo inet loopback\n");
-	fprintf(file, "\n");
-	return (EXIT_SUCCESS);
-}
-#endif
+#include "pop_func.h"
 
 int pop_etc_l7_protocols(int flag)
 {

@@ -106,6 +106,8 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_resolv_conf.c
 # iptables service
 if CONFIG_EZBOX_SERVICE_IPTABLES
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_l7_protocols.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_iptables_modules.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_iptables_firewall.c
 endif
 
 # init

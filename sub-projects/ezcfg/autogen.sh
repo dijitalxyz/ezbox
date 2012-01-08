@@ -29,9 +29,10 @@ libdir() {
 #--includedir=/usr/include"
 
 args="--prefix=/usr/local \
---sysconfdir=/etc"
-
-#--enable-service-ezcfg_upnpd
+--sysconfdir=/etc \
+--enable-service-ezcfg_upnpd \
+--enable-service-iptables \
+"
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"
 ./configure $args $@

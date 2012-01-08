@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run network LAN config service
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-04   0.1       Write it from scratch

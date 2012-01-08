@@ -11,6 +11,8 @@
 #define CMD_IFCONFIG		"/sbin/ifconfig"
 #define CMD_IFDOWN		"/sbin/ifdown"
 #define CMD_IFUP		"/sbin/ifup"
+#define CMD_IPTABLES		"/usr/sbin/iptables"
+#define CMD_IPTABLES_RESTORE	"/usr/sbin/iptables-restore"
 #define CMD_INSMOD		"/sbin/insmod"
 #define CMD_KILLALL		"/bin/killall"
 #define CMD_KLOGD  		"/sbin/klogd"

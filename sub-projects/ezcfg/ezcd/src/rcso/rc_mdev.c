@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run mdev to generate /dev/ node service
  *
- * Copyright (C) 2008-2011 by ezbox-project
+ * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
  * 2011-08-11   0.1       Write it from scratch

@@ -17,6 +17,6 @@ ezcm boot
 # setup network base files
 netbase boot
 # setup iptables
-#iptables load boot
+iptables load boot
 # start init
 #init boot
