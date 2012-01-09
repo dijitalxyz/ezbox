@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_file_get_line.c
+ * Module Name  : utils_file_print_line.c
  *
- * Description  : get a line from file
+ * Description  : print a line to file
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2011-05-18   0.1       Write it from scratch
+ * 2012-01-08   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -39,29 +39,20 @@
 
 #include "ezcd.h"
 
-bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *rm)
+bool utils_file_print_line(FILE *fp, char *buf, size_t size, const char *fmt, ...)
 {
+	va_list args;
+
 	if ((fp == NULL) || (buf == NULL) || (size < 1)) {
 		return false;
 	}
 
-	while(fgets(buf, size, fp) != NULL)
-	{
-		if(strchr(comment, buf[0]) == NULL)
-		{
-			int len = strlen(buf);
+	va_start(args, fmt);
+	vsnprintf(buf, size, fmt, args);
+	va_end(args);
+	va_start(args, fmt);
+	fprintf(fp, "%s", buf);
+	va_end(args);
 
-			while((len > 0) && 
-			      (buf[len] == '\0' || 
-			       (strchr(rm, buf[len]) != NULL)))
-			{
-				buf[len] = '\0';
-				len --;
-			}
-
-			if (len > 0)
-				return true;
-		}
-	}
-	return false;
+	return true;
 }

@@ -40,6 +40,7 @@ int utils_get_data_device_path(char *buf, int buf_len);
 int utils_get_data_device_fs_type(char *buf, int buf_len);
 
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
+bool utils_file_print_line(FILE *fp, char *buf, size_t size, const char *fmt, ...);
 
 int utils_mount_partition(char *dev, char *path, char *fs_type, char *args);
 int utils_umount_partition(char *path);

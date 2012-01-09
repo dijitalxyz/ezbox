@@ -118,7 +118,7 @@ static int load_iptables_modules(int flag)
 		/* first generate /etc/iptables/modules */
 		pop_etc_iptables_modules(RC_ACT_STOP);
 
-		file = fopen("/etc/iptalbes/modules", "r");
+		file = fopen("/etc/iptables/modules", "r");
 		if (file == NULL) {
 			return (EXIT_FAILURE);
 		}
@@ -139,7 +139,7 @@ static int load_iptables_modules(int flag)
 		/* first generate /etc/iptables/modules */
 		pop_etc_iptables_modules(RC_ACT_START);
 
-		file = fopen("/etc/iptalbes/modules", "r");
+		file = fopen("/etc/iptables/modules", "r");
 		if (file == NULL) {
 			return (EXIT_FAILURE);
 		}
@@ -166,8 +166,10 @@ static int load_iptables_modules(int flag)
 
 static int iptables_firewall(int flag)
 {
+	FILE *file;
 	int ret;
 	char buf[256];
+	bool rc;
 
 	switch (flag) {
 	case RC_ACT_RESTART :
@@ -194,6 +196,19 @@ static int iptables_firewall(int flag)
 	case RC_ACT_START :
 		/* first generate /etc/iptables/firewall */
 		pop_etc_iptables_firewall(RC_ACT_START);
+
+		/* then enable IP forward */
+		file = fopen("/proc/sys/net/ipv4/ip_forward", "w");
+		if (file == NULL) {
+			ret = EXIT_FAILURE;
+			break;
+		}
+		rc = utils_file_print_line(file, buf, sizeof(buf), "%d", 1);
+		fclose(file);
+		if (rc == false) {
+			ret = EXIT_FAILURE;
+			break;
+		}
 
 		/* finally restore the firewall rules */
 		snprintf(buf, sizeof(buf), "%s %s", CMD_IPTABLES_RESTORE, "/etc/iptables/firewall");
