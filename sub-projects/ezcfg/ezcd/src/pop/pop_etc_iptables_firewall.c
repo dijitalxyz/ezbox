@@ -43,13 +43,114 @@
 /********************
  * firewall data structure
  ********************/
+typedef struct pending_rule_s {
+	char *rule;
+	struct pending_rule_s *next;
+} pending_rule_t;
+
 typedef struct fw_param_s {
-	char lan_ifname[IFNAMSIZ];
-	char wan_ifname[IFNAMSIZ];
+	bool fw_enable;
+	bool nat_enable;
+	bool dmz_enable;
+	/* need to free part */
+	char *loopback_ifname;
+	char *lan_ifname;
+	char *wan_ifname;
+	char *lan_ipaddr;
+	char *lan_netmask;
+	char *wan_ipaddr;
+	char *wan_netmask;
+	char *dmz_dst_ipaddr;
+	pending_rule_t *filter_forward;
 } fw_param_t;
+
+static void delete_pending_rule(pending_rule_t *p) {
+	if (p != NULL) {
+		if (p->rule != NULL)
+			free(p->rule);
+
+		free(p);
+	}
+}
+
+static bool add_pending_rule(pending_rule_t **l, const char *rule) {
+	pending_rule_t *p, *q;
+
+	p = malloc(sizeof(pending_rule_t));
+	if (p == NULL)
+		return false;
+
+	memset(p, 0, sizeof(pending_rule_t));
+	p->rule = strdup(rule);
+	if (p->rule == NULL) {
+		delete_pending_rule(p);
+		return false;
+	}
+
+	/* find tail node of rule list */
+	p->next = *l;
+	q = NULL;
+	while(p->next != NULL) {
+		q = p->next;
+		p->next = q->next;
+	}
+
+	if (q == NULL) {
+		/* the rule list is empty,
+		 * set p as the head of the rule list
+		 */
+		*l = p;
+	}
+	else {
+		/* the rule list is not empty,
+		 * set p as the tail of the rule list
+		 */
+		q->next = p;
+	}
+
+	return true;
+}
+
+static void delete_pending_rules(pending_rule_t **l) {
+	pending_rule_t *p;
+
+	p = *l;
+	while (p != NULL) {
+		*l = p->next;
+		delete_pending_rule(p);
+		p = *l;
+	}
+}
 
 static void delete_fw_param(fw_param_t *fwp)
 {
+	if (fwp->loopback_ifname != NULL)
+		free(fwp->loopback_ifname);
+
+	if (fwp->lan_ifname != NULL)
+		free(fwp->lan_ifname);
+
+	if (fwp->wan_ifname != NULL)
+		free(fwp->wan_ifname);
+
+	if (fwp->lan_ipaddr != NULL)
+		free(fwp->lan_ipaddr);
+
+	if (fwp->lan_netmask != NULL)
+		free(fwp->lan_netmask);
+
+	if (fwp->wan_ipaddr != NULL)
+		free(fwp->wan_ipaddr);
+
+	if (fwp->wan_netmask != NULL)
+		free(fwp->wan_netmask);
+
+	if (fwp->dmz_dst_ipaddr != NULL)
+		free(fwp->dmz_dst_ipaddr);
+
+	if (fwp->filter_forward != NULL)
+		delete_pending_rules(&(fwp->filter_forward));
+
 	free(fwp);
 }
 
@@ -72,6 +173,18 @@ static bool build_mangle_table(FILE *fp, fw_param_t *fwp)
 	utils_file_print_line(fp, buf, sizeof(buf), "%s\n",
 		":OUTPUT ACCEPT [0:0]");
 
+	/* block WAN to LAN IP address packets */
+	if (fwp->nat_enable == true) {
+		if ((fwp->wan_ifname != NULL) &&
+		    (fwp->lan_ipaddr != NULL) &&
+		    (fwp->lan_netmask != NULL)) {
+			utils_file_print_line(fp, buf, sizeof(buf), "-A PREROUTING -i %s -d %s/%s -j DROP\n",
+				fwp->wan_ifname,
+				fwp->lan_ipaddr,
+				fwp->lan_netmask);
+		}
+	}
+
 	utils_file_print_line(fp, buf, sizeof(buf), "%s\n",
 		"COMMIT");
 
@@ -83,11 +196,46 @@ static bool build_mangle_table(FILE *fp, fw_param_t *fwp)
  ********************/
 static bool build_nat_prerouting(FILE *fp, char *buf, size_t size, fw_param_t *fwp)
 {
+	/* ICMP packets should always be redirected to INPUT chains */
+	if ((fwp->wan_ipaddr != NULL) &&
+	    (fwp->lan_ipaddr != NULL)) {
+		utils_file_print_line(fp, buf, size, "-A PREROUTING -p icmp -d %s -j DNAT --to-destination %s\n",
+			fwp->wan_ipaddr,
+			fwp->lan_ipaddr);
+	}
+
+	/* setup DMZ rule */
+	if (fwp->dmz_enable == true) {
+		if ((fwp->wan_ipaddr != NULL) &&
+		    (fwp->dmz_dst_ipaddr != NULL)) {
+			utils_file_print_line(fp, buf, size, "-A PREROUTING -d %s -j DNAT --to-destination %s\n",
+				fwp->wan_ipaddr,
+				fwp->dmz_dst_ipaddr);
+		}
+
+		/* add pending FORWARD rules for DMZ, which will be added in filter table */
+		if ((fwp->lan_ifname != NULL) &&
+		    (fwp->dmz_dst_ipaddr != NULL)) {
+			snprintf(buf, size, "-A FORWARD -o %s -d %s -j ACCEPT",
+				fwp->lan_ifname,
+				fwp->dmz_dst_ipaddr);
+			add_pending_rule(&(fwp->filter_forward), buf);
+		}
+	}
+
 	return true;
 }
 
 static bool build_nat_postrouting(FILE *fp, char *buf, size_t size, fw_param_t *fwp)
 {
+	/* NAT enable */
+	if (fwp->nat_enable == true) {
+		if (fwp->wan_ifname != NULL) {
+			utils_file_print_line(fp, buf, size, "-A POSTROUTING -o %s -j MASQUERADE\n",
+				fwp->wan_ifname);
+		}
+	}
+
 	return true;
 }
 
@@ -118,6 +266,28 @@ static bool build_nat_table(FILE *fp, fw_param_t *fwp)
  ********************/
 static bool build_filter_input(FILE *fp, char *buf, size_t size, fw_param_t *fwp)
 {
+	/* filtering known SPI states */
+	if (fwp->lan_ifname != NULL) {
+		utils_file_print_line(fp, buf, size, "-A INPUT -m state --state INVALID ! -i %s -j DROP\n",
+			fwp->lan_ifname);
+		utils_file_print_line(fp, buf, size, "-A INPUT -i %s -m state --state NEW -j ACCEPT\n",
+			fwp->lan_ifname);
+	}
+	if (fwp->loopback_ifname != NULL) {
+		utils_file_print_line(fp, buf, size, "-A INPUT -i %s -m state --state NEW -j ACCEPT\n",
+			fwp->loopback_ifname);
+	}
+	utils_file_print_line(fp, buf, size, "-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n");
+
+	/* ICMP request from WAN interface */
+	utils_file_print_line(fp, buf, size, "-A INPUT -p icmp -j ACCEPT\n");
+
+	/* drop other packets not recognized */
+	if (fwp->lan_ifname != NULL) {
+		utils_file_print_line(fp, buf, size, "-A INPUT ! -i %s -j DROP\n",
+			fwp->lan_ifname);
+	}
+
 	return true;
 }
 
@@ -128,6 +298,52 @@ static bool build_filter_output(FILE *fp, char *buf, size_t size, fw_param_t *fw
 
 static bool build_filter_forward(FILE *fp, char *buf, size_t size, fw_param_t *fwp)
 {
+	pending_rule_t *p;
+
+	/* if SPI firewall enabled, check LAN size packets first */
+	if(fwp->fw_enable == true) {
+		if (fwp->lan_ifname != NULL) {
+			utils_file_print_line(fp, buf, size, "-A FORWARD -i %s -o %s -j ACCEPT\n",
+				fwp->lan_ifname, fwp->lan_ifname);
+		}
+		/* drop the invalid state packets */
+		utils_file_print_line(fp, buf, size, "-A FORWARD -m state --state INVALID -j DROP\n");
+        }
+
+	/* rendering pending forward rules */
+	p = fwp->filter_forward;
+	while(p != NULL) {
+		if (p->rule != NULL)
+			utils_file_print_line(fp, buf, size, "%s\n", p->rule);
+		fwp->filter_forward = p->next;
+		delete_pending_rule(p);
+		p = fwp->filter_forward;
+	}
+
+	/* if SPI firewall enabled, accept valid connections' packets,
+	 * drop the others
+	 */
+	if(fwp->fw_enable == true) {
+		/* accept valid packets */
+		utils_file_print_line(fp, buf, size, "-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT\n");
+
+		/* accept new connection packet from LAN */
+		if (fwp->lan_ifname != NULL) {
+			utils_file_print_line(fp, buf, size, "-A FORWARD -i %s -m state --state NEW -j ACCEPT\n",
+				fwp->lan_ifname);
+		}
+
+		/* accept new connection packet from WAN if NAT is enabled */
+		if ((fwp->nat_enable == false) &&
+		    (fwp->wan_ifname != NULL)) {
+			utils_file_print_line(fp, buf, size, "-A FORWARD -i %s -m state --state NEW -j ACCEPT\n",
+				fwp->wan_ifname);
+		}
+
+		/* default rule is DROP */
+		utils_file_print_line(fp, buf, size, "-A FORWARD -j DROP\n");
+        }
+
 	return true;
 }
 
@@ -147,6 +363,9 @@ static bool build_filter_table(FILE *fp, fw_param_t *fwp)
 	build_filter_input(fp, buf, sizeof(buf), fwp);
 	build_filter_output(fp, buf, sizeof(buf), fwp);
 	build_filter_forward(fp, buf, sizeof(buf), fwp);
+
+	utils_file_print_line(fp, buf, sizeof(buf), "%s\n",
+		"COMMIT");
 
 	return true;
 }

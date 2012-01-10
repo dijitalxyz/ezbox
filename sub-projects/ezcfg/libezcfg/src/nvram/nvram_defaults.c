@@ -55,6 +55,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, IPTABLES_MODULES),
 		"x_tables," \
 		"ip_tables," \
+		"iptable_mangle," \
 		"iptable_filter," \
 		"nf_conntrack," \
 		"nf_defrag_ipv4," \
