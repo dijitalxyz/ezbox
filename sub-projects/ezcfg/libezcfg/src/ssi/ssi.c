@@ -148,7 +148,8 @@ static bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 		len = strlen(s);
 
 		/* find out argc */
-		for (argc = 0; entry->attrs[argc] != NULL; argc++)
+		argc = 0;
+		while ((entry->attrs)[argc] != NULL) argc++;
 
 		if (strncmp(s, buf, len) == 0 && buf[len] == ' ') {
 			/* find match element */
@@ -184,8 +185,8 @@ static bool ssi_parse_directive_entry(struct ezcfg_ssi *ssi, char *buf)
 				for (i = 0; i < argc; i++) {
 					s = values_s[i];
 					p = values_e[i];
-					len = p -s;
-					values[i] = calloc(len+1, sizeof(char));
+					len = p-s;
+					values[i] = malloc(len+1); /* one more for NULL-terminated */
 					if(values[i] == NULL) {
 						goto fail_exit;
 					}
@@ -227,10 +228,11 @@ static int include_handler(struct ezcfg_ssi *ssi, char *buf, size_t size)
 	}
 
 	if (data == NULL) {
-		data = calloc(1, sizeof(struct ssi_directive_data));
+		data = malloc(sizeof(struct ssi_directive_data));
 		if (data == NULL) {
 			goto fail_exit;
 		}
+		memset(data, 0, sizeof(struct ssi_directive_data));
 		data->path = NULL;
 		data->fp = NULL;
 		data->need_unlink = false;
@@ -399,8 +401,9 @@ struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg, struct ezcfg_nvram *nvram)
 	ASSERT(ezcfg != NULL);
 	ASSERT(nvram != NULL);
 
-	ssi = calloc(1, sizeof(struct ezcfg_ssi));
+	ssi = malloc(sizeof(struct ezcfg_ssi));
 	if (ssi != NULL) {
+		memset(ssi, 0, sizeof(struct ezcfg_ssi));
 		ssi->ezcfg = ezcfg;
 		ssi->nvram = nvram;
 		ssi->document_root = NULL;

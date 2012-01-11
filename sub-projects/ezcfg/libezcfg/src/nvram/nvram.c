@@ -1057,9 +1057,9 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 
 	ASSERT(ezcfg != NULL);
 
-	nvram = (struct ezcfg_nvram *)calloc(1, sizeof(struct ezcfg_nvram));
+	nvram = malloc(sizeof(struct ezcfg_nvram));
 	if (nvram == NULL) {
-		err(ezcfg, "can not calloc nvram\n");
+		err(ezcfg, "can not malloc nvram\n");
 		return NULL;
 	}
 
@@ -1128,7 +1128,7 @@ bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int idx, cons
 
 	p = strdup(path);
 	if (p == NULL) {
-		err(ezcfg, "can not calloc nvram storage path\n");
+		err(ezcfg, "can not alloc nvram storage path\n");
 		return false;
 	}
 
