@@ -183,13 +183,16 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	/* get nvram memory */
 	master->nvram = ezcfg_nvram_new(ezcfg);
 	if(master->nvram == NULL) {
-		err(ezcfg, "calloc nvram fail: %m\n");
+		err(ezcfg, "alloc nvram fail: %m\n");
 		goto fail_exit;
 	}
 
 	/* initialize nvram */
 	ezcfg_nvram_fill_storage_info(master->nvram, ezcfg_common_get_config_file(ezcfg));
-	ezcfg_nvram_initialize(master->nvram);
+	if (ezcfg_nvram_initialize(master->nvram) == false) {
+		err(ezcfg, "init nvram fail: %m\n");
+		goto fail_exit;
+	}
 
 	/* initialize socket queue */
 	master->sq_len = EZCFG_MASTER_SOCKET_QUEUE_LENGTH;

@@ -34,6 +34,12 @@ START_TEST(test_ezcfg_ssi_parse_include)
 
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
 	nvram = ezcfg_nvram_new(ezcfg);
+
+	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(nvram, NULL);
+	fail_if(ezcfg_nvram_initialize(nvram) == false,
+		"ezcfg_nvram_initialize fail");
+
 	ssi = ezcfg_ssi_new(ezcfg, nvram);
 	fail_if(ssi == NULL, 
 		"ezcfg_ssi_new fail on creation");
@@ -83,6 +89,12 @@ START_TEST(test_ezcfg_ssi_parse_echo)
 
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
 	nvram = ezcfg_nvram_new(ezcfg);
+
+	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(nvram, NULL);
+	fail_if(ezcfg_nvram_initialize(nvram) == false,
+		"ezcfg_nvram_initialize fail");
+
 	ssi = ezcfg_ssi_new(ezcfg, nvram);
 	fail_if(ssi == NULL, 
 		"ezcfg_ssi_new fail on creation");

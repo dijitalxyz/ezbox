@@ -39,6 +39,8 @@ ezcfg_upnp_parse_description
 ezcfg_upnp_set_role
 ezcfg_nvram_new
 ezcfg_nvram_delete
+ezcfg_nvram_fill_storage_info
+ezcfg_nvram_initialize
 ezcfg_ssi_new
 ezcfg_ssi_delete
 ezcfg_ssi_set_document_root
