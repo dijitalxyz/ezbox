@@ -266,6 +266,8 @@
 #define EZCFG_AUTH_DOMAIN_ADMIN_STRING     EZCFG_HTTP_HTML_ADMIN_PREFIX_URI
 #define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"
 
+/* ezcfg HTTP html nvram request/response mode */
+#define EZCFG_HTTP_HTML_NVRAM_PREFIX_URI    "/nvram/"
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */

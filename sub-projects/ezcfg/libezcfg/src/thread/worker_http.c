@@ -153,6 +153,17 @@ static bool is_http_html_ssi_request(const char *uri)
 }
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM == 1)
+static bool is_http_html_nvram_request(const char *uri)
+{
+	if (strstr(uri, EZCFG_HTTP_HTML_NVRAM_PREFIX_URI) != NULL) {
+		return true;
+	}
+
+	return false;
+}
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 static bool is_http_html_admin_request(const char *uri)
 {
@@ -350,53 +361,6 @@ func_exit:
 }
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
-static size_t url_decode(const char *src, size_t src_len,
-	char *dst, size_t dst_len, int is_form_url_encoded) {
-	size_t i, j;
-	int a, b;
-#define HEXTOI(x) (isdigit(x) ? x - '0' : x - 'W')
-
-	for (i = j = 0; i < src_len && j < dst_len - 1; i++, j++) {
-		if (src[i] == '%' &&
-		    isxdigit(* (const unsigned char *) (src + i + 1)) &&
-		    isxdigit(* (const unsigned char *) (src + i + 2))) {
-			a = tolower(* (const unsigned char *) (src + i + 1));
-			b = tolower(* (const unsigned char *) (src + i + 2));
-			dst[j] = (char) ((HEXTOI(a) << 4) | HEXTOI(b));
-			i += 2;
-		} else if (is_form_url_encoded && src[i] == '+') {
-			dst[j] = ' ';
-		} else {
-			dst[j] = src[i];
-		}
-	}
-
-	dst[j] = '\0'; // Null-terminate the destination
-
-	return j;
-}
-
-static void remove_double_dots_and_double_slashes(char *s)
-{
-	char *p = s;
-
-	while (*s != '\0') {
-		*p++ = *s++;
-		if (s[-1] == '/' || s[-1] == '\\') {
-			/* skip all following slashes and backslashes */
-			while (*s == '/' || *s == '\\') {
-				s++;
-			}
-
-			/* skip all double-dots */
-			while (*s == '.' && s[1] == '.') {
-				s += 2;
-			}
-		}
-	}
-	*p = '\0';
-}
-
 static void handle_ssi_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -448,8 +412,8 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	}
 
 	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
-	url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
-	remove_double_dots_and_double_slashes(buf);
+	ezcfg_util_url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
+	ezcfg_util_url_remove_double_dots_and_double_slashes(buf);
 	if (ezcfg_ssi_set_path(ssi, buf) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -528,6 +492,140 @@ func_exit:
 
 	if (ssi != NULL)
 		ezcfg_ssi_delete(ssi);
+}
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM == 1)
+static void handle_nvram_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	struct ezcfg_nvram *nvram;
+	struct ezcfg_http_nvram *hn;
+	char buf[1024];
+	char *request_uri;
+	size_t uri_len;
+	char *msg = NULL;
+	int msg_len;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	nvram = ezcfg_master_get_nvram(master);
+
+	hn = ezcfg_http_nvram_new(ezcfg);
+	if (hn == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	request_uri = ezcfg_http_get_request_uri(http);
+	uri_len = strlen(request_uri);
+
+	/* set default document root */
+#if 0
+	if (ezcfg_http_nvram_set_rule_path_root(ssi, "/etc/ezcfg_httpd/nvram") == false) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+#endif
+
+	/* set file path */
+	uri_len = strlen(request_uri);
+	if (uri_len+2 > sizeof(buf)) {
+		send_http_error(worker, 505,
+		                "Bad Request",
+		                "%s", "File name is too large");
+		goto func_exit;
+	}
+
+	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
+	ezcfg_util_url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
+	ezcfg_util_url_remove_double_dots_and_double_slashes(buf);
+#if 0
+	if (ezcfg_http_nvram_set_path(hn, buf) == false) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	if (ezcfg_http_nvram_open_file(hn, "r") == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Cannot open file");
+		goto func_exit;
+	}
+#endif
+
+	/* must setup http and nvram before handling request */
+	ezcfg_http_nvram_set_http(hn, http);
+	ezcfg_http_nvram_set_nvram(hn, nvram);
+
+	if (ezcfg_http_handle_nvram_request(hn) < 0) {
+		send_http_bad_request(worker);
+		goto func_exit;
+	}
+	else {
+		/* build HTTP response */
+		/* HTTP header content-type */
+		snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header cache-control */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header expires */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0") == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header pragma */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		msg_len = ezcfg_http_get_message_length(http);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_http_get_message_length error.\n");
+			goto func_exit;
+		}
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto func_exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_http_write_message(http, msg, msg_len);
+		ezcfg_worker_write(worker, msg, msg_len);
+
+		goto func_exit;
+	}
+
+func_exit:
+	if (msg != NULL)
+		free(msg);
+
+	if (hn != NULL)
+		ezcfg_http_nvram_delete(hn);
 }
 #endif
 
@@ -657,6 +755,13 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	if (is_http_html_ssi_request(request_uri) == true) {
 		/* handle SSI enabled web page */
 		handle_ssi_request(worker);
+	}
+	else
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM == 1)
+	if (is_http_html_nvram_request(request_uri) == true) {
+		/* handle SSI enabled web page */
+		handle_nvram_request(worker);
 	}
 	else
 #endif

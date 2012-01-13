@@ -91,6 +91,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/util/util_rc.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_service_binding.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_text.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_tzdata.c
+libezcfg_la_SOURCES += $(top_builddir)/src/util/util_url.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_wan.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_upnp_role.c
@@ -132,6 +133,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/http/http.c
 
 # ezcfg HTTP SSI handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_ssi.c
+
+# ezcfg HTTP nvram handling
+libezcfg_la_SOURCES += $(top_builddir)/src/http/http_nvram.c
 
 if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
 if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX

@@ -256,6 +256,15 @@ int ezcfg_http_handle_ssi_request(
 	struct ezcfg_ssi *ssi);
 
 
+/* http/http_nvram.c */
+struct ezcfg_http_nvram;
+void ezcfg_http_nvram_delete(struct ezcfg_http_nvram *hn);
+struct ezcfg_http_nvram *ezcfg_http_nvram_new(struct ezcfg *ezcfg);
+void ezcfg_http_nvram_set_http(struct ezcfg_http_nvram *hn, struct ezcfg_http *http);
+void ezcfg_http_nvram_set_nvram(struct ezcfg_http_nvram *hn, struct ezcfg_nvram *nvram);
+int ezcfg_http_handle_nvram_request(struct ezcfg_http_nvram *hn);
+
+
 /* http/http_html_index.c */
 int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 

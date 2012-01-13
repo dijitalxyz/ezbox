@@ -336,6 +336,29 @@ fi
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN, test "x$config_ezbox_service_ezcfg_httpd_cgi_admin" = xyes)
 
+# Configure ezcfg_httpd_cgi_nvram service.
+config_ezbox_service_ezcfg_httpd_cgi_nvram=no
+AC_MSG_CHECKING([if ezcfg_httpd_cgi_nvram service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_cgi_nvram],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_cgi_nvram], [Enable ezcfg_httpd_cgi_nvram service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM], [1], [Enable ezcfg_httpd_cgi_nvram service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_cgi_nvram=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM, test "x$config_ezbox_service_ezcfg_httpd_cgi_nvram" = xyes)
+
 # Configure ezcfg_httpd_ssi service.
 config_ezbox_service_ezcfg_httpd_ssi=no
 AC_MSG_CHECKING([if ezcfg_httpd_ssi service is enabled])

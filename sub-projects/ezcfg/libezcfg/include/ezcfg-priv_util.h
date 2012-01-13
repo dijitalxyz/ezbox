@@ -59,6 +59,11 @@ char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i);
 char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name);
 bool ezcfg_util_tzdata_check_area_location(char *area, char *location);
 
+/* util/util_url.c */
+size_t ezcfg_util_url_decode(const char *src, size_t src_len,
+        char *dst, size_t dst_len, int is_form_url_encoded);
+void ezcfg_util_url_remove_double_dots_and_double_slashes(char *s);
+
 /* util/util_socket_protocol.c */
 int ezcfg_util_socket_protocol_get_index(char *name);
 bool ezcfg_util_socket_is_supported_protocol(const int proto);
