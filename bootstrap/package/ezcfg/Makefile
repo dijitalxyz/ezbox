@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1373
+PKG_REV:=1384
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -126,7 +126,10 @@ endif
 # set iptables service
 ifneq ($(CONFIG_PACKAGE_iptables),)
 CONFIGURE_ARGS += \
-	--enable-service-iptables
+	--enable-service-iptables \
+	--enable-service-iptables_firewall \
+	--enable-service-iptables_nat \
+	--enable-service-iptables_dmz
 endif
 
 # set nano-X service
