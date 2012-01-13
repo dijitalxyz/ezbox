@@ -136,6 +136,7 @@ func_exit:
 		free(msg);
 }
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 static bool is_http_html_ssi_request(const char *uri)
 {
 	size_t uri_len;
@@ -150,7 +151,9 @@ static bool is_http_html_ssi_request(const char *uri)
 
 	return false;
 }
+#endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 static bool is_http_html_admin_request(const char *uri)
 {
 	if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
@@ -160,16 +163,17 @@ static bool is_http_html_admin_request(const char *uri)
 		return false;
 	}
 }
+#endif
 
 static bool need_authorization(const char *uri)
 {
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 	if (is_http_html_admin_request(uri) == true) {
 		return true;
 	}
-	else if (strncmp(uri, EZCFG_HTTP_HTML_ADMIN_PREFIX_URI, strlen(EZCFG_HTTP_HTML_ADMIN_PREFIX_URI)) == 0) {
-		return true;
-	}
-	else {
+	else
+#endif
+	{
 		return false;
 	}
 }
@@ -345,6 +349,7 @@ func_exit:
 		free(msg);
 }
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 static size_t url_decode(const char *src, size_t src_len,
 	char *dst, size_t dst_len, int is_form_url_encoded) {
 	size_t i, j;
@@ -524,7 +529,9 @@ func_exit:
 	if (ssi != NULL)
 		ezcfg_ssi_delete(ssi);
 }
+#endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 static void handle_admin_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -569,7 +576,9 @@ func_exit:
 	if (msg != NULL)
 		free(msg);
 }
+#endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX == 1)
 static void handle_index_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
@@ -614,6 +623,7 @@ func_exit:
 	if (msg != NULL)
 		free(msg);
 }
+#endif
 
 static void handle_http_request(struct ezcfg_worker *worker)
 {
@@ -643,17 +653,27 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 
 	/* don't need authenticate or has been authenticated */
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 	if (is_http_html_ssi_request(request_uri) == true) {
 		/* handle SSI enabled web page */
 		handle_ssi_request(worker);
 	}
-	else if (is_http_html_admin_request(request_uri) == true) {
+	else
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
+	if (is_http_html_admin_request(request_uri) == true) {
 		/* handle administration web page */
 		handle_admin_request(worker);
 	}
-	else {
+	else
+#endif
+	{
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX == 1)
 		/* will always return index page if not find the uri */
 		handle_index_request(worker);
+#else
+		send_http_bad_request(worker);
+#endif
 	}
 }
 

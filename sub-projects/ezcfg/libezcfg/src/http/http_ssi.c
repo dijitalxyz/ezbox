@@ -91,8 +91,9 @@ struct ezcfg_http_ssi *ezcfg_http_ssi_new(
 	ASSERT(nvram != NULL);
 	ASSERT(ssi != NULL);
 
-	hs = calloc(1, sizeof(struct ezcfg_http_ssi));
+	hs = malloc(sizeof(struct ezcfg_http_ssi));
 	if (hs != NULL) {
+		memset(hs, 0, sizeof(struct ezcfg_http_ssi));
 		hs->ezcfg = ezcfg;
 		hs->http = http;
 		hs->nvram = nvram;

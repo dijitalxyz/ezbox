@@ -270,6 +270,95 @@ AC_ARG_ENABLE([service-klogd],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KLOGD, test "x$config_ezbox_service_klogd" = xyes)
 
+# Configure ezcfg_httpd service.
+config_ezbox_service_ezcfg_httpd=yes
+AC_MSG_CHECKING([if ezcfg_httpd service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd], [Enable ezcfg_httpd service (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_service_ezcfg_httpd=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD], [1], [Enable ezcfg_httpd service])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD], [1], [Enable ezcfg_httpd service])
+	[AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD, test "x$config_ezbox_service_ezcfg_httpd" = xyes)
+
+# Configure ezcfg_httpd_cgi_index service.
+config_ezbox_service_ezcfg_httpd_cgi_index=no
+AC_MSG_CHECKING([if ezcfg_httpd_cgi_index service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_cgi_index],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_cgi_index], [Enable ezcfg_httpd_cgi_index service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX], [1], [Enable ezcfg_httpd_cgi_index service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_cgi_index=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX, test "x$config_ezbox_service_ezcfg_httpd_cgi_index" = xyes)
+
+# Configure ezcfg_httpd_cgi_admin service.
+config_ezbox_service_ezcfg_httpd_cgi_admin=no
+AC_MSG_CHECKING([if ezcfg_httpd_cgi_admin service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_cgi_admin],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_cgi_admin], [Enable ezcfg_httpd_cgi_admin service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN], [1], [Enable ezcfg_httpd_cgi_admin service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_cgi_admin=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN, test "x$config_ezbox_service_ezcfg_httpd_cgi_admin" = xyes)
+
+# Configure ezcfg_httpd_ssi service.
+config_ezbox_service_ezcfg_httpd_ssi=no
+AC_MSG_CHECKING([if ezcfg_httpd_ssi service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_ssi],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_ssi], [Enable ezcfg_httpd_ssi service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI], [1], [Enable ezcfg_httpd_ssi service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_ssi=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_SSI, test "x$config_ezbox_service_ezcfg_httpd_ssi" = xyes)
+
 # Configure ezcfg_igrsd service.
 config_ezbox_service_ezcfg_igrsd=yes
 AC_MSG_CHECKING([if ezcfg_igrsd service is enabled])
@@ -316,9 +405,13 @@ AC_ARG_ENABLE([service-ezcfg_upnpd_igd1],
 	AS_HELP_STRING([--enable-service-ezcfg_upnpd_igd1], [Enable UPnP IGD1 service (default no)]),
 	[case "$enableval" in
 	yes)
+if test "x$config_ezbox_service_ezcfg_upnpd" = xyes; then
 		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_UPNPD_IGD1], [1], [Enable UPnP IGD1 service])
 		AC_MSG_RESULT(yes)
 		config_ezbox_service_ezcfg_upnpd_igd1=yes
+else
+		AC_MSG_RESULT(no)
+fi
 	;;
 	*)
 		AC_MSG_RESULT(no)

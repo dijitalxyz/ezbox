@@ -58,10 +58,12 @@ libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_upnp_conf.c
 endif
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_ctrl.c
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_http.c
+endif
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_soap_http.c
-libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_igrs.c
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_igrs.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_igrs_isdp.c
 endif
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_uevent.c
@@ -131,9 +133,13 @@ libezcfg_la_SOURCES += $(top_builddir)/src/http/http.c
 # ezcfg HTTP SSI handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_ssi.c
 
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX
 # ezcfg HTML/HTTP index handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_html_index.c
+endif
 
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN
 # ezcfg HTML/HTTP admin handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_html_admin.c
 
@@ -212,7 +218,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/http/admin/http_html_admin_cnc_setup.
 libezcfg_la_SOURCES += $(top_builddir)/src/http/admin/http_html_admin_cnc_default.c
 # ezcfg HTML/HTTP admin cnc_latency handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/admin/http_html_admin_cnc_latency.c
-endif
+endif # end of CONFIG_EZBOX_SERVICE_EMC2
+endif # end of CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN
+endif # end of CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
 
 # ezcfg XML doc
 libezcfg_la_SOURCES += $(top_builddir)/src/xml/xml.c

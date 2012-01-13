@@ -83,9 +83,11 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 	case EZCFG_PROTO_CTRL :
 		ezcfg_ctrl_reset_attributes(worker->proto_data);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
 		ezcfg_http_reset_attributes(worker->proto_data);
 		break;
+#endif
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_soap_http_reset_attributes(worker->proto_data);
 		break;
@@ -147,9 +149,11 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_CTRL :
 		worker->proto_data = ezcfg_ctrl_new(ezcfg);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
 		worker->proto_data = ezcfg_http_new(ezcfg);
 		break;
+#endif
 	case EZCFG_PROTO_SOAP_HTTP :
 		worker->proto_data = ezcfg_soap_http_new(ezcfg);
 		break;
@@ -195,9 +199,11 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_CTRL :
 		ezcfg_worker_process_ctrl_new_connection(worker);
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
 		ezcfg_worker_process_http_new_connection(worker);
 		break;
+#endif
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_worker_process_soap_http_new_connection(worker);
 		break;
@@ -242,10 +248,12 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		ezcfg_ctrl_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
 		ezcfg_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
+#endif
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_soap_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
