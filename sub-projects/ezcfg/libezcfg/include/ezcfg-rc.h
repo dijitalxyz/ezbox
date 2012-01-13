@@ -20,16 +20,24 @@
 /* ezcfg rc control names */
 #define EZCFG_RC_SYSLOGD_ENABLE          "syslogd_enable"
 #define EZCFG_RC_KLOGD_ENABLE            "klogd_enable"
+
 #define EZCFG_RC_TELNETD_ENABLE          "telnetd_enable"
 #define EZCFG_RC_TELNETD_BINDING         "telnetd_binding"
+
 #define EZCFG_RC_DNSMASQ_ENABLE          "dnsmasq_enable"
 #define EZCFG_RC_DNSMASQ_BINDING         "dnsmasq_binding"
+
 #define EZCFG_RC_IPTABLES_ENABLE         "iptables_enable"
 #define EZCFG_RC_IPTABLES_BINDING        "iptables_binding"
+
 #define EZCFG_RC_WPA_SUPPLICANT_ENABLE   "wpa_supplicant_enable"
+
 #define EZCFG_RC_NANO_X_ENABLE           "nano-X_enable"
+
 #define EZCFG_RC_KDRIVE_ENABLE           "kdrive_enable"
+
 #define EZCFG_RC_DILLO_ENABLE            "dillo_enable"
+
 #define EZCFG_RC_EMC2_ENABLE             "emc2_enable"
 
 #endif

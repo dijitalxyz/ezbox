@@ -81,6 +81,7 @@ bool utils_ezcd_is_alive(void);
 bool utils_ezcd_is_ready(void);
 bool utils_ezcd_wait_up(int s);
 bool utils_ezcd_wait_down(int s);
+bool utils_service_enable(char *name);
 #if (HAVE_EZBOX_LAN_NIC == 1)
 bool utils_service_binding_lan(char *name);
 #endif

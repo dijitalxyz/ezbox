@@ -62,7 +62,8 @@ static int udhcpc_deconfig(void)
 	if (iface == NULL)
 		return (EXIT_FAILURE);
 
-	utils_system("/sbin/rc resolv_conf stop");
+	snprintf(buf, sizeof(buf), "%s resolv_conf stop", CMD_RC);
+	utils_system(buf);
 
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
@@ -172,10 +173,12 @@ static int udhcpc_bound(void)
 		}
 	}
 
-	utils_system("/sbin/rc resolv_conf restart");
+	snprintf(buf, sizeof(buf), "%s resolv_conf restart", CMD_RC);
+	utils_system(buf);
 
 	/* start WAN interface binding services */
-	utils_system("/sbin/rc action wan_services_start");
+	snprintf(buf, sizeof(buf), "%s action wan_services_start", CMD_RC);
+	utils_system(buf);
 
 	return (EXIT_SUCCESS);
 }
@@ -270,10 +273,12 @@ static int udhcpc_renew(void)
 		}
 	}
 
-	utils_system("/sbin/rc resolv_conf restart");
+	snprintf(buf, sizeof(buf), "%s resolv_conf restart", CMD_RC);
+	utils_system(buf);
 
 	/* start WAN interface binding services */
-	utils_system("/sbin/rc action wan_services_start");
+	snprintf(buf, sizeof(buf), "%s action wan_services_start", CMD_RC);
+	utils_system(buf);
 
 	return (EXIT_SUCCESS);
 }

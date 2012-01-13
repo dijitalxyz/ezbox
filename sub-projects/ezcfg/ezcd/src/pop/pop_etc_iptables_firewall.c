@@ -156,6 +156,71 @@ static void delete_fw_param(fw_param_t *fwp)
 
 static bool init_fw_param(fw_param_t *fwp)
 {
+	char buf[256];
+
+	/* firewall enable */
+	fwp->fw_enable = utils_service_enable(NVRAM_SERVICE_OPTION(IPTABLES, FIREWALL_ENABLE));
+	/* NAT enable */
+	fwp->nat_enable = utils_service_enable(NVRAM_SERVICE_OPTION(IPTABLES, NAT_ENABLE));
+	/* DMZ enable */
+	fwp->dmz_enable = utils_service_enable(NVRAM_SERVICE_OPTION(IPTABLES, DMZ_ENABLE));
+
+	/* loopback interface */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LOOPBACK, IFNAME), buf, sizeof(buf)) > 0) {
+		fwp->loopback_ifname = strdup(buf);
+		if (fwp->loopback_ifname == NULL)
+			return false;
+	}
+
+	/* LAN interface */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IFNAME), buf, sizeof(buf)) > 0) {
+		fwp->lan_ifname = strdup(buf);
+		if (fwp->lan_ifname == NULL)
+			return false;
+	}
+
+	/* WAN interface */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), buf, sizeof(buf)) > 0) {
+		fwp->wan_ifname = strdup(buf);
+		if (fwp->wan_ifname == NULL)
+			return false;
+	}
+
+	/* LAN IP address */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, IPADDR), buf, sizeof(buf)) > 0) {
+		fwp->lan_ipaddr = strdup(buf);
+		if (fwp->lan_ipaddr == NULL)
+			return false;
+	}
+
+	/* LAN netmask */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, NETMASK), buf, sizeof(buf)) > 0) {
+		fwp->lan_netmask = strdup(buf);
+		if (fwp->lan_netmask == NULL)
+			return false;
+	}
+
+	/* WAN IP address */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf, sizeof(buf)) > 0) {
+		fwp->wan_ipaddr = strdup(buf);
+		if (fwp->wan_ipaddr == NULL)
+			return false;
+	}
+
+	/* WAN netmask */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, NETMASK), buf, sizeof(buf)) > 0) {
+		fwp->wan_netmask = strdup(buf);
+		if (fwp->wan_netmask == NULL)
+			return false;
+	}
+
+	/* DMZ destination IP address */
+	if (ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(IPTABLES, DMZ_DST_IPADDR), buf, sizeof(buf)) > 0) {
+		fwp->dmz_dst_ipaddr = strdup(buf);
+		if (fwp->dmz_dst_ipaddr == NULL)
+			return false;
+	}
+
 	return true;
 }
 

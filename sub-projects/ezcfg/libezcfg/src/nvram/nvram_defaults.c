@@ -62,6 +62,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 		"nf_conntrack_ipv4," \
 		"nf_nat," \
 		"iptable_nat," \
+		"ipt_MASQUERADE," \
 		"xt_state," \
 		"xt_tcpudp" },
 #endif
@@ -928,6 +929,19 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* iptables enabled */
 	{ NVRAM_SERVICE_OPTION(RC, IPTABLES_ENABLE), "1" },
 	{ NVRAM_SERVICE_OPTION(RC, IPTABLES_BINDING), "wan" },
+#if (HAVE_EZBOX_SERVICE_IPTABLES_FIREWALL == 1)
+	/* firewall support */
+	{ NVRAM_SERVICE_OPTION(IPTABLES, FIREWALL_ENABLE), "1" },
+#endif
+#if (HAVE_EZBOX_SERVICE_IPTABLES_NAT == 1)
+	/* NAT support */
+	{ NVRAM_SERVICE_OPTION(IPTABLES, NAT_ENABLE), "1" },
+#endif
+#if (HAVE_EZBOX_SERVICE_IPTABLES_DMZ == 1)
+	/* DMZ support */
+	{ NVRAM_SERVICE_OPTION(IPTABLES, DMZ_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(IPTABLES, DMZ_DST_IPADDR), "" },
+#endif
 #endif
 
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)

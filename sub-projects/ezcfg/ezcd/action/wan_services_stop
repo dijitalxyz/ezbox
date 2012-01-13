@@ -1,5 +1,5 @@
 # stop iptables-provided service
-iptables wan stop
+iptables firewall stop
 
 # stop ezcfg upnpd service
 ezcfg_upnpd wan stop

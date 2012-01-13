@@ -385,6 +385,75 @@ AC_ARG_ENABLE([service-iptables],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES, test "x$config_ezbox_service_iptables" = xyes)
 
+# Configure iptables firewall service.
+config_ezbox_service_iptables_firewall=no
+AC_MSG_CHECKING([if iptables firewall service is enabled])
+AC_ARG_ENABLE([service-iptables_firewall],
+	AS_HELP_STRING([--enable-service-iptables_firewall], [Enable iptables firewall service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_iptables" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_IPTABLES_FIREWALL], [1], [Enable iptables firewall service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_iptables_firewall=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES_FIREWALL, test "x$config_ezbox_service_iptables_firewall" = xyes)
+
+# Configure iptables NAT service.
+config_ezbox_service_iptables_nat=no
+AC_MSG_CHECKING([if iptables NAT service is enabled])
+AC_ARG_ENABLE([service-iptables_nat],
+	AS_HELP_STRING([--enable-service-iptables_nat], [Enable iptables NAT service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_iptables" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_IPTABLES_NAT], [1], [Enable iptables NAT service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_iptables_nat=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES_NAT, test "x$config_ezbox_service_iptables_nat" = xyes)
+
+# Configure iptables DMZ service.
+config_ezbox_service_iptables_dmz=no
+AC_MSG_CHECKING([if iptables DMZ service is enabled])
+AC_ARG_ENABLE([service-iptables_dmz],
+	AS_HELP_STRING([--enable-service-iptables_dmz], [Enable iptables DMZ service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_iptables" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_IPTABLES_DMZ], [1], [Enable iptables DMZ service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_iptables_dmz=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES_DMZ, test "x$config_ezbox_service_iptables_dmz" = xyes)
+
 # Configure nano-X service.
 config_ezbox_service_nano_x=no
 AC_MSG_CHECKING([if nano-X service is enabled])

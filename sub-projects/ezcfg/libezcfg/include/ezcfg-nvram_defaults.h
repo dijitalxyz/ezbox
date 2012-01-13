@@ -23,6 +23,7 @@
 #include "ezcfg-rc.h"
 #include "ezcfg-ui.h"
 #include "ezcfg-dnsmasq.h"
+#include "ezcfg-iptables.h"
 #include "ezcfg-wpa_supplicant.h"
 #include "ezcfg-nano_x.h"
 #include "ezcfg-kdrive.h"

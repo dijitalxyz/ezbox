@@ -45,6 +45,18 @@
 #define DBG(format, arg...)
 #endif
 
+bool utils_service_enable(char *name)
+{
+	char buf[64];
+	int rc;
+
+	rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	if ((rc == 1) && (strcmp(buf, "1") == 0)){
+		return true;
+	}
+	return false;
+}
+
 bool utils_service_binding_lan(char *name)
 {
 	char buf[64];

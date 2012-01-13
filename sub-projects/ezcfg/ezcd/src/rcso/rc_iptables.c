@@ -178,15 +178,15 @@ static int iptables_firewall(int flag)
 		pop_etc_iptables_firewall(RC_ACT_STOP);
 
 		/* stop firewall */
-	#if 0
-		utils_system("iptables -t mangle -F");
-		utils_system("iptables -t nat -F");
-		utils_system("iptables -t filter -F");
-		utils_system("rmmod xt_tcpmss");
-		utils_system("rmmod xt_TCPMSS");
-		utils_system("rmmod iptable_mangle");
-		/* also clean conntrack */
-	#endif
+		snprintf(buf, sizeof(buf), "%s -t mangle -F", CMD_IPTABLES);
+		utils_system(buf);
+		snprintf(buf, sizeof(buf), "%s -t nat -F", CMD_IPTABLES);
+		utils_system(buf);
+		snprintf(buf, sizeof(buf), "%s -t filter -F", CMD_IPTABLES);
+		utils_system(buf);
+
+		/* FIXME: also clean conntrack */
+
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
