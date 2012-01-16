@@ -55,8 +55,6 @@
 	do { errno = en; perror(msg); } while (0)
 
 
-#define EZCFG_HTTP_HTML_SSI_EXTENSION	".shtm"
-
 static bool http_error_handler(struct ezcfg_worker *worker)
 {
 	return false;
@@ -142,9 +140,9 @@ static bool is_http_html_ssi_request(const char *uri)
 	size_t uri_len;
 
 	uri_len = strlen(uri);
-	if (uri_len > strlen(EZCFG_HTTP_HTML_SSI_EXTENSION)) {
-		uri_len -= strlen(EZCFG_HTTP_HTML_SSI_EXTENSION);
-		if (strcasecmp(uri+uri_len, EZCFG_HTTP_HTML_SSI_EXTENSION) == 0) {
+	if (uri_len > strlen(EZCFG_FILE_EXT_SHTM_STRING)) {
+		uri_len -= strlen(EZCFG_FILE_EXT_SHTM_STRING);
+		if (strcmp(uri+uri_len, EZCFG_FILE_EXT_SHTM_STRING) == 0) {
 			return true;
 		}
 	}
@@ -156,8 +154,13 @@ static bool is_http_html_ssi_request(const char *uri)
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM == 1)
 static bool is_http_html_nvram_request(const char *uri)
 {
+	int uri_len, len;
 	if (strstr(uri, EZCFG_HTTP_HTML_NVRAM_PREFIX_URI) != NULL) {
-		return true;
+		uri_len = strlen(uri);
+		len = uri_len - strlen(EZCFG_FILE_EXT_JS_STRING);
+		if ((len > 0) && (strcmp(uri+len, EZCFG_FILE_EXT_JS_STRING) == 0)) {
+			return true;
+		}
 	}
 
 	return false;
@@ -391,9 +394,6 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 		goto func_exit;
 	}
 
-	request_uri = ezcfg_http_get_request_uri(http);
-	uri_len = strlen(request_uri);
-
 	/* set default document root */
 	if (ezcfg_ssi_set_document_root(ssi, "/var/www") == false) {
 		send_http_error(worker, 500,
@@ -403,6 +403,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	}
 
 	/* set file path */
+	request_uri = ezcfg_http_get_request_uri(http);
 	uri_len = strlen(request_uri);
 	if (uri_len+2 > sizeof(buf)) {
 		send_http_error(worker, 505,
@@ -505,7 +506,9 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	struct ezcfg_http_nvram *hn;
 	char buf[1024];
 	char *request_uri;
-	size_t uri_len;
+	char *p;
+	size_t len;
+	int type;
 	char *msg = NULL;
 	int msg_len;
 
@@ -526,32 +529,39 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 		goto func_exit;
 	}
 
+	/* set content type */
 	request_uri = ezcfg_http_get_request_uri(http);
-	uri_len = strlen(request_uri);
+	type = ezcfg_util_file_get_type_extension_index(request_uri);
+	if (type != EZCFG_FILE_EXT_JS) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not support file type");
+		goto func_exit;
+	}
+	ezcfg_http_nvram_set_content_type(hn, type);
 
-	/* set default document root */
-#if 0
-	if (ezcfg_http_nvram_set_rule_path_root(ssi, "/etc/ezcfg_httpd/nvram") == false) {
+	/* set default root */
+	if (ezcfg_http_nvram_set_root(hn, "/etc/nvram") == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");
 		goto func_exit;
 	}
-#endif
 
 	/* set file path */
-	uri_len = strlen(request_uri);
-	if (uri_len+2 > sizeof(buf)) {
+	p = strstr(request_uri, EZCFG_HTTP_HTML_NVRAM_PREFIX_URI);
+	p += strlen(EZCFG_HTTP_HTML_NVRAM_PREFIX_URI);
+	len = strlen(p);
+	if (len+2 > sizeof(buf)) {
 		send_http_error(worker, 505,
 		                "Bad Request",
 		                "%s", "File name is too large");
 		goto func_exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
-	ezcfg_util_url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
+	snprintf(buf, sizeof(buf), "%s", *p == '/' ? "" : "/");
+	ezcfg_util_url_decode(p, len, buf+strlen(buf), len+1, 0);
 	ezcfg_util_url_remove_double_dots_and_double_slashes(buf);
-#if 0
 	if (ezcfg_http_nvram_set_path(hn, buf) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -559,6 +569,7 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 		goto func_exit;
 	}
 
+#if 0
 	if (ezcfg_http_nvram_open_file(hn, "r") == NULL) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",

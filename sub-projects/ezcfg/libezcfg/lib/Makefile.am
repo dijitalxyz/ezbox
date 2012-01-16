@@ -79,6 +79,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/util/util_adler32.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_base64.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_crc32.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_conf.c
+libezcfg_la_SOURCES += $(top_builddir)/src/util/util_file_extension.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_parse_args.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_socket_protocol.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_socket_domain.c

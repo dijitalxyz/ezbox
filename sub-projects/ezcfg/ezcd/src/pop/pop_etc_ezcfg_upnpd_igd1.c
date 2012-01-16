@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 #if 1
 #define DBG(format, args...) do {\
@@ -51,9 +52,9 @@
 #define DBG(format, args...)
 #endif
 
-#define fprintf_indent(i, fp, format, args...) do { \
-	int j; \
-	for (j = 0; j < i; j++) fprintf(fp, "\t"); \
+#define fprintf_indent(ii, fp, format, args...) do { \
+	int jj; \
+	for (jj = 0; jj < ii; jj++) fprintf(fp, "\t"); \
 	fprintf(fp, format, ## args); \
 } while(0)
 

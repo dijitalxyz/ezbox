@@ -30,7 +30,11 @@ libdir() {
 
 args="--prefix=/usr/local \
 --sysconfdir=/etc \
+--enable-service-ezcfg_httpd \
+--enable-service-ezcfg_httpd_cgi_nvram \
+--enable-service-ezcfg_httpd_ssi \
 --enable-service-ezcfg_upnpd \
+--enable-service-ezcfg_upnpd_igd1 \
 --enable-service-iptables \
 "
 

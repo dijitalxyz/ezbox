@@ -59,6 +59,9 @@ char *ezcfg_util_tzdata_get_location_desc_by_index(char *area, int i);
 char *ezcfg_util_tzdata_get_location_desc_by_name(char *area, char *name);
 bool ezcfg_util_tzdata_check_area_location(char *area, char *location);
 
+/* util/util_file_extension.c */
+int ezcfg_util_file_get_type_extension_index(const char *path);
+
 /* util/util_url.c */
 size_t ezcfg_util_url_decode(const char *src, size_t src_len,
         char *dst, size_t dst_len, int is_form_url_encoded);

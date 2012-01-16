@@ -41,63 +41,63 @@ struct tz_triple {
 	struct tz_pair *tz_list;
 };
 
-struct tz_pair ezcfg_africa_locations[] = {
+static struct tz_pair ezcfg_africa_locations[] = {
 	{ "Algeria", "Algeria" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_america_locations[] = {
+static struct tz_pair ezcfg_america_locations[] = {
 	{ "Anguilla", "Anguilla" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_antarctica_locations[] = {
+static struct tz_pair ezcfg_antarctica_locations[] = {
 	{ "McMurdo", "McMurdo Station, Ross Island" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_arctic_locations[] = {
+static struct tz_pair ezcfg_arctic_locations[] = {
 	{ "Longyearbyen", "Svalbard & Jan Mayen" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_asia_locations[] = {
+static struct tz_pair ezcfg_asia_locations[] = {
 	{ "Shanghai", "east China - Beijing, Guangdong, Shanghai, etc." },
 	{ "Hong_Kong", "Hong Kong" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_atlantic_locations[] = {
+static struct tz_pair ezcfg_atlantic_locations[] = {
 	{ "Bermuda", "Bermuda" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_australia_locations[] = {
+static struct tz_pair ezcfg_australia_locations[] = {
 	{ "Lord_Howe", "Lord Howe Island" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_europe_locations[] = {
+static struct tz_pair ezcfg_europe_locations[] = {
 	{ "Mariehamn", "Aaland Islands" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_indian_locations[] = {
+static struct tz_pair ezcfg_indian_locations[] = {
 	{ "Chagos", "British Indian Ocean Territory" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_pacific_locations[] = {
+static struct tz_pair ezcfg_pacific_locations[] = {
 	{ "Chatham", "Chatham Islands" },
 	{ NULL, NULL },
 };
 
-struct tz_pair ezcfg_none_locations[] = {
+static struct tz_pair ezcfg_none_locations[] = {
 	{ "GST-10", "GST-10" },
 	{ NULL, NULL },
 };
 
-struct tz_triple ezcfg_support_areas[] = {
+static struct tz_triple ezcfg_support_areas[] = {
 	{ "Africa", "Africa", ezcfg_africa_locations },
 	{ "America", "America", ezcfg_america_locations },
 	{ "Antarctica", "Antarctica", ezcfg_antarctica_locations },

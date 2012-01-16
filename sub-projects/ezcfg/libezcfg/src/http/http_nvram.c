@@ -37,6 +37,9 @@ struct ezcfg_http_nvram {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
+	int content_type;
+	char *root;
+	char *path;
 };
 
 /**
@@ -74,6 +77,12 @@ void ezcfg_http_nvram_delete(struct ezcfg_http_nvram *hn)
 {
 	ASSERT(hn != NULL);
 
+	if (hn->root != NULL)
+		free(hn->root);
+
+	if (hn->path != NULL)
+		free(hn->path);
+
 	free(hn);
 }
 
@@ -91,20 +100,72 @@ struct ezcfg_http_nvram *ezcfg_http_nvram_new(struct ezcfg *ezcfg)
 	return hn;
 }
 
-void ezcfg_http_nvram_set_http(struct ezcfg_http_nvram *hn, struct ezcfg_http *http)
+bool ezcfg_http_nvram_set_http(struct ezcfg_http_nvram *hn, struct ezcfg_http *http)
 {
 	ASSERT(hn != NULL);
 	ASSERT(http != NULL);
 
 	hn->http = http;
+	return true;
 }
 
-void ezcfg_http_nvram_set_nvram(struct ezcfg_http_nvram *hn, struct ezcfg_nvram *nvram)
+bool ezcfg_http_nvram_set_nvram(struct ezcfg_http_nvram *hn, struct ezcfg_nvram *nvram)
 {
 	ASSERT(hn != NULL);
 	ASSERT(nvram != NULL);
 
 	hn->nvram = nvram;
+	return true;
+}
+
+int ezcfg_http_nvram_get_content_type(struct ezcfg_http_nvram *hn)
+{
+	ASSERT(hn != NULL);
+
+	return hn->content_type;
+}
+
+bool ezcfg_http_nvram_set_content_type(struct ezcfg_http_nvram *hn, const int type)
+{
+	ASSERT(hn != NULL);
+	ASSERT(type >= 0);
+
+	hn->content_type = type;
+	return true;
+}
+
+bool ezcfg_http_nvram_set_root(struct ezcfg_http_nvram *hn, const char *root)
+{
+	char *p;
+	ASSERT(hn != NULL);
+	ASSERT(root != NULL);
+
+	p = strdup(root);
+	if (p == NULL)
+		return false;
+
+	if (hn->root != NULL)
+		free(hn->root);
+
+	hn->root = p;
+	return true;
+}
+
+bool ezcfg_http_nvram_set_path(struct ezcfg_http_nvram *hn, const char *path)
+{
+	char *p;
+	ASSERT(hn != NULL);
+	ASSERT(path != NULL);
+
+	p = strdup(path);
+	if (p == NULL)
+		return false;
+
+	if (hn->path != NULL)
+		free(hn->path);
+
+	hn->path = p;
+	return true;
 }
 
 int ezcfg_http_handle_nvram_request(struct ezcfg_http_nvram *hn)

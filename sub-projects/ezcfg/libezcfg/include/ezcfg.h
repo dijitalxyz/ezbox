@@ -58,11 +58,19 @@
 #define EZCFG_SEM_NUMBER	4
 
 /* socket path */
-#define EZCFG_SOCK_ROOT_PATH	"@/org/ezbox/ezcfg/sock"
-#define EZCFG_SOCK_CTRL_PATH	EZCFG_SOCK_ROOT_PATH "/ctrl"
-#define EZCFG_SOCK_NVRAM_PATH	EZCFG_SOCK_ROOT_PATH "/nvram"
-#define EZCFG_SOCK_UEVENT_PATH	EZCFG_SOCK_ROOT_PATH "/uevent"
-#define EZCFG_SOCK_MASTER_PATH	EZCFG_SOCK_ROOT_PATH "/master"
+#define EZCFG_SOCK_ROOT_PATH    "@/org/ezbox/ezcfg/sock"
+#define EZCFG_SOCK_CTRL_PATH    EZCFG_SOCK_ROOT_PATH "/ctrl"
+#define EZCFG_SOCK_NVRAM_PATH   EZCFG_SOCK_ROOT_PATH "/nvram"
+#define EZCFG_SOCK_UEVENT_PATH  EZCFG_SOCK_ROOT_PATH "/uevent"
+#define EZCFG_SOCK_MASTER_PATH  EZCFG_SOCK_ROOT_PATH "/master"
+
+
+/* file extension */
+#define EZCFG_FILE_EXT_UNKNOWN          0
+#define EZCFG_FILE_EXT_SHTM             1
+#define EZCFG_FILE_EXT_SHTM_STRING      ".shtm"
+#define EZCFG_FILE_EXT_JS               2
+#define EZCFG_FILE_EXT_JS_STRING        ".js"
 
 
 /* thread config definitions */
