@@ -226,6 +226,7 @@ struct ezcfg_http {
 
 /* ezcfg HTTP MIME type strings */
 #define EZCFG_HTTP_MIME_APPLICATION_SOAP_XML  "application/soap+xml"
+#define EZCFG_HTTP_MIME_APPLICATION_X_JAVASCRIPT        "application/x-javascript"
 #define EZCFG_HTTP_MIME_TEXT_HTML             "text/html"
 #define EZCFG_HTTP_MIME_TEXT_XML              "text/xml"
 #define EZCFG_HTTP_MIME_TEXT_CSS              "text/css"

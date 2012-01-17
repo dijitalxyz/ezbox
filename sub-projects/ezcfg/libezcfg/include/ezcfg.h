@@ -71,6 +71,8 @@
 #define EZCFG_FILE_EXT_SHTM_STRING      ".shtm"
 #define EZCFG_FILE_EXT_JS               2
 #define EZCFG_FILE_EXT_JS_STRING        ".js"
+#define EZCFG_FILE_EXT_NVJS             3
+#define EZCFG_FILE_EXT_NVJS_STRING      ".nvjs"
 
 
 /* thread config definitions */

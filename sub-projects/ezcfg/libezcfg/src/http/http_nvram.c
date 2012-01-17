@@ -50,10 +50,12 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
-	int rc = 0;
+	char buf[1024];
+	char *p;
+	FILE *fp = NULL;
+	int len;
+	int rc = -1;
 	
-	ASSERT(hn != NULL);
-
 	ezcfg = hn->ezcfg;
 	http = hn->http;
 	nvram = hn->nvram;
@@ -65,8 +67,37 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	ezcfg_http_set_status_code(http, 200);
 	ezcfg_http_set_state_response(http);
 
+	/* open nvram-js mapping list file */
+	len = strlen(hn->root) + strlen(hn->path);
+	if ((len - strlen(EZCFG_FILE_EXT_JS_STRING) +
+	     strlen(EZCFG_FILE_EXT_NVJS_STRING)) < sizeof(buf)) {
+		snprintf(buf, sizeof(buf), "%s%s", hn->root, hn->path);
+		p = buf + len - strlen(EZCFG_FILE_EXT_JS_STRING);
+		snprintf(p, sizeof(buf)-(p-buf), "%s", EZCFG_FILE_EXT_NVJS_STRING);
+		fp = fopen(buf, "r");
+		if (fp == NULL) {
+			goto func_exit;
+		}
+	}
+
+	/* build HTTP response */
+	/* HTTP header content-type */
+	snprintf(buf, sizeof(buf), "%s; %s=%s",
+		EZCFG_HTTP_MIME_APPLICATION_X_JAVASCRIPT,
+		EZCFG_HTTP_CHARSET_NAME,
+		EZCFG_HTTP_CHARSET_UTF8);
+	if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
+		err(ezcfg, "HTTP add header error.\n");
+		goto func_exit;
+	}
+
 	/* set return value */
 	rc = 0;
+
+func_exit:
+	if (fp != NULL)
+		fclose(fp);
+
 	return rc;
 }
 

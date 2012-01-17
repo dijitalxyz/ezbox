@@ -465,6 +465,9 @@ FILE *ezcfg_ssi_open_file(struct ezcfg_ssi *ssi, const char *mode)
 	if (ssi->document_root == NULL || ssi->path == NULL)
 		return NULL;
 
+	if ((strlen(ssi->document_root) + strlen(ssi->path)) >= sizeof(buf))
+		return NULL;
+
 	snprintf(buf, sizeof(buf), "%s%s", ssi->document_root, ssi->path);
 	fp = fopen(buf, mode);
 	if (fp == NULL)
