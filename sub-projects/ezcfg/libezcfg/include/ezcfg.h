@@ -64,6 +64,11 @@
 #define EZCFG_SOCK_UEVENT_PATH  EZCFG_SOCK_ROOT_PATH "/uevent"
 #define EZCFG_SOCK_MASTER_PATH  EZCFG_SOCK_ROOT_PATH "/master"
 
+/* Web GUI path */
+#define EZCFG_WEB_DOCUMENT_ROOT_PATH    "/var/www"
+
+/* file tail string */
+#define EZCFG_FILE_LINE_TAIL_STRING     " \t\r\n"
 
 /* file extension */
 #define EZCFG_FILE_EXT_UNKNOWN          0

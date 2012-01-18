@@ -50,8 +50,10 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
+	char line[256];
 	char buf[1024];
 	char *p;
+	char *nv_name, *js_name;
 	FILE *fp = NULL;
 	int len;
 	int rc = -1;
@@ -89,6 +91,17 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
 		err(ezcfg, "HTTP add header error.\n");
 		goto func_exit;
+	}
+
+	/* read nvram-js mapping file */
+	while (ezcfg_util_file_get_line(fp, line, sizeof(line), "#", EZCFG_FILE_LINE_TAIL_STRING) == true) {
+		/* convert nvram to js variable */
+		p = strchr(line, ':');
+		if (p != NULL) {
+			*p = '\0';
+			nv_name = line;
+			js_name = p+1;
+		}
 	}
 
 	/* set return value */

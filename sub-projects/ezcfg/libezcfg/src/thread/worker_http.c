@@ -395,7 +395,7 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	}
 
 	/* set default document root */
-	if (ezcfg_ssi_set_document_root(ssi, "/var/www") == false) {
+	if (ezcfg_ssi_set_document_root(ssi, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");
@@ -506,8 +506,7 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	struct ezcfg_http_nvram *hn;
 	char buf[1024];
 	char *request_uri;
-	char *p;
-	size_t len;
+	size_t uri_len;
 	int type;
 	char *msg = NULL;
 	int msg_len;
@@ -541,7 +540,7 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	ezcfg_http_nvram_set_content_type(hn, type);
 
 	/* set default root */
-	if (ezcfg_http_nvram_set_root(hn, "/etc/nvram") == false) {
+	if (ezcfg_http_nvram_set_root(hn, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");
@@ -549,18 +548,17 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	}
 
 	/* set file path */
-	p = strstr(request_uri, EZCFG_HTTP_HTML_NVRAM_PREFIX_URI);
-	p += strlen(EZCFG_HTTP_HTML_NVRAM_PREFIX_URI);
-	len = strlen(p);
-	if (len+2 > sizeof(buf)) {
+	request_uri = ezcfg_http_get_request_uri(http);
+	uri_len = strlen(request_uri);
+	if (uri_len+2 > sizeof(buf)) {
 		send_http_error(worker, 505,
 		                "Bad Request",
 		                "%s", "File name is too large");
 		goto func_exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s", *p == '/' ? "" : "/");
-	ezcfg_util_url_decode(p, len, buf+strlen(buf), len+1, 0);
+	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
+	ezcfg_util_url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
 	ezcfg_util_url_remove_double_dots_and_double_slashes(buf);
 	if (ezcfg_http_nvram_set_path(hn, buf) == false) {
 		send_http_error(worker, 500,
@@ -568,15 +566,6 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 		                "%s", "Not enough memory");
 		goto func_exit;
 	}
-
-#if 0
-	if (ezcfg_http_nvram_open_file(hn, "r") == NULL) {
-		send_http_error(worker, 500,
-		                "Internal Server Error",
-		                "%s", "Cannot open file");
-		goto func_exit;
-	}
-#endif
 
 	/* must setup http and nvram before handling request */
 	ezcfg_http_nvram_set_http(hn, http);
@@ -588,31 +577,6 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	}
 	else {
 		/* build HTTP response */
-		/* HTTP header content-type */
-		snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
-			err(ezcfg, "HTTP add header error.\n");
-			goto func_exit;
-		}
-
-		/* HTTP header cache-control */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE) == false) {
-			err(ezcfg, "HTTP add header error.\n");
-			goto func_exit;
-		}
-
-		/* HTTP header expires */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0") == false) {
-			err(ezcfg, "HTTP add header error.\n");
-			goto func_exit;
-		}
-
-		/* HTTP header pragma */
-		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE) == false) {
-			err(ezcfg, "HTTP add header error.\n");
-			goto func_exit;
-		}
-
 		msg_len = ezcfg_http_get_message_length(http);
 		if (msg_len < 0) {
 			err(ezcfg, "ezcfg_http_get_message_length error.\n");
