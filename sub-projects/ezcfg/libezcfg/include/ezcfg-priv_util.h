@@ -65,6 +65,9 @@ bool ezcfg_util_file_get_line(FILE *fp, char *buf, size_t size, char *comment, c
 /* util/util_file_extension.c */
 int ezcfg_util_file_get_type_extension_index(const char *path);
 
+/* util/util_javascript_var_escaped.c */
+char *ezcfg_util_javascript_var_escaped(const char *src);
+
 /* util/util_url.c */
 size_t ezcfg_util_url_decode(const char *src, size_t src_len,
         char *dst, size_t dst_len, int is_form_url_encoded);

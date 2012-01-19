@@ -67,7 +67,7 @@ int ezcfg_util_file_get_type_extension_index(const char *path)
 	struct file_extension_pair *p;
 	for (i = 1; i < ARRAY_SIZE(ezcfg_support_file_extensions); i++) {
 		p = &(ezcfg_support_file_extensions[i]);
-		if (strstr(p->name, path) != NULL)
+		if (strstr(path, p->name) != NULL)
 			return p->index;
 	}
 	return EZCFG_FILE_EXT_UNKNOWN;

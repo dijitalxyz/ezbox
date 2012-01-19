@@ -50,12 +50,13 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
-	char line[256];
 	char buf[1024];
-	char *p;
+	char *p, *q;
 	char *nv_name, *js_name;
 	FILE *fp = NULL;
 	int len;
+	int msg_len = 0;
+	char *msg = NULL;
 	int rc = -1;
 	
 	ezcfg = hn->ezcfg;
@@ -94,15 +95,49 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	}
 
 	/* read nvram-js mapping file */
-	while (ezcfg_util_file_get_line(fp, line, sizeof(line), "#", EZCFG_FILE_LINE_TAIL_STRING) == true) {
+	while (ezcfg_util_file_get_line(fp, buf, sizeof(buf), "#", EZCFG_FILE_LINE_TAIL_STRING) == true) {
 		/* convert nvram to js variable */
-		p = strchr(line, ':');
+		p = strchr(buf, ':');
 		if (p != NULL) {
 			*p = '\0';
-			nv_name = line;
+			nv_name = buf;
 			js_name = p+1;
+			ezcfg_nvram_get_entry_value(nvram, nv_name, &p);
+			if (p == NULL)
+				continue;
+
+			/* get escaped line */
+			q = ezcfg_util_javascript_var_escaped(p);
+			free(p);
+			if (q == NULL)
+				continue;
+
+			len = strlen(q);
+			len += strlen(js_name);
+			len += 6; /* for ='...';\n */
+
+			/* one more for 0-terminated string */
+			p = realloc(msg, msg_len+len+1);
+			if (p == NULL) {
+				free(q);
+				goto func_exit;
+			}
+			msg = p;
+			p += msg_len;
+			snprintf(p, len, "%s='%s';\n", js_name, q);
+			msg_len += len;
+			free(q);
 		}
 	}
+
+	p = ezcfg_http_set_message_body(http, msg, msg_len);
+	if (p == NULL) {
+		goto func_exit;
+	}
+
+	/* clean msg */
+	free(msg);
+	msg = NULL;
 
 	/* set return value */
 	rc = 0;
@@ -110,6 +145,9 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 func_exit:
 	if (fp != NULL)
 		fclose(fp);
+
+	if (msg != NULL)
+		free(msg);
 
 	return rc;
 }
