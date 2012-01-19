@@ -37,6 +37,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "ezcfg.h"
+#include "ezcfg-private.h"
+
 bool ezcfg_util_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *rm)
 {
 	if ((fp == NULL) || (buf == NULL) || (size < 1)) {

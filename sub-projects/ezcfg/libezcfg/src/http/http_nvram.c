@@ -114,7 +114,7 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 
 			len = strlen(q);
 			len += strlen(js_name);
-			len += 6; /* for ='...';\n */
+			len += 5; /* for ='...';\n */
 
 			/* one more for 0-terminated string */
 			p = realloc(msg, msg_len+len+1);

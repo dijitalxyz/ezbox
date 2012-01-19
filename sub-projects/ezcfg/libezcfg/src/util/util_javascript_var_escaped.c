@@ -37,6 +37,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "ezcfg.h"
+#include "ezcfg-private.h"
+
 #define IS_ESCAPED_CHAR(c)	(((c) == '\\') || ((c) == '\''))
 
 static int var_escaped_length(const char *s)
