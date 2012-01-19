@@ -73,7 +73,8 @@ static void delete_pending_rule(pending_rule_t *p) {
 	}
 }
 
-static bool add_pending_rule(pending_rule_t **l, const char *rule) {
+static bool add_pending_rule(pending_rule_t **l, const char *rule)
+{
 	pending_rule_t *p, *q;
 
 	p = malloc(sizeof(pending_rule_t));
@@ -86,15 +87,10 @@ static bool add_pending_rule(pending_rule_t **l, const char *rule) {
 		delete_pending_rule(p);
 		return false;
 	}
+	p->next = NULL;
 
 	/* find tail node of rule list */
-	p->next = *l;
-	q = NULL;
-	while(p->next != NULL) {
-		q = p->next;
-		p->next = q->next;
-	}
-
+	q = *l;
 	if (q == NULL) {
 		/* the rule list is empty,
 		 * set p as the head of the rule list
@@ -105,13 +101,17 @@ static bool add_pending_rule(pending_rule_t **l, const char *rule) {
 		/* the rule list is not empty,
 		 * set p as the tail of the rule list
 		 */
+		while (q->next != NULL) {
+			q = q->next;
+		}
 		q->next = p;
 	}
 
 	return true;
 }
 
-static void delete_pending_rules(pending_rule_t **l) {
+static void delete_pending_rules(pending_rule_t **l)
+{
 	pending_rule_t *p;
 
 	p = *l;
@@ -378,8 +378,9 @@ static bool build_filter_forward(FILE *fp, char *buf, size_t size, fw_param_t *f
 	/* rendering pending forward rules */
 	p = fwp->filter_forward;
 	while(p != NULL) {
-		if (p->rule != NULL)
+		if (p->rule != NULL) {
 			utils_file_print_line(fp, buf, size, "%s\n", p->rule);
+		}
 		fwp->filter_forward = p->next;
 		delete_pending_rule(p);
 		p = fwp->filter_forward;
