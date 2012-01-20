@@ -41,6 +41,21 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 1
+#define DBG(format, args...) do {\
+	char dbg_path[256]; \
+	FILE *dbg_fp; \
+	snprintf(dbg_path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(dbg_path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 static int lan_iptables(int flag)
 {

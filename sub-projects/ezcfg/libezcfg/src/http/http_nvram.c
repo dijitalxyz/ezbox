@@ -54,7 +54,7 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 	char *p, *q;
 	char *nv_name, *js_name;
 	FILE *fp = NULL;
-	int len;
+	int len = 0;
 	int msg_len = 0;
 	char *msg = NULL;
 	int rc = -1;
@@ -124,7 +124,7 @@ static int build_http_nvram_response(struct ezcfg_http_nvram *hn)
 			}
 			msg = p;
 			p += msg_len;
-			snprintf(p, len, "%s='%s';\n", js_name, q);
+			snprintf(p, len+1, "%s='%s';\n", js_name, q);
 			msg_len += len;
 			free(q);
 		}

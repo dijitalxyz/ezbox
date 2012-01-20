@@ -40,6 +40,22 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 1
+#define DBG(format, args...) do {\
+	char dbg_path[256]; \
+	FILE *dbg_fp; \
+	snprintf(dbg_path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(dbg_path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 /********************
  * firewall data structure
  ********************/
@@ -66,8 +82,9 @@ typedef struct fw_param_s {
 
 static void delete_pending_rule(pending_rule_t *p) {
 	if (p != NULL) {
-		if (p->rule != NULL)
+		if (p->rule != NULL) {
 			free(p->rule);
+		}
 
 		free(p);
 	}
@@ -220,6 +237,9 @@ static bool init_fw_param(fw_param_t *fwp)
 		if (fwp->dmz_dst_ipaddr == NULL)
 			return false;
 	}
+
+	/* pending filter forward rules list */
+	fwp->filter_forward = NULL;
 
 	return true;
 }
@@ -461,6 +481,8 @@ int pop_etc_iptables_firewall(int flag)
 			ret = EXIT_FAILURE;
 			break;
 		}
+		/* clean fwp */
+		memset(fwp, 0, sizeof(fw_param_t));
 
 		/* initialize fw_param */
 		if (init_fw_param(fwp) == false) {
@@ -494,11 +516,13 @@ int pop_etc_iptables_firewall(int flag)
 		break;
 	}
 
-	if (file != NULL)
+	if (file != NULL) {
 		fclose(file);
-
-	if (fwp != NULL)
+	}
+	
+	if (fwp != NULL) {
 		delete_fw_param(fwp);
+	}
 
 	if (ret == EXIT_FAILURE) {
 		unlink("/etc/iptables/firewall");

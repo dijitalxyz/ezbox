@@ -39,13 +39,13 @@
 
 #if 1
 #define DBG(format, args...) do { \
-	char path[256]; \
-	FILE *fp; \
-	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	char dbg_path[256]; \
+	FILE *dbg_fp; \
+	snprintf(dbg_path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(dbg_path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
