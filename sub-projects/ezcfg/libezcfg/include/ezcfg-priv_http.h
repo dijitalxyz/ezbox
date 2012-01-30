@@ -26,6 +26,7 @@ bool ezcfg_http_is_state_response(struct ezcfg_http *http);
 void ezcfg_http_delete_remote_user(struct ezcfg_http *http);
 void ezcfg_http_reset_attributes(struct ezcfg_http *http);
 bool ezcfg_http_parse_header(struct ezcfg_http *http, char *buf, int len);
+struct ezcfg *ezcfg_http_get_ezcfg(struct ezcfg_http *http);
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http);
 unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http);
 bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major);
