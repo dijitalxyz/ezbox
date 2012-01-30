@@ -31,6 +31,7 @@ libdir() {
 args="--prefix=/usr/local \
 --sysconfdir=/etc \
 --enable-service-ezcfg_httpd \
+--enable-service-ezcfg_httpd_cgi_admin \
 --enable-service-ezcfg_httpd_cgi_nvram \
 --enable-service-ezcfg_httpd_ssi \
 --enable-service-ezcfg_upnpd \

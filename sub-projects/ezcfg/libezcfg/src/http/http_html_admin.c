@@ -206,7 +206,7 @@ int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram 
 	ASSERT(http != NULL);
 	ASSERT(nvram != NULL);
 
-	ezcfg = http->ezcfg;
+	ezcfg = ezcfg_http_get_ezcfg(http);
 
 	request_uri = ezcfg_http_get_request_uri(http);
 
