@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1384
+PKG_REV:=1400
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -36,7 +36,7 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
-  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS)
+  DEPENDS:=+libpthread +check $(ICONV_DEPENDS) $(INTL_DEPENDS)
 endef
 
 define Package/ezcfg/description
@@ -72,6 +72,16 @@ endif
 CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
 
+# set check unit test settings
+CONFIGURE_ARGS += \
+	--disable-ezcfg_test
+
+# set nls settings
+ifeq ($(EZBOX_DISTRO), "kuafu")
+CONFIGURE_ARGS += \
+	--disable-ezcfg_nls
+endif
+
 # set bridge NIC settings
 CONFIGURE_ARGS += \
 	--disable-bridge-nic
@@ -86,10 +96,6 @@ ifeq ($(EZBOX_DISTRO), "qiaochui")
 CONFIGURE_ARGS += \
 	--disable-lan-nic
 endif
-
-# set check unit test settings
-CONFIGURE_ARGS += \
-	--disable-ezcfg_test
 
 # set syslog service
 ifneq ($(CONFIG_BUSYBOX_CONFIG_SYSLOGD),)
