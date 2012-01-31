@@ -22,6 +22,7 @@ PKG_FIXUP:=libtool
 PKG_INSTALL:=1
 
 PKG_BUILD_DEPENDS:=opkg/host
+PKG_BUILD_DEPENDS+=check
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -36,7 +37,7 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
-  DEPENDS:=+libpthread +check $(ICONV_DEPENDS) $(INTL_DEPENDS)
+  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS)
 endef
 
 define Package/ezcfg/description
