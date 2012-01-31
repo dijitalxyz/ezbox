@@ -34,8 +34,10 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#if (HAVE_EZBOX_EZCFG_NLS == 1)
 #include <locale.h>
 #include <libintl.h>
+#endif
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -122,6 +124,7 @@ char * ezcfg_locale_text(struct ezcfg_locale *locale, char * msgid)
 
 	ezcfg = locale->ezcfg;
 
+#if (HAVE_EZBOX_EZCFG_NLS == 1)
 	/* lock locale mutex */
 	ezcfg_common_locale_mutex_lock(ezcfg);
 
@@ -147,6 +150,9 @@ char * ezcfg_locale_text(struct ezcfg_locale *locale, char * msgid)
 
 	/* unlock gettext mutex */
 	ezcfg_common_locale_mutex_unlock(ezcfg);
+#else
+	p = msgid;
+#endif
 
 	return p;
 }

@@ -27,8 +27,10 @@
 #include <sys/sysinfo.h>
 #include <pthread.h>
 
+#if (HAVE_EZBOX_EZCFG_NLS == 1)
 #include <locale.h>
 #include <libintl.h>
+#endif
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"

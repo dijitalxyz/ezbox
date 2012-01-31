@@ -25,9 +25,6 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include <locale.h>
-#include <libintl.h>
-
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 

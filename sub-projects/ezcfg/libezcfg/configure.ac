@@ -70,6 +70,26 @@ AC_ARG_ENABLE([ezcfg_test],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
 
+# Configure ezcfg nls support.
+config_ezbox_ezcfg_nls=yes
+AC_MSG_CHECKING([if ezcfg_nls is enabled])
+AC_ARG_ENABLE([ezcfg_nls],
+	AS_HELP_STRING([--enable-ezcfg_nls], [Enable ezcfg_nls (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_nls=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
+	[AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_NLS, test "x$config_ezbox_ezcfg_nls" = xyes)
+
 # Configure ELAN NIC.
 config_ezbox_elan_nic=yes
 AC_MSG_CHECKING([if Ethernet network interface is enabled])
