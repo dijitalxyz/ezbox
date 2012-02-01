@@ -187,6 +187,12 @@ int ezcfg_css_get_message_length(struct ezcfg_css *css);
 int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
 
 
+/* ssl/ssl.c */
+struct ezcfg_ssl;
+struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int method);
+void ezcfg_ssl_delete(struct ezcfg_ssl *sslp);
+
+
 /* ssi/ssi.c */
 struct ezcfg_ssi;
 struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg, struct ezcfg_nvram *nvram);

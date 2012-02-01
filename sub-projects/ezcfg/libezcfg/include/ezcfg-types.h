@@ -65,4 +65,7 @@ struct ezcfg_socket;
 /* http/http.c */
 struct ezcfg_http;
 
+/* ssl/ssl.c */
+struct ezcfg_ssl;
+
 #endif /* _EZCFG_TYPES_H_ */

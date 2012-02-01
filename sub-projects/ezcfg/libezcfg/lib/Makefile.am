@@ -241,6 +241,11 @@ libezcfg_la_SOURCES += $(top_builddir)/src/css/css.c
 # ezcfg SSI handling
 libezcfg_la_SOURCES += $(top_builddir)/src/ssi/ssi.c
 
+if CONFIG_EZBOX_SERVICE_OPENSSL
+# ezcfg SSL handling
+libezcfg_la_SOURCES += $(top_builddir)/src/ssl/ssl.c
+endif
+
 # ezcfg SOAP protocol
 libezcfg_la_SOURCES += $(top_builddir)/src/soap/soap.c
 
