@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1400
+PKG_REV:=1407
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -110,6 +110,22 @@ CONFIGURE_ARGS += \
 	--enable-service-klogd
 endif
 
+# set ezcfg_httpd service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd
+
+# set ezcfg_httpd_cgi_nvram service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd_cgi_nvram
+
+# set ezcfg_httpd_ssi service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd_ssi
+
+# set ezcfg_igrsd service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_igrsd
+
 # set ezcfg_upnpd service
 CONFIGURE_ARGS += \
 	--enable-service-ezcfg_upnpd
@@ -117,6 +133,12 @@ CONFIGURE_ARGS += \
 # set ezcfg_upnpd_igd1 service
 CONFIGURE_ARGS += \
 	--enable-service-ezcfg_upnpd_igd1
+
+# set openssl service
+ifneq ($(CONFIG_PACKAGE_libopenssl),)
+CONFIGURE_ARGS += \
+	--enable-service-openssl
+endif
 
 # set telnet service
 ifneq ($(CONFIG_BUSYBOX_CONFIG_TELNETD),)
