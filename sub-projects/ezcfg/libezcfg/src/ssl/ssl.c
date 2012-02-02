@@ -108,7 +108,7 @@ void ezcfg_ssl_delete(struct ezcfg_ssl *sslp)
 struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int method)
 {
 	struct ezcfg_ssl *sslp;
-	SSL_METHOD *meth;
+	const SSL_METHOD *meth;
 
 	sslp = malloc(sizeof(struct ezcfg_ssl));
 	if (sslp == NULL)
