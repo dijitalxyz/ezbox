@@ -38,6 +38,8 @@ unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char 
 int ezcfg_http_request_method_cmp(struct ezcfg_http *http, const char *method);
 char *ezcfg_http_get_request_uri(struct ezcfg_http *http);
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri);
+bool ezcfg_http_get_is_ssl(struct ezcfg_http *http);
+bool ezcfg_http_set_is_ssl(struct ezcfg_http *http, const bool is_ssl);
 unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code);
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, int len);
 char *ezcfg_http_get_message_body(struct ezcfg_http *http);

@@ -205,7 +205,7 @@ void ezcfg_worker_process_igrs_new_connection(struct ezcfg_worker *worker)
 	}
 	memset(buf, 0, buf_len);
 	nread = 0;
-	header_len = ezcfg_socket_read_http_header(ezcfg_worker_get_client(worker), http, buf, buf_len, &nread);
+	header_len = ezcfg_socket_read_http_header(ezcfg_worker_get_socket(worker), http, buf, buf_len, &nread);
 
 	ASSERT(nread >= header_len);
 
@@ -235,7 +235,7 @@ void ezcfg_worker_process_igrs_new_connection(struct ezcfg_worker *worker)
 			                "%s", "Weird IGRS version");
 			goto exit;
 		}
-		p = ezcfg_socket_read_http_content(ezcfg_worker_get_client(worker), http, buf, header_len, &buf_len, &nread);
+		p = ezcfg_socket_read_http_content(ezcfg_worker_get_socket(worker), http, buf, header_len, &buf_len, &nread);
 		if (p == NULL) {
 			/* Do not put garbage in the access log */
 			send_igrs_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);

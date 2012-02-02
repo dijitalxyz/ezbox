@@ -116,7 +116,7 @@ void ezcfg_worker_process_upnp_ssdp_new_connection(struct ezcfg_worker *worker)
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	master = ezcfg_worker_get_master(worker);
 
-	sp = ezcfg_worker_get_client(worker);
+	sp = ezcfg_worker_get_socket(worker);
 	buf = ezcfg_socket_get_buffer(sp);
 	if (buf == NULL) {
 		err(ezcfg, "not enough memory for processing ssdp new connection\n");

@@ -64,12 +64,12 @@ void ezcfg_worker_process_uevent_new_connection(struct ezcfg_worker *worker)
 	ASSERT(uevent != NULL);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	buf = ezcfg_socket_get_buffer(ezcfg_worker_get_client(worker));
+	buf = ezcfg_socket_get_buffer(ezcfg_worker_get_socket(worker));
 	if (buf == NULL) {
 		err(ezcfg, "not enough memory for processing uevent new connection\n");
 		return;
 	}
-	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_client(worker));
+	buf_len = ezcfg_socket_get_buffer_len(ezcfg_worker_get_socket(worker));
 
 	info(ezcfg, "uevent=[%s], len=%d\n", buf, buf_len);
 	return;

@@ -89,21 +89,32 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
-		ip[0], ip[1], ip[2], ip[3],
-		EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
-
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* delete ezcfg httpd listening socket */
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+			ip[0], ip[1], ip[2], ip[3],
+			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
 		rc = ezcfg_api_nvram_remove_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_STREAM_STRING,
 			EZCFG_SOCKET_PROTO_HTTP_STRING,
 			buf);
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+		/* delete ezcfg httpd listening socket */
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+			ip[0], ip[1], ip[2], ip[3],
+			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
+		rc = ezcfg_api_nvram_remove_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_HTTPS_STRING,
+			buf);
+#endif
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -126,11 +137,26 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		}
 
 		/* add ezcfg httpd listening socket */
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+			ip[0], ip[1], ip[2], ip[3],
+			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
 		rc = ezcfg_api_nvram_insert_socket(
 			EZCFG_SOCKET_DOMAIN_INET_STRING,
 			EZCFG_SOCKET_TYPE_STREAM_STRING,
 			EZCFG_SOCKET_PROTO_HTTP_STRING,
 			buf);
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+		/* add ezcfg httpd listening socket */
+		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
+			ip[0], ip[1], ip[2], ip[3],
+			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
+		rc = ezcfg_api_nvram_insert_socket(
+			EZCFG_SOCKET_DOMAIN_INET_STRING,
+			EZCFG_SOCKET_TYPE_STREAM_STRING,
+			EZCFG_SOCKET_PROTO_HTTPS_STRING,
+			buf);
+#endif
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */

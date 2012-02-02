@@ -62,7 +62,7 @@ struct ezcfg_worker {
 	struct ezcfg *ezcfg;
 	struct ezcfg_worker *next; /* Linkage */
 	struct ezcfg_master *master;
-	struct ezcfg_socket *client;
+	struct ezcfg_socket *sp;
 	unsigned char proto;
 	void *proto_data;
 	time_t birth_time;
@@ -85,6 +85,9 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	case EZCFG_PROTO_HTTPS :
+#endif
 		ezcfg_http_reset_attributes(worker->proto_data);
 		break;
 #endif
@@ -128,7 +131,7 @@ static void close_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	ezcfg_socket_close_sock(worker->client);
+	ezcfg_socket_close_sock(worker->sp);
 }
 
 static void init_protocol_data(struct ezcfg_worker *worker)
@@ -142,7 +145,7 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 	ezcfg = worker->ezcfg;
 
 	/* set communication protocol */
-	worker->proto = ezcfg_socket_get_proto(worker->client);
+	worker->proto = ezcfg_socket_get_proto(worker->sp);
 
 	/* initialize protocol data structure */
 	switch(worker->proto) {
@@ -151,7 +154,16 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	case EZCFG_PROTO_HTTPS :
+#endif
 		worker->proto_data = ezcfg_http_new(ezcfg);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+		if ((worker->proto == EZCFG_PROTO_HTTPS) &&
+		    (worker->proto_data != NULL)) {
+			ezcfg_http_set_is_ssl(worker->proto_data, true);
+		}
+#endif
 		break;
 #endif
 	case EZCFG_PROTO_SOAP_HTTP :
@@ -201,6 +213,9 @@ static void process_new_connection(struct ezcfg_worker *worker)
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	case EZCFG_PROTO_HTTPS :
+#endif
 		ezcfg_worker_process_http_new_connection(worker);
 		break;
 #endif
@@ -250,6 +265,9 @@ static void release_protocol_data(struct ezcfg_worker *worker)
 		break;
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD == 1)
 	case EZCFG_PROTO_HTTP :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	case EZCFG_PROTO_HTTPS :
+#endif
 		ezcfg_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
@@ -302,8 +320,8 @@ void ezcfg_worker_delete(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
-	if (worker->client != NULL) {
-		ezcfg_socket_delete(worker->client);
+	if (worker->sp != NULL) {
+		ezcfg_socket_delete(worker->sp);
 	}
 
 	free(worker);
@@ -313,7 +331,7 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_worker *worker = NULL;
-	struct ezcfg_socket *client = NULL;
+	struct ezcfg_socket *sp = NULL;
 
 	ASSERT(master != NULL);
 	worker = calloc(1, sizeof(struct ezcfg_worker));
@@ -321,8 +339,8 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 		return NULL;
 
 	ezcfg = ezcfg_master_get_ezcfg(master);
-	client = ezcfg_socket_calloc(ezcfg, 1);
-	if (client == NULL) {
+	sp = ezcfg_socket_calloc(ezcfg, 1);
+	if (sp == NULL) {
 		free(worker);
 		return NULL;
 	}
@@ -331,11 +349,11 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 
 	worker->ezcfg = ezcfg;
 	worker->master = master;
-	worker->client = client;
+	worker->sp = sp;
 	worker->proto = EZCFG_PROTO_UNKNOWN;
 	worker->proto_data = NULL;
-	return worker;
 
+	return worker;
 }
 
 pthread_t *ezcfg_worker_get_p_thread_id(struct ezcfg_worker *worker)
@@ -387,7 +405,7 @@ void ezcfg_worker_thread(struct ezcfg_worker *worker)
 #endif
 
 	while ((ezcfg_master_is_stop(worker->master) == false) &&
-	       (ezcfg_master_get_socket(worker->master, worker->client, EZCFG_WORKER_WAIT_TIME) == true)) {
+	       (ezcfg_master_get_socket(worker->master, worker->sp, EZCFG_WORKER_WAIT_TIME) == true)) {
 
 		/* record start working time */
 		worker->birth_time = time(NULL);
@@ -445,14 +463,14 @@ int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 	len = vsnprintf(buf, buf_len, fmt, ap);
 	va_end(ap);
 
-	ret = ezcfg_socket_write(worker->client, buf, len, 0);
+	ret = ezcfg_socket_write(worker->sp, buf, len, 0);
 	free(buf);
 	return ret;
 }
 
 int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len)
 {
-	return ezcfg_socket_write(worker->client, buf, len, 0);
+	return ezcfg_socket_write(worker->sp, buf, len, 0);
 }
 
 void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker)
@@ -460,9 +478,9 @@ void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker)
 	return worker->proto_data;
 }
 
-struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker)
+struct ezcfg_socket *ezcfg_worker_get_socket(struct ezcfg_worker *worker)
 {
-	return worker->client;
+	return worker->sp;
 }
 
 bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num)

@@ -87,7 +87,7 @@ void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker)
 	sp = ezcfg_ctrl_get_socket(ctrl);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	len = ezcfg_socket_read(ezcfg_worker_get_client(worker), buf, sizeof(buf), 0);
+	len = ezcfg_socket_read(ezcfg_worker_get_socket(worker), buf, sizeof(buf), 0);
 	if (len > 0) {
 		buf[len - 1] = '\0';
 		if (ezcfg_ctrl_set_buffer(ctrl, buf, len) == false) {

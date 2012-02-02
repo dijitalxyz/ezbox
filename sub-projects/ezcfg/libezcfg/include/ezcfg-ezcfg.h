@@ -70,6 +70,11 @@
 #define EZCFG_EZCFG_SOCKET_0_PROTOCOL       "socket.0.protocol"
 #define EZCFG_EZCFG_SOCKET_0_ADDRESS        "socket.0.address"
 
+#define EZCFG_EZCFG_SOCKET_1_DOMAIN         "socket.1.domain"
+#define EZCFG_EZCFG_SOCKET_1_TYPE           "socket.1.type"
+#define EZCFG_EZCFG_SOCKET_1_PROTOCOL       "socket.1.protocol"
+#define EZCFG_EZCFG_SOCKET_1_ADDRESS        "socket.1.address"
+
 /* ezcfg config [auth] section */
 #define EZCFG_EZCFG_SECTION_AUTH            "auth"
 

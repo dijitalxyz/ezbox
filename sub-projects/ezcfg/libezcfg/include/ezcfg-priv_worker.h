@@ -32,7 +32,7 @@ struct ezcfg_master *ezcfg_worker_get_master(struct ezcfg_worker *worker);
 int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...);
 int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len);
 void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker);
-struct ezcfg_socket *ezcfg_worker_get_client(struct ezcfg_worker *worker);
+struct ezcfg_socket *ezcfg_worker_get_socket(struct ezcfg_worker *worker);
 bool ezcfg_worker_set_num_bytes_sent(struct ezcfg_worker *worker, int64_t num);
 bool ezcfg_worker_set_birth_time(struct ezcfg_worker *worker, time_t time);
 

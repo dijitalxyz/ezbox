@@ -897,6 +897,30 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 	return true;
 }
 
+bool ezcfg_http_get_is_ssl(struct ezcfg_http *http)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	return http->is_ssl;
+}
+
+bool ezcfg_http_set_is_ssl(struct ezcfg_http *http, const bool is_ssl)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(http != NULL);
+
+	ezcfg = http->ezcfg;
+
+	http->is_ssl = is_ssl;
+
+	return true;
+}
+
 /* \0-terminated the message body */
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, const int len)
 {
