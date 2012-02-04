@@ -38,6 +38,7 @@
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/opensslv.h>
 #endif
 
 #include "ezcfg.h"
@@ -108,7 +109,11 @@ void ezcfg_ssl_delete(struct ezcfg_ssl *sslp)
 struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int method)
 {
 	struct ezcfg_ssl *sslp;
+#if (OPENSSL_VERSION_NUMBER >= 0x10000000L)
 	const SSL_METHOD *meth;
+#else
+	SSL_METHOD *meth;
+#endif
 
 	sslp = malloc(sizeof(struct ezcfg_ssl));
 	if (sslp == NULL)
