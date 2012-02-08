@@ -28,6 +28,7 @@
 #define EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER   "socket_number"
 #define EZCFG_EZCFG_KEYWORD_LOCALE          "locale"
 #define EZCFG_EZCFG_KEYWORD_AUTH_NUMBER     "auth_number"
+#define EZCFG_EZCFG_KEYWORD_SSL_NUMBER      "ssl_number"
 #define EZCFG_EZCFG_KEYWORD_IGRS_NUMBER     "igrs_number"
 #define EZCFG_EZCFG_KEYWORD_UPNP_NUMBER     "upnp_number"
 
@@ -91,13 +92,19 @@
 #define EZCFG_EZCFG_AUTH_0_SECRET           "auth.0.secret"
 #define EZCFG_EZCFG_AUTH_0_SECRET2          "auth.0.secret2"
 
+/* ezcfg config [ssl] section */
+#define EZCFG_EZCFG_SECTION_SSL             "ssl"
+
+#define EZCFG_EZCFG_KEYWORD_ROLE            "role"
+#define EZCFG_EZCFG_KEYWORD_METHOD          "method"
+
 /* ezcfg config [igrs] section */
 #define EZCFG_EZCFG_SECTION_IGRS            "igrs"
 
 /* ezcfg config [upnp] section */
 #define EZCFG_EZCFG_SECTION_UPNP            "upnp"
 
-#define EZCFG_EZCFG_KEYWORD_ROLE            "role"
+//#define EZCFG_EZCFG_KEYWORD_ROLE            "role"
 #define EZCFG_EZCFG_KEYWORD_DEVICE_TYPE     "device_type"
 #define EZCFG_EZCFG_KEYWORD_DESCRIPTION_PATH    "description_path"
 #define EZCFG_EZCFG_KEYWORD_INTERFACE       "interface"

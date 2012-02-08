@@ -104,6 +104,8 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 
 
 /* auth/auth.c */
+#include "ezcfg-priv_auth.h"
+#if 0
 struct ezcfg_auth * ezcfg_auth_new(struct ezcfg *ezcfg);
 bool ezcfg_auth_delete(struct ezcfg_auth *auth);
 bool ezcfg_auth_set_type(struct ezcfg_auth *auth, char *type);
@@ -116,6 +118,7 @@ bool ezcfg_auth_list_in(struct ezcfg_auth **list, struct ezcfg_auth *auth);
 bool ezcfg_auth_list_insert(struct ezcfg_auth **list, struct ezcfg_auth *auth);
 void ezcfg_auth_list_delete(struct ezcfg_auth **list);
 bool ezcfg_auth_check_authorized(struct ezcfg_auth **list, struct ezcfg_auth *auth);
+#endif
 
 
 /* locale/locale.c */
@@ -188,9 +191,7 @@ int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
 
 
 /* ssl/ssl.c */
-struct ezcfg_ssl;
-struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int method);
-void ezcfg_ssl_delete(struct ezcfg_ssl *sslp);
+#include "ezcfg-priv_ssl.h"
 
 
 /* ssi/ssi.c */

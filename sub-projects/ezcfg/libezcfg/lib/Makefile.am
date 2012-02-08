@@ -49,6 +49,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_uevent.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_common_conf.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_socket_conf.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_auth_conf.c
+if CONFIG_EZBOX_SERVICE_OPENSSL
+libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_ssl_conf.c
+endif
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_igrs_conf.c
 endif

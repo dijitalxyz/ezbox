@@ -71,12 +71,18 @@ struct ezcfg_ssl {
 	int method;                     /* SSL2, SSL3, TLS1, peer determed */
 	SSL_CTX *ctx;                   /* SSL context */
 	SSL *ssl;
+
+	struct ezcfg_ssl *next; /* link pointer */
 };
 
 
 /**
  * private functions
  */
+static bool ssl_is_same(struct ezcfg_ssl *s1, struct ezcfg_ssl *s2)
+{
+	return false;
+}
 
 
 /**
@@ -189,4 +195,59 @@ struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int m
 fail_exit:
 	ezcfg_ssl_delete(sslp);
 	return NULL;
+}
+
+bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	return true;
+}
+
+bool ezcfg_ssl_list_in(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_ssl *sp;
+
+	ASSERT(list != NULL);
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	sp = *list;
+	while (sp != NULL) {
+		if (ssl_is_same(sp, sslp) == true) {
+			return true;
+		}
+		sp = sp->next;
+	}
+	return false;
+}
+
+bool ezcfg_ssl_list_insert(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp)
+{
+	ASSERT(list != NULL);
+	ASSERT(sslp != NULL);
+
+	sslp->next = *list;
+	*list = sslp;
+	return true;
+}
+
+void ezcfg_ssl_list_delete(struct ezcfg_ssl **list)
+{
+	struct ezcfg_ssl *sslp;
+
+	ASSERT(list != NULL);
+
+	sslp = *list;
+	while (sslp != NULL) {
+		*list = sslp->next;
+		ezcfg_ssl_delete(sslp);
+		sslp = *list;
+	}
 }

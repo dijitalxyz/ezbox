@@ -88,6 +88,11 @@ struct ezcfg_master {
 
 	struct ezcfg_nvram *nvram; /* Non-volatile memory */
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	struct ezcfg_ssl *ssl; /* SSL list */
+	pthread_mutex_t ssl_mutex; /* Protects ssl */
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	struct ezcfg_igrs *igrs; /* IGRS global state */
 	pthread_mutex_t igrs_mutex; /* Protects igrs */
@@ -214,6 +219,9 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	pthread_cond_init(&(master->thread_sync_cond), NULL);
 	pthread_mutex_init(&(master->ls_mutex), NULL);
 	pthread_mutex_init(&(master->auth_mutex), NULL);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	pthread_mutex_init(&(master->ssl_mutex), NULL);
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	pthread_mutex_init(&(master->igrs_mutex), NULL);
 #endif
@@ -356,6 +364,29 @@ static void ezcfg_master_finish(struct ezcfg_master *master)
 	master->listening_sockets = NULL;
 	pthread_mutex_unlock(&(master->ls_mutex));
 
+	/* Close all UPnP global state */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	pthread_mutex_lock(&(master->upnp_mutex));
+	ezcfg_upnp_list_delete(&(master->upnp));
+	master->upnp = NULL;
+	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+	/* Close all IGRS global state */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	pthread_mutex_lock(&(master->igrs_mutex));
+	ezcfg_igrs_list_delete(&(master->igrs));
+	master->igrs = NULL;
+	pthread_mutex_unlock(&(master->igrs_mutex));
+#endif
+
+	/* Close all SSL */
+#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
+	pthread_mutex_lock(&(master->ssl_mutex));
+	ezcfg_ssl_list_delete(&(master->ssl));
+	master->ssl = NULL;
+	pthread_mutex_unlock(&(master->ssl_mutex));
+#endif
+
 	/* Close all auths */
 	pthread_mutex_lock(&(master->auth_mutex));
 	ezcfg_auth_list_delete(&(master->auths));
@@ -380,6 +411,15 @@ static void ezcfg_master_finish(struct ezcfg_master *master)
 	pthread_cond_destroy(&(master->sq_full_cond));
 
 	pthread_mutex_destroy(&(master->ls_mutex));
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	pthread_mutex_destroy(&(master->upnp_mutex));
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	pthread_mutex_destroy(&(master->igrs_mutex));
+#endif
+#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
+	pthread_mutex_destroy(&(master->ssl_mutex));
+#endif
 	pthread_mutex_destroy(&(master->auth_mutex));
 
 	pthread_cond_destroy(&(master->thread_sync_cond));
@@ -653,6 +693,14 @@ load_other_sockets:
 	/* unlock mutex after handling auths */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
+	/* lock mutex before handling igrs */
+	pthread_mutex_lock(&(master->ssl_mutex));
+	ezcfg_master_load_ssl_conf(master);
+	/* unlock mutex after handling auths */
+	pthread_mutex_unlock(&(master->ssl_mutex));
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD ==  1)
 	/* lock mutex before handling igrs */
 	pthread_mutex_lock(&(master->igrs_mutex));
@@ -799,6 +847,21 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	/* lock ssl mutex */
+	pthread_mutex_lock(&(master->ssl_mutex));
+
+	if (master->ssl != NULL) {
+		ezcfg_ssl_list_delete(&(master->ssl));
+		master->ssl = NULL;
+	}
+
+	ezcfg_master_load_ssl_conf(master);
+
+	/* unlock ssl mutex */
+	pthread_mutex_unlock(&(master->ssl_mutex));
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 	/* lock igrs mutex */
 	pthread_mutex_lock(&(master->igrs_mutex));
@@ -810,7 +873,7 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	ezcfg_master_load_igrs_conf(master);
 
-	/* unlock upnp mutex */
+	/* unlock igrs mutex */
 	pthread_mutex_unlock(&(master->igrs_mutex));
 #endif
 
@@ -1049,6 +1112,52 @@ int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master)
 
 	return pthread_mutex_unlock(&(master->auth_mutex));
 }
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+struct ezcfg_ssl *ezcfg_master_get_ssl(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->ssl;
+}
+
+struct ezcfg_ssl **ezcfg_master_get_p_ssl(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return &(master->ssl);
+}
+
+int ezcfg_master_ssl_mutex_lock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_lock(&(master->ssl_mutex));
+}
+
+int ezcfg_master_ssl_mutex_unlock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_unlock(&(master->ssl_mutex));
+}
+#endif
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master)

@@ -33,6 +33,12 @@ struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master);
 struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+struct ezcfg_ssl *ezcfg_master_get_ssl(struct ezcfg_master *master);
+struct ezcfg_ssl **ezcfg_master_get_p_ssl(struct ezcfg_master *master);
+int ezcfg_master_ssl_mutex_lock(struct ezcfg_master *master);
+int ezcfg_master_ssl_mutex_unlock(struct ezcfg_master *master);
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master);
 struct ezcfg_igrs **ezcfg_master_get_p_igrs(struct ezcfg_master *master);
@@ -64,6 +70,11 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master);
 
 /* thread/master_load_auth_conf.c */
 void ezcfg_master_load_auth_conf(struct ezcfg_master *master);
+
+/* thread/master_load_ssl_conf.c */
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+void ezcfg_master_load_ssl_conf(struct ezcfg_master *master);
+#endif
 
 /* thread/master_load_igrs_conf.c */
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
