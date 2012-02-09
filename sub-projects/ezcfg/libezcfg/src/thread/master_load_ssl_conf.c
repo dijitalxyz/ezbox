@@ -63,6 +63,8 @@ void ezcfg_master_load_ssl_conf(struct ezcfg_master *master)
 	struct ezcfg_ssl **psp = NULL;
 	int role;
 	int method;
+	bool socket_enable;
+	struct ezcfg_socket *sp;
 
 	if (master == NULL)
 		return ;
@@ -127,13 +129,101 @@ void ezcfg_master_load_ssl_conf(struct ezcfg_master *master)
 			continue;
 		}
 
+		/* check socket enable */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SSL, i, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+		if (p == NULL) {
+			ezcfg_ssl_delete(sslp);
+			continue;
+		}
+
+		if (strcmp(p, "1") == 0) {
+			socket_enable = true;
+		}
+		else {
+			socket_enable = false;
+		}
+		free(p);
+
+		/* setup SSL related socket */
+		if (socket_enable == true) {
+			int socket_domain;
+			int socket_type;
+			int socket_proto;
+			char socket_address[256];
+
+			/* initialize */
+			socket_domain = -1;
+			socket_type = -1;
+			socket_proto = EZCFG_PROTO_UNKNOWN;
+			socket_address[0] = '\0';
+			sp = NULL;
+
+			/* socket domain */
+			p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg),
+				EZCFG_EZCFG_SECTION_SSL, i,
+				EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+			if (p != NULL) {
+				socket_domain = ezcfg_util_socket_domain_get_index(p);
+				free(p);
+			}
+
+			/* socket type */
+			p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg),
+				EZCFG_EZCFG_SECTION_SSL, i,
+				EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+			if (p != NULL) {
+				socket_type = ezcfg_util_socket_type_get_index(p);
+				free(p);
+			}
+
+			/* socket protocol */
+			p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg),
+				EZCFG_EZCFG_SECTION_SSL, i,
+				EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+			if (p != NULL) {
+				socket_proto = ezcfg_util_socket_protocol_get_index(p);
+				free(p);
+			}
+
+			/* socket address */
+			p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg),
+				EZCFG_EZCFG_SECTION_SSL, i,
+				EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+			if (p != NULL) {
+				snprintf(socket_address, sizeof(socket_address), "%s", p);
+				free(p);
+				p = NULL;
+			}
+			if ((socket_domain < 0) ||
+			    (socket_type < 0) ||
+			    (socket_proto == EZCFG_PROTO_UNKNOWN) ||
+			    (socket_address[0] == '\0')) {
+				err(ezcfg, "socket setting error\n");
+				ezcfg_ssl_delete(sslp);
+				continue;
+			}
+
+			sp = ezcfg_socket_fake_new(ezcfg,
+				socket_domain,
+				socket_type,
+				socket_proto,
+				socket_address);
+			if (sp == NULL) {
+				err(ezcfg, "init fake socket fail: %m\n");
+				ezcfg_ssl_delete(sslp);
+				continue;
+			}
+			ezcfg_ssl_set_socket(sslp, sp);
+			sp = NULL;
+		}
+
 		/* check if SSL is valid */
 		if (ezcfg_ssl_is_valid(sslp) == false) {
 			ezcfg_ssl_delete(sslp);
 			continue;
 		}
 
-		/* check if auth is already set */
+		/* check if SSL is already set */
 		psp = ezcfg_master_get_p_ssl(master);
 		if (ezcfg_ssl_list_in(psp, sslp) == true) {
 			info(ezcfg, "ssl entry already set\n");
@@ -141,7 +231,7 @@ void ezcfg_master_load_ssl_conf(struct ezcfg_master *master)
 			continue;
 		}
 
-		/* add new authentication */
+		/* add new SSL */
 		psp = ezcfg_master_get_p_ssl(master);
 		if (ezcfg_ssl_list_insert(psp, sslp) == true) {
 			info(ezcfg, "insert ssl entry successfully\n");

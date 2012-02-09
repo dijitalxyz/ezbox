@@ -19,6 +19,8 @@
 /* ssl/ssl.c */
 struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int method);
 void ezcfg_ssl_delete(struct ezcfg_ssl *sslp);
+struct ezcfg_socket *ezcfg_ssl_get_socket(struct ezcfg_ssl *sslp);
+bool ezcfg_ssl_set_socket(struct ezcfg_ssl *sslp, struct ezcfg_socket *sp);
 bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp);
 bool ezcfg_ssl_list_in(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp);
 bool ezcfg_ssl_list_insert(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp);

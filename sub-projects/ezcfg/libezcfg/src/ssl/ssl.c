@@ -197,6 +197,32 @@ fail_exit:
 	return NULL;
 }
 
+struct ezcfg_socket *ezcfg_ssl_get_socket(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	return sslp->sp;
+}
+
+bool ezcfg_ssl_set_socket(struct ezcfg_ssl *sslp, struct ezcfg_socket *sp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+	if (sslp->sp != NULL) {
+		ezcfg_socket_delete(sp);
+	}
+	sslp->sp = sp;
+
+	return true;
+}
+
 bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp)
 {
 	struct ezcfg *ezcfg;

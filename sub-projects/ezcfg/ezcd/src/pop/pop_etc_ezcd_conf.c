@@ -284,6 +284,128 @@ static int generate_auth_conf(FILE *file, int flag, int auth_number)
 	return EXIT_SUCCESS;
 }
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+static int generate_ssl_conf(FILE *file, int flag, int ssl_number)
+{
+	char name[64];
+	char buf[256];
+	int rc;
+	int i;
+
+	for(i = 0; i < ssl_number; i++) {
+
+		fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_SSL);
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_ROLE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_ROLE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_METHOD);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_METHOD, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n",
+				EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n",
+				EZCFG_EZCFG_KEYWORD_SOCKET_TYPE, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n",
+				EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL, buf);
+		}
+
+		snprintf(name, sizeof(name), "%s%s.%d.%s",
+		         EZCFG_EZCFG_NVRAM_PREFIX,
+		         EZCFG_EZCFG_SECTION_SSL,
+		         i, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+		if (flag == RC_ACT_BOOT) {
+			rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+		}
+		else {
+			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		}
+		if (rc >= 0) {
+			fprintf(file, "%s=%s\n",
+				EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS, buf);
+		}
+
+		fprintf(file, "\n");
+	}
+
+	return EXIT_SUCCESS;
+}
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRS == 1)
 static int generate_igrs_conf(FILE *file, int flag, int igrs_number)
 {
 	char name[64];
@@ -369,7 +491,9 @@ static int generate_igrs_conf(FILE *file, int flag, int igrs_number)
 
 	return EXIT_SUCCESS;
 }
+#endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
 {
 	char name[64];
@@ -442,6 +566,7 @@ static int generate_upnp_conf(FILE *file, int flag, int upnp_number)
 
 	return EXIT_SUCCESS;
 }
+#endif
 
 static int generate_ezcd_conf_file(FILE *file, int flag)
 {
@@ -450,8 +575,15 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	int rc;
 	int socket_number = 0;
 	int auth_number = 0;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	int ssl_number = 0;
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRS == 1)
 	int igrs_number = 0;
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	int upnp_number = 0;
+#endif
 
 	/* setup ezcfg common info */
 	fprintf(file, "[%s]\n", EZCFG_EZCFG_SECTION_COMMON);
@@ -533,7 +665,26 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		auth_number = atoi(buf);
 	}
 
+	/* ssl_number */
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SSL_NUMBER);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SSL_NUMBER, buf);
+		ssl_number = atoi(buf);
+	}
+#endif
+
 	/* igrs_number */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRS == 1)
 	snprintf(name, sizeof(name), "%s%s.%s",
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
@@ -548,8 +699,10 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_IGRS_NUMBER, buf);
 		igrs_number = atoi(buf);
 	}
+#endif
 
 	/* upnp_number */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	snprintf(name, sizeof(name), "%s%s.%s",
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
@@ -564,6 +717,7 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_UPNP_NUMBER, buf);
 		upnp_number = atoi(buf);
 	}
+#endif
 
 	fprintf(file, "\n");
 
@@ -576,11 +730,20 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 	/* setup auth info */
 	generate_auth_conf(file, flag, auth_number);
 
+	/* setup ssl info */
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	generate_ssl_conf(file, flag, ssl_number);
+#endif
+
 	/* setup igrs info */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRS == 1)
 	generate_igrs_conf(file, flag, igrs_number);
+#endif
 
 	/* setup upnp info */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	generate_upnp_conf(file, flag, upnp_number);
+#endif
 
 	return EXIT_SUCCESS;
 }

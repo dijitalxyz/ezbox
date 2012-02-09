@@ -13,7 +13,12 @@
 
 #include "ezcfg-private.h"
 #include "ezcfg.h"
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+#include "ezcfg-ssl.h"
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 #include "ezcfg-upnp.h"
+#endif
 
 ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* System configuration */
@@ -106,10 +111,18 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	  EZCFG_COMMON_DEFAULT_LOCALE_STRING },
 	/* EZCFG common authentication number */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), "1" },
+	/* EZCFG common SSL number */
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER), "1" },
+#endif
 	/* EZCFG common IGRS number */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRS == 1)
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_IGRS_NUMBER), "1" },
+#endif
 	/* EZCFG common UPnP number */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_UPNP_NUMBER), "2" },
+#endif
 	/* EZCFG NVRAM buffer size */
 	{ NVRAM_SERVICE_OPTION(EZCFG, NVRAM_0_BUFFER_SIZE),
 	  EZCFG_NVRAM_BUFFER_SIZE_STRING },
@@ -179,6 +192,30 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET),
 	  EZCFG_AUTH_SECRET_ADMIN_STRING },
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	/* EZCFG SSL role */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_ROLE), EZCFG_SSL_ROLE_SERVER_STRING },
+	/* EZCFG SSL method */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_METHOD),
+	  EZCFG_SSL_METHOD_SSLV23_STRING },
+	/* EZCFG SSL socket enable */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_SOCKET_ENABLE), "1" },
+	/* EZCFG SSL socket domain */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_SOCKET_DOMAIN),
+	  EZCFG_SOCKET_DOMAIN_INET_STRING },
+	/* EZCFG SSL socket type */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_SOCKET_TYPE),
+	  EZCFG_SOCKET_TYPE_STREAM_STRING },
+	/* EZCFG SSL socket protocol */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_SOCKET_PROTOCOL),
+	  EZCFG_SOCKET_PROTO_HTTPS_STRING },
+	/* EZCFG SSL socket address */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SSL_0_SOCKET_ADDRESS),
+	  EZCFG_LOOPBACK_DEFAULT_IPADDR
+	  ":" EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING },
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	/* EZCFG UPnP role */
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_ROLE), EZCFG_UPNP_ROLE_DEVICE_STRING },
 	/* EZCFG UPnP device type */
@@ -220,6 +257,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	  "eth1"
 #endif
 	},
+#endif
 
 	/* ezcfg HTTP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1" },

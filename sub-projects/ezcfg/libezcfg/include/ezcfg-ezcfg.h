@@ -37,6 +37,7 @@
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
 #define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 #define EZCFG_EZCFG_COMMON_AUTH_NUMBER      "common.auth_number"
+#define EZCFG_EZCFG_COMMON_SSL_NUMBER       "common.ssl_number"
 #define EZCFG_EZCFG_COMMON_IGRS_NUMBER      "common.igrs_number"
 #define EZCFG_EZCFG_COMMON_UPNP_NUMBER      "common.upnp_number"
 
@@ -97,6 +98,20 @@
 
 #define EZCFG_EZCFG_KEYWORD_ROLE            "role"
 #define EZCFG_EZCFG_KEYWORD_METHOD          "method"
+#define EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE   "socket_enable"
+#define EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN   "socket_domain"
+#define EZCFG_EZCFG_KEYWORD_SOCKET_TYPE     "socket_type"
+#define EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL "socket_protocol"
+#define EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS  "socket_address"
+
+#define EZCFG_EZCFG_SSL_0_ROLE              "ssl.0.role"
+#define EZCFG_EZCFG_SSL_0_METHOD            "ssl.0.method"
+#define EZCFG_EZCFG_SSL_0_SOCKET_ENABLE     "ssl.0.socket_enable"
+#define EZCFG_EZCFG_SSL_0_SOCKET_DOMAIN     "ssl.0.socket_domain"
+#define EZCFG_EZCFG_SSL_0_SOCKET_TYPE       "ssl.0.socket_type"
+#define EZCFG_EZCFG_SSL_0_SOCKET_PROTOCOL   "ssl.0.socket_protocol"
+#define EZCFG_EZCFG_SSL_0_SOCKET_ADDRESS    "ssl.0.socket_address"
+
 
 /* ezcfg config [igrs] section */
 #define EZCFG_EZCFG_SECTION_IGRS            "igrs"
