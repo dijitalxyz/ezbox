@@ -50,6 +50,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	int ip[4];
 	char buf[256];
 	int flag, ret;
+	struct arg_nvram_socket a1;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
@@ -98,22 +99,22 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_HTTP_STRING,
-			buf);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_HTTP_STRING;
+		a1.address = buf;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 		/* delete ezcfg httpd listening socket */
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_HTTPS_STRING,
-			buf);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
+		a1.address = buf;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 #endif
 
 		/* restart ezcfg daemon */
@@ -140,22 +141,22 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_HTTP_STRING,
-			buf);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_HTTP_STRING;
+		a1.address = buf;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 		/* add ezcfg httpd listening socket */
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_HTTPS_STRING,
-			buf);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
+		a1.address = buf;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 #endif
 
 		/* restart ezcfg daemon */
