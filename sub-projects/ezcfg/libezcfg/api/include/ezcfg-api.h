@@ -13,6 +13,20 @@ int ezcfg_api_ctrl_set_config_file(const char *path);
 int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len);
 
 /* NVRAM interface */
+struct arg_nvram_socket {
+	char *domain;
+	char *type;
+	char *protocol;
+	char *address;
+};
+
+struct arg_nvram_ssl {
+	char *domain;
+	char *type;
+	char *protocol;
+	char *address;
+};
+
 int ezcfg_api_nvram_set_config_file(const char *path);
 int ezcfg_api_nvram_get(const char *name, char *value, size_t len);
 int ezcfg_api_nvram_set(const char *name, const char *value);
@@ -22,26 +36,10 @@ int ezcfg_api_nvram_list(char *list, size_t len);
 int ezcfg_api_nvram_info(char *list, size_t len);
 int ezcfg_api_nvram_commit(void);
 void ezcfg_api_nvram_set_debug(bool enable_debug);
-int ezcfg_api_nvram_insert_socket(
-	const char *domain,
-	const char *type,
-	const char *protocol,
-	const char *address);
-int ezcfg_api_nvram_remove_socket(
-	const char *domain,
-	const char *type,
-	const char *protocol,
-	const char *address);
-int ezcfg_api_nvram_insert_ssl(
-	const char *domain,
-	const char *type,
-	const char *protocol,
-	const char *address);
-int ezcfg_api_nvram_remove_ssl(
-	const char *domain,
-	const char *type,
-	const char *protocol,
-	const char *address);
+int ezcfg_api_nvram_insert_socket(struct arg_nvram_socket a);
+int ezcfg_api_nvram_remove_socket(struct arg_nvram_socket a);
+int ezcfg_api_nvram_insert_ssl(struct arg_nvram_ssl a);
+int ezcfg_api_nvram_remove_ssl(struct arg_nvram_ssl a);
 
 /* rc interface */
 bool ezcfg_api_rc_require_semaphore(void);

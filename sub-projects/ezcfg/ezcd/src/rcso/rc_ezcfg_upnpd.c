@@ -53,6 +53,7 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 	char http_addr[64];
 	char gena_addr[64];
 	int flag, ret;
+	struct arg_nvram_socket a1;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
@@ -111,23 +112,23 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* delete ezcfg upnpd listening sockets */
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
-			ssdp_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING;
+		a1.address = ssdp_addr;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING,
-			http_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING;
+		a1.address = http_addr;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
-			gena_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_GENA_STRING;
+		a1.address = gena_addr;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -153,23 +154,23 @@ int rc_ezcfg_upnpd(int argc, char **argv)
 		pop_etc_ezcfg_upnpd(flag);
 
 		/* add ezcfg upnpd listening sockets */
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING,
-			ssdp_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_SSDP_STRING;
+		a1.address = ssdp_addr;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING,
-			http_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_HTTP_STRING;
+		a1.address = http_addr;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_STREAM_STRING,
-			EZCFG_SOCKET_PROTO_UPNP_GENA_STRING,
-			gena_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_UPNP_GENA_STRING;
+		a1.address = gena_addr;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */

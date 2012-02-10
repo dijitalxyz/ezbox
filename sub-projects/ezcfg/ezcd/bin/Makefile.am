@@ -150,3 +150,8 @@ RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 %.exe : $(top_builddir)/src/rcso/%.c
 	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L. -lezcd -ldl $< -o $@
 
+clean-local: clean-local-check
+clean-local-check:
+	-rm -rf *.so *.exe
+
+.PHONY: clean-local-check

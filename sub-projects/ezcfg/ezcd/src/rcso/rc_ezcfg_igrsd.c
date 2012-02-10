@@ -51,6 +51,7 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 	char buf[256];
 	char isdp_addr[64];
 	int flag, ret;
+	struct arg_nvram_socket a1;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
@@ -101,11 +102,11 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* delete ezcfg igrsd listening sockets */
-		rc = ezcfg_api_nvram_remove_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING,
-			isdp_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING;
+		a1.address = isdp_addr;
+		rc = ezcfg_api_nvram_remove_socket(a1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -131,11 +132,11 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 		pop_etc_ezcfg_igrsd(flag);
 
 		/* add ezcfg igrsd listening sockets */
-		rc = ezcfg_api_nvram_insert_socket(
-			EZCFG_SOCKET_DOMAIN_INET_STRING,
-			EZCFG_SOCKET_TYPE_DGRAM_STRING,
-			EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING,
-			isdp_addr);
+		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
+		a1.protocol = EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING;
+		a1.address = isdp_addr;
+		rc = ezcfg_api_nvram_insert_socket(a1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */
