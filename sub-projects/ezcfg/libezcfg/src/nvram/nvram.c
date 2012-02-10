@@ -1943,3 +1943,75 @@ func_out:
 	return ret;
 }
 
+bool ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name, *value;
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		value = ezcfg_link_list_get_node_value_by_index(list, i);
+		if ((name == NULL) || (value == NULL)) {
+			ret = false;
+			goto func_out;
+		}
+		ret = nvram_set_entry(nvram, name, value);
+		if (ret == false) {
+			goto func_out;
+		}
+	}
+
+func_out:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_unset_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name;
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		if (name == NULL) {
+			ret = false;
+			goto func_out;
+		}
+		ret = nvram_unset_entry(nvram, name);
+		if (ret == false) {
+			goto func_out;
+		}
+	}
+
+func_out:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}

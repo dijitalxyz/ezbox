@@ -607,8 +607,6 @@ static int build_nvram_set_multi_response(struct ezcfg_soap_http *sh, struct ezc
 	int n;
 	char *msg = NULL;
 	int msg_len;
-	int i, list_length;
-	char *name = NULL, *value = NULL;
 	int rc = 0;
 	
 	ASSERT(sh != NULL);
@@ -622,19 +620,14 @@ static int build_nvram_set_multi_response(struct ezcfg_soap_http *sh, struct ezc
 	result = NULL;
 
 	if (list != NULL) {
-		list_length = ezcfg_link_list_get_length(list);
-		for (i = 1; i < list_length+1; i++) {
-			name = ezcfg_link_list_get_node_name_by_index(list, i);
-			value = ezcfg_link_list_get_node_value_by_index(list, i);
-			if (ezcfg_nvram_set_entry(nvram, name, value) == false) {
-				result = EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR;
-				goto set_entry_out;
-			}
+		if (ezcfg_nvram_set_multi_entries(nvram, list) == true) {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
 		}
-		result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
+		else {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR;
+		}
 	}
 
-set_entry_out:
 	if (result != NULL) {
 		int setmnv_index;
 

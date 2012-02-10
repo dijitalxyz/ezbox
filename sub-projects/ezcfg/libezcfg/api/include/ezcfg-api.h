@@ -32,6 +32,16 @@ int ezcfg_api_nvram_remove_socket(
 	const char *type,
 	const char *protocol,
 	const char *address);
+int ezcfg_api_nvram_insert_ssl(
+	const char *domain,
+	const char *type,
+	const char *protocol,
+	const char *address);
+int ezcfg_api_nvram_remove_ssl(
+	const char *domain,
+	const char *type,
+	const char *protocol,
+	const char *address);
 
 /* rc interface */
 bool ezcfg_api_rc_require_semaphore(void);

@@ -247,6 +247,12 @@
 #define EZCFG_SOAP_NVRAM_REMOVE_SOCKET_ELEMENT_NAME      "nvns:removeSocket"
 #define EZCFG_SOAP_NVRAM_REMOVE_SOCKET_RESPONSE_ELEMENT_NAME  \
 	"nvns:removeSocketNvramResponse"
+#define EZCFG_SOAP_NVRAM_INSERT_SSL_ELEMENT_NAME         "nvns:insertSsl"
+#define EZCFG_SOAP_NVRAM_INSERT_SSL_RESPONSE_ELEMENT_NAME  \
+	"nvns:insertSslNvramResponse"
+#define EZCFG_SOAP_NVRAM_REMOVE_SSL_ELEMENT_NAME         "nvns:removeSsl"
+#define EZCFG_SOAP_NVRAM_REMOVE_SSL_RESPONSE_ELEMENT_NAME  \
+	"nvns:removeSslNvramResponse"
 #define EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME               "nvns:name"
 #define EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME              "nvns:value"
 #define EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME             "nvns:result"
