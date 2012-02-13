@@ -14,6 +14,8 @@ ezcfg_api_nvram_commit
 ezcfg_api_nvram_set_debug
 ezcfg_api_nvram_insert_socket
 ezcfg_api_nvram_remove_socket
+ezcfg_api_nvram_insert_ssl
+ezcfg_api_nvram_remove_ssl
 ezcfg_api_rc_require_semaphore
 ezcfg_api_rc_release_semaphore
 ezcfg_api_uuid_set_config_file

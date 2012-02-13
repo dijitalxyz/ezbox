@@ -545,6 +545,287 @@ func_out:
 	return ret;
 }
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+static int nvram_get_ssl_index(struct ezcfg_nvram *nvram,
+	struct ezcfg_arg_nvram_ssl *ap)
+{
+	char buf[32];
+	int i;
+	char *value;
+	struct ezcfg_arg_nvram_ssl a2;
+	bool ret;
+
+	/* initialize ezcfg_arg_nvram_ssl */
+	ezcfg_arg_nvram_ssl_init(&a2);
+
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+	for( ; i >= 0; i--) {
+		/* get nvram ssl role */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_ROLE);
+		ret = nvram_get_entry_value(nvram, buf, &a2.role);
+
+		/* get nvram ssl method */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_METHOD);
+		ret = nvram_get_entry_value(nvram, buf, &a2.method);
+
+		/* get nvram ssl socket_enable */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+		ret = nvram_get_entry_value(nvram, buf, &a2.socket_enable);
+
+		/* get nvram ssl socket_domain */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+		ret = nvram_get_entry_value(nvram, buf, &a2.socket_domain);
+
+		/* get nvram ssl socket_type */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+		ret = nvram_get_entry_value(nvram, buf, &a2.socket_type);
+
+		/* get nvram ssl socket_protocol */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+		ret = nvram_get_entry_value(nvram, buf, &a2.socket_protocol);
+
+		/* get nvram ssl socket_address */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+		ret = nvram_get_entry_value(nvram, buf, &a2.socket_address);
+
+		if (a2.role != NULL && a2.method != NULL &&
+		    a2.socket_enable != NULL &&
+		    a2.socket_domain != NULL && a2.socket_type != NULL &&
+		    a2.socket_protocol != NULL && a2.socket_address != NULL) {
+			if ((strcmp(ap->role, a2.role) == 0) &&
+			    (strcmp(ap->method, a2.method) == 0) &&
+			    (strcmp(ap->socket_enable, a2.socket_enable) == 0) &&
+			    (strcmp(ap->socket_domain, a2.socket_domain) == 0) &&
+			    (strcmp(ap->socket_type, a2.socket_type) == 0) &&
+			    (strcmp(ap->socket_protocol, a2.socket_protocol) == 0) &&
+			    (strcmp(ap->socket_address, a2.socket_address) == 0)) {
+				ezcfg_arg_nvram_ssl_clean(&a2);
+				return(i);
+			}
+		}
+
+		ezcfg_arg_nvram_ssl_clean(&a2);
+	}
+	return(0);
+}
+
+static bool nvram_remove_ssl_by_index(struct ezcfg_nvram *nvram, int idx)
+{
+	char buf[32];
+	int i;
+	char *value;
+	bool ret;
+
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+
+	if (i < idx) {
+		return false;
+	}
+
+	/* put the last ssl to index-th ssl place */
+	if (idx < i) {
+		/* get nvram ssl role */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_ROLE);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl role */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_ROLE);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl method */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_METHOD);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl method */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_METHOD);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl socket_enable */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl socket_enable */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl socket_domain */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl socket_domain */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl socket_type */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl socket_type */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl socket_protocol */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl socket_protocol */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+
+		/* get nvram ssl socket_address */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, i-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+		ret = nvram_get_entry_value(nvram, buf, &value);
+		if (value == NULL) {
+			ret = false;
+			goto func_out;
+		}
+
+		/* set nvram ssl socket_address */
+		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+			NVRAM_PREFIX(EZCFG),
+			EZCFG_EZCFG_SECTION_SSL, idx-1,
+			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+		ret = nvram_set_entry(nvram, buf, value);
+		free(value);
+		if (ret == false) {
+			goto func_out;
+		}
+	}
+
+	/* update socket number */
+	i--;
+	snprintf(buf, sizeof(buf), "%d", i);
+	ret = nvram_set_entry(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
+		buf);
+
+func_out:
+	return ret;
+}
+#endif
+
 static bool nvram_cleanup_runtime_entries(struct ezcfg_nvram *nvram)
 {
 	struct ezcfg *ezcfg;
@@ -1942,6 +2223,245 @@ func_out:
 
 	return ret;
 }
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name, *value;
+	struct ezcfg_arg_nvram_ssl a;
+	char buf[64];
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+	a.role = NULL;
+	a.method = NULL;
+	a.socket_enable = NULL;
+	a.socket_domain = NULL;
+	a.socket_type = NULL;
+	a.socket_protocol = NULL;
+	a.socket_address = NULL;
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		if (strcmp(name, "role") == 0) {
+			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "method") == 0) {
+			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_enable") == 0) {
+			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_domain") == 0) {
+			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_type") == 0) {
+			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_protocol") == 0) {
+			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_address") == 0) {
+			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+	}
+
+	/* validate settings */
+	if ((a.role == NULL) || (a.method == NULL) ||
+	    (a.socket_enable == NULL) ||
+	    (a.socket_domain == NULL) || (a.socket_type == NULL) ||
+	    (a.socket_protocol == NULL) || (a.socket_address == NULL)) {
+		return(false);
+	}
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* get ssl index in nvram */
+	i = nvram_get_ssl_index(nvram, &a);
+	/* ssl exist! */
+	if (i > 0) {
+		ret = true;
+		goto func_out;
+	}
+
+	/* add the new ssl */
+	i = 0;
+	ret = nvram_get_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
+		&value);
+	if (value != NULL) {
+		i = atoi(value);
+		free(value);
+	}
+
+	/* set nvram ssl role */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_ROLE);
+	ret = nvram_set_entry(nvram, buf, a.role);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl method */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_METHOD);
+	ret = nvram_set_entry(nvram, buf, a.method);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl socket_enable */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
+	ret = nvram_set_entry(nvram, buf, a.socket_enable);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl socket_domain */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+	ret = nvram_set_entry(nvram, buf, a.socket_domain);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl socket_type */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+	ret = nvram_set_entry(nvram, buf, a.socket_type);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl socket_protocol */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+	ret = nvram_set_entry(nvram, buf, a.socket_protocol);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* set nvram ssl socket_address */
+	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+		NVRAM_PREFIX(EZCFG),
+		EZCFG_EZCFG_SECTION_SSL, i,
+		EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+	ret = nvram_set_entry(nvram, buf, a.socket_address);
+	if (ret == false) {
+		goto func_out;
+	}
+
+	/* update socket number */
+	i++;
+	snprintf(buf, sizeof(buf), "%d", i);
+	ret = nvram_set_entry(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
+		buf);
+
+func_out:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+
+bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	bool ret = false;
+	char *name;
+	struct ezcfg_arg_nvram_ssl a;
+	int i, list_length;
+
+	ASSERT(nvram != NULL);
+	ASSERT(list != NULL);
+
+	ezcfg = nvram->ezcfg;
+	a.role = NULL;
+	a.method = NULL;
+	a.socket_enable = NULL;
+	a.socket_domain = NULL;
+	a.socket_type = NULL;
+	a.socket_protocol = NULL;
+	a.socket_address = NULL;
+
+	/* parse settings */
+	list_length = ezcfg_link_list_get_length(list);
+	for (i = 1; i < list_length+1; i++) {
+		name = ezcfg_link_list_get_node_name_by_index(list, i);
+		if (strcmp(name, "role") == 0) {
+			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "method") == 0) {
+			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_enable") == 0) {
+			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_domain") == 0) {
+			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_type") == 0) {
+			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_protocol") == 0) {
+			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+		else if (strcmp(name, "socket_address") == 0) {
+			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
+		}
+	}
+
+	/* validate settings */
+	if ((a.role == NULL) || (a.method == NULL) ||
+	    (a.socket_enable == NULL) ||
+	    (a.socket_domain == NULL) || (a.socket_type == NULL) ||
+	    (a.socket_protocol == NULL) || (a.socket_address == NULL)) {
+		return(false);
+	}
+
+	/* lock nvram access */
+	pthread_mutex_lock(&nvram->mutex);
+
+	/* get ssl index in nvram */
+	i = nvram_get_ssl_index(nvram, &a);
+	/* socket does not exist! */
+	if (i < 1) {
+		ret = true;
+		goto func_out;
+	}
+
+	/* remove the i-th ssl */
+	ret = nvram_remove_ssl_by_index(nvram, i);
+
+func_out:
+	/* unlock nvram access */
+	pthread_mutex_unlock(&nvram->mutex);
+
+	return ret;
+}
+#endif
 
 bool ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {

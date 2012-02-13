@@ -48,6 +48,24 @@ typedef struct ezcfg_rc_triple_s {
 	int wait;
 } ezcfg_rc_triple_t;
 
+/* args/arg_nvram_socket.c */
+typedef struct ezcfg_arg_nvram_socket {
+	char *domain;
+	char *type;
+	char *protocol;
+	char *address;
+} ezcfg_arg_nvram_socket_t;
+
+/* args/arg_nvram_ssl.c */
+typedef struct ezcfg_arg_nvram_ssl {
+	char *role;
+	char *method;
+	char *socket_enable;
+	char *socket_domain;
+	char *socket_type;
+	char *socket_protocol;
+	char *socket_address;
+} ezcfg_arg_nvram_ssl_t;
 
 /* common/ezcfg.c */
 #include "ezcfg-priv_common.h"
@@ -73,6 +91,10 @@ int ezcfg_nvram_get_num_default_nvram_validators(void);
 
 /* nvram/nvram.c */
 #include "ezcfg-priv_nvram.h"
+
+
+/* args/arg_nvram_ssl.c */
+#include "ezcfg-priv_args.h"
 
 
 /* auth/auth.c */

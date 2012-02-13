@@ -51,6 +51,9 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	char buf[256];
 	int flag, ret;
 	struct arg_nvram_socket a1;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	struct arg_nvram_ssl a2;
+#endif
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
@@ -115,6 +118,13 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
 		a1.address = buf;
 		rc = ezcfg_api_nvram_remove_socket(a1);
+
+		/* SSL nvram settings */
+		a2.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a2.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a2.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
+		a2.address = buf;
+		rc = ezcfg_api_nvram_remove_ssl(a2);
 #endif
 
 		/* restart ezcfg daemon */
@@ -157,6 +167,13 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
 		a1.address = buf;
 		rc = ezcfg_api_nvram_insert_socket(a1);
+
+		/* SSL nvram settings */
+		a2.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
+		a2.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
+		a2.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
+		a2.address = buf;
+		rc = ezcfg_api_nvram_insert_ssl(a2);
 #endif
 
 		/* restart ezcfg daemon */

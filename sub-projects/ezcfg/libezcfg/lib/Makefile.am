@@ -76,6 +76,11 @@ libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_upnp_http.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_upnp_gena.c
 endif
 
+# ezcfg args
+if CONFIG_EZBOX_SERVICE_OPENSSL
+libezcfg_la_SOURCES += $(top_builddir)/src/args/arg_nvram_ssl.c
+endif
+
 # ezcfg utils
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_adler32.c
