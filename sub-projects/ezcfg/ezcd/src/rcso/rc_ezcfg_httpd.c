@@ -49,10 +49,10 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	int rc = -1;
 	int ip[4];
 	char buf[256];
-	int flag, ret;
-	struct arg_nvram_socket a1;
+	int flag, ret = EXIT_FAILURE;
+	struct ezcfg_arg_nvram_socket *ap1 = NULL;
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
-	struct arg_nvram_ssl a2;
+	struct ezcfg_arg_nvram_ssl *ap2 = NULL;
 #endif
 
 	if (argc < 3) {
@@ -93,6 +93,18 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	ap1 = ezcfg_api_arg_nvram_socket_new();
+	if (ap1 == NULL) {
+		goto func_exit;
+	}
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	ap2 = ezcfg_api_arg_nvram_ssl_new();
+	if (ap2 == NULL) {
+		goto func_exit;
+	}
+#endif
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
@@ -102,29 +114,77 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_HTTP_STRING;
-		a1.address = buf;
-		rc = ezcfg_api_nvram_remove_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_HTTP_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_address(ap1, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_remove_socket(ap1);
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 		/* delete ezcfg httpd listening socket */
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
-		a1.address = buf;
-		rc = ezcfg_api_nvram_remove_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_HTTPS_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_address(ap1, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_remove_socket(ap1);
 
 		/* SSL nvram settings */
-		a2.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a2.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a2.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
-		a2.address = buf;
-		rc = ezcfg_api_nvram_remove_ssl(a2);
+		rc = ezcfg_api_arg_nvram_ssl_set_role(ap2, EZCFG_SSL_ROLE_SERVER_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_method(ap2, EZCFG_SSL_METHOD_SSLV23_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_enable(ap2, "1");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_domain(ap2, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_type(ap2, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_protocol(ap2, EZCFG_SOCKET_PROTO_HTTPS_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_address(ap2, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_remove_ssl(ap2);
 #endif
 
 		/* restart ezcfg daemon */
@@ -144,36 +204,84 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	case RC_ACT_START :
 		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EZCFG, HTTPD_ENABLE), "1");
 		if (rc < 0) {
-			return (EXIT_FAILURE);
+			goto func_exit;
 		}
 
 		/* add ezcfg httpd listening socket */
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTP_PORT_NUMBER_STRING);
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_HTTP_STRING;
-		a1.address = buf;
-		rc = ezcfg_api_nvram_insert_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_HTTP_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_address(ap1, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_insert_socket(ap1);
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 		/* add ezcfg httpd listening socket */
 		snprintf(buf, sizeof(buf), "%d.%d.%d.%d:%s",
 			ip[0], ip[1], ip[2], ip[3],
 			EZCFG_PROTO_HTTPS_PORT_NUMBER_STRING);
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
-		a1.address = buf;
-		rc = ezcfg_api_nvram_insert_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_HTTPS_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_address(ap1, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_insert_socket(ap1);
 
 		/* SSL nvram settings */
-		a2.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a2.type = EZCFG_SOCKET_TYPE_STREAM_STRING;
-		a2.protocol = EZCFG_SOCKET_PROTO_HTTPS_STRING;
-		a2.address = buf;
-		rc = ezcfg_api_nvram_insert_ssl(a2);
+		rc = ezcfg_api_arg_nvram_ssl_set_role(ap2, EZCFG_SSL_ROLE_SERVER_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_method(ap2, EZCFG_SSL_METHOD_SSLV23_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_enable(ap2, "1");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_domain(ap2, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_type(ap2, EZCFG_SOCKET_TYPE_STREAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_protocol(ap2, EZCFG_SOCKET_PROTO_HTTPS_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_socket_address(ap2, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_insert_ssl(ap2);
 #endif
 
 		/* restart ezcfg daemon */
@@ -190,6 +298,17 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		ret = EXIT_FAILURE;
 		break;
 	}
+
+func_exit:
+	if (ap1 != NULL) {
+		ezcfg_api_arg_nvram_socket_delete(ap1);
+	}
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	if (ap2 != NULL) {
+		ezcfg_api_arg_nvram_ssl_delete(ap2);
+	}
+#endif
 
 	return (ret);
 }

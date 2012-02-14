@@ -77,6 +77,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_upnp_gena.c
 endif
 
 # ezcfg args
+libezcfg_la_SOURCES += $(top_builddir)/src/args/arg_nvram_socket.c
 if CONFIG_EZBOX_SERVICE_OPENSSL
 libezcfg_la_SOURCES += $(top_builddir)/src/args/arg_nvram_ssl.c
 endif
@@ -284,6 +285,7 @@ endif
 # ezcfg API wrap
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-nvram.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-rc.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-uuid.c

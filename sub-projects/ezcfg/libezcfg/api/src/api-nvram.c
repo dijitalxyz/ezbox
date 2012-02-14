@@ -1711,7 +1711,7 @@ void ezcfg_api_nvram_set_debug(bool enable_debug)
  * @address: socket address
  *
  **/
-int ezcfg_api_nvram_insert_socket(struct arg_nvram_socket a)
+int ezcfg_api_nvram_insert_socket(struct ezcfg_arg_nvram_socket *ap)
 {
 	char buf[1024];
 	char *msg = NULL;
@@ -1731,8 +1731,12 @@ int ezcfg_api_nvram_insert_socket(struct arg_nvram_socket a)
 	int key, semid = -1;
 	struct sembuf res;
 
-	if (a.domain == NULL || a.type == NULL ||
-	    a.protocol == NULL || a.address == NULL) {
+	if (ap == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (ap->domain == NULL || ap->type == NULL ||
+	    ap->protocol == NULL || ap->address == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -1777,40 +1781,40 @@ int ezcfg_api_nvram_insert_socket(struct arg_nvram_socket a)
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "domain");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_DOMAIN);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.domain);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->domain);
 
 	/* for type node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "type");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_TYPE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.type);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->type);
 
 	/* for protocol node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "protocol");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_PROTOCOL);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.protocol);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->protocol);
 
 	/* for address node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "address");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_ADDRESS);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.address);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->address);
 
 	/* build HTTP message body */
 	msg_len = ezcfg_soap_get_message_length(soap);
@@ -1995,7 +1999,7 @@ exit:
  * @address: socket address
  *
  **/
-int ezcfg_api_nvram_remove_socket(struct arg_nvram_socket a)
+int ezcfg_api_nvram_remove_socket(struct ezcfg_arg_nvram_socket *ap)
 {
 	char buf[1024];
 	char *msg = NULL;
@@ -2015,8 +2019,12 @@ int ezcfg_api_nvram_remove_socket(struct arg_nvram_socket a)
 	int key, semid = -1;
 	struct sembuf res;
 
-	if (a.domain == NULL || a.type == NULL ||
-	    a.protocol == NULL || a.address == NULL) {
+	if (ap == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (ap->domain == NULL || ap->type == NULL ||
+	    ap->protocol == NULL || ap->address == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -2061,40 +2069,40 @@ int ezcfg_api_nvram_remove_socket(struct arg_nvram_socket a)
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "domain");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_DOMAIN);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.domain);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->domain);
 
 	/* for type node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "type");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_TYPE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.type);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->type);
 
 	/* for protocol node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "protocol");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_PROTOCOL);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.protocol);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->protocol);
 
 	/* for address node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "address");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_ADDRESS);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.address);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->address);
 
 	/* build HTTP message body */
 	msg_len = ezcfg_soap_get_message_length(soap);
@@ -2280,7 +2288,7 @@ exit:
  * @address: socket address
  *
  **/
-int ezcfg_api_nvram_insert_ssl(struct arg_nvram_ssl a)
+int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap)
 {
 	char buf[1024];
 	char *msg = NULL;
@@ -2300,8 +2308,14 @@ int ezcfg_api_nvram_insert_ssl(struct arg_nvram_ssl a)
 	int key, semid = -1;
 	struct sembuf res;
 
-	if (a.domain == NULL || a.type == NULL ||
-	    a.protocol == NULL || a.address == NULL) {
+	if (ap == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (ap->role == NULL || ap->method == NULL ||
+	    ap->socket_enable == NULL ||
+	    ap->socket_domain == NULL || ap->socket_type == NULL ||
+	    ap->socket_protocol == NULL || ap->socket_address == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -2341,45 +2355,75 @@ int ezcfg_api_nvram_insert_ssl(struct arg_nvram_ssl a)
 	/* init nvnode_index */
 	nvnode_index = -1;
 
-	/* for domain node */
+	/* for role node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "domain");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_ROLE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.domain);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->role);
 
-	/* for type node */
+	/* for method node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "type");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_METHOD);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.type);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->method);
 
-	/* for protocol node */
+	/* for socket_enable node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "protocol");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.protocol);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_enable);
 
-	/* for address node */
+	/* for socket_domain node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "address");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.address);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_domain);
+
+	/* for socket_type node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_type);
+
+	/* for socket_protocol node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_protocol);
+
+	/* for socket_address node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_address);
 
 	/* build HTTP message body */
 	msg_len = ezcfg_soap_get_message_length(soap);
@@ -2564,7 +2608,7 @@ exit:
  * @address: socket address
  *
  **/
-int ezcfg_api_nvram_remove_ssl(struct arg_nvram_ssl a)
+int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap)
 {
 	char buf[1024];
 	char *msg = NULL;
@@ -2584,8 +2628,14 @@ int ezcfg_api_nvram_remove_ssl(struct arg_nvram_ssl a)
 	int key, semid = -1;
 	struct sembuf res;
 
-	if (a.domain == NULL || a.type == NULL ||
-	    a.protocol == NULL || a.address == NULL) {
+	if (ap == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	if (ap->role == NULL || ap->role == NULL ||
+	    ap->socket_enable == NULL ||
+	    ap->socket_domain == NULL || ap->socket_type == NULL ||
+	    ap->socket_protocol == NULL || ap->socket_address == NULL) {
 		return -EZCFG_E_ARGUMENT ;
 	}
 
@@ -2625,45 +2675,75 @@ int ezcfg_api_nvram_remove_ssl(struct arg_nvram_ssl a)
 	/* init nvnode_index */
 	nvnode_index = -1;
 
-	/* for domain node */
+	/* for role node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "domain");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_ROLE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.domain);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->role);
 
-	/* for type node */
+	/* for method node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "type");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_METHOD);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.type);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->method);
 
-	/* for protocol node */
+	/* for socket_enable node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "protocol");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.protocol);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_enable);
+
+	/* for socket_domain node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_domain);
+
+	/* for socket_type node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_type);
+
+	/* for socket_protocol node */
+	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
+
+	child_index = -1;
+	/* nvram name part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
+
+	/* nvram value part */
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_protocol);
 
 	/* for address node */
 	nvnode_index = ezcfg_soap_add_body_child(soap, ssl_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME, NULL);
 
 	child_index = -1;
 	/* nvram name part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, "address");
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
 
 	/* nvram value part */
-	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, a.address);
+	child_index = ezcfg_soap_add_body_child(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, ap->socket_address);
 
 	/* build HTTP message body */
 	msg_len = ezcfg_soap_get_message_length(soap);

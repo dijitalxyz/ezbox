@@ -50,8 +50,8 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 	int ip[4];
 	char buf[256];
 	char isdp_addr[64];
-	int flag, ret;
-	struct arg_nvram_socket a1;
+	int flag, ret = EXIT_FAILURE;
+	struct ezcfg_arg_nvram_socket *ap1 = NULL;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
@@ -96,17 +96,34 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 		EZCFG_PROTO_IGRS_ISDP_PORT_NUMBER,
 		ip[0], ip[1], ip[2], ip[3]);
 
+	ap1 = ezcfg_api_arg_nvram_socket_new();
+	if (ap1 == NULL) {
+		goto func_exit;
+	}
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* delete ezcfg igrsd listening sockets */
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING;
-		a1.address = isdp_addr;
-		rc = ezcfg_api_nvram_remove_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_DGRAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, isdp_addr);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_remove_socket(ap1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in action config file */
@@ -125,18 +142,30 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 	case RC_ACT_START :
 		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EZCFG, IGRSD_ENABLE), "1");
 		if (rc < 0) {
-			return (EXIT_FAILURE);
+			goto func_exit;
 		}
 
 		/* prepare IGRS xml files */
 		pop_etc_ezcfg_igrsd(flag);
 
 		/* add ezcfg igrsd listening sockets */
-		a1.domain = EZCFG_SOCKET_DOMAIN_INET_STRING;
-		a1.type = EZCFG_SOCKET_TYPE_DGRAM_STRING;
-		a1.protocol = EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING;
-		a1.address = isdp_addr;
-		rc = ezcfg_api_nvram_insert_socket(a1);
+		rc = ezcfg_api_arg_nvram_socket_set_domain(ap1, EZCFG_SOCKET_DOMAIN_INET_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_type(ap1, EZCFG_SOCKET_TYPE_DGRAM_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, EZCFG_SOCKET_PROTO_IGRS_ISDP_STRING);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_socket_set_protocol(ap1, isdp_addr);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_nvram_insert_socket(ap1);
 
 		/* restart ezcfg daemon */
 		/* FIXME: do it in config file */
@@ -151,6 +180,10 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 	default:
 		ret = EXIT_FAILURE;
 		break;
+	}
+func_exit:
+	if (ap1 != NULL) {
+		ezcfg_api_arg_nvram_socket_delete(ap1);
 	}
 
 	return (ret);

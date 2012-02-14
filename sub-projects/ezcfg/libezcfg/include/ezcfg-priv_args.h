@@ -16,6 +16,11 @@
 
 #include "ezcfg-types.h"
 
+/* args/arg_nvram_socket.c */
+bool ezcfg_arg_nvram_socket_init(struct ezcfg_arg_nvram_socket *ap);
+bool ezcfg_arg_nvram_socket_clean(struct ezcfg_arg_nvram_socket *ap);
+bool ezcfg_arg_nvram_socket_delete(struct ezcfg_arg_nvram_socket *ap);
+
 /* args/arg_nvram_ssl.c */
 bool ezcfg_arg_nvram_ssl_init(struct ezcfg_arg_nvram_ssl *ap);
 bool ezcfg_arg_nvram_ssl_clean(struct ezcfg_arg_nvram_ssl *ap);
