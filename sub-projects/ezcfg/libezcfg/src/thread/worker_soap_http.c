@@ -116,6 +116,14 @@ static bool is_soap_http_nvram_request(const char *uri)
 	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SOCKET_URI) == 0) {
 		return true;
 	}
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_INSERT_SSL_URI) == 0) {
+		return true;
+	}
+	else if (strcmp(uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SSL_URI) == 0) {
+		return true;
+	}
+#endif
 	else {
 		return false;
 	}

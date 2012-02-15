@@ -80,6 +80,19 @@ int ezcfg_api_arg_nvram_socket_delete(struct ezcfg_arg_nvram_socket *ap)
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_socket_get_domain(struct ezcfg_arg_nvram_socket *ap, char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->domain;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_socket_set_domain(struct ezcfg_arg_nvram_socket *ap, const char *domain)
 {
 	int rc = 0;
@@ -98,6 +111,19 @@ int ezcfg_api_arg_nvram_socket_set_domain(struct ezcfg_arg_nvram_socket *ap, con
 		free(ap->domain);
 	}
 	ap->domain = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_socket_get_type(struct ezcfg_arg_nvram_socket *ap, char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->type;
 
 	return rc;
 }
@@ -124,6 +150,19 @@ int ezcfg_api_arg_nvram_socket_set_type(struct ezcfg_arg_nvram_socket *ap, const
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_socket_get_protocol(struct ezcfg_arg_nvram_socket *ap, char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->protocol;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_socket_set_protocol(struct ezcfg_arg_nvram_socket *ap, const char *protocol)
 {
 	int rc = 0;
@@ -142,6 +181,19 @@ int ezcfg_api_arg_nvram_socket_set_protocol(struct ezcfg_arg_nvram_socket *ap, c
 		free(ap->protocol);
 	}
 	ap->protocol = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_socket_get_address(struct ezcfg_arg_nvram_socket *ap, char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->address;
 
 	return rc;
 }

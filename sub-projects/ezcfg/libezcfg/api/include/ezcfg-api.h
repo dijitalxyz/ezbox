@@ -16,20 +16,31 @@ int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len);
 struct ezcfg_arg_nvram_socket;
 struct ezcfg_arg_nvram_socket *ezcfg_api_arg_nvram_socket_new(void);
 int ezcfg_api_arg_nvram_socket_delete(struct ezcfg_arg_nvram_socket *ap);
+int ezcfg_api_arg_nvram_socket_get_domain(struct ezcfg_arg_nvram_socket *ap, char **pp);
 int ezcfg_api_arg_nvram_socket_set_domain(struct ezcfg_arg_nvram_socket *ap, const char *domain);
+int ezcfg_api_arg_nvram_socket_get_type(struct ezcfg_arg_nvram_socket *ap, char **pp);
 int ezcfg_api_arg_nvram_socket_set_type(struct ezcfg_arg_nvram_socket *ap, const char *type);
+int ezcfg_api_arg_nvram_socket_get_protocol(struct ezcfg_arg_nvram_socket *ap, char **pp);
 int ezcfg_api_arg_nvram_socket_set_protocol(struct ezcfg_arg_nvram_socket *ap, const char *protocol);
+int ezcfg_api_arg_nvram_socket_get_address(struct ezcfg_arg_nvram_socket *ap, char **pp);
 int ezcfg_api_arg_nvram_socket_set_address(struct ezcfg_arg_nvram_socket *ap, const char *address);
 
 struct ezcfg_arg_nvram_ssl;
 struct ezcfg_arg_nvram_ssl *ezcfg_api_arg_nvram_ssl_new(void);
 int ezcfg_api_arg_nvram_ssl_delete(struct ezcfg_arg_nvram_ssl *ap);
+int ezcfg_api_arg_nvram_ssl_get_role(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_role(struct ezcfg_arg_nvram_ssl *ap, const char *role);
+int ezcfg_api_arg_nvram_ssl_get_method(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_method(struct ezcfg_arg_nvram_ssl *ap, const char *method);
+int ezcfg_api_arg_nvram_ssl_get_socket_enable(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_enable(struct ezcfg_arg_nvram_ssl *ap, const char *socket_enable);
+int ezcfg_api_arg_nvram_ssl_get_socket_domain(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_domain(struct ezcfg_arg_nvram_ssl *ap, const char *socket_domain);
+int ezcfg_api_arg_nvram_ssl_get_socket_type(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_type(struct ezcfg_arg_nvram_ssl *ap, const char *socket_type);
+int ezcfg_api_arg_nvram_ssl_get_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, const char *socket_protocol);
+int ezcfg_api_arg_nvram_ssl_get_socket_address(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_address(struct ezcfg_arg_nvram_ssl *ap, const char *socket_address);
 
 /* NVRAM interface */

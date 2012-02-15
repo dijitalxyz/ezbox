@@ -40,6 +40,21 @@
 
 #include "ezcd.h"
 
+#if 1
+#define DBG(format, args...) do {\
+	char dbg_path[256]; \
+	FILE *dbg_fp; \
+	snprintf(dbg_path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(dbg_path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else

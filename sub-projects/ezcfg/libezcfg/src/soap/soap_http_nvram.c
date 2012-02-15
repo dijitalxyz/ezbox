@@ -1720,6 +1720,416 @@ exit:
 	return rc;
 }
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+static int build_nvram_insert_ssl_response(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char *result;
+	int body_index, child_index;
+	int n;
+	char *msg = NULL;
+	int msg_len;
+	int rc = 0;
+	
+	ASSERT(sh != NULL);
+	ASSERT(sh->http != NULL);
+	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
+
+	ezcfg = sh->ezcfg;
+	http = sh->http;
+	soap = sh->soap;
+	result = NULL;
+
+	if (list != NULL) {
+		if (ezcfg_nvram_insert_ssl(nvram, list) == true) {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
+		}
+		else {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR;
+		}
+	}
+
+	if (result != NULL) {
+		int ssl_index;
+
+		/* clean SOAP structure info */
+		ezcfg_soap_reset_attributes(soap);
+
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* Body child insertSsl part */
+		ssl_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_NVRAM_INSERT_SSL_RESPONSE_ELEMENT_NAME, NULL);
+		ezcfg_soap_add_body_child_attribute(soap, ssl_index, EZCFG_SOAP_NVRAM_ATTR_NS_NAME, EZCFG_SOAP_NVRAM_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* nvram result part */
+		child_index = ezcfg_soap_add_body_child(soap, ssl_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
+
+		/* FIXME: name point to http->request_uri !!!
+	         * never reset http before using name */
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_state_response(http);
+
+		ezcfg_http_set_message_body(http, msg, n);
+
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
+
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
+	}
+	else {
+		int fault_index;
+		int code_index;
+		int reason_index;
+
+		err(ezcfg, "can't insert socket into nvram\n");
+
+		/* clean SOAP structure info */
+		ezcfg_soap_reset_attributes(soap);
+
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* SOAP Fault part */
+		fault_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_FAULT_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code part */
+		code_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_CODE_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code value part */
+		child_index = ezcfg_soap_add_body_child(soap, code_index, -1, EZCFG_SOAP_VALUE_ELEMENT_NAME, EZCFG_SOAP_VALUE_ELEMENT_VALUE);
+
+		/* SOAP Fault Reason part */
+		reason_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_REASON_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Reason Text part */
+		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE);
+
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
+
+		/* FIXME: name point to http->request_uri !!!
+	         * never reset http before using name */
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_state_response(http);
+
+		ezcfg_http_set_message_body(http, msg, n);
+
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
+
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
+	}
+exit:
+	if (msg != NULL)
+		free(msg);
+
+	return rc;
+}
+
+static int build_nvram_remove_ssl_response(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char *result;
+	int body_index, child_index;
+	int n;
+	char *msg = NULL;
+	int msg_len;
+	int rc = 0;
+	
+	ASSERT(sh != NULL);
+	ASSERT(sh->http != NULL);
+	ASSERT(sh->soap != NULL);
+	ASSERT(nvram != NULL);
+
+	ezcfg = sh->ezcfg;
+	http = sh->http;
+	soap = sh->soap;
+	result = NULL;
+
+	if (list != NULL) {
+		if (ezcfg_nvram_remove_ssl(nvram, list) == true) {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_OK;
+		}
+		else {
+			result = EZCFG_SOAP_NVRAM_RESULT_VALUE_ERROR;
+		}
+	}
+
+	if (result != NULL) {
+		int ssl_index;
+
+		/* clean SOAP structure info */
+		ezcfg_soap_reset_attributes(soap);
+
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* Body child removeSocket part */
+		ssl_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_NVRAM_REMOVE_SSL_RESPONSE_ELEMENT_NAME, NULL);
+		ezcfg_soap_add_body_child_attribute(soap, ssl_index, EZCFG_SOAP_NVRAM_ATTR_NS_NAME, EZCFG_SOAP_NVRAM_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* nvram result part */
+		child_index = ezcfg_soap_add_body_child(soap, ssl_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
+
+		/* FIXME: name point to http->request_uri !!!
+	         * never reset http before using name */
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_state_response(http);
+
+		ezcfg_http_set_message_body(http, msg, n);
+
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
+
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
+	}
+	else {
+		int fault_index;
+		int code_index;
+		int reason_index;
+
+		err(ezcfg, "can't remove socket into nvram\n");
+
+		/* clean SOAP structure info */
+		ezcfg_soap_reset_attributes(soap);
+
+		/* build SOAP */
+		ezcfg_soap_set_version_major(soap, 1);
+		ezcfg_soap_set_version_minor(soap, 2);
+
+		/* SOAP Envelope */
+		ezcfg_soap_set_envelope(soap, EZCFG_SOAP_ENVELOPE_ELEMENT_NAME);
+		ezcfg_soap_add_envelope_attribute(soap, EZCFG_SOAP_ENVELOPE_ATTR_NS_NAME, EZCFG_SOAP_ENVELOPE_ATTR_NS_VALUE, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+
+		/* SOAP Body */
+		body_index = ezcfg_soap_set_body(soap, EZCFG_SOAP_BODY_ELEMENT_NAME);
+
+		/* SOAP Fault part */
+		fault_index = ezcfg_soap_add_body_child(soap, body_index, -1, EZCFG_SOAP_FAULT_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code part */
+		code_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_CODE_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Code value part */
+		child_index = ezcfg_soap_add_body_child(soap, code_index, -1, EZCFG_SOAP_VALUE_ELEMENT_NAME, EZCFG_SOAP_VALUE_ELEMENT_VALUE);
+
+		/* SOAP Fault Reason part */
+		reason_index = ezcfg_soap_add_body_child(soap, fault_index, -1, EZCFG_SOAP_REASON_ELEMENT_NAME, NULL);
+
+		/* SOAP Fault Reason Text part */
+		child_index = ezcfg_soap_add_body_child(soap, reason_index, -1, EZCFG_SOAP_TEXT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_INVALID_VALUE_FAULT_VALUE);
+
+		msg_len = ezcfg_soap_get_message_length(soap);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_soap_get_message_length\n");
+			rc = -1;
+			goto exit;
+		}
+		msg_len += strlen("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		msg_len++; /* one more for '\n' */
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc error.\n");
+			rc = -1;
+			goto exit;
+		}
+
+		memset(msg, 0, msg_len);
+		snprintf(msg, msg_len, "%s\n", "<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+		n = strlen(msg);
+		n += ezcfg_soap_write_message(soap, msg + n, msg_len - n);
+
+		/* FIXME: name point to http->request_uri !!!
+	         * never reset http before using name */
+		/* clean http structure info */
+		ezcfg_http_reset_attributes(http);
+		ezcfg_http_set_status_code(http, 200);
+		ezcfg_http_set_state_response(http);
+
+		ezcfg_http_set_message_body(http, msg, n);
+
+		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
+
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
+		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
+
+		/* set return value */
+		rc = 0;
+	}
+exit:
+	if (msg != NULL)
+		free(msg);
+
+	return rc;
+}
+#endif
+
+static struct ezcfg_link_list *build_nvram_node_list(struct ezcfg_soap_http *sh, char *root)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_soap *soap;
+	char *name = NULL, *value = NULL;
+	int body_index, child_index;
+	int root_index, nvnode_index;
+	struct ezcfg_link_list *list;
+
+	ezcfg = sh->ezcfg;
+	http = sh->http;
+	soap = sh->soap;
+
+	list = ezcfg_link_list_new(ezcfg);
+	if (list == NULL) {
+		return NULL;
+	}
+
+	/* get root part */
+	body_index = ezcfg_soap_get_body_index(soap);
+	root_index = ezcfg_soap_get_element_index(soap, body_index, -1, root);
+
+	/* get nvram node index */
+	nvnode_index = ezcfg_soap_get_element_index(soap, root_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
+	while(nvnode_index > 0) {
+		/* get nvram node name */
+		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
+		if (child_index < 2) {
+			ezcfg_link_list_delete(list);
+			return NULL;
+		}
+		name = ezcfg_soap_get_element_content_by_index(soap, child_index);
+		
+		/* get nvram node value */
+		child_index = ezcfg_soap_get_element_index(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
+		if (child_index < 2) {
+			ezcfg_link_list_delete(list);
+			return NULL;
+		}
+		value = ezcfg_soap_get_element_content_by_index(soap, child_index);
+
+		/* add nvram to list */
+		if (ezcfg_link_list_insert(list, name, value) == false) {
+			ezcfg_link_list_delete(list);
+			return NULL;
+		}
+
+		/* get next nvram node index */
+		nvnode_index = ezcfg_soap_get_element_index(soap, root_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
+	}
+
+	return list;
+}
+
+
 /**
  * Public functions
  **/
@@ -1785,50 +2195,8 @@ set_out:
 	}
 	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_SET_MULTI_URI) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/setMultiNvram] */
-		int setmnv_index, nvnode_index;
 		struct ezcfg_link_list *list;
-
-		list = ezcfg_link_list_new(ezcfg);
-		if (list == NULL) {
-			goto set_multi_out;
-		}
-
-		/* get setMultiNvram part */
-		body_index = ezcfg_soap_get_body_index(soap);
-		setmnv_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_SETMNV_ELEMENT_NAME);
-
-		/* get nvram node index */
-		nvnode_index = ezcfg_soap_get_element_index(soap, setmnv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		while(nvnode_index > 0) {
-			/* get nvram node name */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto set_multi_out;
-			}
-			name = ezcfg_soap_get_element_content_by_index(soap, child_index);
-		
-			/* get nvram node value */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto set_multi_out;
-			}
-			value = ezcfg_soap_get_element_content_by_index(soap, child_index);
-
-			/* add nvram to list */
-			if (ezcfg_link_list_insert(list, name, value) == false) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto set_multi_out;
-			}
-
-			/* get next nvram node index */
-			nvnode_index = ezcfg_soap_get_element_index(soap, setmnv_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		}
-set_multi_out:
+		list = build_nvram_node_list(sh, EZCFG_SOAP_NVRAM_SETMNV_ELEMENT_NAME);
 		ret = build_nvram_set_multi_response(sh, nvram, list);
 		if (list != NULL) {
 			ezcfg_link_list_delete(list);
@@ -1848,50 +2216,8 @@ set_multi_out:
 	}
 	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_INSERT_SOCKET_URI) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/insertSocket] */
-		int sock_index, nvnode_index;
 		struct ezcfg_link_list *list;
-
-		list = ezcfg_link_list_new(ezcfg);
-		if (list == NULL) {
-			goto insert_socket_out;
-		}
-
-		/* get insertSocket part */
-		body_index = ezcfg_soap_get_body_index(soap);
-		sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_INSERT_SOCKET_ELEMENT_NAME);
-
-		/* get nvram node index */
-		nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		while(nvnode_index > 0) {
-			/* get nvram node name */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto insert_socket_out;
-			}
-			name = ezcfg_soap_get_element_content_by_index(soap, child_index);
-		
-			/* get nvram node value */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto insert_socket_out;
-			}
-			value = ezcfg_soap_get_element_content_by_index(soap, child_index);
-
-			/* add nvram to list */
-			if (ezcfg_link_list_insert(list, name, value) == false) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto insert_socket_out;
-			}
-
-			/* get next nvram node index */
-			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		}
-insert_socket_out:
+		list = build_nvram_node_list(sh, EZCFG_SOAP_NVRAM_INSERT_SOCKET_ELEMENT_NAME);
 		ret = build_nvram_insert_socket_response(sh, nvram, list);
 		if (list != NULL) {
 			ezcfg_link_list_delete(list);
@@ -1899,54 +2225,30 @@ insert_socket_out:
 	}
 	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SOCKET_URI) == 0) {
 		/* nvram get uri=[/ezcfg/nvram/soap-http/removeSocket] */
-		int sock_index, nvnode_index;
 		struct ezcfg_link_list *list;
-
-		list = ezcfg_link_list_new(ezcfg);
-		if (list == NULL) {
-			goto remove_socket_out;
-		}
-
-		/* get removeSocket part */
-		body_index = ezcfg_soap_get_body_index(soap);
-		sock_index = ezcfg_soap_get_element_index(soap, body_index, -1, EZCFG_SOAP_NVRAM_REMOVE_SOCKET_ELEMENT_NAME);
-
-		/* get nvram node index */
-		nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, -1, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		while(nvnode_index > 0) {
-			/* get nvram node name */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto remove_socket_out;
-			}
-			name = ezcfg_soap_get_element_content_by_index(soap, child_index);
-		
-			/* get nvram node value */
-			child_index = ezcfg_soap_get_element_index(soap, nvnode_index, child_index, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME);
-			if (child_index < 2) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto remove_socket_out;
-			}
-			value = ezcfg_soap_get_element_content_by_index(soap, child_index);
-
-			/* add nvram to list */
-			if (ezcfg_link_list_insert(list, name, value) == false) {
-				ezcfg_link_list_delete(list);
-				list = NULL;
-				goto remove_socket_out;
-			}
-
-			/* get next nvram node index */
-			nvnode_index = ezcfg_soap_get_element_index(soap, sock_index, nvnode_index, EZCFG_SOAP_NVRAM_NVRAM_ELEMENT_NAME);
-		}
-remove_socket_out:
+		list = build_nvram_node_list(sh, EZCFG_SOAP_NVRAM_REMOVE_SOCKET_ELEMENT_NAME);
 		ret = build_nvram_remove_socket_response(sh, nvram, list);
 		if (list != NULL) {
 			ezcfg_link_list_delete(list);
 		}
 	}
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_INSERT_SSL_URI) == 0) {
+		struct ezcfg_link_list *list;
+		list = build_nvram_node_list(sh, EZCFG_SOAP_NVRAM_INSERT_SSL_ELEMENT_NAME);
+		ret = build_nvram_insert_ssl_response(sh, nvram, list);
+		if (list != NULL) {
+			ezcfg_link_list_delete(list);
+		}
+	}
+	else if (strcmp(request_uri, EZCFG_SOAP_HTTP_NVRAM_REMOVE_SSL_URI) == 0) {
+		struct ezcfg_link_list *list;
+		list = build_nvram_node_list(sh, EZCFG_SOAP_NVRAM_INSERT_SSL_ELEMENT_NAME);
+		ret = build_nvram_remove_ssl_response(sh, nvram, list);
+		if (list != NULL) {
+			ezcfg_link_list_delete(list);
+		}
+	}
+#endif
 	return ret;
 }

@@ -80,6 +80,19 @@ int ezcfg_api_arg_nvram_ssl_delete(struct ezcfg_arg_nvram_ssl *ap)
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_ssl_get_role(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->role;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_ssl_set_role(struct ezcfg_arg_nvram_ssl *ap, const char *role)
 {
 	int rc = 0;
@@ -98,6 +111,19 @@ int ezcfg_api_arg_nvram_ssl_set_role(struct ezcfg_arg_nvram_ssl *ap, const char 
 		free(ap->role);
 	}
 	ap->role = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_get_method(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->method;
 
 	return rc;
 }
@@ -124,6 +150,19 @@ int ezcfg_api_arg_nvram_ssl_set_method(struct ezcfg_arg_nvram_ssl *ap, const cha
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_ssl_get_socket_enable(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->socket_enable;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_ssl_set_socket_enable(struct ezcfg_arg_nvram_ssl *ap, const char *socket_enable)
 {
 	int rc = 0;
@@ -142,6 +181,19 @@ int ezcfg_api_arg_nvram_ssl_set_socket_enable(struct ezcfg_arg_nvram_ssl *ap, co
 		free(ap->socket_enable);
 	}
 	ap->socket_enable = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_get_socket_domain(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->socket_domain;
 
 	return rc;
 }
@@ -168,6 +220,19 @@ int ezcfg_api_arg_nvram_ssl_set_socket_domain(struct ezcfg_arg_nvram_ssl *ap, co
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_ssl_get_socket_type(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->socket_type;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_ssl_set_socket_type(struct ezcfg_arg_nvram_ssl *ap, const char *socket_type)
 {
 	int rc = 0;
@@ -190,6 +255,19 @@ int ezcfg_api_arg_nvram_ssl_set_socket_type(struct ezcfg_arg_nvram_ssl *ap, cons
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_ssl_get_socket_protocol(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->socket_protocol;
+
+	return rc;
+}
+
 int ezcfg_api_arg_nvram_ssl_set_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, const char *socket_protocol)
 {
 	int rc = 0;
@@ -208,6 +286,19 @@ int ezcfg_api_arg_nvram_ssl_set_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, 
 		free(ap->socket_protocol);
 	}
 	ap->socket_protocol = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_get_socket_address(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->socket_address;
 
 	return rc;
 }

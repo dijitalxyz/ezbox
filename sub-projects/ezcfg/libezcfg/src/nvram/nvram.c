@@ -2067,16 +2067,16 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, "domain") == 0) {
+		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
 			domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "type") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
 			type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "protocol") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
 			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "address") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
 			address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
@@ -2183,16 +2183,16 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, "domain") == 0) {
+		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
 			domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "type") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
 			type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "protocol") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
 			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "address") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
 			address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
@@ -2250,25 +2250,25 @@ bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, "role") == 0) {
+		if (strcmp(name, EZCFG_EZCFG_KEYWORD_ROLE) == 0) {
 			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "method") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_METHOD) == 0) {
 			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_enable") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE) == 0) {
 			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_domain") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN) == 0) {
 			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_type") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE) == 0) {
 			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_protocol") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL) == 0) {
 			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_address") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS) == 0) {
 			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
@@ -2410,25 +2410,25 @@ bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, "role") == 0) {
+		if (strcmp(name, EZCFG_EZCFG_KEYWORD_ROLE) == 0) {
 			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "method") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_METHOD) == 0) {
 			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_enable") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE) == 0) {
 			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_domain") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN) == 0) {
 			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_type") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE) == 0) {
 			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_protocol") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL) == 0) {
 			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
-		else if (strcmp(name, "socket_address") == 0) {
+		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS) == 0) {
 			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
