@@ -352,7 +352,7 @@ static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name,
 }
 
 static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
-	char *domain, char *type, char *protocol, char *address)
+	struct ezcfg_arg_nvram_socket *ap)
 {
 	char buf[32];
 	int i;
@@ -399,10 +399,10 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 
 		if (domain2 != NULL && type2 != NULL &&
 		    protocol2 != NULL && address2 != NULL) {
-			if ((strcmp(domain, domain2) == 0) &&
-			    (strcmp(type, type2) == 0) &&
-			    (strcmp(protocol, protocol2) == 0) &&
-			    (strcmp(address, address2) == 0)) {
+			if ((strcmp(ap->domain, domain2) == 0) &&
+			    (strcmp(ap->type, type2) == 0) &&
+			    (strcmp(ap->protocol, protocol2) == 0) &&
+			    (strcmp(ap->address, address2) == 0)) {
 				free(domain2);
 				free(type2);
 				free(protocol2);
@@ -1094,6 +1094,31 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 			}
 		}
 	}
+
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	/* ezcfg_common.ssl_number */
+	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER), &p);
+	if (p != NULL) {
+		number = atoi(p);
+		free(p);
+		for(i = 0; i < number; i++) {
+			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
+				EZCFG_EZCFG_NVRAM_PREFIX,
+				EZCFG_EZCFG_SECTION_SSL, i,
+				EZCFG_EZCFG_KEYWORD_ROLE);
+			nvram_get_entry_value(nvram, buf, &p);
+			if (p != NULL) {
+				/* It's OK for this socket setting */
+				free(p);
+			}
+			else {
+				snprintf(buf, sizeof(buf), "%d", i);
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER), buf);
+				break;
+			}
+		}
+	}
+#endif
 
 	/* ezcfg_common.auth_number */
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), &p);
@@ -2050,7 +2075,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name, *value;
-	char *domain, *type, *protocol, *address;
+	struct ezcfg_arg_nvram_socket a;
 	char buf[64];
 	int i, list_length;
 
@@ -2058,32 +2083,30 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	ASSERT(list != NULL);
 
 	ezcfg = nvram->ezcfg;
-	domain = NULL;
-	type = NULL;
-	protocol = NULL;
-	address = NULL;
+
+	ezcfg_arg_nvram_socket_init(&a);
 
 	/* parse settings */
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
 		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
-			domain = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
-			type = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
-			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
-			address = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
 
 	/* validate settings */
-	if ((domain == NULL) || (type == NULL) ||
-	    (protocol == NULL) || (address == NULL)) {
+	if ((a.domain == NULL) || (a.type == NULL) ||
+	    (a.protocol == NULL) || (a.address == NULL)) {
 		return(false);
 	}
 
@@ -2091,7 +2114,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	pthread_mutex_lock(&nvram->mutex);
 
 	/* get socket index in nvram */
-	i = nvram_get_socket_index(nvram, domain, type, protocol, address);
+	i = nvram_get_socket_index(nvram, &a);
 	/* socket exist! */
 	if (i > 0) {
 		ret = true;
@@ -2113,7 +2136,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_DOMAIN);
-	ret = nvram_set_entry(nvram, buf, domain);
+	ret = nvram_set_entry(nvram, buf, a.domain);
 	if (ret == false) {
 		goto func_out;
 	}
@@ -2123,7 +2146,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_TYPE);
-	ret = nvram_set_entry(nvram, buf, type);
+	ret = nvram_set_entry(nvram, buf, a.type);
 	if (ret == false) {
 		goto func_out;
 	}
@@ -2133,7 +2156,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_PROTOCOL);
-	ret = nvram_set_entry(nvram, buf, protocol);
+	ret = nvram_set_entry(nvram, buf, a.protocol);
 	if (ret == false) {
 		goto func_out;
 	}
@@ -2143,7 +2166,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 		NVRAM_PREFIX(EZCFG),
 		EZCFG_EZCFG_SECTION_SOCKET, i,
 		EZCFG_EZCFG_KEYWORD_ADDRESS);
-	ret = nvram_set_entry(nvram, buf, address);
+	ret = nvram_set_entry(nvram, buf, a.address);
 	if (ret == false) {
 		goto func_out;
 	}
@@ -2167,39 +2190,36 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name;
-	char *domain, *type, *protocol, *address;
+	struct ezcfg_arg_nvram_socket a;
 	int i, list_length;
 
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
 	ezcfg = nvram->ezcfg;
-	domain = NULL;
-	type = NULL;
-	protocol = NULL;
-	address = NULL;
+	ezcfg_arg_nvram_socket_init(&a);
 
 	/* parse settings */
 	list_length = ezcfg_link_list_get_length(list);
 	for (i = 1; i < list_length+1; i++) {
 		name = ezcfg_link_list_get_node_name_by_index(list, i);
 		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
-			domain = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.domain = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
-			type = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.type = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
-			protocol = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.protocol = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
-			address = ezcfg_link_list_get_node_value_by_index(list, i);
+			a.address = ezcfg_link_list_get_node_value_by_index(list, i);
 		}
 	}
 
 	/* validate settings */
-	if ((domain == NULL) || (type == NULL) ||
-	    (protocol == NULL) || (address == NULL)) {
+	if ((a.domain == NULL) || (a.type == NULL) ||
+	    (a.protocol == NULL) || (a.address == NULL)) {
 		return(false);
 	}
 
@@ -2207,7 +2227,7 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	pthread_mutex_lock(&nvram->mutex);
 
 	/* get socket index in nvram */
-	i = nvram_get_socket_index(nvram, domain, type, protocol, address);
+	i = nvram_get_socket_index(nvram, &a);
 	/* socket does not exist! */
 	if (i < 1) {
 		ret = true;
@@ -2238,13 +2258,7 @@ bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 	ASSERT(list != NULL);
 
 	ezcfg = nvram->ezcfg;
-	a.role = NULL;
-	a.method = NULL;
-	a.socket_enable = NULL;
-	a.socket_domain = NULL;
-	a.socket_type = NULL;
-	a.socket_protocol = NULL;
-	a.socket_address = NULL;
+	ezcfg_arg_nvram_ssl_init(&a);
 
 	/* parse settings */
 	list_length = ezcfg_link_list_get_length(list);
@@ -2446,7 +2460,7 @@ bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 
 	/* get ssl index in nvram */
 	i = nvram_get_ssl_index(nvram, &a);
-	/* socket does not exist! */
+	/* ssl does not exist! */
 	if (i < 1) {
 		ret = true;
 		goto func_out;
