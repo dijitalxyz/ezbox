@@ -286,6 +286,9 @@ endif
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c
+if CONFIG_EZBOX_SERVICE_OPENSSL
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_ssl.c
+endif
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-nvram.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-rc.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-uuid.c
