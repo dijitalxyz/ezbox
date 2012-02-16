@@ -217,6 +217,39 @@ void ezcfg_master_load_ssl_conf(struct ezcfg_master *master)
 			sp = NULL;
 		}
 
+		/* check certificate file */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SSL, i, EZCFG_EZCFG_KEYWORD_CERTIFICATE_FILE);
+		if (p == NULL) {
+			ezcfg_ssl_delete(sslp);
+			continue;
+		}
+		if (*p != '\0') {
+			ezcfg_ssl_set_certificate_file(sslp, p);
+		}
+		free(p);
+
+		/* check certificate chain file */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SSL, i, EZCFG_EZCFG_KEYWORD_CERTIFICATE_CHAIN_FILE);
+		if (p == NULL) {
+			ezcfg_ssl_delete(sslp);
+			continue;
+		}
+		if (*p != '\0') {
+			ezcfg_ssl_set_certificate_chain_file(sslp, p);
+		}
+		free(p);
+
+		/* check private key file */
+		p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_SSL, i, EZCFG_EZCFG_KEYWORD_PRIVATE_KEY_FILE);
+		if (p == NULL) {
+			ezcfg_ssl_delete(sslp);
+			continue;
+		}
+		if (*p != '\0') {
+			ezcfg_ssl_set_private_key_file(sslp, p);
+		}
+		free(p);
+
 		/* check if SSL is valid */
 		if (ezcfg_ssl_is_valid(sslp) == false) {
 			ezcfg_ssl_delete(sslp);

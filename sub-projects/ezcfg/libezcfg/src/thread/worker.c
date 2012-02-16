@@ -63,6 +63,9 @@ struct ezcfg_worker {
 	struct ezcfg_worker *next; /* Linkage */
 	struct ezcfg_master *master;
 	struct ezcfg_socket *sp;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	struct ezcfg_ssl *sslp;
+#endif
 	unsigned char proto;
 	void *proto_data;
 	time_t birth_time;
@@ -131,6 +134,13 @@ static void close_connection(struct ezcfg_worker *worker)
 
 	ezcfg = worker->ezcfg;
 
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	if (worker->sslp != NULL) {
+		ezcfg_ssl_close_session(worker->sslp);
+		worker->sslp = NULL;
+	}
+#endif
+
 	ezcfg_socket_close_sock(worker->sp);
 }
 
@@ -159,9 +169,24 @@ static void init_protocol_data(struct ezcfg_worker *worker)
 #endif
 		worker->proto_data = ezcfg_http_new(ezcfg);
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
-		if ((worker->proto == EZCFG_PROTO_HTTPS) &&
-		    (worker->proto_data != NULL)) {
-			ezcfg_http_set_is_ssl(worker->proto_data, true);
+		/* for HTTPS we set SSL tag */
+		if (worker->proto == EZCFG_PROTO_HTTPS) {
+			/* find socket associated SSL entry */
+			worker->sslp = ezcfg_ssl_list_find_by_socket(
+				ezcfg_master_get_p_ssl(worker->master),
+				worker->sp);
+
+			if ((worker->proto_data != NULL) &&
+			    (worker->sslp != NULL)) {
+				ezcfg_http_set_is_ssl(worker->proto_data, true);
+			}
+			else {
+				if (worker->proto_data != NULL) {
+					ezcfg_http_delete(worker->proto_data);
+					worker->proto_data = NULL;
+				}
+				/* worker->sslp will be clean in close_connection() */
+			}
 		}
 #endif
 		break;
@@ -350,6 +375,9 @@ struct ezcfg_worker *ezcfg_worker_new(struct ezcfg_master *master)
 	worker->ezcfg = ezcfg;
 	worker->master = master;
 	worker->sp = sp;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	worker->sslp = NULL;
+#endif
 	worker->proto = EZCFG_PROTO_UNKNOWN;
 	worker->proto_data = NULL;
 
@@ -463,14 +491,30 @@ int ezcfg_worker_printf(struct ezcfg_worker *worker, const char *fmt, ...)
 	len = vsnprintf(buf, buf_len, fmt, ap);
 	va_end(ap);
 
-	ret = ezcfg_socket_write(worker->sp, buf, len, 0);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	if (worker->sslp != NULL) {
+		ret = ezcfg_ssl_write(worker->sslp, buf, len, 0);
+	}
+	else
+#endif
+	{
+		ret = ezcfg_socket_write(worker->sp, buf, len, 0);
+	}
 	free(buf);
 	return ret;
 }
 
 int ezcfg_worker_write(struct ezcfg_worker *worker, const char *buf, int len)
 {
-	return ezcfg_socket_write(worker->sp, buf, len, 0);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+	if (worker->sslp != NULL) {
+		return ezcfg_ssl_write(worker->sslp, buf, len, 0);
+	}
+	else
+#endif
+	{
+		return ezcfg_socket_write(worker->sp, buf, len, 0);
+	}
 }
 
 void *ezcfg_worker_get_proto_data(struct ezcfg_worker *worker)

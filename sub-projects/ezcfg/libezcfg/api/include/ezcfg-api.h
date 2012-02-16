@@ -42,6 +42,12 @@ int ezcfg_api_arg_nvram_ssl_get_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, 
 int ezcfg_api_arg_nvram_ssl_set_socket_protocol(struct ezcfg_arg_nvram_ssl *ap, const char *socket_protocol);
 int ezcfg_api_arg_nvram_ssl_get_socket_address(struct ezcfg_arg_nvram_ssl *ap, char **pp);
 int ezcfg_api_arg_nvram_ssl_set_socket_address(struct ezcfg_arg_nvram_ssl *ap, const char *socket_address);
+int ezcfg_api_arg_nvram_ssl_get_certificate_file(struct ezcfg_arg_nvram_ssl *ap, char **pp);
+int ezcfg_api_arg_nvram_ssl_set_certificate_file(struct ezcfg_arg_nvram_ssl *ap, const char *file);
+int ezcfg_api_arg_nvram_ssl_get_certificate_chain_file(struct ezcfg_arg_nvram_ssl *ap, char **pp);
+int ezcfg_api_arg_nvram_ssl_set_certificate_chain_file(struct ezcfg_arg_nvram_ssl *ap, const char *file);
+int ezcfg_api_arg_nvram_ssl_get_private_key_file(struct ezcfg_arg_nvram_ssl *ap, char **pp);
+int ezcfg_api_arg_nvram_ssl_set_private_key_file(struct ezcfg_arg_nvram_ssl *ap, const char *file);
 
 /* NVRAM interface */
 int ezcfg_api_nvram_set_config_file(const char *path);

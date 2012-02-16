@@ -325,3 +325,108 @@ int ezcfg_api_arg_nvram_ssl_set_socket_address(struct ezcfg_arg_nvram_ssl *ap, c
 	return rc;
 }
 
+int ezcfg_api_arg_nvram_ssl_get_certificate_file(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->certificate_file;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_set_certificate_file(struct ezcfg_arg_nvram_ssl *ap, const char *file)
+{
+	int rc = 0;
+	char *p;
+
+	if (ap == NULL || file == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	p = strdup(file);
+	if (p == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	if (ap->certificate_file != NULL) {
+		free(ap->certificate_file);
+	}
+	ap->certificate_file = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_get_certificate_chain_file(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->certificate_chain_file;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_set_certificate_chain_file(struct ezcfg_arg_nvram_ssl *ap, const char *file)
+{
+	int rc = 0;
+	char *p;
+
+	if (ap == NULL || file == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	p = strdup(file);
+	if (p == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	if (ap->certificate_chain_file != NULL) {
+		free(ap->certificate_chain_file);
+	}
+	ap->certificate_chain_file = p;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_get_private_key_file(struct ezcfg_arg_nvram_ssl *ap,char **pp)
+{
+	int rc = 0;
+
+	if (ap == NULL || pp == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	*pp = ap->private_key_file;
+
+	return rc;
+}
+
+int ezcfg_api_arg_nvram_ssl_set_private_key_file(struct ezcfg_arg_nvram_ssl *ap, const char *file)
+{
+	int rc = 0;
+	char *p;
+
+	if (ap == NULL || file == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	p = strdup(file);
+	if (p == NULL) {
+		return -EZCFG_E_SPACE ;
+	}
+
+	if (ap->private_key_file != NULL) {
+		free(ap->private_key_file);
+	}
+	ap->private_key_file = p;
+
+	return rc;
+}
+

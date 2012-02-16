@@ -25,6 +25,7 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp);
 void ezcfg_socket_set_close_on_exec(struct ezcfg_socket *sp);
 struct ezcfg *ezcfg_socket_get_ezcfg(const struct ezcfg_socket *sp);
+bool ezcfg_socket_set_sock(struct ezcfg_socket *sp, const int sock);
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp);
 bool ezcfg_socket_set_proto(struct ezcfg_socket *sp, const int proto);
 int ezcfg_socket_get_proto(const struct ezcfg_socket *sp);

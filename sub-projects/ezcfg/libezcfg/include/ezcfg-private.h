@@ -65,6 +65,9 @@ typedef struct ezcfg_arg_nvram_ssl {
 	char *socket_type;
 	char *socket_protocol;
 	char *socket_address;
+	char *certificate_file;
+	char *certificate_chain_file;
+	char *private_key_file;
 } ezcfg_arg_nvram_ssl_t;
 
 /* common/ezcfg.c */

@@ -70,7 +70,10 @@ struct ezcfg_ssl {
 	int role;                       /* combine, server, client */
 	int method;                     /* SSL2, SSL3, TLS1, peer determed */
 	SSL_CTX *ctx;                   /* SSL context */
-	SSL *ssl;
+	SSL *session;			/* SSL session structure */
+	char *certificate_file;
+	char *certificate_chain_file;
+	char *private_key_file;
 
 	struct ezcfg_ssl *next; /* link pointer */
 };
@@ -101,8 +104,23 @@ void ezcfg_ssl_delete(struct ezcfg_ssl *sslp)
 
 	ezcfg = sslp->ezcfg;
 
+	/* FIXME: must close SSL session first */
+	ezcfg_ssl_close_session(sslp);
+
+	if (sslp->sp != NULL)
+		ezcfg_socket_delete(sslp->sp);
+
 	if (sslp->ctx != NULL)
 		SSL_CTX_free(sslp->ctx);
+
+	if (sslp->certificate_file != NULL)
+		free(sslp->certificate_file);
+
+	if (sslp->certificate_chain_file != NULL)
+		free(sslp->certificate_chain_file);
+
+	if (sslp->private_key_file != NULL)
+		free(sslp->private_key_file);
 
 	free(sslp);
 }
@@ -223,6 +241,175 @@ bool ezcfg_ssl_set_socket(struct ezcfg_ssl *sslp, struct ezcfg_socket *sp)
 	return true;
 }
 
+bool ezcfg_ssl_open_session(struct ezcfg_ssl *sslp, const int sock)
+{
+	struct ezcfg *ezcfg;
+	SSL *s;
+
+	ASSERT(sslp != NULL);
+	ASSERT(sock >= 0);
+
+	ezcfg = sslp->ezcfg;
+
+	if (sslp->session != NULL) {
+		return false;
+	}
+
+	if (sslp->sp == NULL) {
+		return false;
+	}
+
+	s = SSL_new(sslp->ctx);
+	if (s == NULL) {
+		return false;
+	}
+
+	if (SSL_set_fd(s, sock) == 0) {
+		SSL_free(s);
+		return false;
+	}
+
+	if ((sslp->role == EZCFG_SSL_ROLE_SERVER) &&
+	    (SSL_accept(s) == 1)) {
+		sslp->session = s;
+		/* setup SSL session associated sock */
+		ezcfg_socket_set_sock(sslp->sp, sock);
+		return true;
+	}
+	else if ((sslp->role == EZCFG_SSL_ROLE_SERVER) &&
+	         (SSL_connect(s) == 1)) {
+		sslp->session = s;
+		/* setup SSL session associated sock */
+		ezcfg_socket_set_sock(sslp->sp, sock);
+		return true;
+	}
+	else {
+		SSL_free(s);
+		return false;
+	}
+}
+
+bool ezcfg_ssl_close_session(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+	if (sslp->session != NULL) {
+		SSL_free(sslp->session);
+		sslp->session = NULL;
+	}
+	if (sslp->sp != NULL) {
+		/* clear SSL session associated sock */
+		ezcfg_socket_set_sock(sslp->sp, -1);
+	}
+
+	return true;
+}
+
+const char *ezcfg_ssl_get_certificate_file(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	return sslp->certificate_file;
+}
+
+bool ezcfg_ssl_set_certificate_file(struct ezcfg_ssl *sslp, const char *file)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	ASSERT(sslp != NULL);
+	ASSERT(file != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	p = strdup(file);
+	if (p == NULL) {
+		return false;
+	}
+
+	if (sslp->certificate_file != NULL) {
+		free(sslp->certificate_file);
+	}
+	sslp->certificate_file = p;
+
+	return true;
+}
+
+const char *ezcfg_ssl_get_certificate_chain_file(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	return sslp->certificate_chain_file;
+}
+
+bool ezcfg_ssl_set_certificate_chain_file(struct ezcfg_ssl *sslp, const char *file)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	ASSERT(sslp != NULL);
+	ASSERT(file != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	p = strdup(file);
+	if (p == NULL) {
+		return false;
+	}
+
+	if (sslp->certificate_chain_file != NULL) {
+		free(sslp->certificate_chain_file);
+	}
+	sslp->certificate_chain_file = p;
+
+	return true;
+}
+
+const char *ezcfg_ssl_get_private_key_file(struct ezcfg_ssl *sslp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(sslp != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	return sslp->private_key_file;
+}
+
+bool ezcfg_ssl_set_private_key_file(struct ezcfg_ssl *sslp, const char *file)
+{
+	struct ezcfg *ezcfg;
+	char *p;
+
+	ASSERT(sslp != NULL);
+	ASSERT(file != NULL);
+
+	ezcfg = sslp->ezcfg;
+
+	p = strdup(file);
+	if (p == NULL) {
+		return false;
+	}
+
+	if (sslp->private_key_file != NULL) {
+		free(sslp->private_key_file);
+	}
+	sslp->private_key_file = p;
+
+	return true;
+}
+
 bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp)
 {
 	struct ezcfg *ezcfg;
@@ -234,22 +421,106 @@ bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp)
 	return true;
 }
 
+int ezcfg_ssl_read(struct ezcfg_ssl *sslp, void *buf, int len, int flags)
+{
+	struct ezcfg *ezcfg;
+	SSL *s;
+	char * p;
+	int status, n;
+
+	ASSERT(sslp != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len >= 0);
+
+	ezcfg = sslp->ezcfg;
+	s = sslp->session;
+	p = buf;
+	status = 0;
+        memset(buf, '\0', len);
+
+	while (status == 0) {
+		n = SSL_read(s, p + status, len - status);
+		if (n < 0) {
+			if (errno == EPIPE) {
+				info(ezcfg, "pipe error: %m\n");
+				return -EPIPE;
+			}
+			else if (errno == EINTR || errno == EAGAIN) {
+				info(ezcfg, "interrupted: %m\n");
+				continue;
+			}
+			else {
+				err(ezcfg, "read fail: %m\n");
+				return -errno;
+			}
+		}
+
+		if (n == 0) {
+			info(ezcfg, "remote end closed connection: %m\n");
+			p = buf;
+			p[len-1] = '\0';
+			break;
+		}
+		status += n;
+	}
+
+	return status;
+}
+
+int ezcfg_ssl_write(struct ezcfg_ssl *sslp, const void *buf, int len, int flags)
+{
+	struct ezcfg *ezcfg;
+	SSL *s;
+	const char *p;
+	int status, n;
+
+	ASSERT(sslp != NULL);
+	ASSERT(buf != NULL);
+	ASSERT(len >= 0);
+
+	ezcfg = sslp->ezcfg;
+	p = buf;
+	status = 0;
+	s = sslp->session;
+
+	while (status != len) {
+		n = SSL_write(s, p + status, len -status);
+		if (n < 0) {
+			if (errno == EPIPE) {
+				info(ezcfg, "remote end closed connection: %m\n");
+				return -EPIPE;
+			}
+			else if (errno == EINTR || errno == EAGAIN) {
+				info(ezcfg, "interrupted: %m\n");
+				continue;
+			}
+			else {
+				err(ezcfg, "write fail: %m\n");
+				return -errno;
+			}
+		}
+		status += n;
+	}
+
+	return status;
+}
+
 bool ezcfg_ssl_list_in(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_ssl *sp;
+	struct ezcfg_ssl *sslp2;
 
 	ASSERT(list != NULL);
 	ASSERT(sslp != NULL);
 
 	ezcfg = sslp->ezcfg;
 
-	sp = *list;
-	while (sp != NULL) {
-		if (ssl_is_same(sp, sslp) == true) {
+	sslp2 = *list;
+	while (sslp2 != NULL) {
+		if (ssl_is_same(sslp2, sslp) == true) {
 			return true;
 		}
-		sp = sp->next;
+		sslp2 = sslp2->next;
 	}
 	return false;
 }
@@ -276,4 +547,23 @@ void ezcfg_ssl_list_delete(struct ezcfg_ssl **list)
 		ezcfg_ssl_delete(sslp);
 		sslp = *list;
 	}
+}
+
+struct ezcfg_ssl *ezcfg_ssl_list_find_by_socket(struct ezcfg_ssl **list, struct ezcfg_socket *sp)
+{
+	struct ezcfg_ssl *sslp;
+	struct ezcfg_socket *sp2;
+
+	ASSERT(list != NULL);
+	ASSERT(sp != NULL);
+
+	sslp = *list;
+	while (sslp != NULL) {
+		sp2 = sslp->sp;
+		if (ezcfg_socket_compare(sp2, sp) == true) {
+			return sslp;
+		}
+		sslp = sslp->next;
+	}
+	return NULL;
 }

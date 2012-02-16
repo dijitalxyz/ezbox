@@ -779,14 +779,15 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 		return;
 	}
 	nread = 0;
+
 	header_len = ezcfg_socket_read_http_header(ezcfg_worker_get_socket(worker), http, buf, buf_len, &nread);
 
 	ASSERT(nread >= header_len);
 
 	if (header_len <= 0) {
+		/* Request is too large or format is not correct */
 		err(ezcfg, "request error\n");
-		free(buf);
-		return; /* Request is too large or format is not correct */
+		goto func_exit;
 	}
 
 	/* 0-terminate the request: parse http request uses sscanf
@@ -803,12 +804,12 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 			send_http_error(worker, 505,
 			                "HTTP version not supported",
 			                "%s", "Weird HTTP version");
-			goto exit;
+			goto func_exit;
 		}
 		p = ezcfg_socket_read_http_content(ezcfg_worker_get_socket(worker), http, buf, header_len, &buf_len, &nread);
 		if (p == NULL) {
 			send_http_error(worker, 400, "Bad Request", "");
-			goto exit;
+			goto func_exit;
 		}
 		buf = p;
 		if (nread > header_len) {
@@ -821,7 +822,7 @@ void ezcfg_worker_process_http_new_connection(struct ezcfg_worker *worker)
 		send_http_error(worker, 400, "Bad Request", "Can not parse request: %.*s", nread, buf);
 	}
 
-exit:
+func_exit:
 	/* release buf memory */
 	free(buf);
 }

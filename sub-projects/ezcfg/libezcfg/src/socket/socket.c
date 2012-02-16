@@ -415,6 +415,13 @@ struct ezcfg *ezcfg_socket_get_ezcfg(const struct ezcfg_socket *sp)
 	return sp->ezcfg;
 }
 
+bool ezcfg_socket_set_sock(struct ezcfg_socket *sp, const int sock)
+{
+	ASSERT(sp != NULL);
+	sp->sock = sock;
+	return true;
+}
+
 int ezcfg_socket_get_sock(const struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
@@ -1290,7 +1297,6 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 		if ((lsa->domain == AF_INET) && (lsa->type == SOCK_DGRAM)) {
 			n = recvfrom(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin), &(rsa->len));
-
 		}
 		else {
 			n = read(sock, p + status, len - status);
@@ -1319,6 +1325,7 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 		}
 		status += n;
 	}
+
 	return status;
 }
 

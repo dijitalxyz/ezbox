@@ -199,6 +199,18 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		if (rc < 0) {
 			goto func_exit;
 		}
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, "/etc/ssl/0.cert.pem");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_chain_file(ap2, "");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, "/etc/ssl/0.key.pem");
+		if (rc < 0) {
+			goto func_exit;
+		}
 		rc = ezcfg_api_nvram_remove_ssl(ap2);
 #endif
 
@@ -293,6 +305,18 @@ int rc_ezcfg_httpd(int argc, char **argv)
 			goto func_exit;
 		}
 		rc = ezcfg_api_arg_nvram_ssl_set_socket_address(ap2, buf);
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, "/etc/ssl/0.cert.pem");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_chain_file(ap2, "");
+		if (rc < 0) {
+			goto func_exit;
+		}
+		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, "/etc/ssl/0.key.pem");
 		if (rc < 0) {
 			goto func_exit;
 		}

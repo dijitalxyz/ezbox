@@ -98,6 +98,9 @@
 
 #define EZCFG_EZCFG_KEYWORD_ROLE            "role"
 #define EZCFG_EZCFG_KEYWORD_METHOD          "method"
+#define EZCFG_EZCFG_KEYWORD_CERTIFICATE_FILE            "certificate_file"
+#define EZCFG_EZCFG_KEYWORD_CERTIFICATE_CHAIN_FILE      "certificate_chain_file"
+#define EZCFG_EZCFG_KEYWORD_PRIVATE_KEY_FILE            "private_key_file"
 #define EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE   "socket_enable"
 #define EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN   "socket_domain"
 #define EZCFG_EZCFG_KEYWORD_SOCKET_TYPE     "socket_type"
@@ -111,6 +114,10 @@
 #define EZCFG_EZCFG_SSL_0_SOCKET_TYPE       "ssl.0.socket_type"
 #define EZCFG_EZCFG_SSL_0_SOCKET_PROTOCOL   "ssl.0.socket_protocol"
 #define EZCFG_EZCFG_SSL_0_SOCKET_ADDRESS    "ssl.0.socket_address"
+#define EZCFG_EZCFG_SSL_0_CERTIFICATE_FILE  "ssl.0.certificate_file"
+#define EZCFG_EZCFG_SSL_0_CERTIFICATE_CHAIN_FILE \
+	"ssl.0.certificate_chain_file"
+#define EZCFG_EZCFG_SSL_0_PRIVATE_KEY_FILE  "ssl.0.private_key_file"
 
 
 /* ezcfg config [igrs] section */
