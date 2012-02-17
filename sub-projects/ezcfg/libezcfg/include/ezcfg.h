@@ -80,6 +80,12 @@
 #define EZCFG_FILE_EXT_NVJS_STRING      ".nvjs"
 
 
+/* SSL */
+#define EZCFG_SSL_CONF_ROOT_PATH	SYSCONFDIR "/ssl"
+#define EZCFG_SSL_CERT_ROOT_PATH	EZCFG_SSL_CONF_ROOT_PATH "/certs"
+#define EZCFG_SSL_PRIV_ROOT_PATH	EZCFG_SSL_CONF_ROOT_PATH "/private"
+
+
 /* thread config definitions */
 #define EZCFG_MASTER_SOCKET_QUEUE_LENGTH	20
 #define EZCFG_MASTER_WAIT_TIME	5

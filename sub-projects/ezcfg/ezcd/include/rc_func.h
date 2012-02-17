@@ -27,6 +27,9 @@ extern int rc_login(int argc, char **argv);
 extern int rc_loopback(int argc, char **argv);
 extern int rc_netbase(int argc, char **argv);
 extern int rc_system(int argc, char **argv);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+extern int rc_openssl(int argc, char **argv);
+#endif
 
 #if (HAVE_EZBOX_SERVICE_SYSLOGD == 1)
 extern int rc_syslogd(int argc, char **argv);

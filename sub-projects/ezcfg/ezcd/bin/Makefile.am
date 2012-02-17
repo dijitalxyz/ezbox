@@ -88,6 +88,9 @@ endif
 RCSO_SRC += rc_ezcm.c
 RCSO_SRC += rc_netbase.c
 RCSO_SRC += rc_resolv_conf.c
+if CONFIG_EZBOX_SERVICE_OPENSSL
+RCSO_SRC += rc_openssl.c
+endif
 if CONFIG_EZBOX_SERVICE_IPTABLES
 RCSO_SRC += rc_iptables.c
 endif

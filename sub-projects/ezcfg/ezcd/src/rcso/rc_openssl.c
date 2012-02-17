@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_resolv_conf.c
+ * Module Name  : rc_openssl.c
  *
- * Description  : ezbox run /etc/resolv.conf file service
+ * Description  : ezbox run OpenSSL service
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2011-11-08   0.1       Write it from scratch
+ * 2012-02-17   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -36,7 +36,6 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <net/if.h>
 
 #include "ezcd.h"
 #include "pop_func.h"
@@ -44,7 +43,7 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_resolv_conf(int argc, char **argv)
+int rc_openssl(int argc, char **argv)
 #endif
 {
 	int flag, ret;
@@ -53,7 +52,7 @@ int rc_resolv_conf(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "resolv_conf")) {
+	if (strcmp(argv[0], "openssl")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -62,7 +61,7 @@ int rc_resolv_conf(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		pop_etc_resolv_conf(RC_ACT_STOP);
+		pop_etc_ssl_openssl_cnf(RC_ACT_STOP);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -71,7 +70,7 @@ int rc_resolv_conf(int argc, char **argv)
 		/* RC_ACT_RESTART fall through */
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
-		pop_etc_resolv_conf(RC_ACT_START);
+		pop_etc_ssl_openssl_cnf(RC_ACT_START);
 		ret = EXIT_SUCCESS;
 		break;
 

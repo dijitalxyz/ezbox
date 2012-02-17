@@ -104,6 +104,11 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_protocols.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_mactab.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_resolv_conf.c
 
+# openssl service
+if CONFIG_EZBOX_SERVICE_OPENSSL
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ssl_openssl_cnf.c
+endif
+
 # iptables service
 if CONFIG_EZBOX_SERVICE_IPTABLES
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_l7_protocols.c

@@ -199,7 +199,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		if (rc < 0) {
 			goto func_exit;
 		}
-		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, "/etc/ssl/0.cert.pem");
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, EZCFG_SSL_CERT_ROOT_PATH "/ezcfg_httpd.cert.pem");
 		if (rc < 0) {
 			goto func_exit;
 		}
@@ -207,7 +207,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		if (rc < 0) {
 			goto func_exit;
 		}
-		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, "/etc/ssl/0.key.pem");
+		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, EZCFG_SSL_PRIV_ROOT_PATH "/ezcfg_httpd.key.pem");
 		if (rc < 0) {
 			goto func_exit;
 		}
@@ -308,7 +308,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		if (rc < 0) {
 			goto func_exit;
 		}
-		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, "/etc/ssl/0.cert.pem");
+		rc = ezcfg_api_arg_nvram_ssl_set_certificate_file(ap2, EZCFG_SSL_CERT_ROOT_PATH "/ezcfg_httpd.cert.pem");
 		if (rc < 0) {
 			goto func_exit;
 		}
@@ -316,7 +316,7 @@ int rc_ezcfg_httpd(int argc, char **argv)
 		if (rc < 0) {
 			goto func_exit;
 		}
-		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, "/etc/ssl/0.key.pem");
+		rc = ezcfg_api_arg_nvram_ssl_set_private_key_file(ap2, EZCFG_SSL_PRIV_ROOT_PATH "/ezcfg_httpd.key.pem");
 		if (rc < 0) {
 			goto func_exit;
 		}
