@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1407
+PKG_REV:=1422
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -113,6 +113,14 @@ endif
 # set ezcfg_httpd service
 CONFIGURE_ARGS += \
 	--enable-service-ezcfg_httpd
+
+# set ezcfg_httpd_cgi_admin service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd_cgi_admin
+
+# set ezcfg_httpd_cgi_index service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd_cgi_index
 
 # set ezcfg_httpd_cgi_nvram service
 CONFIGURE_ARGS += \
