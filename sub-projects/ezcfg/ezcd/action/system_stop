@@ -4,6 +4,8 @@ action wan_services_stop
 wan stop
 # stop LAN interface binding services
 action lan_services_stop
+# stop openssl service
+openssl stop
 # bring down LAN interface
 lan stop
 # stop syslog service

@@ -39,6 +39,8 @@ lan start
 klogd restart
 # restart syslog service
 syslogd restart
+# start openssl service
+openssl start
 # start LAN side services
 action lan_services_start
 # bring up WAN interface and configurate it

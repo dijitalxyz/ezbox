@@ -18,5 +18,7 @@ ezcm boot
 netbase boot
 # setup iptables
 iptables load boot
+# setup openssl
+openssl boot
 # start init
 #init boot

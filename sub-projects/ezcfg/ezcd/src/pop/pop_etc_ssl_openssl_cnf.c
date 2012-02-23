@@ -63,19 +63,58 @@ int pop_etc_ssl_openssl_cnf(int flag)
 			return (EXIT_FAILURE);
 		}
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DOMAIN), buf, sizeof(buf));
+		/* HOME = /etc/ssl */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, HOME), buf, sizeof(buf));
 		if ((rc == 0) && (*buf != '\0')) {
-			fprintf(file, "domain %s\n", buf);
+			fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, HOME), buf);
 		}
 
-		for (i = 1; i <= 3; i++) {
-			snprintf(name, sizeof(name), "%s%d",
-				NVRAM_SERVICE_OPTION(WAN, DNS), i);
-			rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-			if (rc > 0) {
-				fprintf(file, "nameserver %s\n", buf);
+		/* RANDFILE = /etc/ssl/.rnd */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, RANDFILE), buf, sizeof(buf));
+		if ((rc == 0) && (*buf != '\0')) {
+			fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, RANDFILE), buf);
+		}
+
+		/* oid_file */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, OID_FILE), buf, sizeof(buf));
+		if ((rc == 0) && (*buf != '\0')) {
+			fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, OID_FILE), buf);
+		}
+
+		/* oid_section */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, OID_SECTION), buf, sizeof(buf));
+		if ((rc == 0) && (*buf != '\0')) {
+			fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, OID_SECTION), buf);
+			/* [ new_oids ] */
+			fprintf(file, "[ %s ]\n", buf);
+		}
+
+		/* [ ca ] */
+		fprintf(file, "[ %s ]\n", NVRAM_SERVICE_OPTION(OPENSSL, CA));
+
+		/* default_ca */
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, DEFAULT_CA), buf, sizeof(buf));
+		if ((rc == 0) && (*buf != '\0')) {
+			fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, DEFAULT_CA), buf);
+			/* [ CA_default ] */
+			fprintf(file, "[ %s ]\n", buf);
+			/* dir = /etc/ssl */
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, DIR), buf, sizeof(buf));
+			if ((rc == 0) && (*buf != '\0')) {
+				fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, DIR), buf);
+			}
+			/* certs = /etc/ssl/certs */
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, CERTS), buf, sizeof(buf));
+			if ((rc == 0) && (*buf != '\0')) {
+				fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, CERTS), buf);
+			}
+			/* crl_dir = /etc/ssl/crl */
+			rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(OPENSSL, CRL_DIR), buf, sizeof(buf));
+			if ((rc == 0) && (*buf != '\0')) {
+				fprintf(file, "%s = %s\n", NVRAM_SERVICE_OPTION(OPENSSL, CRL_DIR), buf);
 			}
 		}
+
 		fclose(file);
 		ret = EXIT_SUCCESS;
 		break;
