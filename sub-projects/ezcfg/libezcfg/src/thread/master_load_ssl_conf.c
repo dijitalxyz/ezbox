@@ -71,7 +71,7 @@ void ezcfg_master_load_ssl_conf(struct ezcfg_master *master)
 
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	/* first get the auth number */
+	/* first get the SSL number */
 	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SSL_NUMBER);
 	if (p != NULL) {
 		ssl_number = atoi(p);
