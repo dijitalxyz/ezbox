@@ -620,6 +620,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	struct ezcfg_master *master = NULL;
 	int stacksize;
 	struct ezcfg_socket * sp;
+	char *p;
 
 	ASSERT(ezcfg != NULL);
 
@@ -627,63 +628,72 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	stacksize = 0;
 
 	/* There must be a ctrl socket */
-	master = master_new_from_socket(ezcfg, EZCFG_SOCK_CTRL_PATH);
+	//master = master_new_from_socket(ezcfg, EZCFG_SOCK_CTRL_PATH);
+	master = master_new_from_socket(ezcfg, ezcfg_common_get_sock_ctrl_path(ezcfg));
 	if (master == NULL) {
 		err(ezcfg, "can not initialize control socket");
 		goto start_out;
 	}
 
 	/* setup nvram socket */
-	/* lock mutex before handling listening_sockets */
-	pthread_mutex_lock(&(master->ls_mutex));
+	p = ezcfg_common_get_sock_nvram_path(ezcfg);
+	if ((p != NULL) && (*p != '\0')) {
+		/* lock mutex before handling listening_sockets */
+		pthread_mutex_lock(&(master->ls_mutex));
 
-	sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
+		//sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
+		sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, p);
 
-	/* unlock mutex after handling listening_sockets */
-	pthread_mutex_unlock(&(master->ls_mutex));
+		/* unlock mutex after handling listening_sockets */
+		pthread_mutex_unlock(&(master->ls_mutex));
 
-	if (sp == NULL) {
-		err(ezcfg, "can not add nvram socket");
-		goto start_out;
+		if (sp == NULL) {
+			err(ezcfg, "can not add nvram socket");
+			goto start_out;
+		}
+
+		if (ezcfg_socket_enable_receiving(sp) < 0) {
+			err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+			goto start_out;
+		}
+
+		if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
+			err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+			goto start_out;
+		}
+
+		ezcfg_socket_set_close_on_exec(sp);
 	}
-
-	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
-		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto start_out;
-	}
-
-	if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-		err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
-		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto start_out;
-	}
-
-	ezcfg_socket_set_close_on_exec(sp);
 
 	/* setup uevent socket */
-	/* lock mutex before handling listening_sockets */
-	pthread_mutex_lock(&(master->ls_mutex));
+	p = ezcfg_common_get_sock_uevent_path(ezcfg);
+	if ((p != NULL) && (*p != '\0')) {
+		/* lock mutex before handling listening_sockets */
+		pthread_mutex_lock(&(master->ls_mutex));
 
-	//sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, EZCFG_SOCK_UEVENT_PATH);
-	sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
-	//sp = master_add_socket(master, AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, EZCFG_PROTO_UEVENT, "kernel");
+		//sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, EZCFG_SOCK_UEVENT_PATH);
+		sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, p);
+		//sp = master_add_socket(master, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
+		//sp = master_add_socket(master, AF_NETLINK, SOCK_RAW|SOCK_CLOEXEC|SOCK_NONBLOCK, EZCFG_PROTO_UEVENT, "kernel");
 
-	/* unlock mutex after handling listening_sockets */
-	pthread_mutex_unlock(&(master->ls_mutex));
+		/* unlock mutex after handling listening_sockets */
+		pthread_mutex_unlock(&(master->ls_mutex));
 
-	if (sp == NULL) {
-		err(ezcfg, "can not add udev socket");
-		goto load_other_sockets;
+		if (sp == NULL) {
+			err(ezcfg, "can not add udev socket");
+			goto load_other_sockets;
+		}
+
+		if (ezcfg_socket_enable_receiving(sp) < 0) {
+			err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
+			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
+			goto load_other_sockets;
+		}
+
+		ezcfg_socket_set_close_on_exec(sp);
 	}
-
-	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
-		ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
-		goto load_other_sockets;
-	}
-
-	ezcfg_socket_set_close_on_exec(sp);
 
 load_other_sockets:
 

@@ -55,6 +55,14 @@ struct ezcfg {
 	char 		config_file[EZCFG_PATH_MAX];
 	int		log_priority;
 	char 		rules_path[EZCFG_PATH_MAX];
+	char 		root_path[EZCFG_PATH_MAX];
+	char 		sem_root_path[EZCFG_PATH_MAX];
+	char 		sock_root_path[EZCFG_PATH_MAX];
+	char 		sock_ctrl_path[EZCFG_PATH_MAX];
+	char 		sock_nvram_path[EZCFG_PATH_MAX];
+	char 		sock_uevent_path[EZCFG_PATH_MAX];
+	char 		sock_master_path[EZCFG_PATH_MAX];
+	char 		web_document_root_path[EZCFG_PATH_MAX];
 	char 		locale[EZCFG_LOCALE_MAX];
 	pthread_mutex_t locale_mutex; /* Protects locale */
 };
@@ -153,6 +161,110 @@ void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path)
 	snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", path);
 }
 
+char *ezcfg_common_get_root_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->root_path;
+}
+
+void ezcfg_common_set_root_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->root_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sem_root_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sem_root_path;
+}
+
+void ezcfg_common_set_sem_root_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sem_root_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sock_root_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_root_path;
+}
+
+void ezcfg_common_set_sock_root_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_root_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_ctrl_path;
+}
+
+void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_nvram_path;
+}
+
+void ezcfg_common_set_sock_nvram_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_nvram_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sock_uevent_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_uevent_path;
+}
+
+void ezcfg_common_set_sock_uevent_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_uevent_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sock_master_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_master_path;
+}
+
+void ezcfg_common_set_sock_master_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_master_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_web_document_root_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->web_document_root_path;
+}
+
+void ezcfg_common_set_web_document_root_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->web_document_root_path, EZCFG_PATH_MAX, "%s", path);
+}
+
 char *ezcfg_common_get_locale(struct ezcfg *ezcfg)
 {
 	return ezcfg->locale;
@@ -213,6 +325,74 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 	if (p != NULL) {
 		ezcfg_util_remove_trailing_char(p, '/');
 		snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find root_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_ROOT_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->root_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find sem_root_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sem_root_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find sock_root_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_ROOT_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sock_root_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find sock_ctrl_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+	else {
+		/* must set sock_ctrl_path */
+		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", EZCFG_SOCK_CTRL_PATH);
+	}
+
+	/* find sock_nvram_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sock_nvram_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find sock_uevent_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sock_uevent_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find sock_master_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_MASTER_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->sock_master_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find web_document_root_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_WEB_DOCUMENT_ROOT_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->web_document_root_path, EZCFG_PATH_MAX, "%s", p);
 		free(p);
 	}
 
