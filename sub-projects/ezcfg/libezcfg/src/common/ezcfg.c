@@ -197,6 +197,33 @@ struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ez
 	return ezcfg_list_get_entry(&ezcfg->properties_list);
 }
 
+void ezcfg_common_load_conf(struct ezcfg *ezcfg)
+{
+	char *p;
+
+	/* find log_level keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
+	if (p != NULL) {
+		ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
+		free(p);
+	}
+
+	/* find rules_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find locale keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
+	if (p != NULL) {
+		snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", p);
+		free(p);
+	}
+}
+
 /**
  * ezcfg_new:
  *
@@ -208,7 +235,6 @@ struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ez
 struct ezcfg *ezcfg_new(char *path)
 {
 	struct ezcfg *ezcfg = NULL;
-	char *p;
 
 	if (path == NULL)
 		return NULL;
@@ -225,27 +251,7 @@ struct ezcfg *ezcfg_new(char *path)
 		/* set config file path */
 		ezcfg_common_set_config_file(ezcfg, path);
 
-		/* find log_level keyword */
-		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
-		if (p != NULL) {
-			ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
-			free(p);
-		}
-
-		/* find rules_path keyword */
-		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
-		if (p != NULL) {
-			ezcfg_util_remove_trailing_char(p, '/');
-			snprintf(ezcfg->rules_path, EZCFG_PATH_MAX, "%s", p);
-			free(p);
-		}
-
-		/* find locale keyword */
-		p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
-		if (p != NULL) {
-			snprintf(ezcfg->locale, EZCFG_LOCALE_MAX, "%s", p);
-			free(p);
-		}
+		ezcfg_common_load_conf(ezcfg);
 
 		/* initialize locale mutex */
 		pthread_mutex_init(&ezcfg->locale_mutex, NULL);

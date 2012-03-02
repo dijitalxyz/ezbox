@@ -83,6 +83,7 @@ int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg);
 int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg);
 struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
 struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
+void ezcfg_common_load_conf(struct ezcfg *ezcfg);
 
 
 /*

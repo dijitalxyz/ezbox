@@ -55,33 +55,11 @@
 void ezcfg_master_load_common_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	char *p;
 
 	if (master == NULL)
 		return ;
 
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
-	/* get log_level keyword */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
-	if (p != NULL) {
-		ezcfg_common_set_log_priority(ezcfg, ezcfg_util_log_priority(p));
-		free(p);
-		DBG("%s(%d) log_priority='%d'\n", __func__, __LINE__, ezcfg_common_get_log_priority(ezcfg));
-	}
-
-	/* find rules_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_RULES_PATH);
-	if (p != NULL) {
-		ezcfg_util_remove_trailing_char(p, '/');
-		ezcfg_common_set_rules_path(ezcfg, p);
-		DBG("%s(%d) rules_path='%s'\n", __func__, __LINE__, ezcfg_common_get_rules_path(ezcfg));
-	}
-
-	/* get locale */
-	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOCALE);
-	if (p != NULL) {
-		ezcfg_common_set_locale(ezcfg, p);
-		DBG("%s(%d) locale='%s'\n", __func__, __LINE__, ezcfg_common_get_locale(ezcfg));
-	}
+	ezcfg_common_load_conf(ezcfg);
 }
