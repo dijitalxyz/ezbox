@@ -31,6 +31,7 @@
 #include "ezcfg-emc2.h"
 #include "ezcfg-upnp.h"
 #include "ezcfg-ssl.h"
+#include "ezcfg-openssl.h"
 
 #define GLUE2(a, b)      	a ## b
 #define GLUE3(a, b, c)   	a ## b ## c

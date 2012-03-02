@@ -45,8 +45,9 @@ int pop_etc_ssl_openssl_cnf(int flag)
         FILE *file = NULL;
 	char buf[128];
 	//char *p, *token, *savep;
-	char name[32];
-	int i, rc, ret;
+	//char name[32];
+	//int i;
+	int rc, ret;
 
 	switch(flag) {
 	case RC_ACT_BOOT :
