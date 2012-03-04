@@ -57,6 +57,7 @@ struct ezcfg {
 	char 		rules_path[EZCFG_PATH_MAX];
 	char 		root_path[EZCFG_PATH_MAX];
 	char 		sem_root_path[EZCFG_PATH_MAX];
+	char 		sem_ezcfg_path[EZCFG_PATH_MAX];
 	char 		sock_root_path[EZCFG_PATH_MAX];
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
@@ -185,6 +186,19 @@ void ezcfg_common_set_sem_root_path(struct ezcfg *ezcfg, char *path)
 		return;
 
 	snprintf(ezcfg->sem_root_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+char *ezcfg_common_get_sem_ezcfg_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sem_ezcfg_path;
+}
+
+void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sem_ezcfg_path, EZCFG_PATH_MAX, "%s", path);
 }
 
 char *ezcfg_common_get_sock_root_path(struct ezcfg *ezcfg)
@@ -360,8 +374,9 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		free(p);
 	}
 	else {
-		/* must set sock_ctrl_path */
-		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", EZCFG_SOCK_CTRL_PATH);
+		/* FIXME: must set sock_ctrl_path */
+		//snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", EZCFG_SOCK_CTRL_PATH);
+		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", "/var/ezcfg/sock/ctrl");
 	}
 
 	/* find sock_nvram_path keyword */

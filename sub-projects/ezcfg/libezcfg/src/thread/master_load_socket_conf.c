@@ -56,8 +56,10 @@
 void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_socket *sp;
-	struct ezcfg_socket *ctrl_sp, *nvram_sp, *uevent_sp;
+	struct ezcfg_socket *sp = NULL;
+	struct ezcfg_socket *ctrl_sp = NULL;
+	struct ezcfg_socket *nvram_sp = NULL;
+	struct ezcfg_socket *uevent_sp = NULL;
 	struct ezcfg_socket **psp;
 	char *p = NULL;
 	int domain, type, proto;
@@ -71,41 +73,59 @@ void ezcfg_master_load_socket_conf(struct ezcfg_master *master)
 	ezcfg = ezcfg_master_get_ezcfg(master);
 
 	/* ctrl fake socket */
-	ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, EZCFG_SOCK_CTRL_PATH);
-	if (ctrl_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
-		return ;
+	//ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, EZCFG_SOCK_CTRL_PATH);
+	p = ezcfg_common_get_sock_ctrl_path(ezcfg);
+	if ((p != NULL) && (*p != '\0')) {
+		ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, p);
+		if (ctrl_sp == NULL) {
+			err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
+			return ;
+		}
 	}
 
 	/* nvram fake socket */
-	nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
-	if (nvram_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(nvram_sp)\n");
-		return ;
+	//nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
+	p = ezcfg_common_get_sock_nvram_path(ezcfg);
+	if ((p != NULL) && (*p != '\0')) {
+		nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, p);
+		if (nvram_sp == NULL) {
+			err(ezcfg, "ezcfg_socket_new(nvram_sp)\n");
+			return ;
+		}
 	}
 
 	/* uevent fake socket */
-	uevent_sp = ezcfg_socket_fake_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
-	if (uevent_sp == NULL) {
-		err(ezcfg, "ezcfg_socket_new(uevent_sp)\n");
-		return ;
+	//uevent_sp = ezcfg_socket_fake_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, "kernel");
+	p = ezcfg_common_get_sock_uevent_path(ezcfg);
+	if ((p != NULL) && (*p != '\0')) {
+		uevent_sp = ezcfg_socket_fake_new(ezcfg, AF_NETLINK, SOCK_DGRAM, EZCFG_PROTO_UEVENT, p);
+		if (uevent_sp == NULL) {
+			err(ezcfg, "ezcfg_socket_new(uevent_sp)\n");
+			return ;
+		}
 	}
 
 	/* tag listening_sockets to need_delete = true; */
 	sp = ezcfg_master_get_listening_sockets(master);
 	while(sp != NULL) {
-		if((ezcfg_socket_compare(sp, ctrl_sp) == false) &&
-		   (ezcfg_socket_compare(sp, nvram_sp) == false) &&
-		   (ezcfg_socket_compare(sp, uevent_sp) == false)) {
+		if(((ctrl_sp != NULL) && (ezcfg_socket_compare(sp, ctrl_sp) == false)) &&
+		   ((nvram_sp != NULL) && (ezcfg_socket_compare(sp, nvram_sp) == false)) &&
+		   ((uevent_sp != NULL) && (ezcfg_socket_compare(sp, uevent_sp) == false))) {
 			ezcfg_socket_set_need_delete(sp, true);
 		}
 		sp = ezcfg_socket_get_next(sp);
 	}
 
 	/* delete unused fake sockets */
-	ezcfg_socket_delete(ctrl_sp);
-	ezcfg_socket_delete(nvram_sp);
-	ezcfg_socket_delete(uevent_sp);
+	if (ctrl_sp != NULL) {
+		ezcfg_socket_delete(ctrl_sp);
+	}
+	if (nvram_sp != NULL) {
+		ezcfg_socket_delete(nvram_sp);
+	}
+	if (uevent_sp != NULL) {
+		ezcfg_socket_delete(uevent_sp);
+	}
 
 	/* first get the socket number */
 	p = ezcfg_util_get_conf_string(ezcfg_common_get_config_file(ezcfg), EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCKET_NUMBER);

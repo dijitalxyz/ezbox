@@ -140,6 +140,8 @@ static void *sig_thread(void *arg)
 
 int ezcd_main(int argc, char **argv)
 {
+	struct ezcfg *ezcfg = NULL;
+	char *p = NULL;
 	bool daemonize = false;
 	int fd = -1;
 	int threads_max = 0;
@@ -177,6 +179,7 @@ int ezcd_main(int argc, char **argv)
 	s = chdir("/");
 	umask(0022);
 
+#if 0
 	if (EZCFG_ROOT_PATH[0] == '/') {
 		mkdir(EZCFG_ROOT_PATH, 0777);
 		mkdir(EZCFG_SEM_ROOT_PATH, 0777);
@@ -190,6 +193,33 @@ int ezcd_main(int argc, char **argv)
 	if (EZCFG_SOCK_ROOT_PATH[0] == '/') {
 		mkdir(EZCFG_SOCK_ROOT_PATH, 0777);
 	}
+#else
+	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	if (ezcfg == NULL) {
+		fprintf(stderr, "%s format error.\n", EZCD_CONFIG_FILE_PATH);
+		exit(EXIT_FAILURE);
+	}
+
+	p = ezcfg_api_common_get_root_path(ezcfg);
+	if ((p != NULL) && (*p == '/')) {
+		mkdir(p, 0777);
+	}
+
+	p = ezcfg_api_common_get_sem_root_path(ezcfg);
+	if ((p != NULL) && (*p == '/')) {
+		mkdir(p, 0777);
+		fd = open(p, O_CREAT|O_RDWR, S_IRWXU);
+		if (fd < 0) {
+			fprintf(stderr, "cannot open %s\n", p);
+			ezcfg_api_ezcfg_delete(ezcfg);
+			exit(EXIT_FAILURE);
+		}
+		close(fd);
+	}
+
+	ezcfg_api_ezcfg_delete(ezcfg);
+	ezcfg = NULL;
+#endif
 
 	/* before opening new files, make sure std{in,out,err} fds are in a sane state */
 	fd = open("/dev/null", O_RDWR);

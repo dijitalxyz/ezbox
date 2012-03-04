@@ -1,6 +1,14 @@
 #ifndef _EZCFG_API_H_
 #define _EZCFG_API_H_
 
+/* common function interface */
+struct ezcfg;
+struct ezcfg *ezcfg_api_ezcfg_new(char *path);
+void ezcfg_api_ezcfg_delete(struct ezcfg *ezcfg);
+char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg);
+char *ezcfg_api_common_get_sem_root_path(struct ezcfg *ezcfg);
+char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
+
 /* Master thread interface */
 struct ezcfg_master;
 int ezcfg_api_master_set_config_file(const char *path);
@@ -65,8 +73,8 @@ int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap);
 int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap);
 
 /* rc interface */
-bool ezcfg_api_rc_require_semaphore(void);
-bool ezcfg_api_rc_release_semaphore(void);
+bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path);
+bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path);
 
 /* UUID interface */
 int ezcfg_api_uuid_set_config_file(const char *path);
@@ -78,8 +86,8 @@ int ezcfg_api_uuid5_string(char *str, int len);
 /* UPnP interface */
 int ezcfg_api_upnp_set_task_file(const char *path);
 int ezcfg_api_upnp_get_task_file(char *path, int len);
-bool ezcfg_api_upnp_lock_task_file(void);
-bool ezcfg_api_upnp_unlock_task_file(void);
+bool ezcfg_api_upnp_lock_task_file(char *sem_ezcfg_path);
+bool ezcfg_api_upnp_unlock_task_file(char *sem_ezcfg_path);
 
 /* u-boot-env interface */
 int ezcfg_api_ubootenv_get(char *name, char *value, size_t len);

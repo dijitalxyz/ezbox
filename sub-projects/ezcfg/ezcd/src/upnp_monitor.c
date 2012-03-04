@@ -133,13 +133,23 @@ static void read_task(void)
 	char *fargv[RC_MAX_ARGS];
 	task_node_t *pre_task, *task;
 	int interval;
+	struct ezcfg *ezcfg = NULL;
+	char *sem_path = NULL;
 
 	/* read new task from task file */
 	if (ezcfg_api_upnp_get_task_file(task_file, sizeof(task_file)) < 0) {
 		return;
 	}
-	if (ezcfg_api_upnp_lock_task_file() == false) {
+	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	if (ezcfg == NULL) {
 		return;
+	}
+	sem_path = ezcfg_api_common_get_sem_ezcfg_path(ezcfg);
+	if ((sem_path == NULL) || (*sem_path == '\0')) {
+		goto func_exit;
+	}
+	if (ezcfg_api_upnp_lock_task_file(sem_path) == false) {
+		goto func_exit;
 	}
 	fp = fopen(task_file, "r");
 	if (fp != NULL) {
@@ -196,7 +206,11 @@ static void read_task(void)
 		fclose(fp);
 		unlink(task_file);
 	}
-	ezcfg_api_upnp_unlock_task_file();
+	ezcfg_api_upnp_unlock_task_file(sem_path);
+func_exit:
+	if (ezcfg != NULL) {
+		ezcfg_api_ezcfg_delete(ezcfg);
+	}
 }
 
 int upnp_monitor_main(int argc, char **argv)

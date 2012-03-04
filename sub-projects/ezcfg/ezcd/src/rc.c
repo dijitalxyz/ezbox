@@ -78,6 +78,8 @@ int rc_main(int argc, char **argv)
 		rc_function_t func;
 		void * obj;
 	} alias;
+	struct ezcfg *ezcfg = NULL;
+	char *sem_path = NULL;
 
 	/* argv[0] : "rc" */
 	/* argv[1]/argv[2] : action name */
@@ -171,8 +173,19 @@ int rc_main(int argc, char **argv)
 		goto rc_exit;
 	}
 
+	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	if (ezcfg == NULL) {
+		DBG("<6>rc: %s format error\n", EZCD_CONFIG_FILE_PATH);
+		goto rc_exit;
+	}
+	sem_path = ezcfg_api_common_get_sem_ezcfg_path(ezcfg);
+	if ((sem_path == NULL) || (*sem_path == '\0')) {
+		DBG("<6>rc: sem_ezcfg_path error\n");
+		goto rc_exit;
+	}
+
 	/* prepare semaphore */
-	if (ezcfg_api_rc_require_semaphore() == false) {
+	if (ezcfg_api_rc_require_semaphore(sem_path) == false) {
 		DBG("<6>rc:pid=[%d] require semaphore error.\n", getpid());
 		goto rc_exit;
 	}
@@ -193,12 +206,16 @@ int rc_main(int argc, char **argv)
 	ret = alias.func(argc - i, argv + i);
 
 	/* now release resource */
-	if (ezcfg_api_rc_release_semaphore() == false) {
+	if (ezcfg_api_rc_release_semaphore(sem_path) == false) {
 		DBG("<6>rc:pid=[%d] release semaphore error.\n", getpid());
 		goto rc_exit;
 	}
 
 rc_exit:
+	if (ezcfg != NULL) {
+		ezcfg_api_ezcfg_delete(ezcfg);
+	}
+
 	/* close loader handle */
 	dlclose(handle);
 

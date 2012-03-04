@@ -110,12 +110,13 @@ int ezcfg_util_upnp_monitor_get_task_file(char *path, size_t len)
  * ezcfg_util_upnp_monitor_lock_task_file:
  *
  **/
-bool ezcfg_util_upnp_monitor_lock_task_file(void)
+bool ezcfg_util_upnp_monitor_lock_task_file(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	//key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		return false;
 	}
@@ -143,12 +144,13 @@ bool ezcfg_util_upnp_monitor_lock_task_file(void)
  * ezcfg_util_upnp_monitor_unlock_task_file:
  *
  **/
-bool ezcfg_util_upnp_monitor_unlock_task_file(void)
+bool ezcfg_util_upnp_monitor_unlock_task_file(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	//key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		return false;
 	}

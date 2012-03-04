@@ -90,7 +90,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 				return -1;
 			}
 
-			if (ezcfg_util_upnp_monitor_lock_task_file() == false) {
+			if (ezcfg_util_upnp_monitor_lock_task_file(ezcfg_common_get_sem_ezcfg_path(ezcfg)) == false) {
 				return -1;
 			}
 			rc = ezcfg_util_upnp_monitor_get_task_file(buf, sizeof(buf));
@@ -108,7 +108,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 				fclose(fp);
 				rc = 0;
 			}
-			ezcfg_util_upnp_monitor_unlock_task_file();
+			ezcfg_util_upnp_monitor_unlock_task_file(ezcfg_common_get_sem_ezcfg_path(ezcfg));
 			return (rc);
 		}
 		else if (strcmp(argv[2], "stop") == 0) {
@@ -116,7 +116,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 				return -1;
 			}
 
-			if (ezcfg_util_upnp_monitor_lock_task_file() == false) {
+			if (ezcfg_util_upnp_monitor_lock_task_file(ezcfg_common_get_sem_ezcfg_path(ezcfg)) == false) {
 				return -1;
 			}
 			rc = ezcfg_util_upnp_monitor_get_task_file(buf, sizeof(buf));
@@ -139,7 +139,7 @@ int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte
 				fclose(fp);
 				rc = 0;
 			}
-			ezcfg_util_upnp_monitor_unlock_task_file();
+			ezcfg_util_upnp_monitor_unlock_task_file(ezcfg_common_get_sem_ezcfg_path(ezcfg));
 			return (rc);
 		}
 		else if (strcmp(argv[2], "task_file") == 0) {

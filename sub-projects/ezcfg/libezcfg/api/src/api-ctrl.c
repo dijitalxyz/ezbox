@@ -150,7 +150,8 @@ int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len)
 	ezcfg_common_set_log_fn(ezcfg, log_fn);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	//key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -183,8 +184,10 @@ int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len)
 	}
 
 	/* try to connect ctrl socket */
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_CTRL_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_CTRL, buf, EZCFG_SOCK_CTRL_PATH);
+	//snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_CTRL_PATH, getpid());
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_ctrl_path(ezcfg), getpid());
+	//ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_CTRL, buf, EZCFG_SOCK_CTRL_PATH);
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_CTRL, buf, ezcfg_common_get_sock_ctrl_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;

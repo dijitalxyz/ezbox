@@ -395,7 +395,8 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	}
 
 	/* set default document root */
-	if (ezcfg_ssi_set_document_root(ssi, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
+	//if (ezcfg_ssi_set_document_root(ssi, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
+	if (ezcfg_ssi_set_document_root(ssi, ezcfg_common_get_web_document_root_path(ezcfg)) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");
@@ -540,7 +541,8 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	ezcfg_http_nvram_set_content_type(hn, type);
 
 	/* set default root */
-	if (ezcfg_http_nvram_set_root(hn, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
+	//if (ezcfg_http_nvram_set_root(hn, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
+	if (ezcfg_http_nvram_set_root(hn, ezcfg_common_get_web_document_root_path(ezcfg)) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
 		                "%s", "Not enough memory");

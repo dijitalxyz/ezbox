@@ -60,12 +60,16 @@
  * ezcfg_api_rc_require_semaphore:
  *
  **/
-bool ezcfg_api_rc_require_semaphore(void)
+bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (sem_ezcfg_path == NULL) {
+		return false;
+	}
+
+	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
 		return false;
@@ -96,12 +100,16 @@ bool ezcfg_api_rc_require_semaphore(void)
  * ezcfg_api_rc_release_semaphore:
  *
  **/
-bool ezcfg_api_rc_release_semaphore(void)
+bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	if (sem_ezcfg_path == NULL) {
+		return false;
+	}
+
+	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
 		return false;

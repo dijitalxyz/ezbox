@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezcfg Application Programming Interface
- * Module Name  : api-upnp.c
+ * Module Name  : api-common.c
  *
- * Description  : ezcfg API for ezcfg upnp manipulate
+ * Description  : ezcfg API for ezcfg common manipulate
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2011-12-23   0.1       Write it from scratch
+ * 2012-03-04   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -56,40 +56,47 @@
 #define DBG(format, args...)
 #endif
 
-//static char task_file[EZCFG_PATH_MAX] = EZCFG_UPNP_TASK_FILE_PATH;
-
 /**
- * ezcfg_api_upnp_set_task_file:
+ * ezcfg_api_ezcfg_new:
  *
  **/
-int ezcfg_api_upnp_set_task_file(const char *path)
+struct ezcfg *ezcfg_api_ezcfg_new(char *path)
 {
-	return ezcfg_util_upnp_monitor_set_task_file(path);
+	return ezcfg_new(path);
 }
 
 /**
- * ezcfg_api_upnp_get_task_file:
+ * ezcfg_api_ezcfg_delete:
  *
  **/
-int ezcfg_api_upnp_get_task_file(char *path, int len)
+void ezcfg_api_ezcfg_delete(struct ezcfg *ezcfg)
 {
-	return ezcfg_util_upnp_monitor_get_task_file(path, len);
+	ezcfg_delete(ezcfg);
 }
 
 /**
- * ezcfg_api_upnp_lock_task_file:
+ * ezcfg_api_common_get_root_path:
  *
  **/
-bool ezcfg_api_upnp_lock_task_file(char *sem_ezcfg_path)
+char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg)
 {
-	return ezcfg_util_upnp_monitor_lock_task_file(sem_ezcfg_path);
+	return ezcfg_common_get_root_path(ezcfg);
 }
 
 /**
- * ezcfg_api_upnp_unlock_task_file:
+ * ezcfg_api_common_get_sem_root_path:
  *
  **/
-bool ezcfg_api_upnp_unlock_task_file(char *sem_ezcfg_path)
+char *ezcfg_api_common_get_sem_root_path(struct ezcfg *ezcfg)
 {
-	return ezcfg_util_upnp_monitor_unlock_task_file(sem_ezcfg_path);
+	return ezcfg_common_get_sem_root_path(ezcfg);
+}
+
+/**
+ * ezcfg_api_ezcfg_get_sem_ezcfg_path:
+ *
+ **/
+char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg)
+{
+	return ezcfg_common_get_sem_ezcfg_path(ezcfg);
 }

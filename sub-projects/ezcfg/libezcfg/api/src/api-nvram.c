@@ -180,7 +180,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -205,8 +205,8 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -439,7 +439,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -464,8 +464,8 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -644,7 +644,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -668,8 +668,8 @@ int ezcfg_api_nvram_unset(const char *name)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -909,7 +909,7 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -934,8 +934,8 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1119,7 +1119,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	}
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -1144,8 +1144,8 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1347,7 +1347,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -1372,8 +1372,8 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1569,7 +1569,7 @@ int ezcfg_api_nvram_commit(void)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -1594,8 +1594,8 @@ int ezcfg_api_nvram_commit(void)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -1858,7 +1858,7 @@ int ezcfg_api_nvram_insert_socket(struct ezcfg_arg_nvram_socket *ap)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -1883,8 +1883,8 @@ int ezcfg_api_nvram_insert_socket(struct ezcfg_arg_nvram_socket *ap)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -2146,7 +2146,7 @@ int ezcfg_api_nvram_remove_socket(struct ezcfg_arg_nvram_socket *ap)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -2171,8 +2171,8 @@ int ezcfg_api_nvram_remove_socket(struct ezcfg_arg_nvram_socket *ap)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -2467,7 +2467,7 @@ int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -2492,8 +2492,8 @@ int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
@@ -2787,7 +2787,7 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap)
 	n = ezcfg_soap_http_write_message(sh, msg, msg_len);
 
 	/* prepare semaphore */
-	key = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto exit;
@@ -2812,8 +2812,8 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap)
 		goto exit;
 	}
 
-	snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_NVRAM_PATH, getpid());
-	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, EZCFG_SOCK_NVRAM_PATH);
+	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_nvram_path(ezcfg), getpid());
+	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_SOAP_HTTP, buf, ezcfg_common_get_sock_nvram_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;

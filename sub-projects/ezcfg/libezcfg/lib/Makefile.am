@@ -283,6 +283,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/upnp/upnp_gena.c
 endif
 
 # ezcfg API wrap
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-common.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c

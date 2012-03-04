@@ -159,7 +159,8 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	memset(master, 0, sizeof(struct ezcfg_master));
 
 	/* prepare semaphore */
-	i = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	//i = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
+	i = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (i == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto fail_exit;
@@ -653,13 +654,15 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		}
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
-			err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			//err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			err(ezcfg, "enable socket [%s] receiving fail: %m\n", ezcfg_common_get_sock_nvram_path(ezcfg));
 			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 			goto start_out;
 		}
 
 		if (ezcfg_socket_enable_listening(sp, master->sq_len) < 0) {
-			err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			//err(ezcfg, "enable socket [%s] listening fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
+			err(ezcfg, "enable socket [%s] listening fail: %m\n", ezcfg_common_get_sock_nvram_path(ezcfg));
 			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 			goto start_out;
 		}
@@ -687,7 +690,8 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		}
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
-			err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
+			//err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
+			err(ezcfg, "enable socket [%s] receiving fail: %m\n", ezcfg_common_get_sock_uevent_path(ezcfg));
 			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 			goto load_other_sockets;
 		}
