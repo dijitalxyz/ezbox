@@ -52,6 +52,139 @@
 #define DBG(format, args...)
 #endif
 
+static int generate_path_conf(FILE *file, int flag)
+{
+	char name[64];
+	char buf[256];
+	int rc;
+
+	/* rules_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_RULES_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_RULES_PATH, buf);
+	}
+
+	/* root_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_ROOT_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_ROOT_PATH, buf);
+	}
+
+	/* sem_root_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH, buf);
+	}
+
+	/* sock_ctrl_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH, buf);
+	}
+	else {
+		/* FIXME: must set sock_ctrl_path */
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH, EZCFG_SOCK_CTRL_PATH);
+	}
+
+	/* sock_nvram_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH, buf);
+	}
+
+	/* sock_uevent_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH, buf);
+	}
+
+	/* sock_master_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SOCK_MASTER_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SOCK_MASTER_PATH, buf);
+	}
+
+	/* web_document_root_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_WEB_DOCUMENT_ROOT_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_WEB_DOCUMENT_ROOT_PATH, buf);
+	}
+
+	return EXIT_SUCCESS;
+}
+
 static int generate_nvram_conf(FILE *file, int flag, int nvram_number)
 {
 	char name[64];
@@ -603,20 +736,8 @@ static int generate_ezcd_conf_file(FILE *file, int flag)
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_LOG_LEVEL, buf);
 	}
 
-	/* rules_path */
-	snprintf(name, sizeof(name), "%s%s.%s",
-	         EZCFG_EZCFG_NVRAM_PREFIX,
-	         EZCFG_EZCFG_SECTION_COMMON,
-	         EZCFG_EZCFG_KEYWORD_RULES_PATH);
-	if (flag == RC_ACT_BOOT) {
-		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
-	}
-	else {
-		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-	}
-	if (rc >= 0) {
-		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_RULES_PATH, buf);
-	}
+	/* setup path info */
+	generate_path_conf(file, flag);
 
 	/* socket_number */
 	snprintf(name, sizeof(name), "%s%s.%s",

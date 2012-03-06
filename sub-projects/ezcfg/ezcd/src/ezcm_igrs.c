@@ -121,7 +121,7 @@ int ezcm_main(int argc, char **argv)
 		return 0;
 	}
 
-	ezcfg = ezcfg_new(EZCM_CONFIG_FILE_PATH);
+	ezcfg = ezcfg_new(EZCD_CONFIG_FILE_PATH);
 	if (ezcfg == NULL) {
 		printf("error : %s\n", "ezcfg_new");
 		rc = 1;

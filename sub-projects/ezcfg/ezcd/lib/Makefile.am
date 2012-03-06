@@ -89,13 +89,13 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_group.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_modules.c
 
 # nvram
-libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_nvram_conf.c
+#libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_nvram_conf.c
 
 # ezcd
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcd_conf.c
 
 # ezcm
-libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcm_conf.c
+#libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcm_conf.c
 
 # netbase
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_hosts.c

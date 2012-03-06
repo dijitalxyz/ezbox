@@ -27,7 +27,6 @@
 #define EZCFG_EZCFG_KEYWORD_RULES_PATH      "rules_path"
 #define EZCFG_EZCFG_KEYWORD_ROOT_PATH       "root_path"
 #define EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH   "sem_root_path"
-#define EZCFG_EZCFG_KEYWORD_SOCK_ROOT_PATH  "sock_root_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH  "sock_ctrl_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH "sock_nvram_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH \

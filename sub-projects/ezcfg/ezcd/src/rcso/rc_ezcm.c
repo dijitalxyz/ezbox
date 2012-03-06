@@ -67,14 +67,18 @@ int rc_ezcm(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
+#if 0
 		/* generate ezcm config file */
 		pop_etc_ezcm_conf(flag);
+#endif
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_RELOAD :
+#if 0
 		/* re-generate ezcm config file */
 		pop_etc_ezcm_conf(flag);
+#endif
 		ret = EXIT_SUCCESS;
 		break;
 

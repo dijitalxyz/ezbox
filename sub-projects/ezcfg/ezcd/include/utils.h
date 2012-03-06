@@ -47,10 +47,10 @@
 #define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"
 
 /* ezcm command config file path */
-#define EZCM_CONFIG_FILE_PATH	"/etc/ezcm.conf"
+//#define EZCM_CONFIG_FILE_PATH	"/etc/ezcm.conf"
 
 /* nvram command config file path */
-#define NVRAM_CONFIG_FILE_PATH	"/etc/nvram.conf"
+//#define NVRAM_CONFIG_FILE_PATH	"/etc/nvram.conf"
 
 /* upnp_monitor task file path */
 #define UPNP_MONITOR_TASK_FILE_PATH	"/etc/upnp_monitor/tasks"

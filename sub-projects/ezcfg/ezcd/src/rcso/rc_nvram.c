@@ -67,16 +67,20 @@ int rc_nvram(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
+#if 0
 		/* generate nvram config file */
 		pop_etc_nvram_conf(RC_ACT_BOOT);
+#endif
 		/* update nvram with ezbox_boot.cfg */
 		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH);
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_RELOAD :
+#if 0
 		/* re-generate nvram config file */
 		pop_etc_nvram_conf(RC_ACT_RELOAD);
+#endif
 		/* update nvram with ezbox_upgrade.cfg */
 		utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH);
 		ret = EXIT_SUCCESS;

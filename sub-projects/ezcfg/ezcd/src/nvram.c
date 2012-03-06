@@ -59,7 +59,7 @@ int nvram_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-	rc = ezcfg_api_nvram_set_config_file(NVRAM_CONFIG_FILE_PATH);
+	rc = ezcfg_api_nvram_set_config_file(EZCD_CONFIG_FILE_PATH);
 	if (rc < 0) {
 		printf("set nvram config file error.\n");
 		goto exit;

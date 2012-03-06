@@ -60,8 +60,8 @@
 #define EZCFG_SEM_NUMBER	4
 
 /* socket path */
-//#define EZCFG_SOCK_ROOT_PATH    "@/org/ezbox/ezcfg/sock"
-//#define EZCFG_SOCK_CTRL_PATH    EZCFG_SOCK_ROOT_PATH "/ctrl"
+#define EZCFG_SOCK_ROOT_PATH    "@/var/ezcfg/sock"
+#define EZCFG_SOCK_CTRL_PATH    EZCFG_SOCK_ROOT_PATH "/ctrl"
 //#define EZCFG_SOCK_NVRAM_PATH   EZCFG_SOCK_ROOT_PATH "/nvram"
 //#define EZCFG_SOCK_UEVENT_PATH  EZCFG_SOCK_ROOT_PATH "/uevent"
 //#define EZCFG_SOCK_MASTER_PATH  EZCFG_SOCK_ROOT_PATH "/master"
