@@ -44,6 +44,7 @@
 
 #define EZCFG_EZCFG_COMMON_LOG_LEVEL        "common.log_level"
 #define EZCFG_EZCFG_COMMON_RULES_PATH       "common.rules_path"
+#define EZCFG_EZCFG_COMMON_SOCK_CTRL_PATH   "common.sock_ctrl_path"
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
 #define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 #define EZCFG_EZCFG_COMMON_AUTH_NUMBER      "common.auth_number"
