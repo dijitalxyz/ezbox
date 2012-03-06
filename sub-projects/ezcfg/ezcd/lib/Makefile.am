@@ -73,6 +73,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_parse_upnp_task.c
 endif
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_read_write.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_execute.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_mkdir.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_system.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_route_delete_default.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_crc32.c

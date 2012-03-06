@@ -26,7 +26,7 @@
 #define EZCFG_EZCFG_KEYWORD_LOG_LEVEL       "log_level"
 #define EZCFG_EZCFG_KEYWORD_RULES_PATH      "rules_path"
 #define EZCFG_EZCFG_KEYWORD_ROOT_PATH       "root_path"
-#define EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH   "sem_root_path"
+#define EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH  "sem_ezcfg_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH  "sock_ctrl_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH "sock_nvram_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH \
@@ -44,7 +44,10 @@
 
 #define EZCFG_EZCFG_COMMON_LOG_LEVEL        "common.log_level"
 #define EZCFG_EZCFG_COMMON_RULES_PATH       "common.rules_path"
+#define EZCFG_EZCFG_COMMON_SEM_EZCFG_PATH   "common.sem_ezcfg_path"
 #define EZCFG_EZCFG_COMMON_SOCK_CTRL_PATH   "common.sock_ctrl_path"
+#define EZCFG_EZCFG_COMMON_SOCK_NVRAM_PATH  "common.sock_nvram_path"
+#define EZCFG_EZCFG_COMMON_SOCK_UEVENT_PATH "common.sock_uevent_path"
 #define EZCFG_EZCFG_COMMON_SOCKET_NUMBER    "common.socket_number"
 #define EZCFG_EZCFG_COMMON_LOCALE           "common.locale"
 #define EZCFG_EZCFG_COMMON_AUTH_NUMBER      "common.auth_number"

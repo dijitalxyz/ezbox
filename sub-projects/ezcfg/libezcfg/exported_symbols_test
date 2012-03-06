@@ -1,7 +1,6 @@
 ezcfg_api_ezcfg_new
 ezcfg_api_ezcfg_delete
 ezcfg_api_common_get_root_path
-ezcfg_api_common_get_sem_root_path
 ezcfg_api_common_get_sem_ezcfg_path
 ezcfg_api_master_set_config_file
 ezcfg_api_master_start

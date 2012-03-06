@@ -88,11 +88,11 @@ static int generate_path_conf(FILE *file, int flag)
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_ROOT_PATH, buf);
 	}
 
-	/* sem_root_path */
+	/* sem_ezcfg_path */
 	snprintf(name, sizeof(name), "%s%s.%s",
 	         EZCFG_EZCFG_NVRAM_PREFIX,
 	         EZCFG_EZCFG_SECTION_COMMON,
-	         EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH);
+	         EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH);
 	if (flag == RC_ACT_BOOT) {
 		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	}
@@ -100,7 +100,7 @@ static int generate_path_conf(FILE *file, int flag)
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 	}
 	if (rc >= 0) {
-		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH, buf);
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH, buf);
 	}
 
 	/* sock_ctrl_path */

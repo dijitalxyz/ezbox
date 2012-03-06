@@ -56,7 +56,6 @@ struct ezcfg {
 	int		log_priority;
 	char 		rules_path[EZCFG_PATH_MAX];
 	char 		root_path[EZCFG_PATH_MAX];
-	char 		sem_root_path[EZCFG_PATH_MAX];
 	char 		sem_ezcfg_path[EZCFG_PATH_MAX];
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
@@ -172,19 +171,6 @@ void ezcfg_common_set_root_path(struct ezcfg *ezcfg, char *path)
 		return;
 
 	snprintf(ezcfg->root_path, EZCFG_PATH_MAX, "%s", path);
-}
-
-char *ezcfg_common_get_sem_root_path(struct ezcfg *ezcfg)
-{
-	return ezcfg->sem_root_path;
-}
-
-void ezcfg_common_set_sem_root_path(struct ezcfg *ezcfg, char *path)
-{
-	if (path == NULL)
-		return;
-
-	snprintf(ezcfg->sem_root_path, EZCFG_PATH_MAX, "%s", path);
 }
 
 char *ezcfg_common_get_sem_ezcfg_path(struct ezcfg *ezcfg)
@@ -336,11 +322,11 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		free(p);
 	}
 
-	/* find sem_root_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SEM_ROOT_PATH);
+	/* find sem_ezcfg_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH);
 	if (p != NULL) {
 		ezcfg_util_remove_trailing_char(p, '/');
-		snprintf(ezcfg->sem_root_path, EZCFG_PATH_MAX, "%s", p);
+		snprintf(ezcfg->sem_ezcfg_path, EZCFG_PATH_MAX, "%s", p);
 		free(p);
 	}
 

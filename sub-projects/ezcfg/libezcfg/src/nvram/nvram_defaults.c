@@ -100,9 +100,18 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG common rules path */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_RULES_PATH),
 	  EZCFG_COMMON_DEFAULT_RULES_PATH },
-	/* EZCFG common control socket path */
+	/* EZCFG common sem ezcfg path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SEM_EZCFG_PATH),
+	  EZCFG_SEM_EZCFG_PATH },
+	/* EZCFG common ctrl socket path */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCK_CTRL_PATH),
 	  EZCFG_SOCK_CTRL_PATH },
+	/* EZCFG common nvram socket path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCK_NVRAM_PATH),
+	  EZCFG_SOCK_NVRAM_PATH },
+	/* EZCFG common uevent socket path */
+	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCK_UEVENT_PATH),
+	  EZCFG_SOCK_UEVENT_PATH },
 	/* EZCFG common socket number */
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), "2" },

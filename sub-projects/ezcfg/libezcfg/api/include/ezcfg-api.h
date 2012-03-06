@@ -6,7 +6,6 @@ struct ezcfg;
 struct ezcfg *ezcfg_api_ezcfg_new(char *path);
 void ezcfg_api_ezcfg_delete(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg);
-char *ezcfg_api_common_get_sem_root_path(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
 
 /* Master thread interface */

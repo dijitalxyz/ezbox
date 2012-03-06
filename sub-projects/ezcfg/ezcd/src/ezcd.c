@@ -46,7 +46,7 @@
 #define handle_error_en(en, msg) \
 	do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
@@ -202,12 +202,15 @@ int ezcd_main(int argc, char **argv)
 
 	p = ezcfg_api_common_get_root_path(ezcfg);
 	if ((p != NULL) && (*p == '/')) {
-		mkdir(p, 0777);
+		utils_mkdir(p, 0777, true);
 	}
 
-	p = ezcfg_api_common_get_sem_root_path(ezcfg);
+	p = ezcfg_api_common_get_sem_ezcfg_path(ezcfg);
+	if ((p == NULL) || (*p == '\0')) {
+		p = EZCFG_SEM_EZCFG_PATH;
+	}
 	if ((p != NULL) && (*p == '/')) {
-		mkdir(p, 0777);
+		utils_mkdir(p, 0777, false);
 		fd = open(p, O_CREAT|O_RDWR, S_IRWXU);
 		if (fd < 0) {
 			fprintf(stderr, "cannot open %s\n", p);

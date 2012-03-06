@@ -63,6 +63,7 @@ int utils_parse_upnp_task(char *buf, size_t size, char **argv);
 
 int utils_device_open(const char *device, int mode);
 int utils_execute(char *const argv[], char *in_path, char *out_path, int timeout, int *ppid);
+int utils_mkdir(const char *path, mode_t mode, bool is_dir);
 int utils_system(const char *command);
 int utils_route_delete_default(char *iface);
 

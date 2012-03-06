@@ -84,15 +84,6 @@ char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg)
 }
 
 /**
- * ezcfg_api_common_get_sem_root_path:
- *
- **/
-char *ezcfg_api_common_get_sem_root_path(struct ezcfg *ezcfg)
-{
-	return ezcfg_common_get_sem_root_path(ezcfg);
-}
-
-/**
  * ezcfg_api_ezcfg_get_sem_ezcfg_path:
  *
  **/

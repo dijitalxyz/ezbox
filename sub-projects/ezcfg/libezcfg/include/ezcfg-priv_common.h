@@ -79,8 +79,6 @@ char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_root_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_root_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_sem_root_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sem_root_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg);

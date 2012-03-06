@@ -60,7 +60,7 @@ static struct action_s {
 	char type;
 	char *command;
 } shell_actions[] = {
-#if 0
+#if 1
 	{ 0, "/dev/tts/0", 'a', CMD_SH },
 	{ 0, "/dev/ttyS0", 'a', CMD_SH },
 	{ 0, "/dev/ttyS1", 'a', CMD_SH },
