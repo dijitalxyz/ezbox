@@ -42,7 +42,7 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \

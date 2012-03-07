@@ -45,12 +45,12 @@
 
 #include "ezcfg-api.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -135,6 +135,7 @@ struct ezcfg_master *ezcfg_api_master_start(const char *name, int threads_max)
 	master = ezcfg_master_start(ezcfg);
 	if (master == NULL) {
 		ezcfg_delete(ezcfg);
+		return NULL;
 	}
 
 	ezcfg_master_set_threads_max(master, threads_max);

@@ -45,12 +45,12 @@
 
 #include "ezcfg-api.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -183,6 +183,7 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -442,6 +443,7 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -647,6 +649,7 @@ int ezcfg_api_nvram_unset(const char *name)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -912,6 +915,7 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -1122,6 +1126,7 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -1350,6 +1355,7 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -1572,6 +1578,7 @@ int ezcfg_api_nvram_commit(void)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -1861,6 +1868,7 @@ int ezcfg_api_nvram_insert_socket(struct ezcfg_arg_nvram_socket *ap)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -2149,6 +2157,7 @@ int ezcfg_api_nvram_remove_socket(struct ezcfg_arg_nvram_socket *ap)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -2470,6 +2479,7 @@ int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
@@ -2790,6 +2800,7 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 

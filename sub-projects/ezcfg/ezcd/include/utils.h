@@ -45,6 +45,7 @@
 
 /* ezcd command config file path */
 #define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"
+#define EZCD_CONFIG_FILE_PATH_NEW	"/etc/ezcd.conf.new"
 
 /* ezcm command config file path */
 //#define EZCM_CONFIG_FILE_PATH	"/etc/ezcm.conf"

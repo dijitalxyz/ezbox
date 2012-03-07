@@ -42,10 +42,10 @@
 
 #if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -878,14 +878,19 @@ int pop_etc_ezcd_conf(int flag)
 	case RC_ACT_START :
 	case RC_ACT_RELOAD :
 	case RC_ACT_RESTART :
-		/* get ezcd config from nvram */
-		file = fopen(EZCD_CONFIG_FILE_PATH, "w");
-		if (file == NULL)
-			return (EXIT_FAILURE);
+		if (ezcfg_api_nvram_set_config_file(EZCD_CONFIG_FILE_PATH) >= 0) {
+			/* get ezcd config from nvram */
+			file = fopen(EZCD_CONFIG_FILE_PATH_NEW, "w");
+			if (file == NULL)
+				return (EXIT_FAILURE);
 
-		generate_ezcd_conf_file(file, flag);
+			generate_ezcd_conf_file(file, flag);
 
-		fclose(file);
+			fclose(file);
+
+			/* rename the new ezcd config file */
+			rename(EZCD_CONFIG_FILE_PATH_NEW, EZCD_CONFIG_FILE_PATH);
+		}
 		break;
 	}
 

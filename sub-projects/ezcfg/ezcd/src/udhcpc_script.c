@@ -302,6 +302,12 @@ int udhcpc_script_main(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	ret = ezcfg_api_nvram_set_config_file(EZCD_CONFIG_FILE_PATH);
+	if (ret < 0) {
+		DBG("error, ezcfg_api_nvram_set_config_file(%s)\n", EZCD_CONFIG_FILE_PATH);
+		return (EXIT_FAILURE);
+	}
+
 	if (strcmp(argv[1], "deconfig") == 0) {
 		DBG("udhcpc operation %s\n", argv[1]);
 		ret = udhcpc_deconfig();
