@@ -87,7 +87,7 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
  * ezcfg_api_ctrl_initialized:
  *
  **/
-bool ezcfg_api_ctrl_set_config_file(void)
+bool ezcfg_api_ctrl_initialized(void)
 {
 	return initialized;
 }
