@@ -59,11 +59,15 @@ int rc_elan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	flag = utils_get_rc_act_type(argv[1]);
-
 	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, ELAN_NIC), elan_ifname, sizeof(elan_ifname));
 	if (ret < 0)
 		return (EXIT_FAILURE);
+
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
+	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
 	case RC_ACT_RESTART :

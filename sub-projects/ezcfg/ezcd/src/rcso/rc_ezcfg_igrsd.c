@@ -101,6 +101,10 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 		goto func_exit;
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		goto func_exit;
+	}
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {

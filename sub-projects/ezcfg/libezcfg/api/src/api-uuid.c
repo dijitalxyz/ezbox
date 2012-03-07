@@ -57,6 +57,7 @@
 #endif
 
 static bool debug = false;
+static bool initialized = false;
 static char config_file[EZCFG_PATH_MAX] = EZCFG_CONFIG_FILE_PATH;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
@@ -82,7 +83,16 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 }
 
 /**
- * ezcfg_api_nvram_set_config_file:
+ * ezcfg_api_uuid_set_config_file:
+ *
+ **/
+bool ezcfg_api_uuid_initialized(void)
+{
+	return initialized;
+}
+
+/**
+ * ezcfg_api_uuid_set_config_file:
  *
  **/
 int ezcfg_api_uuid_set_config_file(const char *path)
@@ -102,6 +112,7 @@ int ezcfg_api_uuid_set_config_file(const char *path)
 	if (rc < 0) {
 		rc = -EZCFG_E_SPACE ;
 	}
+	initialized = true;
 	return rc;
 }
 

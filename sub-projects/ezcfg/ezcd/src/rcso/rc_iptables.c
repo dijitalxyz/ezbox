@@ -256,6 +256,10 @@ int rc_iptables(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	if (strcmp(argv[1], "load") == 0) {

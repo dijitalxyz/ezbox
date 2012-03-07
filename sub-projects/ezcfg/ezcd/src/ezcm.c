@@ -61,10 +61,16 @@ int ezcm_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
+#if 0
 	rc = ezcfg_api_ctrl_set_config_file(EZCD_CONFIG_FILE_PATH);
 	if (rc < 0) {
 		printf("ERROR\n");
 		return rc;
+	}
+#endif
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		printf("ERROR\n");
+		return -EZCFG_E_RESOURCE;
 	}
 
 	i = 1;

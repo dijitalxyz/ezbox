@@ -71,6 +71,10 @@ int rc_ezcd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	ret = EXIT_SUCCESS;
 	flag = utils_get_rc_act_type(argv[1]);
 
@@ -110,8 +114,6 @@ int rc_ezcd(int argc, char **argv)
 	case RC_ACT_RELOAD :
 		/* re-generate ezcd config file */
 		pop_etc_ezcd_conf(flag);
-		/* set nvram config file path */
-		ezcfg_api_nvram_set_config_file(EZCD_CONFIG_FILE_PATH);
 		/* save the nvram changes before doing reload */
 		ezcfg_api_nvram_commit();
 		/* send signal to ezcd to reload config */

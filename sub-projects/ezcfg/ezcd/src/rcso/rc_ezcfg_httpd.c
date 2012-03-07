@@ -120,6 +120,10 @@ int rc_ezcfg_httpd(int argc, char **argv)
 	}
 #endif
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		goto func_exit;
+	}
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {

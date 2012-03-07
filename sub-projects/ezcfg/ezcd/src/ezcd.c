@@ -46,7 +46,7 @@
 #define handle_error_en(en, msg) \
 	do { errno = en; perror(msg); exit(EXIT_FAILURE); } while (0)
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
@@ -299,8 +299,14 @@ int ezcd_main(int argc, char **argv)
 	}
 
 	/* prepare master thread */
+#if 0
 	if (ezcfg_api_master_set_config_file(EZCD_CONFIG_FILE_PATH) < 0) {
 		DBG("<6>ezcd: Set config file path\n");
+		return (EXIT_FAILURE);
+	};
+#endif
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		DBG("<6>ezcd: init ezcfg_api\n");
 		return (EXIT_FAILURE);
 	};
 

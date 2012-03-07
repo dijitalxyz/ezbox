@@ -78,6 +78,10 @@ int rc_dnsmasq(int argc, char **argv)
 	}
 #endif
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {

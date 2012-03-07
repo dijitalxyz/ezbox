@@ -45,7 +45,7 @@
 
 #include "ezcfg-api.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
@@ -58,6 +58,7 @@
 #endif
 
 static bool debug = false;
+static bool initialized = false;
 static char config_file[EZCFG_PATH_MAX] = EZCFG_NVRAM_CONFIG_FILE_PATH;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
@@ -83,6 +84,15 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 }
 
 /**
+ * ezcfg_api_nvram_initialized:
+ *
+ **/
+bool ezcfg_api_nvram_initialized(void)
+{
+	return initialized;
+}
+
+/**
  * ezcfg_api_nvram_set_config_file:
  *
  **/
@@ -103,6 +113,7 @@ int ezcfg_api_nvram_set_config_file(const char *path)
 	if (rc < 0) {
 		rc = -EZCFG_E_SPACE ;
 	}
+	initialized = true;
 	return rc;
 }
 
@@ -193,7 +204,6 @@ int ezcfg_api_nvram_get(const char *name, char *value, size_t len)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -453,7 +463,6 @@ int ezcfg_api_nvram_set(const char *name, const char *value)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -925,7 +934,6 @@ int ezcfg_api_nvram_set_multi(char *list, const int num)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -1136,7 +1144,6 @@ int ezcfg_api_nvram_list(char *list, size_t len)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -1365,7 +1372,6 @@ int ezcfg_api_nvram_info(char *info, size_t len)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -1588,7 +1594,6 @@ int ezcfg_api_nvram_commit(void)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -1878,7 +1883,6 @@ int ezcfg_api_nvram_insert_socket(struct ezcfg_arg_nvram_socket *ap)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -2167,7 +2171,6 @@ int ezcfg_api_nvram_remove_socket(struct ezcfg_arg_nvram_socket *ap)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -2489,7 +2492,6 @@ int ezcfg_api_nvram_insert_ssl(struct ezcfg_arg_nvram_ssl *ap)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;
@@ -2810,7 +2812,6 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap)
 		DBG("<6>pid=[%d] try to create sem.\n", getpid());
 		semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	}
-	DBG("<6>pid=[%d] %s(%d) create sem OK.\n", getpid(), __func__, __LINE__);
 
 	/* now require available resource */
 	res.sem_num = EZCFG_SEM_NVRAM_INDEX;

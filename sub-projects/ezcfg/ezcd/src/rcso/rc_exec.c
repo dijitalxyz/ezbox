@@ -91,6 +91,10 @@ int rc_exec(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	/* check first place */
 	snprintf(path, sizeof(path), "%s/%s", EXEC_PATH_PREFIX, argv[1]);
 	if ((stat(path, &stat_buf) != 0) ||

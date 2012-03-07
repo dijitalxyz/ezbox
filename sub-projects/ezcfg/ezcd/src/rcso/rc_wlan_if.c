@@ -99,6 +99,10 @@ int rc_wlan_if(int argc, char **argv)
 	if (ret < 0)
 		return (EXIT_FAILURE);
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {

@@ -63,6 +63,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_rc_act_type.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_wan_type.c
 endif
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_init_ezcfg_api.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_file_get_line.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_file_print_line.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_find_pid_by_name.c
