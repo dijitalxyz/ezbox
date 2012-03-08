@@ -33,6 +33,9 @@ int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, 
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte);
 #endif
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+int ezcfg_ctrl_handle_ezctp_message(char **argv, char *output, int len, void *rte);
+#endif
 
 #endif /* _EZCFG_PRIV_CTRL_H_ */
 

@@ -590,6 +590,25 @@ fi
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_IPTABLES_DMZ, test "x$config_ezbox_service_iptables_dmz" = xyes)
 
+# Configure ezctp service.
+config_ezbox_service_ezctp=no
+AC_MSG_CHECKING([if ezctp service is enabled])
+AC_ARG_ENABLE([service-ezctp],
+	AS_HELP_STRING([--enable-service-ezctp], [Enable ezctp service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCTP], [1], [Enable ezctp service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezctp=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCTP, test "x$config_ezbox_service_ezctp" = xyes)
+
 # Configure nano-X service.
 config_ezbox_service_nano_x=no
 AC_MSG_CHECKING([if nano-X service is enabled])

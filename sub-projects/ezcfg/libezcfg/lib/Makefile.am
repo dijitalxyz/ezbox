@@ -116,6 +116,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_upnp.c
 endif 
+if CONFIG_EZBOX_SERVICE_EZCTP
+libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ezctp.c
+endif 
 
 # ezcfg nvram
 libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram.c

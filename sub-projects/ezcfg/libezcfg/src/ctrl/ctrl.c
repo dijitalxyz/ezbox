@@ -251,6 +251,11 @@ int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, 
 		return ezcfg_ctrl_handle_upnp_message(argv, output, len, rte);
 	} else
 #endif
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	if ((strcmp(argv[0], "ezctp") == 0) && (argc > 1)) {
+		return ezcfg_ctrl_handle_ezctp_message(argv, output, len, rte);
+	} else
+#endif
 	{
 		return -1;
 	}
