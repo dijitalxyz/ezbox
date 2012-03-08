@@ -56,6 +56,7 @@ int utils_mkdir(const char *path, mode_t mode, bool is_dir)
 				}
 			}
 			*s = '/';
+			s++;
 		}
 	}
 

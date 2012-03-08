@@ -47,10 +47,10 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/tmp/ezcfg-api-ctrl.dbg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -119,8 +119,8 @@ int ezcfg_api_ctrl_set_config_file(const char *path)
 
 /**
  * ezcfg_api_ctrl_exec:
- * @argv: nvram name
- * @value: buffer to store nvram value
+ * @argv: control command arguments
+ * @output: buffer to store result
  * @len: buffer size
  *
  **/
@@ -165,6 +165,7 @@ int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len)
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		rc = -EZCFG_E_RESOURCE ;
 		goto exit;
 	}
 
