@@ -73,11 +73,11 @@ static struct ezcfg_master *master = NULL;
 
 static void ezcd_show_usage(void)
 {
-	printf("Usage: ezcd [-d] [-D] [-c max_worker_threads]\n");
+	printf("Usage: ezcd [-d] [-D] [-t max_worker_threads]\n");
 	printf("\n");
 	printf("  -d\tdaemonize\n");
 	printf("  -D\tdebug mode\n");
-	printf("  -c\tmax worker threads\n");
+	printf("  -t\tmax worker threads\n");
 	printf("  -h\thelp\n");
 	printf("\n");
 }
@@ -151,10 +151,10 @@ int ezcd_main(int argc, char **argv)
 
 	for (;;) {
 		int c;
-		c = getopt( argc, argv, "c:dDh");
+		c = getopt( argc, argv, "t:dDh");
 		if (c == EOF) break;
 		switch (c) {
-			case 'c':
+			case 't':
 				threads_max = atoi(optarg);
 				break;
 			case 'd':
@@ -179,21 +179,6 @@ int ezcd_main(int argc, char **argv)
 	s = chdir("/");
 	umask(0022);
 
-#if 0
-	if (EZCFG_ROOT_PATH[0] == '/') {
-		mkdir(EZCFG_ROOT_PATH, 0777);
-		mkdir(EZCFG_SEM_ROOT_PATH, 0777);
-		fd = open(EZCFG_SEM_EZCFG_PATH, O_CREAT|O_RDWR, S_IRWXU);
-		if (fd < 0) {
-			fprintf(stderr, "cannot open %s\n", EZCFG_SEM_EZCFG_PATH);
-			exit(EXIT_FAILURE);
-		}
-		close(fd);
-	}
-	if (EZCFG_SOCK_ROOT_PATH[0] == '/') {
-		mkdir(EZCFG_SOCK_ROOT_PATH, 0777);
-	}
-#else
 	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
 	if (ezcfg == NULL) {
 		fprintf(stderr, "%s format error.\n", EZCD_CONFIG_FILE_PATH);
@@ -222,7 +207,6 @@ int ezcd_main(int argc, char **argv)
 
 	ezcfg_api_ezcfg_delete(ezcfg);
 	ezcfg = NULL;
-#endif
 
 	/* before opening new files, make sure std{in,out,err} fds are in a sane state */
 	fd = open("/dev/null", O_RDWR);
@@ -299,12 +283,6 @@ int ezcd_main(int argc, char **argv)
 	}
 
 	/* prepare master thread */
-#if 0
-	if (ezcfg_api_master_set_config_file(EZCD_CONFIG_FILE_PATH) < 0) {
-		DBG("<6>ezcd: Set config file path\n");
-		return (EXIT_FAILURE);
-	};
-#endif
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		DBG("<6>ezcd: init ezcfg_api\n");
 		return (EXIT_FAILURE);

@@ -41,21 +41,33 @@ int utils_mkdir(const char *path, mode_t mode, bool is_dir)
 
 	snprintf(buf, sizeof(buf), "%s", path);
 	s = buf;
+	/* skip first '/' */
+	if (*s == '/') s++;
 	while (*s != '\0') {
 		while(*s != '/' && *s != '\0') s++;
 		if (*s == '/') {
 			*s = '\0';
 			if (mkdir(buf, mode) == -1) {
-				return -1;
+				if (errno == EEXIST) {
+					/* do nothing */
+				}
+				else {
+					return -1;
+				}
 			}
 			*s = '/';
 		}
 	}
 
 	if (is_dir == true) {
-		return mkdir(path, mode);
+		if (mkdir(path, mode) == -1) {
+			if (errno == EEXIST) {
+				return 0;
+			}
+			else {
+				return -1;
+			}
+		}
 	}
-	else {
-		return 0;
-	}
+	return 0;
 }
