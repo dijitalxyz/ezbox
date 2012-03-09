@@ -41,10 +41,11 @@ int utils_mkdir(const char *path, mode_t mode, bool is_dir)
 
 	snprintf(buf, sizeof(buf), "%s", path);
 	s = buf;
-	/* skip first '/' */
-	if (*s == '/') s++;
 	while (*s != '\0') {
-		while(*s != '/' && *s != '\0') s++;
+		/* skip first '/' */
+		while (*s == '/') s++;
+		/* find next first '/' */
+		while((*s != '/') && (*s != '\0')) s++;
 		if (*s == '/') {
 			*s = '\0';
 			if (mkdir(buf, mode) == -1) {
