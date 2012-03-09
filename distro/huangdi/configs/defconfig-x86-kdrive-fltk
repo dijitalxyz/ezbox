@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue Nov  8 18:48:09 2011
+# Fri Mar  9 11:59:23 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -214,6 +214,8 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 #
 # Package features
 #
+# CONFIG_FEATURE_EZCFG_ezcfg-ssl-none is not set
+CONFIG_FEATURE_EZCFG_ezcfg-ssl-openssl=y
 CONFIG_FEATURE_drawing-backend_libX11=y
 # CONFIG_FEATURE_drawing-backend_nxlib is not set
 CONFIG_FEATURE_gui-toolkit_FLTK=y
