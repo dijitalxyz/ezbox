@@ -13,7 +13,7 @@ libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
 libs/libpng/libpng-1.2.44:libpng
 libs/libpthread-stubs/libpthread-stubs-0.1:libpthread-stubs
 libs/lzo/lzo-2.04:lzo
-libs/sqlite3/sqlite3-3070400:sqlite3
+libs/sqlite3/sqlite3-3070900:sqlite3
 libs/tiff/tiff-3.9.2:tiff
 net/freeswitch/freeswitch-1.0.6:freeswitch
 net/iptables/iptables-1.4.10:iptables
