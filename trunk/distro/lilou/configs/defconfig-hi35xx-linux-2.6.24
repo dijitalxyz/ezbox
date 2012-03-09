@@ -157,6 +157,8 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 #
 # Package features
 #
+# CONFIG_FEATURE_EZCFG_ezcfg-ssl-none is not set
+CONFIG_FEATURE_EZCFG_ezcfg-ssl-openssl=y
 CONFIG_FEATURE_drawing-backend_libX11=y
 CONFIG_FEATURE_gui-toolkit_FLTK=y
 

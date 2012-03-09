@@ -37,7 +37,8 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
-  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS)
+  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS) \
+	+FEATURE_EZCFG_ezcfg-ssl-openssl:libopenssl
 endef
 
 define Package/ezcfg/description
@@ -259,4 +260,18 @@ define Package/ezcfg/install
 	$(CP) $(PKG_BUILD_DIR)/i18n/html/lang/* $(1)/usr/share/ezcfg/html/lang/
 endef
 
+define Feature/ezcfg-ssl-none
+  TARGET_TITLE:=EZCFG SSL Backend
+  TARGET_NAME:=EZCFG
+  NAME:=none
+endef
+
+define Feature/ezcfg-ssl-openssl
+  TARGET_TITLE:=EZCFG SSL Backend
+  TARGET_NAME:=EZCFG
+  NAME:=openssl
+endef
+
+$(eval $(call Feature,ezcfg-ssl-none))
+$(eval $(call Feature,ezcfg-ssl-openssl))
 $(eval $(call BuildPackage,ezcfg))
