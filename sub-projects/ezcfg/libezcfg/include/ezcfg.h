@@ -57,6 +57,11 @@
 #define EZCFG_SEM_UPNP_INDEX	3
 #define EZCFG_SEM_NUMBER	4
 
+/* shared memory path */
+#define EZCFG_SHM_ROOT_PATH	EZCFG_ROOT_PATH "/shm"
+#define EZCFG_SHM_EZCTP_PATH	EZCFG_SHM_ROOT_PATH "/ezctp"
+#define EZCFG_SHM_PROJID_EZCTP	't'
+
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH    "@/var/ezcfg/sock"
 #define EZCFG_SOCK_CTRL_PATH    EZCFG_SOCK_ROOT_PATH "/ctrl"

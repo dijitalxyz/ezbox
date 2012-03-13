@@ -169,4 +169,10 @@
 #define EZCFG_EZCFG_IGRSD_ENABLE            "igrsd_enable"
 #define EZCFG_EZCFG_IGRSD_BINDING           "igrsd_binding"
 
+/* ezcfg config [ezctp] section */
+#define EZCFG_EZCFG_SECTION_EZCTP           "ezctp"
+
+#define EZCFG_EZCFG_KEYWORD_SHM_SIZE        "shm_size"
+#define EZCFG_EZCFG_KEYWORD_CQ_LENGTH       "cq_length"
+
 #endif

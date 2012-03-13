@@ -103,9 +103,19 @@ struct ezcfg_master {
 	pthread_mutex_t upnp_mutex; /* Protects upnp */
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	struct ezcfg_ezctp *ezctp; /* ezctp global state */
+	pthread_mutex_t ezctp_mutex; /* Protects ezctp */
+#endif
+
 	struct ezcfg_worker *workers; /* Worker list */
 };
 
+/*
+ * Deallocate ezcfg master context, free up the resources
+ * only delete master_new() allocated resources before pthread_mutex initialized
+ * other resources should be deleted in master_finish()
+ */
 static void master_delete(struct ezcfg_master *master)
 {
 	if (master == NULL)
@@ -119,20 +129,119 @@ static void master_delete(struct ezcfg_master *master)
 			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
 		}
 	}
-#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	if (master->upnp) {
-		ezcfg_upnp_delete(master->upnp);
-	}
-#endif
 	if (master->nvram) {
 		ezcfg_nvram_delete(master->nvram);
 	}
 	if (master->queue) {
 		free(master->queue);
 	}
-	ezcfg_socket_list_delete(&(master->listening_sockets));
-	ezcfg_auth_list_delete(&(master->auths));
 	free(master);
+}
+
+/*
+ * Deallocate ezcfg master context, free up the resources
+ * when master_new() success, this function will be called before master_delete()
+ */
+static void master_finish(struct ezcfg_master *master)
+{
+	struct ezcfg_worker *worker;
+
+	pthread_mutex_lock(&(master->thread_mutex));
+
+	/* Close all listening sockets */
+	pthread_mutex_lock(&(master->ls_mutex));
+	if (master->listening_sockets != NULL) {
+		ezcfg_socket_list_delete(&(master->listening_sockets));
+		master->listening_sockets = NULL;
+	}
+	pthread_mutex_unlock(&(master->ls_mutex));
+
+	/* Close all ezctp global state */
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	pthread_mutex_lock(&(master->ezctp_mutex));
+	if (master->ezctp != NULL) {
+		ezcfg_ezctp_delete(master->ezctp);
+		master->ezctp = NULL;
+	}
+	pthread_mutex_unlock(&(master->ezctp_mutex));
+#endif
+
+	/* Close all UPnP global state */
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	pthread_mutex_lock(&(master->upnp_mutex));
+	if (master->upnp != NULL) {
+		ezcfg_upnp_list_delete(&(master->upnp));
+		master->upnp = NULL;
+	}
+	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+
+	/* Close all IGRS global state */
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	pthread_mutex_lock(&(master->igrs_mutex));
+	if (master->igrs != NULL) {
+		ezcfg_igrs_list_delete(&(master->igrs));
+		master->igrs = NULL;
+	}
+	pthread_mutex_unlock(&(master->igrs_mutex));
+#endif
+
+	/* Close all SSL */
+#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
+	pthread_mutex_lock(&(master->ssl_mutex));
+	if (master->ssl != NULL) {
+		ezcfg_ssl_list_delete(&(master->ssl));
+		master->ssl = NULL;
+	}
+	pthread_mutex_unlock(&(master->ssl_mutex));
+#endif
+
+	/* Close all auths */
+	pthread_mutex_lock(&(master->auth_mutex));
+	if (master->auths != NULL) {
+		ezcfg_auth_list_delete(&(master->auths));
+		master->auths = NULL;
+	}
+	pthread_mutex_unlock(&(master->auth_mutex));
+
+	/* Close all workers' socket */
+	worker = master->workers;
+	while (worker != NULL) {
+		ezcfg_worker_close_connection(worker);
+		worker = ezcfg_worker_get_next(worker);
+	}
+
+	/* Wait until all threads finish */
+	while (master->num_threads > 0)
+		pthread_cond_wait(&(master->thread_sync_cond), &(master->thread_mutex));
+	master->threads_max = 0;
+
+	pthread_mutex_unlock(&(master->thread_mutex));
+
+	pthread_cond_destroy(&(master->sq_empty_cond));
+	pthread_cond_destroy(&(master->sq_full_cond));
+
+	pthread_mutex_destroy(&(master->ls_mutex));
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	pthread_mutex_destroy(&(master->ezctp_mutex));
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
+	pthread_mutex_destroy(&(master->upnp_mutex));
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
+	pthread_mutex_destroy(&(master->igrs_mutex));
+#endif
+#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
+	pthread_mutex_destroy(&(master->ssl_mutex));
+#endif
+	pthread_mutex_destroy(&(master->auth_mutex));
+
+	pthread_cond_destroy(&(master->thread_sync_cond));
+	pthread_rwlock_destroy(&(master->thread_rwlock));
+	pthread_mutex_destroy(&(master->thread_mutex));
+
+        /* signal ezcd_stop() that we're done */
+        master->stop_flag = 2;
 }
 
 /**
@@ -145,6 +254,7 @@ static void master_delete(struct ezcfg_master *master)
 static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_master *master;
+	key_t key;
 	int i;
 	struct sembuf res[EZCFG_SEM_NUMBER];
 
@@ -158,17 +268,22 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	/* initialize ezcfg library context */
 	memset(master, 0, sizeof(struct ezcfg_master));
 
+	/* set ezcfg library context */
+	master->ezcfg = ezcfg;
+
+	/* must first set semid to -1 */
+	master->semid = -1;
+
 	/* prepare semaphore */
-	//i = ftok(EZCFG_SEM_EZCFG_PATH, EZCFG_SEM_PROJID_EZCFG);
-	i = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
-	if (i == -1) {
+	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
+	if (key == -1) {
 		DBG("<6>pid=[%d] ftok error.\n", getpid());
 		goto fail_exit;
 	}
 
 	/* create a semaphore set */
 	/* this is the first place to create the semaphore, must IPC_EXCL */
-	master->semid = semget(i, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
+	master->semid = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
 	if (master->semid < 0) {
 		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
 		goto fail_exit;
@@ -229,11 +344,13 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	pthread_mutex_init(&(master->upnp_mutex), NULL);
 #endif
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	pthread_mutex_init(&(master->ezctp_mutex), NULL);
+#endif
 	pthread_cond_init(&(master->sq_empty_cond), NULL);
 	pthread_cond_init(&(master->sq_full_cond), NULL);
 
-	/* set ezcfg library context */
-	master->ezcfg = ezcfg;
+	/* Successfully create master thread */
 	return master;
 
 fail_exit:
@@ -345,90 +462,11 @@ static struct ezcfg_master *master_new_from_socket(struct ezcfg *ezcfg, const ch
 	return master;
 
 fail_exit:
-	/* don't delete sp, ezcfg_master_delete will do it! */
+	/* first clean up all resources in master */
+	master_finish(master);
+	/* don't delete sp, master_delete will do it! */
 	master_delete(master);
 	return NULL;
-}
-
-/*
- * Deallocate ezcfg master context, free up the resources
- */
-static void ezcfg_master_finish(struct ezcfg_master *master)
-{
-	struct ezcfg_worker *worker;
-
-	pthread_mutex_lock(&(master->thread_mutex));
-
-	/* Close all listening sockets */
-	pthread_mutex_lock(&(master->ls_mutex));
-	ezcfg_socket_list_delete(&(master->listening_sockets));
-	master->listening_sockets = NULL;
-	pthread_mutex_unlock(&(master->ls_mutex));
-
-	/* Close all UPnP global state */
-#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	pthread_mutex_lock(&(master->upnp_mutex));
-	ezcfg_upnp_list_delete(&(master->upnp));
-	master->upnp = NULL;
-	pthread_mutex_unlock(&(master->upnp_mutex));
-#endif
-	/* Close all IGRS global state */
-#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
-	pthread_mutex_lock(&(master->igrs_mutex));
-	ezcfg_igrs_list_delete(&(master->igrs));
-	master->igrs = NULL;
-	pthread_mutex_unlock(&(master->igrs_mutex));
-#endif
-
-	/* Close all SSL */
-#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
-	pthread_mutex_lock(&(master->ssl_mutex));
-	ezcfg_ssl_list_delete(&(master->ssl));
-	master->ssl = NULL;
-	pthread_mutex_unlock(&(master->ssl_mutex));
-#endif
-
-	/* Close all auths */
-	pthread_mutex_lock(&(master->auth_mutex));
-	ezcfg_auth_list_delete(&(master->auths));
-	master->auths = NULL;
-	pthread_mutex_unlock(&(master->auth_mutex));
-
-	/* Close all workers' socket */
-	worker = master->workers;
-	while (worker != NULL) {
-		ezcfg_worker_close_connection(worker);
-		worker = ezcfg_worker_get_next(worker);
-	}
-
-	/* Wait until all threads finish */
-	while (master->num_threads > 0)
-		pthread_cond_wait(&(master->thread_sync_cond), &(master->thread_mutex));
-	master->threads_max = 0;
-
-	pthread_mutex_unlock(&(master->thread_mutex));
-
-	pthread_cond_destroy(&(master->sq_empty_cond));
-	pthread_cond_destroy(&(master->sq_full_cond));
-
-	pthread_mutex_destroy(&(master->ls_mutex));
-#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	pthread_mutex_destroy(&(master->upnp_mutex));
-#endif
-#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
-	pthread_mutex_destroy(&(master->igrs_mutex));
-#endif
-#if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
-	pthread_mutex_destroy(&(master->ssl_mutex));
-#endif
-	pthread_mutex_destroy(&(master->auth_mutex));
-
-	pthread_cond_destroy(&(master->thread_sync_cond));
-	pthread_rwlock_destroy(&(master->thread_rwlock));
-	pthread_mutex_destroy(&(master->thread_mutex));
-
-        /* signal ezcd_stop() that we're done */
-        master->stop_flag = 2;
 }
 
 static void add_to_set(int fd, fd_set *set, int *max_fd)
@@ -612,8 +650,8 @@ void ezcfg_master_thread(struct ezcfg_master *master)
 		}
 	}
 
-	/* Stop signal received: somebody called ezcfg_stop. Quit. */
-	ezcfg_master_finish(master);
+	/* Stop signal received: somebody called ezcfg_master_stop. Quit. */
+	master_finish(master);
 }
 
 struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
@@ -629,7 +667,6 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 	stacksize = 0;
 
 	/* There must be a ctrl socket */
-	//master = master_new_from_socket(ezcfg, EZCFG_SOCK_CTRL_PATH);
 	master = master_new_from_socket(ezcfg, ezcfg_common_get_sock_ctrl_path(ezcfg));
 	if (master == NULL) {
 		err(ezcfg, "can not initialize control socket");
@@ -741,6 +778,7 @@ start_out:
 	/* Start master (listening) thread */
 	if (master != NULL) {
 		if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
+			master_finish(master);
 			ASSERT(master->num_threads == 0);
 			master_delete(master);
 			master = NULL;
@@ -777,7 +815,7 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 
 	master->stop_flag = 1;
 
-	/* Wait until ezcfg_master_finish() stops */
+	/* Wait until master_finish() stops */
 	while (master->stop_flag != 2)
 		sleep(1);
 

@@ -64,6 +64,24 @@ struct ezcfg_ezctp {
 /*
  * Private functions
  */
+static bool fill_ezctp_info(struct ezcfg_ezctp *ezctp, const char *conf_path)
+{
+	char *p;
+
+	if (conf_path == NULL) {
+		return false;
+	}
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_EZCTP, 0, EZCFG_EZCFG_KEYWORD_SHM_SIZE);
+	if (p == NULL) {
+		return false;
+	}
+	else {
+		ezctp->shm_size = atoi(p);
+		free(p);
+	}
+
+	return true;
+}
 
 /*
  * Public functions
@@ -96,6 +114,7 @@ bool ezcfg_ezctp_delete(struct ezcfg_ezctp *ezctp)
 struct ezcfg_ezctp *ezcfg_ezctp_new(struct ezcfg *ezcfg)
 {
 	struct ezcfg_ezctp *ezctp;
+	key_t key;
 
 	ASSERT(ezcfg != NULL);
 
@@ -113,7 +132,30 @@ struct ezcfg_ezctp *ezcfg_ezctp_new(struct ezcfg *ezcfg)
 	/* initialize ezctp/cq_mutex */
 	pthread_mutex_init(&ezctp->cq_mutex, NULL);
 
+	if (fill_ezctp_info(ezctp, ezcfg_common_get_config_file(ezcfg)) == false) {
+                DBG("<6>pid=[%d] %s(%d) fill ezctp info error.\n", getpid(), __func__, __LINE__);
+                goto fail_exit;
+	}
+
+	/* prepare shared memory */
+	key = ftok(ezcfg_common_get_shm_ezctp_path(ezcfg), EZCFG_SHM_PROJID_EZCTP);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error.\n", getpid());
+		goto fail_exit;
+	}
+
+	/* create shared memory */
+	/* this is the first place to create the shared memory, must IPC_EXCL */
+	ezctp->shm_id = shmget(key, ezctp->shm_size, IPC_CREAT|IPC_EXCL|00666);
+	if (ezctp->shm_id < 0) {
+		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
+		goto fail_exit;
+	}
 
 	return ezctp;
+
+fail_exit:
+	ezcfg_ezctp_delete(ezctp);
+	return NULL;
 }
 
