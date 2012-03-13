@@ -68,6 +68,9 @@ struct ezcfg_http;
 /* nvram/nvram.c */
 struct ezcfg_nvram;
 
+/* ezctp/ezctp.c */
+struct ezcfg_ezctp;
+
 /* ssl/ssl.c */
 struct ezcfg_ssl;
 

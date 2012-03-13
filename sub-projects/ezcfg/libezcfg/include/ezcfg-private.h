@@ -125,6 +125,10 @@ bool ezcfg_uuid_v1_set_mac(struct ezcfg_uuid *uuid, unsigned char *mac, int len)
 bool ezcfg_uuid_v1_enforce_multicast_mac(struct ezcfg_uuid *uuid);
 
 
+/* ezctp/ezctp.c */
+#include "ezcfg-priv_ezctp.h"
+
+
 /* socket/socket.c */
 #include "ezcfg-priv_socket.h"
 

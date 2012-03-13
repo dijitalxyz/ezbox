@@ -125,6 +125,11 @@ libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram.c
 libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_defaults.c
 libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_validators.c
 
+# ezctp support
+if CONFIG_EZBOX_SERVICE_EZCTP
+libezcfg_la_SOURCES += $(top_builddir)/src/ezctp/ezctp.c
+endif 
+
 # ezcfg uevent
 libezcfg_la_SOURCES += $(top_builddir)/src/uevent/uevent.c
 
