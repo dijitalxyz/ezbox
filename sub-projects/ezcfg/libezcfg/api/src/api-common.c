@@ -91,3 +91,14 @@ char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg)
 {
 	return ezcfg_common_get_sem_ezcfg_path(ezcfg);
 }
+
+/**
+ * ezcfg_api_ezcfg_get_shm_ezctp_path:
+ *
+ **/
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+char *ezcfg_api_common_get_shm_ezctp_path(struct ezcfg *ezcfg)
+{
+	return ezcfg_common_get_shm_ezctp_path(ezcfg);
+}
+#endif
