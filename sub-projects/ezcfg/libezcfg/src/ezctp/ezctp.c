@@ -54,11 +54,11 @@ struct ezcfg_ezctp {
 	void *shm_addr;
 
 	/* Circular Queue */
-	size_t cq_length; /* the length of queue */
 	size_t cq_unit_size; /* the size per unit in the queue */
+	size_t cq_length; /* the length of queue */
+	size_t cq_free; /* the free units of queue */
 	int cq_head;
 	int cq_tail;
-	bool cq_full;
 	pthread_mutex_t cq_mutex; /* Protects circular queue operations */
 };
 
@@ -98,6 +98,9 @@ static bool fill_ezctp_info(struct ezcfg_ezctp *ezctp, const char *conf_path)
 	if (ezctp->cq_length < 1) {
 		return false;
 	}
+
+	/* cq_free = cq_length at the beginning */
+	ezctp->cq_free = ezctp->cq_length;
 
 	return true;
 }
@@ -203,3 +206,58 @@ fail_exit:
 	return NULL;
 }
 
+int ezcfg_ezctp_get_shm_id(struct ezcfg_ezctp *ezctp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(ezctp != NULL);
+
+	ezcfg = ezctp->ezcfg;
+
+	return ezctp->shm_id;
+}
+
+size_t ezcfg_ezctp_get_cq_unit_size(struct ezcfg_ezctp *ezctp)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(ezctp != NULL);
+
+	ezcfg = ezctp->ezcfg;
+
+	return ezctp->cq_unit_size;
+}
+
+bool ezcfg_ezctp_insert_data(struct ezcfg_ezctp *ezctp, void *data, size_t n, size_t size)
+{
+	struct ezcfg *ezcfg;
+	bool insert_flag = false;
+	size_t i;
+	char *src, *dst;
+
+	ASSERT(ezctp != NULL);
+	ASSERT(data != NULL);
+	ASSERT(n > 0);
+	ASSERT(size > 0);
+
+	ezcfg = ezctp->ezcfg;
+
+	pthread_mutex_lock(&(ezctp->cq_mutex));
+
+	if (ezctp->cq_free >= n) {
+		/* there's enough free units in CQ */
+		for (i=0; i<n; i++) {
+			src = (char *)data + (i * size);
+			dst = (char *)ezctp->shm_addr + (ezctp->cq_tail * ezctp->cq_unit_size);
+			/* copy the data to CQ */
+			memcpy(dst, src, size);
+			ezctp->cq_tail = (ezctp->cq_tail + 1) % ezctp->cq_length;
+		}
+		ezctp->cq_free -= n;
+		insert_flag = true;
+	}
+
+	pthread_mutex_unlock(&(ezctp->cq_mutex));
+
+	return insert_flag;
+}

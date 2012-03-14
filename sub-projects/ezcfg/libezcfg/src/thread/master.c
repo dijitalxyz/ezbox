@@ -1322,3 +1322,101 @@ int ezcfg_master_upnp_mutex_unlock(struct ezcfg_master *master)
 	return pthread_mutex_unlock(&(master->upnp_mutex));
 }
 #endif
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+struct ezcfg_ezctp *ezcfg_master_get_ezctp(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->ezctp;
+}
+
+int ezcfg_master_ezctp_mutex_lock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_lock(&(master->ezctp_mutex));
+}
+
+int ezcfg_master_ezctp_mutex_unlock(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return pthread_mutex_unlock(&(master->ezctp_mutex));
+}
+
+int ezcfg_master_get_ezctp_shm_id(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+	int shm_id = -1;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	pthread_mutex_lock(&(master->ezctp_mutex));
+
+	if (master->ezctp != NULL) {
+		shm_id = ezcfg_ezctp_get_shm_id(master->ezctp);
+	}
+
+	pthread_mutex_unlock(&(master->ezctp_mutex));
+
+	return shm_id;
+}
+
+size_t ezcfg_master_get_ezctp_cq_unit_size(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+	size_t cq_unit_size = 0;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	pthread_mutex_lock(&(master->ezctp_mutex));
+
+	if (master->ezctp != NULL) {
+		cq_unit_size = ezcfg_ezctp_get_cq_unit_size(master->ezctp);
+	}
+
+	pthread_mutex_unlock(&(master->ezctp_mutex));
+
+	return cq_unit_size;
+}
+
+bool ezcfg_master_insert_ezctp_data(struct ezcfg_master *master, void *data, size_t n, size_t size)
+{
+	struct ezcfg *ezcfg;
+	bool insert_flag = false;
+
+	ASSERT(master != NULL);
+	ASSERT(data != NULL);
+	ASSERT(n > 0);
+	ASSERT(size > 0);
+
+	ezcfg = master->ezcfg;
+
+	pthread_mutex_lock(&(master->ezctp_mutex));
+
+	if (master->ezctp != NULL) {
+		insert_flag = ezcfg_ezctp_insert_data(master->ezctp, data, n, size);
+	}
+
+	pthread_mutex_unlock(&(master->ezctp_mutex));
+
+	return insert_flag;
+}
+#endif

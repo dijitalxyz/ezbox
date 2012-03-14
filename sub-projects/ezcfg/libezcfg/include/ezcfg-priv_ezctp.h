@@ -19,5 +19,8 @@
 /* ezctp/ezctp.c */
 bool ezcfg_ezctp_delete(struct ezcfg_ezctp *ezctp);
 struct ezcfg_ezctp *ezcfg_ezctp_new(struct ezcfg *ezcfg);
+int ezcfg_ezctp_get_shm_id(struct ezcfg_ezctp *ezctp);
+size_t ezcfg_ezctp_get_cq_unit_size(struct ezcfg_ezctp *ezctp);
+bool ezcfg_ezctp_insert_data(struct ezcfg_ezctp *ezctp, void *data, size_t n, size_t size);
 
 #endif /* _EZCFG_PRIV_EZCTP_H_ */
