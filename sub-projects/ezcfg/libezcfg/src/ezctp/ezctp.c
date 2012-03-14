@@ -54,7 +54,8 @@ struct ezcfg_ezctp {
 	void *shm_addr;
 
 	/* Circular Queue */
-	int cq_length;
+	size_t cq_length; /* the length of queue */
+	size_t cq_unit_size; /* the size per unit in the queue */
 	int cq_head;
 	int cq_tail;
 	bool cq_full;
@@ -71,6 +72,8 @@ static bool fill_ezctp_info(struct ezcfg_ezctp *ezctp, const char *conf_path)
 	if (conf_path == NULL) {
 		return false;
 	}
+
+	/* shared memory size */
 	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_EZCTP, 0, EZCFG_EZCFG_KEYWORD_SHM_SIZE);
 	if (p == NULL) {
 		return false;
@@ -78,6 +81,22 @@ static bool fill_ezctp_info(struct ezcfg_ezctp *ezctp, const char *conf_path)
 	else {
 		ezctp->shm_size = atoi(p);
 		free(p);
+	}
+
+	/* cq size per unit */
+	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_EZCTP, 0, EZCFG_EZCFG_KEYWORD_CQ_UNIT_SIZE);
+	if (p == NULL) {
+		return false;
+	}
+	else {
+		ezctp->cq_unit_size = atoi(p);
+		free(p);
+	}
+
+	/* cq_length = shm_size / cq_unit_size ; */
+	ezctp->cq_length = ezctp->shm_size / ezctp->cq_unit_size;
+	if (ezctp->cq_length < 1) {
+		return false;
 	}
 
 	return true;
@@ -98,16 +117,35 @@ bool ezcfg_ezctp_delete(struct ezcfg_ezctp *ezctp)
 	/* lock ezctp access */
 	pthread_mutex_lock(&ezctp->cq_mutex);
 
-	if (ezctp->shm_addr != (void *) -1) {
+	if ((void *) -1 != ezctp->shm_addr) {
 		/* detach system V shared memory from system */
-		shmdt(ezctp->shm_addr);
+		if (shmdt(ezctp->shm_addr) == -1) {
+			DBG("<6>pid=[%d] shmdt error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] shm detach OK.\n", getpid());
+		}
+		ezctp->shm_addr = (void *) -1;
+	}
+
+	if (ezctp->shm_id >= 0) {
+		/* remove system V shared memory from system */
+		if (shmctl(ezctp->shm_id, IPC_RMID, NULL) == -1) {
+			DBG("<6>pid=[%d] shmctl IPC_RMID error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] remove shm OK.\n", getpid());
+		}
+		ezctp->shm_id = -1;
 	}
 
 	/* unlock ezctp access */
 	pthread_mutex_unlock(&ezctp->cq_mutex);
 
 	pthread_mutex_destroy(&ezctp->cq_mutex);
+
 	free(ezctp);
+
 	return true;
 }
 
@@ -149,6 +187,12 @@ struct ezcfg_ezctp *ezcfg_ezctp_new(struct ezcfg *ezcfg)
 	ezctp->shm_id = shmget(key, ezctp->shm_size, IPC_CREAT|IPC_EXCL|00666);
 	if (ezctp->shm_id < 0) {
 		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
+		goto fail_exit;
+	}
+
+	ezctp->shm_addr = shmat(ezctp->shm_id, NULL, 0);
+	if ((void *) -1 == ezctp->shm_addr) {
+		DBG("<6>pid=[%d] %s(%d) shmat error with errono=[%d]\n", getpid(), __func__, __LINE__, errno);
 		goto fail_exit;
 	}
 

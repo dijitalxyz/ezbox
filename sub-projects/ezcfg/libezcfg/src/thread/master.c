@@ -679,7 +679,6 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		/* lock mutex before handling listening_sockets */
 		pthread_mutex_lock(&(master->ls_mutex));
 
-		//sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
 		sp = master_add_socket(master, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, p);
 
 		/* unlock mutex after handling listening_sockets */
@@ -691,8 +690,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		}
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
-			//err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_NVRAM_PATH);
-			err(ezcfg, "enable socket [%s] receiving fail: %m\n", ezcfg_common_get_sock_nvram_path(ezcfg));
+			err(ezcfg, "enable socket [%s] receiving fail: %m\n", p);
 			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 			goto start_out;
 		}
@@ -727,7 +725,6 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 		}
 
 		if (ezcfg_socket_enable_receiving(sp) < 0) {
-			//err(ezcfg, "enable socket [%s] receiving fail: %m\n", EZCFG_SOCK_UEVENT_PATH);
 			err(ezcfg, "enable socket [%s] receiving fail: %m\n", ezcfg_common_get_sock_uevent_path(ezcfg));
 			ezcfg_socket_list_delete_socket(&(master->listening_sockets), sp);
 			goto load_other_sockets;
@@ -745,10 +742,10 @@ load_other_sockets:
 	pthread_mutex_unlock(&(master->auth_mutex));
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL ==  1)
-	/* lock mutex before handling igrs */
+	/* lock mutex before handling ssl */
 	pthread_mutex_lock(&(master->ssl_mutex));
 	ezcfg_master_load_ssl_conf(master);
-	/* unlock mutex after handling auths */
+	/* unlock mutex after handling ssl */
 	pthread_mutex_unlock(&(master->ssl_mutex));
 #endif
 
@@ -756,7 +753,7 @@ load_other_sockets:
 	/* lock mutex before handling igrs */
 	pthread_mutex_lock(&(master->igrs_mutex));
 	ezcfg_master_load_igrs_conf(master);
-	/* unlock mutex after handling auths */
+	/* unlock mutex after handling igrs */
 	pthread_mutex_unlock(&(master->igrs_mutex));
 #endif
 
@@ -764,8 +761,16 @@ load_other_sockets:
 	/* lock mutex before handling upnp */
 	pthread_mutex_lock(&(master->upnp_mutex));
 	ezcfg_master_load_upnp_conf(master);
-	/* unlock mutex after handling auths */
+	/* unlock mutex after handling upnp */
 	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCTP ==  1)
+	/* lock mutex before handling ezctp */
+	pthread_mutex_lock(&(master->ezctp_mutex));
+	master->ezctp = ezcfg_ezctp_new(ezcfg);
+	/* unlock mutex after handling ezctp */
+	pthread_mutex_unlock(&(master->ezctp_mutex));
 #endif
 
 	/* lock mutex before handling listening_sockets */
@@ -942,6 +947,21 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 
 	/* unlock upnp mutex */
 	pthread_mutex_unlock(&(master->upnp_mutex));
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	/* lock ezctp mutex */
+	pthread_mutex_lock(&(master->ezctp_mutex));
+
+	if (master->ezctp != NULL) {
+		ezcfg_ezctp_delete(master->ezctp);
+		master->ezctp = NULL;
+	}
+
+	master->ezctp = ezcfg_ezctp_new(ezcfg);
+
+	/* unlock ezctp mutex */
+	pthread_mutex_unlock(&(master->ezctp_mutex));
 #endif
 
 	/* reload sockets */

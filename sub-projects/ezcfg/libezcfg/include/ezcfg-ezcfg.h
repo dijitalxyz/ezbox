@@ -173,6 +173,6 @@
 #define EZCFG_EZCFG_SECTION_EZCTP           "ezctp"
 
 #define EZCFG_EZCFG_KEYWORD_SHM_SIZE        "shm_size"
-#define EZCFG_EZCFG_KEYWORD_CQ_LENGTH       "cq_length"
+#define EZCFG_EZCFG_KEYWORD_CQ_UNIT_SIZE    "cq_unit_size"
 
 #endif
