@@ -45,32 +45,9 @@ bool utils_init_ezcfg_api(const char *path)
 		return false;
 	}
 
-	/* ezcfg_api_master */
-	if (ezcfg_api_master_initialized() == false) {
-		if (ezcfg_api_master_set_config_file(path) < 0) {
-			return false;
-		}
-	}
-
-	/* ezcfg_api_ctrl */
-	if (ezcfg_api_ctrl_initialized() == false) {
-		if (ezcfg_api_ctrl_set_config_file(path) < 0) {
-			return false;
-		}
-	}
-
-	/* ezcfg_api_nvram */
-	if (ezcfg_api_nvram_initialized() == false) {
-		if (ezcfg_api_nvram_set_config_file(path) < 0) {
-			return false;
-		}
-	}
-
-	/* ezcfg_api_uuid */
-	if (ezcfg_api_uuid_initialized() == false) {
-		if (ezcfg_api_uuid_set_config_file(path) < 0) {
-			return false;
-		}
+	/* ezcfg_api_common */
+	if (ezcfg_api_common_set_config_file(path) < 0) {
+		return false;
 	}
 
 	return true;

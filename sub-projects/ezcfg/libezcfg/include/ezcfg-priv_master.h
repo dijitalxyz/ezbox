@@ -25,6 +25,7 @@ void ezcfg_master_thread(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time);
+int ezcfg_master_get_shm_id(struct ezcfg_master *master);
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master);
 int ezcfg_master_get_sq_len(struct ezcfg_master *master);
 struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master);

@@ -45,6 +45,7 @@
 #define DBG(format, args...)
 #endif
 
+/* FIXME: struct ezcfg_ezctp must be placed in shm !!!*/
 struct ezcfg_ezctp {
 	struct ezcfg *ezcfg;
 

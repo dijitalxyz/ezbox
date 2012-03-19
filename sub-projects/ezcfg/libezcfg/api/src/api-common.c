@@ -56,20 +56,66 @@
 #define DBG(format, args...)
 #endif
 
+static bool initialized = false;
+static char config_file[EZCFG_PATH_MAX] = EZCFG_CONFIG_FILE_PATH;
+
 /**
- * ezcfg_api_ezcfg_new:
+ * ezcfg_api_common_initialized:
  *
  **/
-struct ezcfg *ezcfg_api_ezcfg_new(char *path)
+bool ezcfg_api_common_initialized(void)
+{
+	return initialized;
+}
+
+/**
+ * ezcfg_api_common_get_config_file:
+ *
+ **/
+char *ezcfg_api_common_get_config_file(void)
+{
+	return config_file;
+}
+
+/**
+ * ezcfg_api_common_set_config_file:
+ *
+ **/
+int ezcfg_api_common_set_config_file(const char *path)
+{
+	int rc = 0;
+	size_t len;
+	if (path == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	len = strlen(path);
+	if (len >= sizeof(config_file)) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	rc = snprintf(config_file, sizeof(config_file), "%s", path);
+	if (rc < 0) {
+		rc = -EZCFG_E_SPACE ;
+	}
+	initialized = true;
+	return rc;
+}
+
+/**
+ * ezcfg_api_common_new:
+ *
+ **/
+struct ezcfg *ezcfg_api_common_new(char *path)
 {
 	return ezcfg_new(path);
 }
 
 /**
- * ezcfg_api_ezcfg_delete:
+ * ezcfg_api_common_delete:
  *
  **/
-void ezcfg_api_ezcfg_delete(struct ezcfg *ezcfg)
+void ezcfg_api_common_delete(struct ezcfg *ezcfg)
 {
 	ezcfg_delete(ezcfg);
 }

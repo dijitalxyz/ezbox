@@ -30,6 +30,7 @@ char *ezcfg_ctrl_get_buffer(const struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_get_buffer_len(const struct ezcfg_ctrl *ezctrl);
 void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl);
 int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, void *rte);
+int ezcfg_ctrl_handle_ipc_message(char **argv, char *output, int len, void *rte);
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 int ezcfg_ctrl_handle_upnp_message(char **argv, char *output, int len, void *rte);
 #endif

@@ -81,8 +81,12 @@ char *ezcfg_common_get_root_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_root_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path);
+char *ezcfg_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
+void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path);
+size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg);
 char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_shm_ezctp_path(struct ezcfg *ezcfg, char *path);
+size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg);
@@ -164,5 +168,10 @@ int ezcfg_link_list_get_length(struct ezcfg_link_list *list);
 char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name);
+
+/* common/link_list.c */
+struct ezcfg_shm;
+int ezcfg_shm_get_ezcfg_sem_id(const struct ezcfg_shm *shm);
+bool ezcfg_shm_insert_ezctp_market_data(struct ezcfg_shm *shm, const void *data, size_t n, size_t size);
 
 #endif /* _EZCFG_PRIV_COMMON_H_ */

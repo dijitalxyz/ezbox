@@ -140,7 +140,7 @@ static void read_task(void)
 	if (ezcfg_api_upnp_get_task_file(task_file, sizeof(task_file)) < 0) {
 		return;
 	}
-	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	ezcfg = ezcfg_api_common_new(EZCD_CONFIG_FILE_PATH);
 	if (ezcfg == NULL) {
 		return;
 	}
@@ -209,7 +209,7 @@ static void read_task(void)
 	ezcfg_api_upnp_unlock_task_file(sem_path);
 func_exit:
 	if (ezcfg != NULL) {
-		ezcfg_api_ezcfg_delete(ezcfg);
+		ezcfg_api_common_delete(ezcfg);
 	}
 }
 

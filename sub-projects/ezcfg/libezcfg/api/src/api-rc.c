@@ -123,6 +123,7 @@ bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
 		return false;
 	}
 
+	/* now release available resource */
 	res.sem_num = EZCFG_SEM_RC_INDEX;
 	res.sem_op = 1;
 	res.sem_flg = 0;

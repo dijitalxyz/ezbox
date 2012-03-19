@@ -56,28 +56,50 @@
 #define DBG(format, args...)
 #endif
 
-static bool debug = false;
-static char config_file[EZCFG_PATH_MAX] = EZCFG_CONFIG_FILE_PATH;
-
-static void log_fn(struct ezcfg *ezcfg, int priority,
-                   const char *file, int line, const char *fn,
-                   const char *format, va_list args)
+/**
+ * ezcfg_api_ezctp_insert_market_data:
+ *
+ **/
+bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, size_t n, size_t size)
 {
-	if (debug) {
-		char buf[1024];
-		struct timeval tv;
-		struct timezone tz;
+	int sem_id;
+	struct sembuf res;
+	bool insert_flag = false;
 
-		vsnprintf(buf, sizeof(buf), format, args);
-		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
-		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, line, buf);
+	if ((shm_ezcfg_addr == NULL) || (shm_ezcfg_addr == (void *) -1)){
+		return false;
 	}
-#if 0
-	else {
-		vsyslog(priority, format, args);
+
+	/* create a semaphore set that only includes one semaphore */
+	/* shm semaphore has been initialized in ezcd */
+	sem_id = ezcfg_shm_get_ezcfg_sem_id(shm_ezcfg_addr);
+	if (sem_id == -1) {
+		DBG("<6>ezctp: ezcfg_shm_get_ezcfg_sem_id error\n");
+		return false;
 	}
-#endif
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>rc: semop require res error\n");
+		return false;
+	}
+
+	/* insert the data to ezctp shared memory */
+	insert_flag = ezcfg_shm_insert_ezctp_market_data(shm_ezcfg_addr, data, n, size);
+
+	/* now release available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>rc: semop release res error\n");
+		//return false;
+	}
+
+	return insert_flag;
 }
-

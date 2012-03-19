@@ -179,7 +179,7 @@ int ezcd_main(int argc, char **argv)
 	s = chdir("/");
 	umask(0022);
 
-	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	ezcfg = ezcfg_api_common_new(EZCD_CONFIG_FILE_PATH);
 	if (ezcfg == NULL) {
 		fprintf(stderr, "%s format error.\n", EZCD_CONFIG_FILE_PATH);
 		exit(EXIT_FAILURE);
@@ -199,13 +199,13 @@ int ezcd_main(int argc, char **argv)
 		fd = open(p, O_CREAT|O_RDWR, S_IRWXU);
 		if (fd < 0) {
 			fprintf(stderr, "cannot open %s\n", p);
-			ezcfg_api_ezcfg_delete(ezcfg);
+			ezcfg_api_common_delete(ezcfg);
 			exit(EXIT_FAILURE);
 		}
 		close(fd);
 	}
 
-	ezcfg_api_ezcfg_delete(ezcfg);
+	ezcfg_api_common_delete(ezcfg);
 	ezcfg = NULL;
 
 	/* before opening new files, make sure std{in,out,err} fds are in a sane state */

@@ -246,6 +246,9 @@ int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, 
 		return -1;
 	}
 
+	if ((strcmp(argv[0], "ipc") == 0) && (argc > 1)) {
+		return ezcfg_ctrl_handle_ipc_message(argv, output, len, rte);
+	} else
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 	if ((strcmp(argv[0], "upnp") == 0) && (argc > 1)) {
 		return ezcfg_ctrl_handle_upnp_message(argv, output, len, rte);

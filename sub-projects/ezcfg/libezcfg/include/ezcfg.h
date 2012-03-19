@@ -55,12 +55,18 @@
 #define EZCFG_SEM_NVRAM_INDEX	1
 #define EZCFG_SEM_RC_INDEX	2
 #define EZCFG_SEM_UPNP_INDEX	3
-#define EZCFG_SEM_NUMBER	4
+#define EZCFG_SEM_EZCTP_INDEX	4
+#define EZCFG_SEM_SHM_INDEX	5
+#define EZCFG_SEM_NUMBER	6
 
 /* shared memory path */
 #define EZCFG_SHM_ROOT_PATH	EZCFG_ROOT_PATH "/shm"
+#define EZCFG_SHM_EZCFG_PATH	EZCFG_SHM_ROOT_PATH "/ezcfg"
 #define EZCFG_SHM_EZCTP_PATH	EZCFG_SHM_ROOT_PATH "/ezctp"
+#define EZCFG_SHM_PROJID_EZCFG	'f'
 #define EZCFG_SHM_PROJID_EZCTP	't'
+/* shared memory size */
+#define EZCFG_SHM_SIZE_MAX	1073741824 /* 1024*1024*1024 */
 
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH    "@/var/ezcfg/sock"

@@ -173,7 +173,7 @@ int rc_main(int argc, char **argv)
 		goto rc_exit;
 	}
 
-	ezcfg = ezcfg_api_ezcfg_new(EZCD_CONFIG_FILE_PATH);
+	ezcfg = ezcfg_api_common_new(EZCD_CONFIG_FILE_PATH);
 	if (ezcfg == NULL) {
 		DBG("<6>rc: %s format error\n", EZCD_CONFIG_FILE_PATH);
 		goto rc_exit;
@@ -213,7 +213,7 @@ int rc_main(int argc, char **argv)
 
 rc_exit:
 	if (ezcfg != NULL) {
-		ezcfg_api_ezcfg_delete(ezcfg);
+		ezcfg_api_common_delete(ezcfg);
 	}
 
 	/* close loader handle */

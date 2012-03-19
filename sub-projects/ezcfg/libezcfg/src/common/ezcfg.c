@@ -57,7 +57,10 @@ struct ezcfg {
 	char 		rules_path[EZCFG_PATH_MAX];
 	char 		root_path[EZCFG_PATH_MAX];
 	char 		sem_ezcfg_path[EZCFG_PATH_MAX];
+	char 		shm_ezcfg_path[EZCFG_PATH_MAX];
+	size_t 		shm_ezcfg_size;
 	char 		shm_ezctp_path[EZCFG_PATH_MAX];
+	size_t 		shm_ezctp_size;
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
 	char 		sock_uevent_path[EZCFG_PATH_MAX];
@@ -187,6 +190,24 @@ void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path)
 	snprintf(ezcfg->sem_ezcfg_path, EZCFG_PATH_MAX, "%s", path);
 }
 
+char *ezcfg_common_get_shm_ezcfg_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezcfg_path;
+}
+
+void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->shm_ezcfg_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezcfg_size;
+}
+
 char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg)
 {
 	return ezcfg->shm_ezctp_path;
@@ -198,6 +219,11 @@ void ezcfg_common_set_shm_ezctp_path(struct ezcfg *ezcfg, char *path)
 		return;
 
 	snprintf(ezcfg->shm_ezctp_path, EZCFG_PATH_MAX, "%s", path);
+}
+
+size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezctp_size;
 }
 
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg)
@@ -312,6 +338,7 @@ struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ez
 void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 {
 	char *p;
+	size_t size;
 
 	/* find log_level keyword */
 	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_LOG_LEVEL);
@@ -344,11 +371,39 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		free(p);
 	}
 
+	/* find shm_ezcfg_path keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCFG_PATH);
+	if (p != NULL) {
+		ezcfg_util_remove_trailing_char(p, '/');
+		snprintf(ezcfg->shm_ezcfg_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find shm_ezcfg_size keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCFG_SIZE);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		if (size <= EZCFG_SHM_SIZE_MAX) {
+			ezcfg->shm_ezcfg_size = size;
+		}
+		free(p);
+	}
+
 	/* find shm_ezctp_path keyword */
 	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH);
 	if (p != NULL) {
 		ezcfg_util_remove_trailing_char(p, '/');
 		snprintf(ezcfg->shm_ezctp_path, EZCFG_PATH_MAX, "%s", p);
+		free(p);
+	}
+
+	/* find shm_ezctp_size keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCTP_SIZE);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		if (size <= EZCFG_SHM_SIZE_MAX) {
+			ezcfg->shm_ezctp_size = size;
+		}
 		free(p);
 	}
 

@@ -41,6 +41,7 @@ libezcfg_la_LDFLAGS = \
 libezcfg_la_SOURCES = $(top_builddir)/src/common/ezcfg.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/link_list.c
+libezcfg_la_SOURCES += $(top_builddir)/src/common/shm.c
 
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/thread.c
@@ -113,6 +114,7 @@ endif
 
 # ezcfg control
 libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl.c 
+libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ipc.c 
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_upnp.c
 endif 
@@ -304,6 +306,9 @@ libezcfg_la_SOURCES += $(top_builddir)/api/src/api-uuid.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-upnp.c
 endif
+if CONFIG_EZBOX_SERVICE_EZCTP
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ezctp.c
+endif 
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ubootenv.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-firmware.c
 

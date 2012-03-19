@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include <sys/shm.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
@@ -62,7 +63,10 @@
 struct ezcfg_master {
 	pthread_t thread_id;
 	sigset_t *sigset;
-	int semid; /* for semaphore control */
+	int sem_id; /* for IPC semaphore control */
+	int shm_id; /* for IPC shared memory access */
+	size_t shm_size; /* for IPC shared memory access */
+	void *shm_addr; /* for IPC shared memory access */
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
 	int threads_max; /* MAX number of threads */
@@ -120,19 +124,37 @@ static void master_delete(struct ezcfg_master *master)
 {
 	if (master == NULL)
 		return;
-	if (master->semid >= 0) {
-		/* remove semaphore */
-		if (semctl(master->semid, 0, IPC_RMID) == -1) {
+	if (master->sem_id != -1) {
+		/* remove system V semaphore */
+		if (semctl(master->sem_id, 0, IPC_RMID) == -1) {
 			DBG("<6>pid=[%d] semctl IPC_RMID error\n", getpid());
 		}
 		else {
 			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
 		}
 	}
-	if (master->nvram) {
+	if (master->shm_addr != (void *)-1) {
+		/* detach system V shared memory from system */
+		if (shmdt(master->shm_addr) == -1) {
+			DBG("<6>pid=[%d] shmdt error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] shm detach OK.\n", getpid());
+		}
+	}
+	if (master->shm_id != -1) {
+		/* remove system V shared memory from system */
+		if (shmctl(master->shm_id, IPC_RMID, NULL) == -1) {
+			DBG("<6>pid=[%d] shmctl IPC_RMID error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] remove shm OK.\n", getpid());
+		}
+	}
+	if (master->nvram != NULL) {
 		ezcfg_nvram_delete(master->nvram);
 	}
-	if (master->queue) {
+	if (master->queue != NULL) {
 		free(master->queue);
 	}
 	free(master);
@@ -271,8 +293,13 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	/* set ezcfg library context */
 	master->ezcfg = ezcfg;
 
-	/* must first set semid to -1 */
-	master->semid = -1;
+	/* must first set sem_id to -1 */
+	master->sem_id = -1;
+
+	/* must first set shm_id to -1 */
+	master->shm_id = -1;
+	master->shm_size = 0;
+	master->shm_addr = (void *)-1;
 
 	/* prepare semaphore */
 	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
@@ -283,8 +310,8 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 
 	/* create a semaphore set */
 	/* this is the first place to create the semaphore, must IPC_EXCL */
-	master->semid = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
-	if (master->semid < 0) {
+	master->sem_id = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
+	if (master->sem_id < 0) {
 		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
 		goto fail_exit;
 	}
@@ -296,9 +323,35 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 		res[i].sem_flg = 0;
 	}
 
-	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+	if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		goto fail_exit;
+	}
+
+	/* prepare shared memory */
+	key = ftok(ezcfg_common_get_shm_ezcfg_path(ezcfg), EZCFG_SHM_PROJID_EZCFG);
+	if (key == -1) {
+		DBG("<6>pid=[%d] ftok error with errno[%d].\n", getpid(), errno);
+		//goto fail_exit;
+	}
+	master->shm_size = ezcfg_common_get_shm_ezcfg_size(ezcfg);
+	if ((key != -1) && (master->shm_size > 0)) {
+		/* create a shared memory */
+		/* this is the first place to create the shared memory, must IPC_EXCL */
+		master->shm_id = shmget(key, master->shm_size, IPC_CREAT|IPC_EXCL|00666);
+		if (master->shm_id < 0) {
+			DBG("<6>pid=[%d] %s(%d) try to create shm error.\n", getpid(), __func__, __LINE__);
+			goto fail_exit;
+		}
+
+		master->shm_addr = shmat(master->shm_id, NULL, 0);
+		if ((void *) -1 == master->shm_addr) {
+			DBG("<6>pid=[%d] %s(%d) shmat error with errono=[%d]\n", getpid(), __func__, __LINE__, errno);
+			goto fail_exit;
+		}
+
+		/* initialize shared memory */
+		memset(master->shm_addr, 0, master->shm_size);
 	}
 
 	/* get nvram memory */
@@ -807,13 +860,8 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 		res[i].sem_op = -1;
 		res[i].sem_flg = 0;
 	}
-#if 0
-	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
-	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
-#endif
 
-	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+	if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		sem_required = false;
 	}
@@ -831,13 +879,8 @@ void ezcfg_master_stop(struct ezcfg_master *master)
 			res[i].sem_op = 1;
 			res[i].sem_flg = 0;
 		}
-#if 0
-		res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-		res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't unlock rc */
-		res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
-#endif
 
-		if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+		if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
 			DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		}
 	}
@@ -861,13 +904,8 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 		res[i].sem_op = -1;
 		res[i].sem_flg = 0;
 	}
-#if 0
-	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
-	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
-#endif
 
-	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+	if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop require_res error\n", getpid());
 		return;
 	}
@@ -979,13 +1017,8 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 		res[i].sem_op = 1;
 		res[i].sem_flg = 0;
 	}
-#if 0
-	res[EZCFG_SEM_RC_INDEX].sem_num = EZCFG_SEM_RC_INDEX;
-	res[EZCFG_SEM_RC_INDEX].sem_op = 0; /* don't lock rc */
-	res[EZCFG_SEM_RC_INDEX].sem_flg = 0;
-#endif
 
-	if (semop(master->semid, res, EZCFG_SEM_NUMBER) == -1) {
+	if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
 		DBG("<6>pid=[%d] semop release_res error\n", getpid());
 		return;
 	}
@@ -1095,6 +1128,17 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 	ASSERT(master->num_threads >= 0);
 
 	pthread_mutex_unlock(&(master->thread_mutex));
+}
+
+int ezcfg_master_get_shm_id(struct ezcfg_master *master)
+{
+	struct ezcfg *ezcfg;
+
+	ASSERT(master != NULL);
+
+	ezcfg = master->ezcfg;
+
+	return master->shm_id;
 }
 
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)

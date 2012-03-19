@@ -58,8 +58,6 @@
 #endif
 
 static bool debug = false;
-static bool initialized = false;
-static char config_file[EZCFG_PATH_MAX] = EZCFG_CONFIG_FILE_PATH;
 
 static void log_fn(struct ezcfg *ezcfg, int priority,
                    const char *file, int line, const char *fn,
@@ -84,40 +82,6 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
 }
 
 /**
- * ezcfg_api_master_initialized:
- *
- **/
-bool ezcfg_api_master_initialized(void)
-{
-	return initialized;
-}
-
-/**
- * ezcfg_api_master_set_config_file:
- *
- **/
-int ezcfg_api_master_set_config_file(const char *path)
-{
-	int rc = 0;
-	size_t len;
-	if (path == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	len = strlen(path);
-	if (len >= sizeof(config_file)) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	rc = snprintf(config_file, sizeof(config_file), "%s", path);
-	if (rc < 0) {
-		rc = -EZCFG_E_SPACE ;
-	}
-	initialized = true;
-	return rc;
-}
-
-/**
  * ezcfg_api_master_start:
  * @argv: nvram name
  * @value: buffer to store nvram value
@@ -134,7 +98,7 @@ struct ezcfg_master *ezcfg_api_master_start(const char *name, int threads_max)
 		return NULL;
 	}
 
-	ezcfg = ezcfg_new(config_file);
+	ezcfg = ezcfg_new(ezcfg_api_common_get_config_file());
 	if (ezcfg == NULL) {
 		//return -EZCFG_E_RESOURCE ;
 		return NULL;
