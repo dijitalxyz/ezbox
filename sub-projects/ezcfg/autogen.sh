@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-autoreconf --install --symlink --force
+autoreconf --verbose --install --symlink --force
 
 EZCFG_CFLAGS="-g -Wall \
 -Wmissing-declarations -Wmissing-prototypes \

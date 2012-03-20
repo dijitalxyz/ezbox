@@ -40,6 +40,7 @@ fi
 
 AC_CONFIG_SUBDIRS([libezcfg ezcd])
 
+AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
 	Makefile
 ])
