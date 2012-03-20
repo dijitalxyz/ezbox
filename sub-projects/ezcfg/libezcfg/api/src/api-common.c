@@ -139,12 +139,39 @@ char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg)
 }
 
 /**
+ * ezcfg_api_ezcfg_get_shm_ezcfg_path:
+ *
+ **/
+char *ezcfg_api_common_get_shm_ezcfg_path(struct ezcfg *ezcfg)
+{
+	return ezcfg_common_get_shm_ezcfg_path(ezcfg);
+}
+
+/**
+ * ezcfg_api_ezcfg_get_shm_ezcfg_size:
+ *
+ **/
+size_t ezcfg_api_common_get_shm_ezcfg_size(struct ezcfg *ezcfg)
+{
+	return ezcfg_common_get_shm_ezcfg_size(ezcfg);
+}
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+/**
  * ezcfg_api_ezcfg_get_shm_ezctp_path:
  *
  **/
-#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 char *ezcfg_api_common_get_shm_ezctp_path(struct ezcfg *ezcfg)
 {
 	return ezcfg_common_get_shm_ezctp_path(ezcfg);
+}
+
+/**
+ * ezcfg_api_ezcfg_get_shm_ezctp_size:
+ *
+ **/
+size_t ezcfg_api_common_get_shm_ezctp_size(struct ezcfg *ezcfg)
+{
+	return ezcfg_common_get_shm_ezctp_size(ezcfg);
 }
 #endif
