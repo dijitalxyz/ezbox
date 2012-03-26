@@ -22,14 +22,12 @@ struct ezcfg_master;
 struct ezcfg_master *ezcfg_api_master_start(const char *name, int threads_max);
 int ezcfg_api_master_stop(struct ezcfg_master *master);
 int ezcfg_api_master_reload(struct ezcfg_master *master);
-#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
-int ezcfg_api_master_get_ezctp_shm_id(struct ezcfg_master *master, int *shm_id);
-int ezcfg_api_master_get_ezctp_cq_unit_size(struct ezcfg_master *master, size_t *cq_unit_size);
-int ezcfg_api_master_insert_ezctp_data(struct ezcfg_master *master, void *data, size_t n, size_t size);
-#endif
 
 /* CTRL interface */
 int ezcfg_api_ctrl_exec(char *const argv[], char *output, size_t len);
+
+/* IPC interface */
+int ezcfg_api_ipc_get_ezcfg_shm_id(int *shm_id);
 
 /* function argument interface */
 struct ezcfg_arg_nvram_socket;

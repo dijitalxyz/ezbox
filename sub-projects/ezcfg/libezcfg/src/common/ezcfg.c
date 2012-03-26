@@ -59,8 +59,6 @@ struct ezcfg {
 	char 		sem_ezcfg_path[EZCFG_PATH_MAX];
 	char 		shm_ezcfg_path[EZCFG_PATH_MAX];
 	size_t 		shm_ezcfg_size;
-	char 		shm_ezctp_path[EZCFG_PATH_MAX];
-	size_t 		shm_ezctp_size;
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
 	char 		sock_uevent_path[EZCFG_PATH_MAX];
@@ -68,6 +66,12 @@ struct ezcfg {
 	char 		web_document_root_path[EZCFG_PATH_MAX];
 	char 		locale[EZCFG_LOCALE_MAX];
 	pthread_mutex_t locale_mutex; /* Protects locale */
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	char 		shm_ezctp_path[EZCFG_PATH_MAX];
+	size_t 		shm_ezctp_size;
+	size_t 		shm_ezctp_cq_unit_size;
+	size_t 		shm_ezctp_cq_length;
+#endif
 };
 
 void ezcfg_log(struct ezcfg *ezcfg,
@@ -208,6 +212,7 @@ size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg)
 	return ezcfg->shm_ezcfg_size;
 }
 
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg)
 {
 	return ezcfg->shm_ezctp_path;
@@ -225,6 +230,17 @@ size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg)
 {
 	return ezcfg->shm_ezctp_size;
 }
+
+size_t ezcfg_common_get_shm_ezctp_cq_unit_size(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezctp_cq_unit_size;
+}
+
+size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezctp_cq_length;
+}
+#endif
 
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg)
 {
@@ -389,6 +405,7 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		free(p);
 	}
 
+#if(HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* find shm_ezctp_path keyword */
 	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH);
 	if (p != NULL) {
@@ -406,6 +423,23 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		}
 		free(p);
 	}
+
+	/* find shm_ezctp_cq_unit_size keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_UNIT_SIZE);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		ezcfg->shm_ezctp_cq_unit_size = size;
+		free(p);
+	}
+
+	/* find shm_ezctp_cq_length keyword */
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_LENGTH);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		ezcfg->shm_ezctp_cq_length = size;
+		free(p);
+	}
+#endif
 
 	/* find sock_ctrl_path keyword */
 	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH);

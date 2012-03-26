@@ -31,6 +31,10 @@
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCFG_SIZE  "shm_ezcfg_size"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH  "shm_ezctp_path"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_SIZE  "shm_ezctp_size"
+#define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_UNIT_SIZE \
+	"shm_ezctp_cq_unit_size"
+#define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_LENGTH \
+	"shm_ezctp_cq_length"
 #define EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH  "sock_ctrl_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH "sock_nvram_path"
 #define EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH \

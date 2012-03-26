@@ -84,9 +84,13 @@ void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path);
 size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg);
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_shm_ezctp_path(struct ezcfg *ezcfg, char *path);
 size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
+size_t ezcfg_common_get_shm_ezctp_cq_unit_size(struct ezcfg *ezcfg);
+size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg);
+#endif
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg);
@@ -171,7 +175,25 @@ char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char 
 
 /* common/link_list.c */
 struct ezcfg_shm;
+size_t ezcfg_shm_get_size(void);
 int ezcfg_shm_get_ezcfg_sem_id(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_sem_id(struct ezcfg_shm *shm, int sem_id);
+int ezcfg_shm_get_ezcfg_shm_id(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_shm_id(struct ezcfg_shm *shm, int shm_id);
+size_t ezcfg_shm_get_ezcfg_shm_size(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_shm_size(struct ezcfg_shm *shm, size_t shm_size);
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+int ezcfg_shm_get_ezctp_shm_id(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezctp_shm_id(struct ezcfg_shm *shm, int shm_id);
+size_t ezcfg_shm_get_ezctp_shm_size(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezctp_shm_size(struct ezcfg_shm *shm, size_t shm_size);
+size_t ezcfg_shm_get_ezctp_cq_unit_size(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezctp_cq_unit_size(struct ezcfg_shm *shm, size_t unit_size);
+size_t ezcfg_shm_get_ezctp_cq_length(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezctp_cq_length(struct ezcfg_shm *shm, size_t length);
+size_t ezcfg_shm_get_ezctp_cq_free(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezctp_cq_free(struct ezcfg_shm *shm, size_t length);
 bool ezcfg_shm_insert_ezctp_market_data(struct ezcfg_shm *shm, const void *data, size_t n, size_t size);
+#endif
 
 #endif /* _EZCFG_PRIV_COMMON_H_ */

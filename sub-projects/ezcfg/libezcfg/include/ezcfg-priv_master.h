@@ -52,15 +52,6 @@ struct ezcfg_upnp **ezcfg_master_get_p_upnp(struct ezcfg_master *master);
 int ezcfg_master_upnp_mutex_lock(struct ezcfg_master *master);
 int ezcfg_master_upnp_mutex_unlock(struct ezcfg_master *master);
 #endif
-#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
-struct ezcfg_ezctp *ezcfg_master_get_ezctp(struct ezcfg_master *master);
-int ezcfg_master_ezctp_mutex_lock(struct ezcfg_master *master);
-int ezcfg_master_ezctp_mutex_unlock(struct ezcfg_master *master);
-int ezcfg_master_get_ezctp_shm_id(struct ezcfg_master *master);
-size_t ezcfg_master_get_ezctp_cq_unit_size(struct ezcfg_master *master);
-size_t ezcfg_master_get_ezctp_cq_unit_size(struct ezcfg_master *master);
-bool ezcfg_master_insert_ezctp_data(struct ezcfg_master *master, void *data, size_t n, size_t size);
-#endif
 
 /* thread/master_uevent.c */
 bool ezcfg_master_handle_uevent_socket(struct ezcfg_master *master,
