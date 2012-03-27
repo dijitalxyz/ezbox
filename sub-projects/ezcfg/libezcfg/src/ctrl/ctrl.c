@@ -35,7 +35,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
 	FILE *fp; \
@@ -87,10 +87,6 @@ struct ezcfg_ctrl *ezcfg_ctrl_new(struct ezcfg *ezcfg)
 	ezctrl->buffer = NULL;
 
 	return ezctrl;
-
-//fail_exit:
-	ezcfg_ctrl_delete(ezctrl);
-	return NULL;
 }
 
 struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int family, const int proto, const char *local_socket_path, const char *remote_socket_path)
@@ -101,20 +97,11 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 	ASSERT(local_socket_path != NULL);
 	ASSERT(remote_socket_path != NULL);
 
-#if 0
-	ezctrl = calloc(1, sizeof(struct ezcfg_ctrl));
-	if (ezctrl == NULL) {
-		err(ezcfg, "new controller fail: %m\n");
-		return NULL;
-	}
-	ezctrl->ezcfg = ezcfg;
-#else
 	ezctrl = ezcfg_ctrl_new(ezcfg);
 	if (ezctrl == NULL) {
 		err(ezcfg, "new controller fail: %m\n");
 		return NULL;
 	}
-#endif
 
 	ezctrl->socket = ezcfg_socket_new(ezcfg, family, SOCK_STREAM, proto, local_socket_path);
 	if (ezctrl->socket == NULL) {

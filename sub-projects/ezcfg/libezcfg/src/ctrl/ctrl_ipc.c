@@ -36,7 +36,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
 	FILE *fp; \
@@ -56,6 +56,7 @@ int ezcfg_ctrl_handle_ipc_message(char **argv, char *output, int len, void *rte)
 	struct ezcfg *ezcfg;
 	struct ezcfg_worker *worker;
 	struct ezcfg_master *master;
+	int rc = 0;
 
 	if (argv == NULL || argv[0] == NULL) {
 		return -1;
@@ -79,12 +80,13 @@ int ezcfg_ctrl_handle_ipc_message(char **argv, char *output, int len, void *rte)
 		}
 
 		if (strcmp(argv[2], "shm_id") == 0) {
-			if (snprintf(output, len, "%d", ezcfg_master_get_shm_id(master)) >= len) {
+			rc = snprintf(output, len, "%d", ezcfg_master_get_shm_id(master));
+			if (rc >= len) {
 				return -1;
 			}
 		}
 
-		return 0;
+		return rc;
 	}
 	return -1;
 }

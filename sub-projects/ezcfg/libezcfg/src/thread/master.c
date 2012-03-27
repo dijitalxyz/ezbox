@@ -38,7 +38,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
 	FILE *dbg_fp; \
@@ -128,6 +128,12 @@ static void master_delete(struct ezcfg_master *master)
 			DBG("<6>pid=[%d] remove sem OK.\n", getpid());
 		}
 	}
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	/* first delete ezctp shared memory */
+	ezcfg_shm_delete_ezctp_shm(master->shm_addr);
+#endif
+
 	if (master->shm_addr != (void *)-1) {
 		/* detach system V shared memory from system */
 		if (shmdt(master->shm_addr) == -1) {
@@ -146,6 +152,7 @@ static void master_delete(struct ezcfg_master *master)
 			DBG("<6>pid=[%d] remove shm OK.\n", getpid());
 		}
 	}
+
 	if (master->nvram != NULL) {
 		ezcfg_nvram_delete(master->nvram);
 	}
@@ -286,7 +293,7 @@ static bool master_init_sem(struct ezcfg_master *master)
 static bool master_init_shm(struct ezcfg_master *master)
 {
 	int key;
-	int sem_id, shm_id;
+	int shm_id;
 	size_t shm_size;
 	void *shm_addr;
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
@@ -326,14 +333,15 @@ static bool master_init_shm(struct ezcfg_master *master)
 	/* initialize shared memory */
 	memset(shm_addr, 0, shm_size);
 
-	ezcfg_shm_set_ezcfg_sem_id(shm_addr, sem_id);
-	ezcfg_shm_set_ezcfg_shm_id(shm_addr, shm_id);
-	ezcfg_shm_set_ezcfg_shm_size(shm_addr, shm_size);
+	ezcfg_shm_set_ezcfg_sem_id(shm_addr, master->sem_id);
+	ezcfg_shm_set_ezcfg_shm_id(shm_addr, master->shm_id);
+	ezcfg_shm_set_ezcfg_shm_size(shm_addr, master->shm_size);
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* first initialize ezctp shared memory parameters in shared memory */
 	ezcfg_shm_set_ezctp_shm_id(shm_addr, -1);
-        ezcfg_shm_set_ezctp_shm_size(shm_addr, 0);
+	ezcfg_shm_set_ezctp_shm_addr(shm_addr, (void *)-1);
+	ezcfg_shm_set_ezctp_shm_size(shm_addr, 0);
 
 	/* prepare ezctp shared memory */
 	key = ftok(ezcfg_common_get_shm_ezctp_path(master->ezcfg), EZCFG_SHM_PROJID_EZCTP);
@@ -368,11 +376,12 @@ static bool master_init_shm(struct ezcfg_master *master)
 
 	/* setup ezctp shared memory parameters in shared memory */
 	ezcfg_shm_set_ezctp_shm_id(master->shm_addr, shm_id);
-        ezcfg_shm_set_ezctp_shm_size(master->shm_addr, shm_size);
-        /* ezctp circular queue */
+	ezcfg_shm_set_ezctp_shm_addr(master->shm_addr, shm_addr);
+	ezcfg_shm_set_ezctp_shm_size(master->shm_addr, shm_size);
+	/* ezctp circular queue */
 	ezcfg_shm_set_ezctp_cq_unit_size(master->shm_addr, ezctp_cq_unit_size);
-        ezcfg_shm_set_ezctp_cq_length(master->shm_addr, ezctp_cq_length);
-        ezcfg_shm_set_ezctp_cq_free(master->shm_addr, ezctp_cq_length);
+	ezcfg_shm_set_ezctp_cq_length(master->shm_addr, ezctp_cq_length);
+	ezcfg_shm_set_ezctp_cq_free(master->shm_addr, ezctp_cq_length);
 #endif
 
 	return true;
@@ -413,74 +422,17 @@ static struct ezcfg_master *master_new(struct ezcfg *ezcfg)
 	master->shm_size = 0;
 	master->shm_addr = (void *)-1;
 
-#if 0
-	/* prepare semaphore */
-	key = ftok(ezcfg_common_get_sem_ezcfg_path(ezcfg), EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("<6>pid=[%d] ftok error.\n", getpid());
-		goto fail_exit;
-	}
-
-	/* create a semaphore set */
-	/* this is the first place to create the semaphore, must IPC_EXCL */
-	master->sem_id = semget(key, EZCFG_SEM_NUMBER, IPC_CREAT|IPC_EXCL|00666);
-	if (master->sem_id < 0) {
-		DBG("<6>pid=[%d] %s(%d) try to create sem error.\n", getpid(), __func__, __LINE__);
-		goto fail_exit;
-	}
-
-	/* initialize semaphore */
-	for (i=0; i<EZCFG_SEM_NUMBER; i++) {
-		res[i].sem_num = i;
-		res[i].sem_op = 1;
-		res[i].sem_flg = 0;
-	}
-
-	if (semop(master->sem_id, res, EZCFG_SEM_NUMBER) == -1) {
-		DBG("<6>pid=[%d] semop release_res error\n", getpid());
-		goto fail_exit;
-	}
-#else
+	/* must initialize semaphore first */
 	if (master_init_sem(master) == false) {
 		DBG("<6>pid=[%d] master_init_sem() failed\n", getpid());
 		goto fail_exit;
 	}
-#endif
-
-#if 0
-	/* prepare shared memory */
-	key = ftok(ezcfg_common_get_shm_ezcfg_path(ezcfg), EZCFG_SHM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("<6>pid=[%d] ftok error with errno[%d].\n", getpid(), errno);
-		goto fail_exit;
-	}
-	master->shm_size = ezcfg_common_get_shm_ezcfg_size(ezcfg);
-	if (master->shm_size < ezcfg_shm_get_size()) {
-		DBG("<6>pid=[%d] shm_size is too small.\n", getpid());
-		goto fail_exit;
-	}
-	/* create a shared memory */
-	/* this is the first place to create the shared memory, must IPC_EXCL */
-	master->shm_id = shmget(key, master->shm_size, IPC_CREAT|IPC_EXCL|00666);
-	if (master->shm_id < 0) {
-		DBG("<6>pid=[%d] %s(%d) try to create shm error.\n", getpid(), __func__, __LINE__);
-		goto fail_exit;
-	}
-
-	master->shm_addr = shmat(master->shm_id, NULL, 0);
-	if ((void *) -1 == master->shm_addr) {
-		DBG("<6>pid=[%d] %s(%d) shmat error with errono=[%d]\n", getpid(), __func__, __LINE__, errno);
-		goto fail_exit;
-	}
 
 	/* initialize shared memory */
-	memset(master->shm_addr, 0, master->shm_size);
-#else
 	if (master_init_shm(master) == false) {
 		DBG("<6>pid=[%d] master_init_shm() failed\n", getpid());
 		goto fail_exit;
 	}
-#endif
 
 	/* get nvram memory */
 	master->nvram = ezcfg_nvram_new(ezcfg);

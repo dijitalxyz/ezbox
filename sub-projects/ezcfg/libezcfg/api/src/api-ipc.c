@@ -45,7 +45,7 @@
 
 #include "ezcfg-api.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/tmp/ezcfg-api-ipc.dbg", "a"); \
 	if (dbg_fp) { \
@@ -140,30 +140,29 @@ int ezcfg_api_ipc_get_ezcfg_shm_id(int *shm_id)
 
 	/* prepare ctrl message */
 	msg_len = snprintf(msg, sizeof(msg), "ipc get shm_id");
+	if (msg_len == sizeof(msg)) {
+		rc = -EZCFG_E_RESOURCE ;
+		goto sem_exit;
+	}
+	/* one more for '\0'-terminated */
+	msg_len++;
 
 	/* try to connect ctrl socket */
-	//snprintf(buf, sizeof(buf), "%s-%d", EZCFG_SOCK_CTRL_PATH, getpid());
 	snprintf(buf, sizeof(buf), "%s-%d", ezcfg_common_get_sock_ctrl_path(ezcfg), getpid());
-	DBG("%s-%s(%d) buf=[%s]\n", __FILE__, __func__, __LINE__, buf);
-	//ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_CTRL, buf, EZCFG_SOCK_CTRL_PATH);
-	DBG("%s-%s(%d) sock_ctrl_path=[%s]\n", __FILE__, __func__, __LINE__, ezcfg_common_get_sock_ctrl_path(ezcfg));
 	ezctrl = ezcfg_ctrl_new_from_socket(ezcfg, AF_LOCAL, EZCFG_PROTO_CTRL, buf, ezcfg_common_get_sock_ctrl_path(ezcfg));
 
 	if (ezctrl == NULL) {
 		rc = -EZCFG_E_RESOURCE ;
-		DBG("%s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_connect(ezctrl) < 0) {
 		rc = -EZCFG_E_CONNECTION ;
-		DBG("%s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		goto sem_exit;
 	}
 
 	if (ezcfg_ctrl_write(ezctrl, msg, msg_len, 0) < 0) {
 		rc = -EZCFG_E_WRITE ;
-		DBG("%s-%s(%d)\n", __FILE__, __func__, __LINE__);
 		goto sem_exit;
 	}
 
@@ -175,9 +174,12 @@ int ezcfg_api_ipc_get_ezcfg_shm_id(int *shm_id)
 		goto sem_exit;
 	}
 
-	rc = msg_len;
-	*shm_id = atoi(buf);
-	DBG("%s-%s(%d) *shm_id=[%d]\n", __FILE__, __func__, __LINE__, *shm_id);
+	if (strncmp(buf, "OK ", 3) != 0) {
+		rc = -EZCFG_E_READ ;
+		goto sem_exit;
+	}
+	rc = msg_len - 3;
+	*shm_id = atoi(buf+3);
 
 sem_exit:
 	/* now release resource */

@@ -29,7 +29,7 @@
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
 	FILE *dbg_fp; \

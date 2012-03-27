@@ -28,7 +28,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
 	FILE *dbg_fp; \

@@ -44,7 +44,7 @@
 
 #include "ezcfg-api.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
@@ -84,7 +84,7 @@ bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, 
 	res.sem_flg = 0;
 
 	if (semop(sem_id, &res, 1) == -1) {
-		DBG("<6>rc: semop require res error\n");
+		DBG("<6>ezctp: semop require res error\n");
 		return false;
 	}
 
@@ -97,7 +97,7 @@ bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, 
 	res.sem_flg = 0;
 
 	if (semop(sem_id, &res, 1) == -1) {
-		DBG("<6>rc: semop release res error\n");
+		DBG("<6>ezctp: semop release res error\n");
 		//return false;
 	}
 

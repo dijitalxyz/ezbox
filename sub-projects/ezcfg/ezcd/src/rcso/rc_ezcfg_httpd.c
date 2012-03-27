@@ -40,7 +40,7 @@
 
 #include "ezcd.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	char dbg_path[256]; \
 	FILE *dbg_fp; \

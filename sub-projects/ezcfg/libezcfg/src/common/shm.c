@@ -52,6 +52,7 @@ struct ezcfg_shm {
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* ezctp shared memory */
 	int ezctp_shm_id;
+	void *ezctp_shm_addr;
 	size_t ezctp_shm_size;
 	/* ezctp circular queue */
 	size_t ezctp_cq_unit_size; /* the size per unit in the queue */
@@ -123,6 +124,31 @@ void ezcfg_shm_set_ezcfg_shm_size(struct ezcfg_shm *shm, size_t shm_size)
 }
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+void ezcfg_shm_delete_ezctp_shm(struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	/* detach system V shared memory from system */
+	if (shm->ezctp_shm_addr != (void *)-1) {
+		if (shmdt(shm->ezctp_shm_addr) == -1) {
+			DBG("<6>pid=[%d] shmdt error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] shm detach OK.\n", getpid());
+		}
+	}
+	if (shm->ezctp_shm_id != -1) {
+		/* remove system V shared memory from system */
+		if (shmctl(shm->ezctp_shm_id, IPC_RMID, NULL) == -1) {
+			DBG("<6>pid=[%d] shmctl IPC_RMID error\n", getpid());
+		}
+		else {
+			DBG("<6>pid=[%d] remove shm OK.\n", getpid());
+		}
+	}
+}
+
 int ezcfg_shm_get_ezctp_shm_id(const struct ezcfg_shm *shm)
 {
 	ASSERT(shm != NULL);
@@ -137,6 +163,22 @@ void ezcfg_shm_set_ezctp_shm_id(struct ezcfg_shm *shm, int shm_id)
 	ASSERT(shm != (void *)-1);
 
 	shm->ezctp_shm_id = shm_id;
+}
+
+void *ezcfg_shm_get_ezctp_shm_addr(const struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	return shm->ezctp_shm_addr;
+}
+
+void ezcfg_shm_set_ezctp_shm_addr(struct ezcfg_shm *shm, void *shm_addr)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	shm->ezctp_shm_addr = shm_addr;
 }
 
 size_t ezcfg_shm_get_ezctp_shm_size(const struct ezcfg_shm *shm)
