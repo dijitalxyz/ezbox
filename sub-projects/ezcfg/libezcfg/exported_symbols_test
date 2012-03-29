@@ -8,6 +8,7 @@ ezcfg_api_common_get_shm_ezcfg_path
 ezcfg_api_common_get_shm_ezcfg_size
 ezcfg_api_common_get_shm_ezctp_path
 ezcfg_api_common_get_shm_ezctp_size
+ezcfg_api_util_get_conf_string
 ezcfg_api_master_start
 ezcfg_api_master_stop
 ezcfg_api_master_reload

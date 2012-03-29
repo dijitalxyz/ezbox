@@ -129,7 +129,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_validators.c
 
 # ezctp support
 if CONFIG_EZBOX_SERVICE_EZCTP
-libezcfg_la_SOURCES += $(top_builddir)/src/ezctp/ezctp.c
+#libezcfg_la_SOURCES += $(top_builddir)/src/ezctp/ezctp.c
 endif 
 
 # ezcfg uevent
@@ -294,6 +294,7 @@ endif
 
 # ezcfg API wrap
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-common.c
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-util.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ipc.c

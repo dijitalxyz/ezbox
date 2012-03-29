@@ -49,47 +49,6 @@
  * Returns string from config file
  * It is the caller's duty to free the returned string.
  */
-#if 0
-char *ezcfg_util_get_conf_string(const char *path, const char *keyword)
-{
-	FILE *file;
-	char *p = NULL;
-	char *v = NULL;
-	char line[128];
-	int keyword_len;
-
-	if ((path == NULL) || (keyword == NULL))
-		return NULL;
-
-	keyword_len = strlen(keyword);
-	if (keyword_len < 1)
-		return NULL;
-
-	/* get string from config file */
-	file = fopen(path, "r");
-	if (file == NULL)
-		return NULL;
-
-	while (fgets(line, sizeof(line), file) != NULL) {
-		if (strncmp(line, keyword, keyword_len) == 0) {
-			p = line+keyword_len;
-			if (*p == '=') {
-				p++;
-				v = strdup(p);
-				goto func_out;
-			}
-		}
-	}
-func_out:
-	fclose(file);
-	return v;
-}
-#endif
-
-/*
- * Returns string from config file
- * It is the caller's duty to free the returned string.
- */
 char *ezcfg_util_get_conf_string(const char *path,
 	const char *section, const int idx, const char *keyword)
 {
