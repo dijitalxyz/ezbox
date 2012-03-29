@@ -24,7 +24,7 @@ pthread_t *ezcfg_worker_get_p_thread_id(struct ezcfg_worker *worker);
 void ezcfg_worker_close_connection(struct ezcfg_worker *worker);
 struct ezcfg_worker *ezcfg_worker_get_next(struct ezcfg_worker *worker);
 bool ezcfg_worker_set_next(struct ezcfg_worker *worker, struct ezcfg_worker *next);
-void ezcfg_worker_thread(struct ezcfg_worker *worker);
+void ezcfg_worker_routine(struct ezcfg_worker *worker);
 /* worker call this to notify master */
 void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker);
 struct ezcfg *ezcfg_worker_get_ezcfg(struct ezcfg_worker *worker);

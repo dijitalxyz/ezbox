@@ -638,7 +638,7 @@ static void put_socket(struct ezcfg_master *master, const struct ezcfg_socket *s
 
 		worker = ezcfg_worker_new(master);
 		if (worker != NULL) {
-			if (ezcfg_thread_start(ezcfg, stacksize, ezcfg_worker_get_p_thread_id(worker), (ezcfg_thread_func_t) ezcfg_worker_thread, worker) != 0) {
+			if (ezcfg_thread_start(ezcfg, stacksize, ezcfg_worker_get_p_thread_id(worker), (ezcfg_thread_func_t) ezcfg_worker_routine, worker) != 0) {
 				err(ezcfg, "Cannot start thread: %m\n");
 			} else {
 				master->num_threads++;
@@ -714,7 +714,7 @@ void ezcfg_master_set_sigset(struct ezcfg_master *master, sigset_t *sigset)
 }
 #endif
 
-void ezcfg_master_thread(struct ezcfg_master *master) 
+void ezcfg_master_routine(struct ezcfg_master *master) 
 {
 	fd_set read_set;
 	struct ezcfg *ezcfg;
@@ -904,7 +904,7 @@ load_other_sockets:
 start_out:
 	/* Start master (listening) thread */
 	if (master != NULL) {
-		if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_thread, master) != 0) {
+		if (ezcfg_thread_start(ezcfg, stacksize, &(master->thread_id), (ezcfg_thread_func_t) ezcfg_master_routine, master) != 0) {
 			master_finish(master);
 			ASSERT(master->num_threads == 0);
 			master_delete(master);

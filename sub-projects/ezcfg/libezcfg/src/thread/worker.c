@@ -407,7 +407,7 @@ void ezcfg_worker_close_connection(struct ezcfg_worker *worker)
 	close_connection(worker);
 }
 
-void ezcfg_worker_thread(struct ezcfg_worker *worker) 
+void ezcfg_worker_routine(struct ezcfg_worker *worker) 
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_master *master;

@@ -105,7 +105,7 @@ static int mem_size_mb(void)
 	return memsize;
 }
 
-static void *sig_thread(void *arg)
+static void *sig_thread_routine(void *arg)
 {
 	sigset_t *set = (sigset_t *) arg;
 	int s, sig;
@@ -283,7 +283,7 @@ int ezcd_main(int argc, char **argv)
 	/* get root thread id */
 	root_thread = pthread_self();
 
-	s = pthread_create(&thread, NULL, &sig_thread, (void *) &sigset);
+	s = pthread_create(&thread, NULL, &sig_thread_routine, (void *) &sigset);
 	if (s != 0) {
 		DBG("<6>ezcd: pthread_create\n");
 		handle_error_en(s, "pthread_create");

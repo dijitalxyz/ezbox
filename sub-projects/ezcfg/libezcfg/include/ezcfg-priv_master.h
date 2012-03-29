@@ -21,7 +21,7 @@ void ezcfg_master_reload(struct ezcfg_master *master);
 void ezcfg_master_set_threads_max(struct ezcfg_master *master, int threads_max);
 pthread_t *ezcfg_master_get_p_thread_id(struct ezcfg_master *master);
 int ezcfg_master_set_receive_buffer_size(struct ezcfg_master *master, int size);
-void ezcfg_master_thread(struct ezcfg_master *master);
+void ezcfg_master_routine(struct ezcfg_master *master);
 struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master);
 bool ezcfg_master_is_stop(struct ezcfg_master *master);
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time);
