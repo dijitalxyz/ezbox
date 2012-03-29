@@ -121,8 +121,7 @@ static void *sig_thread_routine(void *arg)
 		case SIGTERM :
 			ezcfg_api_master_stop(master);
 			rc = EXIT_SUCCESS;
-			s = pthread_kill(root_thread, SIGHUP);
-			break;
+			return NULL;
 		case SIGUSR1 :
 			ezcfg_api_master_reload(master);
 			break;
@@ -146,7 +145,7 @@ int ezcd_main(int argc, char **argv)
 	int fd = -1;
 	int threads_max = 0;
 	int s;
-	pthread_t thread;
+	pthread_t sig_thread;
 	sigset_t sigset;
 
 	for (;;) {
@@ -283,7 +282,7 @@ int ezcd_main(int argc, char **argv)
 	/* get root thread id */
 	root_thread = pthread_self();
 
-	s = pthread_create(&thread, NULL, &sig_thread_routine, (void *) &sigset);
+	s = pthread_create(&sig_thread, NULL, &sig_thread_routine, (void *) &sigset);
 	if (s != 0) {
 		DBG("<6>ezcd: pthread_create\n");
 		handle_error_en(s, "pthread_create");
@@ -314,6 +313,12 @@ int ezcd_main(int argc, char **argv)
 	INFO("<6>ezcd: starting version " VERSION "\n");
 
 	/* wait for exit signal */
-	pause();
+	s = pthread_join(sig_thread, NULL);
+	if (s != 0) {
+		ezcfg_api_master_stop(master);
+		DBG("<6>ezcd: pthread_join\n");
+		handle_error_en(s, "pthread_join");
+	}
+
 	return (rc);
 }
