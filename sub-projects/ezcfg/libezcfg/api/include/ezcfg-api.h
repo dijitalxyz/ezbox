@@ -90,6 +90,7 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap);
 bool ezcfg_api_ezctp_require_semaphore(char *sem_ezcfg_path);
 bool ezcfg_api_ezctp_release_semaphore(char *sem_ezcfg_path);
 bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, size_t n, size_t size);
+bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_t *n, size_t *size);
 #endif
 
 /* rc interface */

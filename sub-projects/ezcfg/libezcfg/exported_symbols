@@ -61,6 +61,7 @@ ezcfg_api_nvram_remove_socket
 ezcfg_api_nvram_insert_ssl
 ezcfg_api_nvram_remove_ssl
 ezcfg_api_ezctp_insert_market_data
+ezcfg_api_ezctp_remove_market_data
 ezcfg_api_rc_require_semaphore
 ezcfg_api_rc_release_semaphore
 ezcfg_api_uuid1_string

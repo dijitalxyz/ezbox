@@ -197,6 +197,7 @@ void ezcfg_shm_set_ezctp_cq_length(struct ezcfg_shm *shm, size_t length);
 size_t ezcfg_shm_get_ezctp_cq_free(const struct ezcfg_shm *shm);
 void ezcfg_shm_set_ezctp_cq_free(struct ezcfg_shm *shm, size_t length);
 bool ezcfg_shm_insert_ezctp_market_data(struct ezcfg_shm *shm, const void *data, size_t n, size_t size);
+bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size_t *n, size_t *size);
 #endif
 
 #endif /* _EZCFG_PRIV_COMMON_H_ */

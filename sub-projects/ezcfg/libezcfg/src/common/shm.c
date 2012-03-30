@@ -258,19 +258,59 @@ bool ezcfg_shm_insert_ezctp_market_data(struct ezcfg_shm *shm, const void *data,
 	ASSERT(n > 0);
 	ASSERT(size > 0);
 
-	if ((shm->ezctp_cq_free >= n) && (shm->ezctp_shm_id != -1) &&
-	    ((ezctp_shm_addr = shmat(shm->ezctp_shm_id, NULL, 0)) != (void *)-1)) {
-		/* there's enough free units in CQ */
-		for (i=0; i<n; i++) {
-			src = (char *)data + (i * size);
-			dst = (char *)ezctp_shm_addr + (shm->ezctp_cq_tail * shm->ezctp_cq_unit_size);
-			/* copy the data to CQ */
-			memcpy(dst, src, size);
-			shm->ezctp_cq_tail = (shm->ezctp_cq_tail + 1) % shm->ezctp_cq_length;
+	if ((shm->ezctp_cq_free >= n) && (shm->ezctp_shm_id != -1)) {
+		ezctp_shm_addr = shmat(shm->ezctp_shm_id, NULL, 0);
+		if (ezctp_shm_addr != (void *)-1) {
+			/* there's enough free units in CQ */
+			for (i = 0; i < n; i++) {
+				src = (char *)data + (i * size);
+				dst = (char *)ezctp_shm_addr + (shm->ezctp_cq_tail * shm->ezctp_cq_unit_size);
+				/* copy the data to CQ */
+				memcpy(dst, src, size);
+				shm->ezctp_cq_tail = (shm->ezctp_cq_tail + 1) % shm->ezctp_cq_length;
+			}
+			shmdt(ezctp_shm_addr);
+			shm->ezctp_cq_free -= n;
+			insert_flag = true;
 		}
-		shmdt(ezctp_shm_addr);
-		shm->ezctp_cq_free -= n;
-		insert_flag = true;
+	}
+
+	return insert_flag;
+}
+
+bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size_t *n, size_t *size)
+{
+	bool insert_flag = false;
+	size_t i;
+	char *src, *dst;
+	void *ezctp_shm_addr;
+
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+	ASSERT(data != NULL);
+	ASSERT(n != NULL);
+	ASSERT(size != NULL);
+
+	*n = shm->ezctp_cq_length - shm->ezctp_cq_free;
+	*size = shm->ezctp_cq_unit_size;
+
+	if (((*size) * (*n)) > 0) {
+		ezctp_shm_addr = shmat(shm->ezctp_shm_id, NULL, 0);
+		if (ezctp_shm_addr != (void *)-1) {
+			*data = malloc((*size) * (*n));
+			if ((*data) != NULL) {
+				for (i = 0; i < (*n); i++) {
+					src = (char *)ezctp_shm_addr + (shm->ezctp_cq_head * shm->ezctp_cq_unit_size);
+					dst = (char *)(*data) + (i * (*size));
+					/* copy the data from CQ */
+					memcpy(dst, src, (*size));
+					shm->ezctp_cq_head = (shm->ezctp_cq_head + 1) % shm->ezctp_cq_length;
+				}
+				shm->ezctp_cq_free += (*n);
+				insert_flag = true;
+			}
+			shmdt(ezctp_shm_addr);
+		}
 	}
 
 	return insert_flag;

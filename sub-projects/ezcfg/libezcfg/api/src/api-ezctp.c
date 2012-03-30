@@ -66,7 +66,11 @@ bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, 
 	struct sembuf res;
 	bool insert_flag = false;
 
-	if ((shm_ezcfg_addr == NULL) || (shm_ezcfg_addr == (void *) -1)){
+	if ((shm_ezcfg_addr == NULL) || (shm_ezcfg_addr == (void *) -1)) {
+		return false;
+	}
+
+	if ((data == NULL) || (n < 1) || (size < 1)) {
 		return false;
 	}
 
@@ -90,6 +94,58 @@ bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, 
 
 	/* insert the data to ezctp shared memory */
 	insert_flag = ezcfg_shm_insert_ezctp_market_data(shm_ezcfg_addr, data, n, size);
+
+	/* now release available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>ezctp: semop release res error\n");
+		//return false;
+	}
+
+	return insert_flag;
+}
+
+/**
+ * ezcfg_api_ezctp_remove_market_data:
+ *
+ **/
+bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_t *n, size_t *size)
+{
+	int sem_id;
+	struct sembuf res;
+	bool insert_flag = false;
+
+	if ((shm_ezcfg_addr == NULL) || (shm_ezcfg_addr == (void *) -1)){
+		return false;
+	}
+
+	if ((data == NULL) || (n == NULL) || (size == NULL)) {
+		return false;
+	}
+
+	/* create a semaphore set that only includes one semaphore */
+	/* shm semaphore has been initialized in ezcd */
+	sem_id = ezcfg_shm_get_ezcfg_sem_id(shm_ezcfg_addr);
+	if (sem_id == -1) {
+		DBG("<6>ezctp: ezcfg_shm_get_ezcfg_sem_id error\n");
+		return false;
+	}
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>ezctp: semop require res error\n");
+		return false;
+	}
+
+	/* insert the data to ezctp shared memory */
+	insert_flag = ezcfg_shm_remove_ezctp_market_data(shm_ezcfg_addr, data, n, size);
 
 	/* now release available resource */
 	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
