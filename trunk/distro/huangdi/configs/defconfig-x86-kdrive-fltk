@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Mar  9 11:59:23 2012
+# Tue Apr 10 10:33:47 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1103,6 +1103,11 @@ CONFIG_PACKAGE_openssl-util=y
 #
 # Network
 #
+
+#
+# Captive Portals
+#
+CONFIG_PACKAGE_coova-chilli=y
 
 #
 # File Transfer
