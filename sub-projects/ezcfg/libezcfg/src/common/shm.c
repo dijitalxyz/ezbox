@@ -315,4 +315,39 @@ bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size
 
 	return insert_flag;
 }
+
+bool ezcfg_shm_save_ezctp_market_data(struct ezcfg_shm *shm, FILE *fp, size_t size, int flag)
+{
+	bool save_flag = false;
+	size_t i, n;
+	char *src;
+	void *ezctp_shm_addr;
+
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+	ASSERT(fp != NULL);
+	ASSERT(size > 0);
+
+	n = shm->ezctp_cq_length - shm->ezctp_cq_free;
+
+	if ((flag & 0) == flag) {
+		ezctp_shm_addr = shmat(shm->ezctp_shm_id, NULL, 0);
+		if (ezctp_shm_addr != (void *)-1) {
+			for (i = 0; i < n; i++) {
+				src = (char *)ezctp_shm_addr + (shm->ezctp_cq_head * shm->ezctp_cq_unit_size);
+				/* copy the data from CQ */
+				if (fwrite(src, size, 1, fp) < 1) {
+					goto write_exit;
+				}
+				shm->ezctp_cq_head = (shm->ezctp_cq_head + 1) % shm->ezctp_cq_length;
+				shm->ezctp_cq_free ++;
+			}
+			save_flag = true;
+		write_exit:
+			shmdt(ezctp_shm_addr);
+		}
+	}
+
+	return save_flag;
+}
 #endif

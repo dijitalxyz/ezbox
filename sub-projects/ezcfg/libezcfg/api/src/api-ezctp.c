@@ -159,3 +159,55 @@ bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_
 
 	return insert_flag;
 }
+
+/**
+ * ezcfg_api_ezctp_save_market_data:
+ *
+ **/
+bool ezcfg_api_ezctp_save_market_data(void *shm_ezcfg_addr, FILE *fp, size_t size, int flag)
+{
+	int sem_id;
+	struct sembuf res;
+	bool save_flag = false;
+
+	if ((shm_ezcfg_addr == NULL) || (shm_ezcfg_addr == (void *) -1)){
+		return false;
+	}
+
+	if ((fp == NULL) || (size < 1)) {
+		return false;
+	}
+
+	/* create a semaphore set that only includes one semaphore */
+	/* shm semaphore has been initialized in ezcd */
+	sem_id = ezcfg_shm_get_ezcfg_sem_id(shm_ezcfg_addr);
+	if (sem_id == -1) {
+		DBG("<6>ezctp: ezcfg_shm_get_ezcfg_sem_id error\n");
+		return false;
+	}
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>ezctp: semop require res error\n");
+		return false;
+	}
+
+	/* save the data in ezctp shared memory to file */
+	save_flag = ezcfg_shm_save_ezctp_market_data(shm_ezcfg_addr, fp, size, flag);
+
+	/* now release available resource */
+	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("<6>ezctp: semop release res error\n");
+		//return false;
+	}
+
+	return save_flag;
+}
