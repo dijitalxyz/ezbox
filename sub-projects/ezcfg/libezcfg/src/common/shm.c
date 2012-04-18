@@ -278,6 +278,10 @@ bool ezcfg_shm_insert_ezctp_market_data(struct ezcfg_shm *shm, const void *data,
 	return insert_flag;
 }
 
+/*
+ * if data == NULL, just remove market data
+ * else store the market data in (*data)
+ */
 bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size_t *n, size_t *size)
 {
 	bool insert_flag = false;
@@ -287,7 +291,6 @@ bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size
 
 	ASSERT(shm != NULL);
 	ASSERT(shm != (void *)-1);
-	ASSERT(data != NULL);
 	ASSERT(n != NULL);
 	ASSERT(size != NULL);
 
@@ -297,15 +300,22 @@ bool ezcfg_shm_remove_ezctp_market_data(struct ezcfg_shm *shm, void **data, size
 	if (((*size) * (*n)) > 0) {
 		ezctp_shm_addr = shmat(shm->ezctp_shm_id, NULL, 0);
 		if (ezctp_shm_addr != (void *)-1) {
-			*data = malloc((*size) * (*n));
-			if ((*data) != NULL) {
-				for (i = 0; i < (*n); i++) {
-					src = (char *)ezctp_shm_addr + (shm->ezctp_cq_head * shm->ezctp_cq_unit_size);
-					dst = (char *)(*data) + (i * (*size));
-					/* copy the data from CQ */
-					memcpy(dst, src, (*size));
-					shm->ezctp_cq_head = (shm->ezctp_cq_head + 1) % shm->ezctp_cq_length;
+			if (data != NULL) {
+				*data = malloc((*size) * (*n));
+				if ((*data) != NULL) {
+					for (i = 0; i < (*n); i++) {
+						src = (char *)ezctp_shm_addr + (shm->ezctp_cq_head * shm->ezctp_cq_unit_size);
+						dst = (char *)(*data) + (i * (*size));
+						/* copy the data from CQ */
+						memcpy(dst, src, (*size));
+						shm->ezctp_cq_head = (shm->ezctp_cq_head + 1) % shm->ezctp_cq_length;
+					}
+					shm->ezctp_cq_free += (*n);
+					insert_flag = true;
 				}
+			}
+			else {
+				shm->ezctp_cq_head = shm->ezctp_cq_tail;
 				shm->ezctp_cq_free += (*n);
 				insert_flag = true;
 			}
