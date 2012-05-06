@@ -194,11 +194,7 @@ struct ezcfg_list_entry *ezcfg_list_entry_add(
 
 void ezcfg_list_entry_delete(struct ezcfg_list_entry *entry)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(entry != NULL);
-
-	ezcfg = entry->ezcfg;
 
 	ezcfg_list_node_remove(&entry->node);
 	free(entry->name);

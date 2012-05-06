@@ -73,11 +73,7 @@ struct ezcfg_link_list *ezcfg_link_list_new(struct ezcfg *ezcfg)
 
 void ezcfg_link_list_delete(struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(list != NULL);
-
-	ezcfg = list->ezcfg;
 
 	while(list->head != NULL) {
 		list->tail = list->head;
@@ -93,15 +89,12 @@ void ezcfg_link_list_delete(struct ezcfg_link_list *list)
  */
 bool ezcfg_link_list_insert(struct ezcfg_link_list *list, char *name, char *value)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 	char *p;
 
 	ASSERT(list != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 
@@ -150,15 +143,12 @@ bool ezcfg_link_list_insert(struct ezcfg_link_list *list, char *name, char *valu
  */
 bool ezcfg_link_list_append(struct ezcfg_link_list *list, char *name, char *value)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 	char *p;
 
 	ASSERT(list != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 
@@ -210,13 +200,10 @@ bool ezcfg_link_list_append(struct ezcfg_link_list *list, char *name, char *valu
  */
 bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np, *npp;
 
 	ASSERT(list != NULL);
 	ASSERT(name != NULL);
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 
@@ -254,13 +241,10 @@ bool ezcfg_link_list_remove(struct ezcfg_link_list *list, char *name)
 
 bool ezcfg_link_list_in(struct ezcfg_link_list *list, char *name)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 
 	ASSERT(list != NULL);
 	ASSERT(name != NULL);
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 
@@ -284,13 +268,10 @@ int ezcfg_link_list_get_length(struct ezcfg_link_list *list)
 
 char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 
 	ASSERT(list != NULL);
 	ASSERT((i > 0) && (i <= list->length));
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 	i--;
@@ -305,13 +286,10 @@ char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i
 
 char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 
 	ASSERT(list != NULL);
 	ASSERT((i > 0) && (i <= list->length));
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 	i--;
@@ -326,13 +304,10 @@ char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int 
 
 char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name)
 {
-	struct ezcfg *ezcfg;
 	struct link_node *np;
 
 	ASSERT(list != NULL);
 	ASSERT(name != NULL);
-
-	ezcfg = list->ezcfg;
 
 	np = list->head;
 
