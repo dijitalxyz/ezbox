@@ -221,6 +221,23 @@ int ezcd_main(int argc, char **argv)
 		close(fd);
 	}
 
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	p = ezcfg_api_common_get_shm_ezctp_path(ezcfg);
+	if ((p == NULL) || (*p == '\0')) {
+		p = EZCFG_SHM_EZCTP_PATH;
+	}
+	if ((p != NULL) && (*p == '/')) {
+		utils_mkdir(p, 0777, false);
+		fd = open(p, O_CREAT|O_RDWR, S_IRWXU);
+		if (fd < 0) {
+			fprintf(stderr, "cannot open %s\n", p);
+			ezcfg_api_common_delete(ezcfg);
+			exit(EXIT_FAILURE);
+		}
+		close(fd);
+	}
+#endif
+
 	ezcfg_api_common_delete(ezcfg);
 	ezcfg = NULL;
 
