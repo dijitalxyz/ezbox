@@ -53,9 +53,7 @@
 
 int ezcfg_ctrl_handle_ezctp_message(char **argv, char *output, int len, void *rte)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_worker *worker;
-	struct ezcfg_master *master;
+	//struct ezcfg_worker *worker;
 
 	if (argv == NULL || argv[0] == NULL) {
 		return -1;
@@ -69,9 +67,7 @@ int ezcfg_ctrl_handle_ezctp_message(char **argv, char *output, int len, void *rt
 		return -1;
 	}
 
-	worker = rte;
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	master = ezcfg_worker_get_master(worker);
+	//worker = rte;
 
 	if (strcmp(argv[1], "mduser") == 0) {
 		return 0;

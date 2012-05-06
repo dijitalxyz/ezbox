@@ -133,31 +133,22 @@ fail_exit:
 
 int ezcfg_ctrl_connect(struct ezcfg_ctrl *ezctrl)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(ezctrl != NULL);
 
-	ezcfg = ezctrl->ezcfg;
 	return ezcfg_socket_connect_remote(ezctrl->socket);
 }
 
 int ezcfg_ctrl_read(struct ezcfg_ctrl *ezctrl, void *buf, int len, int flags)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(ezctrl != NULL);
 
-	ezcfg = ezctrl->ezcfg;
 	return ezcfg_socket_read(ezctrl->socket, buf, len, flags);
 }
 
 int ezcfg_ctrl_write(struct ezcfg_ctrl *ezctrl, const void *buf, int len, int flags)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(ezctrl != NULL);
 
-	ezcfg = ezctrl->ezcfg;
 	return ezcfg_socket_write(ezctrl->socket, buf, len, flags);
 }
 
@@ -204,16 +195,11 @@ int ezcfg_ctrl_get_buffer_len(const struct ezcfg_ctrl *ezctrl)
 
 void ezcfg_ctrl_reset_attributes(struct ezcfg_ctrl *ezctrl)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(ezctrl != NULL);
-
-	ezcfg = ezctrl->ezcfg;
 }
 
 int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, void *rte)
 {
-	struct ezcfg *ezcfg;
 	char *argv[EZCFG_CTRL_MAX_ARGS];
 	int argc;
 
@@ -221,8 +207,6 @@ int ezcfg_ctrl_handle_message(struct ezcfg_ctrl *ezctrl, char *output, int len, 
 	ASSERT(output != NULL);
 	ASSERT(len > 0);
 	ASSERT(rte != NULL);
-
-	ezcfg = ezctrl->ezcfg;
 
 	if (ezctrl->buffer == NULL) {
 		return -1;

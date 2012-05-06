@@ -53,7 +53,6 @@
 
 int ezcfg_ctrl_handle_ipc_message(char **argv, char *output, int len, void *rte)
 {
-	struct ezcfg *ezcfg;
 	struct ezcfg_worker *worker;
 	struct ezcfg_master *master;
 	int rc = 0;
@@ -71,7 +70,6 @@ int ezcfg_ctrl_handle_ipc_message(char **argv, char *output, int len, void *rte)
 	}
 
 	worker = rte;
-	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	master = ezcfg_worker_get_master(worker);
 
 	if (strcmp(argv[1], "get") == 0) {
