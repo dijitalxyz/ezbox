@@ -94,7 +94,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 	struct ezcfg *ezcfg;
 	struct ezcfg_igrs *igrs;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
 	char *request_uri;
 	char *msg = NULL;
 	int msg_len;
@@ -106,7 +105,6 @@ static void handle_igrs_request(struct ezcfg_worker *worker)
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	http = ezcfg_igrs_get_http(igrs);
-	soap = ezcfg_igrs_get_soap(igrs);
 
 	request_uri = ezcfg_http_get_request_uri(http);
 	if (request_uri == NULL) {

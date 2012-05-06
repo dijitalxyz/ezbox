@@ -76,7 +76,6 @@ void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_ctrl *ctrl;
-	struct ezcfg_socket *sp;
 	char buf[EZCFG_CTRL_MAX_MESSAGE_SIZE];
 	int len;
 
@@ -84,7 +83,6 @@ void ezcfg_worker_process_ctrl_new_connection(struct ezcfg_worker *worker)
 
 	ctrl = (struct ezcfg_ctrl *)ezcfg_worker_get_proto_data(worker);
 	ASSERT(ctrl != NULL);
-	sp = ezcfg_ctrl_get_socket(ctrl);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	len = ezcfg_socket_read(ezcfg_worker_get_socket(worker), buf, sizeof(buf), 0);

@@ -57,8 +57,10 @@ void ezcfg_master_load_igrs_conf(struct ezcfg_master *master)
 {
 	struct ezcfg *ezcfg;
 	char *p = NULL;
+#if 0
 	int domain, type, proto;
 	char address[256];
+#endif
 	int i;
 	int igrs_number = -1;
 
@@ -76,10 +78,12 @@ void ezcfg_master_load_igrs_conf(struct ezcfg_master *master)
 	for (i = 0; i < igrs_number; i++) {
 
 		/* initialize */
+#if 0
 		domain = -1;
 		type = -1;
 		proto = EZCFG_PROTO_UNKNOWN;
 		address[0] = '\0';
+#endif
 	}
 
 	/* delete all sockets taged need_delete = true in need_listening_sockets */

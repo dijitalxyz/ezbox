@@ -134,7 +134,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 	struct ezcfg *ezcfg;
 	struct ezcfg_soap_http *sh;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
 	struct ezcfg_master *master;
 	struct ezcfg_nvram *nvram;
 	char *request_uri;
@@ -148,7 +147,6 @@ static void handle_soap_http_request(struct ezcfg_worker *worker)
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
 	http = ezcfg_soap_http_get_http(sh);
-	soap = ezcfg_soap_http_get_soap(sh);
 	master = ezcfg_worker_get_master(worker);
 	nvram = ezcfg_master_get_nvram(master);
 

@@ -128,11 +128,7 @@ static void reset_connection_attributes(struct ezcfg_worker *worker) {
 
 static void close_connection(struct ezcfg_worker *worker)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	if (worker->sslp != NULL) {
@@ -339,11 +335,7 @@ static void release_protocol_data(struct ezcfg_worker *worker)
  **/
 void ezcfg_worker_delete(struct ezcfg_worker *worker)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(worker != NULL);
-
-	ezcfg = worker->ezcfg;
 
 	if (worker->sp != NULL) {
 		ezcfg_socket_delete(worker->sp);
@@ -409,14 +401,12 @@ void ezcfg_worker_close_connection(struct ezcfg_worker *worker)
 
 void ezcfg_worker_routine(struct ezcfg_worker *worker) 
 {
-	struct ezcfg *ezcfg;
 	struct ezcfg_master *master;
 	//sigset_t sigset;
 	//int s;
 
 	ASSERT(worker != NULL);
 
-	ezcfg = worker->ezcfg;
 	master = worker->master;
 
 	/* Block signal HUP, USR1 */

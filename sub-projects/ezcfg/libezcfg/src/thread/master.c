@@ -1092,24 +1092,17 @@ struct ezcfg *ezcfg_master_get_ezcfg(struct ezcfg_master *master)
 
 bool ezcfg_master_is_stop(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return (master->stop_flag != 0);
 }
 
 bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *sp, int wait_time)
 {
-	struct ezcfg *ezcfg;
 	struct timespec ts;
 
 	ASSERT(master != NULL);
 	ASSERT(wait_time >= 0);
-
-	ezcfg = master->ezcfg;
 
 	pthread_mutex_lock(&(master->thread_mutex));
 	/* If the queue is empty, wait. We're idle at this point. */
@@ -1145,13 +1138,10 @@ bool ezcfg_master_get_socket(struct ezcfg_master *master, struct ezcfg_socket *s
 
 void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *worker)
 {
-	struct ezcfg *ezcfg;
 	struct ezcfg_worker *cur, *prev;
 
 	ASSERT(master != NULL);
 	ASSERT(worker != NULL);
-
-	ezcfg = master->ezcfg;
 
 	pthread_mutex_lock(&(master->thread_mutex));
 
@@ -1186,99 +1176,63 @@ void ezcfg_master_stop_worker(struct ezcfg_master *master, struct ezcfg_worker *
 
 int ezcfg_master_get_shm_id(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->shm_id;
 }
 
 struct ezcfg_nvram *ezcfg_master_get_nvram(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->nvram;
 }
 
 int ezcfg_master_get_sq_len(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->sq_len;
 }
 
 struct ezcfg_socket *ezcfg_master_get_listening_sockets(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->listening_sockets;
 }
 
 struct ezcfg_socket **ezcfg_master_get_p_listening_sockets(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return &(master->listening_sockets);
 }
 
 struct ezcfg_auth *ezcfg_master_get_auths(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->auths;
 }
 
 struct ezcfg_auth **ezcfg_master_get_p_auths(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return &(master->auths);
 }
 
 int ezcfg_master_auth_mutex_lock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_lock(&(master->auth_mutex));
 }
 
 int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_unlock(&(master->auth_mutex));
 }
@@ -1286,44 +1240,28 @@ int ezcfg_master_auth_mutex_unlock(struct ezcfg_master *master)
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 struct ezcfg_ssl *ezcfg_master_get_ssl(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->ssl;
 }
 
 struct ezcfg_ssl **ezcfg_master_get_p_ssl(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return &(master->ssl);
 }
 
 int ezcfg_master_ssl_mutex_lock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_lock(&(master->ssl_mutex));
 }
 
 int ezcfg_master_ssl_mutex_unlock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_unlock(&(master->ssl_mutex));
 }
@@ -1332,44 +1270,28 @@ int ezcfg_master_ssl_mutex_unlock(struct ezcfg_master *master)
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
 struct ezcfg_igrs *ezcfg_master_get_igrs(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->igrs;
 }
 
 struct ezcfg_igrs **ezcfg_master_get_p_igrs(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return &(master->igrs);
 }
 
 int ezcfg_master_igrs_mutex_lock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_lock(&(master->igrs_mutex));
 }
 
 int ezcfg_master_igrs_mutex_unlock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_unlock(&(master->igrs_mutex));
 }
@@ -1378,44 +1300,28 @@ int ezcfg_master_igrs_mutex_unlock(struct ezcfg_master *master)
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
 struct ezcfg_upnp *ezcfg_master_get_upnp(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return master->upnp;
 }
 
 struct ezcfg_upnp **ezcfg_master_get_p_upnp(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return &(master->upnp);
 }
 
 int ezcfg_master_upnp_mutex_lock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_lock(&(master->upnp_mutex));
 }
 
 int ezcfg_master_upnp_mutex_unlock(struct ezcfg_master *master)
 {
-	struct ezcfg *ezcfg;
-
 	ASSERT(master != NULL);
-
-	ezcfg = master->ezcfg;
 
 	return pthread_mutex_unlock(&(master->upnp_mutex));
 }
