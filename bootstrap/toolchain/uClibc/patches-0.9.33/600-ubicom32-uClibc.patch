@@ -1,6 +1,6 @@
 --- a/Rules.mak
 +++ b/Rules.mak
-@@ -482,6 +482,17 @@ ifeq ($(TARGET_ARCH),i960)
+@@ -524,6 +524,17 @@ ifeq ($(TARGET_ARCH),i960)
        SYMBOL_PREFIX=_
  endif
  
@@ -43,7 +43,7 @@
  endif
 --- a/extra/Configs/Config.in.arch
 +++ b/extra/Configs/Config.in.arch
-@@ -153,7 +153,7 @@ config UCLIBC_HAS_SOFT_FLOAT
+@@ -152,7 +152,7 @@ config UCLIBC_HAS_SOFT_FLOAT
  config DO_C99_MATH
  	bool "Enable full C99 math library support"
  	depends on UCLIBC_HAS_FLOATS
@@ -110,9 +110,9 @@
  /* FRV magic number - no EABI available??.  */
  #define EM_CYGNUS_FRV	0x5441
  
-@@ -3108,6 +3110,55 @@ typedef Elf32_Addr Elf32_Conflict;
- 
- #define DT_C6000_NUM    4
+@@ -3141,6 +3143,55 @@ typedef Elf32_Addr Elf32_Conflict;
+ #define R_MICROBLAZE_COPY 21  /* runtime copy */
+ #define R_MICROBLAZE_NUM 22
  
 +/* Ubicom32 ELF relocation types */
 +#define R_UBICOM32_NONE               0
@@ -179,37 +179,6 @@
 +#define libm_hidden_proto(name, attrs...)
 +#endif
  #endif	/* features.h  */
---- a/ldso/ldso/dl-startup.c
-+++ b/ldso/ldso/dl-startup.c
-@@ -164,10 +164,13 @@ DL_START(unsigned long args)
- 		aux_dat += 2;
- 	}
- 
-+#if !defined __FDPIC__
- 	/* locate the ELF header.   We need this done as soon as possible
- 	 * (esp since SEND_STDERR() needs this on some platforms... */
- 	if (!auxvt[AT_BASE].a_un.a_val)
- 		auxvt[AT_BASE].a_un.a_val = elf_machine_load_address();
-+#endif
-+
- 	DL_INIT_LOADADDR_BOOT(load_addr, auxvt[AT_BASE].a_un.a_val);
- 	header = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
- 
---- a/ldso/ldso/ldso.c
-+++ b/ldso/ldso/ldso.c
-@@ -325,10 +325,12 @@ void _dl_get_ready_to_run(struct elf_res
- 		_dl_progname = argv[0];
- 	}
- 
-+#if 0 // blackfin does this, we do to avoid die during reloc
- 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
- 		_dl_dprintf(_dl_debug_file, "Standalone execution is not supported yet\n");
- 		_dl_exit(1);
- 	}
-+#endif
- 
- 	/* Start to build the tables of the modules that are required for
- 	 * this beast to run.  We start with the basic executable, and then
 --- /dev/null
 +++ b/ldso/ldso/ubicom32/dl-debug.h
 @@ -0,0 +1,72 @@
