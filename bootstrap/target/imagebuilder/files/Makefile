@@ -10,7 +10,7 @@ TOPDIR:=${CURDIR}
 LC_ALL:=C
 LANG:=C
 export TOPDIR LC_ALL LANG
-export KBUILD_VERBOSE=99
+export OPENWRT_VERBOSE=s
 all: help
 
 include $(TOPDIR)/include/host.mk
@@ -38,7 +38,7 @@ Building images:
 	By default 'make image' will create an image with the default
 	target profile and package set. You can use the following parameters
 	to change that:
-	
+
 	make image PROFILE="<profilename>" # override the default target profile
 	make image PACKAGES="<pkg1> [<pkg2> [<pkg3> ...]]" # include extra packages
 	make image FILES="<path>" # include extra files from <path>
@@ -100,19 +100,25 @@ _call_image:
 	echo
 	rm -rf $(TARGET_DIR)
 	mkdir -p $(TARGET_DIR) $(BIN_DIR) $(TMP_DIR)
-	$(MAKE) package_index
+	if [ ! -f "$(PACKAGE_DIR)/Packages" ] || [ ! -f "$(PACKAGE_DIR)/Packages.gz" ] || [ "`find $(PACKAGE_DIR) -cnewer $(PACKAGE_DIR)/Packages.gz`" ]; then \
+		echo "Package list missing or not up-to-date, generating it.";\
+		$(MAKE) package_index; \
+	else \
+		mkdir -p $(TARGET_DIR)/tmp; \
+		$(OPKG) update; \
+	fi
 	$(MAKE) package_install
 ifneq ($(USER_FILES),)
 	$(MAKE) copy_files
 endif
 	$(MAKE) package_postinst
 	$(MAKE) build_image
-	
+
 package_index: FORCE
 	@echo
 	@echo Building package index...
 	@mkdir -p $(TOPDIR)/tmp $(TOPDIR)/dl $(TARGET_DIR)/tmp
-	(cd $(PACKAGE_DIR); $(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
+	(cd $(PACKAGE_DIR); $(SCRIPT_DIR)/ipkg-make-index.sh . > Packages && \
 		gzip -9c Packages > Packages.gz \
 	) >/dev/null 2>/dev/null
 	$(OPKG) update
@@ -121,6 +127,7 @@ package_install: FORCE
 	@echo
 	@echo Installing packages...
 	$(OPKG) install $(BUILD_PACKAGES)
+	rm -f $(TARGET_DIR)/usr/lib/opkg/lists/*
 
 copy_files: FORCE
 	@echo
@@ -140,12 +147,14 @@ package_postinst: FORCE
 			IPKG_INSTROOT=$(TARGET_DIR) $(which bash) ./etc/rc.common $$script enable; \
 		done || true; \
 	)
+	$(if $(CONFIG_CLEAN_IPKG),rm -rf $(TARGET_DIR)/usr/lib/opkg)
 
 build_image: FORCE
 	@echo
 	@echo Building images...
-	$(NO_TRACE_MAKE) -C target/linux/$(BOARD)/image install TARGET_BUILD=1 IB=1
-	
+	$(NO_TRACE_MAKE) -C target/linux/$(BOARD)/image install TARGET_BUILD=1 IB=1 \
+		$(if $(USER_PROFILE),PROFILE="$(USER_PROFILE)")
+
 clean:
 	rm -rf $(TOPDIR)/tmp $(TOPDIR)/dl $(TARGET_DIR) $(BIN_DIR)
 

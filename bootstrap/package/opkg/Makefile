@@ -1,16 +1,17 @@
 #
-# Copyright (C) 2006-2011 OpenWrt.org
+# Copyright (C) 2006-2012 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
+include $(INCLUDE_DIR)/version.mk
 
 PKG_NAME:=opkg
 PKG_REV:=618
 PKG_VERSION:=$(PKG_REV)
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=svn
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -69,7 +70,7 @@ define Package/opkg/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DATA) ./files/opkg.conf $(1)/etc/
-	$(SED) 's,$$$$S,$(PKGARCH),g' $(1)/etc/opkg.conf
+	$(VERSION_SED) $(1)/etc/opkg.conf
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/opkg-cl $(1)/bin/opkg
 endef
 

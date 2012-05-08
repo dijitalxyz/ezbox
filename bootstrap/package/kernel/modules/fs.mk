@@ -25,10 +25,11 @@ $(eval $(call KernelPackage,fs-autofs4))
 define KernelPackage/fs-btrfs
   SUBMENU:=$(FS_MENU)
   TITLE:=BTRFS filesystem support
-  DEPENDS:=+kmod-libcrc32c +kmod-zlib
+  DEPENDS:=+kmod-lib-crc32c +!(LINUX_2_6_37):kmod-lib-lzo +kmod-lib-zlib
   KCONFIG:=\
 	CONFIG_BTRFS_FS \
-	CONFIG_BTRFS_FS_POSIX_ACL=n
+	CONFIG_BTRFS_FS_POSIX_ACL=n \
+	CONFIG_BTRFS_FS_CHECK_INTEGRITY=n
   FILES:=\
 	$(LINUX_DIR)/fs/btrfs/btrfs.ko
   AUTOLOAD:=$(call AutoLoad,30,btrfs,1)
@@ -44,10 +45,20 @@ $(eval $(call KernelPackage,fs-btrfs))
 define KernelPackage/fs-cifs
   SUBMENU:=$(FS_MENU)
   TITLE:=CIFS support
-  KCONFIG:=CONFIG_CIFS
+  KCONFIG:= \
+	CONFIG_CIFS \
+	CONFIG_CIFS_DFS_UPCALL=n \
+	CONFIG_CIFS_UPCALL=n
   FILES:=$(LINUX_DIR)/fs/cifs/cifs.ko
   AUTOLOAD:=$(call AutoLoad,30,cifs)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
+  DEPENDS+= \
+    +kmod-crypto-arc4 \
+    +kmod-crypto-hmac \
+    +kmod-crypto-md5 \
+    +!(LINUX_2_6_37):kmod-crypto-md4 \
+    +!(LINUX_2_6_37||LINUX_2_6_38||LINUX_2_6_39):kmod-crypto-des \
+    +!(LINUX_2_6_37||LINUX_2_6_38||LINUX_2_6_39):kmod-crypto-ecb
 endef
 
 define KernelPackage/fs-cifs/description
@@ -72,53 +83,22 @@ endef
 $(eval $(call KernelPackage,fs-exportfs))
 
 
-define KernelPackage/fs-ext2
-  SUBMENU:=$(FS_MENU)
-  TITLE:=EXT2 filesystem support
-  KCONFIG:=CONFIG_EXT2_FS
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
-  FILES:=$(LINUX_DIR)/fs/ext2/ext2.ko
-  AUTOLOAD:=$(call AutoLoad,32,ext2,1)
-endef
-
-define KernelPackage/fs-ext2/description
- Kernel module for EXT2 filesystem support
-endef
-
-$(eval $(call KernelPackage,fs-ext2,1))
-
-
-define KernelPackage/fs-ext3
-  SUBMENU:=$(FS_MENU)
-  TITLE:=EXT3 filesystem support
-  KCONFIG:= \
-	CONFIG_EXT3_FS \
-	CONFIG_JBD
-  DEPENDS:=$(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache) @LINUX_2_6_30||LINUX_2_6_31
-  FILES:= \
-	$(LINUX_DIR)/fs/ext3/ext3.ko \
-	$(LINUX_DIR)/fs/jbd/jbd.ko
-  AUTOLOAD:=$(call AutoLoad,31,jbd ext3,1)
-endef
-
-define KernelPackage/fs-ext3/description
- Kernel module for EXT3 filesystem support
-endef
-
-$(eval $(call KernelPackage,fs-ext3))
-
-
 define KernelPackage/fs-ext4
   SUBMENU:=$(FS_MENU)
   TITLE:=EXT4 filesystem support
   KCONFIG:= \
 	CONFIG_EXT4_FS \
 	CONFIG_JBD2
-  DEPENDS:= $(if $(DUMP)$(CONFIG_FS_MBCACHE),+kmod-fs-mbcache)
   FILES:= \
 	$(LINUX_DIR)/fs/ext4/ext4.ko \
 	$(LINUX_DIR)/fs/jbd2/jbd2.ko
-  AUTOLOAD:=$(call AutoLoad,30,jbd2 ext4,1)
+ ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,2.6.37)),1)
+    FILES+= \
+	$(LINUX_DIR)/fs/mbcache.ko
+    AUTOLOAD:=$(call AutoLoad,30,mbcache jbd2 ext4,1)
+ else
+    AUTOLOAD:=$(call AutoLoad,30,jbd2 ext4,1)
+ endif
   $(call AddDepends/crc16)
 endef
 
@@ -135,7 +115,7 @@ define KernelPackage/fs-hfs
   KCONFIG:=CONFIG_HFS_FS
   FILES:=$(LINUX_DIR)/fs/hfs/hfs.ko
   AUTOLOAD:=$(call AutoLoad,30,hfs)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-hfs/description
@@ -151,7 +131,7 @@ define KernelPackage/fs-hfsplus
   KCONFIG:=CONFIG_HFSPLUS_FS
   FILES:=$(LINUX_DIR)/fs/hfsplus/hfsplus.ko
   AUTOLOAD:=$(call AutoLoad,30,hfsplus)
-$(call AddDepends/nls,utf8)
+  $(call AddDepends/nls,utf8)
 endef
 
 define KernelPackage/fs-hfsplus/description
@@ -167,7 +147,7 @@ define KernelPackage/fs-isofs
   KCONFIG:=CONFIG_ISO9660_FS CONFIG_JOLIET=y CONFIG_ZISOFS=n
   FILES:=$(LINUX_DIR)/fs/isofs/isofs.ko
   AUTOLOAD:=$(call AutoLoad,30,isofs)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-isofs/description
@@ -175,25 +155,6 @@ define KernelPackage/fs-isofs/description
 endef
 
 $(eval $(call KernelPackage,fs-isofs))
-
-
-define KernelPackage/fs-mbcache
-  SUBMENU:=$(FS_MENU)
-  TITLE:=mbcache (used by ext2/ext3/ext4)
-  KCONFIG:=CONFIG_FS_MBCACHE
-  ifneq ($(CONFIG_FS_MBCACHE),)
-    FILES:=$(LINUX_DIR)/fs/mbcache.ko
-    AUTOLOAD:=$(call AutoLoad,20,mbcache,1)
-  endif
-endef
-
-define KernelPackage/fs-mbcache/description
- Meta Block cache used by ext2/ext3
- This package will only be installed if extended attributes 
- are enabled for ext2/ext3
-endef
-
-$(eval $(call KernelPackage,fs-mbcache))
 
 
 define KernelPackage/fs-minix
@@ -217,7 +178,7 @@ define KernelPackage/fs-msdos
   KCONFIG:=CONFIG_MSDOS_FS
   FILES:=$(LINUX_DIR)/fs/fat/msdos.ko
   AUTOLOAD:=$(call AutoLoad,40,msdos)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-msdos/description
@@ -232,7 +193,9 @@ define KernelPackage/fs-nfs
   TITLE:=NFS filesystem support
   DEPENDS:=+kmod-fs-nfs-common
   KCONFIG:= \
-	CONFIG_NFS_FS
+	CONFIG_NFS_FS \
+	CONFIG_NFS_USE_LEGACY_DNS=n \
+	CONFIG_NFS_USE_NEW_IDMAPPER=n
   FILES:= \
 	$(LINUX_DIR)/fs/nfs/nfs.ko
   AUTOLOAD:=$(call AutoLoad,40,nfs)
@@ -283,7 +246,9 @@ define KernelPackage/fs-nfsd
   SUBMENU:=$(FS_MENU)
   TITLE:=NFS kernel server support
   DEPENDS:=+kmod-fs-nfs-common +kmod-fs-exportfs
-  KCONFIG:=CONFIG_NFSD
+  KCONFIG:= \
+	CONFIG_NFSD \
+	CONFIG_NFSD_FAULT_INJECTION=n
   FILES:=$(LINUX_DIR)/fs/nfsd/nfsd.ko
   AUTOLOAD:=$(call AutoLoad,40,nfsd)
 endef
@@ -301,7 +266,7 @@ define KernelPackage/fs-ntfs
   KCONFIG:=CONFIG_NTFS_FS
   FILES:=$(LINUX_DIR)/fs/ntfs/ntfs.ko
   AUTOLOAD:=$(call AutoLoad,30,ntfs)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-ntfs/description
@@ -332,7 +297,8 @@ define KernelPackage/fs-udf
   KCONFIG:=CONFIG_UDF_FS
   FILES:=$(LINUX_DIR)/fs/udf/udf.ko
   AUTOLOAD:=$(call AutoLoad,30,udf)
-$(call AddDepends/nls)
+  DEPENDS:=+kmod-lib-crc-itu-t
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-udf/description
@@ -352,7 +318,7 @@ define KernelPackage/fs-vfat
 	$(LINUX_DIR)/fs/fat/fat.ko \
 	$(LINUX_DIR)/fs/fat/vfat.ko
   AUTOLOAD:=$(call AutoLoad,30,fat vfat)
-$(call AddDepends/nls)
+  $(call AddDepends/nls)
 endef
 
 define KernelPackage/fs-vfat/description
@@ -366,7 +332,7 @@ define KernelPackage/fs-xfs
   SUBMENU:=$(FS_MENU)
   TITLE:=XFS filesystem support
   KCONFIG:=CONFIG_XFS_FS
-  DEPENDS:= +kmod-fs-exportfs
+  DEPENDS:= +kmod-fs-exportfs @!avr32
   FILES:=$(LINUX_DIR)/fs/xfs/xfs.ko
   AUTOLOAD:=$(call AutoLoad,30,xfs,1)
 endef

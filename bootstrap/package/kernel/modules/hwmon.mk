@@ -89,6 +89,33 @@ endef
 
 $(eval $(call KernelPackage,hwmon-lm90))
 
+define KernelPackage/hwmon-lm95241
+  TITLE:=LM95241 monitoring support
+  KCONFIG:=CONFIG_SENSORS_LM95241
+  FILES:=$(LINUX_DIR)/drivers/hwmon/lm95241.ko
+  AUTOLOAD:=$(call AutoLoad,60,lm95241)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPackage/hwmon-lm95241/description
+ Kernel module for LM95241 thermal monitor chip
+endef
+
+$(eval $(call KernelPackage,hwmon-lm95241))
+
+define KernelPackage/hwmon-sht21
+  TITLE:=Sensiron SHT21 and compat. monitoring support
+  KCONFIG:=CONFIG_SENSORS_SHT21
+  FILES:=$(LINUX_DIR)/drivers/hwmon/sht21.ko
+  AUTOLOAD:=$(call AutoLoad,60,sht21)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPackage/hwmon-sht21/description
+ Kernel module for Sensirion SHT21 and SHT25 temperature and humidity sensors chip
+endef
+
+$(eval $(call KernelPackage,hwmon-sht21))
 
 define KernelPackage/hwmon-pc87360
   TITLE:=PC87360 monitoring support
