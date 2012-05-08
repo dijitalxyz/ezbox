@@ -12,7 +12,7 @@ PKG_NAME:=kernel
 PKG_FLAGS:=hold
 
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/packages
-SCAN_DEPS=modules/*.mk
+SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk
 
 include $(INCLUDE_DIR)/package.mk
 ifeq ($(DUMP),)
@@ -35,7 +35,7 @@ define Package/kernel
   CATEGORY:=Kernel
   DEFAULT:=y
   TITLE:=Virtual kernel package
-  VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)
+  VERSION:=$(LINUX_VERSION)-$(LINUX_RELEASE)-$(LINUX_VERMAGIC)
   URL:=http://www.kernel.org/
 endef
 
@@ -45,5 +45,5 @@ endef
 
 $(eval $(if $(DUMP),,$(call BuildPackage,kernel)))
 
-include ./modules/*.mk
+include $(sort $(wildcard ./modules/*.mk))
 -include $(TOPDIR)/target/linux/*/modules.mk

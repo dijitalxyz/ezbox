@@ -24,11 +24,10 @@
 #include "rtl8366_smi.h"
 
 #define RTL8366_SMI_ACK_RETRY_COUNT         5
-#define RTL8366_SMI_CLK_DELAY               10 /* nsec */
 
 static inline void rtl8366_smi_clk_delay(struct rtl8366_smi *smi)
 {
-	ndelay(RTL8366_SMI_CLK_DELAY);
+	ndelay(smi->clk_delay);
 }
 
 static void rtl8366_smi_start(struct rtl8366_smi *smi)
@@ -143,8 +142,10 @@ static int rtl8366_smi_wait_for_ack(struct rtl8366_smi *smi)
 		if (ack == 0)
 			break;
 
-		if (++retry_cnt > RTL8366_SMI_ACK_RETRY_COUNT)
-			return -EIO;
+		if (++retry_cnt > RTL8366_SMI_ACK_RETRY_COUNT) {
+			dev_err(smi->parent, "ACK timeout\n");
+			return -ETIMEDOUT;
+		}
 	} while (1);
 
 	return 0;
@@ -154,6 +155,12 @@ static int rtl8366_smi_write_byte(struct rtl8366_smi *smi, u8 data)
 {
 	rtl8366_smi_write_bits(smi, data, 8);
 	return rtl8366_smi_wait_for_ack(smi);
+}
+
+static int rtl8366_smi_write_byte_noack(struct rtl8366_smi *smi, u8 data)
+{
+	rtl8366_smi_write_bits(smi, data, 8);
+	return 0;
 }
 
 static int rtl8366_smi_read_byte0(struct rtl8366_smi *smi, u8 *data)
@@ -196,7 +203,7 @@ int rtl8366_smi_read_reg(struct rtl8366_smi *smi, u32 addr, u32 *data)
 	rtl8366_smi_start(smi);
 
 	/* send READ command */
-	ret = rtl8366_smi_write_byte(smi, 0x0a << 4 | 0x04 << 1 | 0x01);
+	ret = rtl8366_smi_write_byte(smi, smi->cmd_read);
 	if (ret)
 		goto out;
 
@@ -227,7 +234,8 @@ int rtl8366_smi_read_reg(struct rtl8366_smi *smi, u32 addr, u32 *data)
 }
 EXPORT_SYMBOL_GPL(rtl8366_smi_read_reg);
 
-int rtl8366_smi_write_reg(struct rtl8366_smi *smi, u32 addr, u32 data)
+static int __rtl8366_smi_write_reg(struct rtl8366_smi *smi,
+				   u32 addr, u32 data, bool ack)
 {
 	unsigned long flags;
 	int ret;
@@ -237,7 +245,7 @@ int rtl8366_smi_write_reg(struct rtl8366_smi *smi, u32 addr, u32 data)
 	rtl8366_smi_start(smi);
 
 	/* send WRITE command */
-	ret = rtl8366_smi_write_byte(smi, 0x0a << 4 | 0x04 << 1 | 0x00);
+	ret = rtl8366_smi_write_byte(smi, smi->cmd_write);
 	if (ret)
 		goto out;
 
@@ -257,7 +265,10 @@ int rtl8366_smi_write_reg(struct rtl8366_smi *smi, u32 addr, u32 data)
 		goto out;
 
 	/* write DATA[15:8] */
-	ret = rtl8366_smi_write_byte(smi, data >> 8);
+	if (ack)
+		ret = rtl8366_smi_write_byte(smi, data >> 8);
+	else
+		ret = rtl8366_smi_write_byte_noack(smi, data >> 8);
 	if (ret)
 		goto out;
 
@@ -269,7 +280,18 @@ int rtl8366_smi_write_reg(struct rtl8366_smi *smi, u32 addr, u32 data)
 
 	return ret;
 }
+
+int rtl8366_smi_write_reg(struct rtl8366_smi *smi, u32 addr, u32 data)
+{
+	return __rtl8366_smi_write_reg(smi, addr, data, true);
+}
 EXPORT_SYMBOL_GPL(rtl8366_smi_write_reg);
+
+int rtl8366_smi_write_reg_noack(struct rtl8366_smi *smi, u32 addr, u32 data)
+{
+	return __rtl8366_smi_write_reg(smi, addr, data, false);
+}
+EXPORT_SYMBOL_GPL(rtl8366_smi_write_reg_noack);
 
 int rtl8366_smi_rmwr(struct rtl8366_smi *smi, u32 addr, u32 mask, u32 data)
 {
@@ -911,6 +933,31 @@ static void rtl8366_smi_mii_cleanup(struct rtl8366_smi *smi)
 	mdiobus_free(smi->mii_bus);
 }
 
+int rtl8366_sw_reset_switch(struct switch_dev *dev)
+{
+	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
+	int err;
+
+	err = smi->ops->reset_chip(smi);
+	if (err)
+		return err;
+
+	err = smi->ops->setup(smi);
+	if (err)
+		return err;
+
+	err = rtl8366_reset_vlan(smi);
+	if (err)
+		return err;
+
+	err = rtl8366_enable_vlan(smi, 1);
+	if (err)
+		return err;
+
+	return rtl8366_enable_all_ports(smi, 1);
+}
+EXPORT_SYMBOL_GPL(rtl8366_sw_reset_switch);
+
 int rtl8366_sw_get_port_pvid(struct switch_dev *dev, int port, int *val)
 {
 	struct rtl8366_smi *smi = sw_to_rtl8366_smi(dev);
@@ -1203,6 +1250,9 @@ enum rtl8366_type rtl8366_smi_detect(struct rtl8366_platform_data *pdata)
 	memset(&smi, 0, sizeof(smi));
 	smi.gpio_sda = pdata->gpio_sda;
 	smi.gpio_sck = pdata->gpio_sck;
+	smi.clk_delay = 10;
+	smi.cmd_read  = 0xa9;
+	smi.cmd_write = 0xa8;
 
 	if (__rtl8366_smi_init(&smi, "rtl8366"))
 		goto out;
@@ -1251,6 +1301,10 @@ int rtl8366_smi_init(struct rtl8366_smi *smi)
 		dev_err(smi->parent, "chip detection failed, err=%d\n", err);
 		goto err_free_sck;
 	}
+
+	err = smi->ops->reset_chip(smi);
+	if (err)
+		goto err_free_sck;
 
 	err = smi->ops->setup(smi);
 	if (err) {

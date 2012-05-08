@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (C) 2006 OpenWrt.org
+# Copyright (C) 2006-2011 OpenWrt.org
 # Copyright (C) 2006 Fokus Fraunhofer <carsten.tittel@fokus.fraunhofer.de>
 
 
@@ -27,7 +27,7 @@ append() {
 	local var="$1"
 	local value="$2"
 	local sep="${3:- }"
-	
+
 	eval "export ${NO_EXPORT:+-n} -- \"$var=\${$var:+\${$var}\${value:+\$sep}}\$value\""
 }
 
@@ -74,7 +74,7 @@ package() {
 config () {
 	local cfgtype="$1"
 	local name="$2"
-	
+
 	export ${NO_EXPORT:+-n} CONFIG_NUM_SECTIONS=$(($CONFIG_NUM_SECTIONS + 1))
 	name="${name:-cfg$CONFIG_NUM_SECTIONS}"
 	append CONFIG_SECTIONS "$name"
@@ -110,7 +110,7 @@ config_rename() {
 	local NEW="$2"
 	local oldvar
 	local newvar
-	
+
 	[ -n "$OLD" -a -n "$NEW" ] || return
 	for oldvar in `set | grep ^CONFIG_${OLD}_ | \
 		sed -e 's/\(.*\)=.*$/\1/'` ; do
@@ -119,7 +119,7 @@ config_rename() {
 		unset "$oldvar"
 	done
 	export ${NO_EXPORT:+-n} CONFIG_SECTIONS="$(echo " $CONFIG_SECTIONS " | sed -e "s, $OLD , $NEW ,")"
-	
+
 	[ "$CONFIG_SECTION" = "$OLD" ] && export ${NO_EXPORT:+-n} CONFIG_SECTION="$NEW"
 }
 
@@ -135,8 +135,8 @@ config_clear() {
 	export ${NO_EXPORT:+-n} CONFIG_SECTIONS="${SECTION:+$CONFIG_SECTIONS}"
 
 	for oldvar in `set | grep ^CONFIG_${SECTION:+${SECTION}_} | \
-		sed -e 's/\(.*\)=.*$/\1/'` ; do 
-		unset $oldvar 
+		sed -e 's/\(.*\)=.*$/\1/'` ; do
+		unset $oldvar
 	done
 }
 
@@ -173,17 +173,17 @@ config_set() {
 }
 
 config_foreach() {
-	local function="$1"
+	local ___function="$1"
 	[ "$#" -ge 1 ] && shift
-	local type="$1"
+	local ___type="$1"
 	[ "$#" -ge 1 ] && shift
 	local section cfgtype
-	
+
 	[ -z "$CONFIG_SECTIONS" ] && return 0
 	for section in ${CONFIG_SECTIONS}; do
 		config_get cfgtype "$section" TYPE
-		[ -n "$type" -a "x$cfgtype" != "x$type" ] && continue
-		eval "$function \"\$section\" \"\$@\""
+		[ -n "$___type" -a "x$cfgtype" != "x$___type" ] && continue
+		eval "$___function \"\$section\" \"\$@\""
 	done
 }
 
@@ -214,7 +214,7 @@ load_modules() {
 
 include() {
 	local file
-	
+
 	for file in $(ls $1/*.sh 2>/dev/null); do
 		. $file
 	done
@@ -223,7 +223,7 @@ include() {
 find_mtd_part() {
 	local PART="$(grep "\"$1\"" /proc/mtd | awk -F: '{print $1}')"
 	local PREFIX=/dev/mtdblock
-	
+
 	PART="${PART##mtd}"
 	[ -d /dev/mtdblock ] && PREFIX=/dev/mtdblock/
 	echo "${PART:+$PREFIX$PART}"
@@ -275,21 +275,40 @@ uci_apply_defaults() {
 	uci commit
 }
 
-service_kill() {
+group_add() {
+	local name="$1"
+	local gid="$2"
+	local rc
+	[ -f "${IPKG_INSTROOT}/etc/group" ] || return 1
+	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/group
+	echo "${name}:x:${gid}:" >> ${IPKG_INSTROOT}/etc/group
+	rc=$?
+	[ -n "$IPKG_INSTROOT" ] || lock -u /var/lock/group
+	return $rc
+}
+
+group_exists() {
+	grep -qs "^${1}:" ${IPKG_INSTROOT}/etc/group
+}
+
+user_add() {
 	local name="${1}"
-	local pid="${2:-$(pidof "$name")}"
-	local grace="${3:-5}"
+	local uid="${2}"
+	local gid="${3:-$2}"
+	local desc="${4:-$1}"
+	local home="${5:-/var/run/$1}"
+	local shell="${6:-/bin/false}"
+	local rc
+	[ -f "${IPKG_INSTROOT}/etc/passwd" ] || return 1
+	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/passwd
+	echo "${name}:x:${uid}:${gid}:${desc}:${home}:${shell}" >> ${IPKG_INSTROOT}/etc/passwd
+	rc=$?
+	[ -n "$IPKG_INSTROOT" ] || lock -u /var/lock/passwd
+	return $rc
+}
 
-	[ -f "$pid" ] && pid="$(head -n1 "$pid" 2>/dev/null)"
-
-	for pid in $pid; do
-		[ -d "/proc/$pid" ] || continue
-		local try=0
-		kill -TERM $pid 2>/dev/null && \
-			while grep -qs "$name" "/proc/$pid/cmdline" && [ $((try++)) -lt $grace ]; do sleep 1; done
-		kill -KILL $pid 2>/dev/null && \
-			while grep -qs "$name" "/proc/$pid/cmdline"; do sleep 1; done
-	done
+user_exists() {
+	grep -qs "^${1}:" ${IPKG_INSTROOT}/etc/passwd
 }
 
 
