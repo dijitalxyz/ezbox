@@ -2,7 +2,7 @@
 # Copyright (C) 2002-2003 Erik Andersen <andersen@uclibc.org>
 # Copyright (C) 2004 Manuel Novoa III <mjn3@uclibc.org>
 # Copyright (C) 2005-2006 Felix Fietkau <nbd@openwrt.org>
-# Copyright (C) 2006-2011 OpenWrt.org
+# Copyright (C) 2006-2012 OpenWrt.org
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,23 +36,41 @@ ifdef CONFIG_GCC_VERSION_LLVM
   PKG_SOURCE_SUBDIR:=$(GCC_DIR)
   HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GCC_DIR)
 else
-ifeq ($(CONFIG_GCC_VERSION),"linaro")
-    PKG_REV:=4.5-2011.06-0
-    PKG_VERSION:=4.5.4
-    PKG_SOURCE_URL:=http://launchpad.net/gcc-linaro/4.5/$(PKG_REV)/+download/
+ifeq ($(findstring linaro, $(CONFIG_GCC_VERSION)),linaro)
+    ifeq ($(CONFIG_GCC_VERSION),"4.5-linaro")
+      PKG_REV:=4.5-2012.02
+      PKG_VERSION:=4.5.4
+      PKG_VERSION_MAJOR:=4.5
+      PKG_MD5SUM:=e05be9ea8eca2ad4c859d35dbab568e7
+    endif
+    ifeq ($(CONFIG_GCC_VERSION),"4.6-linaro")
+      PKG_REV:=4.6-2012.02
+      PKG_VERSION:=4.6.3
+      PKG_VERSION_MAJOR:=4.6
+      PKG_MD5SUM:=2b7887846f8e5ac1ca58fe4dfaabf5a6
+    endif
+    ifeq ($(CONFIG_GCC_VERSION),"4.7-linaro")
+      PKG_REV:=4.7-2012.04
+      PKG_VERSION:=4.7.1
+      PKG_VERSION_MAJOR:=4.7
+      PKG_MD5SUM:=6dab459c1177fc9ae2969e7a39549d44
+    endif
+    PKG_SOURCE_URL:=http://launchpad.net/gcc-linaro/$(PKG_VERSION_MAJOR)/$(PKG_REV)/+download/
     PKG_SOURCE:=$(PKG_NAME)-linaro-$(PKG_REV).tar.bz2
-    PKG_MD5SUM:=34562e19a3ea5baf05a2046c7da0a00b
     GCC_DIR:=gcc-linaro-$(PKG_REV)
     HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GCC_DIR)
 else
   PKG_SOURCE_URL:=@GNU/gcc/gcc-$(PKG_VERSION)
   PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 
-  ifeq ($(PKG_VERSION),4.4.6)
-    PKG_MD5SUM:=ab525d429ee4425050a554bc9247d6c4
+  ifeq ($(PKG_VERSION),4.4.7)
+    PKG_MD5SUM:=295709feb4441b04e87dea3f1bab4281
   endif
-  ifeq ($(PKG_VERSION),4.6.1)
-    PKG_MD5SUM:=c57a9170c677bf795bdc04ed796ca491
+  ifeq ($(PKG_VERSION),4.6.2)
+    PKG_MD5SUM:=028115c4fbfb6cfd75d6369f4a90d87e
+  endif
+  ifeq ($(PKG_VERSION),4.7.0)
+    PKG_MD5SUM:=2a0f1d99fda235c29d40b561f81d9a77
   endif
 endif
 endif
@@ -98,7 +116,7 @@ GCC_CONFIGURE:= \
 		--disable-multilib \
 		--disable-nls \
 		$(GRAPHITE_CONFIGURE) \
-		$(if $(CONFIG_GCC_USE_GRAPHITE),--with-host-libstdcxx="-lstdc++ -lm") \
+		--with-host-libstdcxx="-lstdc++ -lm" \
 		$(SOFT_FLOAT_CONFIG_OPTION) \
 		$(call qstrip,$(CONFIG_EXTRA_GCC_CONFIG_OPTIONS)) \
 		$(if $(CONFIG_mips64)$(CONFIG_mips64el),--with-arch=mips64 --with-abi=64) \
@@ -144,10 +162,6 @@ ifeq ($(LIBC),uClibc)
 else
   GCC_CONFIGURE+= \
 		--enable-__cxa_atexit
-endif
-
-ifdef CONFIG_powerpc
-  TARGET_CFLAGS := $(patsubst -Os,-O2,$(TARGET_CFLAGS))
 endif
 
 ifneq ($(GCC_ARCH),)
