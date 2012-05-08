@@ -56,11 +56,16 @@ do
     fi
     # do a move action
     if [ $ACTION = "m" ] ; then
-      mkdir -p $SRC_DIR/tmp/$FILE_PATH
-      cp -af $SRC_DIR/$FILE_PATH $SRC_DIR/tmp/$FILE_PATH
+      FILE_DIR=${FILE_PATH%/*}
+      FILE_NAME=${FILE_PATH#*/}
+      if [ "x$FILE_DIR" = "x$FILE_NAME" ] ; then
+        FILE_DIR=""
+      fi
+      mkdir -p $SRC_DIR/tmp/$FILE_DIR
+      cp -af $SRC_DIR/$FILE_PATH $SRC_DIR/tmp/$FILE_DIR
       rm -rf $SRC_DIR/$FILE_PATH
-      mkdir -p $DST_DIR/tmp/$FILE_PATH
-      cp -af $DST_DIR/$FILE_PATH $DST_DIR/tmp/$FILE_PATH
+      mkdir -p $DST_DIR/tmp/$FILE_DIR
+      cp -af $DST_DIR/$FILE_PATH $DST_DIR/tmp/$FILE_DIR
       rm -rf $DST_DIR/$FILE_PATH
       DIFF_FILE=tmp-${FILE_PATH//\//-}.diff
       diff -urNd $SRC_DIR/tmp/$FILE_PATH $DST_DIR/tmp/$FILE_PATH > $DIFF_DIR/$DIFF_FILE
