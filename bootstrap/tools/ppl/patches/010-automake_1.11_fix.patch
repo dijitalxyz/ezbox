@@ -1,0 +1,81 @@
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/Ciao/Makefile.am ppl-0.10.2/interfaces/Prolog/Ciao/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/Ciao/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/Ciao/Makefile.am	2012-05-08 19:22:03.126743252 +0800
+@@ -165,7 +165,7 @@
+ -module \
+ -avoid-version
+ 
+-pkglib_DATA = ppl_ciao.po
++pkgdata_DATA = ppl_ciao.po
+ 
+ ppl_ciao.pl: $(interface_generator_dependencies)
+ 	$(M4) --prefix-builtin -I../.. -I$(srcdir)/.. -I$(srcdir)/../.. \
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/GNU/Makefile.am ppl-0.10.2/interfaces/Prolog/GNU/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/GNU/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/GNU/Makefile.am	2012-05-08 19:22:03.126743252 +0800
+@@ -164,7 +164,7 @@
+ 	$(M4) --prefix-builtin -I../.. -I$(srcdir)/.. -I$(srcdir)/../.. \
+            $(srcdir)/ppl_interface_generator_gprolog_pl.m4 > $@
+ 
+-pkglib_DATA = ppl_gprolog.pl
++pkgdata_DATA = ppl_gprolog.pl
+ 
+ bin_PROGRAMS = ppl_gprolog
+ 
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/SICStus/Makefile.am ppl-0.10.2/interfaces/Prolog/SICStus/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/SICStus/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/SICStus/Makefile.am	2012-05-08 19:22:03.130743252 +0800
+@@ -68,7 +68,7 @@
+ 
+ if ENABLE_SHARED
+ 
+-pkglib_DATA = ppl_sicstus.pl ppl_sicstus.s.o
++pkgdata_DATA = ppl_sicstus.pl ppl_sicstus.s.o
+ 
+ ppl_sicstus.so: ppl_sicstus.pl $(top_builddir)/src/libppl.la $(WATCHDOG_LIBRARY) libppl_sicstus.la
+ 	$(LIBTOOL) --mode=link --tag=CXX \
+@@ -86,7 +86,7 @@
+ 
+ else !ENABLE_SHARED
+ 
+-pkglib_DATA = ppl_sicstus.pl
++pkgdata_DATA = ppl_sicstus.pl
+ 
+ endif !ENABLE_SHARED
+ 
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/SWI/Makefile.am ppl-0.10.2/interfaces/Prolog/SWI/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/SWI/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/SWI/Makefile.am	2012-05-08 19:22:03.130743252 +0800
+@@ -184,7 +184,7 @@
+ bin_PROGRAMS = ppl_pl
+ ppl_pl_SOURCES = ppl_pl.cc
+ 
+-pkglib_DATA = ppl_swiprolog.pl
++pkgdata_DATA = ppl_swiprolog.pl
+ 
+ CLPQ_TESTS_NONSTRICT = \
+ ack.clpq \
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/XSB/Makefile.am ppl-0.10.2/interfaces/Prolog/XSB/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/XSB/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/XSB/Makefile.am	2012-05-08 19:22:03.130743252 +0800
+@@ -183,7 +183,7 @@
+ -module \
+ -avoid-version
+ 
+-pkglib_DATA = ppl_xsb.xwam
++pkgdata_DATA = ppl_xsb.xwam
+ 
+ ppl_xsb.xwam: ppl_xsb.H ppl_xsb.cc libppl_xsb.la
+ 	cp -f ppl_xsb.cc ppl_xsb.c
+diff -urNd ppl-0.10.2.orig/interfaces/Prolog/YAP/Makefile.am ppl-0.10.2/interfaces/Prolog/YAP/Makefile.am
+--- ppl-0.10.2.orig/interfaces/Prolog/YAP/Makefile.am	2009-04-18 13:03:19.000000000 +0800
++++ ppl-0.10.2/interfaces/Prolog/YAP/Makefile.am	2012-05-08 19:22:03.130743252 +0800
+@@ -173,7 +173,7 @@
+ -module \
+ -avoid-version
+ 
+-pkglib_DATA = ppl_yap.pl
++pkgdata_DATA = ppl_yap.pl
+ 
+ CLPQ_TESTS_NONSTRICT = \
+ ack.clpq \
