@@ -41,6 +41,7 @@ m:target/linux/mpc85xx
 m:target/linux/octeon
 m:target/linux/omap24xx
 m:target/linux/omap35xx
+m:target/linux/omap4
 m:target/linux/orion
 m:target/linux/ppc40x
 m:target/linux/ppc44x
