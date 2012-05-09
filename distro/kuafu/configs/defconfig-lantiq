@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue May  8 17:01:08 2012
+# Wed May  9 12:12:50 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_lantiq=y
@@ -183,8 +183,7 @@ CONFIG_BINUTILS_VERSION="2.22"
 CONFIG_GCC_VERSION_4_6_LINARO=y
 # CONFIG_GCC_VERSION_4_7_LINARO is not set
 # CONFIG_GCC_VERSION_LLVM is not set
-CONFIG_GCC_USE_GRAPHITE=y
-# CONFIG_GCC_USE_SYSTEM_PPL_CLOOG is not set
+# CONFIG_GCC_USE_GRAPHITE is not set
 CONFIG_EXTRA_GCC_CONFIG_OPTIONS=""
 # CONFIG_SSP_SUPPORT is not set
 # CONFIG_TLS_SUPPORT is not set
