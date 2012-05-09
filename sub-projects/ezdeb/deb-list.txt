@@ -1,0 +1,8 @@
+# libc-bin
+libc-bin
+# libgcc1
+libgcc1
+# libc
+libc6
+# busybox
+busybox
