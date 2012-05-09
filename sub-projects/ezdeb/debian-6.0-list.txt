@@ -1,5 +1,6 @@
-# libc-bin
-libc-bin
+# debian 6.0
+# kernel
+linux-image-2.6.32-5-amd64
 # libgcc1
 libgcc1
 # libc
