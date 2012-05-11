@@ -7,3 +7,35 @@ libgcc1
 libc6
 # busybox
 busybox
+# module-init-tools
+module-init-tools
+# zlib1g
+zlib1g
+# libssl
+libssl0.9.8
+# libncurses5
+libncurses5
+# libreadline6
+libreadline6
+# lua5.1
+lua5.1
+# lua5.1 libs
+liblua5.1-0
+liblua5.1-socket2
+# X window system
+xserver-xorg-core
+# awesome window manager
+awesome
+libev3
+libimlib2
+libxcb-icccm1
+libxcb-image0
+libxcb-keysyms1
+libxcb-property1
+libxcb-randr0
+libxcb-shape0
+libxcb-shm0
+libxcb-xinerama0
+libxcb-xtest0
+libxdg-basedir1
+rlwrap

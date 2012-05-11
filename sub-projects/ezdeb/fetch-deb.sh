@@ -29,8 +29,8 @@ do_fetch_deb() {
     if [ $FIRST_CHAR = "#" ] ; then
       echo "it's a comment"
     else
-      dbg "apt-get -d --reinstall install $LINE"
-      apt-get -d --reinstall install $LINE
+      dbg "apt-get -d -y --reinstall install $LINE"
+      apt-get -d -y --reinstall install $LINE
       cp -af /var/cache/apt/archives/$LINE\_*.deb ./
     fi
   done < $PACKAGE_LIST
