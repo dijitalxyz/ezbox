@@ -9,6 +9,8 @@ libc6
 busybox
 # module-init-tools
 module-init-tools
+# zlib
+zlib1g
 # binutils
 binutils
 # make
@@ -71,3 +73,7 @@ libc-dev-bin
 linux-libc-dev
 # gawk
 gawk
+# setup command
+#ln -s /bin/busybox /bin/ash
+#ln -s /usr/bin/aclocal-1.11 /usr/bin/aclocal
+#ln -s /usr/bin/automake-1.11 /usr/bin/automake
