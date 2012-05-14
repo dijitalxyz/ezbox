@@ -1,0 +1,73 @@
+# debian 6.0
+# kernel
+linux-image-2.6.32-5-amd64
+# libgcc1
+libgcc1
+# libc
+libc6
+# busybox
+busybox
+# module-init-tools
+module-init-tools
+# binutils
+binutils
+# make
+make
+# gcc
+gcc
+gcc-4.4
+gcc-4.4-base
+libgomp1
+# g++
+g++
+g++-4.4
+# m4
+m4
+# perl
+perl
+libdb4.7
+libgdbm3
+perl-base
+perl-modules
+# autoconf
+autoconf
+debianutils
+sensible-utils
+# automake
+automake
+dpkg
+libbz2-1.0
+xz-utils
+liblzma2
+# libtool
+libtool
+libltdl7
+libltdl-dev
+# bash
+bash
+libncurses5
+# coreutils
+coreutils
+libacl1
+libattr1
+# sed
+sed
+libselinux1
+# grep
+grep
+# cpp
+cpp
+cpp-4.4
+libgmp3c2
+libmpfr4
+# file
+file
+libmagic1
+# autotools-dev
+autotools-dev
+# libc6-dev
+libc6-dev
+libc-dev-bin
+linux-libc-dev
+# gawk
+gawk
