@@ -73,6 +73,9 @@ libc-dev-bin
 linux-libc-dev
 # gawk
 gawk
+# openssl
+libssl0.9.8
+libssl-dev
 # setup command
 #ln -s /bin/busybox /bin/ash
 #ln -s /usr/bin/aclocal-1.11 /usr/bin/aclocal

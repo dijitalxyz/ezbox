@@ -9,3 +9,9 @@ libc6
 busybox
 # module-init-tools
 module-init-tools
+# ssl
+libssl0.9.8
+# zlib
+zlib1g
+# setup command
+#ln -s /bin/busybox /bin/ash
