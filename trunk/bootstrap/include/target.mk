@@ -12,7 +12,7 @@ __target_inc=1
 DEVICE_TYPE?=router
 
 # Default packages - the really basic set
-DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg hotplug2
+DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg hotplug2 netifd
 # ezbox special settings
 DEFAULT_PACKAGES:=ezcfg libc libgcc busybox
 # For router targets
@@ -184,6 +184,9 @@ ifeq ($(DUMP),1)
     endif
     ifneq ($(CONFIG_VGA_CONSOLE)$(CONFIG_FB),)
       FEATURES += display
+    endif
+    ifneq ($(CONFIG_RTC_CLASS),)
+      FEATURES += rtc
     endif
 
     # remove duplicates
