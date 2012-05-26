@@ -7,7 +7,7 @@
 
 define Profile/TEW632BRP
 	NAME:=TRENDNet TEW-632BRP
-	PACKAGES:=kmod-ath9k wpad-mini
+	PACKAGES:=
 endef
 
 define Profile/TEW632BRP/Description
@@ -18,7 +18,7 @@ $(eval $(call Profile,TEW632BRP))
 
 define Profile/TEW652BRP
 	NAME:=TRENDNet TEW-652BRP
-	PACKAGES:=kmod-ath9k
+	PACKAGES:=
 endef
 
 define Profile/TEW652BRP/Description
@@ -26,3 +26,14 @@ define Profile/TEW652BRP/Description
 endef
 
 $(eval $(call Profile,TEW652BRP))
+
+define Profile/TEW673GRU
+	NAME:=TRENDNet TEW-673GRU
+	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2
+endef
+
+define Profile/TEW673GRU/Description
+	Package set optimized for the TRENDNet TEW-673GRU.
+endef
+
+$(eval $(call Profile,TEW673GRU))

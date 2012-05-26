@@ -7,7 +7,7 @@
 
 define Profile/JA76PF
 	NAME:=jjPlus JA76PF
-	PACKAGES:=wpad-mini kmod-ath9k kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-hwmon-core kmod-i2c-core kmod-hwmon-lm75
+	PACKAGES:=kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-hwmon-core kmod-i2c-core kmod-hwmon-lm75
 endef
 
 define Profile/JA76PF/Description
@@ -15,6 +15,17 @@ define Profile/JA76PF/Description
 endef
 
 $(eval $(call Profile,JA76PF))
+
+define Profile/JA76PF2
+	NAME:=jjPlus JA76PF2
+	PACKAGES:=
+endef
+
+define Profile/JA76PF2/Description
+	Package set optimized for the jjPlus JA76PF2 board.
+endef
+
+$(eval $(call Profile,JA76PF2))
 
 define Profile/JWAP003
 	NAME:=jjPlus JWAP0003
