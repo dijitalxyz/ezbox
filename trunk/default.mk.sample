@@ -17,7 +17,7 @@ BUILD_TYPE := testing
 RELEASE_VERSION := 0.1
 
 # TARGET set the ezbox target running board
-# support [x86|ar71xx|brcm47xx|s3c24xx]
+# support [x86|ar71xx|brcm47xx|cx9461x|s3c24xx|lantiq]
 TARGET := ar71xx
 
 # DEVICE_TYPE set the openwrt device type
