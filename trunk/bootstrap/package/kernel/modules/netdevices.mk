@@ -113,6 +113,24 @@ endef
 
 $(eval $(call KernelPackage,libphy))
 
+define KernelPackage/et131x
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Agere ET131x Gigabit Ethernet driver
+  URL:=http://sourceforge.net/projects/et131x
+  FILES:=$(LINUX_DIR)/drivers/staging/et131x/et131x.$(LINUX_KMOD_SUFFIX)
+  KCONFIG:= \
+	CONFIG_ET131X \
+	CONFIG_ET131X_DEBUG=n
+  DEPENDS:=@PCI_SUPPORT
+  AUTOLOAD:=$(call AutoLoad,70,et131x)
+endef
+
+define KernelPackage/et131x/description
+  This package contains the et131x kernel module.
+endef
+
+$(eval $(call KernelPackage,et131x))
+
 define KernelPackage/swconfig
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=switch configuration API
@@ -127,21 +145,6 @@ define KernelPackage/swconfig/description
 endef
 
 $(eval $(call KernelPackage,swconfig))
-
-define KernelPackage/mvswitch
-  SUBMENU:=$(NETWORK_DEVICES_MENU)
-  TITLE:=Marvell 88E6060 switch support
-  DEPENDS:=+kmod-swconfig @!LINUX_3_1&&!LINUX_3_2&&!LINUX_3_3||BROKEN
-  KCONFIG:=CONFIG_MVSWITCH_PHY
-  FILES:=$(LINUX_DIR)/drivers/net/phy/mvswitch.ko
-  AUTOLOAD:=$(call AutoLoad,41,mvswitch)
-endef
-
-define KernelPackage/mvswitch/description
-  Marvell 88E6060 switch support
-endef
-
-$(eval $(call KernelPackage,mvswitch))
 
 define KernelPackage/switch-ip17xx
   SUBMENU:=$(NETWORK_DEVICES_MENU)
