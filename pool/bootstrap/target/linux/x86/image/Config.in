@@ -23,7 +23,7 @@ config X86_GRUB_IMAGES
 config X86_GRUB_CONSOLE
 	bool "Use Console Terminal (in addition to Serial)"
 	depends X86_GRUB_IMAGES
-	default n if (TARGET_x86_generic_Soekris45xx || TARGET_x86_generic_Soekris48xx || TARGET_x86_net5501 || TARGET_x86_geos)
+	default n if (TARGET_x86_generic_Soekris45xx || TARGET_x86_generic_Soekris48xx || TARGET_x86_net5501 || TARGET_x86_geos || TARGET_x86_alix2)
 	default y
 
 config X86_GRUB_SERIAL
@@ -47,17 +47,24 @@ config X86_GRUB_BOOTOPTS
 	help
 	  If you don't know, just leave it blank.
 
+config X86_GRUB_TIMEOUT
+	string "Seconds to wait before booting the default entry"
+	depends X86_GRUB_IMAGES
+	default "5"
+	help
+	  If you don't know, 5 seconds is a reasonable default.
+
 config X86_VDI_IMAGES
 	bool "Build VirtualBox image files (VDI)"
 	depends X86_GRUB_IMAGES
-	depends TARGET_x86_generic
+	depends TARGET_x86
 	depends TARGET_ROOTFS_EXT4FS
 	select PACKAGE_kmod-pcnet32
 
 config X86_VMDK_IMAGES
 	bool "Build VMware image files (VMDK)"
 	depends X86_GRUB_IMAGES
-	depends TARGET_x86_generic
+	depends TARGET_x86
 	depends TARGET_ROOTFS_EXT4FS
 	select PACKAGE_kmod-e1000
 
@@ -66,11 +73,16 @@ config OLPC_BOOTSCRIPT_IMAGES
 	bool "Build images with bootscript"
 	depends TARGET_x86_olpc
 	depends TARGET_ROOTFS_EXT4FS || TARGET_ROOTFS_ISO || TARGET_ROOTFS_JFFS2 || TARGET_ROOTFS_SQUASHFS
+	default TARGET_x86_olpc
 
 
 config TARGET_IMAGES_PAD
 	bool "Pad images to filesystem size (for JFFS2)"
 	depends OLPC_BOOTSCRIPT_IMAGES || X86_GRUB_IMAGES
+
+config TARGET_IMAGES_GZIP
+	bool "GZip images"
+	depends TARGET_IMAGES_PAD || TARGET_ROOTFS_EXT4FS
 	default y
 
 config TARGET_KERNEL_PARTSIZE
