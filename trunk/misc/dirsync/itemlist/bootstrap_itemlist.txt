@@ -6,9 +6,10 @@ m:Config.in
 m:include/target.mk
 m:rules.mk
 m:toolchain/uClibc/Makefile
-m:toolchain/uClibc/config-0.9.32/locale
+m:toolchain/uClibc/config-0.9.33.2/locale
 m:toolchain/gcc/common.mk
 m:tools/cloog/Makefile
+m:tools/ppl/patches/010-automake_1.11_fix.patch
 m:target/linux/adm5120
 m:target/linux/adm8668
 m:target/linux/amazon

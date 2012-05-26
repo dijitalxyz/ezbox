@@ -1,0 +1,15 @@
+#########################
+# first move the modified
+# files to tmp/ directory
+#########################
+#########################
+# next do the diff action
+#########################
+#########################
+# target/linux/ directory
+#########################
+d:target/linux/ar71xx/
+d:target/linux/brcm47xx/
+d:target/linux/lantiq/
+d:target/linux/s3c24xx/
+d:target/linux/x86/
