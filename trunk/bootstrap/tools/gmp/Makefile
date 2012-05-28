@@ -18,8 +18,8 @@ include $(INCLUDE_DIR)/host-build.mk
 unexport CFLAGS
 
 HOST_CONFIGURE_ARGS += \
-	--enable-static \
-	--disable-shared \
+	--disable-static \
+	--enable-shared \
 	--enable-cxx \
 	--enable-mpbsd
 

@@ -23,8 +23,8 @@ HOST_CONFIGURE_VARS += \
 	LIBS="-lstdc++ -lm"
 
 HOST_CONFIGURE_ARGS += \
-	--enable-static \
-	--disable-shared \
+	--disable-static \
+	--enable-shared \
 	--with-ppl=$(BUILD_DIR_HOST)
 
 define Host/Configure
