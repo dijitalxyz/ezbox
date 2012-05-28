@@ -20,8 +20,8 @@ include $(INCLUDE_DIR)/host-build.mk
 unexport CFLAGS
 
 HOST_CONFIGURE_ARGS += \
-	--enable-static \
-	--disable-shared
+	--disable-static \
+	--enable-shared
 
 define Host/Configure
 	(cd $(HOST_BUILD_DIR)/$(3); \
