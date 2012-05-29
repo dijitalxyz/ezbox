@@ -1,0 +1,1 @@
+make-kpkg --append-to-version -5-amd64 --revision 2.6.32-45 --initrd --rootcmd fakeroot kernel_image modules_image
