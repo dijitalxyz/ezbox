@@ -41,6 +41,7 @@ automake
 # dpkg
 dpkg
 libbz2-1.0
+xz-lzma
 xz-utils
 liblzma2
 # libtool
