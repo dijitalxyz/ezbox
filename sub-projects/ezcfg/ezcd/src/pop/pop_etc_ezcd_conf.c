@@ -103,6 +103,98 @@ static int generate_path_conf(FILE *file, int flag)
 		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH, buf);
 	}
 
+	/* shm_ezcfg_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCFG_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCFG_PATH, buf);
+	}
+
+	/* shm_ezcfg_size */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCFG_SIZE);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCFG_SIZE, buf);
+	}
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+	/* shm_ezctp_path */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH, buf);
+	}
+
+	/* shm_ezctp_size */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCTP_SIZE);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCTP_SIZE, buf);
+	}
+
+	/* shm_ezctp_cq_unit_size */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_UNIT_SIZE);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_UNIT_SIZE, buf);
+	}
+
+	/* shm_ezctp_cq_length */
+	snprintf(name, sizeof(name), "%s%s.%s",
+	         EZCFG_EZCFG_NVRAM_PREFIX,
+	         EZCFG_EZCFG_SECTION_COMMON,
+	         EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_LENGTH);
+	if (flag == RC_ACT_BOOT) {
+		rc = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
+	}
+	else {
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+	}
+	if (rc >= 0) {
+		fprintf(file, "%s=%s\n", EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_LENGTH, buf);
+	}
+#endif
+
 	/* sock_ctrl_path */
 	snprintf(name, sizeof(name), "%s%s.%s",
 	         EZCFG_EZCFG_NVRAM_PREFIX,
