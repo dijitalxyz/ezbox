@@ -131,7 +131,9 @@ static void master_delete(struct ezcfg_master *master)
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* first delete ezctp shared memory */
-	ezcfg_shm_delete_ezctp_shm(master->shm_addr);
+	if (master->shm_addr != (void *)-1) {
+		ezcfg_shm_delete_ezctp_shm(master->shm_addr);
+	}
 #endif
 
 	if (master->shm_addr != (void *)-1) {

@@ -78,8 +78,8 @@ static struct action_s {
 	{ 0, "/dev/tty2", 'a', CMD_LOGIN },
 	{ 0, "/dev/tty3", 'a', CMD_LOGIN },
 	{ 0, "/dev/tty4", 'a', CMD_LOGIN },
-	{ 0, "/dev/tty5", 'a', CMD_SH },
-	{ 0, "/dev/tty6", 'a', CMD_SH },
+	{ 0, "/dev/tty5", 'a', CMD_LOGIN },
+	{ 0, "/dev/tty6", 'a', CMD_LOGIN },
 #endif
 	{ 0, NULL, 0, NULL }
 };
