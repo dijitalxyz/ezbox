@@ -8,6 +8,7 @@ m:rules.mk
 m:toolchain/uClibc/Makefile
 m:toolchain/uClibc/config-0.9.33.2/locale
 m:toolchain/gcc/common.mk
+m:tools/e2fsprogs/Makefile
 m:tools/cloog/Makefile
 m:tools/gmp/Makefile
 m:tools/mpc/Makefile
