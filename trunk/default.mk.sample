@@ -3,7 +3,7 @@
 #
 
 # DISTRO set the ezbox distro to be build
-# support [kuafu|huangdi|jingwei|qiaochui]
+# support [kuafu|huangdi|jingwei|qiaochui|lilou|fuxi]
 DISTRO := kuafu
 
 # BUILD_TYPE set the ezbox distro build type
