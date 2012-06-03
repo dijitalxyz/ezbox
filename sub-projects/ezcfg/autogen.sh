@@ -30,6 +30,7 @@ libdir() {
 
 args="--prefix=/usr/local \
 --sysconfdir=/etc \
+--with-ezbox-distro=fuxi \
 --enable-service-ezcfg_httpd \
 --enable-service-ezcfg_httpd_cgi_index \
 --enable-service-ezcfg_httpd_cgi_admin \

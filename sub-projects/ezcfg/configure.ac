@@ -13,8 +13,8 @@ AC_PREFIX_DEFAULT([/usr])
 
 # Configure variables: EZBOX_DISTRO.
 AC_ARG_WITH([ezbox-distro],
-	AS_HELP_STRING([--with-ezbox-distro=kuafu], [which distro ezcfg is built for]),
-	[], [with_ezbox_distro=kuafu])
+	AS_HELP_STRING([--with-ezbox-distro=hundun], [which distro ezcfg is built for]),
+	[], [with_ezbox_distro=hundun])
 if test "x$with_ezbox_distro" = xkuafu; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
 fi
@@ -30,12 +30,15 @@ fi
 if test "x$with_ezbox_distro" = xlilou; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_LILOU"
 fi
+if test "x$with_ezbox_distro" = xfuxi; then
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_FUXI"
+fi
 AC_SUBST([EZBOX_DISTRO_DEFINE])
 
 # Not specified?
 if test -z "$EZBOX_DISTRO_DEFINE"; then
-	# Set to kuafu distro
-	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_KUAFU"
+	# Set to hundun distro
+	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_HUNDUN"
 fi
 
 AC_CONFIG_SUBDIRS([libezcfg ezcd])
