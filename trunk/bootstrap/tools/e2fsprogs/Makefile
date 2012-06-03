@@ -20,8 +20,8 @@ include $(INCLUDE_DIR)/host-build.mk
 TARGET_CFLAGS += $(FPIC)
 
 CONFIGURE_ARGS += \
-	--disable-shared \
-	--enable-static \
+	--enable-shared \
+	--disable-static \
 	--disable-rpath \
 	--enable-elf-shlibs \
 	--enable-dynamic-e2fsck \
