@@ -188,7 +188,7 @@ int ezcfg_http_html_admin_html_menu_setup(
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_nvram *nvram;
+	//struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
 	int li_index, h3_index, a_index;
@@ -204,7 +204,7 @@ int ezcfg_http_html_admin_html_menu_setup(
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
-	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	//nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
 	request_uri = ezcfg_http_get_request_uri(http);

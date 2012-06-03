@@ -843,12 +843,12 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 {
 	int err = 0;
 	struct usa *usa = NULL;
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int sock_protocol = -1;
 
 	ASSERT(sp != NULL);
 
-	ezcfg = sp->ezcfg;
+	//ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
 
 	ezcfg_socket_close_sock(sp);
@@ -1116,10 +1116,10 @@ static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_sock
 
 struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket *listener)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(listener != NULL);
-	ezcfg = listener->ezcfg;
+	//ezcfg = listener->ezcfg;
 
 	switch (listener->proto) {
 	case EZCFG_PROTO_UEVENT :
@@ -1136,11 +1136,11 @@ struct ezcfg_socket *ezcfg_socket_new_accepted_socket(const struct ezcfg_socket 
 
 void ezcfg_socket_close_sock(struct ezcfg_socket *sp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sp != NULL);
 
-	ezcfg = sp->ezcfg;
+	//ezcfg = sp->ezcfg;
 
 	if (sp->sock >= 0) {
 		close_socket_gracefully(sp->sock);
@@ -1180,11 +1180,11 @@ bool ezcfg_socket_get_need_delete(struct ezcfg_socket *sp)
 
 bool ezcfg_socket_sync_lsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(dsp != NULL);
 	ASSERT(ssp != NULL);
-	ezcfg = dsp->ezcfg;
+	//ezcfg = dsp->ezcfg;
 
 	if (dsp->proto != ssp->proto) {
 		return false;
@@ -1197,11 +1197,11 @@ bool ezcfg_socket_sync_lsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *
 
 bool ezcfg_socket_sync_rsa(struct ezcfg_socket *dsp, const struct ezcfg_socket *ssp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(dsp != NULL);
 	ASSERT(ssp != NULL);
-	ezcfg = dsp->ezcfg;
+	//ezcfg = dsp->ezcfg;
 
 	if (dsp->proto != ssp->proto) {
 		return false;
@@ -1335,7 +1335,8 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	const char *p;
 	int status, n;
 	int sock;
-	struct usa *lsa, *rsa;
+	//struct usa *lsa;
+	struct usa *rsa;
 
 	ASSERT(sp != NULL);
 	ASSERT(buf != NULL);
@@ -1345,7 +1346,7 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	p = buf;
 	status = 0;
 	sock = sp->sock;
-	lsa = &(sp->lsa);
+	//lsa = &(sp->lsa);
 	rsa = &(sp->rsa);
 
 	while (status != len) {

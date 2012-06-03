@@ -49,8 +49,8 @@ int ezcfg_http_html_admin_set_html_menu(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_nvram *nvram;
+	//struct ezcfg_http *http;
+	//struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	struct ezcfg_locale *locale = NULL;
 	int menu_index;
@@ -61,8 +61,8 @@ int ezcfg_http_html_admin_set_html_menu(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
-	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
+	//nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
         /* set locale info */

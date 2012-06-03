@@ -74,13 +74,13 @@ bool ezcfg_locale_delete(struct ezcfg_locale *locale)
 
 bool ezcfg_locale_set_domain(struct ezcfg_locale *locale, char *domain)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int n;
 
 	ASSERT(locale != NULL);
 	ASSERT(domain != NULL);
 
-	ezcfg = locale->ezcfg;
+	//ezcfg = locale->ezcfg;
 
 	n = snprintf(locale->domain, sizeof(locale->domain), "%s", domain);
 	if ((n >= 0) && (strcmp(locale->domain, domain) == 0)) {
@@ -93,13 +93,13 @@ bool ezcfg_locale_set_domain(struct ezcfg_locale *locale, char *domain)
 
 bool ezcfg_locale_set_dir(struct ezcfg_locale *locale, char *dir)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int n;
 
 	ASSERT(locale != NULL);
 	ASSERT(dir != NULL);
 
-	ezcfg = locale->ezcfg;
+	//ezcfg = locale->ezcfg;
 
 	n = snprintf(locale->dir, sizeof(locale->dir), "%s", dir);
 	if ((n >= 0) && (strcmp(locale->dir, dir) == 0)) {

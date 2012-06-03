@@ -99,10 +99,10 @@ static bool ssl_is_same(struct ezcfg_ssl *s1, struct ezcfg_ssl *s2)
  **/
 void ezcfg_ssl_delete(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	/* FIXME: must close SSL session first */
 	ezcfg_ssl_close_session(sslp);
@@ -149,10 +149,14 @@ struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int m
 
 	switch (role) {
 	case EZCFG_SSL_ROLE_UNKNOWN :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+#ifndef OPENSSL_NO_SSL2
 		if (method == EZCFG_SSL_METHOD_SSLV2) {
 			meth = SSLv2_method();
 		}
-		else if (method == EZCFG_SSL_METHOD_SSLV3) {
+		else
+#endif
+		if (method == EZCFG_SSL_METHOD_SSLV3) {
 			meth = SSLv3_method();
 		}
 		else if (method == EZCFG_SSL_METHOD_TLSV1) {
@@ -161,16 +165,22 @@ struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int m
 		else if (method == EZCFG_SSL_METHOD_SSLV23) {
 			meth = SSLv23_method();
 		}
-		else {
+		else
+#endif
+		{
 			goto fail_exit;
 		}
 		break;
 
 	case EZCFG_SSL_ROLE_SERVER :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+#ifndef OPENSSL_NO_SSL2
 		if (method == EZCFG_SSL_METHOD_SSLV2) {
 			meth = SSLv2_server_method();
 		}
-		else if (method == EZCFG_SSL_METHOD_SSLV3) {
+		else
+#endif
+		if (method == EZCFG_SSL_METHOD_SSLV3) {
 			meth = SSLv3_server_method();
 		}
 		else if (method == EZCFG_SSL_METHOD_TLSV1) {
@@ -179,16 +189,22 @@ struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int m
 		else if (method == EZCFG_SSL_METHOD_SSLV23) {
 			meth = SSLv23_server_method();
 		}
-		else {
+		else
+#endif
+		{
 			goto fail_exit;
 		}
 		break;
 
 	case EZCFG_SSL_ROLE_CLIENT :
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
+#ifndef OPENSSL_NO_SSL2
 		if (method == EZCFG_SSL_METHOD_SSLV2) {
 			meth = SSLv2_client_method();
 		}
-		else if (method == EZCFG_SSL_METHOD_SSLV3) {
+		else
+#endif
+		if (method == EZCFG_SSL_METHOD_SSLV3) {
 			meth = SSLv3_client_method();
 		}
 		else if (method == EZCFG_SSL_METHOD_TLSV1) {
@@ -197,7 +213,9 @@ struct ezcfg_ssl *ezcfg_ssl_new(struct ezcfg *ezcfg, const int role, const int m
 		else if (method == EZCFG_SSL_METHOD_SSLV23) {
 			meth = SSLv23_client_method();
 		}
-		else {
+		else
+#endif
+		{
 			goto fail_exit;
 		}
 		break;
@@ -217,22 +235,22 @@ fail_exit:
 
 struct ezcfg_socket *ezcfg_ssl_get_socket(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	return sslp->sp;
 }
 
 bool ezcfg_ssl_set_socket(struct ezcfg_ssl *sslp, struct ezcfg_socket *sp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 	if (sslp->sp != NULL) {
 		ezcfg_socket_delete(sp);
 	}
@@ -243,13 +261,13 @@ bool ezcfg_ssl_set_socket(struct ezcfg_ssl *sslp, struct ezcfg_socket *sp)
 
 bool ezcfg_ssl_open_session(struct ezcfg_ssl *sslp, const int sock)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	SSL *s;
 
 	ASSERT(sslp != NULL);
 	ASSERT(sock >= 0);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	if (sslp->session != NULL) {
 		return false;
@@ -291,11 +309,11 @@ bool ezcfg_ssl_open_session(struct ezcfg_ssl *sslp, const int sock)
 
 bool ezcfg_ssl_close_session(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 	if (sslp->session != NULL) {
 		SSL_free(sslp->session);
 		sslp->session = NULL;
@@ -310,24 +328,24 @@ bool ezcfg_ssl_close_session(struct ezcfg_ssl *sslp)
 
 const char *ezcfg_ssl_get_certificate_file(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	return sslp->certificate_file;
 }
 
 bool ezcfg_ssl_set_certificate_file(struct ezcfg_ssl *sslp, const char *file)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(sslp != NULL);
 	ASSERT(file != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	p = strdup(file);
 	if (p == NULL) {
@@ -344,24 +362,24 @@ bool ezcfg_ssl_set_certificate_file(struct ezcfg_ssl *sslp, const char *file)
 
 const char *ezcfg_ssl_get_certificate_chain_file(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	return sslp->certificate_chain_file;
 }
 
 bool ezcfg_ssl_set_certificate_chain_file(struct ezcfg_ssl *sslp, const char *file)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(sslp != NULL);
 	ASSERT(file != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	p = strdup(file);
 	if (p == NULL) {
@@ -378,24 +396,24 @@ bool ezcfg_ssl_set_certificate_chain_file(struct ezcfg_ssl *sslp, const char *fi
 
 const char *ezcfg_ssl_get_private_key_file(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	return sslp->private_key_file;
 }
 
 bool ezcfg_ssl_set_private_key_file(struct ezcfg_ssl *sslp, const char *file)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(sslp != NULL);
 	ASSERT(file != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	p = strdup(file);
 	if (p == NULL) {
@@ -412,11 +430,11 @@ bool ezcfg_ssl_set_private_key_file(struct ezcfg_ssl *sslp, const char *file)
 
 bool ezcfg_ssl_is_valid(struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	return true;
 }
@@ -507,13 +525,13 @@ int ezcfg_ssl_write(struct ezcfg_ssl *sslp, const void *buf, int len, int flags)
 
 bool ezcfg_ssl_list_in(struct ezcfg_ssl **list, struct ezcfg_ssl *sslp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_ssl *sslp2;
 
 	ASSERT(list != NULL);
 	ASSERT(sslp != NULL);
 
-	ezcfg = sslp->ezcfg;
+	//ezcfg = sslp->ezcfg;
 
 	sslp2 = *list;
 	while (sslp2 != NULL) {

@@ -226,13 +226,13 @@ static const struct status_code_reason_phrase_map default_status_code_maps[] = {
 
 static char *get_http_header_value(struct ezcfg_http *http, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct http_header *h;
 
 	ASSERT(http != NULL);
 	ASSERT(name != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	h = http->header_head;
 	while(h != NULL) {
@@ -257,10 +257,10 @@ static void delete_http_header(struct http_header *h)
 
 static void clear_http_headers(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct http_header *h;
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 	while(http->header_head != NULL) {
 		h = http->header_head;
 		http->header_head = h->next;
@@ -271,13 +271,13 @@ static void clear_http_headers(struct ezcfg_http *http)
 
 static char *find_known_header_name(struct ezcfg_http *http, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(name != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	for (i = http->num_known_headers; i > 0; i--) {
 		if (strcasecmp(http->known_header_strings[i], name) == 0) {
@@ -341,13 +341,13 @@ static bool parse_http_headers(struct ezcfg_http *http, char *buf)
 
 static unsigned char find_method_index(struct ezcfg_http *http, const char *method)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(method != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	for (i = http->num_methods; i > 0; i--) {
 		if (strcmp(http->method_strings[i], method) == 0)
@@ -358,13 +358,13 @@ static unsigned char find_method_index(struct ezcfg_http *http, const char *meth
 
 static unsigned short find_status_code_index(struct ezcfg_http *http, const unsigned short status_code)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(status_code > 0);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	for (i = http->num_status_codes; i > 0; i--) {
 		if (http->status_code_maps[i].status_code == status_code) {
@@ -583,33 +583,33 @@ struct ezcfg_http *ezcfg_http_new(struct ezcfg *ezcfg)
 
 void ezcfg_http_set_state_request(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->state = HTTP_REQUEST;
 }
 
 void ezcfg_http_set_state_response(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->state = HTTP_RESPONSE;
 }
 
 bool ezcfg_http_is_state_request(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	if (http->state == HTTP_REQUEST)
 		return true;
@@ -619,11 +619,11 @@ bool ezcfg_http_is_state_request(struct ezcfg_http *http)
 
 bool ezcfg_http_is_state_response(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	if (http->state == HTTP_RESPONSE)
 		return true;
@@ -633,11 +633,11 @@ bool ezcfg_http_is_state_response(struct ezcfg_http *http)
 
 void ezcfg_http_reset_attributes(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	clear_http_headers(http);
 
@@ -670,7 +670,7 @@ bool ezcfg_http_parse_header(struct ezcfg_http *http, char *buf, int len)
 		return parse_http_response(http, buf, len);
 	}
 	else {
-		err(ezcfg, "Unkown HTTP state.\n");
+		err(ezcfg, "Unknown HTTP state.\n");
 		return false;
 	}
 }
@@ -684,33 +684,33 @@ struct ezcfg *ezcfg_http_get_ezcfg(struct ezcfg_http *http)
 
 unsigned short ezcfg_http_get_version_major(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->version_major;
 }
 
 unsigned short ezcfg_http_get_version_minor(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->version_minor;
 }
 
 bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->version_major = major;
 
@@ -719,11 +719,11 @@ bool ezcfg_http_set_version_major(struct ezcfg_http *http, unsigned short major)
 
 bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->version_minor = minor;
 
@@ -732,12 +732,12 @@ bool ezcfg_http_set_version_minor(struct ezcfg_http *http, unsigned short minor)
 
 char *ezcfg_http_get_header_value(struct ezcfg_http *http, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 	ASSERT(name != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return get_http_header_value(http, name);
 }
@@ -772,12 +772,12 @@ void ezcfg_http_dump(struct ezcfg_http *http)
 
 bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_strings, unsigned char num_methods)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 	ASSERT(method_strings != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->num_methods = num_methods;
 	http->method_strings = method_strings;
@@ -787,12 +787,12 @@ bool ezcfg_http_set_method_strings(struct ezcfg_http *http, const char **method_
 
 bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **header_strings, unsigned char num_headers)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 	ASSERT(header_strings != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->num_known_headers = num_headers;
 	http->known_header_strings = header_strings;
@@ -802,12 +802,12 @@ bool ezcfg_http_set_known_header_strings(struct ezcfg_http *http, const char **h
 
 bool ezcfg_http_set_status_code_maps(struct ezcfg_http *http, const void *maps, unsigned short num_status_codes)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 	ASSERT(maps != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->num_status_codes = num_status_codes;
 	http->status_code_maps = maps;
@@ -817,13 +817,13 @@ bool ezcfg_http_set_status_code_maps(struct ezcfg_http *http, const void *maps, 
 
 unsigned char ezcfg_http_set_request_method(struct ezcfg_http *http, const char *method)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(method != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	for (i = http->num_methods; i > 0; i--) {
 		if (strcmp(http->method_strings[i], method) == 0) {
@@ -845,13 +845,13 @@ int ezcfg_http_request_method_cmp(struct ezcfg_http *http, const char *method)
 
 unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned short status_code)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(http != NULL);
 	ASSERT(status_code != 0);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	for (i = http->num_status_codes; i > 0; i--) {
 		if (http->status_code_maps[i].status_code == status_code) {
@@ -865,23 +865,23 @@ unsigned short ezcfg_http_set_status_code(struct ezcfg_http *http, unsigned shor
 
 char *ezcfg_http_get_request_uri(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->request_uri;
 }
 
 bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *request_uri;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	request_uri = strdup(uri);
 	if (request_uri == NULL) {
@@ -899,22 +899,22 @@ bool ezcfg_http_set_request_uri(struct ezcfg_http *http, const char *uri)
 
 bool ezcfg_http_get_is_ssl(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->is_ssl;
 }
 
 bool ezcfg_http_set_is_ssl(struct ezcfg_http *http, const bool is_ssl)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	http->is_ssl = is_ssl;
 
@@ -924,14 +924,14 @@ bool ezcfg_http_set_is_ssl(struct ezcfg_http *http, const bool is_ssl)
 /* \0-terminated the message body */
 char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, const int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *message_body;
 
 	ASSERT(http != NULL);
 	ASSERT(body != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	message_body = malloc(len+1);
 	if (message_body == NULL) {
@@ -955,22 +955,22 @@ char *ezcfg_http_set_message_body(struct ezcfg_http *http, const char *body, con
 
 int ezcfg_http_get_message_body_len(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->message_body_len;
 }
 
 char *ezcfg_http_get_message_body(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return http->message_body;
 }
@@ -1171,25 +1171,25 @@ int ezcfg_http_write_start_line(struct ezcfg_http *http, char *buf, int len)
 
 int ezcfg_http_get_crlf_length(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	return strlen(EZCFG_HTTP_CRLF_STRING);
 }
 
 int ezcfg_http_write_crlf(struct ezcfg_http *http, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int n;
 
 	ASSERT(http != NULL);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	n = snprintf(buf, len, EZCFG_HTTP_CRLF_STRING);
 	if (n < 2) {
@@ -1343,13 +1343,13 @@ int ezcfg_http_write_message_body(struct ezcfg_http *http, char *buf, int len)
 
 int ezcfg_http_get_message_length(struct ezcfg_http *http)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	int n, count;
 
 	ASSERT(http != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	count = 0;
 	n = ezcfg_http_get_start_line_length(http);
@@ -1427,7 +1427,7 @@ int ezcfg_http_write_message(struct ezcfg_http *http, char *buf, int len)
 
 bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char buf[1024];
 	char *p;
 	bool ret;
@@ -1435,7 +1435,7 @@ bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 	ASSERT(http != NULL);
 	ASSERT(auth != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	p = get_http_header_value(http, EZCFG_HTTP_HEADER_AUTHORIZATION);
 	if (p == NULL) {
@@ -1476,7 +1476,7 @@ bool ezcfg_http_parse_auth(struct ezcfg_http *http, struct ezcfg_auth *auth)
 
 bool ezcfg_http_parse_post_data(struct ezcfg_http *http, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *q;
 	char *end, *eq;
 	bool ret;
@@ -1484,7 +1484,7 @@ bool ezcfg_http_parse_post_data(struct ezcfg_http *http, struct ezcfg_link_list 
 	ASSERT(http != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = http->ezcfg;
+	//ezcfg = http->ezcfg;
 
 	p = http->message_body;
 

@@ -70,11 +70,11 @@ static const char *soap_http_header_strings[] = {
  **/
 void ezcfg_soap_http_delete(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	if (sh->soap != NULL)
 		ezcfg_soap_delete(sh->soap);
@@ -126,145 +126,145 @@ struct ezcfg_soap_http *ezcfg_soap_http_new(struct ezcfg *ezcfg)
 
 unsigned short ezcfg_soap_http_get_soap_version_major(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_soap_get_version_major(sh->soap);
 }
 
 unsigned short ezcfg_soap_http_get_soap_version_minor(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_soap_get_version_minor(sh->soap);
 }
 
 bool ezcfg_soap_http_set_soap_version_major(struct ezcfg_soap_http *sh, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_soap_set_version_major(sh->soap, major);
 }
 
 bool ezcfg_soap_http_set_soap_version_minor(struct ezcfg_soap_http *sh, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_soap_set_version_minor(sh->soap, minor);
 }
 
 unsigned short ezcfg_soap_http_get_http_version_major(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_http_get_version_major(sh->http);
 }
 
 unsigned short ezcfg_soap_http_get_http_version_minor(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_http_get_version_minor(sh->http);
 }
 
 bool ezcfg_soap_http_set_http_version_major(struct ezcfg_soap_http *sh, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_http_set_version_major(sh->http, major);
 }
 
 bool ezcfg_soap_http_set_http_version_minor(struct ezcfg_soap_http *sh, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return ezcfg_http_set_version_minor(sh->http, minor);
 }
 
 struct ezcfg_soap *ezcfg_soap_http_get_soap(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return sh->soap;
 }
 
 struct ezcfg_http *ezcfg_soap_http_get_http(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	return sh->http;
 }
 
 char *ezcfg_soap_http_get_http_header_value(struct ezcfg_soap_http *sh, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
         return ezcfg_http_get_header_value(sh->http, name);
 }
 
 void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 
 	ezcfg_http_reset_attributes(sh->http);
 	ezcfg_soap_reset_attributes(sh->soap);
@@ -272,22 +272,22 @@ void ezcfg_soap_http_reset_attributes(struct ezcfg_soap_http *sh)
 
 void ezcfg_soap_http_dump(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(sh != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 }
 
 bool ezcfg_soap_http_parse_header(struct ezcfg_soap_http *sh, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 	http = sh->http;
 
 	if (ezcfg_http_parse_header(http, buf, len) == false) {
@@ -299,7 +299,7 @@ bool ezcfg_soap_http_parse_header(struct ezcfg_soap_http *sh, char *buf, int len
 
 bool ezcfg_soap_http_parse_message_body(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char *msg_body;
@@ -309,7 +309,7 @@ bool ezcfg_soap_http_parse_message_body(struct ezcfg_soap_http *sh)
 	ASSERT(sh->http != NULL);
 	ASSERT(sh->soap != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 	http = sh->http;
 	soap = sh->soap;
 
@@ -327,13 +327,13 @@ bool ezcfg_soap_http_parse_message_body(struct ezcfg_soap_http *sh)
 
 char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *body, const int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 	http = sh->http;
 
 	return ezcfg_http_set_message_body(http, body, len);
@@ -341,7 +341,7 @@ char *ezcfg_soap_http_set_message_body(struct ezcfg_soap_http *sh, const char *b
 
 int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 
 	int n, count;
@@ -349,7 +349,7 @@ int ezcfg_soap_http_get_message_length(struct ezcfg_soap_http *sh)
 	ASSERT(sh != NULL);
 	ASSERT(sh->http != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 	http = sh->http;
 
 	count = 0;
@@ -383,7 +383,7 @@ int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg_soap *soap;
 
 	char *p;
 	int n;
@@ -396,7 +396,7 @@ int ezcfg_soap_http_write_message(struct ezcfg_soap_http *sh, char *buf, int len
 
 	ezcfg = sh->ezcfg;
 	http = sh->http;
-	soap = sh->soap;
+	//soap = sh->soap;
 
 	p = buf; n = 0;
 	n = ezcfg_http_write_start_line(http, p, len);

@@ -112,14 +112,14 @@ func_exit:
 
 bool ezcfg_http_html_admin_set_http_html_common_header(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	char buf[1024];
 	bool ret;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* HTML http-equiv content-type */
@@ -159,14 +159,14 @@ func_exit:
 
 bool ezcfg_http_html_admin_set_http_css_common_header(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	char buf[1024];
 	bool ret;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* text/css charset=UTF-8 */

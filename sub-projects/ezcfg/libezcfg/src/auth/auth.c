@@ -98,11 +98,11 @@ static bool auth_is_same(struct ezcfg_auth *a1, struct ezcfg_auth *a2)
 
 bool ezcfg_auth_delete(struct ezcfg_auth *auth)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(auth != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	if (auth->type != NULL) {
 		free(auth->type);
@@ -149,13 +149,13 @@ struct ezcfg_auth *ezcfg_auth_new(struct ezcfg *ezcfg)
 
 bool ezcfg_auth_set_type(struct ezcfg_auth *auth, char *type)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(auth != NULL);
 	ASSERT(type != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	p = strdup(type);
 	if (p == NULL) {
@@ -170,13 +170,13 @@ bool ezcfg_auth_set_type(struct ezcfg_auth *auth, char *type)
 
 bool ezcfg_auth_set_user(struct ezcfg_auth *auth, char *user)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(auth != NULL);
 	ASSERT(user != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	p = strdup(user);
 	if (p == NULL) {
@@ -191,13 +191,13 @@ bool ezcfg_auth_set_user(struct ezcfg_auth *auth, char *user)
 
 bool ezcfg_auth_set_realm(struct ezcfg_auth *auth, char *realm)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(auth != NULL);
 	ASSERT(realm != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	p = strdup(realm);
 	if (p == NULL) {
@@ -212,13 +212,13 @@ bool ezcfg_auth_set_realm(struct ezcfg_auth *auth, char *realm)
 
 bool ezcfg_auth_set_domain(struct ezcfg_auth *auth, char *domain)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(auth != NULL);
 	ASSERT(domain != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	p = strdup(domain);
 	if (p == NULL) {
@@ -233,13 +233,13 @@ bool ezcfg_auth_set_domain(struct ezcfg_auth *auth, char *domain)
 
 bool ezcfg_auth_set_secret(struct ezcfg_auth *auth, char *secret)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p;
 
 	ASSERT(auth != NULL);
 	ASSERT(secret != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	p = strdup(secret);
 	if (p == NULL) {
@@ -254,11 +254,11 @@ bool ezcfg_auth_set_secret(struct ezcfg_auth *auth, char *secret)
 
 bool ezcfg_auth_is_valid(struct ezcfg_auth *auth)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(auth != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	if (auth->type == NULL) {
 		return false;
@@ -277,13 +277,13 @@ bool ezcfg_auth_is_valid(struct ezcfg_auth *auth)
 
 bool ezcfg_auth_list_in(struct ezcfg_auth **list, struct ezcfg_auth *auth)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_auth *ap;
 
 	ASSERT(list != NULL);
 	ASSERT(auth != NULL);
 
-	ezcfg = auth->ezcfg;
+	//ezcfg = auth->ezcfg;
 
 	ap = *list;
 	while (ap != NULL) {

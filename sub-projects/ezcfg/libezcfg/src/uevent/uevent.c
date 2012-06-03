@@ -45,11 +45,11 @@
  **/
 void ezcfg_uevent_delete(struct ezcfg_uevent *uevent)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(uevent != NULL);
 
-	ezcfg = uevent->ezcfg;
+	//ezcfg = uevent->ezcfg;
 
 	free(uevent);
 }

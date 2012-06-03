@@ -274,11 +274,11 @@ static int css_add_rule_set_property(struct css_rule *rule, char *name, char *va
  **/
 void ezcfg_css_delete(struct ezcfg_css *css)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(css != NULL);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	if (css->rules != NULL)
 		css_delete_rules(&(css->rules));
@@ -327,11 +327,11 @@ unsigned short ezcfg_css_get_version_minor(struct ezcfg_css *css)
 
 bool ezcfg_css_set_version_major(struct ezcfg_css *css, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(css != NULL);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	css->version_major = major;
 
@@ -340,11 +340,11 @@ bool ezcfg_css_set_version_major(struct ezcfg_css *css, unsigned short major)
 
 bool ezcfg_css_set_version_minor(struct ezcfg_css *css, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(css != NULL);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	css->version_minor = minor;
 
@@ -353,12 +353,12 @@ bool ezcfg_css_set_version_minor(struct ezcfg_css *css, unsigned short minor)
 
 int ezcfg_css_add_rule_set(struct ezcfg_css *css, char *selector, char *name, char *value)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct css_rule *rule;
 
 	ASSERT(css != NULL);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	rule = css->rules;
 
@@ -408,13 +408,13 @@ int ezcfg_css_add_rule_set(struct ezcfg_css *css, char *selector, char *name, ch
 
 int ezcfg_css_get_message_length(struct ezcfg_css *css)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct css_rule *rule;
 	int ret, count;
 
 	ASSERT(css != NULL);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	rule = css->rules;
 	count = 0;
@@ -436,7 +436,7 @@ int ezcfg_css_get_message_length(struct ezcfg_css *css)
 
 int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct css_rule *rule;
 	char *p;
 	int l;
@@ -446,7 +446,7 @@ int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len)
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = css->ezcfg;
+	//ezcfg = css->ezcfg;
 
 	rule = css->rules;
 	p = buf;

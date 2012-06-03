@@ -315,9 +315,17 @@ static int build_redirect_to_home_response(struct ezcfg_http *http, struct ezcfg
 
 	/* HTML Head */
 	head_index = ezcfg_html_set_head(html, EZCFG_HTML_HEAD_ELEMENT_NAME);
+	if (head_index < 0) {
+		err(ezcfg, "ezcfg_html_set_head()\n");
+		goto func_exit;
+	}
 
 	/* HTML Body */
 	body_index = ezcfg_html_set_body(html, EZCFG_HTML_BODY_ELEMENT_NAME);
+	if (body_index < 0) {
+		err(ezcfg, "ezcfg_html_set_body()\n");
+		goto func_exit;
+	}
 
 	msg_len = ezcfg_html_get_message_length(html);
 	if (msg_len < 0) {
@@ -373,14 +381,14 @@ func_exit:
 
 int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *request_uri;
 	int ret = -1;
 
 	ASSERT(http != NULL);
 	ASSERT(nvram != NULL);
 
-	ezcfg = ezcfg_http_get_ezcfg(http);
+	//ezcfg = ezcfg_http_get_ezcfg(http);
 
 	request_uri = ezcfg_http_get_request_uri(http);
 

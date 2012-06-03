@@ -581,7 +581,7 @@ func_exit:
 
 static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_link_list *list;
 	char tmp[2];
@@ -593,7 +593,7 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 #endif
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	list = ezcfg_http_html_admin_get_post_list(admin);
 
@@ -677,10 +677,10 @@ static bool do_admin_management_authz_action(struct ezcfg_http_html_admin *admin
 
 static bool handle_admin_management_authz_post(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_management_authz_action(admin);
@@ -693,14 +693,14 @@ static bool handle_admin_management_authz_post(struct ezcfg_http_html_admin *adm
  **/
 int ezcfg_http_html_admin_management_authz_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	int ret = -1;
 	ezcfg_rc_triple_t *rcp;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* admin management_authz uri=[/admin/management_authz] */

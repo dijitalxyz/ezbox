@@ -97,9 +97,19 @@ static int build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 
 		/* nvram name part */
 		child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_NAME_ELEMENT_NAME, name);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		/* nvram value part */
 		child_index = ezcfg_soap_add_body_child(soap, getnv_index, -1, EZCFG_SOAP_NVRAM_VALUE_ELEMENT_NAME, value);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -292,6 +302,11 @@ static int build_nvram_set_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, setnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -470,6 +485,11 @@ static int build_nvram_unset_response(struct ezcfg_soap_http *sh, struct ezcfg_n
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, unsetnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -651,6 +671,11 @@ static int build_nvram_set_multi_response(struct ezcfg_soap_http *sh, struct ezc
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, setmnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -1013,6 +1038,11 @@ static int build_nvram_commit_response(struct ezcfg_soap_http *sh, struct ezcfg_
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, commitnv_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, EZCFG_SOAP_NVRAM_RESULT_VALUE_OK);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -1422,6 +1452,11 @@ static int build_nvram_insert_socket_response(struct ezcfg_soap_http *sh, struct
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, sock_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -1598,6 +1633,11 @@ static int build_nvram_remove_socket_response(struct ezcfg_soap_http *sh, struct
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, sock_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -1775,6 +1815,11 @@ static int build_nvram_insert_ssl_response(struct ezcfg_soap_http *sh, struct ez
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, ssl_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -1951,6 +1996,11 @@ static int build_nvram_remove_ssl_response(struct ezcfg_soap_http *sh, struct ez
 
 		/* nvram result part */
 		child_index = ezcfg_soap_add_body_child(soap, ssl_index, -1, EZCFG_SOAP_NVRAM_RESULT_ELEMENT_NAME, result);
+		if (child_index < 0) {
+			err(ezcfg, "ezcfg_soap_add_body_child\n");
+			rc = -1;
+			goto exit;
+		}
 
 		msg_len = ezcfg_soap_get_message_length(soap);
 		if (msg_len < 0) {
@@ -2077,7 +2127,7 @@ exit:
 static struct ezcfg_link_list *build_nvram_node_list(struct ezcfg_soap_http *sh, char *root)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char *name = NULL, *value = NULL;
 	int body_index, child_index;
@@ -2085,7 +2135,7 @@ static struct ezcfg_link_list *build_nvram_node_list(struct ezcfg_soap_http *sh,
 	struct ezcfg_link_list *list;
 
 	ezcfg = sh->ezcfg;
-	http = sh->http;
+	//http = sh->http;
 	soap = sh->soap;
 
 	list = ezcfg_link_list_new(ezcfg);
@@ -2136,11 +2186,12 @@ static struct ezcfg_link_list *build_nvram_node_list(struct ezcfg_soap_http *sh,
 
 int ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char *request_uri;
-	char *name = NULL, *value = NULL, *result = NULL;
+	char *name = NULL, *value = NULL;
+	//char *result = NULL;
 	int body_index, child_index;
 	int ret = -1;
 
@@ -2149,10 +2200,10 @@ int ezcfg_soap_http_handle_nvram_request(struct ezcfg_soap_http *sh, struct ezcf
 	ASSERT(sh->soap != NULL);
 	ASSERT(nvram != NULL);
 
-	ezcfg = sh->ezcfg;
+	//ezcfg = sh->ezcfg;
 	http = sh->http;
 	soap = sh->soap;
-	result = NULL;
+	//result = NULL;
 
 	request_uri = ezcfg_http_get_request_uri(http);
 

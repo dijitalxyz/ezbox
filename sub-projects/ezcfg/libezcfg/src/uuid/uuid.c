@@ -138,11 +138,11 @@ static bool gen_uuid_v1(struct ezcfg_uuid *uuid)
 
 bool ezcfg_uuid_delete(struct ezcfg_uuid *uuid)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(uuid != NULL);
 
-	ezcfg = uuid->ezcfg;
+	//ezcfg = uuid->ezcfg;
 
 	switch(uuid->version) {
 	case 1:
@@ -228,11 +228,11 @@ fail_exit:
 
 int ezcfg_uuid_get_version(struct ezcfg_uuid *uuid)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(uuid != NULL);
 
-	ezcfg = uuid->ezcfg;
+	//ezcfg = uuid->ezcfg;
 
 	return uuid->version;
 }
@@ -262,11 +262,11 @@ bool ezcfg_uuid_set_store_name(struct ezcfg_uuid *uuid, const char *store_name)
 
 char * ezcfg_uuid_get_store_name(struct ezcfg_uuid *uuid)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(uuid != NULL);
 
-	ezcfg = uuid->ezcfg;
+	//ezcfg = uuid->ezcfg;
 
 	return uuid->store_name;
 }

@@ -429,13 +429,13 @@ static char *skip_white_space(char *buf)
 
 static unsigned short find_encoding_name_index(struct ezcfg_xml *xml, const char *enc_name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(xml != NULL);
 	ASSERT(enc_name != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	for (i = xml->num_encoding_names; i > 0; i--) {
 		if (strcasecmp(xml->encoding_names[i], enc_name) == 0)
@@ -446,11 +446,11 @@ static unsigned short find_encoding_name_index(struct ezcfg_xml *xml, const char
 
 static bool parse_xml_comment(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *buf;
 	int len;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -476,11 +476,11 @@ static bool parse_xml_comment(struct ezcfg_xml *xml, char **pbuf, int *plen)
 
 static bool parse_xml_processing_instruction(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *buf;
 	int len;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -509,11 +509,11 @@ static bool parse_xml_processing_instruction(struct ezcfg_xml *xml, char **pbuf,
 
 static bool parse_xml_document_misc(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *buf;
 	int len;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -541,11 +541,11 @@ static bool parse_xml_document_misc(struct ezcfg_xml *xml, char **pbuf, int *ple
 
 static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *buf;
 	int len;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -647,11 +647,11 @@ static bool parse_xml_prolog_xmldecl(struct ezcfg_xml *xml, char **pbuf, int *pl
 
 static bool parse_xml_prolog_doctypedecl(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *buf;
 	int len;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -678,7 +678,7 @@ static bool parse_xml_prolog_doctypedecl(struct ezcfg_xml *xml, char **pbuf, int
 
 static bool parse_xml_document_prolog(struct ezcfg_xml *xml, char **pbuf, int *plen)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 	ASSERT(pbuf != NULL);
@@ -686,7 +686,7 @@ static bool parse_xml_document_prolog(struct ezcfg_xml *xml, char **pbuf, int *p
 	ASSERT(*pbuf != NULL);
 	ASSERT(*plen > 0);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	/* prolog ::= XMLDecl? Misc* (doctypedecl Misc*)? */ 
 
@@ -938,7 +938,7 @@ static bool parse_xml_char_data(
 	int *plen,
 	const int pi) {
 
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 	char *p, *buf, *content;
 	char c;
@@ -947,7 +947,7 @@ static bool parse_xml_char_data(
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	elem = xml->root[pi];
 
@@ -1039,12 +1039,12 @@ static int parse_element_content(
 	const int pi,
 	const int si) {
 
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int ci; /* current element index */
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 	ci = si;
 
 	/* content ::= CharData? ((element | Reference | CDSect | PI | Comment) CharData?)* */
@@ -1098,7 +1098,7 @@ static int parse_element_etag(
 	int *plen,
 	const int ei) {
 
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *q, *name;
 	char *end_tag_end;
 	struct ezcfg_xml_element *elem;
@@ -1115,7 +1115,7 @@ static int parse_element_etag(
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	buf = *pbuf;
 	len = *plen;
@@ -1172,7 +1172,7 @@ static int parse_element_stag_content_etag(
 	const int pi,
 	const int si) {
 
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int stag_index;
 
 	ASSERT(xml != NULL);
@@ -1181,7 +1181,7 @@ static int parse_element_stag_content_etag(
 	ASSERT(*pbuf != NULL);
 	ASSERT(*plen > 0);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	/* It's element ::= STag content ETag */
 	stag_index = parse_element_stag(xml, pbuf, plen, pi, si);
@@ -1211,7 +1211,7 @@ static int parse_xml_document_element(
 	const int pi,
 	const int si) {
 
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 	ASSERT(pbuf != NULL);
@@ -1219,7 +1219,7 @@ static int parse_xml_document_element(
 	ASSERT(*pbuf != NULL);
 	ASSERT(*plen > 0);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	/* element ::= EmptyElemTag | STag content ETag */
 
@@ -1242,11 +1242,11 @@ static int parse_xml_document_element(
 /* Public functions */
 void ezcfg_xml_delete(struct ezcfg_xml *xml)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	if (xml->root != NULL) {
 		delete_elements(xml);
@@ -1295,11 +1295,11 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 
 void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	if (xml->root != NULL)
 		delete_elements(xml);
@@ -1313,11 +1313,11 @@ void ezcfg_xml_reset_attributes(struct ezcfg_xml *xml)
 
 int ezcfg_xml_get_max_elements(struct ezcfg_xml *xml)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	return xml->max_elements;
 }
@@ -1355,11 +1355,11 @@ bool ezcfg_xml_set_max_elements(struct ezcfg_xml *xml, const int max_elements)
 
 int ezcfg_xml_get_num_elements(struct ezcfg_xml *xml)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	return xml->num_elements;
 }
@@ -1624,10 +1624,10 @@ int ezcfg_xml_add_element(
 /* XML 1.0 fifth edition section 2.11 End-of-Line Handling */
 int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *p, *q;
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	p = buf;
 	q = buf;
@@ -1654,8 +1654,8 @@ int ezcfg_xml_normalize_document(struct ezcfg_xml *xml, char *buf, int len)
 
 bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_xml_element **root;
+	//struct ezcfg *ezcfg;
+	//struct ezcfg_xml_element **root;
 	char *p;
 	int i;
 
@@ -1664,8 +1664,8 @@ bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = xml->ezcfg;
-	root = xml->root;
+	//ezcfg = xml->ezcfg;
+	//root = xml->root;
 
 	/* clean up xml->root elements */
 	delete_elements(xml);
@@ -1700,7 +1700,7 @@ bool ezcfg_xml_parse(struct ezcfg_xml *xml, char *buf, int len)
 
 int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
 	struct elem_attribute *a;
 	int i, n, count;
@@ -1708,7 +1708,7 @@ int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 	root = xml->root;
 
 	count = 0;
@@ -1804,7 +1804,7 @@ int ezcfg_xml_get_message_length(struct ezcfg_xml *xml)
 
 int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element **root;
 	struct elem_attribute *a;
 	char *p;
@@ -1815,7 +1815,7 @@ int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 	root = xml->root;
 	buf[0] = '\0';
 	l = len;
@@ -1916,7 +1916,7 @@ int ezcfg_xml_write_message(struct ezcfg_xml *xml, char *buf, int len)
 
 int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int si, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 	int i, pi_etag_index;
 	char *p;
@@ -1928,7 +1928,7 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 	ASSERT(pi < xml->num_elements);
 	ASSERT(si < xml->num_elements);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	/* find prefix */
 	p = strchr(name, ':');
@@ -1960,20 +1960,20 @@ int ezcfg_xml_get_element_index(struct ezcfg_xml *xml, const int pi, const int s
 
 struct ezcfg_xml_element *ezcfg_xml_get_element_by_index(struct ezcfg_xml *xml, const int i)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
 	ASSERT(i < xml->num_elements);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	return xml->root[i];
 }
 
 bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int i, const char *content)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 	char *p;
 
@@ -1981,7 +1981,7 @@ bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int i, 
 	ASSERT(xml->root != NULL);
 	ASSERT(i < xml->num_elements);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	elem = xml->root[i];
 	p = strdup(content);
@@ -1997,14 +1997,14 @@ bool ezcfg_xml_set_element_content_by_index(struct ezcfg_xml *xml, const int i, 
 
 char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int i)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
 	ASSERT(i < xml->num_elements);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	elem = xml->root[i];
 	return elem->content;
@@ -2012,14 +2012,14 @@ char *ezcfg_xml_get_element_content_by_index(struct ezcfg_xml *xml, const int i)
 
 int ezcfg_xml_get_element_etag_index_by_index(struct ezcfg_xml *xml, const int i)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml_element *elem;
 
 	ASSERT(xml != NULL);
 	ASSERT(xml->root != NULL);
 	ASSERT(i < xml->num_elements);
 
-	ezcfg = xml->ezcfg;
+	//ezcfg = xml->ezcfg;
 
 	elem = xml->root[i];
 	return elem->etag_index;

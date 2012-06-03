@@ -167,7 +167,7 @@ static bool parse_post_data(struct ezcfg_http_html_admin *admin)
 
 static bool validate_post_data(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_link_list *list;
 	struct ezcfg_nvram *nvram;
 	int i;
@@ -177,7 +177,7 @@ static bool validate_post_data(struct ezcfg_http_html_admin *admin)
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	//ezcfg = admin->ezcfg;
 	nvram = admin->nvram;
 	list = admin->post_list;
 
@@ -284,9 +284,9 @@ void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin)
 
 bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
-	ezcfg = admin->ezcfg;
+	//ezcfg = admin->ezcfg;
 
 	if (parse_post_data(admin) == true) {
 		return validate_post_data(admin);
@@ -298,12 +298,12 @@ bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin)
 
 int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_link_list *list;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	//ezcfg = admin->ezcfg;
 
 	list = admin->post_list;
 
@@ -320,7 +320,7 @@ int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin)
 
 bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_link_list *list;
 	struct ezcfg_nvram *nvram;
 	int i;
@@ -330,7 +330,7 @@ bool ezcfg_http_html_admin_save_settings(struct ezcfg_http_html_admin *admin)
 
 	ASSERT(admin != NULL);
 
-	ezcfg = admin->ezcfg;
+	//ezcfg = admin->ezcfg;
 	nvram = admin->nvram;
 	list = admin->post_list;
 

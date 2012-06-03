@@ -782,12 +782,12 @@ func_exit:
 
 int ezcfg_http_html_admin_layout_css_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* admin layout_css uri=[/admin/layout_css] */
 	ret = build_admin_layout_css_response(admin);

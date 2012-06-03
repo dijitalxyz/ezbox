@@ -92,13 +92,13 @@ static int get_http_header_len(const char *buf, size_t buflen)
  **/
 int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int bufsiz, int *nread)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int n, len;
 
 	ASSERT(sp != NULL);
 	ASSERT(http != NULL);
 
-	ezcfg = ezcfg_socket_get_ezcfg(sp);
+	//ezcfg = ezcfg_socket_get_ezcfg(sp);
 
 	len = 0;
 
@@ -122,7 +122,7 @@ int ezcfg_socket_read_http_header(struct ezcfg_socket *sp, struct ezcfg_http *ht
  **/
 char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http *http, char *buf, int header_len, int *bufsiz, int *nread)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int n;
 	char *p, *q;
 	int content_length, buf_len, chunk_size;
@@ -130,7 +130,7 @@ char *ezcfg_socket_read_http_content(struct ezcfg_socket *sp, struct ezcfg_http 
 	ASSERT(sp != NULL);
 	ASSERT(http != NULL);
 
-	ezcfg = ezcfg_socket_get_ezcfg(sp);
+	//ezcfg = ezcfg_socket_get_ezcfg(sp);
 	buf_len = *bufsiz;
 
 	if ((p = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_CONTENT_LENGTH)) != NULL) {

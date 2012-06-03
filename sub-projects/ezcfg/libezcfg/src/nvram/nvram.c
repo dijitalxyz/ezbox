@@ -173,7 +173,7 @@ static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const c
 {
 	struct ezcfg *ezcfg;
 	int name_len, entry_len, new_entry_len;
-	struct nvram_header *header;
+	//struct nvram_header *header;
 	char *data, *p;
 
 	ezcfg = nvram->ezcfg;
@@ -181,7 +181,7 @@ static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const c
 	name_len = strlen(name);
 	new_entry_len = name_len + strlen(value) + 2;
 
-	header = (struct nvram_header *)nvram->buffer;
+	//header = (struct nvram_header *)nvram->buffer;
 	data = nvram->buffer + sizeof(struct nvram_header);
 
 	/* first entry */
@@ -237,14 +237,15 @@ static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const c
 
 static bool nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *data, *p;
-	int name_len, entry_len;
+	//int name_len;
+	int entry_len;
 	bool ret = false;
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
-	name_len = strlen(name);
+	//name_len = strlen(name);
 
 	data = nvram->buffer + sizeof(struct nvram_header);
 
@@ -295,12 +296,12 @@ static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, c
 
 static bool nvram_match_entry(struct ezcfg_nvram *nvram, const char *name1, char *name2)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *data;
 	char *p1, *p2;
 	int name_len;
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	data = nvram->buffer + sizeof(struct nvram_header);
 
@@ -329,12 +330,12 @@ static bool nvram_match_entry(struct ezcfg_nvram *nvram, const char *name1, char
 
 static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name, char *value)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char *data;
 	char *p;
 	int name_len;
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	data = nvram->buffer + sizeof(struct nvram_header);
 
@@ -364,7 +365,7 @@ static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
 	ret = nvram_get_entry_value(nvram,
 		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
 		&value);
-	if (value != NULL) {
+	if ((ret == true) && (value != NULL)) {
 		i = atoi(value);
 		free(value);
 	}
@@ -562,7 +563,7 @@ static int nvram_get_ssl_index(struct ezcfg_nvram *nvram,
 	ret = nvram_get_entry_value(nvram,
 		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
 		&value);
-	if (value != NULL) {
+	if ((ret == true) && (value != NULL)) {
 		i = atoi(value);
 		free(value);
 	}
@@ -828,13 +829,13 @@ func_out:
 
 static bool nvram_cleanup_runtime_entries(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	ezcfg_nv_pair_t *nvp;
 	int i;
 	char *data, *entry, *name, *p;
 	bool ret;
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 	data = nvram->buffer + sizeof(struct nvram_header);
 	entry = data;
 	while(*entry != '\0') {
@@ -1329,12 +1330,12 @@ static void nvram_check_entries(struct ezcfg_nvram *nvram)
 
 bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(nvram != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -1393,13 +1394,13 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 
 bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int idx, const int type)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(type >= 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	nvram->storage[idx].backend = type;
 
@@ -1408,13 +1409,13 @@ bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int idx, cons
 
 bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int idx, const int type)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
 	ASSERT(type >= 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	nvram->storage[idx].coding = type;
 
@@ -1487,46 +1488,46 @@ func_exit:
 
 int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	return nvram->total_space;
 }
 
 int ezcfg_nvram_get_free_space(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	return nvram->free_space;
 }
 
 int ezcfg_nvram_get_used_space(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	return nvram->used_space;
 }
 
 bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	snprintf(buf, len, "%d.%d.%d.%d", 
 	         default_version[0],
@@ -1539,7 +1540,7 @@ bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t
 
 bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(nvram != NULL);
@@ -1548,7 +1549,7 @@ bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	i = nvram->storage[idx].backend;
 
@@ -1563,7 +1564,7 @@ bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int
 
 bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int i;
 
 	ASSERT(nvram != NULL);
@@ -1572,7 +1573,7 @@ bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int 
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	i = nvram->storage[idx].coding;
 
@@ -1587,7 +1588,7 @@ bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int 
 
 bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(nvram != NULL);
 	ASSERT(idx >= 0);
@@ -1595,7 +1596,7 @@ bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int id
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	buf[0] = '\0';
 	if (nvram->storage[idx].path != NULL) {
@@ -1623,14 +1624,14 @@ bool ezcfg_nvram_set_default_validators(struct ezcfg_nvram *nvram, ezcfg_nv_vali
 
 bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -1646,14 +1647,14 @@ bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const ch
 /* It's user's duty to free the returns string */
 bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -2006,14 +2007,14 @@ bool ezcfg_nvram_reload(struct ezcfg_nvram *nvram)
 
 bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name1 != NULL);
 	ASSERT(name2 != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -2028,14 +2029,14 @@ bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2
 
 bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
 	ASSERT(nvram != NULL);
 	ASSERT(name != NULL);
 	ASSERT(value != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -2072,7 +2073,7 @@ bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, cha
 
 bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name, *value;
 	struct ezcfg_arg_nvram_socket a;
@@ -2082,7 +2083,7 @@ bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	ezcfg_arg_nvram_socket_init(&a);
 
@@ -2187,7 +2188,7 @@ func_out:
 
 bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name;
 	struct ezcfg_arg_nvram_socket a;
@@ -2196,7 +2197,7 @@ bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 	ezcfg_arg_nvram_socket_init(&a);
 
 	/* parse settings */
@@ -2247,7 +2248,7 @@ func_out:
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name, *value;
 	struct ezcfg_arg_nvram_ssl a;
@@ -2257,7 +2258,7 @@ bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 	ezcfg_arg_nvram_ssl_init(&a);
 
 	/* parse settings */
@@ -2402,7 +2403,7 @@ func_out:
 
 bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name;
 	struct ezcfg_arg_nvram_ssl a;
@@ -2411,7 +2412,7 @@ bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *l
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 	a.role = NULL;
 	a.method = NULL;
 	a.socket_enable = NULL;
@@ -2479,7 +2480,7 @@ func_out:
 
 bool ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name, *value;
 	int i, list_length;
@@ -2487,7 +2488,7 @@ bool ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
@@ -2516,7 +2517,7 @@ func_out:
 
 bool ezcfg_nvram_unset_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 	char *name;
 	int i, list_length;
@@ -2524,7 +2525,7 @@ bool ezcfg_nvram_unset_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_lin
 	ASSERT(nvram != NULL);
 	ASSERT(list != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);

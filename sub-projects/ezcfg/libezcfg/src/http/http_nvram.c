@@ -249,13 +249,13 @@ bool ezcfg_http_nvram_set_path(struct ezcfg_http_nvram *hn, const char *path)
 
 int ezcfg_http_handle_nvram_request(struct ezcfg_http_nvram *hn)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(hn != NULL);
 	ASSERT(hn->http != NULL);
 	ASSERT(hn->nvram != NULL);
 
-	ezcfg = hn->ezcfg;
+	//ezcfg = hn->ezcfg;
 
 	return build_http_nvram_response(hn);
 }

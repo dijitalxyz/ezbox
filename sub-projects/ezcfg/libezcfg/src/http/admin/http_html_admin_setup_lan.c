@@ -628,12 +628,12 @@ func_exit:
 
 static bool do_admin_setup_lan_action(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_link_list *list;
+	//struct ezcfg *ezcfg;
+	//struct ezcfg_link_list *list;
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	list = ezcfg_http_html_admin_get_post_list(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		ret = ezcfg_http_html_admin_save_settings(admin);
@@ -643,10 +643,10 @@ static bool do_admin_setup_lan_action(struct ezcfg_http_html_admin *admin)
 
 static bool handle_admin_setup_lan_post(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_setup_lan_action(admin);
@@ -659,13 +659,13 @@ static bool handle_admin_setup_lan_post(struct ezcfg_http_html_admin *admin)
  **/
 int ezcfg_http_html_admin_setup_lan_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
 
 	/* admin setup_lan uri=[/admin/setup_lan] */

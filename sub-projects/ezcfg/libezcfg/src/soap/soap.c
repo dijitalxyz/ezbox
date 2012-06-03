@@ -70,11 +70,11 @@ struct ezcfg_soap {
  **/
 void ezcfg_soap_delete(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	if (soap->xml != NULL)
 		ezcfg_xml_delete(soap->xml);
@@ -123,13 +123,13 @@ struct ezcfg_soap *ezcfg_soap_new(struct ezcfg *ezcfg)
 
 void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(soap != NULL);
 	ASSERT(soap->xml != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
 	ezcfg_xml_reset_attributes(xml);
@@ -147,33 +147,33 @@ void ezcfg_soap_reset_attributes(struct ezcfg_soap *soap)
 
 unsigned short ezcfg_soap_get_version_major(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	return soap->version_major;
 }
 
 unsigned short ezcfg_soap_get_version_minor(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	return soap->version_minor;
 }
 
 bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	soap->version_major = major;
 
@@ -182,11 +182,11 @@ bool ezcfg_soap_set_version_major(struct ezcfg_soap *soap, unsigned short major)
 
 bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	soap->version_minor = minor;
 
@@ -195,11 +195,11 @@ bool ezcfg_soap_set_version_minor(struct ezcfg_soap *soap, unsigned short minor)
 
 int ezcfg_soap_get_max_nodes(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	/* env, header, body */
 	return ezcfg_xml_get_max_elements(soap->xml) - 6;
@@ -207,11 +207,11 @@ int ezcfg_soap_get_max_nodes(struct ezcfg_soap *soap)
 
 bool ezcfg_soap_set_max_nodes(struct ezcfg_soap *soap, const int max_nodes)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	/* env, header, body */
 	return ezcfg_xml_set_max_elements(soap->xml, max_nodes + 6);
@@ -310,11 +310,11 @@ int ezcfg_soap_set_body(struct ezcfg_soap *soap, const char *name)
 
 int ezcfg_soap_get_body_index(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 	return soap->body_index;
 }
 
@@ -396,7 +396,7 @@ bool ezcfg_soap_add_body_child_attribute(struct ezcfg_soap *soap, int ei, const 
 
 int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const int si, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(soap != NULL);
@@ -404,7 +404,7 @@ int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const in
 	ASSERT(name != NULL);
 	ASSERT(pi >= -1);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
 #if 0
@@ -419,14 +419,14 @@ int ezcfg_soap_get_element_index(struct ezcfg_soap *soap, const int pi, const in
 
 char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int i)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(soap != NULL);
 	ASSERT(soap->xml != NULL);
 	ASSERT(i > 0);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
 	return ezcfg_xml_get_element_content_by_index(xml, i);
@@ -435,7 +435,7 @@ char *ezcfg_soap_get_element_content_by_index(struct ezcfg_soap *soap, const int
 bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 {
 	/* buf must be \0-terminated */
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(soap != NULL);
@@ -443,7 +443,7 @@ bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 	xml = soap->xml;
 
 	if (ezcfg_xml_parse(xml, buf, len) == false) {
@@ -467,24 +467,24 @@ bool ezcfg_soap_parse(struct ezcfg_soap *soap, char *buf, int len)
 
 int ezcfg_soap_get_message_length(struct ezcfg_soap *soap)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	return ezcfg_xml_get_message_length(soap->xml);
 }
 
 int ezcfg_soap_write_message(struct ezcfg_soap *soap, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(soap != NULL);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = soap->ezcfg;
+	//ezcfg = soap->ezcfg;
 
 	return ezcfg_xml_write_message(soap->xml, buf, len);
 }

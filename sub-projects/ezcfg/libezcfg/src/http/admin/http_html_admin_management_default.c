@@ -47,7 +47,7 @@ static int set_html_main_management_default_result(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_nvram *nvram;
+	//struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int content_index, child_index;
 	int p_index;
@@ -58,7 +58,7 @@ static int set_html_main_management_default_result(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	//nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
@@ -167,7 +167,7 @@ static int set_html_main_management_default(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_nvram *nvram;
+	//struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int content_index, child_index;
 	int p_index;
@@ -179,7 +179,7 @@ static int set_html_main_management_default(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	nvram = ezcfg_http_html_admin_get_nvram(admin);
+	//nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <div id="main"> */
@@ -558,12 +558,12 @@ func_exit:
 
 static bool do_admin_management_default_action(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_link_list *list;
+	//struct ezcfg *ezcfg;
+	//struct ezcfg_link_list *list;
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	list = ezcfg_http_html_admin_get_post_list(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//list = ezcfg_http_html_admin_get_post_list(admin);
 
 	if (ezcfg_http_html_admin_get_action(admin) == HTTP_HTML_ADMIN_ACT_SAVE) {
 		ret = ezcfg_http_html_admin_save_settings(admin);
@@ -573,10 +573,10 @@ static bool do_admin_management_default_action(struct ezcfg_http_html_admin *adm
 
 static bool handle_admin_management_default_post(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret = false;
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	if (ezcfg_http_html_admin_handle_post_data(admin) == true) {
 		ret = do_admin_management_default_action(admin);
@@ -589,14 +589,14 @@ static bool handle_admin_management_default_post(struct ezcfg_http_html_admin *a
  **/
 int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 	http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 

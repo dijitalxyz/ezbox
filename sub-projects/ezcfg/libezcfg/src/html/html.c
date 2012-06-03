@@ -52,11 +52,11 @@ struct ezcfg_html {
  **/
 void ezcfg_html_delete(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	if (html->xml != NULL)
 		ezcfg_xml_delete(html->xml);
@@ -100,13 +100,13 @@ struct ezcfg_html *ezcfg_html_new(struct ezcfg *ezcfg)
 
 void ezcfg_html_reset_attributes(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(html != NULL);
 	ASSERT(html->xml != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	xml = html->xml;
 
 	ezcfg_xml_reset_attributes(xml);
@@ -128,33 +128,33 @@ struct ezcfg *ezcfg_html_get_ezcfg(struct ezcfg_html *html)
 
 unsigned short ezcfg_html_get_version_major(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	return html->version_major;
 }
 
 unsigned short ezcfg_html_get_version_minor(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	return html->version_minor;
 }
 
 bool ezcfg_html_set_version_major(struct ezcfg_html *html, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	html->version_major = major;
 
@@ -163,11 +163,11 @@ bool ezcfg_html_set_version_major(struct ezcfg_html *html, unsigned short major)
 
 bool ezcfg_html_set_version_minor(struct ezcfg_html *html, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	html->version_minor = minor;
 
@@ -176,11 +176,11 @@ bool ezcfg_html_set_version_minor(struct ezcfg_html *html, unsigned short minor)
 
 int ezcfg_html_get_max_nodes(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	/* html, head, body */
 	return ezcfg_xml_get_max_elements(html->xml) - 6;
@@ -188,11 +188,11 @@ int ezcfg_html_get_max_nodes(struct ezcfg_html *html)
 
 bool ezcfg_html_set_max_nodes(struct ezcfg_html *html, const int max_nodes)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	/* html, head, body */
 	return ezcfg_xml_set_max_elements(html->xml, max_nodes + 6);
@@ -291,11 +291,11 @@ int ezcfg_html_set_head(struct ezcfg_html *html, const char *name)
 
 int ezcfg_html_get_head_index(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	return html->head_index;
 }
 
@@ -415,11 +415,11 @@ int ezcfg_html_set_body(struct ezcfg_html *html, const char *name)
 
 int ezcfg_html_get_body_index(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	return html->body_index;
 }
 
@@ -501,7 +501,7 @@ bool ezcfg_html_add_body_child_attribute(struct ezcfg_html *html, int ei, const 
 
 int ezcfg_html_get_element_index(struct ezcfg_html *html, const int pi, const int si, char *name)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(html != NULL);
@@ -509,7 +509,7 @@ int ezcfg_html_get_element_index(struct ezcfg_html *html, const int pi, const in
 	ASSERT(name != NULL);
 	ASSERT(pi >= -1);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	xml = html->xml;
 
 	return ezcfg_xml_get_element_index(xml, pi, si, name);
@@ -517,14 +517,14 @@ int ezcfg_html_get_element_index(struct ezcfg_html *html, const int pi, const in
 
 char *ezcfg_html_get_element_content_by_index(struct ezcfg_html *html, const int i)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(html != NULL);
 	ASSERT(html->xml != NULL);
 	ASSERT(i > 0);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	xml = html->xml;
 
 	return ezcfg_xml_get_element_content_by_index(xml, i);
@@ -533,7 +533,7 @@ char *ezcfg_html_get_element_content_by_index(struct ezcfg_html *html, const int
 bool ezcfg_html_parse(struct ezcfg_html *html, char *buf, int len)
 {
 	/* buf must be \0-terminated */
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_xml *xml;
 
 	ASSERT(html != NULL);
@@ -541,7 +541,7 @@ bool ezcfg_html_parse(struct ezcfg_html *html, char *buf, int len)
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 	xml = html->xml;
 
 	if (ezcfg_xml_parse(xml, buf, len) == false) {
@@ -565,13 +565,13 @@ bool ezcfg_html_parse(struct ezcfg_html *html, char *buf, int len)
 
 int ezcfg_html_get_message_length(struct ezcfg_html *html)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	char buf[256];
 	int ret;
 
 	ASSERT(html != NULL);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	snprintf(buf, sizeof(buf), "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML %d.%02d//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n", html->version_major, html->version_minor);
 
@@ -587,14 +587,14 @@ int ezcfg_html_get_message_length(struct ezcfg_html *html)
 
 int ezcfg_html_write_message(struct ezcfg_html *html, char *buf, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int dtd_len, ret;
 
 	ASSERT(html != NULL);
 	ASSERT(buf != NULL);
 	ASSERT(len > 0);
 
-	ezcfg = html->ezcfg;
+	//ezcfg = html->ezcfg;
 
 	/* first write HTML DTD */
 	snprintf(buf, len, "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML %d.%02d//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n", html->version_major, html->version_minor);

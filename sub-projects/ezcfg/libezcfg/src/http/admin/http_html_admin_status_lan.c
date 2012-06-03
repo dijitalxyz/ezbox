@@ -48,7 +48,7 @@ static int set_html_main_status_lan_dhcpd(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int content_index, child_index;
@@ -63,7 +63,7 @@ static int set_html_main_status_lan_dhcpd(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
@@ -209,7 +209,7 @@ static int set_html_main_status_lan(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int main_index;
@@ -223,7 +223,7 @@ static int set_html_main_status_lan(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
@@ -497,12 +497,12 @@ func_exit:
 
 int ezcfg_http_html_admin_status_lan_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* admin status_lan uri=[/admin/status_lan] */
 	ret = build_admin_status_lan_response(admin);

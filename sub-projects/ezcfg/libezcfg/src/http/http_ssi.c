@@ -44,14 +44,14 @@ static int build_http_ssi_response(struct ezcfg_http *http,
 	struct ezcfg_nvram *nvram,
 	struct ezcfg_ssi *ssi)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int rc = 0;
 	
 	ASSERT(http != NULL);
 	ASSERT(nvram != NULL);
 	ASSERT(ssi != NULL);
 
-	ezcfg = ezcfg_http_get_ezcfg(http);
+	//ezcfg = ezcfg_http_get_ezcfg(http);
 
 	/* FIXME: name point to http->request_uri !!!
          * never reset http before using name */
@@ -103,13 +103,13 @@ int ezcfg_http_handle_ssi_request(struct ezcfg_http *http,
 	struct ezcfg_nvram *nvram,
 	struct ezcfg_ssi *ssi)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(http != NULL);
 	ASSERT(nvram != NULL);
 	ASSERT(ssi != NULL);
 
-	ezcfg = ezcfg_http_get_ezcfg(http);
+	//ezcfg = ezcfg_http_get_ezcfg(http);
 
 	return build_http_ssi_response(http, nvram, ssi);
 }

@@ -47,7 +47,7 @@ static int set_status_wan_common(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	char buf[1024];
@@ -56,7 +56,7 @@ static int set_status_wan_common(
 	bool bool_flag;
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
@@ -183,7 +183,7 @@ static int set_status_wan_dhcp(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int p_index;
@@ -192,7 +192,7 @@ static int set_status_wan_dhcp(
 	bool bool_flag;
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
@@ -266,14 +266,14 @@ static int set_status_wan_static(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_nvram *nvram;
-	struct ezcfg_html *html;
+	//struct ezcfg_http *http;
+	//struct ezcfg_nvram *nvram;
+	//struct ezcfg_html *html;
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
-	nvram = ezcfg_http_html_admin_get_nvram(admin);
-	html = ezcfg_http_html_admin_get_html(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
+	//nvram = ezcfg_http_html_admin_get_nvram(admin);
+	//html = ezcfg_http_html_admin_get_html(admin);
 
 	/* <p>WAN TYPE STATIC</p>*/
 	si = set_status_wan_common(admin, locale, pi, si);
@@ -398,7 +398,7 @@ static int set_html_main_status_wan(
 	int pi, int si)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_nvram *nvram;
 	struct ezcfg_html *html;
 	int main_index;
@@ -414,7 +414,7 @@ static int set_html_main_status_wan(
 	ASSERT(pi > 1);
 
 	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
-	http = ezcfg_http_html_admin_get_http(admin);
+	//http = ezcfg_http_html_admin_get_http(admin);
 	nvram = ezcfg_http_html_admin_get_nvram(admin);
 	html = ezcfg_http_html_admin_get_html(admin);
 
@@ -648,12 +648,12 @@ func_exit:
 
 int ezcfg_http_html_admin_status_wan_handler(struct ezcfg_http_html_admin *admin)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	int ret = -1;
 
 	ASSERT(admin != NULL);
 
-	ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
+	//ezcfg = ezcfg_http_html_admin_get_ezcfg(admin);
 
 	/* admin status_wan uri=[/admin/status_wan] */
 	ret = build_admin_status_wan_response(admin);
