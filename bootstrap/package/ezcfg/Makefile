@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1451
+PKG_REV:=1538
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -71,6 +71,10 @@ ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_LILOU),)
   EZBOX_DISTRO = "lilou"
 endif
 
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_FUXI),)
+  EZBOX_DISTRO = "fuxi"
+endif
+
 CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
 
@@ -79,10 +83,18 @@ CONFIGURE_ARGS += \
 	--disable-ezcfg_test
 
 # set nls settings
-ifeq ($(EZBOX_DISTRO), "kuafu")
+#ifeq ($(EZBOX_DISTRO), "kuafu")
+#CONFIGURE_ARGS += \
+#	--disable-ezcfg_nls
+#endif
+ifneq ($(CONFIG_ENABLE_LOCALE),)
+CONFIGURE_ARGS += \
+	--enable-ezcfg_nls
+else
 CONFIGURE_ARGS += \
 	--disable-ezcfg_nls
 endif
+
 
 # set bridge NIC settings
 CONFIGURE_ARGS += \
