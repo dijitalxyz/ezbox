@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Mon Jun  4 16:53:23 2012
+# Mon Jun  4 18:59:53 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1131,7 +1131,7 @@ CONFIG_PACKAGE_zlib=y
 # CONFIG_PACKAGE_kmod-aoe is not set
 # CONFIG_PACKAGE_kmod-ata-core is not set
 # CONFIG_PACKAGE_kmod-block2mtd is not set
-# CONFIG_PACKAGE_kmod-dm is not set
+CONFIG_PACKAGE_kmod-dm=y
 # CONFIG_PACKAGE_kmod-ide-core is not set
 # CONFIG_PACKAGE_kmod-libsas is not set
 # CONFIG_PACKAGE_kmod-loop is not set
@@ -1145,12 +1145,41 @@ CONFIG_PACKAGE_zlib=y
 #
 # Cryptographic API modules
 #
-# CONFIG_PACKAGE_kmod-crypto-core is not set
+CONFIG_PACKAGE_kmod-crypto-core=y
+CONFIG_PACKAGE_kmod-crypto-aes=y
+# CONFIG_PACKAGE_kmod-crypto-arc4 is not set
+# CONFIG_PACKAGE_kmod-crypto-authenc is not set
+CONFIG_PACKAGE_kmod-crypto-cbc=y
+# CONFIG_PACKAGE_kmod-crypto-crc32c is not set
+# CONFIG_PACKAGE_kmod-crypto-deflate is not set
+# CONFIG_PACKAGE_kmod-crypto-des is not set
+# CONFIG_PACKAGE_kmod-crypto-ecb is not set
+CONFIG_PACKAGE_kmod-crypto-hash=y
+# CONFIG_PACKAGE_kmod-crypto-hmac is not set
+# CONFIG_PACKAGE_kmod-crypto-hw-geode is not set
+# CONFIG_PACKAGE_kmod-crypto-hw-hifn-795x is not set
+# CONFIG_PACKAGE_kmod-crypto-hw-padlock is not set
+CONFIG_PACKAGE_kmod-crypto-iv=y
+CONFIG_PACKAGE_kmod-crypto-manager=y
+# CONFIG_PACKAGE_kmod-crypto-md4 is not set
+# CONFIG_PACKAGE_kmod-crypto-md5 is not set
+# CONFIG_PACKAGE_kmod-crypto-michael-mic is not set
+# CONFIG_PACKAGE_kmod-crypto-misc is not set
+# CONFIG_PACKAGE_kmod-crypto-null is not set
+# CONFIG_PACKAGE_kmod-crypto-ocf is not set
+CONFIG_PACKAGE_kmod-crypto-rng=y
+# CONFIG_PACKAGE_kmod-crypto-sha1 is not set
+# CONFIG_PACKAGE_kmod-crypto-test is not set
+# CONFIG_PACKAGE_kmod-crypto-user is not set
+CONFIG_PACKAGE_kmod-crypto-wq=y
+# CONFIG_PACKAGE_kmod-crypto-xts is not set
 
 #
 # Filesystems
 #
 # CONFIG_PACKAGE_kmod-fs-autofs4 is not set
+# CONFIG_PACKAGE_kmod-fs-btrfs is not set
+# CONFIG_PACKAGE_kmod-fs-cifs is not set
 # CONFIG_PACKAGE_kmod-fs-exportfs is not set
 # CONFIG_PACKAGE_kmod-fs-ext4 is not set
 # CONFIG_PACKAGE_kmod-fs-hfs is not set
@@ -1202,6 +1231,7 @@ CONFIG_PACKAGE_zlib=y
 CONFIG_PACKAGE_kmod-lib-crc-ccitt=y
 # CONFIG_PACKAGE_kmod-lib-crc-itu-t is not set
 # CONFIG_PACKAGE_kmod-lib-crc16 is not set
+# CONFIG_PACKAGE_kmod-lib-crc32c is not set
 # CONFIG_PACKAGE_kmod-lib-crc7 is not set
 # CONFIG_PACKAGE_kmod-lib-crc8 is not set
 # CONFIG_PACKAGE_kmod-lib-lzo is not set
@@ -1291,6 +1321,7 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 # CONFIG_PACKAGE_kmod-gre is not set
 # CONFIG_PACKAGE_kmod-ip6-tunnel is not set
 # CONFIG_PACKAGE_kmod-ipip is not set
+# CONFIG_PACKAGE_kmod-ipsec is not set
 # CONFIG_PACKAGE_kmod-iptunnel4 is not set
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
 # CONFIG_PACKAGE_kmod-ipv6 is not set
@@ -1307,6 +1338,7 @@ CONFIG_PACKAGE_kmod-via-velocity=y
 # CONFIG_PACKAGE_kmod-sched is not set
 # CONFIG_PACKAGE_kmod-sched-connmark is not set
 # CONFIG_PACKAGE_kmod-sched-core is not set
+# CONFIG_PACKAGE_kmod-sctp is not set
 # CONFIG_PACKAGE_kmod-sit is not set
 # CONFIG_PACKAGE_kmod-slip is not set
 # CONFIG_PACKAGE_kmod-stp is not set
