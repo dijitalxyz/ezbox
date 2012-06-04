@@ -270,6 +270,8 @@ define Package/ezcfg/install
 	$(LN) ezcd $(1)/sbin/upfw
 	$(INSTALL_DIR) $(1)/usr/share/ezcfg/html/lang
 	$(CP) $(PKG_BUILD_DIR)/i18n/html/lang/* $(1)/usr/share/ezcfg/html/lang/
+	$(INSTALL_DIR) $(1)/boot
+	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_boot.cfg $(1)/boot/
 endef
 
 define Feature/ezcfg-ssl-none
