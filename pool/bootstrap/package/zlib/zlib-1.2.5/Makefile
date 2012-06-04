@@ -15,8 +15,6 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.zlib.net @SF/libpng
 PKG_MD5SUM:=be1e89810e66150f5b0327984d8625a0
 
-PKG_BUILD_PARALLEL:=1
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/zlib
@@ -56,6 +54,9 @@ define Build/InstallDev
 	mkdir -p $(1)/usr/lib
 	$(CP)	$(PKG_INSTALL_DIR)/usr/lib/libz.{a,so*} \
 		$(1)/usr/lib/
+	mkdir -p $(1)/usr/lib/pkgconfig
+	$(CP)	$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/zlib.pc \
+		$(1)/usr/lib/pkgconfig/
 endef
 
 # libz.so is needed for openssl (zlib-dynamic)
