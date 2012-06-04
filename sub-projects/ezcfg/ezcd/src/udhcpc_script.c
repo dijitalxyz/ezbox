@@ -66,13 +66,31 @@ static int udhcpc_deconfig(void)
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
+	}
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, IPADDR));
+	}
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, NETMASK));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, NETMASK));
+	}
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, GATEWAY));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, GATEWAY));
+	}
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, DOMAIN));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, DOMAIN));
+	}
 	for (i=1; i<=3; i++) {
 		snprintf(buf, sizeof(buf), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
 		rc = ezcfg_api_nvram_unset(buf);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_unset(%s) error.\n", buf);
+		}
 	}
 
 #if 0
@@ -96,15 +114,21 @@ static int udhcpc_bound(void)
 	char *dns;
 	char *p, *savep, *token;
 	int i, rc;
-	//int status, i, rc;
+	//int status;
 
 	lease = getenv("lease");
 	if (lease == NULL) {
 		/* default set to 1 hour */
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), "3600");
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, 3600) error.\n", NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
+		}
 	}
 	else {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+		}
 	}
 
 	iface = getenv("interface");
@@ -124,8 +148,14 @@ static int udhcpc_bound(void)
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
+	}
 	if (subnet != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
+		}
 	}
 
 	router = getenv("router");
@@ -152,11 +182,17 @@ static int udhcpc_bound(void)
 		}
 
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
+		}
 	}
 
 	domain = getenv("domain");
 	if (domain != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
+		}
 	}
 
 	dns = getenv("dns");
@@ -170,6 +206,9 @@ static int udhcpc_bound(void)
 			snprintf(name, sizeof(name), "%s%d",
 				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_set(name, dns);
+			if (rc < 0) {
+				DBG("ezcfg_api_nvram_set(%s, %s) error.\n", name, dns);
+			}
 		}
 	}
 
@@ -202,9 +241,15 @@ static int udhcpc_renew(void)
 	if (lease == NULL) {
 		/* default set to 1 hour */
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), "3600");
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, 3600) error.\n", NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE));
+		}
 	}
 	else {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, DHCP_LEASE), lease);
+		}
 	}
 
 	iface = getenv("interface");
@@ -224,8 +269,14 @@ static int udhcpc_renew(void)
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
+	}
 	if (subnet != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, NETMASK), subnet);
+		}
 	}
 
 	router = getenv("router");
@@ -252,11 +303,17 @@ static int udhcpc_renew(void)
 		}
 
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, GATEWAY), router);
+		}
 	}
 
 	domain = getenv("domain");
 	if (domain != NULL) {
 		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_set(%s, %s) error.\n", NVRAM_SERVICE_OPTION(WAN, DOMAIN), domain);
+		}
 	}
 
 	dns = getenv("dns");
@@ -270,6 +327,9 @@ static int udhcpc_renew(void)
 			snprintf(name, sizeof(name), "%s%d",
 				NVRAM_SERVICE_OPTION(WAN, DNS), i);
 			rc = ezcfg_api_nvram_set(name, dns);
+			if (rc < 0) {
+				DBG("ezcfg_api_nvram_set(%s, %s) error.\n", name, dns);
+			}
 		}
 	}
 

@@ -63,22 +63,30 @@ static void config_wan_static(void)
 
 	/* IP address */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_IPADDR), buf, sizeof(buf));
-	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf);
+	if (rc >= 0) {
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), buf);
+	}
 
 	/* netmask */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_NETMASK), buf, sizeof(buf));
-	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), buf);
+	if (rc >= 0) {
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, NETMASK), buf);
+	}
 
 	/* gateway IP address */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_GATEWAY), buf, sizeof(buf));
-	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), buf);
+	if (rc >= 0) {
+		rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, GATEWAY), buf);
+	}
 
 	/* DNS */
 	for(i=1; i<=3; i++) {
 		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, STATIC_DNS), i);
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
-		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
-		rc = ezcfg_api_nvram_set(name, buf);
+		if (rc >= 0) {
+			snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
+			rc = ezcfg_api_nvram_set(name, buf);
+		}
 	}
 
 	pop_etc_resolv_conf(RC_ACT_START);
@@ -99,17 +107,29 @@ static void deconfig_wan_static(void)
 
 	/* IP address */
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, IPADDR));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, IPADDR));
+	}
 
 	/* netmask */
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, NETMASK));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, NETMASK));
+	}
 
 	/* gateway IP address */
 	rc = ezcfg_api_nvram_unset(NVRAM_SERVICE_OPTION(WAN, GATEWAY));
+	if (rc < 0) {
+		DBG("ezcfg_api_nvram_unset(%s) error.\n", NVRAM_SERVICE_OPTION(WAN, GATEWAY));
+	}
 
 	/* DNS */
 	for(i=1; i<=3; i++) {
 		snprintf(name, sizeof(name), "%s%d", NVRAM_SERVICE_OPTION(WAN, DNS), i);
 		rc = ezcfg_api_nvram_unset(name);
+		if (rc < 0) {
+			DBG("ezcfg_api_nvram_unset(%s) error.\n", name);
+		}
 	}
 }
 

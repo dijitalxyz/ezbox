@@ -178,7 +178,7 @@ int ezcfg_igrs_write_create_session_request(struct ezcfg_igrs *igrs, char *buf, 
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg_soap *soap;
 
 	char *p;
 	int n;
@@ -191,7 +191,7 @@ int ezcfg_igrs_write_create_session_request(struct ezcfg_igrs *igrs, char *buf, 
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
-	soap = igrs->soap;
+	//soap = igrs->soap;
 
 	p = buf; n = 0;
 	n = ezcfg_http_write_request_line(http, p, len);
@@ -229,17 +229,17 @@ int ezcfg_igrs_write_create_session_request(struct ezcfg_igrs *igrs, char *buf, 
 
 int ezcfg_igrs_handle_create_session_request(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg *ezcfg;
+	//struct ezcfg_http *http;
+	//struct ezcfg_soap *soap;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
 	ASSERT(igrs->soap != NULL);
 
-	ezcfg = igrs->ezcfg;
-	http = igrs->http;
-	soap = igrs->soap;
+	//ezcfg = igrs->ezcfg;
+	//http = igrs->http;
+	//soap = igrs->soap;
 
 	return 0;
 }

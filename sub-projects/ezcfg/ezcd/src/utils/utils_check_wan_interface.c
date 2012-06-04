@@ -112,7 +112,7 @@ bool utils_wan_interface_is_up(void)
 
 	close(sockfd);
 
-	if (!(ifreq.ifr_flags & IFF_UP) || (ipaddr == 0)) {
+	if (!(flags & IFF_UP) || (ipaddr == 0)) {
 		return false;
 	}
 

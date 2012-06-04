@@ -53,11 +53,11 @@
 int utils_parse_upnp_task(char *buf, size_t size, char **argv)
 {
 	char *p;
-	int i;
+	//int i;
 	int argc;
 
 	argc = 0;
-	i = 0;
+	//i = 0;
 	p = buf;
 	while((argc < RC_MAX_ARGS - 1) && (*p != '\0')) {
 		/* skip blank char */

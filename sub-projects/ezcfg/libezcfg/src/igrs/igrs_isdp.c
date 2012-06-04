@@ -144,11 +144,11 @@ static const char *message_type_strings[] = {
  **/
 void ezcfg_igrs_isdp_delete(struct ezcfg_igrs_isdp *isdp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(isdp != NULL);
 
-	ezcfg = isdp->ezcfg;
+	//ezcfg = isdp->ezcfg;
 
 	free(isdp);
 }
@@ -179,11 +179,11 @@ struct ezcfg_igrs_isdp *ezcfg_igrs_isdp_new(struct ezcfg *ezcfg)
 
 void ezcfg_igrs_isdp_dump(struct ezcfg_igrs_isdp *isdp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(isdp != NULL);
 
-	ezcfg = isdp->ezcfg;
+	//ezcfg = isdp->ezcfg;
 
 }
 

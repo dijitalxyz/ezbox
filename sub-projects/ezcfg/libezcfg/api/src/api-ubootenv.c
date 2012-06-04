@@ -164,7 +164,12 @@ static int read_ubootenv(ubootenv_info_t info, char *buf, size_t len)
 	count = fread(buf, info.ubootenv_size, 1, fp);
 	fclose(fp);
 
-	return 0;
+	if (count < 1) {
+		return -EZCFG_E_RESOURCE;
+	}
+	else {
+		return 0;
+	}
 }
 
 #if 0

@@ -211,11 +211,11 @@ static const struct ezcfg_igrs_msg_op default_message_type_ops[] = {
  **/
 void ezcfg_igrs_delete(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	if (igrs->http != NULL) {
 		ezcfg_http_delete(igrs->http);
@@ -280,47 +280,47 @@ struct ezcfg_igrs *ezcfg_igrs_new(struct ezcfg *ezcfg)
 
 void ezcfg_igrs_dump(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 }
 
 struct ezcfg_http *ezcfg_igrs_get_http(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->http;
 }
 
 struct ezcfg_soap *ezcfg_igrs_get_soap(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->soap != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->soap;
 }
 
 int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
         struct ezcfg_http *http;
 	int count, n;
 
         ASSERT(igrs != NULL);
         ASSERT(igrs->http != NULL);
 
-        ezcfg = igrs->ezcfg;
+        //ezcfg = igrs->ezcfg;
         http = igrs->http;
 
 	count = 0;
@@ -352,12 +352,12 @@ int ezcfg_igrs_get_message_length(struct ezcfg_igrs *igrs)
 
 bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg_igrs_msg_op *message_type_ops, unsigned short num_message_types)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(message_type_ops != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->num_message_types = num_message_types;
 	igrs->message_type_ops = message_type_ops;
@@ -367,33 +367,33 @@ bool ezcfg_igrs_set_message_type_ops(struct ezcfg_igrs *igrs, const struct ezcfg
 
 unsigned short ezcfg_igrs_get_version_major(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->version_major;
 }
 
 unsigned short ezcfg_igrs_get_version_minor(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->version_minor;
 }
 
 bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->version_major = major;
 
@@ -402,11 +402,11 @@ bool ezcfg_igrs_set_version_major(struct ezcfg_igrs *igrs, unsigned short major)
 
 bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->version_minor = minor;
 
@@ -415,14 +415,14 @@ bool ezcfg_igrs_set_version_minor(struct ezcfg_igrs *igrs, unsigned short minor)
 
 unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *type)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	const struct ezcfg_igrs_msg_op *op;
 	unsigned short i;
 
 	ASSERT(igrs != NULL);
 	ASSERT(type != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	i = igrs->num_message_types;
 	op = &(igrs->message_type_ops[i]);
@@ -436,12 +436,12 @@ unsigned short ezcfg_igrs_set_message_type(struct ezcfg_igrs *igrs, const char *
 
 bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_str)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(uuid_str != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	snprintf(igrs->source_device_id, EZCFG_UUID_STRING_LEN+1, "%s", uuid_str);
 	return true;
@@ -449,23 +449,23 @@ bool ezcfg_igrs_set_source_device_id(struct ezcfg_igrs *igrs, const char *uuid_s
 
 char *ezcfg_igrs_get_source_device_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->source_device_id;
 }
 
 bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_str)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(uuid_str != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	snprintf(igrs->target_device_id, EZCFG_UUID_STRING_LEN+1, "%s", uuid_str);
 	return true;
@@ -473,11 +473,11 @@ bool ezcfg_igrs_set_target_device_id(struct ezcfg_igrs *igrs, const char *uuid_s
 
 char *ezcfg_igrs_get_target_device_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->target_device_id;
 }
@@ -507,11 +507,11 @@ bool ezcfg_igrs_set_source_user_id(struct ezcfg_igrs *igrs, const char *user_id)
 
 char *ezcfg_igrs_get_source_user_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->source_user_id;
 }
@@ -544,11 +544,11 @@ bool ezcfg_igrs_set_service_security_id(struct ezcfg_igrs *igrs, const char *sec
 
 char *ezcfg_igrs_get_service_security_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->service_security_id;
 }
@@ -581,23 +581,23 @@ bool ezcfg_igrs_set_invoke_args(struct ezcfg_igrs *igrs, const char *invoke_args
 
 char *ezcfg_igrs_get_invoke_args(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->invoke_args;
 }
 
 bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(seq_id > 0);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->sequence_id = seq_id;
 	return true;
@@ -605,22 +605,22 @@ bool ezcfg_igrs_set_sequence_id(struct ezcfg_igrs *igrs, unsigned int seq_id)
 
 unsigned int ezcfg_igrs_get_sequence_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->sequence_id;
 }
 
 bool ezcfg_igrs_set_acknowledge_id(struct ezcfg_igrs *igrs, unsigned int ack_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->acknowledge_id = ack_id;
 	return true;
@@ -628,22 +628,22 @@ bool ezcfg_igrs_set_acknowledge_id(struct ezcfg_igrs *igrs, unsigned int ack_id)
 
 unsigned int ezcfg_igrs_get_acknowledge_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->acknowledge_id;
 }
 
 bool ezcfg_igrs_set_return_code(struct ezcfg_igrs *igrs, unsigned short code)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->return_code = code;
 	return true;
@@ -651,23 +651,23 @@ bool ezcfg_igrs_set_return_code(struct ezcfg_igrs *igrs, unsigned short code)
 
 unsigned short ezcfg_igrs_get_return_code(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->return_code;
 }
 
 bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int client_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(client_id > 0);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->source_client_id = client_id;
 	return true;
@@ -675,23 +675,23 @@ bool ezcfg_igrs_set_source_client_id(struct ezcfg_igrs *igrs, unsigned int clien
 
 unsigned int ezcfg_igrs_get_source_client_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->source_client_id;
 }
 
 bool ezcfg_igrs_set_target_client_id(struct ezcfg_igrs *igrs, unsigned int client_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(client_id > 0);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->target_client_id = client_id;
 	return true;
@@ -699,23 +699,23 @@ bool ezcfg_igrs_set_target_client_id(struct ezcfg_igrs *igrs, unsigned int clien
 
 unsigned int ezcfg_igrs_get_target_client_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->target_client_id;
 }
 
 bool ezcfg_igrs_set_source_service_id(struct ezcfg_igrs *igrs, unsigned int service_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(service_id > 0);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->source_service_id = service_id;
 	return true;
@@ -723,23 +723,23 @@ bool ezcfg_igrs_set_source_service_id(struct ezcfg_igrs *igrs, unsigned int serv
 
 unsigned int ezcfg_igrs_get_source_service_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->source_service_id;
 }
 
 bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int service_id)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 	ASSERT(service_id > 0);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	igrs->target_service_id = service_id;
 	return true;
@@ -747,11 +747,11 @@ bool ezcfg_igrs_set_target_service_id(struct ezcfg_igrs *igrs, unsigned int serv
 
 unsigned int ezcfg_igrs_get_target_service_id(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 
 	return igrs->target_service_id;
 }
@@ -826,13 +826,13 @@ int ezcfg_igrs_handle_message(struct ezcfg_igrs *igrs)
 
 char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name)
 {
-        struct ezcfg *ezcfg;
+        //struct ezcfg *ezcfg;
         struct ezcfg_http *http;
 
         ASSERT(igrs != NULL);
         ASSERT(igrs->http != NULL);
 
-        ezcfg = igrs->ezcfg;
+        //ezcfg = igrs->ezcfg;
         http = igrs->http;
 
 	return ezcfg_http_get_header_value(http, name);
@@ -840,7 +840,7 @@ char *ezcfg_igrs_get_http_header_value(struct ezcfg_igrs *igrs, char *name)
 
 void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 
@@ -848,7 +848,7 @@ void ezcfg_igrs_reset_attributes(struct ezcfg_igrs *igrs)
 	ASSERT(igrs->http != NULL);
 	ASSERT(igrs->soap != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 	http = igrs->http;
 	soap = igrs->soap;
 
@@ -916,7 +916,7 @@ bool ezcfg_igrs_parse_header(struct ezcfg_igrs *igrs, char *buf, int len)
 
 bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char *msg_body;
@@ -926,7 +926,7 @@ bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs)
 	ASSERT(igrs->http != NULL);
 	ASSERT(igrs->soap != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 	http = igrs->http;
 	soap = igrs->soap;
 
@@ -944,12 +944,12 @@ bool ezcfg_igrs_parse_message_body(struct ezcfg_igrs *igrs)
 
 char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int len)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
 
 	ASSERT(igrs != NULL);
 
-	ezcfg = igrs->ezcfg;
+	//ezcfg = igrs->ezcfg;
 	http = igrs->http;
 
 	return ezcfg_http_set_message_body(http, body, len);
@@ -957,14 +957,14 @@ char *ezcfg_igrs_set_message_body(struct ezcfg_igrs *igrs, const char *body, int
 
 int ezcfg_igrs_http_get_message_length(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
         struct ezcfg_http *http;
 	int count, n;
 
         ASSERT(igrs != NULL);
         ASSERT(igrs->http != NULL);
 
-        ezcfg = igrs->ezcfg;
+        //ezcfg = igrs->ezcfg;
         http = igrs->http;
 
 	count = 0;

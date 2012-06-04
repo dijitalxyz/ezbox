@@ -60,6 +60,10 @@ int utils_sync_nvram_with_cfg(char *path)
 			keyword = buf;
 			value++;
 			rc = ezcfg_api_nvram_set(keyword, value);
+			if (rc < 0) {
+				fclose(file);
+				return EXIT_FAILURE;
+			}
 		}
 	}
 

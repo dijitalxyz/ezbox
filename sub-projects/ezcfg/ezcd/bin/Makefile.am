@@ -151,7 +151,7 @@ RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 	$(CC) $(RCSO_CFLAGS) -L. -lezcd -ldl -shared $< -o $@
 
 %.exe : $(top_builddir)/src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ -L. -lezcd -ldl $< -o $@
+	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ $< -o $@ -L. -lezcd -lezcfg -ldl
 
 clean-local: clean-local-check
 clean-local-check:

@@ -529,11 +529,11 @@ static bool upnp_send_ssdp_respond(
  **/
 void ezcfg_upnp_ssdp_delete(struct ezcfg_upnp_ssdp *ssdp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(ssdp != NULL);
 
-	ezcfg = ssdp->ezcfg;
+	//ezcfg = ssdp->ezcfg;
 
 	if (ssdp->http != NULL) {
 		ezcfg_http_delete(ssdp->http);
@@ -1020,7 +1020,7 @@ bool ezcfg_upnp_ssdp_msearch_request(struct ezcfg_upnp_ssdp *ssdp)
  **/
 bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg_socket *sp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	struct ezcfg_upnp *upnp;
 	struct ezcfg_http *http;
 	upnp_if_t *ifp;
@@ -1036,7 +1036,7 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 	ASSERT(ssdp != NULL);
 	ASSERT(sp != NULL);
 
-	ezcfg = ssdp->ezcfg;
+	//ezcfg = ssdp->ezcfg;
 	upnp = ssdp->upnp;
 	http = ssdp->http;
 	/* FIXME: http will be mangle by upnp_send_ssdp_respond() */
@@ -1167,11 +1167,11 @@ bool ezcfg_upnp_ssdp_msearch_response(struct ezcfg_upnp_ssdp *ssdp, struct ezcfg
 
 void ezcfg_upnp_ssdp_reset_attributes(struct ezcfg_upnp_ssdp *ssdp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(ssdp != NULL);
 
-	ezcfg = ssdp->ezcfg;
+	//ezcfg = ssdp->ezcfg;
 
 	ezcfg_http_reset_attributes(ssdp->http);
 }

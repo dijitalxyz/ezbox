@@ -172,7 +172,7 @@ int ezcfg_igrs_write_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, 
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg_soap *soap;
 
 	char *p;
 	int n;
@@ -185,7 +185,7 @@ int ezcfg_igrs_write_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, 
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
-	soap = igrs->soap;
+	//soap = igrs->soap;
 
 	p = buf; n = 0;
 	n = ezcfg_http_write_request_line(http, p, len);
@@ -224,7 +224,7 @@ int ezcfg_igrs_write_invoke_service_request(struct ezcfg_igrs *igrs, char *buf, 
 int ezcfg_igrs_handle_invoke_service_request(struct ezcfg_igrs *igrs)
 {
 	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
+	//struct ezcfg_http *http;
 	struct ezcfg_soap *soap;
 	char tmp_device_id[EZCFG_UUID_STRING_LEN+1]; /* +1 for \0-terminated */
 	int body_index, session_index, child_index;
@@ -235,7 +235,7 @@ int ezcfg_igrs_handle_invoke_service_request(struct ezcfg_igrs *igrs)
 	ASSERT(igrs->soap != NULL);
 
 	ezcfg = igrs->ezcfg;
-	http = igrs->http;
+	//http = igrs->http;
 	soap = igrs->soap;
 
 	/* handle request */
@@ -454,7 +454,7 @@ int ezcfg_igrs_write_invoke_service_response(struct ezcfg_igrs *igrs, char *buf,
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg_soap *soap;
 
 	char *p;
 	int n;
@@ -467,7 +467,7 @@ int ezcfg_igrs_write_invoke_service_response(struct ezcfg_igrs *igrs, char *buf,
 
 	ezcfg = igrs->ezcfg;
 	http = igrs->http;
-	soap = igrs->soap;
+	//soap = igrs->soap;
 
 	p = buf; n = 0;
 	n = ezcfg_http_write_start_line(http, p, len);
@@ -505,17 +505,17 @@ int ezcfg_igrs_write_invoke_service_response(struct ezcfg_igrs *igrs, char *buf,
 
 int ezcfg_igrs_handle_invoke_service_response(struct ezcfg_igrs *igrs)
 {
-	struct ezcfg *ezcfg;
-	struct ezcfg_http *http;
-	struct ezcfg_soap *soap;
+	//struct ezcfg *ezcfg;
+	//struct ezcfg_http *http;
+	//struct ezcfg_soap *soap;
 
 	ASSERT(igrs != NULL);
 	ASSERT(igrs->http != NULL);
 	ASSERT(igrs->soap != NULL);
 
-	ezcfg = igrs->ezcfg;
-	http = igrs->http;
-	soap = igrs->soap;
+	//ezcfg = igrs->ezcfg;
+	//http = igrs->http;
+	//soap = igrs->soap;
 
 	/* handle response */
 

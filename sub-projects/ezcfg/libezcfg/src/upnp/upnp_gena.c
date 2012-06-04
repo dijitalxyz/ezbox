@@ -51,11 +51,11 @@ struct ezcfg_upnp_gena {
  **/
 void ezcfg_upnp_gena_delete(struct ezcfg_upnp_gena *gena)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(gena != NULL);
 
-	ezcfg = gena->ezcfg;
+	//ezcfg = gena->ezcfg;
 
 	if (gena->http != NULL) {
 		ezcfg_http_delete(gena->http);

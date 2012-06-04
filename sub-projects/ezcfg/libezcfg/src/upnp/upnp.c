@@ -697,11 +697,11 @@ static bool upnp_fill_info(struct ezcfg_upnp *upnp, struct ezcfg_xml *xml)
  **/
 void ezcfg_upnp_delete(struct ezcfg_upnp *upnp)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 
 	ASSERT(upnp != NULL);
 
-	ezcfg = upnp->ezcfg;
+	//ezcfg = upnp->ezcfg;
 
 	if (upnp->role == EZCFG_UPNP_ROLE_DEVICE) {
 		upnp_delete_device(upnp->u.dev);
