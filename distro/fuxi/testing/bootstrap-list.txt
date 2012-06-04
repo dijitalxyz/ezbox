@@ -1,0 +1,4 @@
+# basic packages
+package/dnsmasq/dnsmasq-2.59:package/dnsmasq
+package/openssl/openssl-1.0.1c:package/openssl
+package/zlib/zlib-1.2.5:package/zlib
