@@ -25,7 +25,6 @@ PKG_BUILD_DEPENDS:=opkg/host
 PKG_BUILD_DEPENDS+=check
 
 include $(INCLUDE_DIR)/package.mk
-include $(INCLUDE_DIR)/nls.mk
 
 # set to 1 to enable debugging
 DEBUG=0
