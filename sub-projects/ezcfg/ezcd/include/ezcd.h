@@ -31,6 +31,8 @@ int utils_get_kernel_modules(char *buf, int buf_len);
 
 int utils_install_kernel_module(char *name, char *args);
 int utils_remove_kernel_module(char *name);
+int utils_probe_kernel_module(char *name, char *args);
+int utils_clean_kernel_module(char *name);
 
 int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len);
 

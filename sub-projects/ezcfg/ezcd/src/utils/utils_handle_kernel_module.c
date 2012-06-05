@@ -77,8 +77,9 @@ static mod_dep_t mod_depends[] = {
 	{ "rt2x00usb", "mac80211,rt2x00lib,usbcore" },
 	{ "rt73usb", "crc-itu-t,rt2x00lib,rt2x00usb" },
 	{ "uhci-hcd", "usbcore" },
-	{ "usbcore", "nls_base" },
+	{ "usbcore", "usb-common,nls_base" },
 	{ "usbhid", "usbcore" },
+	{ "usb-storage", "usbcore" },
 	{ "vfat", "nls_base,nls_cp437,nls_iso8859-1,fat" },
 	{ "yenta_socket", "pcmcia_core,rsrc_nonstatic" },
 };
@@ -218,3 +219,59 @@ int utils_remove_kernel_module(char *name)
 
 	return ret;
 }
+
+int utils_probe_kernel_module(char *name, char *args)
+{
+        FILE *file = NULL;
+	char buf[128];
+	char *p, *q;
+	int ret = EXIT_FAILURE;
+
+	if (name == NULL) {
+		return (EXIT_FAILURE);
+	}
+
+	/* check if it's been installed */
+	file = fopen("/proc/modules", "r");
+	if (file != NULL) {
+		while (utils_file_get_line(file,
+			buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
+			p = strchr(buf, ' ');
+			if (p != NULL) {
+				*p = '\0';
+			}
+			if (strcmp(name, buf) == 0) {
+				/* already installed the module */
+				fclose(file);
+				return (EXIT_SUCCESS);
+			}
+		}
+		fclose(file);
+	}
+
+	/* modprobe kernel modules */
+	q = (args == NULL) ? "" : args;
+	snprintf(buf, sizeof(buf), "%s %s %s", CMD_MODPROBE, name, q);
+	utils_system(buf);
+	ret = EXIT_SUCCESS;
+
+	return ret;
+}
+
+int utils_clean_kernel_module(char *name)
+{
+	char buf[128];
+	int ret = EXIT_FAILURE;
+
+	if (name == NULL) {
+		return ret;
+	}
+
+	/* first rmmod the kernel module directly */
+	snprintf(buf, sizeof(buf), "%s -r %s", CMD_MODPROBE, name);
+	utils_system(buf);
+	ret = EXIT_SUCCESS;
+
+	return ret;
+}
+

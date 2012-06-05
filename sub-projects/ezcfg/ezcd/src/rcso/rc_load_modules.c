@@ -76,9 +76,13 @@ int rc_load_modules(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
+		/* generate modules dependency */
+		utils_system(CMD_DEPMOD);
+
 		while (utils_file_get_line(file,
 			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-			ret = utils_install_kernel_module(buf, NULL);
+			//ret = utils_install_kernel_module(buf, NULL);
+			ret = utils_probe_kernel_module(buf, NULL);
 		}
 		ret = EXIT_SUCCESS;
 		break;
@@ -86,7 +90,8 @@ int rc_load_modules(int argc, char **argv)
 	case RC_ACT_STOP :
 		while (utils_file_get_line(file,
 			 buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-			ret = utils_remove_kernel_module(buf);
+			//ret = utils_remove_kernel_module(buf);
+			ret = utils_clean_kernel_module(buf);
 		}
 		ret = EXIT_SUCCESS;
 		break;

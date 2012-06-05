@@ -787,7 +787,7 @@ AC_MSG_CHECKING([if i18n languages is available])
 # Checks for i18n languages header files.
 AC_CHECK_HEADERS([libintl.h])
 # Checks for gettext function.
-AC_CHECK_LIB(intl,gettext)
+AC_CHECK_LIB(intl, gettext)
 AC_SUBST(HAVE_LIBINTL_H)
 AC_SUBST(HAVE_LIBINTL)
 
