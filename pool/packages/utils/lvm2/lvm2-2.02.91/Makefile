@@ -50,6 +50,7 @@ define Package/lvm2/description
 endef
 
 CONFIGURE_ARGS += --disable-o_direct
+CONFIGURE_ARGS += --disable-nls
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \

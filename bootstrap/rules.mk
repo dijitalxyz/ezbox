@@ -231,6 +231,7 @@ endif
 
 ifeq ($(CONFIG_ENABLE_LOCALE),y)
   DISABLE_NLS:=--enable-nls
+  include $(TOPDIR)/include/nls.mk
 else
   DISABLE_NLS:=--disable-nls
 endif

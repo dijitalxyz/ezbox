@@ -3,6 +3,7 @@
 # files to tmp/ directory
 #########################
 m:Config.in
+m:include/nls.mk
 m:include/target.mk
 m:rules.mk
 m:toolchain/uClibc/Makefile
