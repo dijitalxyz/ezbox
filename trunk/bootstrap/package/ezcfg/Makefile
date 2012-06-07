@@ -23,11 +23,17 @@ PKG_INSTALL:=1
 
 PKG_BUILD_DEPENDS:=opkg/host
 PKG_BUILD_DEPENDS+=check
+PKG_BUILD_DEPENDS+=BUILD_NLS:libiconv-full
+PKG_BUILD_DEPENDS+=BUILD_NLS:gettext-full
 
 include $(INCLUDE_DIR)/package.mk
+ifeq ($(CONFIG_BUILD_NLS),y)
+include $(INCLUDE_DIR)/nls.mk
+endif
 
 # set to 1 to enable debugging
 DEBUG=0
+SSL_DEPENDS:=+FEATURE_EZCFG_ezcfg-ssl-openssl:libopenssl
 
 define Package/ezcfg
   SECTION:=base
@@ -36,8 +42,7 @@ define Package/ezcfg
   TITLE:=ezbox config utility
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
-  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS) \
-	+FEATURE_EZCFG_ezcfg-ssl-openssl:libopenssl
+  DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS) $(SSL_DEPENDS)
 endef
 
 define Package/ezcfg/description
@@ -86,7 +91,7 @@ CONFIGURE_ARGS += \
 #CONFIGURE_ARGS += \
 #	--disable-ezcfg_nls
 #endif
-ifneq ($(CONFIG_ENABLE_LOCALE),)
+ifneq ($(CONFIG_BUILD_NLS),)
 CONFIGURE_ARGS += \
 	--enable-ezcfg_nls
 else
@@ -155,9 +160,11 @@ CONFIGURE_ARGS += \
 	--enable-service-ezcfg_upnpd_igd1
 
 # set openssl service
-ifneq ($(CONFIG_PACKAGE_libopenssl),)
+ifneq ($(CONFIG_FEATURE_EZCFG_ezcfg-ssl-openssl),)
+  ifneq ($(CONFIG_PACKAGE_libopenssl),)
 CONFIGURE_ARGS += \
 	--enable-service-openssl
+  endif
 endif
 
 # set telnet service

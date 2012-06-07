@@ -188,8 +188,12 @@ INSTALL_DATA:=install -m0644
 INSTALL_CONF:=install -m0600
 
 ifneq ($(CONFIG_CCACHE),)
-  TARGET_CC:= ccache $(TARGET_CC)
-  TARGET_CXX:= ccache $(TARGET_CXX)
+  TARGET_CC_NOCACHE:=$(TARGET_CC)
+  TARGET_CXX_NOCACHE:=$(TARGET_CXX)
+  export TARGET_CC_NOCACHE
+  export TARGET_CXX_NOCACHE
+  TARGET_CC:= ccache_cc
+  TARGET_CXX:= ccache_cxx
   HOSTCC:= ccache $(HOSTCC)
 endif
 
@@ -231,7 +235,6 @@ endif
 
 ifeq ($(CONFIG_ENABLE_LOCALE),y)
   DISABLE_NLS:=--enable-nls
-  include $(TOPDIR)/include/nls.mk
 else
   DISABLE_NLS:=--disable-nls
 endif
