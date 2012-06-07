@@ -54,22 +54,22 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 fi
 
 # Configure check unit test support.
-config_ezbox_ezcfg_test=yes
+config_ezbox_ezcfg_test=no
 AC_MSG_CHECKING([if ezcfg_test is enabled])
 AC_ARG_ENABLE([ezcfg_test],
-	AS_HELP_STRING([--enable-ezcfg_test], [Enable ezcfg_test (default yes)]),
+	AS_HELP_STRING([--enable-ezcfg_test], [Enable ezcfg_test (default no)]),
 	[case "$enableval" in
-	no)
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_test=yes
+	;;
+	*)
 		AC_MSG_RESULT(no)
 		config_ezbox_ezcfg_test=no
 	;;
-	*)
-		AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
-		AC_MSG_RESULT(yes)
-	;;
 	esac] ,
-	AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
-	[AC_MSG_RESULT(yes)]
+	[AC_MSG_RESULT(no)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
 
@@ -189,6 +189,7 @@ AC_ARG_ENABLE([wan-nic],
 AM_CONDITIONAL(CONFIG_EZBOX_WAN_NIC, test "x$config_ezbox_wan_nic" = xyes)
 
 # Configure WAN connection type PPPoE.
+config_ezbox_wan_pppoe=no
 AC_MSG_CHECKING([if WAN type PPPoE is enabled])
 AC_ARG_ENABLE([wan-pppoe],
 	AS_HELP_STRING([--enable-wan-pppoe], [Enable WAN connection type PPPoE (default no)]),
@@ -196,6 +197,7 @@ AC_ARG_ENABLE([wan-pppoe],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_PPPOE], [1], [Enable WAN connection type PPPoE])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_pppoe=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -203,8 +205,10 @@ AC_ARG_ENABLE([wan-pppoe],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_PPPOE, test "x$config_ezbox_wan_pppoe" = xyes)
 
 # Configure WAN connection type PPTP.
+config_ezbox_wan_pptp=no
 AC_MSG_CHECKING([if WAN type PPTP is enabled])
 AC_ARG_ENABLE([wan-pptp],
 	AS_HELP_STRING([--enable-wan-pptp], [Enable WAN connection type PPTP (default no)]),
@@ -212,6 +216,7 @@ AC_ARG_ENABLE([wan-pptp],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_PPTP], [1], [Enable WAN connection type PPTP])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_pptp=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -219,8 +224,10 @@ AC_ARG_ENABLE([wan-pptp],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_PPTP, test "x$config_ezbox_wan_pptp" = xyes)
 
 # Configure WAN connection type L2TP.
+config_ezbox_wan_l2tp=no
 AC_MSG_CHECKING([if WAN type L2TP is enabled])
 AC_ARG_ENABLE([wan-l2tp],
 	AS_HELP_STRING([--enable-wan-l2tp], [Enable WAN connection type L2TP (default no)]),
@@ -228,6 +235,7 @@ AC_ARG_ENABLE([wan-l2tp],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_L2TP], [1], [Enable WAN connection type L2TP])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_l2tp=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -235,6 +243,7 @@ AC_ARG_ENABLE([wan-l2tp],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_L2TP, test "x$config_ezbox_wan_l2tp" = xyes)
 
 # Configure openssl service.
 config_ezbox_service_openssl=no

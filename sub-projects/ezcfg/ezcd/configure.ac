@@ -53,10 +53,50 @@ if test -z "$EZBOX_DISTRO_DEFINE"; then
 	EZBOX_DISTRO_DEFINE="-DCONFIG_EZCFG_EZBOX_DISTRO_HUNDUN"
 fi
 
+# Configure check unit test support.
+config_ezbox_ezcfg_test=no
+AC_MSG_CHECKING([if ezcfg_test is enabled])
+AC_ARG_ENABLE([ezcfg_test],
+	AS_HELP_STRING([--enable-ezcfg_test], [Enable ezcfg_test (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_test=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_test=no
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
+
+# Configure ezcfg nls support.
+config_ezbox_ezcfg_nls=yes
+AC_MSG_CHECKING([if ezcfg_nls is enabled])
+AC_ARG_ENABLE([ezcfg_nls],
+	AS_HELP_STRING([--enable-ezcfg_nls], [Enable ezcfg_nls (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_nls=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
+	[AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_NLS, test "x$config_ezbox_ezcfg_nls" = xyes)
+
 # Configure ELAN NIC.
 config_ezbox_elan_nic=yes
 AC_MSG_CHECKING([if Ethernet network interface is enabled])
-AC_ARG_ENABLE([lan-nic],
+AC_ARG_ENABLE([elan-nic],
 	AS_HELP_STRING([--enable-elan-nic], [Enable Ethernet network interface (default yes)]),
 	[case "$enableval" in
 	no)
@@ -149,6 +189,7 @@ AC_ARG_ENABLE([wan-nic],
 AM_CONDITIONAL(CONFIG_EZBOX_WAN_NIC, test "x$config_ezbox_wan_nic" = xyes)
 
 # Configure WAN connection type PPPoE.
+config_ezbox_wan_pppoe=no
 AC_MSG_CHECKING([if WAN type PPPoE is enabled])
 AC_ARG_ENABLE([wan-pppoe],
 	AS_HELP_STRING([--enable-wan-pppoe], [Enable WAN connection type PPPoE (default no)]),
@@ -156,6 +197,7 @@ AC_ARG_ENABLE([wan-pppoe],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_PPPOE], [1], [Enable WAN connection type PPPoE])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_pppoe=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -163,8 +205,10 @@ AC_ARG_ENABLE([wan-pppoe],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_PPPOE, test "x$config_ezbox_wan_pppoe" = xyes)
 
 # Configure WAN connection type PPTP.
+config_ezbox_wan_pptp=no
 AC_MSG_CHECKING([if WAN type PPTP is enabled])
 AC_ARG_ENABLE([wan-pptp],
 	AS_HELP_STRING([--enable-wan-pptp], [Enable WAN connection type PPTP (default no)]),
@@ -172,6 +216,7 @@ AC_ARG_ENABLE([wan-pptp],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_PPTP], [1], [Enable WAN connection type PPTP])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_pptp=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -179,8 +224,10 @@ AC_ARG_ENABLE([wan-pptp],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_PPTP, test "x$config_ezbox_wan_pptp" = xyes)
 
 # Configure WAN connection type L2TP.
+config_ezbox_wan_l2tp=no
 AC_MSG_CHECKING([if WAN type L2TP is enabled])
 AC_ARG_ENABLE([wan-l2tp],
 	AS_HELP_STRING([--enable-wan-l2tp], [Enable WAN connection type L2TP (default no)]),
@@ -188,6 +235,7 @@ AC_ARG_ENABLE([wan-l2tp],
 	yes)
 		AC_DEFINE([HAVE_EZBOX_WAN_L2TP], [1], [Enable WAN connection type L2TP])
 		AC_MSG_RESULT(yes)
+		config_ezbox_wan_l2tp=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -195,6 +243,7 @@ AC_ARG_ENABLE([wan-l2tp],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
+AM_CONDITIONAL(CONFIG_EZBOX_WAN_L2TP, test "x$config_ezbox_wan_l2tp" = xyes)
 
 # Configure openssl service.
 config_ezbox_service_openssl=no
@@ -242,7 +291,7 @@ AC_ARG_ENABLE([service-klogd],
 	AS_HELP_STRING([--enable-service-klogd], [Enable klog service (default no)]),
 	[case "$enableval" in
 	yes)
-		AC_DEFINE([HAVE_EZBOX_SERVICE_KLOGD], [1], [Enable syslog service])
+		AC_DEFINE([HAVE_EZBOX_SERVICE_KLOGD], [1], [Enable klog service])
 		AC_MSG_RESULT(yes)
 		config_ezbox_service_klogd=yes
 	;;
@@ -253,26 +302,6 @@ AC_ARG_ENABLE([service-klogd],
 	[AC_MSG_RESULT(no)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_KLOGD, test "x$config_ezbox_service_klogd" = xyes)
-
-# Configure ezcfg_httpd service.
-config_ezbox_service_ezcfg_httpd=no
-AC_MSG_CHECKING([if ezcfg_httpd service is enabled])
-AC_ARG_ENABLE([service-ezcfg_httpd],
-	AS_HELP_STRING([--enable-service-ezcfg_httpd], [Enable ezcfg_httpd service (default yes)]),
-	[case "$enableval" in
-	no)
-		AC_MSG_RESULT(no)
-		config_ezbox_service_ezcfg_httpd=no
-	;;
-	*)
-		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD], [1], [Enable ezcfg_httpd service])
-		AC_MSG_RESULT(yes)
-	;;
-	esac] ,
-	AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD], [1], [Enable ezcfg_httpd service])
-	[AC_MSG_RESULT(yes)]
-)
-AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD, test "x$config_ezbox_service_ezcfg_httpd" = xyes)
 
 # Configure ezcfg_httpd service.
 config_ezbox_service_ezcfg_httpd=yes
@@ -727,6 +756,14 @@ AC_ARG_ENABLE([service-emc2],
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
 
 # Checks for libraries.
+# This macro is defined in check.m4 and tests if check.h and
+# libcheck.a are installed in your system. It sets CHECK_CFLAGS and
+# CHECK_LIBS accordingly.  
+#  AM_PATH_CHECK([MINIMUM-VERSION,
+#                [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
+#AM_PATH_CHECK(,[have_check="yes"],
+#	AC_MSG_WARN([Check not found; cannot run unit tests!])
+#	[have_check="no"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h netinet/in.h stddef.h stdlib.h string.h sys/mount.h sys/socket.h sys/time.h unistd.h])

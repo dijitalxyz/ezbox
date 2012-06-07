@@ -4,9 +4,14 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = COPYING exported_symbols
 
+if CONFIG_EZBOX_EZCFG_TEST
+EXTRA_DIST = COPYING exported_symbols_test
 SUBDIRS = . lib tests
+else
+EXTRA_DIST = COPYING exported_symbols
+SUBDIRS = . lib
+endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcfg.pc
