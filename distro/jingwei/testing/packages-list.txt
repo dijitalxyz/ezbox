@@ -1,6 +1,6 @@
 lang/luasp/luasp-r11:luasp
 lang/python/python-2.6.4:python
-libs/check/check-0.9.8:check
+# libs/check/check-0.9.8:check
 libs/curl/curl-7.21.3:curl
 libs/expat/expat-2.0.1:expat
 libs/freetype/freetype-2.3.12:freetype
