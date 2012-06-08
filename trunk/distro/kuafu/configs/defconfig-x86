@@ -1100,7 +1100,6 @@ CONFIG_PACKAGE_librt=y
 #
 # Libraries
 #
-# CONFIG_PACKAGE_check is not set
 # CONFIG_PACKAGE_libltdl is not set
 CONFIG_PACKAGE_librpc=y
 
