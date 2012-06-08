@@ -26,7 +26,9 @@ libdir() {
 #--sbindir=/sbin \
 #--libdir=$(libdir /lib) \
 #--libexecdir=/lib/ezcfg \
-#--includedir=/usr/include"
+#--includedir=/usr/include \
+#--enable-ezcfg_test \
+#--enable-ezcfg_nls"
 
 args="--prefix=/usr/local \
 --sysconfdir=/etc \

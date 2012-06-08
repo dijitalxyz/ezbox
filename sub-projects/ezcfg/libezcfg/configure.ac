@@ -60,9 +60,18 @@ AC_ARG_ENABLE([ezcfg_test],
 	AS_HELP_STRING([--enable-ezcfg_test], [Enable ezcfg_test (default no)]),
 	[case "$enableval" in
 	yes)
+dnl Check if we have check...
+
+dnl PKG_CHECK_MODULES([CHECK],[check >= 0.8.2], config_ezbox_ezcfg_test=yes, config_ezbox_ezcfg_test=no)
+CHECK_CHECK([0.8.2], config_ezbox_ezcfg_test=yes, config_ezbox_ezcfg_test=no)
+if test "x$config_ezbox_ezcfg_test" = xyes ; then
 		AC_DEFINE([HAVE_EZBOX_EZCFG_TEST], [1], [Enable ezcfg_test])
 		AC_MSG_RESULT(yes)
 		config_ezbox_ezcfg_test=yes
+else
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_test=no
+fi
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -74,22 +83,22 @@ AC_ARG_ENABLE([ezcfg_test],
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
 
 # Configure ezcfg nls support.
-config_ezbox_ezcfg_nls=yes
+config_ezbox_ezcfg_nls=no
 AC_MSG_CHECKING([if ezcfg_nls is enabled])
 AC_ARG_ENABLE([ezcfg_nls],
-	AS_HELP_STRING([--enable-ezcfg_nls], [Enable ezcfg_nls (default yes)]),
+	AS_HELP_STRING([--enable-ezcfg_nls], [Enable ezcfg_nls (default no)]),
 	[case "$enableval" in
-	no)
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_nls=yes
+	;;
+	*)
 		AC_MSG_RESULT(no)
 		config_ezbox_ezcfg_nls=no
 	;;
-	*)
-		AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
-		AC_MSG_RESULT(yes)
-	;;
 	esac] ,
-	AC_DEFINE([HAVE_EZBOX_EZCFG_NLS], [1], [Enable ezcfg_nls])
-	[AC_MSG_RESULT(yes)]
+	[AC_MSG_RESULT(no)]
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_NLS, test "x$config_ezbox_ezcfg_nls" = xyes)
 
