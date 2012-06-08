@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1548
+PKG_REV:=1555
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -21,8 +21,8 @@ PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
 
-PKG_BUILD_DEPENDS:=opkg/host
-PKG_BUILD_DEPENDS+=check
+PKG_BUILD_DEPENDS+=opkg/host
+PKG_BUILD_DEPENDS+=PACKAGE_check:check
 PKG_BUILD_DEPENDS+=BUILD_NLS:libiconv-full
 PKG_BUILD_DEPENDS+=BUILD_NLS:gettext-full
 
@@ -83,8 +83,13 @@ CONFIGURE_ARGS += \
 	--with-ezbox-distro=$(EZBOX_DISTRO)
 
 # set check unit test settings
+ifneq ($(CONFIG_PACKAGE_check),)
+CONFIGURE_ARGS += \
+	--enable-ezcfg_test
+else
 CONFIGURE_ARGS += \
 	--disable-ezcfg_test
+endif
 
 # set nls settings
 #ifeq ($(EZBOX_DISTRO), "kuafu")
