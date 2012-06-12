@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dhid.c
+ * Module Name  : rc_dmcrypt_rootfs.c
  *
- * Description  : ezbox run DHIS client service
+ * Description  : ezbox run LUKS/dm-crypt for rootfs service
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
@@ -43,17 +43,16 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_dhid(int argc, char **argv)
+int rc_dmcrypt_rootfs(int argc, char **argv)
 #endif
 {
-	int rc;
 	int flag, ret;
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dhid")) {
+	if (strcmp(argv[0], "dmcrypt_rootfs")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -64,23 +63,26 @@ int rc_dhid(int argc, char **argv)
 	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_ACT_RESTART :
+	case RC_ACT_BOOT :
+		/* prepare /etc/keys directory first */
+		mkdir("/etc/keys", 0755);
+
+		/* prepare dm-crypt rootfs key file */
+		pop_etc_keys_rootfs_key(RC_ACT_BOOT);
+
+		/* prepare dm-crypt rootfs partition */
+		utils_mount_dmcrypt_rootfs_partition_writable();
+
+		/* remove dm-crypt rootfs key file */
+		pop_etc_keys_rootfs_key(RC_ACT_STOP);
+
+		ret = EXIT_SUCCESS;
+		break;
+
 	case RC_ACT_STOP :
-		utils_system("start-stop-daemon -K -n dhid");
-		if (flag == RC_ACT_STOP) {
-			ret = EXIT_SUCCESS;
-			break;
-		}
+		/* remove dm-crypt rootfs partition */
+		utils_umount_dmcrypt_rootfs_partition();
 
-		/* RC_ACT_RESTART fall through */
-	case RC_ACT_START :
-		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, DHID_ENABLE), "1");
-		if (rc < 0) {
-			return (EXIT_FAILURE);
-		}
-
-		pop_etc_dhid_conf(RC_ACT_START);
-		utils_system("start-stop-daemon -S -n dhid -a " CMD_DHID);
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -90,3 +92,4 @@ int rc_dhid(int argc, char **argv)
 	}
 	return (ret);
 }
+

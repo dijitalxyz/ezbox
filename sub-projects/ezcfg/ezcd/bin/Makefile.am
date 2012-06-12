@@ -137,6 +137,10 @@ endif
 if CONFIG_EZBOX_SERVICE_DHID
 RCSO_SRC += rc_dhid.c
 endif
+# LUKS/dm-crypt for rootfs service
+if CONFIG_EZBOX_SERVICE_DMCRYPT_ROOTFS
+RCSO_SRC += rc_dmcrypt_rootfs.c
+endif
 # ezctp service
 if CONFIG_EZBOX_SERVICE_EZCTP
 RCSO_SRC += rc_ezctp.c

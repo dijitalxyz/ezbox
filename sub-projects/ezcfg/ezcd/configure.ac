@@ -650,6 +650,25 @@ AC_ARG_ENABLE([service-dhid],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DHID, test "x$config_ezbox_service_dhid" = xyes)
 
+# Configure linux unified key setup (LUKS) for rootfs service.
+config_ezbox_service_dmcrypt_rootfs=no
+AC_MSG_CHECKING([if LUKS/dm-crypt for rootfs service is enabled])
+AC_ARG_ENABLE([service-dmcrypt_rootfs],
+	AS_HELP_STRING([--enable-service-dmcrypt_rootfs], [Enable LUKS/dm-crypt for rootfs service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS], [1], [Enable LUKS/dm-crypt for rootfs service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_dmcrypt_rootfs=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DMCRYPT_ROOTFS, test "x$config_ezbox_service_dmcrypt_rootfs" = xyes)
+
 # Configure ezctp service.
 config_ezbox_service_ezctp=no
 AC_MSG_CHECKING([if ezctp service is enabled])

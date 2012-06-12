@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dhid.c
+ * Module Name  : pop_etc_keys_rootfs_key.c
  *
- * Description  : ezbox run DHIS client service
+ * Description  : ezbox /etc/keys/rootfs_key file generating program
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
@@ -36,57 +36,43 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
-#ifdef _EXEC_
-int main(int argc, char **argv)
-#else
-int rc_dhid(int argc, char **argv)
-#endif
+#define ROOTFS_KEY_FILE_PATH	"/etc/keys/rootfs_key"
+
+int pop_etc_keys_rootfs_key(int flag)
 {
+        FILE *file = NULL;
+	char name[32];
+	char buf[256];
 	int rc;
-	int flag, ret;
-
-	if (argc < 2) {
-		return (EXIT_FAILURE);
-	}
-
-	if (strcmp(argv[0], "dhid")) {
-		return (EXIT_FAILURE);
-	}
-
-	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
-		return (EXIT_FAILURE);
-	}
-
-	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_ACT_RESTART :
-	case RC_ACT_STOP :
-		utils_system("start-stop-daemon -K -n dhid");
-		if (flag == RC_ACT_STOP) {
-			ret = EXIT_SUCCESS;
-			break;
-		}
-
-		/* RC_ACT_RESTART fall through */
-	case RC_ACT_START :
-		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, DHID_ENABLE), "1");
-		if (rc < 0) {
+	case RC_ACT_BOOT :
+		/* generate /etc/keys/rootfs_key */
+		file = fopen(ROOTFS_KEY_FILE_PATH, "w");
+		if (file == NULL)
 			return (EXIT_FAILURE);
+
+		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DMCRYPT, ROOTFS_KEY));
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "%s", buf);
 		}
 
-		pop_etc_dhid_conf(RC_ACT_START);
-		utils_system("start-stop-daemon -S -n dhid -a " CMD_DHID);
-		ret = EXIT_SUCCESS;
+		fclose(file);
+		break;
+
+	case RC_ACT_STOP :
+		/* remove /etc/keys/rootfs_key */
+		unlink(ROOTFS_KEY_FILE_PATH);
 		break;
 
 	default :
-		ret = EXIT_FAILURE;
 		break;
 	}
-	return (ret);
+
+	return (EXIT_SUCCESS);
 }

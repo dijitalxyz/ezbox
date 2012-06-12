@@ -68,8 +68,8 @@ int pop_etc_dnsmasq_conf(int flag)
 			/* it's good. */
 		}
 		else {
-			utils_system("rm -rf " DNSMASQ_LEASE_FILE_DIR);
-			utils_system("mkdir -p " DNSMASQ_LEASE_FILE_DIR);
+			utils_system(CMD_RM " -rf " DNSMASQ_LEASE_FILE_DIR);
+			utils_system(CMD_MKDIR " -p " DNSMASQ_LEASE_FILE_DIR);
 		}
 
 		/* Never forward plain names (without a dot or domain part) */

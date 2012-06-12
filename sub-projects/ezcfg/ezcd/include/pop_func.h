@@ -40,6 +40,9 @@ extern int pop_etc_l7_protocols(int flag);
 extern int pop_etc_iptables_modules(int flag);
 extern int pop_etc_iptables_firewall(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS == 1)
+extern int pop_etc_keys_rootfs_key(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_FONTCONFIG == 1)
 extern int pop_etc_fonts_fonts_dtd(int flag);
 extern int pop_etc_fonts_fonts_conf(int flag);
