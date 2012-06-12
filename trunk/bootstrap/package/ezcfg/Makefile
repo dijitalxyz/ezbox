@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1555
+PKG_REV:=1564
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -191,6 +191,12 @@ CONFIGURE_ARGS += \
 	--enable-service-iptables_firewall \
 	--enable-service-iptables_nat \
 	--enable-service-iptables_dmz
+endif
+
+# set DHIS client service
+ifneq ($(CONFIG_PACKAGE_dhid),)
+CONFIGURE_ARGS += \
+	--enable-service-dhid
 endif
 
 # set nano-X service
