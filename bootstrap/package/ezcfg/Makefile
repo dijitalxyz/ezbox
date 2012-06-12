@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1564
+PKG_REV:=1566
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -197,6 +197,14 @@ endif
 ifneq ($(CONFIG_PACKAGE_dhid),)
 CONFIGURE_ARGS += \
 	--enable-service-dhid
+endif
+
+# set LUKS/dm-crypt for rootfs service
+ifneq ($(CONFIG_PACKAGE_cryptsetup),)
+ifneq ($(CONFIG_PACKAGE_kmod-dm),)
+CONFIGURE_ARGS += \
+	--enable-service-dmcrypt_rootfs
+endif
 endif
 
 # set nano-X service
