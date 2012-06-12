@@ -71,6 +71,10 @@ extern int rc_wan_dnsmasq(int argc, char **argv);
 #endif
 #endif
 
+#if (HAVE_EZBOX_SERVICE_DHID == 1)
+extern int rc_dhid(int argc, char **argv);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
 extern int rc_iptables(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)
@@ -79,6 +83,10 @@ extern int rc_lan_iptables(int argc, char **argv);
 #if (HAVE_EZBOX_WAN_NIC == 1)
 extern int rc_wan_iptables(int argc, char **argv);
 #endif
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
+extern int rc_ezctp(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)

@@ -150,6 +150,11 @@ if CONFIG_EZBOX_SERVICE_DNSMASQ
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dnsmasq_conf.c
 endif
 
+# DHIS client service
+if CONFIG_EZBOX_SERVICE_DHID
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dhid_conf.c
+endif
+
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dillo_dillorc.c

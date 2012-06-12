@@ -133,6 +133,14 @@ endif
 if CONFIG_EZBOX_SERVICE_DNSMASQ
 RCSO_SRC += rc_dnsmasq.c
 endif
+# DHIS client service
+if CONFIG_EZBOX_SERVICE_DHID
+RCSO_SRC += rc_dhid.c
+endif
+# ezctp service
+if CONFIG_EZBOX_SERVICE_EZCTP
+RCSO_SRC += rc_ezctp.c
+endif
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
 RCSO_SRC += rc_dillo.c

@@ -32,6 +32,9 @@ extern int pop_etc_ezcfg_upnpd_igd1(int flag);
 #if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
 extern int pop_etc_dnsmasq_conf(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_DHID == 1)
+extern int pop_etc_dhid_conf(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
 extern int pop_etc_l7_protocols(int flag);
 extern int pop_etc_iptables_modules(int flag);

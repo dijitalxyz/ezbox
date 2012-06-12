@@ -63,3 +63,4 @@ pop_etc_emc2_configs
 pop_etc_emc2_rtapi_conf
 pop_etc_wpa_supplicant_conf
 pop_etc_dnsmasq_conf
+pop_etc_dhid_conf

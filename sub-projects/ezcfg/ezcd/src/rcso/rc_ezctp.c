@@ -1,14 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dnsmasq.c
+ * Module Name  : rc_ezctp.c
  *
- * Description  : ezbox run dns & dhcp service
+ * Description  : ezbox run ezctp service
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
- * 2011-10-07   0.2       Modify it to use rcso framework
+ * 2012-06-12   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -44,7 +43,7 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_dnsmasq(int argc, char **argv)
+int rc_ezctp(int argc, char **argv)
 #endif
 {
 	int rc;
@@ -54,29 +53,9 @@ int rc_dnsmasq(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dnsmasq")) {
+	if (strcmp(argv[0], "ezctp")) {
 		return (EXIT_FAILURE);
 	}
-
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	if (strcmp(argv[1], "lan") == 0 &&
-            utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if (HAVE_EZBOX_WAN_NIC == 1)
-	if (strcmp(argv[1], "wan") == 0 &&
-            utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
-	{
-		return (EXIT_FAILURE);
-	}
-#endif
 
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
@@ -87,7 +66,7 @@ int rc_dnsmasq(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		utils_system("start-stop-daemon -K -n dnsmasq");
+		//utils_system("start-stop-daemon -K -n dhid");
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
 			break;
@@ -95,13 +74,13 @@ int rc_dnsmasq(int argc, char **argv)
 
 		/* RC_ACT_RESTART fall through */
 	case RC_ACT_START :
-		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
+		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, EZCTP_ENABLE), "1");
 		if (rc < 0) {
 			return (EXIT_FAILURE);
 		}
 
-		pop_etc_dnsmasq_conf(RC_ACT_START);
-		utils_system("start-stop-daemon -S -n dnsmasq -a " CMD_DNSMASQ);
+		//pop_etc_dhid_conf(RC_ACT_START);
+		//utils_system("start-stop-daemon -S -n dhid -a " CMD_DHID);
 		ret = EXIT_SUCCESS;
 		break;
 

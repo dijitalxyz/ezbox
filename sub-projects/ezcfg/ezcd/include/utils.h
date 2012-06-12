@@ -2,6 +2,7 @@
 #define _UTILS_H_
 
 /* shell command */
+/* core commands */
 #define CMD_CAT			"/bin/cat"
 #define CMD_CHMOD		"/bin/chmod"
 #define CMD_CHPASSWD		"/sbin/chpasswd"
@@ -35,6 +36,11 @@
 #define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 #define CMD_UMOUNT		"/bin/umount"
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
+
+/* service commands */
+#define CMD_DHID	"/usr/sbin/dhid"
+#define CMD_DNSMASQ	"/usr/sbin/dnsmasq"
+
 
 /* boot config file path */
 #define BOOT_CONFIG_FILE_PATH   "/boot/ezbox_boot.cfg"

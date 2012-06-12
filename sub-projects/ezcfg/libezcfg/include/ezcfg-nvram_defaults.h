@@ -25,6 +25,7 @@
 #include "ezcfg-dnsmasq.h"
 #include "ezcfg-iptables.h"
 #include "ezcfg-wpa_supplicant.h"
+#include "ezcfg-dhid.h"
 #include "ezcfg-nano_x.h"
 #include "ezcfg-kdrive.h"
 #include "ezcfg-dillo.h"

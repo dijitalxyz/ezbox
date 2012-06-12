@@ -1025,6 +1025,24 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 #endif
 
+#if (HAVE_EZBOX_SERVICE_DHID == 1)
+	/* dhid enabled */
+	{ NVRAM_SERVICE_OPTION(RC, DHID_ENABLE), "1" },
+	/* DHIS client */
+	/* client entry number */
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_NUM), "1" },
+	/* client entry 1 settings */
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_HOST_ID), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_QRC_ENABLE), "1" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_AUTH_P0), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_AUTH_P1), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_AUTH_Q0), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_AUTH_Q1), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_IS_ADDR0), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_IS_ADDR1), "" },
+	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_REFRESH), "" },
+#endif
+
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 	/* nano-X enabled */
 	{ NVRAM_SERVICE_OPTION(RC, NANO_X_ENABLE), "1" },

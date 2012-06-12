@@ -34,6 +34,8 @@
 
 #define EZCFG_RC_WPA_SUPPLICANT_ENABLE   "wpa_supplicant_enable"
 
+#define EZCFG_RC_DHID_ENABLE             "dhid_enable"
+
 #define EZCFG_RC_NANO_X_ENABLE           "nano-X_enable"
 
 #define EZCFG_RC_KDRIVE_ENABLE           "kdrive_enable"
