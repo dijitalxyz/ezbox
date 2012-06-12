@@ -39,6 +39,7 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 #define DNSMASQ_LEASE_FILE_DIR	"/var/lib/misc"
 

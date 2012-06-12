@@ -112,7 +112,9 @@ bool ezcfg_locale_set_dir(struct ezcfg_locale *locale, char *dir)
 
 char * ezcfg_locale_text(struct ezcfg_locale *locale, char * msgid)
 {
+#if (HAVE_EZBOX_EZCFG_NLS == 1)
 	struct ezcfg *ezcfg;
+#endif
 	char * p;
 
 	ASSERT(msgid != NULL);
@@ -122,9 +124,9 @@ char * ezcfg_locale_text(struct ezcfg_locale *locale, char * msgid)
 		return msgid;
 	}
 
+#if (HAVE_EZBOX_EZCFG_NLS == 1)
 	ezcfg = locale->ezcfg;
 
-#if (HAVE_EZBOX_EZCFG_NLS == 1)
 	/* lock locale mutex */
 	ezcfg_common_locale_mutex_lock(ezcfg);
 

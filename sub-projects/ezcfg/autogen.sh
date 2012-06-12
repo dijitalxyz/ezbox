@@ -42,6 +42,8 @@ args="--prefix=/usr/local \
 --enable-service-ezcfg_upnpd_igd1 \
 --enable-service-openssl \
 --enable-service-iptables \
+--enable-service-dhid \
+--enable-service-dmcrypt_rootfs \
 --enable-service-ezctp \
 "
 

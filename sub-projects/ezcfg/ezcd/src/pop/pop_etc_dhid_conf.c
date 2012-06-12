@@ -39,6 +39,7 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 int pop_etc_dhid_conf(int flag)
 {

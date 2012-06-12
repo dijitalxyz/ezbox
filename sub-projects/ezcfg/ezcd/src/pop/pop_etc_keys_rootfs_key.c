@@ -39,6 +39,7 @@
 #include <net/if.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 #define ROOTFS_KEY_FILE_PATH	"/etc/keys/rootfs_key"
 
