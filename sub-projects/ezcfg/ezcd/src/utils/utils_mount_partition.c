@@ -314,8 +314,8 @@ int utils_mount_data_partition_writable(void)
 		if (S_ISBLK(stat_buf.st_mode) == 0)
 			continue;
 
-		/* mount /dev/sda2 /var */
-		rc = utils_mount_partition(dev, "/var", fs_type, args);
+		/* mount /dev/sda2 /data */
+		rc = utils_mount_partition(dev, "/data", fs_type, args);
 		ret = EXIT_SUCCESS;
 		break;
 	}
@@ -323,9 +323,9 @@ int utils_mount_data_partition_writable(void)
 	return (ret);
 }
 
-int utils_mount_dmcrypt_rootfs_partition_writable(void)
+int utils_mount_dmcrypt_data_partition_writable(void)
 {
-	char buf[64];
+	char buf[128];
 	char dev_buf[64];
 	char fs_type_buf[64];
 	char *dev = NULL;
@@ -339,8 +339,13 @@ int utils_mount_dmcrypt_rootfs_partition_writable(void)
 	rc = utils_get_data_device_path(buf, sizeof(buf));
 	if (rc > 0) {
 		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
-		dev = dev_buf;
 	}
+
+	/* open dm-crypt partition */
+	snprintf(buf, sizeof(buf), "%s --key-file /etc/keys/data_key luksOpen %s data_crypt",
+		CMD_CRYPTSETUP, dev_buf);
+	utils_system(buf);
+	dev = "/dev/mapper/data_crypt";
 
 	rc = utils_get_data_device_fs_type(buf, sizeof(buf));
 	if (rc > 0) {
@@ -358,8 +363,8 @@ int utils_mount_dmcrypt_rootfs_partition_writable(void)
 		if (S_ISBLK(stat_buf.st_mode) == 0)
 			continue;
 
-		/* mount /dev/sda2 /var */
-		rc = utils_mount_partition(dev, "/var", fs_type, args);
+		/* mount /dev/mapper/data_crypt /data */
+		rc = utils_mount_partition(dev, "/data", fs_type, args);
 		ret = EXIT_SUCCESS;
 		break;
 	}
@@ -367,46 +372,18 @@ int utils_mount_dmcrypt_rootfs_partition_writable(void)
 	return (ret);
 }
 
-int utils_umount_dmcrypt_rootfs_partition(void)
+int utils_umount_dmcrypt_data_partition(void)
 {
 	char buf[64];
-	char dev_buf[64];
-	char fs_type_buf[64];
-	char *dev = NULL;
-	char *fs_type = NULL;
-	char *args = NULL;
-	int rc, ret = EXIT_FAILURE;
-	int i;
-	struct stat stat_buf;
+	int ret = EXIT_FAILURE;
 
-	/* prepare dynamic data storage path */
-	rc = utils_get_data_device_path(buf, sizeof(buf));
-	if (rc > 0) {
-		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
-		dev = dev_buf;
-	}
+	/* umount /data */
+	utils_umount_partition("/data");
 
-	rc = utils_get_data_device_fs_type(buf, sizeof(buf));
-	if (rc > 0) {
-		snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
-		fs_type = fs_type_buf;
-		if (strcmp(fs_type, "ntfs-3g") != 0)
-			args = "-w";
-	}
+	/* close dm-crypt partition */
+	snprintf(buf, sizeof(buf), "%s luksClose data_crypt", CMD_CRYPTSETUP);
+	utils_system(buf);
 
-	i = (dev == NULL) ? 0 : 10;
-	for ( ; i > 0; sleep(1), i--) {
-		if (stat(dev, &stat_buf) != 0)
-			continue;
-
-		if (S_ISBLK(stat_buf.st_mode) == 0)
-			continue;
-
-		/* mount /dev/sda2 /var */
-		rc = utils_mount_partition(dev, "/var", fs_type, args);
-		ret = EXIT_SUCCESS;
-		break;
-	}
-
+	ret = EXIT_SUCCESS;
 	return (ret);
 }

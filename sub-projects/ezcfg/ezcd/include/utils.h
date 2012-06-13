@@ -38,6 +38,7 @@
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
 
 /* service commands */
+#define CMD_CRYPTSETUP	"/usr/sbin/cryptsetup"
 #define CMD_DHID	"/usr/sbin/dhid"
 #define CMD_DNSMASQ	"/usr/sbin/dnsmasq"
 
@@ -50,6 +51,10 @@
 
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
+
+/* dm-crypt keys path */
+#define DMCRYPT_ROOTFS_KEY_FILE_PATH		"/etc/keys/rootfs_key"
+#define DMCRYPT_DATA_PARTITION_KEY_FILE_PATH	"/etc/keys/data_partition_key"
 
 /* ezcd command config file path */
 #define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"

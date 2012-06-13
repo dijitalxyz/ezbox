@@ -79,6 +79,10 @@ extern int rc_dhid(int argc, char **argv);
 extern int rc_dmcrypt_rootfs(int argc, char **argv);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
+extern int rc_dmcrypt_data_partition(int argc, char **argv);
+#endif
+
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
 extern int rc_iptables(int argc, char **argv);
 #if (HAVE_EZBOX_LAN_NIC == 1)

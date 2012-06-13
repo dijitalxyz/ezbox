@@ -43,7 +43,7 @@ args="--prefix=/usr/local \
 --enable-service-openssl \
 --enable-service-iptables \
 --enable-service-dhid \
---enable-service-dmcrypt_rootfs \
+--enable-service-dmcrypt_data_partition \
 --enable-service-ezctp \
 "
 

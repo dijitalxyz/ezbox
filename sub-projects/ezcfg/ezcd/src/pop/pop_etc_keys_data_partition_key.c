@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_keys_rootfs_key.c
+ * Module Name  : pop_etc_keys_data_partition_key.c
  *
- * Description  : ezbox /etc/keys/rootfs_key file generating program
+ * Description  : ezbox /etc/keys/data_partition_key file generating program
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
@@ -41,7 +41,7 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int pop_etc_keys_rootfs_key(int flag)
+int pop_etc_keys_data_partition_key(int flag)
 {
         FILE *file = NULL;
 	char name[32];
@@ -50,12 +50,12 @@ int pop_etc_keys_rootfs_key(int flag)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
-		/* generate /etc/keys/rootfs_key */
-		file = fopen(DMCRYPT_ROOTFS_KEY_FILE_PATH, "w");
+		/* generate /etc/keys/data_partition_key */
+		file = fopen(DMCRYPT_DATA_PARTITION_KEY_FILE_PATH, "w");
 		if (file == NULL)
 			return (EXIT_FAILURE);
 
-		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DMCRYPT, ROOTFS_KEY));
+		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DMCRYPT, DATA_PARTITION_KEY));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		if (rc > 0) {
 			fprintf(file, "%s", buf);
@@ -65,8 +65,8 @@ int pop_etc_keys_rootfs_key(int flag)
 		break;
 
 	case RC_ACT_STOP :
-		/* remove /etc/keys/rootfs_key */
-		unlink(DMCRYPT_ROOTFS_KEY_FILE_PATH);
+		/* remove /etc/keys/data_partition_key */
+		unlink(DMCRYPT_DATA_PARTITION_KEY_FILE_PATH);
 		break;
 
 	default :

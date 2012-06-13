@@ -1048,6 +1048,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(DMCRYPT, ROOTFS_KEY), "" },
 #endif
 
+#if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
+	/* LUKS/dm-crypt data partition key */
+	{ NVRAM_SERVICE_OPTION(DMCRYPT, DATA_PARTITION_KEY), "" },
+#endif
+
 #if (HAVE_EZBOX_SERVICE_NANO_X == 1)
 	/* nano-X enabled */
 	{ NVRAM_SERVICE_OPTION(RC, NANO_X_ENABLE), "1" },

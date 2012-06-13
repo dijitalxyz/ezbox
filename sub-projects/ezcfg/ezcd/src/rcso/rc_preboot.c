@@ -120,6 +120,9 @@ int rc_preboot(int argc, char **argv)
 		/* /boot */
 		mkdir("/boot", 0777);
 
+		/* /data */
+		mkdir("/data", 0777);
+
 		/* /var */
 		mkdir("/var", 0777);
 		mkdir("/var/lock", 0777);
@@ -154,6 +157,10 @@ int rc_preboot(int argc, char **argv)
 		/* get the kernel module name from /proc/cmdline */
 		ret = utils_get_kernel_modules(buf, sizeof(buf));
 		if (ret > 0) {
+
+			/* generate modules dependency */
+			utils_system(CMD_DEPMOD);
+
 			/* load preboot kernel modules */
 			p = buf;
 			while(p != NULL) {
@@ -161,7 +168,8 @@ int rc_preboot(int argc, char **argv)
 				if (q != NULL)
 					*q = '\0';
 
-				utils_install_kernel_module(p, NULL);
+				//utils_install_kernel_module(p, NULL);
+				utils_probe_kernel_module(p, NULL);
 
 				if (q != NULL)
 					p = q+1;

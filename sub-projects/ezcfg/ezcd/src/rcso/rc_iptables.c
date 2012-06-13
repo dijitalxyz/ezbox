@@ -162,7 +162,8 @@ static int load_iptables_modules(int flag)
 		/* install iptables kernel modules */
 		while (utils_file_get_line(file,
 			buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
-			ret = utils_install_kernel_module(buf, NULL);
+			//ret = utils_install_kernel_module(buf, NULL);
+			ret = utils_probe_kernel_module(buf, NULL);
 		}
 
 		ret = EXIT_SUCCESS;

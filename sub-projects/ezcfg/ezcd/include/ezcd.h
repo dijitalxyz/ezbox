@@ -54,8 +54,8 @@ int utils_mount_boot_partition_writable(void);
 int utils_remount_boot_partition_readonly(void);
 int utils_remount_boot_partition_writable(void);
 int utils_mount_data_partition_writable(void);
-int utils_mount_dmcrypt_rootfs_partition_writable(void);
-int utils_umount_dmcrypt_rootfs_partition(void);
+int utils_mount_dmcrypt_data_partition_writable(void);
+int utils_umount_dmcrypt_data_partition(void);
 
 int utils_sync_nvram_with_cfg(char *path);
 int utils_sync_cfg_with_nvram(char *path);

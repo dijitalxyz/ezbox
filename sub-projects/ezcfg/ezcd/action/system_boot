@@ -6,8 +6,10 @@ preboot boot
 load_modules boot
 # preinit mount system supported fs
 mount_system_fs boot
+# prepare dm-crypt rootfs partition
+dmcrypt_data_partition boot
 # prepare dynamic data storage path
-data_storage boot
+#data_storage boot
 # start ezcfg daemon
 ezcd boot
 # setup nvram config file

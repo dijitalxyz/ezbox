@@ -650,16 +650,16 @@ AC_ARG_ENABLE([service-dhid],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DHID, test "x$config_ezbox_service_dhid" = xyes)
 
-# Configure linux unified key setup (LUKS) for rootfs service.
-config_ezbox_service_dmcrypt_rootfs=no
-AC_MSG_CHECKING([if LUKS/dm-crypt for rootfs service is enabled])
-AC_ARG_ENABLE([service-dmcrypt_rootfs],
-	AS_HELP_STRING([--enable-service-dmcrypt_rootfs], [Enable LUKS/dm-crypt for rootfs service (default no)]),
+# Configure linux unified key setup (LUKS) for data partition service.
+config_ezbox_service_dmcrypt_data_partition=no
+AC_MSG_CHECKING([if LUKS/dm-crypt for data partition service is enabled])
+AC_ARG_ENABLE([service-dmcrypt_data_partition],
+	AS_HELP_STRING([--enable-service-dmcrypt_data_partition], [Enable LUKS/dm-crypt for data partition service (default no)]),
 	[case "$enableval" in
 	yes)
-		AC_DEFINE([HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS], [1], [Enable LUKS/dm-crypt for rootfs service])
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS], [1], [Enable LUKS/dm-crypt for data partition service])
 		AC_MSG_RESULT(yes)
-		config_ezbox_service_dmcrypt_rootfs=yes
+		config_ezbox_service_dmcrypt_data_partition=yes
 	;;
 	*)
 		AC_MSG_RESULT(no)
@@ -667,7 +667,7 @@ AC_ARG_ENABLE([service-dmcrypt_rootfs],
 	esac] ,
 	[AC_MSG_RESULT(no)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DMCRYPT_ROOTFS, test "x$config_ezbox_service_dmcrypt_rootfs" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION, test "x$config_ezbox_service_dmcrypt_data_partition" = xyes)
 
 # Configure ezctp service.
 config_ezbox_service_ezctp=no
