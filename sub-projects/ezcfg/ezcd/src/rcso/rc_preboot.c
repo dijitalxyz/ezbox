@@ -149,6 +149,9 @@ int rc_preboot(int argc, char **argv)
 		mknod("/dev/console", S_IRUSR|S_IWUSR|S_IFCHR, makedev(5, 1));
 		mknod("/dev/null", S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|S_IFCHR, makedev(1, 3));
 
+		/* user's home directory */
+		mkdir("/home", 0755);
+
 		/* run in root HOME path */
 		mkdir(ROOT_HOME_PATH, 0755);
 		setenv("HOME", ROOT_HOME_PATH, 1);

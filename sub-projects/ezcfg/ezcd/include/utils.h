@@ -56,6 +56,15 @@
 #define DMCRYPT_ROOTFS_KEY_FILE_PATH		"/etc/keys/rootfs_key"
 #define DMCRYPT_DATA_PARTITION_KEY_FILE_PATH	"/etc/keys/data_partition_key"
 
+/* rootfs directory path in /data/rootfs */
+#define ROOTFS_BIN_DIR_PATH		"/data/rootfs/bin"
+#define ROOTFS_HOME_DIR_PATH		"/data/rootfs/home"
+#define ROOTFS_LIB_DIR_PATH		"/data/rootfs/lib"
+#define ROOTFS_ROOT_DIR_PATH		"/data/rootfs" ROOT_HOME_PATH
+#define ROOTFS_SBIN_DIR_PATH		"/data/rootfs/sbin"
+#define ROOTFS_USR_DIR_PATH		"/data/rootfs/usr"
+#define ROOTFS_VAR_DIR_PATH		"/data/rootfs/var"
+
 /* ezcd command config file path */
 #define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"
 #define EZCD_CONFIG_FILE_PATH_NEW	"/etc/ezcd.conf.new"

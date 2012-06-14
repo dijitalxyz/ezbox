@@ -16,8 +16,10 @@ ezcm boot
 netbase boot
 # prepare dynamic data storage path
 #data_storage boot
-# prepare dm-crypt rootfs partition
+# prepare dm-crypt data partition
 dmcrypt_data_partition boot
+# prepare overlayfs on /data/rootfs directory
+overlay_rootfs boot
 # setup iptables
 iptables load boot
 # setup openssl
