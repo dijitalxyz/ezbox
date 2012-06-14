@@ -82,7 +82,6 @@ int rc_overlay_rootfs(int argc, char **argv)
 	char buf[FILE_LINE_BUFFER_SIZE];
 	struct stat stat_buf;
 	int ret;
-	char *p, *q;
 	int flag = RC_ACT_UNKNOWN;
 
 	if (argc < 2) {

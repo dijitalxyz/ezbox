@@ -657,7 +657,7 @@ AC_ARG_ENABLE([service-dmcrypt_data_partition],
 	AS_HELP_STRING([--enable-service-dmcrypt_data_partition], [Enable LUKS/dm-crypt for data partition service (default no)]),
 	[case "$enableval" in
 	yes)
-		AC_DEFINE([HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS], [1], [Enable LUKS/dm-crypt for data partition service])
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION], [1], [Enable LUKS/dm-crypt for data partition service])
 		AC_MSG_RESULT(yes)
 		config_ezbox_service_dmcrypt_data_partition=yes
 	;;

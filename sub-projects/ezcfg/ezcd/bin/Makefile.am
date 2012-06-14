@@ -86,6 +86,7 @@ RCSO_SRC += rc_ezcfg_upnpd.c
 RCSO_SRC += rc_upnp_monitor.c
 endif
 RCSO_SRC += rc_ezcm.c
+RCSO_SRC += rc_overlay_rootfs.c
 RCSO_SRC += rc_netbase.c
 RCSO_SRC += rc_resolv_conf.c
 if CONFIG_EZBOX_SERVICE_OPENSSL
