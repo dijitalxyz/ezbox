@@ -1043,11 +1043,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(DHID, ENTRY_0_REFRESH), "" },
 #endif
 
-#if (HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS == 1)
-	/* LUKS/dm-crypt rootfs key */
-	{ NVRAM_SERVICE_OPTION(DMCRYPT, ROOTFS_KEY), "" },
-#endif
-
 #if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
 	/* LUKS/dm-crypt data partition key */
 	{ NVRAM_SERVICE_OPTION(DMCRYPT, DATA_PARTITION_KEY), "" },

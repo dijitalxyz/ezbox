@@ -78,6 +78,9 @@
 /* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
 #define KERNEL_COMMAND_LINE_SIZE	512
 
+/* file line length */
+#define FILE_LINE_BUFFER_SIZE		1024
+
 #define RC_RUN_LEVEL(a,b,c)	(((a) << 16) + ((b) << 8) + (c))
 
 /* removed line tails */

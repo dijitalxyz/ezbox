@@ -42,7 +42,7 @@
 int utils_sync_nvram_with_cfg(char *path)
 {
 	FILE *file = NULL;
-	char buf[1024];
+	char buf[FILE_LINE_BUFFER_SIZE];
 	char *keyword=NULL, *value=NULL;
 	int rc;
 

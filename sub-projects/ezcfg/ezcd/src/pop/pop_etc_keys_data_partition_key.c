@@ -45,7 +45,7 @@ int pop_etc_keys_data_partition_key(int flag)
 {
         FILE *file = NULL;
 	char name[32];
-	char buf[256];
+	char buf[FILE_LINE_BUFFER_SIZE];
 	int rc;
 
 	switch (flag) {

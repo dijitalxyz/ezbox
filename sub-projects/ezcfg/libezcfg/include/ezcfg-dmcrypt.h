@@ -22,7 +22,6 @@
 /* ezcfg dm-crypt auxiliary names */
 
 /* ezcfg dm-crypt control names */
-#define EZCFG_DMCRYPT_ROOTFS_KEY         "rootfs_key"
 #define EZCFG_DMCRYPT_DATA_PARTITION_KEY "data_partition_key"
 
 #endif

@@ -44,8 +44,8 @@ int utils_sync_cfg_with_nvram(char *path)
 	FILE *file = NULL;
 	char path2[64];
 	FILE *file2 = NULL;
-	char buf[1024];
-	char buf2[1024];
+	char buf[FILE_LINE_BUFFER_SIZE];
+	char buf2[FILE_LINE_BUFFER_SIZE];
 	char *p=NULL, *value=NULL;
 	int ret = EXIT_FAILURE;
 	int len, rc;
