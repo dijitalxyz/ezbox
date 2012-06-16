@@ -107,6 +107,7 @@ prepare-workspace:
 	mkdir -p $(FD_DIR)
 	# customize directory
 	mkdir -p $(CUSTOMIZE_DIR)
+	mkdir -p $(CUSTOMIZE_DIR)/backup
 	mkdir -p $(CUSTOMIZE_DIR)/tools
 
 prepare-bootstrap:
@@ -194,7 +195,7 @@ quick-clean:
 
 generate-config:
 	rm -rf $(WK_DIR)/tmp
-	cp distro/$(DISTRO)/configs/defconfig-$(SUFFIX) $(WK_DIR)/.config
+	cp $(CONF_DIR)/defconfig-$(SUFFIX) $(WK_DIR)/.config
 	cd $(WK_DIR) && make ARCH=$(ARCH) oldconfig
 
 $(DISTRO): build-info prepare-build generate-config

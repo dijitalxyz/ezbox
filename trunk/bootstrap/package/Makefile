@@ -88,6 +88,9 @@ $(curdir)/rootfs-prepare: $(TMP_DIR)/.build
 	rm -f $(TARGET_DIR)/usr/lib/opkg/info/*.postinst
 	$(if $(CONFIG_CLEAN_IPKG),rm -rf $(TARGET_DIR)/usr/lib/opkg)
 	$(call mklibs)
+	@if [ -x $(TOPDIR)/customize/tools/customize-rootfs.sh ]; then \
+		$(TOPDIR)/customize/tools/customize-rootfs.sh $(TARGET_DIR) $(TOPDIR)/customize/backup/rootfs; \
+	fi
 
 $(curdir)/index: FORCE
 	@(cd $(PACKAGE_DIR); $(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && \
