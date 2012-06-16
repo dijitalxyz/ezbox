@@ -153,11 +153,11 @@ int rc_main(int argc, char **argv)
 	snprintf(name, sizeof(name), "rc_%s", argv[i]);
 	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
 	handle = dlopen(path, RTLD_NOW);
-	if (!handle) {
+	if (handle == NULL) {
 		DBG("<6>rc: dlopen(%s) error %s\n", path, dlerror());
 		snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX2, name);
 		handle = dlopen(path, RTLD_NOW);
-		if (!handle) {
+		if (handle == NULL) {
 			DBG("<6>rc: dlopen(%s) error %s\n", path, dlerror());
 			return (EXIT_FAILURE);
 		}

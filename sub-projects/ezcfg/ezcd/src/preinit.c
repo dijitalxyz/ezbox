@@ -67,7 +67,7 @@ int preinit_main(int argc, char **argv)
 
 	/* run boot processes */
 	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
-	if (!handle) {
+	if (handle == NULL) {
 		DBG("<6>preinit: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
 		return (EXIT_FAILURE);
 	}

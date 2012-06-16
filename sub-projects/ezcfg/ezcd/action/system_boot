@@ -15,14 +15,14 @@ ezcm boot
 # setup network base files
 netbase boot
 # prepare dynamic data storage path
+# setup iptables
+iptables load boot
+# setup openssl
+openssl boot
 #data_storage boot
 # prepare dm-crypt data partition
 dmcrypt_data_partition boot
 # prepare overlayfs on /data/rootfs directory
 overlay_rootfs boot
-# setup iptables
-iptables load boot
-# setup openssl
-openssl boot
 # start init
 #init boot

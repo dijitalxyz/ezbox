@@ -170,13 +170,18 @@ int utils_mount_boot_partition_readonly(void)
 			args = "-r";
 	}
 
-	i = (dev == NULL) ? 0 : 10;
+	i = (dev == NULL) ? 0 : PARTITION_MOUNT_TIMEOUT;
 	for ( ; i > 0; sleep(1), i--) {
-		if (stat(dev, &stat_buf) != 0)
+		/* check if device node is ready */
+		if (stat(dev, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
 			continue;
+		}
 
+		/* is not a block device */
 		if (S_ISBLK(stat_buf.st_mode) == 0)
-			continue;
+			break;
 
 		/* mount /dev/sda1 /boot */
 		rc = utils_mount_partition(dev, "/boot", fs_type, args);
@@ -216,13 +221,18 @@ int utils_mount_boot_partition_writable(void)
 			args = "-w";
 	}
 
-	i = (dev == NULL) ? 0 : 10;
+	i = (dev == NULL) ? 0 : PARTITION_MOUNT_TIMEOUT;
 	for ( ; i > 0; sleep(1), i--) {
-		if (stat(dev, &stat_buf) != 0)
+		/* check if device node is ready */
+		if (stat(dev, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
 			continue;
+		}
 
+		/* is not a block device */
 		if (S_ISBLK(stat_buf.st_mode) == 0)
-			continue;
+			break;
 
 		/* mount /dev/sda1 /boot */
 		rc = utils_mount_partition(dev, "/boot", fs_type, args);
@@ -306,13 +316,18 @@ int utils_mount_data_partition_writable(void)
 			args = "-w";
 	}
 
-	i = (dev == NULL) ? 0 : 10;
+	i = (dev == NULL) ? 0 : PARTITION_MOUNT_TIMEOUT;
 	for ( ; i > 0; sleep(1), i--) {
-		if (stat(dev, &stat_buf) != 0)
+		/* check if device node is ready */
+		if (stat(dev, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
 			continue;
+		}
 
+		/* is not a block device */
 		if (S_ISBLK(stat_buf.st_mode) == 0)
-			continue;
+			break;
 
 		/* mount /dev/sda2 /data */
 		rc = utils_mount_partition(dev, "/data", fs_type, args);
@@ -323,6 +338,7 @@ int utils_mount_data_partition_writable(void)
 	return (ret);
 }
 
+#if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
 int utils_mount_dmcrypt_data_partition_writable(void)
 {
 	char buf[128];
@@ -342,8 +358,8 @@ int utils_mount_dmcrypt_data_partition_writable(void)
 	}
 
 	/* open dm-crypt partition */
-	snprintf(buf, sizeof(buf), "%s --key-file /etc/keys/data_key luksOpen %s data_crypt",
-		CMD_CRYPTSETUP, dev_buf);
+	snprintf(buf, sizeof(buf), "%s --key-file=%s luksOpen %s data_crypt",
+		CMD_CRYPTSETUP, DMCRYPT_DATA_PARTITION_KEY_FILE_PATH, dev_buf);
 	utils_system(buf);
 	dev = "/dev/mapper/data_crypt";
 
@@ -355,13 +371,18 @@ int utils_mount_dmcrypt_data_partition_writable(void)
 			args = "-w";
 	}
 
-	i = (dev == NULL) ? 0 : 10;
+	i = (dev == NULL) ? 0 : PARTITION_MOUNT_TIMEOUT;
 	for ( ; i > 0; sleep(1), i--) {
-		if (stat(dev, &stat_buf) != 0)
+		/* check if device node is ready */
+		if (stat(dev, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
 			continue;
+		}
 
+		/* is not a block device */
 		if (S_ISBLK(stat_buf.st_mode) == 0)
-			continue;
+			break;
 
 		/* mount /dev/mapper/data_crypt /data */
 		rc = utils_mount_partition(dev, "/data", fs_type, args);
@@ -387,3 +408,4 @@ int utils_umount_dmcrypt_data_partition(void)
 	ret = EXIT_SUCCESS;
 	return (ret);
 }
+#endif

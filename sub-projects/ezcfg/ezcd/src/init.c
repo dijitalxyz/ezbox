@@ -91,7 +91,7 @@ static void init_halt_reboot_poweroff(int sig)
 
 	/* run action processes */
 	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
-	if (!handle) {
+	if (handle == NULL) {
 		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
 		return;
 	}

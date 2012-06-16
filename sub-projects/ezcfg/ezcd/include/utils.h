@@ -53,7 +53,6 @@
 #define ROOT_HOME_PATH		"/root"
 
 /* dm-crypt keys path */
-#define DMCRYPT_ROOTFS_KEY_FILE_PATH		"/etc/keys/rootfs_key"
 #define DMCRYPT_DATA_PARTITION_KEY_FILE_PATH	"/etc/keys/data_partition_key"
 
 /* rootfs directory path in /data/rootfs */
@@ -86,6 +85,12 @@
 
 /* Linux kernel char __initdata boot_command_line[COMMAND_LINE_SIZE]; */
 #define KERNEL_COMMAND_LINE_SIZE	512
+
+/* /proc/sys/kernel/hotplug */
+#define PROC_HOTPLUG_FILE_PATH	"/proc/sys/kernel/hotplug"
+
+/* partition mount timeout */
+#define PARTITION_MOUNT_TIMEOUT		10
 
 /* file line length */
 #define FILE_LINE_BUFFER_SIZE		1024

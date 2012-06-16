@@ -12,3 +12,5 @@ lan stop
 syslogd stop
 # stop klog service
 klogd stop
+# stop nvram to sync with cfg
+nvram stop

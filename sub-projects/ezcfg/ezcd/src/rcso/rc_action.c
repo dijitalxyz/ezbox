@@ -68,10 +68,10 @@ static int call_rc_function(int argc, char **argv)
 	snprintf(name, sizeof(name), "rc_%s", argv[0]);
 	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
 	handle = dlopen(path, RTLD_NOW);
-	if (!handle) {
+	if (handle == NULL) {
 		snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX2, name);
 		handle = dlopen(path, RTLD_NOW);
-		if (!handle) {
+		if (handle == NULL) {
 			goto func_exit;
 		}
 	}
@@ -91,7 +91,9 @@ static int call_rc_function(int argc, char **argv)
 
 func_exit:
 	/* close loader handle */
-	dlclose(handle);
+	if (handle != NULL) {
+		dlclose(handle);
+	}
 	return (ret);
 }
 

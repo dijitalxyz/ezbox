@@ -141,7 +141,7 @@ int rc_overlay_rootfs(int argc, char **argv)
 		}
 
 		/* overlay /root */
-		if ((strncmp(ROOT_HOME_PATH, "/home", 5) != 0) &&
+		if ((strncmp(ROOT_HOME_PATH, "/home/", 6) != 0) &&
 		    (stat(ROOTFS_HOME_DIR_PATH, &stat_buf) == 0)) {
 			if (S_ISDIR(stat_buf.st_mode)) {
 				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", ROOT_HOME_PATH, ROOTFS_HOME_DIR_PATH);

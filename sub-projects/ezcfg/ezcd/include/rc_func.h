@@ -75,10 +75,6 @@ extern int rc_wan_dnsmasq(int argc, char **argv);
 extern int rc_dhid(int argc, char **argv);
 #endif
 
-#if (HAVE_EZBOX_SERVICE_DMCRYPT_ROOTFS == 1)
-extern int rc_dmcrypt_rootfs(int argc, char **argv);
-#endif
-
 #if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
 extern int rc_dmcrypt_data_partition(int argc, char **argv);
 #endif
