@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1566
+PKG_REV:=1574
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -199,11 +199,11 @@ CONFIGURE_ARGS += \
 	--enable-service-dhid
 endif
 
-# set LUKS/dm-crypt for rootfs service
+# set LUKS/dm-crypt for data partition service
 ifneq ($(CONFIG_PACKAGE_cryptsetup),)
 ifneq ($(CONFIG_PACKAGE_kmod-dm),)
 CONFIGURE_ARGS += \
-	--enable-service-dmcrypt_rootfs
+	--enable-service-dmcrypt_data_partition
 endif
 endif
 
