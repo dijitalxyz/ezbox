@@ -54,6 +54,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_file_get_keyword.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_modules.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_version.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_handle_kernel_module.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_make_dirs.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_mount_partition.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_bootcfg_keyword.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_device_info.c

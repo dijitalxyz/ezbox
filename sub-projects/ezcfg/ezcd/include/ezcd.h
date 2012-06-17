@@ -73,6 +73,9 @@ int utils_mkdir(const char *path, mode_t mode, bool is_dir);
 int utils_system(const char *command);
 int utils_route_delete_default(char *iface);
 
+int utils_make_preboot_dirs(void);
+int utils_make_data_dirs(void);
+
 rc_func_t *utils_find_rc_func(char *name);
 int utils_get_rc_funcs_number(void);
 char *utils_get_rc_func_name(int i);

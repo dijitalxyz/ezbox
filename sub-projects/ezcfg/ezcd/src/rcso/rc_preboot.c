@@ -101,59 +101,10 @@ int rc_preboot(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
-		/* /proc */
-		mkdir("/proc", 0555);
-		mount("proc", "/proc", "proc", MS_MGC_VAL, NULL);
-
-		/* sysfs -> /sys */
-		mkdir("/sys", 0755);
-		mount("sysfs", "/sys", "sysfs", MS_MGC_VAL, NULL);
-
-		/* /dev */
-		mkdir("/dev", 0755);
-		mount("devfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
-
-		/* /etc */
-		mkdir("/etc", 0755);
-		mount("tmpfs", "/etc", "tmpfs", MS_MGC_VAL, NULL);
-
-		/* /boot */
-		mkdir("/boot", 0777);
-
-		/* /data */
-		mkdir("/data", 0777);
-
-		/* /var */
-		mkdir("/var", 0777);
-		mkdir("/var/lock", 0777);
-		mkdir("/var/log", 0777);
-		mkdir("/var/run", 0777);
-		mkdir("/var/tmp", 0777);
-
-		/* useful /var directories */
-		mkdir("/var/lib", 0777);
-		mkdir("/var/lib/misc", 0777);
-
-		/* /tmp */
-		snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
-		utils_system(buf);
-		ret = symlink("/var/tmp", "/tmp");
-
-		/* init shms */
-		mkdir("/dev/shm", 0777);
-
-		/* Mount /dev/pts */
-		mkdir("/dev/pts", 0777);
-		mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
-
-		mknod("/dev/console", S_IRUSR|S_IWUSR|S_IFCHR, makedev(5, 1));
-		mknod("/dev/null", S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|S_IFCHR, makedev(1, 3));
-
-		/* user's home directory */
-		mkdir("/home", 0755);
+		/* setup basic directory structure */
+		utils_make_preboot_dirs();
 
 		/* run in root HOME path */
-		mkdir(ROOT_HOME_PATH, 0755);
 		setenv("HOME", ROOT_HOME_PATH, 1);
 		ret = chdir(ROOT_HOME_PATH);
 

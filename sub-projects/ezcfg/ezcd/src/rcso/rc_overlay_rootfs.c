@@ -101,50 +101,50 @@ int rc_overlay_rootfs(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_BOOT :
 		/* overlay /bin */
-		if (stat(ROOTFS_BIN_DIR_PATH, &stat_buf) == 0) {
+		if (stat(DATA_ROOTFS_BIN_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/bin", ROOTFS_BIN_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/bin", DATA_ROOTFS_BIN_DIR_PATH);
 				utils_mount_partition("overlayfs", "/bin", "overlayfs", buf);
 			}
 		}
 
 		/* overlay /lib */
-		if (stat(ROOTFS_LIB_DIR_PATH, &stat_buf) == 0) {
+		if (stat(DATA_ROOTFS_LIB_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/lib", ROOTFS_LIB_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/lib", DATA_ROOTFS_LIB_DIR_PATH);
 				utils_mount_partition("overlayfs", "/lib", "overlayfs", buf);
 			}
 		}
 
 		/* overlay /sbin */
-		if (stat(ROOTFS_SBIN_DIR_PATH, &stat_buf) == 0) {
+		if (stat(DATA_ROOTFS_SBIN_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/sbin", ROOTFS_SBIN_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/sbin", DATA_ROOTFS_SBIN_DIR_PATH);
 				utils_mount_partition("overlayfs", "/sbin", "overlayfs", buf);
 			}
 		}
 
 		/* overlay /usr */
-		if (stat(ROOTFS_USR_DIR_PATH, &stat_buf) == 0) {
+		if (stat(DATA_ROOTFS_USR_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/usr", ROOTFS_USR_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/usr", DATA_ROOTFS_USR_DIR_PATH);
 				utils_mount_partition("overlayfs", "/usr", "overlayfs", buf);
 			}
 		}
 
 		/* overlay /home */
-		if (stat(ROOTFS_HOME_DIR_PATH, &stat_buf) == 0) {
+		if (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/home", ROOTFS_HOME_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/home", DATA_ROOTFS_HOME_DIR_PATH);
 				utils_mount_partition("overlayfs", "/home", "overlayfs", buf);
 			}
 		}
 
 		/* overlay /root */
 		if ((strncmp(ROOT_HOME_PATH, "/home/", 6) != 0) &&
-		    (stat(ROOTFS_HOME_DIR_PATH, &stat_buf) == 0)) {
+		    (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0)) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", ROOT_HOME_PATH, ROOTFS_HOME_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", ROOT_HOME_PATH, DATA_ROOTFS_HOME_DIR_PATH);
 				utils_mount_partition("overlayfs", ROOT_HOME_PATH, "overlayfs", buf);
 			}
 		}

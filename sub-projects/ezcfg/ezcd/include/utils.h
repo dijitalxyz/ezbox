@@ -9,7 +9,6 @@
 #define CMD_DEPMOD		"/sbin/depmod"
 #define CMD_EZCD		"/sbin/ezcd"
 #define CMD_EZCM		"/sbin/ezcm"
-//#define CMD_HOTPLUG2		"/sbin/hotplug2"
 #define CMD_IFCONFIG		"/sbin/ifconfig"
 #define CMD_IFDOWN		"/sbin/ifdown"
 #define CMD_IFUP		"/sbin/ifup"
@@ -20,7 +19,6 @@
 #define CMD_KLOGD  		"/sbin/klogd"
 #define CMD_LDCONFIG  		"/sbin/ldconfig"
 #define CMD_LOGIN  		"/bin/login"
-#define CMD_MDEV  		"/sbin/mdev"
 #define CMD_MKDIR  		"/bin/mkdir"
 #define CMD_MODPROBE  		"/sbin/modprobe"
 #define CMD_MOUNT  		"/bin/mount"
@@ -33,7 +31,6 @@
 #define CMD_SHELLD  		"/sbin/shelld"
 #define CMD_SYSLOGD  		"/sbin/syslogd"
 #define CMD_TELNETD  		"/sbin/telnetd"
-#define CMD_UDEVTRIGGER		"/sbin/udevtrigger"
 #define CMD_UMOUNT		"/bin/umount"
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
 
@@ -55,14 +52,18 @@
 /* dm-crypt keys path */
 #define DMCRYPT_DATA_PARTITION_KEY_FILE_PATH	"/etc/keys/data_partition_key"
 
-/* rootfs directory path in /data/rootfs */
-#define ROOTFS_BIN_DIR_PATH		"/data/rootfs/bin"
-#define ROOTFS_HOME_DIR_PATH		"/data/rootfs/home"
-#define ROOTFS_LIB_DIR_PATH		"/data/rootfs/lib"
-#define ROOTFS_ROOT_DIR_PATH		"/data/rootfs" ROOT_HOME_PATH
-#define ROOTFS_SBIN_DIR_PATH		"/data/rootfs/sbin"
-#define ROOTFS_USR_DIR_PATH		"/data/rootfs/usr"
-#define ROOTFS_VAR_DIR_PATH		"/data/rootfs/var"
+/* backup directory path in /data */
+#define DATA_BACKUP_DIR_PATH			"/data/backup"
+
+/* rootfs directory path in /data */
+#define DATA_ROOTFS_DIR_PATH			"/data/rootfs"
+#define DATA_ROOTFS_BIN_DIR_PATH		DATA_ROOTFS_DIR_PATH "/bin"
+#define DATA_ROOTFS_HOME_DIR_PATH		DATA_ROOTFS_DIR_PATH "/home"
+#define DATA_ROOTFS_LIB_DIR_PATH		DATA_ROOTFS_DIR_PATH "/lib"
+#define DATA_ROOTFS_ROOT_DIR_PATH		DATA_ROOTFS_DIR_PATH ROOT_HOME_PATH
+#define DATA_ROOTFS_SBIN_DIR_PATH		DATA_ROOTFS_DIR_PATH "/sbin"
+#define DATA_ROOTFS_USR_DIR_PATH		DATA_ROOTFS_DIR_PATH "/usr"
+#define DATA_ROOTFS_VAR_DIR_PATH		DATA_ROOTFS_DIR_PATH "/var"
 
 /* ezcd command config file path */
 #define EZCD_CONFIG_FILE_PATH	"/etc/ezcd.conf"
@@ -78,7 +79,9 @@
 #define UPNP_MONITOR_TASK_FILE_PATH	"/etc/upnp_monitor/tasks"
 
 /* udhcpc script path */
-#define UDHCPC_SCRIPT_PATH	"/usr/share/udhcpc/default.script"
+#define UDHCPC_SCRIPT_FILE_NAME	"default.script"
+#define UDHCPC_SCRIPT_FILE_DIR	"/usr/share/udhcpc"
+#define UDHCPC_SCRIPT_FILE_PATH	UDHCPC_SCRIPT_FILE_DIR "/" UDHCPC_SCRIPT_FILE_NAME
 
 /* Linux kernel version */
 #define KERNEL_VERSION(a,b,c)	(((a) << 16) + ((b) << 8) + (c))

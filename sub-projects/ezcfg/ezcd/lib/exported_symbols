@@ -37,6 +37,8 @@ utils_execute
 utils_mkdir
 utils_system
 utils_route_delete_default
+utils_make_preboot_dirs
+utils_make_data_dirs
 pop_etc_group
 pop_etc_passwd
 pop_etc_modules

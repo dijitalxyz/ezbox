@@ -115,6 +115,7 @@ static int set_wan_interface(FILE *file)
 	int wan_type;
 	char buf[128];
 	int rc;
+	struct stat stat_buf;
 
 	/* setup wan interface */
 	wan_type = utils_get_wan_type();
@@ -136,11 +137,17 @@ static int set_wan_interface(FILE *file)
 		fprintf(file, "\n");
 
 		/* also make udhcpc script symbol link */
-		snprintf(buf, sizeof(buf), "%s -p %s", CMD_MKDIR, UDHCPC_SCRIPT_PATH);
+		if (stat(UDHCPC_SCRIPT_FILE_DIR, &stat_buf) == 0 &&
+		    S_ISDIR(stat_buf.st_mode)) {
+			/* it's good. */
+                }
+		else {
+		        utils_system(CMD_RM " -rf " UDHCPC_SCRIPT_FILE_DIR);
+		        utils_system(CMD_MKDIR " -p " UDHCPC_SCRIPT_FILE_DIR);
+		}
+		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_FILE_PATH);
 		utils_system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_PATH);
-		utils_system(buf);
-		rc = symlink("/sbin/udhcpc.script", UDHCPC_SCRIPT_PATH);
+		rc = symlink("/sbin/" UDHCPC_SCRIPT_FILE_NAME, UDHCPC_SCRIPT_FILE_PATH);
 		if (rc < 0)
 			return (EXIT_FAILURE);
 		break;

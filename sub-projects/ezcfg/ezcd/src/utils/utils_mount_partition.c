@@ -331,6 +331,10 @@ int utils_mount_data_partition_writable(void)
 
 		/* mount /dev/sda2 /data */
 		rc = utils_mount_partition(dev, "/data", fs_type, args);
+
+		/* setup data partition basic directory structure */
+		rc = utils_make_data_dirs();
+
 		ret = EXIT_SUCCESS;
 		break;
 	}
@@ -386,6 +390,10 @@ int utils_mount_dmcrypt_data_partition_writable(void)
 
 		/* mount /dev/mapper/data_crypt /data */
 		rc = utils_mount_partition(dev, "/data", fs_type, args);
+
+		/* setup data partition basic directory structure */
+		rc = utils_make_data_dirs();
+
 		ret = EXIT_SUCCESS;
 		break;
 	}
