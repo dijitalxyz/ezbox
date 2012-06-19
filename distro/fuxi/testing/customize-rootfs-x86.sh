@@ -38,6 +38,7 @@ cp -af $ROOTFS_BAK_DIR/bin $ROOTFS_DIR/
 cp -af $ROOTFS_BAK_DIR/boot $ROOTFS_DIR/
 cp -af $ROOTFS_BAK_DIR/init $ROOTFS_DIR/
 mkdir -p $ROOTFS_DIR/lib
+cp -af $ROOTFS_BAK_DIR/lib/ld*.so* $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/lib/lib*.so* $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/lib/rcso $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/lib/modules $ROOTFS_DIR/lib/
@@ -47,6 +48,8 @@ mkdir -p $ROOTFS_DIR/usr
 cp -af $ROOTFS_BAK_DIR/usr/lib $ROOTFS_DIR/usr/
 rm -f $ROOTFS_DIR/usr/lib/libchilli.so*
 rm -f $ROOTFS_DIR/usr/lib/libext2fs.so*
+rm -f $ROOTFS_DIR/usr/lib/libgmp.so*
 mkdir -p $ROOTFS_DIR/usr/sbin/
 cp -af $ROOTFS_BAK_DIR/usr/sbin/cryptsetup $ROOTFS_DIR/usr/sbin/
 cp -af $ROOTFS_BAK_DIR/usr/share $ROOTFS_DIR/usr/
+rm -f $ROOTFS_DIR/usr/share/opkg

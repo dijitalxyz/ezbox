@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1574
+PKG_REV:=1579
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -297,6 +297,7 @@ define Package/ezcfg/install
 	$(CP) $(PKG_BUILD_DIR)/i18n/html/lang/* $(1)/usr/share/ezcfg/html/lang/
 	$(INSTALL_DIR) $(1)/boot
 	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_boot.cfg $(1)/boot/
+	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_rootfs.cfg $(1)/boot/
 endef
 
 define Feature/ezcfg-ssl-none
