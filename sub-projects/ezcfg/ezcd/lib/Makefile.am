@@ -61,6 +61,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_device_info.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_sync_cfg_with_nvram.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_sync_nvram_with_cfg.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_rc_act_type.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_cleanup_rootfs.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_wan_type.c
 endif

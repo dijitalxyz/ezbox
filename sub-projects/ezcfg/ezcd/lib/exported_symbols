@@ -8,6 +8,7 @@ utils_file_print_line
 utils_find_pid_by_name
 utils_has_process_by_name
 utils_get_rc_act_type
+utils_cleanup_rootfs
 utils_get_kernel_modules
 utils_install_kernel_module
 utils_remove_kernel_module

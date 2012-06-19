@@ -145,9 +145,8 @@ static int set_wan_interface(FILE *file)
 		        utils_system(CMD_RM " -rf " UDHCPC_SCRIPT_FILE_DIR);
 		        utils_system(CMD_MKDIR " -p " UDHCPC_SCRIPT_FILE_DIR);
 		}
-		snprintf(buf, sizeof(buf), "%s -rf %s", CMD_RM, UDHCPC_SCRIPT_FILE_PATH);
-		utils_system(buf);
-		rc = symlink("/sbin/" UDHCPC_SCRIPT_FILE_NAME, UDHCPC_SCRIPT_FILE_PATH);
+		utils_system(CMD_RM " -rf " UDHCPC_SCRIPT_FILE_PATH);
+		rc = symlink(CMD_UDHCPC_SCRIPT, UDHCPC_SCRIPT_FILE_PATH);
 		if (rc < 0)
 			return (EXIT_FAILURE);
 		break;

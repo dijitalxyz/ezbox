@@ -100,6 +100,9 @@ int rc_overlay_rootfs(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
+		/* first cleanup duplicated files, release some memory */
+		utils_cleanup_rootfs(ROOTFS_CONFIG_FILE_PATH);
+
 		/* overlay /bin */
 		if (stat(DATA_ROOTFS_BIN_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {

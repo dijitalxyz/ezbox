@@ -31,6 +31,7 @@
 #define CMD_SHELLD  		"/sbin/shelld"
 #define CMD_SYSLOGD  		"/sbin/syslogd"
 #define CMD_TELNETD  		"/sbin/telnetd"
+#define CMD_UDHCPC_SCRIPT	"/sbin/udhcpc.script"
 #define CMD_UMOUNT		"/bin/umount"
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
 
@@ -45,6 +46,9 @@
 
 /* upgrade config file path */
 #define UPGRADE_CONFIG_FILE_PATH   "/boot/ezbox_upgrade.cfg"
+
+/* rootfs cleanup config file path */
+#define ROOTFS_CONFIG_FILE_PATH   "/boot/ezbox_rootfs.cfg"
 
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"
