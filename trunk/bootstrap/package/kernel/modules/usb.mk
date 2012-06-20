@@ -16,15 +16,10 @@ define KernelPackage/usb-core
   TITLE:=Support for USB
   DEPENDS:=@USB_SUPPORT
   KCONFIG:=CONFIG_USB CONFIG_XPS_USB_HCD_XILINX=n CONFIG_USB_FHCI_HCD=n
-  ifeq ($(strip $(call CompareKernelPatchVer,$(KERNEL_PATCHVER),ge,3.2)),1)
-    FILES:= \
+  FILES:= \
 	$(LINUX_DIR)/drivers/usb/core/usbcore.ko \
 	$(LINUX_DIR)/drivers/usb/usb-common.ko
-    AUTOLOAD:=$(call AutoLoad,20,usb-common usbcore,1)
-  else
-    FILES:=$(LINUX_DIR)/drivers/usb/core/usbcore.ko
-    AUTOLOAD:=$(call AutoLoad,20,usbcore,1)
-  endif
+  AUTOLOAD:=$(call AutoLoad,20,usb-common usbcore,1)
   $(call AddDepends/nls)
 endef
 
@@ -999,3 +994,34 @@ endef
 
 $(eval $(call KernelPackage,usb-brcm47xx))
 
+define KernelPackage/usbip
+  TITLE := USB-over-IP kernel support
+  KCONFIG:= \
+	CONFIG_USBIP_CORE \
+	CONFIG_USBIP_DEBUG=n
+  FILES:=$(LINUX_DIR)/drivers/staging/usbip/usbip-core.ko
+  AUTOLOAD:=$(call AutoLoad,90,usbip-core)
+  $(call AddDepends/usb)
+endef
+$(eval $(call KernelPackage,usbip))
+
+define KernelPackage/usbip-client
+  TITLE := USB-over-IP client driver
+  DEPENDS := +kmod-usbip
+  KCONFIG := CONFIG_USBIP_VHCI_HCD
+  FILES := $(LINUX_DIR)/drivers/staging/usbip/vhci-hcd.$(LINUX_KMOD_SUFFIX)
+  AUTOLOAD := $(call AutoLoad,95,vhci-hcd)
+  $(call AddDepends/usb)
+endef
+$(eval $(call KernelPackage,usbip-client))
+
+define KernelPackage/usbip-server
+$(call KernelPackage/usbip/Default)
+  TITLE := USB-over-IP host driver
+  DEPENDS := +kmod-usbip
+  KCONFIG := CONFIG_USBIP_HOST
+  FILES := $(LINUX_DIR)/drivers/staging/usbip/usbip-host.ko
+  AUTOLOAD := $(call AutoLoad,95,usbip-host)
+  $(call AddDepends/usb)
+endef
+$(eval $(call KernelPackage,usbip-server))
