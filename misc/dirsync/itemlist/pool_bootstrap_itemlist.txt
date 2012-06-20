@@ -11,5 +11,6 @@
 d:target/linux/ar71xx/
 d:target/linux/brcm47xx/
 d:target/linux/lantiq/
+d:target/linux/ramips/
 d:target/linux/s3c24xx/
 d:target/linux/x86/
