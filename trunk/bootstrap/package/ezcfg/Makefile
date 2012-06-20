@@ -39,15 +39,15 @@ define Package/ezcfg
   SECTION:=base
   CATEGORY:=Base system
   MAINTAINER:=Zeta Labs <zetalabs@gmail.com>
-  TITLE:=ezbox config utility
+  TITLE:=Ezbox Configuration Tools
   URL:=http://ezbox.googlecode.com/svn/sub-projects/ezcfg/
   MENU:=1
   DEPENDS:=+libpthread $(ICONV_DEPENDS) $(INTL_DEPENDS) $(SSL_DEPENDS)
 endef
 
 define Package/ezcfg/description
-  ezcfg is an easy to use config utility for ezbox.
-  It can be used to configurate your ezbox system.
+  Ezcfg is a collection of tools to setup the ezbox system.
+  It makes system configuration easy.
 endef
 
 define Package/ezcfg/config
