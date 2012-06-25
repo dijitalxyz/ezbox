@@ -213,6 +213,30 @@ int ezcfg_http_handle_ssi_request(
 int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
 
+/* http/http_html_apply.c */
+int ezcfg_http_handle_apply_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+
+struct ezcfg_http_html_apply;
+struct ezcfg_http_html_apply *ezcfg_http_html_apply_new(
+	struct ezcfg *ezcfg,
+	struct ezcfg_http *http,
+	struct ezcfg_nvram *nvram);
+void ezcfg_http_html_apply_delete(struct ezcfg_http_html_apply *apply);
+bool ezcfg_http_html_apply_handle_post_data(struct ezcfg_http_html_apply *apply);
+bool ezcfg_http_html_apply_save_settings(struct ezcfg_http_html_apply *apply);
+struct ezcfg *ezcfg_http_html_apply_get_ezcfg(struct ezcfg_http_html_apply *apply);
+struct ezcfg_http *ezcfg_http_html_apply_get_http(struct ezcfg_http_html_apply *apply);
+struct ezcfg_html *ezcfg_http_html_apply_get_html(struct ezcfg_http_html_apply *apply);
+bool ezcfg_http_html_apply_set_html(struct ezcfg_http_html_apply *apply, struct ezcfg_html *html);
+struct ezcfg_nvram *ezcfg_http_html_apply_get_nvram(struct ezcfg_http_html_apply *apply);
+struct ezcfg_link_list *ezcfg_http_html_apply_get_post_list(struct ezcfg_http_html_apply *apply);
+
+/* http/apply/http_html_apply_common_head.c */
+int ezcfg_http_html_apply_set_html_common_head(struct ezcfg_http_html_apply *apply, int pi, int si);
+bool ezcfg_http_html_apply_set_http_html_common_header(struct ezcfg_http_html_apply *apply);
+bool ezcfg_http_html_apply_set_http_css_common_header(struct ezcfg_http_html_apply *apply);
+
+
 /* http/http_html_admin.c */
 int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 

@@ -401,6 +401,29 @@ fi
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM, test "x$config_ezbox_service_ezcfg_httpd_cgi_nvram" = xyes)
 
+# Configure ezcfg_httpd_cgi_apply service.
+config_ezbox_service_ezcfg_httpd_cgi_apply=no
+AC_MSG_CHECKING([if ezcfg_httpd_cgi_apply service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_cgi_apply],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_cgi_apply], [Enable ezcfg_httpd_cgi_apply service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY], [1], [Enable ezcfg_httpd_cgi_apply service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_cgi_apply=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY, test "x$config_ezbox_service_ezcfg_httpd_cgi_apply" = xyes)
+
 # Configure ezcfg_httpd_ssi service.
 config_ezbox_service_ezcfg_httpd_ssi=no
 AC_MSG_CHECKING([if ezcfg_httpd_ssi service is enabled])

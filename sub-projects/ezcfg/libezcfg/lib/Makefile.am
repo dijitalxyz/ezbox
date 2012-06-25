@@ -153,13 +153,17 @@ libezcfg_la_SOURCES += $(top_builddir)/src/socket/socket_http.c
 # ezcfg HTTP protocol
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http.c
 
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_SSI
 # ezcfg HTTP SSI handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_ssi.c
+endif
 
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM
 # ezcfg HTTP nvram handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_nvram.c
+endif
 
-if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
 if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX
 # ezcfg HTML/HTTP index handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_html_index.c
@@ -246,6 +250,15 @@ libezcfg_la_SOURCES += $(top_builddir)/src/http/admin/http_html_admin_cnc_defaul
 libezcfg_la_SOURCES += $(top_builddir)/src/http/admin/http_html_admin_cnc_latency.c
 endif # end of CONFIG_EZBOX_SERVICE_EMC2
 endif # end of CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN
+
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY
+# ezcfg HTML/HTTP apply handling
+libezcfg_la_SOURCES += $(top_builddir)/src/http/http_html_apply.c
+
+# ezcfg HTML/HTTP apply common head handling
+libezcfg_la_SOURCES += $(top_builddir)/src/http/apply/http_html_apply_common_head.c
+
+endif # end of CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY
 endif # end of CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
 
 # ezcfg XML doc

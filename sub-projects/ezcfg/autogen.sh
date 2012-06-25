@@ -27,6 +27,9 @@ libdir() {
 #--libdir=$(libdir /lib) \
 #--libexecdir=/lib/ezcfg \
 #--includedir=/usr/include \
+#--enable-service-ezcfg_httpd_cgi_index \
+#--enable-service-ezcfg_httpd_cgi_admin \
+#--enable-service-ezcfg_httpd_cgi_nvram \
 #--enable-ezcfg_test \
 #--enable-ezcfg_nls"
 
@@ -35,9 +38,7 @@ args="--prefix=/usr/local \
 --with-ezbox-distro=fuxi \
 --enable-ezcfg_test \
 --enable-service-ezcfg_httpd \
---enable-service-ezcfg_httpd_cgi_index \
---enable-service-ezcfg_httpd_cgi_admin \
---enable-service-ezcfg_httpd_cgi_nvram \
+--enable-service-ezcfg_httpd_cgi_apply \
 --enable-service-ezcfg_httpd_ssi \
 --enable-service-ezcfg_upnpd \
 --enable-service-ezcfg_upnpd_igd1 \

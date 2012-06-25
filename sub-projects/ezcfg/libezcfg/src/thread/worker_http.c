@@ -167,6 +167,18 @@ static bool is_http_html_nvram_request(const char *uri)
 }
 #endif
 
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY == 1)
+static bool is_http_html_apply_request(const char *uri)
+{
+	if (strncmp(uri, EZCFG_HTTP_HTML_APPLY_PREFIX_URI, strlen(EZCFG_HTTP_HTML_APPLY_PREFIX_URI)) == 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+#endif
+
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 static bool is_http_html_admin_request(const char *uri)
 {
@@ -183,6 +195,18 @@ static bool need_authorization(const char *uri)
 {
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 	if (is_http_html_admin_request(uri) == true) {
+		return true;
+	}
+	else
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM == 1)
+	if (is_http_html_nvram_request(uri) == true) {
+		return true;
+	}
+	else
+#endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY == 1)
+	if (is_http_html_apply_request(uri) == true) {
 		return true;
 	}
 	else
@@ -395,7 +419,6 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	}
 
 	/* set default document root */
-	//if (ezcfg_ssi_set_document_root(ssi, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
 	if (ezcfg_ssi_set_document_root(ssi, ezcfg_common_get_web_document_root_path(ezcfg)) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -416,6 +439,19 @@ static void handle_ssi_request(struct ezcfg_worker *worker)
 	snprintf(buf, sizeof(buf), "%s", *request_uri == '/' ? "" : "/");
 	ezcfg_util_url_decode(request_uri, uri_len, buf+strlen(buf), uri_len+1, 0);
 	ezcfg_util_url_remove_double_dots_and_double_slashes(buf);
+
+	/* if uri is pointed to directory, add index.shtm */
+	uri_len = strlen(buf);
+	if (buf[uri_len - 1] == '/') {
+		if ((uri_len+strlen(EZCFG_HTTP_HTML_INDEX_FILE_SHTM)+1) > sizeof(buf)) {
+			send_http_error(worker, 505,
+			                "Bad Request",
+			                "%s", "File name is too large");
+			goto func_exit;
+		}
+		strcat(buf, EZCFG_HTTP_HTML_INDEX_FILE_SHTM);
+	}
+
 	if (ezcfg_ssi_set_path(ssi, buf) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -541,7 +577,6 @@ static void handle_nvram_request(struct ezcfg_worker *worker)
 	ezcfg_http_nvram_set_content_type(hn, type);
 
 	/* set default root */
-	//if (ezcfg_http_nvram_set_root(hn, EZCFG_WEB_DOCUMENT_ROOT_PATH) == false) {
 	if (ezcfg_http_nvram_set_root(hn, ezcfg_common_get_web_document_root_path(ezcfg)) == false) {
 		send_http_error(worker, 500,
 		                "Internal Server Error",
@@ -603,6 +638,53 @@ func_exit:
 
 	if (hn != NULL)
 		ezcfg_http_nvram_delete(hn);
+}
+#endif
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY == 1)
+static void handle_apply_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	struct ezcfg_nvram *nvram;
+	char *msg = NULL;
+	int msg_len;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	nvram = ezcfg_master_get_nvram(master);
+
+	if (ezcfg_http_handle_apply_request(http, nvram) < 0) {
+		send_http_bad_request(worker);
+		goto func_exit;
+	}
+	else {
+		/* build HTTP response */
+		msg_len = ezcfg_http_get_message_length(http);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_http_get_message_length error.\n");
+			goto func_exit;
+		}
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto func_exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_http_write_message(http, msg, msg_len);
+		ezcfg_worker_write(worker, msg, msg_len);
+		goto func_exit;
+	}
+func_exit:
+	if (msg != NULL)
+		free(msg);
 }
 #endif
 
@@ -742,6 +824,13 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 	else
 #endif
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_APPLY == 1)
+	if (is_http_html_apply_request(request_uri) == true) {
+		/* handle administration web page */
+		handle_apply_request(worker);
+	}
+	else
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_ADMIN == 1)
 	if (is_http_html_admin_request(request_uri) == true) {
 		/* handle administration web page */
@@ -753,6 +842,9 @@ static void handle_http_request(struct ezcfg_worker *worker)
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_CGI_INDEX == 1)
 		/* will always return index page if not find the uri */
 		handle_index_request(worker);
+#elif (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
+		/* handle SSI enabled web page */
+		handle_ssi_request(worker);
 #else
 		send_http_bad_request(worker);
 #endif

@@ -301,6 +301,9 @@
 #define EZCFG_HTTP_HTML_LANG_DIR            DATADIR "/ezcfg/html/lang"
 #define EZCFG_HTTP_HTML_INDEX_DOMAIN        "index"
 
+/* ezcfg index page */
+#define EZCFG_HTTP_HTML_INDEX_FILE_SHTM     "index" EZCFG_FILE_EXT_SHTM_STRING
+
 
 /* ezcfg HTTP html admin request/response mode */
 #define EZCFG_HTTP_HTML_ADMIN_PREFIX_URI    "/admin/"
@@ -312,7 +315,10 @@
 #define EZCFG_AUTH_SECRET_ADMIN_STRING     "admin"
 
 /* ezcfg HTTP html nvram request/response mode */
-#define EZCFG_HTTP_HTML_NVRAM_PREFIX_URI    "/nvram/"
+#define EZCFG_HTTP_HTML_NVRAM_PREFIX_URI    EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "nvram/"
+
+/* ezcfg HTTP html apply.cgi request/response mode */
+#define EZCFG_HTTP_HTML_APPLY_PREFIX_URI    EZCFG_HTTP_HTML_ADMIN_PREFIX_URI "apply/"
 
 /* ezcfg uuid definitions */
 #define EZCFG_UUID_BINARY_LEN	16 /* 128/8 */
