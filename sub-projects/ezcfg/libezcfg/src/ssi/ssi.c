@@ -30,13 +30,13 @@
 
 #if 0
 #define DBG(format, args...) do { \
-	char path[256]; \
-	FILE *fp; \
-	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	char dbg_path[256]; \
+	FILE *dbg_fp; \
+	snprintf(dbg_path, 256, "/tmp/%d-debug.txt", getpid()); \
+	dbg_fp = fopen(dbg_path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -84,7 +84,7 @@ static int echo_handler(struct ezcfg_ssi *ssi, char *buf, size_t size);
 
 static char *include_attrs[] = { "virtual", NULL };
 static char *exec_attrs[] = { "cmd", NULL };
-static char *echo_attrs[] = { "var", "ns", NULL };
+static char *echo_attrs[] = { "var", NULL };
 
 static struct ssi_directive_entry supported_directives[] = {
 	{ "include", include_attrs, include_handler },
@@ -313,7 +313,7 @@ static int echo_handler(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		snprintf(path, sizeof(path), "/tmp/%d-%d-ssi-echo", getpid(), (int)time(NULL));
 
 		/* "var" value is in ssi->directive_values[0] */
-		/* "domain" value is in ssi->directive_values[1] */
+		/* which is prefixed with a "domain" */
 		data->path = malloc(strlen(path) + 1);
 		if (data->path == NULL) {
 			goto fail_exit;
@@ -323,8 +323,8 @@ static int echo_handler(struct ezcfg_ssi *ssi, char *buf, size_t size)
 		if (fp != NULL) {
 			char *value;
 
-			if (strcmp(ssi->directive_values[1], "nvram") == 0) {
-				if (ezcfg_nvram_get_entry_value(ssi->nvram, ssi->directive_values[0], &value) == false) {
+			if (strncmp(ssi->directive_values[0], "nvram.", 6) == 0) {
+				if (ezcfg_nvram_get_entry_value(ssi->nvram, ssi->directive_values[0]+6, &value) == false) {
 					fclose(fp);
 					goto fail_exit;
 				}
