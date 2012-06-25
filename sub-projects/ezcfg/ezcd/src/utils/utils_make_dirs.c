@@ -112,7 +112,9 @@ int utils_make_preboot_dirs(void)
 	/* /tmp */
 	snprintf(buf, sizeof(buf), "%s -rf /tmp", CMD_RM);
 	utils_system(buf);
-	symlink("/var/tmp", "/tmp");
+	if (symlink("/var/tmp", "/tmp") == -1) {
+		DBG("%s-%s(%d)\n", __FILE__, __func__, __LINE__);
+	}
 
 	/* init shms */
 	mkdir("/dev/shm", 0777);

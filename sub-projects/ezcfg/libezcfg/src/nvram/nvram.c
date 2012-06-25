@@ -1148,16 +1148,16 @@ static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
 	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), &p);
 	if ((p == NULL) ||
 	    ((p != NULL) && (strcmp(p, EZCFG_AUTH_USER_ADMIN_STRING) != 0))) {
-		/* first release p */
-		if (p != NULL)
-			free(p);
-
 		/* not valid admin user, fix it! */
 		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_TYPE), EZCFG_AUTH_TYPE_HTTP_BASIC_STRING);
 		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), EZCFG_AUTH_USER_ADMIN_STRING);
 		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), EZCFG_AUTH_REALM_ADMIN_STRING);
 		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), EZCFG_AUTH_DOMAIN_ADMIN_STRING);
 		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET), EZCFG_AUTH_SECRET_ADMIN_STRING);
+	}
+	/* release p */
+	if (p != NULL) {
+		free(p);
 	}
 }
 
