@@ -57,7 +57,7 @@ int utils_route_delete_default(char *iface)
 	char buf[128];
 	char *p, *q;
 	int ret = 0;
-	char *argv[] = { CMD_ROUTE, "del", "default", "dev", iface, NULL };
+	char *argv[] = { CMD_IP, "route", "del", "table", "default", "dev", iface, NULL };
 
 	if (iface == NULL) {
 		argv[3] = NULL;

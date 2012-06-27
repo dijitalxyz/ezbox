@@ -60,6 +60,8 @@ int utils_umount_dmcrypt_data_partition(void);
 int utils_sync_nvram_with_cfg(char *path);
 int utils_sync_cfg_with_nvram(char *path);
 
+int utils_netmask_to_prefix(char *nm_str, int *prefix);
+
 int utils_cleanup_rootfs(char *path);
 
 ssize_t utils_safe_read(int fd, void *buf, size_t count);

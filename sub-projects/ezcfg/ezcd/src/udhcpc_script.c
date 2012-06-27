@@ -93,11 +93,6 @@ static int udhcpc_deconfig(void)
 		}
 	}
 
-#if 0
-	snprintf(buf, sizeof(buf), "%s %s %s", CMD_IFCONFIG, iface, "0.0.0.0");
-	utils_system(buf);
-#endif
-
 	return (EXIT_SUCCESS);
 }
 
@@ -139,12 +134,16 @@ static int udhcpc_bound(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s %s %s %s %s %s %s", CMD_IFCONFIG,
-	         iface, ipaddr,
-	         subnet == NULL ? "" : "netmask",
-	         subnet == NULL ? "" : subnet,
-	         bcast == NULL ? "" : "broadcast",
-	         bcast == NULL ? "" : bcast);
+	snprintf(buf, sizeof(buf), "%s addr dev %s %s", CMD_IP, iface, ipaddr);
+	if (subnet != NULL) {
+		int prefix;
+		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
+			snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), "/%d", prefix);
+		}
+	}
+	if (bcast != NULL) {
+		snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " broadcast %s", bcast);
+	}
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
@@ -161,23 +160,14 @@ static int udhcpc_bound(void)
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
-#if 0
-		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
-		status = utils_system(buf);
-		while((WIFEXITED(status) == true) &&
-		      (WEXITSTATUS(status) == 0)) {
-			status = utils_system(buf);
-		}
-#else
 		utils_route_delete_default(iface);
-#endif
 
 		for (i = 1, p = router; ; i++, p = NULL) {
 			token = strtok_r(p, " ", &savep);
 			if (token == NULL)
 				break;
-			snprintf(buf, sizeof(buf), "%s add default gw %s dev %s metric %d",
-			         CMD_ROUTE, token, iface, i);
+			snprintf(buf, sizeof(buf), "%s route add table default via %s dev %s metric %d",
+			         CMD_IP, token, iface, i);
 			utils_system(buf);
 		}
 
@@ -260,12 +250,16 @@ static int udhcpc_renew(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s %s %s %s %s %s %s", CMD_IFCONFIG,
-	         iface, ipaddr,
-	         subnet == NULL ? "" : "netmask",
-	         subnet == NULL ? "" : subnet,
-	         bcast == NULL ? "" : "broadcast",
-	         bcast == NULL ? "" : bcast);
+	snprintf(buf, sizeof(buf), "%s addr dev %s %s", CMD_IP, iface, ipaddr);
+	if (subnet != NULL) {
+		int prefix;
+		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
+			snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), "/%d", prefix);
+		}
+	}
+	if (bcast != NULL) {
+		snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " broadcast %s", bcast);
+	}
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
@@ -282,23 +276,14 @@ static int udhcpc_renew(void)
 	router = getenv("router");
 	if (router != NULL) {
 		printf("deleting routers\n");
-#if 0
-		snprintf(buf, sizeof(buf), "%s del default gw 0.0.0.0 dev %s", CMD_ROUTE, iface);
-		status = utils_system(buf);
-		while((WIFEXITED(status) == true) &&
-		      (WEXITSTATUS(status) == 0)) {
-			status = utils_system(buf);
-		}
-#else
 		utils_route_delete_default(iface);
-#endif
 
 		for (i = 1, p = router; ; i++, p = NULL) {
 			token = strtok_r(p, " ", &savep);
 			if (token == NULL)
 				break;
-			snprintf(buf, sizeof(buf), "%s add default gw %s dev %s metric %d",
-			         CMD_ROUTE, token, iface, i);
+			snprintf(buf, sizeof(buf), "%s add table default via %s dev %s metric %d",
+			         CMD_IP, token, iface, i);
 			utils_system(buf);
 		}
 

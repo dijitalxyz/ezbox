@@ -129,11 +129,6 @@ static int set_wan_interface(FILE *file)
 			return (EXIT_FAILURE);
 
 		fprintf(file, "iface %s inet dhcp\n", wan_ifname);
-#if 0
-		fprintf(file, "\tpre-up %s %s up\n", CMD_IFCONFIG, wan_ifname);
-		fprintf(file, "\tpost-down %s %s 0.0.0.0\n", CMD_IFCONFIG, wan_ifname);
-		fprintf(file, "\tpost-down %s %s down\n", CMD_IFCONFIG, wan_ifname);
-#endif
 		fprintf(file, "\n");
 
 		/* also make udhcpc script symbol link */
