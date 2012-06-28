@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1579
+PKG_REV:=1609
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
