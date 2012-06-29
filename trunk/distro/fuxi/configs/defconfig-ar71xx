@@ -1258,6 +1258,7 @@ CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_librpc=y
 CONFIG_PACKAGE_libuuid=y
 CONFIG_PACKAGE_terminfo=y
+# CONFIG_PACKAGE_uclibcxx is not set
 CONFIG_PACKAGE_zlib=y
 
 #
