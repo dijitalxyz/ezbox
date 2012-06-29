@@ -134,7 +134,7 @@ static int udhcpc_bound(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s addr dev %s %s", CMD_IP, iface, ipaddr);
+	snprintf(buf, sizeof(buf), "%s addr %s", CMD_IP, ipaddr);
 	if (subnet != NULL) {
 		int prefix;
 		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
@@ -144,6 +144,7 @@ static int udhcpc_bound(void)
 	if (bcast != NULL) {
 		snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " broadcast %s", bcast);
 	}
+	snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " dev %s", iface);
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
@@ -166,7 +167,7 @@ static int udhcpc_bound(void)
 			token = strtok_r(p, " ", &savep);
 			if (token == NULL)
 				break;
-			snprintf(buf, sizeof(buf), "%s route add table default via %s dev %s metric %d",
+			snprintf(buf, sizeof(buf), "%s route add via %s dev %s metric %d",
 			         CMD_IP, token, iface, i);
 			utils_system(buf);
 		}
@@ -250,7 +251,7 @@ static int udhcpc_renew(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s addr dev %s %s", CMD_IP, iface, ipaddr);
+	snprintf(buf, sizeof(buf), "%s addr %s", CMD_IP, ipaddr);
 	if (subnet != NULL) {
 		int prefix;
 		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
@@ -260,6 +261,7 @@ static int udhcpc_renew(void)
 	if (bcast != NULL) {
 		snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " broadcast %s", bcast);
 	}
+	snprintf(buf+strlen(buf), sizeof(buf)-strlen(buf), " dev %s", iface);
 	utils_system(buf);
 
 	rc = ezcfg_api_nvram_set(NVRAM_SERVICE_OPTION(WAN, IPADDR), ipaddr);
@@ -282,7 +284,7 @@ static int udhcpc_renew(void)
 			token = strtok_r(p, " ", &savep);
 			if (token == NULL)
 				break;
-			snprintf(buf, sizeof(buf), "%s add table default via %s dev %s metric %d",
+			snprintf(buf, sizeof(buf), "%s route add via %s dev %s metric %d",
 			         CMD_IP, token, iface, i);
 			utils_system(buf);
 		}

@@ -73,7 +73,7 @@ int rc_wan_if(int argc, char **argv)
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* bring down WAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s link set dev %s down", CMD_IP, wan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, wan_ifname);
 		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
@@ -84,7 +84,7 @@ int rc_wan_if(int argc, char **argv)
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
 		/* bring up WAN interface, but not config it */
-		snprintf(cmdline, sizeof(cmdline), "%s link set dev %s up", CMD_IP, wan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, wan_ifname);
 		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
