@@ -12,7 +12,7 @@
 //#define CMD_IFCONFIG		"/sbin/ifconfig"
 #define CMD_IFDOWN		"/sbin/ifdown"
 #define CMD_IFUP		"/sbin/ifup"
-#define CMD_IP			"/sbin/ip"
+#define CMD_IP			"/bin/ip"
 #define CMD_IPTABLES		"/usr/sbin/iptables"
 #define CMD_IPTABLES_RESTORE	"/usr/sbin/iptables-restore"
 #define CMD_INSMOD		"/sbin/insmod"
