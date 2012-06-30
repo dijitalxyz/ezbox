@@ -134,7 +134,7 @@ static int udhcpc_bound(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s addr %s", CMD_IP, ipaddr);
+	snprintf(buf, sizeof(buf), "%s addr add %s", CMD_IP, ipaddr);
 	if (subnet != NULL) {
 		int prefix;
 		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
@@ -251,7 +251,7 @@ static int udhcpc_renew(void)
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
-	snprintf(buf, sizeof(buf), "%s addr %s", CMD_IP, ipaddr);
+	snprintf(buf, sizeof(buf), "%s addr add %s", CMD_IP, ipaddr);
 	if (subnet != NULL) {
 		int prefix;
 		if (utils_netmask_to_prefix(subnet, &prefix) == EXIT_SUCCESS) {
