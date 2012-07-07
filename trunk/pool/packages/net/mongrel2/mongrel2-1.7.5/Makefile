@@ -41,13 +41,16 @@ ifdef CONFIG_USE_UCLIBC
 TARGET_CFLAGS += -D__UCLIBC__=1
 endif
 
+MAKE_FLAGS += PREFIX="/usr"
+
 define Package/mongrel2/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/nginx $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/nginx
-	$(INSTALL_DATA) $(addprefix $(PKG_INSTALL_DIR)/etc/nginx/,$(config_files)) $(1)/etc/nginx/
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/nginx.init $(1)/etc/init.d/nginx
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mongrel2 $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/m2sh $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/lib/mongrel2/config_modules
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/mongrel2/config_modules/*.so $(1)/usr/lib/mongrel2/config_modules/
+	$(INSTALL_DIR) $(1)/usr/lib/mongrel2/filters
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/mongrel2/filters/*.so $(1)/usr/lib/mongrel2/filters/
 endef
 
 $(eval $(call BuildPackage,mongrel2))
