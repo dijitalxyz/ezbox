@@ -1168,6 +1168,11 @@ CONFIG_PACKAGE_dhid=y
 # VPN
 #
 CONFIG_PACKAGE_xl2tpd=y
+
+#
+# Web Servers/Proxies
+#
+CONFIG_PACKAGE_mongrel2=y
 # CONFIG_PACKAGE_chat is not set
 CONFIG_PACKAGE_ppp=y
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set
