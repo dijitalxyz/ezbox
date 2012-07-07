@@ -73,8 +73,6 @@ define Build/Install
 	$(CP) $(PKG_BUILD_DIR)/libmongoose.so* $(PKG_INSTALL_DIR)/usr/lib
 	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mongoose $(PKG_INSTALL_DIR)/usr/bin
-	$(INSTALL_DIR) $(PKG_INSTALL_DIR)/usr/include
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mongoose.h $(PKG_INSTALL_DIR)/usr/include
 endef
 
 define Build/InstallDev
