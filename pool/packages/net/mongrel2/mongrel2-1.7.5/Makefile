@@ -26,7 +26,7 @@ define Package/mongrel2
   SUBMENU:=Web Servers/Proxies
   TITLE:=Mongrel2 web server
   URL:=http://mongrel2.org/
-  DEPENDS:=+libsqlite3 +zeromq
+  DEPENDS:=+libsqlite3 +zeromq $(CXX_DEPENDS)
   MENU:=1
 endef
 
