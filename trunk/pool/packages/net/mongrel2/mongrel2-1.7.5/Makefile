@@ -1,0 +1,53 @@
+#
+# Copyright (C) 2012 ezbox project
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
+
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=mongrel2
+PKG_VERSION:=1.7.5
+PKG_RELEASE:=1
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:=http://mongrel2.org/static/downloads/
+#PKG_MD5SUM:=53105bbe3ac9319db54d9eb46119695b
+
+PKG_BUILD_PARALLEL:=1
+PKG_INSTALL:=1
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/mongrel2
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=Web Servers/Proxies
+  TITLE:=Mongrel2 web server
+  URL:=http://mongrel2.org/
+  DEPENDS:=+libsqlite3 +zeromq
+  MENU:=1
+endef
+
+define Package/mongrel2/description
+ Mongrel2 is a modern web server that is protocol and language agnostic.
+endef
+
+TARGET_CFLAGS += -Isrc -pthread -rdynamic -DNDEBUG -D_FILE_OFFSET_BITS=64
+TARGET_LDFLAGS += -lzmq -ldl -lsqlite3
+
+ifdef CONFIG_USE_UCLIBC
+TARGET_CFLAGS += -D__UCLIBC__=1
+endif
+
+define Package/mongrel2/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/nginx $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/nginx
+	$(INSTALL_DATA) $(addprefix $(PKG_INSTALL_DIR)/etc/nginx/,$(config_files)) $(1)/etc/nginx/
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/nginx.init $(1)/etc/init.d/nginx
+endef
+
+$(eval $(call BuildPackage,mongrel2))
