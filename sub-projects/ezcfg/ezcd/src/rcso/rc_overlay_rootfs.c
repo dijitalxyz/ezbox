@@ -147,7 +147,7 @@ int rc_overlay_rootfs(int argc, char **argv)
 		if ((strncmp(ROOT_HOME_PATH, "/home/", 6) != 0) &&
 		    (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0)) {
 			if (S_ISDIR(stat_buf.st_mode)) {
-				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", ROOT_HOME_PATH, DATA_ROOTFS_HOME_DIR_PATH);
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", ROOT_HOME_PATH, DATA_ROOTFS_ROOT_DIR_PATH);
 				utils_mount_partition("overlayfs", ROOT_HOME_PATH, "overlayfs", buf);
 			}
 		}
