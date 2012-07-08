@@ -4,6 +4,7 @@ package/dropbear/dropbear-2011.54:package/dropbear
 package/e2fsprogs/e2fsprogs-1.42.2:package/e2fsprogs
 package/libpcap/libpcap-1.1.1:package/libpcap
 package/libreadline/libreadline-5.2:package/libreadline
+package/lua/lua-5.1.4:package/lua
 package/ncurses/ncurses-5.7:package/ncurses
 package/openssl/openssl-1.0.1c:package/openssl
 package/ppp/ppp-2.4.5:package/ppp
