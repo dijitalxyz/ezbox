@@ -1512,6 +1512,7 @@ CONFIG_PACKAGE_kmod-usb2=y
 #
 # Lua
 #
+CONFIG_PACKAGE_lsqlite3=y
 CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_lua-examples is not set
 CONFIG_PACKAGE_luac=y
