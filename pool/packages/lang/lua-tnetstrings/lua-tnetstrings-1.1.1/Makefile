@@ -25,12 +25,12 @@ define Package/lua-tnetstrings
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=lua-tnetstrings
-  URL:=https://github.com/jsimmons/tnetstrings.lua
+  URL:=https://github.com/jsimmons/tnetstrings.lua/
   DEPENDS:=+lua
 endef
 
 define Package/lua-tnetstrings/description
- A tnetstrings implementation in Lua.
+  A tnetstrings implementation in Lua.
 endef
 
 define Build/Configure
