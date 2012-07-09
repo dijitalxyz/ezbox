@@ -50,7 +50,7 @@ define Package/lua-lpeg/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lpeg.so $(1)/usr/lib/lua/
 	$(INSTALL_DIR) $(1)/usr/share/lua
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/re.lua $(1)/usr/share/lua/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/re.lua $(1)/usr/share/lua/
 endef
 
 $(eval $(call BuildPackage,lua-lpeg))
