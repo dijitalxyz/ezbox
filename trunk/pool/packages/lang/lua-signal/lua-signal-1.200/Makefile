@@ -27,8 +27,8 @@ define Package/lua-signal
 endef
 
 define Package/lua-signal/description
- This is a signal library for Lua 5.1. It depends on ANSI C signals and has
- some extensions that are available in POSIX, such as kill().
+  This is a signal library for Lua 5.1. It depends on ANSI C signals and has
+  some extensions that are available in POSIX, such as kill().
 endef
 
 define Build/Configure

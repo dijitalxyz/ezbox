@@ -30,9 +30,9 @@ define Package/lua-md5
 endef
 
 define Package/lua-md5/description
- MD5 offers basic cryptographic facilities for Lua 5.1:
- a hash (digest) function, a pair crypt/decrypt based on MD5 and CFB,
- and a pair crypt/decrypt based on DES with 56-bit keys.
+  MD5 offers basic cryptographic facilities for Lua 5.1:
+  a hash (digest) function, a pair crypt/decrypt based on MD5 and CFB,
+  and a pair crypt/decrypt based on DES with 56-bit keys.
 endef
 
 define Build/Configure
