@@ -1,5 +1,6 @@
 # libs/check/check-0.9.8:check
 lang/lua-signal/lua-signal-1.200:lua-signal
+lang/lua-tnetstrings/lua-tnetstrings-1.1.1:lua-tnetstrings
 lang/lua-zmq/lua-zmq-0.1.1:lua-zmq
 lang/lsqlite3/lsqlite3-7:lsqlite3
 libs/gettext-full/gettext-full-0.18.1.1:gettext-full
