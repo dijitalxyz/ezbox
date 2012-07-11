@@ -84,7 +84,7 @@ diff -urNd mongrel2-1.7.5/src/task.orig/taskimpl.h mongrel2-1.7.5/src/task/taski
 +#endif
 +
 +#if defined(__UCLIBC__)
-+#    if defined __i386__
++#    if defined(__i386__)
 +#        include "386-ucontext.h"
 +#    endif
 +int getmcontext(mcontext_t*);
