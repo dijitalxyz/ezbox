@@ -1,4 +1,3 @@
-# libs/check/check-0.9.8:check
 lang/lsqlite3/lsqlite3-7:lsqlite3
 lang/lua-lpeg/lua-lpeg-0.10.2:lua-lpeg
 lang/lua-md5/lua-md5-1.1.2:lua-md5
@@ -10,12 +9,16 @@ lang/lua-zmq/lua-zmq-0.1.1:lua-zmq
 lang/luajson/luajson-1.2.2:luajson
 lang/luaposix/luaposix-5.1.11:luaposix
 lang/luasocket/luasocket-2.0.2:luasocket
+# libs/check/check-0.9.8:check
+libs/gd/gd-2.0.35:gd
 libs/gettext-full/gettext-full-0.18.1.1:gettext-full
 libs/gmp/gmp-4.3.1:gmp
+libs/jpeg/jpeg-6b:jpeg
 libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
 libs/libjemalloc/libjemalloc-3.0.0:libjemalloc
 libs/libgcrypt/libgcrypt-1.5.0:libgcrypt
 libs/libgpg-error/libgpg-error-1.9:libgpg-error
+libs/libpng/libpng-1.2.46:libpng
 libs/popt/popt-1.7:popt
 libs/redis/redis-2.4.15:redis
 libs/sqlite3/sqlite3-3070900:sqlite3
