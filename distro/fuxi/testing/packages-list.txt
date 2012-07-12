@@ -8,6 +8,7 @@ lang/lua-tnetstrings/lua-tnetstrings-1.1.1:lua-tnetstrings
 lang/lua-zmq/lua-zmq-0.1.1:lua-zmq
 lang/luajson/luajson-1.2.2:luajson
 lang/luaposix/luaposix-5.1.11:luaposix
+lang/luasocket/luasocket-2.0.2:luasocket
 libs/gettext-full/gettext-full-0.18.1.1:gettext-full
 libs/gmp/gmp-4.3.1:gmp
 libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
