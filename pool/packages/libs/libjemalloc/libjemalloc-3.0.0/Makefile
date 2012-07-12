@@ -31,6 +31,8 @@ endef
 
 CONFIGURE_ARGS += \
 	--enable-autogen \
+	--with-jemalloc-prefix=je_ \
+	--enable-cc-silence \
 	ac_cv_path_AR=$(TARGET_CROSS)ar \
 	ac_cv_path_LD=$(TARGET_CROSS)ld \
 	je_cv_static_page_shift=12
