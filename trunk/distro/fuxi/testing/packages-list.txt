@@ -2,6 +2,7 @@
 lang/lsqlite3/lsqlite3-7:lsqlite3
 lang/lua-lpeg/lua-lpeg-0.10.2:lua-lpeg
 lang/lua-md5/lua-md5-1.1.2:lua-md5
+lang/lua-redis/lua-redis-2.0.3:lua-redis
 lang/lua-signal/lua-signal-1.200:lua-signal
 lang/lua-tir/lua-tir-0.9.3:lua-tir
 lang/lua-tnetstrings/lua-tnetstrings-1.1.1:lua-tnetstrings
