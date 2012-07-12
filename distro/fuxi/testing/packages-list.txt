@@ -11,9 +11,11 @@ lang/luaposix/luaposix-5.1.11:luaposix
 libs/gettext-full/gettext-full-0.18.1.1:gettext-full
 libs/gmp/gmp-4.3.1:gmp
 libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
+libs/libjemalloc/libjemalloc-3.0.0:libjemalloc
 libs/libgcrypt/libgcrypt-1.5.0:libgcrypt
 libs/libgpg-error/libgpg-error-1.9:libgpg-error
 libs/popt/popt-1.7:popt
+libs/redis/redis-2.4.15:redis
 libs/sqlite3/sqlite3-3070900:sqlite3
 libs/zeromq/zeromq-2.1.10:zeromq
 net/coova-chilli/coova-chilli-1.2.9:coova-chilli
