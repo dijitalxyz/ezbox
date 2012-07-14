@@ -8,7 +8,7 @@ lang/lua-redis/lua-redis-2.0.3:lua-redis
 lang/lua-signal/lua-signal-1.200:lua-signal
 lang/lua-tir/lua-tir-0.9.3:lua-tir
 lang/lua-tnetstrings/lua-tnetstrings-1.1.1:lua-tnetstrings
-lang/lua-zmq/lua-zmq-0.1.1:lua-zmq
+lang/lua-zmq/lua-zmq-1.1:lua-zmq
 lang/lua-zmq-threads/lua-zmq-threads-1.1:lua-zmq-threads
 lang/luajson/luajson-1.2.2:luajson
 lang/luaposix/luaposix-5.1.11:luaposix
