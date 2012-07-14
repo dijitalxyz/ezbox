@@ -56,7 +56,7 @@ MAKE_FLAGS += \
 
 define Package/lua-zmq-threads/install
 	$(INSTALL_DIR) $(1)/usr/share/lua/zmq
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/lua/5.1/zmq/threads.lua $(1)/usr/lib/lua/zmq/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/lua/5.1/zmq/threads.lua $(1)/usr/share/lua/zmq/
 endef
 
 $(eval $(call BuildPackage,lua-zmq-threads))

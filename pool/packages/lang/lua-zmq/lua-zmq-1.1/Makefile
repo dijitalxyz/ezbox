@@ -58,7 +58,7 @@ define Package/lua-zmq/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua
 	$(INSTALL_DIR) $(1)/usr/share/lua/zmq
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/lua/5.1/zmq.so $(1)/usr/lib/lua/
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/lua/5.1/zmq/poller.lua $(1)/usr/lib/lua/zmq/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/lua/5.1/zmq/poller.lua $(1)/usr/share/lua/zmq/
 endef
 
 $(eval $(call BuildPackage,lua-zmq))
