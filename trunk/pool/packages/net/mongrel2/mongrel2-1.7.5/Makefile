@@ -42,6 +42,7 @@ TARGET_CFLAGS += -D__UCLIBC__=1
 endif
 
 MAKE_FLAGS += PREFIX="/usr"
+MAKE_FLAGS += LIBS="-lzmq -ldl -lsqlite3"
 
 define Package/mongrel2/install
 	$(INSTALL_DIR) $(1)/usr/bin
