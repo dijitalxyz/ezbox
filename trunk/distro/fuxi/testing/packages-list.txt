@@ -1,4 +1,5 @@
 lang/lsqlite3/lsqlite3-7:lsqlite3
+lang/lua-bamboo/lua-bamboo-1.0:lua-bamboo
 lang/lua-gd/lua-gd-2.0.33r2:lua-gd
 lang/lua-lglib/lua-lglib-0.1:lua-lglib
 lang/lua-lgstring/lua-lgstring-0.1:lua-lgstring
