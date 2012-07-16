@@ -1,5 +1,7 @@
 lang/lsqlite3/lsqlite3-7:lsqlite3
 lang/lua-gd/lua-gd-2.0.33r2:lua-gd
+lang/lua-lglib/lua-lglib-0.1:lua-lglib
+lang/lua-lgstring/lua-lgstring-0.1:lua-lgstring
 lang/lua-llthreads/lua-llthreads-1.2:lua-llthreads
 lang/lua-lpeg/lua-lpeg-0.10.2:lua-lpeg
 lang/lua-md5/lua-md5-1.1.2:lua-md5
