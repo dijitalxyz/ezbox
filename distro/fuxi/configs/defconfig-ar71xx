@@ -1607,6 +1607,7 @@ CONFIG_PACKAGE_lua-llthreads=y
 CONFIG_PACKAGE_lua-lpeg=y
 CONFIG_PACKAGE_lua-md5=y
 CONFIG_PACKAGE_lua-mongrel2=y
+CONFIG_PACKAGE_lua-monserver=y
 CONFIG_PACKAGE_lua-redis=y
 CONFIG_PACKAGE_lua-signal=y
 CONFIG_PACKAGE_lua-tir=y

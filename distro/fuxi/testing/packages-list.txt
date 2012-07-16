@@ -4,6 +4,7 @@ lang/lua-llthreads/lua-llthreads-1.2:lua-llthreads
 lang/lua-lpeg/lua-lpeg-0.10.2:lua-lpeg
 lang/lua-md5/lua-md5-1.1.2:lua-md5
 lang/lua-mongrel2/lua-mongrel2-1.7.5:lua-mongrel2
+lang/lua-monserver/lua-monserver-0.1:lua-monserver
 lang/lua-redis/lua-redis-2.0.3:lua-redis
 lang/lua-signal/lua-signal-1.200:lua-signal
 lang/lua-tir/lua-tir-0.9.3:lua-tir
