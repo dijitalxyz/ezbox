@@ -26,7 +26,7 @@ define Package/lua-mongrel2
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=lua-mongrel2
-  URL:=https://github.com/jsimmons/mongrel2-lua/
+  URL:=http://github.com/jsimmons/mongrel2-lua
   DEPENDS:=+lua +lua-zmq +luajson +lua-tnetstrings +lsqlite3
 endef
 
