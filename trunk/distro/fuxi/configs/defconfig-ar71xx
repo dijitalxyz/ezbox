@@ -1212,6 +1212,8 @@ CONFIG_PACKAGE_coova-chilli=y
 # IP Addresses and Names
 #
 CONFIG_PACKAGE_dhid=y
+CONFIG_PACKAGE_udns-libs=y
+CONFIG_PACKAGE_udns-utils=y
 
 #
 # VPN
