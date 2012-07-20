@@ -75,6 +75,7 @@ MAKE_PATH:=js/src
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/js
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/js/*.h $(1)/usr/include/js/
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/js/*.tbl $(1)/usr/include/js/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.{a,so*} $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig

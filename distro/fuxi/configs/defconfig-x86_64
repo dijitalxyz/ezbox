@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Jul 20 13:59:07 2012
+# Fri Jul 20 23:57:20 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1150,6 +1150,7 @@ CONFIG_PACKAGE_xl2tpd=y
 #
 # Web Servers/Proxies
 #
+CONFIG_PACKAGE_ape-server=y
 CONFIG_PACKAGE_mongrel2=y
 CONFIG_PACKAGE_monserver=y
 # CONFIG_PACKAGE_chat is not set
