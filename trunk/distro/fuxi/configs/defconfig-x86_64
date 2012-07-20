@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Jul 20 01:08:29 2012
+# Fri Jul 20 13:59:07 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1515,6 +1515,11 @@ CONFIG_PACKAGE_kmod-usb2=y
 #
 # Languages
 #
+
+#
+# JavaScript
+#
+CONFIG_PACKAGE_js=y
 
 #
 # Lua

@@ -1,3 +1,4 @@
+lang/js/js-1.8.5:js
 lang/lsqlite3/lsqlite3-7:lsqlite3
 lang/lua-bamboo/lua-bamboo-1.0:lua-bamboo
 lang/lua-gd/lua-gd-2.0.33r2:lua-gd
