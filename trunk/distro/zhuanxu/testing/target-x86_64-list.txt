@@ -1,0 +1,4 @@
+#FIXME: we need copy it to the workspace
+
+# target
+target/linux/x86_64:target/linux/x86_64
