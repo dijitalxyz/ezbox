@@ -1,0 +1,9 @@
+# basic packages
+package/dropbear/dropbear-2011.54:package/dropbear
+package/e2fsprogs/e2fsprogs-1.42.2:package/e2fsprogs
+package/libpcap/libpcap-1.1.1:package/libpcap
+package/libreadline/libreadline-5.2:package/libreadline
+package/ncurses/ncurses-5.7:package/ncurses
+package/openssl/openssl-1.0.1c:package/openssl
+package/util-linux/util-linux-2.21.1:package/util-linux
+package/zlib/zlib-1.2.5:package/zlib
