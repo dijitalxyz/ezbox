@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1624
+PKG_REV:=1699
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -77,6 +77,10 @@ endif
 
 ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_FUXI),)
   EZBOX_DISTRO = "fuxi"
+endif
+
+ifneq ($(CONFIG_EZCFG_EZBOX_DISTRO_ZHUANXU),)
+  EZBOX_DISTRO = "zhuanxu"
 endif
 
 CONFIGURE_ARGS += \

@@ -47,6 +47,12 @@ config EZCFG_EZBOX_DISTRO_FUXI
 	help
 	  ezbox Fuxi distro is for intelligent host keeper system.
 
+config EZCFG_EZBOX_DISTRO_ZHUANXU
+	bool "Zhuanxu"
+	default n
+	help
+	  ezbox Zhuanxu distro is for virtual private server.
+
 endchoice
 
 endmenu
