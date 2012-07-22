@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Sun Jul 22 15:59:59 2012
+# Sun Jul 22 22:22:26 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1117,6 +1117,11 @@ CONFIG_PACKAGE_openssl-util=y
 # CONFIG_PACKAGE_uuidd is not set
 CONFIG_PACKAGE_uuidgen=y
 # CONFIG_PACKAGE_whereis is not set
+
+#
+# Network
+#
+CONFIG_PACKAGE_aoetools=y
 
 #
 # Libraries
