@@ -27,7 +27,7 @@ define Package/lua-zmq
   CATEGORY:=Languages
   TITLE:=lua-zmq
   URL:=http://github.com/Neopallium/lua-zmq
-  DEPENDS:=+lua +zeromq +lua-zmq +lua-llthreads
+  DEPENDS:=+lua +zeromq +lua-llthreads
 endef
 
 define Package/lua-zmq/description
