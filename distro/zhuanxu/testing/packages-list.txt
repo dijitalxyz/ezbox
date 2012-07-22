@@ -5,6 +5,7 @@ libs/libcap/libcap-2.22:libcap
 libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
 libs/libgcrypt/libgcrypt-1.5.0:libgcrypt
 libs/libgpg-error/libgpg-error-1.9:libgpg-error
+libs/popt/popt-1.7:popt
 utils/lxc/lxc-0.8.0:lxc
 utils/lvm2/lvm2-2.02.91:lvm2
 utils/cryptsetup/cryptsetup-1.4.1:cryptsetup
