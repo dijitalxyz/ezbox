@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Sun Jul 22 22:22:26 2012
+# Mon Jul 23 15:11:18 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1046,6 +1046,19 @@ CONFIG_PACKAGE_ezcfg=y
 # CONFIG_EZCFG_EZBOX_DISTRO_LILOU is not set
 # CONFIG_EZCFG_EZBOX_DISTRO_FUXI is not set
 CONFIG_EZCFG_EZBOX_DISTRO_ZHUANXU=y
+
+#
+# Network Interfaces
+#
+
+#
+# ezcfg Network Interfaces
+#
+# CONFIG_EZCFG_EZBOX_ELAN_NIC is not set
+# CONFIG_EZCFG_EZBOX_WLAN_NIC is not set
+CONFIG_EZCFG_EZBOX_BRLAN_NIC=y
+CONFIG_EZCFG_EZBOX_LAN_NIC=y
+CONFIG_EZCFG_EZBOX_WAN_NIC=y
 
 #
 # Utilities
