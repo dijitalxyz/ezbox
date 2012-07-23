@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1699
+PKG_REV:=1707
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -109,19 +109,49 @@ CONFIGURE_ARGS += \
 endif
 
 
-# set bridge NIC settings
+# set LAN Ethernet interface settings
+ifneq ($(CONFIG_EZCFG_EZBOX_ELAN_NIC),)
 CONFIGURE_ARGS += \
-	--disable-bridge-nic
-
-# set distro NIC settings
-ifeq ($(EZBOX_DISTRO), "kuafu")
+	--enable-elan-nic
+else
 CONFIGURE_ARGS += \
-	--disable-wan-nic
+	--disable-elan-nic
 endif
 
-ifeq ($(EZBOX_DISTRO), "qiaochui")
+# set LAN Wifi interface settings
+ifneq ($(CONFIG_EZCFG_EZBOX_WLAN_NIC),)
+CONFIGURE_ARGS += \
+	--enable-wlan-nic
+else
+CONFIGURE_ARGS += \
+	--disable-wlan-nic
+endif
+
+# set LAN bridge interface settings
+ifneq ($(CONFIG_EZCFG_EZBOX_BRLAN_NIC),)
+CONFIGURE_ARGS += \
+	--enable-brlan-nic
+else
+CONFIGURE_ARGS += \
+	--disable-brlan-nic
+endif
+
+# set LAN network interface settings
+ifneq ($(CONFIG_EZCFG_EZBOX_LAN_NIC),)
+CONFIGURE_ARGS += \
+	--enable-lan-nic
+else
 CONFIGURE_ARGS += \
 	--disable-lan-nic
+endif
+
+# set WAN network interface settings
+ifneq ($(CONFIG_EZCFG_EZBOX_WAN_NIC),)
+CONFIGURE_ARGS += \
+	--enable-wan-nic
+else
+CONFIGURE_ARGS += \
+	--disable-wan-nic
 endif
 
 # set syslog service
@@ -254,10 +284,16 @@ CONFIGURE_ARGS += \
 	--enable-service-hostapd
 endif
 
-# set  EMC2 (Enhanced Machine Controller) service
+# set EMC2 (Enhanced Machine Controller) service
 ifneq ($(CONFIG_PACKAGE_emc2),)
 CONFIGURE_ARGS += \
 	--enable-service-emc2
+endif
+
+# set LXC (Linux Container) service
+ifneq ($(CONFIG_PACKAGE_lxc),)
+CONFIGURE_ARGS += \
+	--enable-service-lxc
 endif
 
 CONFIGURE_VARS += \

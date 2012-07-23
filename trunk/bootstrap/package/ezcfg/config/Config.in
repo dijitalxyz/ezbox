@@ -57,6 +57,8 @@ endchoice
 
 endmenu
 
-comment "Utilities"
+comment "Network Interfaces"
+source "package/ezcfg/config/nic/Config.in"
 
+comment "Utilities"
 source "package/ezcfg/config/igrs/Config.in"
