@@ -43,7 +43,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 #if (HAVE_EZBOX_LAN_NIC == 1)
 #if (HAVE_EZBOX_BRLAN_NIC == 1)
-	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br0" },
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br-lan" },
 #else
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
 #endif
@@ -243,7 +243,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_INTERFACE),
 #if (HAVE_EZBOX_LAN_NIC == 1)
 #if (HAVE_EZBOX_BRLAN_NIC == 1)
-	  "br0"
+	  "br-lan"
 #else
 	  "eth0"
 #endif
@@ -1279,7 +1279,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* up: activates the interface. */
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_FLAGS), "up" },
 	/* specify the interface to be used for real network traffic. */
-	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_LINK), "lxcbr0" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_LINK), "br-lxc" },
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_NAME), "eth0" },
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_HWADDR), "" },
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_IPV4), "" },
