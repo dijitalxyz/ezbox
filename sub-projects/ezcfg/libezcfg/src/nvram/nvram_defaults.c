@@ -38,11 +38,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #if (HAVE_EZBOX_WLAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), "wlan0" },
 #endif
-#if (HAVE_EZBOX_BRIDGE_NIC == 1)
-	{ NVRAM_SERVICE_OPTION(SYS, BRIDGE_NICS), "eth0,wlan0" },
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, BRLAN_NICS), "eth0,wlan0" },
 #endif
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRIDGE_NIC == 1)
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br0" },
 #else
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
@@ -242,7 +242,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG UPnP binding interfaces */
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_INTERFACE),
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRIDGE_NIC == 1)
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
 	  "br0"
 #else
 	  "eth0"
@@ -263,8 +263,8 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG UPnP binding interfaces */
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_1_INTERFACE),
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRIDGE_NIC == 1)
-	  "br0"
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
+	  "br-lan"
 #else
 	  "eth0"
 #endif

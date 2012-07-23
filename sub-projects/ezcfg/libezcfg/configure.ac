@@ -143,24 +143,24 @@ AC_ARG_ENABLE([wlan-nic],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_WLAN_NIC, test "x$config_ezbox_wlan_nic" = xyes)
 
-# Configure bridge NIC.
-config_ezbox_bridge_nic=yes
-AC_MSG_CHECKING([if bridge network interface is enabled])
-AC_ARG_ENABLE([bridge-nic],
-	AS_HELP_STRING([--enable-bridge-nic], [Enable bridge network interface (default yes)]),
+# Configure LAN bridge NIC.
+config_ezbox_brlan_nic=yes
+AC_MSG_CHECKING([if LAN bridge network interface is enabled])
+AC_ARG_ENABLE([brlan-nic],
+	AS_HELP_STRING([--enable-brlan-nic], [Enable LAN bridge network interface (default yes)]),
 	[case "$enableval" in
 	no)
 		AC_MSG_RESULT(no)
-		config_ezbox_bridge_nic=no
+		config_ezbox_brlan_nic=no
 	;;
 	*)
-		AC_DEFINE([HAVE_EZBOX_BRIDGE_NIC], [1], [Enable bridge network interface])
+		AC_DEFINE([HAVE_EZBOX_BRLAN_NIC], [1], [Enable LAN bridge network interface])
 		AC_MSG_RESULT(yes)
 	;;
 	esac] ,
-	[AC_DEFINE([HAVE_EZBOX_BRIDGE_NIC], [1], [Enable bridge network interface]) AC_MSG_RESULT(yes)]
+	[AC_DEFINE([HAVE_EZBOX_BRLAN_NIC], [1], [Enable LAN bridge network interface]) AC_MSG_RESULT(yes)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_BRIDGE_NIC, test "x$config_ezbox_bridge_nic" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_BRLAN_NIC, test "x$config_ezbox_brlan_nic" = xyes)
 
 # Configure LAN NIC.
 config_ezbox_lan_nic=yes

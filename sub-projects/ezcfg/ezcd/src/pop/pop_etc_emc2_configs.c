@@ -38,6 +38,7 @@
 #include <stdarg.h>
 
 #include "ezcd.h"
+#include "pop_func.h"
 
 static int gen_etc_emc2_configs_ezcnc_ini(int flag)
 {
