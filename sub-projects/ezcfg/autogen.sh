@@ -47,6 +47,7 @@ args="--prefix=/usr/local \
 --enable-service-dhid \
 --enable-service-dmcrypt_data_partition \
 --enable-service-ezctp \
+--enable-service-lxc \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

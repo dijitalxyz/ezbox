@@ -57,5 +57,8 @@ extern int pop_etc_wpa_supplicant_conf(int flag);
 extern int pop_etc_emc2_rtapi_conf(int flag);
 extern int pop_etc_emc2_configs(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_LXC == 1)
+extern int pop_etc_lxc_lxc_conf(int flag);
+#endif
 
 #endif

@@ -113,6 +113,10 @@ extern int rc_emc2(int argc, char **argv);
 extern int rc_emc2_latency_test(int argc, char **argv);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_LXC == 1)
+extern int rc_lxc(int argc, char **argv);
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int argc, char **argv);
 extern int rc_lan_if(int argc, char **argv);

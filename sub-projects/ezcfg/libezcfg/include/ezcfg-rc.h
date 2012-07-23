@@ -44,6 +44,8 @@
 
 #define EZCFG_RC_EMC2_ENABLE             "emc2_enable"
 
+#define EZCFG_RC_LXC_ENABLE              "lxc_enable"
+
 #define EZCFG_RC_EZCTP_ENABLE            "ezctp_enable"
 
 #endif

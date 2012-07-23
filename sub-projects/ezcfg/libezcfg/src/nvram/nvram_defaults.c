@@ -1262,6 +1262,42 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 #endif
 
+#if (HAVE_EZBOX_SERVICE_LXC == 1)
+	/* LXC enabled */
+	{ NVRAM_SERVICE_OPTION(RC, LXC_ENABLE), "0" },
+	/* number of containers */
+	{ NVRAM_SERVICE_OPTION(LXC, CONTAINER_NUMBER), "1" },
+	/* settings for container 1 */
+	/* Specify the architecture for the container. x86, i686, x86_64, amd64 */
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_ARCH), "x86_64" },
+	/* specify the hostname for the container */
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_UTSNAME), "lxc1" },
+	/* specify what kind of network virtualization to be used for the container. */
+	/* [empty|veth|vlan|macvlan|phys] */
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_TYPE), "veth" },
+	/* specify an action to do for the network. */
+	/* up: activates the interface. */
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_FLAGS), "up" },
+	/* specify the interface to be used for real network traffic. */
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_LINK), "lxcbr0" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_NAME), "eth0" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_HWADDR), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_IPV4), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_IPV6), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_NETWORK_SCRIPT_UP), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_PTS), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_CONSOLE), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_TTY), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_DEVTTYDIR), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_MOUNT), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_MOUNT_ENTRY), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_ROOTFS), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_ROOTFS_MOUNT), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_PIVOTDIR), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_CGROUP_CPUSET_CPUS), "" },
+	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_CAP_DROP), "" },
+#endif
+
 };
 
 char *default_nvram_savings[] = {

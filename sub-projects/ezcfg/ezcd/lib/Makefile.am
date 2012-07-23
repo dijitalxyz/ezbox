@@ -174,5 +174,10 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_emc2_rtapi_conf.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_emc2_configs.c
 endif
 
+# LXC Linux Container service
+if CONFIG_EZBOX_SERVICE_LXC
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_lxc_lxc_conf.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcd.pc

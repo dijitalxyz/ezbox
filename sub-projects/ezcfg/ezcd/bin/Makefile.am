@@ -156,6 +156,10 @@ RCSO_SRC += rc_realtime.c
 RCSO_SRC += rc_emc2.c
 RCSO_SRC += rc_emc2_latency_test.c
 endif
+# LXC Linux Container service
+if CONFIG_EZBOX_SERVICE_LXC
+RCSO_SRC += rc_lxc.c
+endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))

@@ -828,6 +828,25 @@ AC_ARG_ENABLE([service-emc2],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
 
+# Configure LXC (Linux Container) service.
+config_ezbox_service_lxc=no
+AC_MSG_CHECKING([if LXC Linux Container service is enabled])
+AC_ARG_ENABLE([service-lxc],
+	AS_HELP_STRING([--enable-service-lxc], [Enable LXC Linux Container service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_LXC], [1], [Enable LXC Linux Container service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_lxc=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_LXC, test "x$config_ezbox_service_lxc" = xyes)
+
 # Checks for libraries.
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and
@@ -918,7 +937,6 @@ fi
 if test -z "$LIBEZCFG_LIB"; then
   # Check for libezcfg as a sub-project.
   if test -d "$srcdir/libezcfg"; then
-	AC_CONFIG_SUBDIRS([libezcfg])
 	LIBEZCFG_LIB='$(top_srcdir)/libezcfg/lib/.libs'
 	LIBEZCFG_INC='$(top_srcdir)/libezcfg/include'
 	LIBEZCFG_API_INC='$(top_srcdir)/libezcfg/api/include'
@@ -988,8 +1006,8 @@ AC_MSG_RESULT([
 	ldflags:		${LDFLAGS}
 	libs:			${LIBS}
 
-	libezcfg_lib:		${LIBEZCFG_LIB:-INSTALLED}
-	libezcfg_inc:		${LIBEZCFG_INC:-INSTALLED}
-	libezcfg_api_inc:	${LIBEZCFG_API_INC:-INSTALLED}
+	libezcfg_lib:		${LIBEZCFG_LIB}
+	libezcfg_inc:		${LIBEZCFG_INC}
+	libezcfg_api_inc:	${LIBEZCFG_API_INC}
 	distro define:		${EZBOX_DISTRO_DEFINE}
 ])
