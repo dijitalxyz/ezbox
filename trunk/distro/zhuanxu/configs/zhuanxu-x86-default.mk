@@ -26,7 +26,7 @@ DEVICE_TYPE := ezbox
 
 # ARCH set the CPU arch, please see README to set correct TARGET/ARCH
 # support [i386|x86_64|mips|mipsel|arm]
-ARCH := x86_64
+ARCH := i386
 
 # KERNEL_VERSION set Linux kernel version string
 # support [default|2.6.32|2.6.37|...]
