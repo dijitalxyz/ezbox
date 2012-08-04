@@ -135,6 +135,14 @@ int rc_overlay_rootfs(int argc, char **argv)
 			}
 		}
 
+		/* overlay /var */
+		if (stat(DATA_ROOTFS_VAR_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				snprintf(buf, sizeof(buf), "-o lowerdir=%s,upperdir=%s", "/var", DATA_ROOTFS_VAR_DIR_PATH);
+				utils_mount_partition("overlayfs", "/var", "overlayfs", buf);
+			}
+		}
+
 		/* overlay /home */
 		if (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0) {
 			if (S_ISDIR(stat_buf.st_mode)) {
