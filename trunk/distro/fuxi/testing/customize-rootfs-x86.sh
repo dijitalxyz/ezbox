@@ -45,11 +45,25 @@ cp -af $ROOTFS_BAK_DIR/lib/modules $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/sbin $ROOTFS_DIR/
 rm -f $ROOTFS_DIR/sbin/lvm
 mkdir -p $ROOTFS_DIR/usr
-cp -af $ROOTFS_BAK_DIR/usr/lib $ROOTFS_DIR/usr/
-rm -f $ROOTFS_DIR/usr/lib/libchilli.so*
-rm -f $ROOTFS_DIR/usr/lib/libext2fs.so*
-rm -f $ROOTFS_DIR/usr/lib/libgmp.so*
-mkdir -p $ROOTFS_DIR/usr/sbin/
+mkdir -p $ROOTFS_DIR/usr/lib
+cp -af $ROOTFS_BAK_DIR/usr/lib/libblkid.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcharset.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcrypto.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcryptsetup.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcurses.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libdevmapper.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libgcrypt.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libgpg-error.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libiconv.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libintl.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libncurses.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libpopt.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libreadline.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libssl.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libuuid.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libz.so* $ROOTFS_DIR/usr/lib/
+mkdir -p $ROOTFS_DIR/usr/sbin
 cp -af $ROOTFS_BAK_DIR/usr/sbin/cryptsetup $ROOTFS_DIR/usr/sbin/
-cp -af $ROOTFS_BAK_DIR/usr/share $ROOTFS_DIR/usr/
-rm -f $ROOTFS_DIR/usr/share/opkg
+mkdir -p $ROOTFS_DIR/usr/share
+cp -af $ROOTFS_BAK_DIR/usr/share/ezcfg $ROOTFS_DIR/usr/share/
+cp -af $ROOTFS_BAK_DIR/usr/share/terminfo $ROOTFS_DIR/usr/share/
