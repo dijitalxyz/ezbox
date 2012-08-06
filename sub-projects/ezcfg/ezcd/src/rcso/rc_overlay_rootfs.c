@@ -163,6 +163,60 @@ int rc_overlay_rootfs(int argc, char **argv)
 		ret = EXIT_SUCCESS;
 		break;
 
+	case RC_ACT_STOP :
+		/* overlay /bin */
+		if (stat(DATA_ROOTFS_BIN_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/bin");
+			}
+		}
+
+		/* overlay /lib */
+		if (stat(DATA_ROOTFS_LIB_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/lib");
+			}
+		}
+
+		/* overlay /sbin */
+		if (stat(DATA_ROOTFS_SBIN_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/sbin");
+			}
+		}
+
+		/* overlay /usr */
+		if (stat(DATA_ROOTFS_USR_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/usr");
+			}
+		}
+
+		/* overlay /var */
+		if (stat(DATA_ROOTFS_VAR_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/var");
+			}
+		}
+
+		/* overlay /home */
+		if (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition("/home");
+			}
+		}
+
+		/* overlay /root */
+		if ((strncmp(ROOT_HOME_PATH, "/home/", 6) != 0) &&
+		    (stat(DATA_ROOTFS_HOME_DIR_PATH, &stat_buf) == 0)) {
+			if (S_ISDIR(stat_buf.st_mode)) {
+				utils_umount_partition(ROOT_HOME_PATH);
+			}
+		}
+
+		ret = EXIT_SUCCESS;
+		break;
+
 	default:
 		ret = EXIT_FAILURE;
 		break;

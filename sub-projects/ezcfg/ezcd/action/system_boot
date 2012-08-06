@@ -19,9 +19,12 @@ netbase boot
 iptables load boot
 # setup openssl
 openssl boot
-#data_storage boot
+# prepare dynamic data partition
+#data_partition boot
 # prepare dm-crypt data partition
 dmcrypt_data_partition boot
+# prepare data_storage directories
+data_storage boot
 # prepare overlayfs on /data/rootfs directory
 overlay_rootfs boot
 # start init

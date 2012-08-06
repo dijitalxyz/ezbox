@@ -114,8 +114,11 @@ int rc_ezcd(int argc, char **argv)
 	case RC_ACT_RELOAD :
 		/* re-generate ezcd config file */
 		pop_etc_ezcd_conf(flag);
+	#if 0
+		/* FIXME: don't commit, or it will overwrite the original data */
 		/* save the nvram changes before doing reload */
 		ezcfg_api_nvram_commit();
+	#endif
 		/* send signal to ezcd to reload config */
 		pidList = utils_find_pid_by_name("ezcd");
 		if (pidList) {

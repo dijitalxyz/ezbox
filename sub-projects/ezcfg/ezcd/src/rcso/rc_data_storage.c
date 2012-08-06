@@ -9,6 +9,7 @@
  * History      Rev       Description
  * 2011-07-28   0.1       Write it from scratch
  * 2011-10-20   0.2       Modify it to use rcso framework
+ * 2012-08-06   0.3       Split partition mount/umount to a single action.
  * ============================================================================
  */
 
@@ -100,25 +101,23 @@ int rc_data_storage(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_BOOT :
-		/* prepare dynamic data storage path */
-		utils_mount_data_partition_writable();
-
-		snprintf(buf, sizeof(buf), "%s a+rwx /var", CMD_CHMOD);
+		/* FIXME: warning data partition must be mounted as writable before this */
+		snprintf(buf, sizeof(buf), "%s a+rwx %s", CMD_CHMOD, DATA_ROOTFS_VAR_DIR_PATH);
 		utils_system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/lock", CMD_RM);
+		snprintf(buf, sizeof(buf), "%s -rf %s/lock", CMD_RM, DATA_ROOTFS_VAR_DIR_PATH);
 		utils_system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/run", CMD_RM);
+		snprintf(buf, sizeof(buf), "%s -rf %s/run", CMD_RM, DATA_ROOTFS_VAR_DIR_PATH);
 		utils_system(buf);
-		snprintf(buf, sizeof(buf), "%s -rf /var/tmp", CMD_RM);
+		snprintf(buf, sizeof(buf), "%s -rf %s/tmp", CMD_RM, DATA_ROOTFS_VAR_DIR_PATH);
 		utils_system(buf);
-		mkdir("/var/lock", 0777);
-		mkdir("/var/log", 0777);
-		mkdir("/var/run", 0777);
-		mkdir("/var/tmp", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/lock", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/log", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/run", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/tmp", 0777);
 
 		/* some useful directories */
-		mkdir("/var/lib", 0777);
-		mkdir("/var/lib/misc", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/lib", 0777);
+		mkdir(DATA_ROOTFS_VAR_DIR_PATH "/lib/misc", 0777);
 
 		ret = EXIT_SUCCESS;
 		break;

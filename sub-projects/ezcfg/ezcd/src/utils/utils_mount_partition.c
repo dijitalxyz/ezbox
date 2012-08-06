@@ -342,6 +342,17 @@ int utils_mount_data_partition_writable(void)
 	return (ret);
 }
 
+int utils_umount_data_partition(void)
+{
+	int ret = EXIT_FAILURE;
+
+	/* umount /data */
+	utils_umount_partition("/data");
+
+	ret = EXIT_SUCCESS;
+	return (ret);
+}
+
 #if (HAVE_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION == 1)
 int utils_mount_dmcrypt_data_partition_writable(void)
 {

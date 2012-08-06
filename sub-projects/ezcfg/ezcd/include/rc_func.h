@@ -20,6 +20,7 @@ extern int rc_preboot(int argc, char **argv);
 //extern int rc_hotplug2(int argc, char **argv);
 extern int rc_mdev(int argc, char **argv);
 extern int rc_data_storage(int argc, char **argv);
+extern int rc_data_partition(int argc, char **argv);
 extern int rc_init(int argc, char **argv);
 extern int rc_load_modules(int argc, char **argv);
 extern int rc_mount_system_fs(int argc, char **argv);

@@ -14,3 +14,7 @@ syslogd stop
 klogd stop
 # stop nvram to sync with cfg
 nvram stop
+# stop overlayfs on /data/rootfs directory
+overlay_rootfs stop
+# stop dm-crypt data partition
+dmcrypt_data_partition stop

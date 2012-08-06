@@ -74,6 +74,7 @@ RCSO_SRC += rc_system.c
 RCSO_SRC += rc_load_modules.c
 RCSO_SRC += rc_mount_system_fs.c
 RCSO_SRC += rc_udev_pop_nodes.c
+RCSO_SRC += rc_data_partition.c
 RCSO_SRC += rc_data_storage.c
 RCSO_SRC += rc_nvram.c
 RCSO_SRC += rc_ezcd.c
