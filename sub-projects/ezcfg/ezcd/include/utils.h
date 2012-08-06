@@ -138,6 +138,7 @@ enum {
 	RC_ACT_RESTART,
 	RC_ACT_RELOAD,
 	RC_ACT_COMBINED,
+	RC_ACT_USRDEF,
 };
 
 /* rc debug states */

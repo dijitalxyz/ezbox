@@ -65,6 +65,12 @@ int utils_get_rc_act_type(char *act)
 	else if (strcmp(act, "reload") == 0) {
 		ret = RC_ACT_RELOAD;
 	}
+	else if (strcmp(act, "combined") == 0) {
+		ret = RC_ACT_COMBINED;
+	}
+	else if (strcmp(act, "usrdef") == 0) {
+		ret = RC_ACT_USRDEF;
+	}
 	else {
 		ret = RC_ACT_UNKNOWN;
         }

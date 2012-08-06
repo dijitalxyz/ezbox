@@ -47,6 +47,26 @@
 #define DBG(format, arg...)
 #endif
 
+static int nvram_user_defined_commit(void)
+{
+	if (ezcfg_api_nvram_commit() < 0)
+		return (EXIT_FAILURE);
+	else
+		return (EXIT_SUCCESS);
+}
+
+static int nvram_user_defined(int argc, char **argv)
+{
+	if (argc < 1) {
+		return (EXIT_FAILURE);
+	}
+
+	if (strcmp(argv[0], "commit") == 0)
+		return nvram_user_defined_commit();
+	else
+		return (EXIT_FAILURE);
+}
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
@@ -100,6 +120,10 @@ int rc_nvram(int argc, char **argv)
 		/* make /boot read-only */
 		utils_remount_boot_partition_readonly();
 		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_USRDEF :
+		ret = nvram_user_defined(argc-2, &(argv[2]));
 		break;
 
 	default :
