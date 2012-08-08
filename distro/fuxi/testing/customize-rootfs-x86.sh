@@ -1,13 +1,14 @@
 #!/bin/bash
 ROOTFS_DIR=$1
 ROOTFS_BAK_DIR=$2
+ROOTFS_TARGET_DIR=$3
 
 usage() {
-  echo "usage: ./customize-rootfs-x86.sh <rootfs directory> <rootfs backup directory>"
+  echo "usage: ./customize-rootfs-x86.sh <rootfs dir> <rootfs backup dir> <target rootfs dir>"
 }
 
 dbg() {
-  echo $1
+  echo "$*"
 }
 
 if [ "x$ROOTFS_DIR" = "x" ] ; then
@@ -20,8 +21,18 @@ if [ "x$ROOTFS_BAK_DIR" = "x" ] ; then
   exit -1
 fi
 
-if [ "$ROOTFS_DIR" = "$ROOTFS_BAK_DIR" ] ; then
+if [ "x$ROOTFS_TARGET_DIR" = "x" ] ; then
+  usage
+  exit -1
+fi
+
+if [ "$ROOTFS_BAK_DIR" = "$ROOTFS_DIR" ] ; then
   echo "rootfs directory must not be same with rootfs backup directory!"
+  exit -1
+fi
+
+if [ "$ROOTFS_TARGET_DIR" = "$ROOTFS_DIR" ] ; then
+  echo "rootfs directory must not be same with target rootfs directory!"
   exit -1
 fi
 
@@ -67,3 +78,7 @@ cp -af $ROOTFS_BAK_DIR/usr/sbin/cryptsetup $ROOTFS_DIR/usr/sbin/
 mkdir -p $ROOTFS_DIR/usr/share
 cp -af $ROOTFS_BAK_DIR/usr/share/ezcfg $ROOTFS_DIR/usr/share/
 cp -af $ROOTFS_BAK_DIR/usr/share/terminfo $ROOTFS_DIR/usr/share/
+
+# overwrite by predefined target rootfs stuff
+cp -af $ROOTFS_TARGET_DIR/boot/ezbox_boot.cfg $ROOTFS_DIR/boot/
+cp -af $ROOTFS_TARGET_DIR/boot/ezbox_rootfs.cfg $ROOTFS_DIR/boot/
