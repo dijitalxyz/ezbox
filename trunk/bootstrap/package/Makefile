@@ -89,7 +89,7 @@ $(curdir)/rootfs-prepare: $(TMP_DIR)/.build
 	$(if $(CONFIG_CLEAN_IPKG),rm -rf $(TARGET_DIR)/usr/lib/opkg)
 	$(call mklibs)
 	@if [ -x $(TOPDIR)/customize/tools/customize-rootfs.sh ]; then \
-		$(TOPDIR)/customize/tools/customize-rootfs.sh $(TARGET_DIR) $(TOPDIR)/customize/backup/rootfs; \
+		$(TOPDIR)/customize/tools/customize-rootfs.sh $(TARGET_DIR) $(TOPDIR)/customize/backup/rootfs $(TOPDIR)/customize/target/rootfs ; \
 	fi
 
 $(curdir)/index: FORCE

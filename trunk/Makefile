@@ -108,6 +108,7 @@ prepare-workspace:
 	# customize directory
 	mkdir -p $(CUSTOMIZE_DIR)
 	mkdir -p $(CUSTOMIZE_DIR)/backup
+	mkdir -p $(CUSTOMIZE_DIR)/target
 	mkdir -p $(CUSTOMIZE_DIR)/tools
 
 prepare-bootstrap:
@@ -119,6 +120,7 @@ clean-bootstrap-links:
 
 prepare-customize:
 	[ ! -f $(PKGLIST_DIR)/customize-rootfs-$(SUFFIX).sh ] || cp -f $(PKGLIST_DIR)/customize-rootfs-$(SUFFIX).sh $(CUSTOMIZE_DIR)/tools/customize-rootfs.sh
+	[ ! -d $(PKGLIST_DIR)/rootfs-$(TARGET) ] || ( rm -rf $(CUSTOMIZE_DIR)/target/rootfs ; cp -rf $(PKGLIST_DIR)/rootfs-$(TARGET) $(CUSTOMIZE_DIR)/target/rootfs )
 
 #ifeq ($(BUILD_TYPE),testing)
 #prepare-packages:
