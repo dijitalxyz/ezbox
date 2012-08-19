@@ -174,6 +174,11 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_emc2_rtapi_conf.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_emc2_configs.c
 endif
 
+# coova-chilli Hotspot Manager service
+if CONFIG_EZBOX_SERVICE_COOVA_CHILLI
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_chilli_conf.c
+endif
+
 # LXC Linux Container service
 if CONFIG_EZBOX_SERVICE_LXC
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_lxc_lxc_conf.c

@@ -1262,6 +1262,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 #endif
 
+#if (HAVE_EZBOX_SERVICE_COOVA_CHILLI == 1)
+	/* coova-chilli enabled */
+	{ NVRAM_SERVICE_OPTION(RC, COOVA_CHILLI_ENABLE), "0" },
+#endif
+
 #if (HAVE_EZBOX_SERVICE_LXC == 1)
 	/* LXC enabled */
 	{ NVRAM_SERVICE_OPTION(RC, LXC_ENABLE), "0" },

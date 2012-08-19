@@ -157,6 +157,10 @@ RCSO_SRC += rc_realtime.c
 RCSO_SRC += rc_emc2.c
 RCSO_SRC += rc_emc2_latency_test.c
 endif
+# coova-chilli Hotspot Manager
+if CONFIG_EZBOX_SERVICE_COOVA_CHILLI
+RCSO_SRC += rc_coova_chilli.c
+endif
 # LXC Linux Container service
 if CONFIG_EZBOX_SERVICE_LXC
 RCSO_SRC += rc_lxc.c

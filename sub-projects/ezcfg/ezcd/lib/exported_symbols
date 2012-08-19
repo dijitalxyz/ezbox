@@ -75,3 +75,4 @@ pop_etc_dnsmasq_conf
 pop_etc_dhid_conf
 pop_etc_keys_data_partition_key
 pop_etc_lxc_lxc_conf
+pop_etc_chilli_conf

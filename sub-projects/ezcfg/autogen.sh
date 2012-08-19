@@ -48,6 +48,7 @@ args="--prefix=/usr/local \
 --enable-service-dmcrypt_data_partition \
 --enable-service-ezctp \
 --enable-service-lxc \
+--enable-service-coova_chilli \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

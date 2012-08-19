@@ -105,6 +105,7 @@ int rc_emc2(int argc, char **argv)
 
 	switch (flag) {
 	case RC_ACT_RESTART :
+	case RC_ACT_RELOAD :
 	case RC_ACT_STOP :
 		/* make sure the emc2 service has been started */
 		if (utils_has_process_by_name("emcsvr") == false) {

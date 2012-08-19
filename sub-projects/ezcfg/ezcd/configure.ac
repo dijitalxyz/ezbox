@@ -828,6 +828,25 @@ AC_ARG_ENABLE([service-emc2],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EMC2, test "x$config_ezbox_service_emc2" = xyes)
 
+# Configure coova-chilli Hotspot Manager service.
+config_ezbox_service_coova_chilli=no
+AC_MSG_CHECKING([if coova-chilli Hotspot Manager service is enabled])
+AC_ARG_ENABLE([service-coova_chilli],
+	AS_HELP_STRING([--enable-service-coova_chilli], [Enable coova-chilli Hotspot Manager service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_COOVA_CHILLI], [1], [Enable coova-chilli Hotspot Manager service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_coova_chilli=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_COOVA_CHILLI, test "x$config_ezbox_service_coova_chilli" = xyes)
+
 # Configure LXC (Linux Container) service.
 config_ezbox_service_lxc=no
 AC_MSG_CHECKING([if LXC Linux Container service is enabled])
