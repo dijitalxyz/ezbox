@@ -101,7 +101,8 @@ int rc_overlay_rootfs(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_BOOT :
 		/* first cleanup duplicated files, release some memory */
-		utils_cleanup_rootfs(ROOTFS_CONFIG_FILE_PATH);
+		/* if data partition does not mount, the config file does not exist */
+		utils_cleanup_rootfs(DATA_ROOTFS_DIR_PATH ROOTFS_CONFIG_FILE_PATH);
 
 		/* overlay /bin */
 		if (stat(DATA_ROOTFS_BIN_DIR_PATH, &stat_buf) == 0) {
