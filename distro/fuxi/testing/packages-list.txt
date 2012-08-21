@@ -1,3 +1,4 @@
+ipv6/radvd/radvd-1.9.1:radvd
 lang/js/js-1.8.5:js
 lang/lsqlite3/lsqlite3-7:lsqlite3
 lang/lua-bamboo/lua-bamboo-1.0:lua-bamboo
@@ -24,6 +25,7 @@ libs/gettext-full/gettext-full-0.18.1.1:gettext-full
 libs/gmp/gmp-4.3.1:gmp
 libs/jpeg/jpeg-6b:jpeg
 libs/libcap/libcap-2.22:libcap
+libs/libdaemon/libdaemon-0.14:libdaemon
 libs/libiconv-full/libiconv-full-1.11.1:libiconv-full
 libs/libjemalloc/libjemalloc-3.0.0:libjemalloc
 libs/libgcrypt/libgcrypt-1.5.0:libgcrypt
@@ -36,6 +38,7 @@ libs/zeromq/zeromq-2.1.10:zeromq
 net/ape-server/ape-server-1.2.0:ape-server
 net/coova-chilli/coova-chilli-1.2.9:coova-chilli
 net/dhid/dhid-5.5:dhid
+net/iptables/iptables-1.4.10:iptables
 net/mongrel2/mongrel2-1.7.5:mongrel2
 net/monserver/monserver-0.1:monserver
 net/udns/udns-0.2:udns
