@@ -1273,7 +1273,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* number of containers */
 	{ NVRAM_SERVICE_OPTION(LXC, CONTAINER_NUMBER), "1" },
 	/* settings for container 1 */
-	/* Specify the architecture for the container. x86, i686, x86_64, amd64 */
+	/* specify the architecture for the container. x86, i686, x86_64, amd64 */
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_ARCH), "x86_64" },
 	/* specify the hostname for the container */
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_UTSNAME), "lxc1" },
@@ -1301,6 +1301,106 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_PIVOTDIR), "" },
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_CGROUP_CPUSET_CPUS), "" },
 	{ NVRAM_SERVICE_OPTION(LXC, CONF_1_LXC_CAP_DROP), "" },
+#endif
+
+#if (HAVE_EZBOX_SERVICE_RADVD == 1)
+	/* RADVD enabled */
+	{ NVRAM_SERVICE_OPTION(RC, RADVD_ENABLE), "0" },
+	/* number of interfaces */
+	{ NVRAM_SERVICE_OPTION(RADVD, INTERFACE_NUMBER), "1" },
+	/* settings for interface 1 */
+	/* specify the interface name */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_NAME), "eth0" },
+	/* specify the interface IgnoreIfMissing option [on|off] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_IGNORE_IF_MISSING), "" },
+	/* specify the interface AdvSendAdvert option [on|off] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_SEND_ADVERT), "on" },
+	/* specify the interface UnicastOnly option [on|off] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_UNICAST_ONLY), "" },
+	/* specify the interface MaxRtrAdvInterval option [4 - 1800] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_MAX_RTR_ADV_INTERVAL), "60" },
+	/* specify the interface MinRtrAdvInterval option [3 - 0.75 * MaxRtrAdvInterval] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_MIN_RTR_ADV_INTERVAL), "20" },
+	/* specify the interface MinDelayBetweenRAs option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_MIN_DELAY_BETWEEN_RAS), "" },
+	/* specify the interface AdvManagedFlag option [on|off] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_MANAGED_FLAG), "" },
+	/* specify the interface AdvOtherConfigFlag option [on|off] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_OTHER_CONFIG_FLAG), "on" },
+	/* specify the interface AdvLinkMTU option [1280 - link maximum MTU] */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_LINK_MTU), "1492" },
+	/* specify the interface AdvReachableTime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_REACHABLE_TIME), "" },
+	/* specify the interface AdvRetransTimer option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_RETRANS_TIMER), "" },
+	/* specify the interface AdvCurHopLimit option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_CUR_HOP_LIMIT), "" },
+	/* specify the interface AdvDefaultLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_DEFAULT_LIFETIME), "" },
+	/* specify the interface AdvDefaultPreference option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_DEFAULT_PREFERENCE), "" },
+	/* specify the interface AdvSourceLLAddress option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_SOURCE_LL_ADDRESS), "" },
+	/* specify the interface AdvHomeAgentFlag option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_HOME_AGENT_FLAG), "" },
+	/* specify the interface AdvHomeAgentInfo option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_HOME_AGENT_INFO), "" },
+	/* specify the interface HomeAgentLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_HOME_AGENT_LIFETIME), "" },
+	/* specify the interface HomeAgentPreference option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_HOME_AGENT_PREFERENCE), "" },
+	/* specify the interface AdvMobRtrSupportFlag option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_MOB_RTR_SUPPORT_FLAG), "" },
+	/* specify the interface AdvIntervalOpt option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ADV_INTERVAL_OPT), "" },
+	/* number of prefix for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_NUMBER), "1" },
+	/* settings for prefix for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_PREFIX), "" },
+	/* specify the prefix AdvOnLink option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_ADV_ON_LINK), "" },
+	/* specify the prefix AdvAutonomous option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_ADV_AUTONOMOUS), "" },
+	/* specify the prefix AdvRouterAddr option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_ADV_ROUTER_ADDR), "" },
+	/* specify the prefix AdvValidLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_ADV_VALID_LIFETIME), "" },
+	/* specify the prefix AdvPreferredLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_ADV_PREFERRED_LIFETIME), "" },
+	/* specify the prefix DeprecatePrefix option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_DEPRECATE_PREFIX), "" },
+	/* specify the prefix DecrementLifetimes option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_DECREMENT_LIFETIMES), "" },
+	/* specify the prefix Base6Interface option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_BASE_6_INTERFACE), "" },
+	/* specify the prefix Base6to4Interface option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_PREFIX_1_BASE_6TO4_INTERFACE), "" },
+	/* number of clients for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_CLIENTS_NUMBER), "1" },
+	/* settings for clients for interface 1 */
+	/* specify the clients IPv6 Address list */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_CLIENTS_1_IPV6_ADDRESS_1), "" },
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_CLIENTS_1_IPV6_ADDRESS_2), "" },
+	/* settings for route for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ROUTE_1_PREFIX), "" },
+	/* specify the route AdvRouteLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ROUTE_1_ADV_ROUTE_LIFETIME), "" },
+	/* specify the route AdvRoutePreference option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ROUTE_1_ADV_ROUTE_PREFERENCE), "" },
+	/* specify the route RemoveRoute option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_ROUTE_1_REMOVE_ROUTE), "" },
+	/* settings for RDNSS for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_RDNSS_1_IPS), "fe80::1" },
+	/* specify the RDNSS AdvRDNSSLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_RDNSS_1_ADV_RDNSS_LIFETIME), "60" },
+	/* specify the RDNSS FlushRDNSS option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_RDNSS_1_FLUSH_RDNSS), "" },
+	/* settings for DNSSL for interface 1 */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_DNSSL_1_SUFFIXES), "" },
+	/* specify the DNSSL AdvDNSSLLifetime option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_DNSSL_1_ADV_DNSSL_LIFETIME), "" },
+	/* specify the DNSSL FlushDNSSL option */
+	{ NVRAM_SERVICE_OPTION(RADVD, IF_1_DNSSL_1_FLUSH_DNSSL), "" },
 #endif
 
 };

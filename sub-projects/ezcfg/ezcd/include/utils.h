@@ -40,6 +40,7 @@
 #define CMD_CRYPTSETUP	"/usr/sbin/cryptsetup"
 #define CMD_DHID	"/usr/sbin/dhid"
 #define CMD_DNSMASQ	"/usr/sbin/dnsmasq"
+#define CMD_RADVD	"/usr/sbin/radvd"
 
 
 /* boot config file path */

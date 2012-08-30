@@ -184,5 +184,10 @@ if CONFIG_EZBOX_SERVICE_LXC
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_lxc_lxc_conf.c
 endif
 
+# radvd Linux IPv6 Router Advertisement Daemon service
+if CONFIG_EZBOX_SERVICE_RADVD
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_radvd_conf.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcd.pc

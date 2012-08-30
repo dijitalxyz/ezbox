@@ -49,6 +49,7 @@ args="--prefix=/usr/local \
 --enable-service-ezctp \
 --enable-service-lxc \
 --enable-service-coova_chilli \
+--enable-service-radvd \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

@@ -32,6 +32,7 @@
 #include "ezcfg-dillo.h"
 #include "ezcfg-emc2.h"
 #include "ezcfg-lxc.h"
+#include "ezcfg-radvd.h"
 #include "ezcfg-upnp.h"
 #include "ezcfg-ssl.h"
 #include "ezcfg-openssl.h"

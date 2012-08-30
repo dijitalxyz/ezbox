@@ -866,6 +866,25 @@ AC_ARG_ENABLE([service-lxc],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_LXC, test "x$config_ezbox_service_lxc" = xyes)
 
+# Configure radvd (Linux IPv6 Router Advertisement Daemon) service.
+config_ezbox_service_radvd=no
+AC_MSG_CHECKING([if radvd Linux IPv6 Router Advertisement Daemon service is enabled])
+AC_ARG_ENABLE([service-radvd],
+	AS_HELP_STRING([--enable-service-radvd], [Enable radvd Linux IPv6 Router Advertisement Daemon service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_RADVD], [1], [Enable radvd Linux IPv6 Router Advertisement Daemon service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_radvd=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_RADVD, test "x$config_ezbox_service_radvd" = xyes)
+
 # Checks for libraries.
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and
