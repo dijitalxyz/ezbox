@@ -105,6 +105,26 @@ AC_ARG_ENABLE([ezcfg_nls],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_NLS, test "x$config_ezbox_ezcfg_nls" = xyes)
 
+# Configure ezcfg IPv6 support.
+config_ezbox_ezcfg_ipv6=no
+AC_MSG_CHECKING([if ezcfg_ipv6 is enabled])
+AC_ARG_ENABLE([ezcfg_ipv6],
+	AS_HELP_STRING([--enable-ezcfg_ipv6], [Enable ezcfg_ipv6 (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_IPV6], [1], [Enable ezcfg_ipv6])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_ipv6=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_ipv6=no
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_IPV6, test "x$config_ezbox_ezcfg_ipv6" = xyes)
+
 # Configure ELAN NIC.
 config_ezbox_elan_nic=yes
 AC_MSG_CHECKING([if Ethernet network interface is enabled])

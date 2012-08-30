@@ -37,6 +37,7 @@ args="--prefix=/usr/local \
 --sysconfdir=/etc \
 --with-ezbox-distro=fuxi \
 --enable-ezcfg_test \
+--enable-ezcfg_ipv6 \
 --enable-service-ezcfg_httpd \
 --enable-service-ezcfg_httpd_cgi_apply \
 --enable-service-ezcfg_httpd_ssi \
