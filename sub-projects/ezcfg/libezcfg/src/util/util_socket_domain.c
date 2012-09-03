@@ -41,7 +41,9 @@ static struct domain_pair ezcfg_support_domains[] = {
 	{ AF_LOCAL, EZCFG_SOCKET_DOMAIN_LOCAL_STRING },
 	{ AF_INET, EZCFG_SOCKET_DOMAIN_INET_STRING },
 	{ AF_NETLINK, EZCFG_SOCKET_DOMAIN_NETLINK_STRING },
+#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
 	{ AF_INET6, EZCFG_SOCKET_DOMAIN_INET6_STRING },
+#endif
 };
 
 int ezcfg_util_socket_domain_get_index(char *name)
