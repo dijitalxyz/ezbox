@@ -118,7 +118,7 @@ struct ezcfg_ctrl *ezcfg_ctrl_new_from_socket(struct ezcfg *ezcfg, const int fam
 		goto fail_exit;
 	}
 
-	if (ezcfg_socket_set_remote(ezctrl->socket, AF_LOCAL, remote_socket_path) < 0) {
+	if (ezcfg_socket_set_remote(ezctrl->socket, family, remote_socket_path) < 0) {
 		err(ezcfg, "set remote socket [%s] receiving fail: %m\n", remote_socket_path);
 		ezcfg_socket_close_sock(ezctrl->socket);
 		goto fail_exit;

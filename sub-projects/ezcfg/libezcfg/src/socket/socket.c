@@ -34,6 +34,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <linux/netlink.h>
+#include <netdb.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
@@ -61,7 +62,6 @@
  */
 struct usa {
 	socklen_t len;
-	int domain;
 	int type;
 	union {
 		struct sockaddr sa;
@@ -70,6 +70,18 @@ struct usa {
 		struct sockaddr_nl snl;
 	#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
 		struct sockaddr_in6 sin6;
+	#endif
+        } u;
+};
+
+/*
+ * unified multicast request.
+ */
+struct umreq {
+	union {
+		struct ip_mreq       group;     /* IPv4 multicast group */
+	#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
+		struct ipv6_mreq     groupv6;   /* IPv6 multicast group */
 	#endif
         } u;
 };
@@ -85,12 +97,10 @@ struct ezcfg_socket {
 	int                  sock;      /* Listening socket             */
 	int                  proto;     /* Communication protocol 	*/
 	int                  backlog;   /* Listening queue length 	*/
+	int                  domain;
 	struct usa           lsa;       /* Local socket address         */
 	struct usa           rsa;       /* Remote socket address        */
-	struct ip_mreq       group;     /* multicast group              */
-#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-	struct ipv6_mreq     groupv6;   /* multicast group              */
-#endif
+	struct umreq         mreq;      /* Multicast group              */
 	bool                 need_unlink;    /* Need to unlink socket node 	*/
 	bool                 need_delete;    /* Need to delete socket node 	*/
 	char *               buffer;
@@ -167,6 +177,7 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 	sp->sock = -1;
 	sp->ezcfg = ezcfg;
 	sp->proto = proto;
+	sp->domain = domain;
 
 	/* FIXME: should change sock_protocol w/r proto */
 	if (proto == EZCFG_PROTO_UEVENT) {
@@ -187,7 +198,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->domain = AF_LOCAL;
 		usa->type = type;
 		usa->u.sun.sun_family = AF_LOCAL;
 		strcpy(usa->u.sun.sun_path, socket_path);
@@ -221,7 +231,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->domain = AF_INET;
 		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
 		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
@@ -249,7 +258,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 
 			/* set remote pear info */
 			usa = &(sp->rsa);
-			usa->domain = AF_INET;
 			usa->type = type;
 			usa->u.sin.sin_family = AF_INET;
 			usa->u.sin.sin_addr.s_addr = inet_addr(addr);
@@ -272,8 +280,8 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			 * note that this IP_ADD_MEMBERSHIP option must be
 			 * called for each local interface over which the multicast
 			 * datagrams are to be received. */
-			sp->group.imr_multiaddr.s_addr = inet_addr(addr);
-			sp->group.imr_interface.s_addr = inet_addr(if_addr);
+			sp->mreq.u.group.imr_multiaddr.s_addr = inet_addr(addr);
+			sp->mreq.u.group.imr_interface.s_addr = inet_addr(if_addr);
 		}
 		else
 		{
@@ -293,14 +301,26 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
 	case AF_INET6:
-		addr = strdup(socket_path);
+		/* [fe80::1%eth0]:80 */
+		if (*socket_path != '[') {
+			err(ezcfg, "socket_path format error, missing [.\n");
+			goto fail_exit;
+		}
+		/* skip '[' */
+		addr = strdup(socket_path+1);
 		if (addr == NULL) {
 			err(ezcfg, "can not alloc addr.\n");
 			goto fail_exit;
 		}
-		port = strrchr(addr, ':');
+		port = strchr(addr, ']');
 		if (port == NULL) {
-			err(ezcfg, "socket_path format error.\n");
+			err(ezcfg, "socket_path format error, missing ].\n");
+			goto fail_exit;
+		}
+		*port = '\0';
+		port++;
+		if (*port != ':') {
+			err(ezcfg, "socket_path format error, missing port.\n");
 			goto fail_exit;
 		}
 		*port = '\0';
@@ -315,21 +335,33 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->domain = AF_INET6;
 		usa->type = type;
 		usa->u.sin6.sin6_family = AF_INET6;
 		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
 			int reuse = 1;
 			char *if_addr, *if_port;
+			struct addrinfo hints;
+			struct addrinfo *result;
+			int s;
 			if_addr = strchr(port, '@');
 			if (if_addr == NULL) {
-				err(ezcfg, "muticast socket_path format error.\n");
+				err(ezcfg, "muticast socket_path format error, missing @.\n");
 				goto fail_exit;
 			}
 			*if_addr = '\0';
 			if_addr++;
-			if_port = strrchr(if_addr, ':');
-			if (if_port != NULL) {
+			if (*if_addr != '[') {
+				err(ezcfg, "muticast socket_path format error, missing [.\n");
+				goto fail_exit;
+			}
+			if_port = strchr(if_addr, ']');
+			if (if_port == NULL) {
+				err(ezcfg, "muticast socket_path format error, missing ].\n");
+				goto fail_exit;
+			}
+			*if_port = '\0';
+			if_port++;
+			if (*if_port == ':') {
 				*if_port = '\0';
 				if_port++;
 			}
@@ -337,17 +369,56 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 				/* set to multicast port */
 				if_port = port;
 			}
-			inet_pton(AF_INET6, if_addr, &(usa->u.sin6.sin6_addr));
-			usa->u.sin6.sin6_port = htons((uint16_t)atoi(if_port));
+
+			/* Obtain address(es) matching host/port */
+			memset(&hints, 0, sizeof(struct addrinfo));
+			hints.ai_family = AF_INET6;
+			hints.ai_socktype = type;
+			hints.ai_flags = 0;
+			hints.ai_protocol = 0;          /* Any protocol */
+
+			s = getaddrinfo(if_addr, if_port, &hints, &result);
+			if (s != 0) {
+				err(ezcfg, "getaddrinfo: %s\n", gai_strerror(s));
+				goto fail_exit;
+			}
+			if (result->ai_next != NULL) {
+				err(ezcfg, "getaddrinfo: ambiguity socket address\n");
+				freeaddrinfo(result);
+				goto fail_exit;
+			}
+
+			memcpy(&(usa->u.sa), result->ai_addr, result->ai_addrlen);
+			freeaddrinfo(result);
+
 			usa->len = sizeof(usa->u.sin6);
 
 			/* set remote pear info */
 			usa = &(sp->rsa);
-			usa->domain = AF_INET6;
 			usa->type = type;
 			usa->u.sin6.sin6_family = AF_INET6;
-			inet_pton(AF_INET6, addr, &(usa->u.sin6.sin6_addr));
-			usa->u.sin6.sin6_port = htons((uint16_t)atoi(port));
+
+			/* Obtain address(es) matching host/port */
+			memset(&hints, 0, sizeof(struct addrinfo));
+			hints.ai_family = AF_INET6;
+			hints.ai_socktype = type;
+			hints.ai_flags = 0;
+			hints.ai_protocol = 0;          /* Any protocol */
+
+			s = getaddrinfo(addr, port, &hints, &result);
+			if (s != 0) {
+				err(ezcfg, "getaddrinfo: %s\n", gai_strerror(s));
+				goto fail_exit;
+			}
+			if (result->ai_next != NULL) {
+				err(ezcfg, "getaddrinfo: ambiguity socket address\n");
+				freeaddrinfo(result);
+				goto fail_exit;
+			}
+
+			memcpy(&(usa->u.sa), result->ai_addr, result->ai_addrlen);
+			freeaddrinfo(result);
+
 			usa->len = sizeof(usa->u.sin6);
 
 			/*
@@ -366,16 +437,38 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			 * note that this IP_ADD_MEMBERSHIP option must be
 			 * called for each local interface over which the multicast
 			 * datagrams are to be received. */
-			inet_pton(AF_INET6, addr, &(sp->groupv6.ipv6mr_multiaddr));
-			inet_pton(AF_INET6, if_addr, &(sp->groupv6.ipv6mr_interface));
+			usa = &(sp->rsa);
+			memcpy(&(sp->mreq.u.groupv6.ipv6mr_multiaddr), &(usa->u.sin6), usa->len);
+			usa = &(sp->lsa);
+			sp->mreq.u.groupv6.ipv6mr_interface = usa->u.sin6.sin6_scope_id;
 		}
 		else
 		{
-			if (inet_pton(AF_INET6, addr, &(usa->u.sin6.sin6_addr)) < 1) {
-				err(ezcfg, "convert IPv6 address error\n");
+			struct addrinfo hints;
+			struct addrinfo *result;
+			int s;
+
+			/* Obtain address(es) matching host/port */
+			memset(&hints, 0, sizeof(struct addrinfo));
+			hints.ai_family = AF_INET6;
+			hints.ai_socktype = type;
+			hints.ai_flags = 0;
+			hints.ai_protocol = 0;          /* Any protocol */
+
+			s = getaddrinfo(addr, port, &hints, &result);
+			if (s != 0) {
+				err(ezcfg, "getaddrinfo: %s\n", gai_strerror(s));
 				goto fail_exit;
 			}
-			usa->u.sin6.sin6_port = htons((uint16_t)atoi(port));
+			if (result->ai_next != NULL) {
+				err(ezcfg, "getaddrinfo: ambiguity socket address\n");
+				freeaddrinfo(result);
+				goto fail_exit;
+			}
+
+			memcpy(&(usa->u.sa), result->ai_addr, result->ai_addrlen);
+			freeaddrinfo(result);
+
 			usa->len = sizeof(usa->u.sin6);
 		}
 		/* FIXME: must after dealing the address string, multicast socket path is a special case */
@@ -403,7 +496,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->domain = AF_NETLINK;
 		usa->type = type;
 		usa->u.snl.nl_family = AF_NETLINK;
 		//usa->u.snl.nl_groups = 1;
@@ -476,7 +568,7 @@ void ezcfg_socket_delete(struct ezcfg_socket *sp)
 	if (sp->sock >= 0) {
 		close(sp->sock);
 		/* also remove the filesystem node */
-		if (sp->lsa.domain == AF_LOCAL && sp->need_unlink == true) {
+		if (sp->domain == AF_LOCAL && sp->need_unlink == true) {
 			
 			if (unlink(sp->lsa.u.sun.sun_path) == -1) {
 				err(ezcfg, "unlink fail: %m\n");
@@ -592,7 +684,7 @@ int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp)
 int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
-	return sp->lsa.domain;
+	return sp->domain;
 }
 
 char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp)
@@ -610,7 +702,7 @@ char *ezcfg_socket_get_local_socket_ip(struct ezcfg_socket *sp)
 char *ezcfg_socket_get_group_interface_ip(struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
-	return inet_ntoa(sp->group.imr_interface);
+	return inet_ntoa(sp->mreq.u.group.imr_interface);
 }
 
 int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp)
@@ -622,7 +714,7 @@ int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp)
 int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
-	return sp->rsa.domain;
+	return sp->domain;
 }
 
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
@@ -793,7 +885,7 @@ int ezcfg_socket_binding(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
 
-	switch(usa->domain) {
+	switch(sp->domain) {
 	case AF_LOCAL:
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sun, usa->len);
@@ -817,7 +909,7 @@ int ezcfg_socket_binding(struct ezcfg_socket *sp)
 		break;
 
 	default:
-		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		err(ezcfg, "unknown family [%d]\n", sp->domain);
 		return -EINVAL;
 	}
 
@@ -845,7 +937,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 	usa = &(sp->lsa);
 
-	switch(usa->domain) {
+	switch(sp->domain) {
 	case AF_LOCAL:
 		err = bind(sp->sock,
 		           (struct sockaddr *)&usa->u.sun, usa->len);
@@ -865,7 +957,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		if (sp->proto == EZCFG_PROTO_UPNP_SSDP) {
 			err = setsockopt(sp->sock,
 				IPPROTO_IP, IP_ADD_MEMBERSHIP,
-				(char *)&(sp->group), sizeof(sp->group));
+				(char *)&(sp->mreq.u.group), sizeof(sp->mreq.u.group));
 		}
 
 		break;
@@ -876,7 +968,7 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 		break;
 
 	default:
-		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		err(ezcfg, "unknown family [%d]\n", sp->domain);
 		return -EINVAL;
 	}
 
@@ -908,7 +1000,7 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 	sp->backlog = backlog;
 	usa = &(sp->lsa);
 
-	switch(usa->domain) {
+	switch(sp->domain) {
 	case AF_LOCAL:
 	case AF_INET:
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
@@ -929,7 +1021,7 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 		break;
 
 	default:
-		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		err(ezcfg, "unknown family [%d]\n", sp->domain);
 		return -EINVAL;
 	}
 
@@ -971,7 +1063,7 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 		sock_protocol = 0;
 	}
 
-	sp->sock = socket(usa->domain, usa->type, sock_protocol);
+	sp->sock = socket(sp->domain, usa->type, sock_protocol);
 	if (sp->sock < 0) {
 		return -1;
 	}
@@ -1009,7 +1101,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
 
-	switch(usa->domain) {
+	switch(sp->domain) {
 	case AF_LOCAL:
 		break;
 
@@ -1028,7 +1120,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 			/* multicast capable interface. */
 			err = setsockopt(sp->sock,
 				IPPROTO_IP, IP_MULTICAST_IF,
-				(char *)&(sp->group.imr_interface), sizeof(sp->group.imr_interface));
+				(char *)&(sp->mreq.u.group.imr_interface), sizeof(sp->mreq.u.group.imr_interface));
 			if (err < 0) {
 				break;
 			}
@@ -1053,7 +1145,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 			/* multicast capable interface. */
 			err = setsockopt(sp->sock,
 				IPPROTO_IPV6, IPV6_MULTICAST_IF,
-				(char *)&(sp->group.imr_interface), sizeof(sp->group.imr_interface));
+				(char *)&(sp->mreq.u.group.imr_interface), sizeof(sp->mreq.u.group.imr_interface));
 			if (err < 0) {
 				break;
 			}
@@ -1067,7 +1159,7 @@ int ezcfg_socket_enable_sending(struct ezcfg_socket *sp)
 		break;
 
 	default:
-		err(ezcfg, "unknown family [%d]\n", usa->domain);
+		err(ezcfg, "unknown family [%d]\n", sp->domain);
 		return -EINVAL;
 	}
 
@@ -1088,7 +1180,7 @@ bool ezcfg_socket_compare(struct ezcfg_socket *sp1, struct ezcfg_socket *sp2)
 	usa1 = &(sp1->lsa);
 	usa2 = &(sp2->lsa);
 	if ((sp1->proto == sp2->proto) &&
-	    (usa1->domain == usa2->domain) &&
+	    (sp1->domain == sp2->domain) &&
 	    (usa1->type == usa2->type) &&
 	    (usa1->len == usa2->len)) {
 		if (memcmp(&(usa1->u.sa), &(usa2->u.sa), usa1->len) == 0) {
@@ -1146,10 +1238,10 @@ static struct ezcfg_socket *new_accepted_socket_stream(const struct ezcfg_socket
 	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
 	accepted->rsa = listener->rsa;
-	accepted->group = listener->group;
+	accepted->mreq = listener->mreq;
 	accepted->need_unlink = listener->need_unlink;
-	domain = listener->lsa.domain;
-	accepted->rsa.domain = domain;
+	domain = listener->domain;
+	accepted->domain = domain;
 	accepted->rsa.type = listener->lsa.type;
 	accepted->buffer = NULL;
 
@@ -1230,11 +1322,11 @@ static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_sock
 	accepted->proto = listener->proto;
 	accepted->lsa = listener->lsa;
 	accepted->rsa = listener->rsa;
-	accepted->group = listener->group;
+	accepted->mreq = listener->mreq;
 	accepted->need_unlink = listener->need_unlink;
-	domain = listener->lsa.domain;
+	domain = listener->domain;
 	type = listener->lsa.type;
-	accepted->rsa.domain = domain;
+	accepted->domain = domain;
 	accepted->rsa.type = type;
 	accepted->buffer = NULL;
 
@@ -1371,13 +1463,13 @@ int ezcfg_socket_set_remote(struct ezcfg_socket *sp, int domain, const char *soc
 
 	ASSERT(sp != NULL);
 	ASSERT(socket_path != NULL);
+	ASSERT(sp->domain == domain);
 
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
 
 	switch (domain) {
 	case AF_LOCAL:
-		usa->domain = AF_LOCAL;
 		usa->u.sun.sun_family = AF_LOCAL;
 		strcpy(usa->u.sun.sun_path, socket_path);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
@@ -1406,12 +1498,12 @@ int ezcfg_socket_connect_remote(struct ezcfg_socket *sp)
 	ezcfg = sp->ezcfg;
 	usa = &(sp->rsa);
 
-	switch (usa->domain) {
+	switch (sp->domain) {
 	case AF_LOCAL:
 		err = connect(sp->sock, (struct sockaddr *)&usa->u.sun, usa->len);
 		break;
 	default:
-		err(ezcfg, "bad family [%d]\n", usa->domain);
+		err(ezcfg, "bad family [%d]\n", sp->domain);
 		return -EINVAL;
 	}
 
@@ -1446,12 +1538,12 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 
 	while (status == 0) {
 		/* handle inet dgram */
-		if ((lsa->domain == AF_INET) && (lsa->type == SOCK_DGRAM)) {
+		if ((sp->domain == AF_INET) && (lsa->type == SOCK_DGRAM)) {
 			n = recvfrom(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin), &(rsa->len));
 		}
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		else if ((lsa->domain == AF_INET6) && (lsa->type == SOCK_DGRAM)) {
+		else if ((sp->domain == AF_INET6) && (lsa->type == SOCK_DGRAM)) {
 			n = recvfrom(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin6), &(rsa->len));
 		}
@@ -1509,12 +1601,12 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 
 	while (status != len) {
 		/* handle inet dgram */
-		if ((rsa->domain == AF_INET) && (rsa->type == SOCK_DGRAM)) {
+		if ((sp->domain == AF_INET) && (rsa->type == SOCK_DGRAM)) {
 			n = sendto(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin), rsa->len);
 		}
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		else if ((rsa->domain == AF_INET6) && (rsa->type == SOCK_DGRAM)) {
+		else if ((sp->domain == AF_INET6) && (rsa->type == SOCK_DGRAM)) {
 			n = sendto(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin6), rsa->len);
 		}
