@@ -62,7 +62,6 @@
  */
 struct usa {
 	socklen_t len;
-	int type;
 	union {
 		struct sockaddr sa;
 		struct sockaddr_un sun;
@@ -98,6 +97,7 @@ struct ezcfg_socket {
 	int                  proto;     /* Communication protocol 	*/
 	int                  backlog;   /* Listening queue length 	*/
 	int                  domain;
+	int                  type;
 	struct usa           lsa;       /* Local socket address         */
 	struct usa           rsa;       /* Remote socket address        */
 	struct umreq         mreq;      /* Multicast group              */
@@ -178,6 +178,7 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 	sp->ezcfg = ezcfg;
 	sp->proto = proto;
 	sp->domain = domain;
+	sp->type = type;
 
 	/* FIXME: should change sock_protocol w/r proto */
 	if (proto == EZCFG_PROTO_UEVENT) {
@@ -198,7 +199,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->type = type;
 		usa->u.sun.sun_family = AF_LOCAL;
 		strcpy(usa->u.sun.sun_path, socket_path);
 		usa->len = offsetof(struct sockaddr_un, sun_path) + strlen(usa->u.sun.sun_path);
@@ -231,7 +231,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->type = type;
 		usa->u.sin.sin_family = AF_INET;
 		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
 			int reuse = 1;
@@ -258,7 +257,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 
 			/* set remote pear info */
 			usa = &(sp->rsa);
-			usa->type = type;
 			usa->u.sin.sin_family = AF_INET;
 			usa->u.sin.sin_addr.s_addr = inet_addr(addr);
 			usa->u.sin.sin_port = htons((uint16_t)atoi(port));
@@ -335,7 +333,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->type = type;
 		usa->u.sin6.sin6_family = AF_INET6;
 		if (ezcfg_util_socket_is_multicast_address(proto, addr) == true) {
 			int reuse = 1;
@@ -395,7 +392,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 
 			/* set remote pear info */
 			usa = &(sp->rsa);
-			usa->type = type;
 			usa->u.sin6.sin6_family = AF_INET6;
 
 			/* Obtain address(es) matching host/port */
@@ -496,7 +492,6 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 		}
 		usa = &(sp->lsa);
-		usa->type = type;
 		usa->u.snl.nl_family = AF_NETLINK;
 		//usa->u.snl.nl_groups = 1;
 		if (strcmp(socket_path, "kernel") == 0) {
@@ -633,6 +628,32 @@ int ezcfg_socket_get_proto(const struct ezcfg_socket *sp)
 	return sp->proto;
 }
 
+bool ezcfg_socket_set_domain(struct ezcfg_socket *sp, const int domain)
+{
+	ASSERT(sp != NULL);
+	sp->domain = domain;
+	return true;
+}
+
+int ezcfg_socket_get_domain(const struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return sp->domain;
+}
+
+bool ezcfg_socket_set_type(struct ezcfg_socket *sp, const int type)
+{
+	ASSERT(sp != NULL);
+	sp->type = type;
+	return true;
+}
+
+int ezcfg_socket_get_type(const struct ezcfg_socket *sp)
+{
+	ASSERT(sp != NULL);
+	return sp->type;
+}
+
 bool ezcfg_socket_set_buffer(struct ezcfg_socket *sp, char *buf, int buf_len)
 {
 	char *p;
@@ -681,16 +702,15 @@ int ezcfg_socket_get_local_socket_len(struct ezcfg_socket *sp)
 	return sp->lsa.len;
 }
 
-int ezcfg_socket_get_local_socket_domain(struct ezcfg_socket *sp)
+char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp, char *addr, int size)
 {
 	ASSERT(sp != NULL);
-	return sp->domain;
-}
-
-char *ezcfg_socket_get_local_socket_path(struct ezcfg_socket *sp)
-{
-	ASSERT(sp != NULL);
-	return sp->lsa.u.sun.sun_path;
+	ASSERT(addr != NULL);
+	ASSERT(size > 0);
+	if (snprintf(addr, size, "%s", sp->lsa.u.sun.sun_path) < size)
+		return addr;
+	else
+		return NULL;
 }
 
 char *ezcfg_socket_get_local_socket_ip(struct ezcfg_socket *sp)
@@ -709,12 +729,6 @@ int ezcfg_socket_get_remote_socket_len(struct ezcfg_socket *sp)
 {
 	ASSERT(sp != NULL);
 	return sp->rsa.len;
-}
-
-int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp)
-{
-	ASSERT(sp != NULL);
-	return sp->domain;
 }
 
 char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp, char *addr, int size)
@@ -1040,10 +1054,10 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
 	case AF_INET6:
 #endif
-		if (usa->type == SOCK_STREAM) {
+		if (sp->type == SOCK_STREAM) {
 			err = listen(sp->sock, backlog);
 		}
-		else if (usa->type == SOCK_DGRAM) {
+		else if (sp->type == SOCK_DGRAM) {
 			info(ezcfg, "SOCK_DGRAM not need listen\n");
 		}
 		break;
@@ -1078,14 +1092,12 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 {
 	int err = 0;
-	struct usa *usa = NULL;
 	//struct ezcfg *ezcfg;
 	int sock_protocol = -1;
 
 	ASSERT(sp != NULL);
 
 	//ezcfg = sp->ezcfg;
-	usa = &(sp->lsa);
 
 	ezcfg_socket_close_sock(sp);
 
@@ -1097,7 +1109,7 @@ int ezcfg_socket_enable_again(struct ezcfg_socket *sp)
 		sock_protocol = 0;
 	}
 
-	sp->sock = socket(sp->domain, usa->type, sock_protocol);
+	sp->sock = socket(sp->domain, sp->type, sock_protocol);
 	if (sp->sock < 0) {
 		return -1;
 	}
@@ -1215,7 +1227,7 @@ bool ezcfg_socket_compare(struct ezcfg_socket *sp1, struct ezcfg_socket *sp2)
 	usa2 = &(sp2->lsa);
 	if ((sp1->proto == sp2->proto) &&
 	    (sp1->domain == sp2->domain) &&
-	    (usa1->type == usa2->type) &&
+	    (sp1->type == sp2->type) &&
 	    (usa1->len == usa2->len)) {
 		if (memcmp(&(usa1->u.sa), &(usa2->u.sa), usa1->len) == 0) {
 			return true;
@@ -1276,7 +1288,7 @@ static struct ezcfg_socket *new_accepted_socket_stream(const struct ezcfg_socket
 	accepted->need_unlink = listener->need_unlink;
 	domain = listener->domain;
 	accepted->domain = domain;
-	accepted->rsa.type = listener->lsa.type;
+	accepted->type = listener->type;
 	accepted->buffer = NULL;
 
 	switch(domain) {
@@ -1359,9 +1371,9 @@ static struct ezcfg_socket *new_accepted_socket_datagram(const struct ezcfg_sock
 	accepted->mreq = listener->mreq;
 	accepted->need_unlink = listener->need_unlink;
 	domain = listener->domain;
-	type = listener->lsa.type;
+	type = listener->type;
 	accepted->domain = domain;
-	accepted->rsa.type = type;
+	accepted->type = type;
 	accepted->buffer = NULL;
 
 	/* FIXME: should change sock_protocol w/r proto */
@@ -1572,12 +1584,12 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 
 	while (status == 0) {
 		/* handle inet dgram */
-		if ((sp->domain == AF_INET) && (lsa->type == SOCK_DGRAM)) {
+		if ((sp->domain == AF_INET) && (sp->type == SOCK_DGRAM)) {
 			n = recvfrom(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin), &(rsa->len));
 		}
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		else if ((sp->domain == AF_INET6) && (lsa->type == SOCK_DGRAM)) {
+		else if ((sp->domain == AF_INET6) && (sp->type == SOCK_DGRAM)) {
 			n = recvfrom(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin6), &(rsa->len));
 		}
@@ -1635,12 +1647,12 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 
 	while (status != len) {
 		/* handle inet dgram */
-		if ((sp->domain == AF_INET) && (rsa->type == SOCK_DGRAM)) {
+		if ((sp->domain == AF_INET) && (sp->type == SOCK_DGRAM)) {
 			n = sendto(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin), rsa->len);
 		}
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		else if ((sp->domain == AF_INET6) && (rsa->type == SOCK_DGRAM)) {
+		else if ((sp->domain == AF_INET6) && (sp->type == SOCK_DGRAM)) {
 			n = sendto(sock, p + status, len - status, flags,
 				(struct sockaddr *)&(rsa->u.sin6), rsa->len);
 		}

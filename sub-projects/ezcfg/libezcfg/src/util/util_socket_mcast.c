@@ -38,7 +38,11 @@ bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr)
 		if (strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING) == 0)
 			return true;
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		if (strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+		if (strcasecmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+			return true;
+		if (strcasecmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPV6_SITE_LOCAL_ADDR_STRING) == 0)
+			return true;
+		if (strcasecmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPV6_GLOBAL_ADDR_STRING) == 0)
 			return true;
 #endif
 	}
@@ -48,7 +52,11 @@ bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr)
 		if (strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING) == 0)
 			return true;
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
-		if (strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+		if (strcasecmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+			return true;
+		if (strcasecmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPV6_SITE_LOCAL_ADDR_STRING) == 0)
+			return true;
+		if (strcasecmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPV6_GLOBAL_ADDR_STRING) == 0)
 			return true;
 #endif
 	}
