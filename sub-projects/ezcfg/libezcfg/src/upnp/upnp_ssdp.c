@@ -121,6 +121,7 @@ static bool upnp_send_ssdp_alive(
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
+	char ipaddr[64];
 	char *msg;
 	size_t msg_len;
 	int rc;
@@ -137,9 +138,12 @@ static bool upnp_send_ssdp_alive(
 	ezcfg_http_set_version_minor(http, 1);
 	ezcfg_http_set_state_request(http);
 
+	if (ezcfg_socket_get_mcast_socket_path(sp, ipaddr, sizeof(ipaddr)) == NULL) {
+		return false;
+	}
+
 	/* Host: 239.255.255.250:1900 */
-	snprintf(buf, sizeof(buf), "%s:%s",
-	         EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+	snprintf(buf, sizeof(buf), "%s:%s", ipaddr,
 	         EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING);
 	if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_HOST, buf) == false) {
 		err(ezcfg, "HTTP add header error.\n");
@@ -235,6 +239,7 @@ static bool upnp_send_ssdp_byebye(
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
+	char ipaddr[64];
 	char *msg;
 	size_t msg_len;
 	int rc;
@@ -251,9 +256,12 @@ static bool upnp_send_ssdp_byebye(
 	ezcfg_http_set_version_minor(http, 1);
 	ezcfg_http_set_state_request(http);
 
+	if (ezcfg_socket_get_mcast_socket_path(sp, ipaddr, sizeof(ipaddr)) == NULL) {
+		return false;
+	}
+
 	/* Host: 239.255.255.250:1900 */
-	snprintf(buf, sizeof(buf), "%s:%s",
-	         EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+	snprintf(buf, sizeof(buf), "%s:%s", ipaddr,
 	         EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING);
 	if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_HOST, buf) == false) {
 		err(ezcfg, "HTTP add header error.\n");
@@ -325,6 +333,7 @@ static bool upnp_send_ssdp_discover(
 {
 	struct ezcfg *ezcfg;
 	char buf[256];
+	char ipaddr[256];
 	char *msg;
 	size_t msg_len;
 	int rc;
@@ -341,9 +350,12 @@ static bool upnp_send_ssdp_discover(
 	ezcfg_http_set_version_minor(http, 1);
 	ezcfg_http_set_state_request(http);
 
+	if (ezcfg_socket_get_mcast_socket_path(sp, ipaddr, sizeof(ipaddr)) == NULL) {
+		return false;
+	}
+
 	/* Host: 239.255.255.250:1900 */
-	snprintf(buf, sizeof(buf), "%s:%s",
-	         EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING,
+	snprintf(buf, sizeof(buf), "%s:%s", ipaddr,
 	         EZCFG_PROTO_UPNP_SSDP_PORT_NUMBER_STRING);
 	if (ezcfg_http_add_header(http, EZCFG_UPNP_HTTP_HEADER_HOST, buf) == false) {
 		err(ezcfg, "HTTP add header error.\n");

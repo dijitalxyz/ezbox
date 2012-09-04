@@ -34,14 +34,24 @@
 bool ezcfg_util_socket_is_multicast_address(const int proto, const char *addr)
 {
 #if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
-	if (proto == EZCFG_PROTO_IGRS_ISDP &&
-	    strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING) == 0)
-		return true;
+	if (proto == EZCFG_PROTO_IGRS_ISDP) {
+		if (strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPADDR_STRING) == 0)
+			return true;
+#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
+		if (strcmp(addr, EZCFG_PROTO_IGRS_ISDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+			return true;
+#endif
+	}
 #endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	if (proto == EZCFG_PROTO_UPNP_SSDP &&
-	    strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING) == 0)
-		return true;
+	if (proto == EZCFG_PROTO_UPNP_SSDP) {
+		if (strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPADDR_STRING) == 0)
+			return true;
+#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
+		if (strcmp(addr, EZCFG_PROTO_UPNP_SSDP_MCAST_IPV6_LINK_LOCAL_ADDR_STRING) == 0)
+			return true;
+#endif
+	}
 #endif
 	return false;
 }

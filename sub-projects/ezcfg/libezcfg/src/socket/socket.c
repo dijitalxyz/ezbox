@@ -433,8 +433,8 @@ static struct ezcfg_socket *create_socket(struct ezcfg *ezcfg, const int domain,
 			}
 
 			/*
-			 * join the multicast group [addr](239.255.255.250) on the [if_addr] interface.
-			 * note that this IP_ADD_MEMBERSHIP option must be
+			 * join the multicast group [addr](ff02::c) on the [if_addr] interface.
+			 * note that this IPV6_ADD_MEMBERSHIP option must be
 			 * called for each local interface over which the multicast
 			 * datagrams are to be received. */
 			usa = &(sp->rsa);
@@ -717,10 +717,44 @@ int ezcfg_socket_get_remote_socket_domain(struct ezcfg_socket *sp)
 	return sp->domain;
 }
 
-char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp)
+char *ezcfg_socket_get_remote_socket_path(struct ezcfg_socket *sp, char *addr, int size)
 {
 	ASSERT(sp != NULL);
-	return sp->rsa.u.sun.sun_path;
+	ASSERT(addr != NULL);
+	ASSERT(size > 0);
+	if (snprintf(addr, size, "%s", sp->rsa.u.sun.sun_path) < size)
+		return addr;
+	else
+		return NULL;
+}
+
+char *ezcfg_socket_get_mcast_socket_path(struct ezcfg_socket *sp, char *addr, int size)
+{
+	ASSERT(sp != NULL);
+	ASSERT(addr != NULL);
+	ASSERT(size > 0);
+
+	if (sp->domain == AF_INET) {
+		if (inet_ntop(sp->domain, &(sp->mreq.u.group.imr_multiaddr),
+			addr, sizeof(struct sockaddr_in)) == NULL)
+			return NULL;
+		else
+			return addr;
+        }
+#if (HAVE_EZBOX_EZCFG_IPV6 == 1)
+	else if (sp->domain == AF_INET6) {
+		*addr='[';
+		if (inet_ntop(sp->domain, &(sp->mreq.u.groupv6.ipv6mr_multiaddr),
+			addr+1, sizeof(struct sockaddr_in6)) == NULL) {
+			return NULL;
+		}
+		strcat(addr, "]");
+		return addr;
+        }
+#endif
+        else {
+                return NULL;
+	}
 }
 
 /**
