@@ -61,6 +61,10 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		goto func_exit;
+	}
+
 	buf[0] = '\0';
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	if (strcmp(argv[1], "lan") == 0 &&
@@ -98,10 +102,6 @@ int rc_ezcfg_igrsd(int argc, char **argv)
 
 	ap1 = ezcfg_api_arg_nvram_socket_new();
 	if (ap1 == NULL) {
-		goto func_exit;
-	}
-
-	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		goto func_exit;
 	}
 

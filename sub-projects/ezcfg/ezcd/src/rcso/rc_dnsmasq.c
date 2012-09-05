@@ -41,6 +41,18 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/tmp/rc_dnsmasq.log", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
@@ -55,6 +67,10 @@ int rc_dnsmasq(int argc, char **argv)
 	}
 
 	if (strcmp(argv[0], "dnsmasq")) {
+		return (EXIT_FAILURE);
+	}
+
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
 	}
 
@@ -77,10 +93,6 @@ int rc_dnsmasq(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 #endif
-
-	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
-		return (EXIT_FAILURE);
-	}
 
 	flag = utils_get_rc_act_type(argv[2]);
 

@@ -40,7 +40,7 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/tmp/brlan_if.log", "a"); \
 	if (dbg_fp) { \
@@ -94,6 +94,10 @@ int rc_brlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+		return (EXIT_FAILURE);
+	}
+
 	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BRLAN, IFNAME), brlan_ifname, sizeof(brlan_ifname));
 	if (ret < 0) {
 		return (EXIT_FAILURE);
@@ -104,10 +108,6 @@ int rc_brlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 	if_argc = utils_parse_args(brlan_ifnames, strlen(brlan_ifnames) + 1, if_argv);
-
-	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
-		return (EXIT_FAILURE);
-	}
 
 	flag = utils_get_rc_act_type(argv[1]);
 

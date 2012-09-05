@@ -28,6 +28,7 @@ utils_remount_boot_partition_readonly
 utils_umount_data_partition
 utils_umount_dmcrypt_data_partition
 utils_umount_partition
+utils_service_enable
 utils_service_binding_lan
 utils_service_binding_wan
 utils_safe_read

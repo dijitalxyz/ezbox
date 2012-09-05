@@ -40,9 +40,15 @@
 #include "ezcd.h"
 
 #if 0
-#define DBG printf
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/tmp/utils_check_service.log", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
 #else
-#define DBG(format, arg...)
+#define DBG(format, args...)
 #endif
 
 bool utils_service_enable(char *name)

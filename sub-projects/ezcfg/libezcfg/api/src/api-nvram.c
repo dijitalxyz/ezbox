@@ -47,7 +47,7 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	FILE *dbg_fp = fopen("/tmp/api-nvram.log", "a"); \
 	if (dbg_fp) { \
 		fprintf(dbg_fp, format, ## args); \
 		fclose(dbg_fp); \

@@ -39,14 +39,29 @@
 
 #include "ezcd.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/tmp/utils_init_ezcfg_api.log", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+
 bool utils_init_ezcfg_api(const char *path)
 {
+	int ret;
 	if (path == NULL) {
 		return false;
 	}
 
 	/* ezcfg_api_common */
-	if (ezcfg_api_common_set_config_file(path) < 0) {
+	ret = ezcfg_api_common_set_config_file(path);
+	if (ret < 0) {
 		return false;
 	}
 

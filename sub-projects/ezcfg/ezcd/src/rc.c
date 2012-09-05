@@ -44,7 +44,7 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	FILE *dbg_fp = fopen("/tmp/rc.log", "a"); \
 	if (dbg_fp) { \
 		fprintf(dbg_fp, format, ## args); \
 		fclose(dbg_fp); \
@@ -91,6 +91,10 @@ int rc_main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	for (i = 0; i < argc; i++) {
+		DBG("<6>rc: argv[%d]=[%s]\n", i, argv[i]);
+	}
+
 	i = 1;
 	req.tv_sec = 0;
 	req.tv_nsec = 0;
@@ -110,6 +114,8 @@ int rc_main(int argc, char **argv)
 				req.tv_nsec = 999999999;
 #endif
 		}
+		DBG("<6>rc: req.tv_sec=[%ld]\n", req.tv_sec);
+		DBG("<6>rc: req.tv_nsec=[%ld]\n", req.tv_nsec);
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
 			b_sleep = true;
 		}
@@ -136,11 +142,13 @@ int rc_main(int argc, char **argv)
 	switch (pid) {
 	case 0:
 		/* child process */
+		DBG("<6>rc: fork() to child process\n");
 		ret = EXIT_SUCCESS;
 		break;
 
 	case -1:
 		/* error */
+		DBG("<6>rc: fork() error\n");
 		return (EXIT_FAILURE);
 
 	default:
@@ -203,7 +211,7 @@ int rc_main(int argc, char **argv)
 		}
 	}
 
-	ret = alias.func(argc - i, argv + i);
+	ret = alias.func(argc - i, &(argv[i]));
 
 	/* now release resource */
 	if (ezcfg_api_rc_release_semaphore(sem_path) == false) {

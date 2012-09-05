@@ -44,7 +44,7 @@
 
 #include "ezcfg-api.h"
 
-#if 1
+#if 0
 #define DBG printf
 #else
 #define DBG(format, args...)

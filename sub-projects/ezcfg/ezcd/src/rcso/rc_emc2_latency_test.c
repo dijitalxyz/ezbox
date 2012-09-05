@@ -137,12 +137,12 @@ int rc_emc2_latency_test(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE), "1");
-	if (rc < 0) {
+	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
 	}
 
-	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
+	rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(EMC2, LAT_TEST_ENABLE), "1");
+	if (rc < 0) {
 		return (EXIT_FAILURE);
 	}
 

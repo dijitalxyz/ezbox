@@ -46,10 +46,10 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/tmp/api-common.log", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
