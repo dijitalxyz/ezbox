@@ -42,7 +42,7 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/usr/udev.log", "a"); \
+	FILE *fp = fopen("/tmp/udev.log", "a"); \
 	if (fp) { \
 		fprintf(fp, format, ## args); \
 		fclose(fp); \

@@ -38,9 +38,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #if (HAVE_EZBOX_WLAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), "wlan0" },
 #endif
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
-	{ NVRAM_SERVICE_OPTION(SYS, BRLAN_NICS), "eth0,wlan0" },
-#endif
 #if (HAVE_EZBOX_LAN_NIC == 1)
 #if (HAVE_EZBOX_BRLAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br-lan" },
@@ -687,6 +684,16 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LOOPBACK, NETMASK),
 	  EZCFG_LOOPBACK_DEFAULT_NETMASK },
 
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
+	/*--------------------*/
+	/* LAN bridge H/W parameters */
+	/*--------------------*/
+	/* LAN bridge name */
+	{ NVRAM_SERVICE_OPTION(BRLAN, IFNAME), "br-lan" },
+	/* LAN bridge included interfaces' name */
+	{ NVRAM_SERVICE_OPTION(BRLAN, IFNAMES), "eth0 wlan0" },
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	/*--------------------*/
 	/* LAN H/W parameters */
@@ -981,6 +988,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #elif (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), "wan" },
 #endif
+	{ NVRAM_SERVICE_OPTION(DNSMASQ, USER), "root" },
+	{ NVRAM_SERVICE_OPTION(DNSMASQ, BOGUS_PRIV), "1" },
+	{ NVRAM_SERVICE_OPTION(DNSMASQ, BIND_INTERFACES), "1" },
+	{ NVRAM_SERVICE_OPTION(DNSMASQ, MIN_PORT), "10001" },
 	/* dnsmasq DHCP server */
 	/* Enable DHCP server [1|0] */
 	{ NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), "1" },

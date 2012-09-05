@@ -96,12 +96,33 @@ int pop_etc_dnsmasq_conf(int flag)
 			}
 		}
 
-		/* listen for DHCP and DNS requests only on specified interfaces */
+		/* --user */
+		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, USER));
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, USER), buf);
+		}
+		/* --bogus-priv */
+		if (utils_service_enable(NVRAM_SERVICE_OPTION(DNSMASQ, BOGUS_PRIV)) == true) {
+			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, BOGUS_PRIV));
+		}
+		/* --bind-interfaces */
+		if (utils_service_enable(NVRAM_SERVICE_OPTION(DNSMASQ, BIND_INTERFACES)) == true) {
+			fprintf(file, "%s\n", SERVICE_OPTION(DNSMASQ, BIND_INTERFACES));
+		}
+		/* --min-port */
+		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(DNSMASQ, MIN_PORT));
+		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
+		if (rc > 0) {
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, MIN_PORT), buf);
+		}
+		/* don't listenning on lo interface */
 		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LOOPBACK, IFNAME));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		if (rc > 0) {
-			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, INTERFACE), buf);
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, EXCEPT_INTERFACE), buf);
 		}
+		/* listen for DHCP and DNS requests only on specified interfaces */
 		if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
 			/* get interface */
 			snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(LAN, IFNAME));

@@ -31,6 +31,8 @@ iptables load start
 elan_if start
 # bring up WLAN interface but not configurate it
 wlan_if start
+# bring up LAN bridge interface but not configurate it
+brlan_if start
 # bring up WAN interface but not configurate it, LAN interface alias need it
 wan_if start
 # bring up LAN interface and configurate it

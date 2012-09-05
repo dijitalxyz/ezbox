@@ -124,8 +124,11 @@ extern int rc_lxc(int argc, char **argv);
 
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int argc, char **argv);
-extern int rc_lan_if(int argc, char **argv);
 extern int rc_lan_services(int argc, char **argv);
+#endif
+
+#if (HAVE_EZBOX_ELAN_NIC == 1)
+extern int rc_elan_if(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_WLAN_NIC == 1)
@@ -133,6 +136,10 @@ extern int rc_wlan_if(int argc, char **argv);
 #if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
 extern int rc_wpa_supplicant(int argc, char **argv);
 #endif
+#endif
+
+#if (HAVE_EZBOX_BRLAN_NIC == 1)
+extern int rc_brlan_if(int argc, char **argv);
 #endif
 
 #if (HAVE_EZBOX_WAN_NIC == 1)

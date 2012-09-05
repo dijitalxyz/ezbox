@@ -1,14 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_dnsmasq.c
+ * Module Name  : rc_bridge.c
  *
- * Description  : ezbox run dns & dhcp service
+ * Description  : ezbox ethernet bridge manipulate
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2010-11-17   0.1       Write it from scratch
- * 2011-10-07   0.2       Modify it to use rcso framework
+ * 2012-09-05   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -41,67 +40,58 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
+#if 0
+#define DBG printf
+#else
+#define DBG(format, arg...)
+#endif
+
+static int bridge_user_defined(char *br_name, int argc, char **argv)
+{
+	if (argc < 1) {
+		return (EXIT_FAILURE);
+	}
+
+	return (EXIT_SUCCESS);
+
+}
+
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_dnsmasq(int argc, char **argv)
+int rc_bridge(int argc, char **argv)
 #endif
 {
-	int rc;
+	char *br_name;
 	int flag, ret;
 
 	if (argc < 3) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dnsmasq")) {
+	if (strcmp(argv[0], "bridge")) {
 		return (EXIT_FAILURE);
 	}
-
-#if (HAVE_EZBOX_LAN_NIC == 1)
-	if (strcmp(argv[1], "lan") == 0 &&
-            utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if (HAVE_EZBOX_WAN_NIC == 1)
-	if (strcmp(argv[1], "wan") == 0 &&
-            utils_service_binding_wan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
-		/* It's good */
-	}
-	else
-#endif
-#if ((HAVE_EZBOX_LAN_NIC == 1) || (HAVE_EZBOX_WAN_NIC == 1))
-	{
-		return (EXIT_FAILURE);
-	}
-#endif
 
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
 	}
 
+	br_name = argv[1];
+
 	flag = utils_get_rc_act_type(argv[2]);
 
 	switch (flag) {
-	case RC_ACT_RESTART :
-	case RC_ACT_STOP :
-		utils_system("start-stop-daemon -K -n dnsmasq");
-		if (flag == RC_ACT_STOP) {
-			ret = EXIT_SUCCESS;
-			break;
-		}
-
-		/* RC_ACT_RESTART fall through */
-	case RC_ACT_START :
-		rc = utils_nvram_cmp(NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), "1");
-		if (rc < 0) {
-			return (EXIT_FAILURE);
-		}
-		pop_etc_dnsmasq_conf(RC_ACT_START);
-		utils_system("start-stop-daemon -S -n dnsmasq -a " CMD_DNSMASQ);
+	case RC_ACT_BOOT :
 		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_STOP :
+		ret = EXIT_SUCCESS;
+		break;
+
+	case RC_ACT_USRDEF :
+		ret = bridge_user_defined(br_name, argc-3, &(argv[3]));
 		break;
 
 	default :

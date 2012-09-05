@@ -3,6 +3,7 @@
 
 /* shell command */
 /* core commands */
+#define CMD_BRCTL		"/sbin/brctl"
 #define CMD_CAT			"/bin/cat"
 #define CMD_CHMOD		"/bin/chmod"
 #define CMD_CHPASSWD		"/sbin/chpasswd"

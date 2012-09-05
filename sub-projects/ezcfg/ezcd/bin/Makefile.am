@@ -116,6 +116,9 @@ endif
 if CONFIG_EZBOX_WLAN_NIC
 RCSO_SRC += rc_wlan_if.c
 endif
+if CONFIG_EZBOX_BRLAN_NIC
+RCSO_SRC += rc_brlan_if.c
+endif
 if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
 RCSO_SRC += rc_wpa_supplicant.c
 endif

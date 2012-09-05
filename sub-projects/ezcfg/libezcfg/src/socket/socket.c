@@ -1038,7 +1038,6 @@ int ezcfg_socket_enable_receiving(struct ezcfg_socket *sp)
 int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 {
 	int err = 0;
-	struct usa *usa = NULL;
 	struct ezcfg *ezcfg;
 
 	ASSERT(sp != NULL);
@@ -1046,7 +1045,6 @@ int ezcfg_socket_enable_listening(struct ezcfg_socket *sp, int backlog)
 
 	ezcfg = sp->ezcfg;
 	sp->backlog = backlog;
-	usa = &(sp->lsa);
 
 	switch(sp->domain) {
 	case AF_LOCAL:
@@ -1568,7 +1566,7 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 	char * p;
 	int status, n;
 	int sock;
-	struct usa *lsa, *rsa;
+	struct usa *rsa;
 
 	ASSERT(sp != NULL);
 	ASSERT(buf != NULL);
@@ -1579,7 +1577,6 @@ int ezcfg_socket_read(struct ezcfg_socket *sp, void *buf, int len, int flags)
 	status = 0;
 	sock = sp->sock;
 	memset(buf, '\0', len);
-	lsa = &(sp->lsa);
 	rsa = &(sp->rsa);
 
 	while (status == 0) {
@@ -1631,7 +1628,6 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	const char *p;
 	int status, n;
 	int sock;
-	//struct usa *lsa;
 	struct usa *rsa;
 
 	ASSERT(sp != NULL);
@@ -1642,7 +1638,6 @@ int ezcfg_socket_write(struct ezcfg_socket *sp, const void *buf, int len, int fl
 	p = buf;
 	status = 0;
 	sock = sp->sock;
-	//lsa = &(sp->lsa);
 	rsa = &(sp->rsa);
 
 	while (status != len) {
