@@ -121,6 +121,7 @@ int pop_etc_dnsmasq_conf(int flag)
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		if (rc > 0) {
 			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, EXCEPT_INTERFACE), buf);
+			fprintf(file, "%s=%s\n", SERVICE_OPTION(DNSMASQ, NO_DHCP_INTERFACE), buf);
 		}
 		/* listen for DHCP and DNS requests only on specified interfaces */
 		if (utils_service_binding_lan(NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING)) == true) {
@@ -172,6 +173,10 @@ int pop_etc_dnsmasq_conf(int flag)
 				eip[0], eip[1], eip[2], eip[3],
 				nmsk[0], nmsk[1], nmsk[2], nmsk[3],
 				lease);
+		}
+		else {
+			/* "interface=" to disable all interfaces except loop */
+			fprintf(file, "%s=\n", SERVICE_OPTION(DNSMASQ, INTERFACE));
 		}
 		break;
 	}

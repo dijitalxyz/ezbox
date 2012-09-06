@@ -9,6 +9,7 @@
  * History      Rev       Description
  * 2011-05-24   0.1       Write it from scratch
  * 2011-10-21   0.2       Modify it to use rcso framework
+ * 2012-09-06   0.3       Add user defined command support
  * ============================================================================
  */
 
@@ -47,24 +48,39 @@
 #define DBG(format, arg...)
 #endif
 
-static int nvram_user_defined_commit(void)
-{
-	if (ezcfg_api_nvram_commit() < 0)
-		return (EXIT_FAILURE);
-	else
-		return (EXIT_SUCCESS);
-}
-
 static int nvram_user_defined(int argc, char **argv)
 {
 	if (argc < 1) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "commit") == 0)
-		return nvram_user_defined_commit();
-	else
+	if (strcmp(argv[0], "set") == 0) {
+		if (argc != 3)
+			return (EXIT_FAILURE);
+
+		if (ezcfg_api_nvram_set(argv[1], argv[2]) < 0)
+			return (EXIT_FAILURE);
+		else
+			return (EXIT_SUCCESS);
+	}
+	else if (strcmp(argv[0], "unset") == 0) {
+		if (argc != 2)
+			return (EXIT_FAILURE);
+
+		if (ezcfg_api_nvram_unset(argv[1]) < 0)
+			return (EXIT_FAILURE);
+		else
+			return (EXIT_SUCCESS);
+	}
+	else if (strcmp(argv[0], "commit") == 0) {
+		if (ezcfg_api_nvram_commit() < 0)
+			return (EXIT_FAILURE);
+		else
+			return (EXIT_SUCCESS);
+	}
+	else {
 		return (EXIT_FAILURE);
+	}
 }
 
 #ifdef _EXEC_

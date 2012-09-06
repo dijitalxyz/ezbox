@@ -55,16 +55,22 @@
 #endif
 
 /* use example
- * 1. call action directly
+ * 1. call action directly, rc return immediately,
+ *    action runs in background
  *    rc dnsmasq start
  *
  * 2. sleep before call action
  *    rc 0.1 dnsmasq start
  *    sleep 0.1 second then call "dnsmasq start"
+ *
+ * 3. call action directly, and wait it to be finished
+ *    rc -1 dnsmasq start
+ *    call "dnsmasq start" and wait
  */
 int rc_main(int argc, char **argv)
 {
 	bool b_sleep = false;
+	bool b_fork = true;
 	struct timespec req;
 	int fd = -1;
 	pid_t pid;
@@ -121,40 +127,46 @@ int rc_main(int argc, char **argv)
 		}
 		i++;
 	}
+	else if (strcmp(argv[i], "-1") == 0) {
+		b_fork = false;
+		i++;
+	}
 
 	/* set umask before creating any file/directory */
 	ret = chdir("/");
 	umask(0022);
 
-	/* before opening new files, make sure std{in,out,err} fds are in a same state */
-	fd = open("/dev/null", O_RDWR);
-	if (fd < 0) {
-		exit(EXIT_FAILURE);
-	}
-	dup2(fd, STDIN_FILENO);
-	dup2(fd, STDOUT_FILENO);
-	dup2(fd, STDERR_FILENO);
-	if (fd > STDERR_FILENO)
-		close(fd);
+	if (b_fork == true) {
+		/* before opening new files, make sure std{in,out,err} fds are in a same state */
+		fd = open("/dev/null", O_RDWR);
+		if (fd < 0) {
+			exit(EXIT_FAILURE);
+		}
+		dup2(fd, STDIN_FILENO);
+		dup2(fd, STDOUT_FILENO);
+		dup2(fd, STDERR_FILENO);
+		if (fd > STDERR_FILENO)
+			close(fd);
 
-	/* daemonize */
-	pid = fork();
-	switch (pid) {
-	case 0:
-		/* child process */
-		DBG("<6>rc: fork() to child process\n");
-		ret = EXIT_SUCCESS;
-		break;
+		/* daemonize */
+		pid = fork();
+		switch (pid) {
+		case 0:
+			/* child process */
+			DBG("<6>rc: fork() to child process\n");
+			ret = EXIT_SUCCESS;
+			break;
 
-	case -1:
-		/* error */
-		DBG("<6>rc: fork() error\n");
-		return (EXIT_FAILURE);
+		case -1:
+			/* error */
+			DBG("<6>rc: fork() error\n");
+			return (EXIT_FAILURE);
 
-	default:
-		/* parant process */
-		DBG("<6>rc: child pid = [%d]\n", pid);
-		return (EXIT_SUCCESS);
+		default:
+			/* parant process */
+			DBG("<6>rc: child pid = [%d]\n", pid);
+			return (EXIT_SUCCESS);
+		}
 	}
 
 	/* child process main */

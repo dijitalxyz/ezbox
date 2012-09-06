@@ -59,13 +59,6 @@ int nvram_main(int argc, char **argv)
 		return -EZCFG_E_ARGUMENT ;
 	}
 
-#if 0
-	rc = ezcfg_api_nvram_set_config_file(EZCD_CONFIG_FILE_PATH);
-	if (rc < 0) {
-		printf("set nvram config file error.\n");
-		goto exit;
-	}
-#endif
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		printf("init ezcfg_api error.\n");
 		return -EZCFG_E_RESOURCE ;
