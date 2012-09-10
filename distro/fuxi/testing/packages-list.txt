@@ -1,3 +1,4 @@
+ipv6/dibbler/dibbler-0.8.2:dibbler
 ipv6/radvd/radvd-1.9.1:radvd
 lang/js/js-1.8.5:js
 lang/lsqlite3/lsqlite3-7:lsqlite3
