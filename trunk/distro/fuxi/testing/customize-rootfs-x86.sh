@@ -63,6 +63,7 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/8390.ko $ROOTFS_DIR/lib/modules/$L
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aead.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aes_generic.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aes-i586.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aoe.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/arc4.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/b44.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
@@ -100,6 +101,7 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_REDIRECT.ko $ROOTFS_DIR/lib/mo
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_REJECT.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_ULOG.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/krng.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/libahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/natsemi.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ne2k-pci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nf_conntrack_broadcast.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
