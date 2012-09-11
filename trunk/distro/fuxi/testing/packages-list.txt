@@ -42,6 +42,7 @@ net/dhid/dhid-5.5:dhid
 net/iptables/iptables-1.4.10:iptables
 net/mongrel2/mongrel2-1.7.5:mongrel2
 net/monserver/monserver-0.1:monserver
+net/rp-pppoe/rp-pppoe-3.11:rp-pppoe
 net/udns/udns-0.2:udns
 net/ulogd/ulogd-1.24:ulogd
 net/vblade/vblade-20:vblade

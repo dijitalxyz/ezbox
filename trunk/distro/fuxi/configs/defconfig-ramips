@@ -1181,6 +1181,13 @@ CONFIG_PACKAGE_xl2tpd=y
 CONFIG_PACKAGE_ape-server=y
 CONFIG_PACKAGE_mongrel2=y
 CONFIG_PACKAGE_monserver=y
+
+#
+# dial-in/up
+#
+# CONFIG_PACKAGE_rp-pppoe-relay is not set
+CONFIG_PACKAGE_rp-pppoe-server=y
+# CONFIG_PACKAGE_rp-pppoe-sniff is not set
 # CONFIG_PACKAGE_chat is not set
 CONFIG_PACKAGE_ppp=y
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set

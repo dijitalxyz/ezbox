@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Tue Sep 11 12:02:08 2012
+# Tue Sep 11 14:27:13 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1206,6 +1206,13 @@ CONFIG_PACKAGE_xl2tpd=y
 CONFIG_PACKAGE_ape-server=y
 CONFIG_PACKAGE_mongrel2=y
 CONFIG_PACKAGE_monserver=y
+
+#
+# dial-in/up
+#
+# CONFIG_PACKAGE_rp-pppoe-relay is not set
+CONFIG_PACKAGE_rp-pppoe-server=y
+# CONFIG_PACKAGE_rp-pppoe-sniff is not set
 # CONFIG_PACKAGE_chat is not set
 CONFIG_PACKAGE_ppp=y
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set
