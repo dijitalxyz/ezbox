@@ -371,6 +371,25 @@ int utils_mount_dmcrypt_data_partition_writable(void)
 	if (rc > 0) {
 		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
 	}
+	else {
+		return (ret);
+	}
+
+	for (i = PARTITION_MOUNT_TIMEOUT; i > 0; sleep(1), i--) {
+		/* check if device node is ready */
+		if (stat(dev_buf, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
+			continue;
+		}
+
+		/* Is a block device? yes, it's OK. */
+		if (S_ISBLK(stat_buf.st_mode))
+			break;
+	}
+
+	if (i == 0)
+		return (ret);
 
 	/* open dm-crypt partition */
 	snprintf(buf, sizeof(buf), "%s --key-file=%s luksOpen %s data_crypt",
