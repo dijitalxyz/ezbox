@@ -151,7 +151,6 @@ int rc_pppoe_server(int argc, char **argv)
 
 		pop_etc_ppp_pppoe_server_options(RC_ACT_START);
 
-		utils_system("start-stop-daemon -S -n pppoe-server -a " CMD_PPPOE_SERVER);
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n pppoe-server -a %s -- -I %s -L %s -R %s -N %s",
 			CMD_PPPOE_SERVER,
 			ifname, lipaddr, ripaddr, session_num);
