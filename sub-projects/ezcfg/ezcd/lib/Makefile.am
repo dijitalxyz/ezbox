@@ -189,5 +189,10 @@ if CONFIG_EZBOX_SERVICE_RADVD
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_radvd_conf.c
 endif
 
+# PPPoE server service
+if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ppp_pppoe_server_options.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcd.pc

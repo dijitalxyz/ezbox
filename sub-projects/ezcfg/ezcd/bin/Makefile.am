@@ -168,6 +168,10 @@ endif
 if CONFIG_EZBOX_SERVICE_LXC
 RCSO_SRC += rc_lxc.c
 endif
+# PPPoE server service
+if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
+RCSO_SRC += rc_pppoe_server.c
+endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))

@@ -905,6 +905,25 @@ AC_ARG_ENABLE([service-radvd],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_RADVD, test "x$config_ezbox_service_radvd" = xyes)
 
+# Configure pppoe-server service.
+config_ezbox_service_pppoe_server=no
+AC_MSG_CHECKING([if PPPoE server service is enabled])
+AC_ARG_ENABLE([service-pppoe_server],
+	AS_HELP_STRING([--enable-service-pppoe_server], [Enable PPPoE server service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_PPPOE_SERVER], [1], [Enable PPPoE server service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_pppoe_server=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_PPPOE_SERVER, test "x$config_ezbox_service_pppoe_server" = xyes)
+
 # Checks for libraries.
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and

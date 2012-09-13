@@ -51,6 +51,7 @@ args="--prefix=/usr/local \
 --enable-service-lxc \
 --enable-service-coova_chilli \
 --enable-service-radvd \
+--enable-service-pppoe-server \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

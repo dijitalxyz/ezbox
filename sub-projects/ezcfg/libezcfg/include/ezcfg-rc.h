@@ -52,4 +52,7 @@
 
 #define EZCFG_RC_EZCTP_ENABLE            "ezctp_enable"
 
+#define EZCFG_RC_PPPOE_SERVER_ENABLE     "pppoe_server_enable"
+#define EZCFG_RC_PPPOE_SERVER_BINDING    "pppoe_server_binding"
+
 #endif
