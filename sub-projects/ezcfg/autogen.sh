@@ -38,6 +38,7 @@ args="--prefix=/usr/local \
 --with-ezbox-distro=fuxi \
 --enable-ezcfg_test \
 --enable-ezcfg_ipv6 \
+--enable-wan-pppoe \
 --enable-service-ezcfg_httpd \
 --enable-service-ezcfg_httpd_cgi_apply \
 --enable-service-ezcfg_httpd_ssi \
@@ -52,6 +53,7 @@ args="--prefix=/usr/local \
 --enable-service-coova_chilli \
 --enable-service-radvd \
 --enable-service-pppoe_server \
+--enable-service-ppp_rp_pppoe \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

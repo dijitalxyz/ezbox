@@ -122,6 +122,14 @@ extern int rc_coova_chilli(int argc, char **argv);
 extern int rc_lxc(int argc, char **argv);
 #endif
 
+#if (HAVE_EZBOX_SERVICE_PPPOE_SERVER == 1)
+extern int rc_pppoe_server(int argc, char **argv);
+#endif
+
+#if (HAVE_EZBOX_SERVICE_PPP_RP_PPPOE == 1)
+extern int rc_ppp_rp_pppoe(int argc, char **argv);
+#endif
+
 #if (HAVE_EZBOX_LAN_NIC == 1)
 extern int rc_lan(int argc, char **argv);
 extern int rc_lan_services(int argc, char **argv);

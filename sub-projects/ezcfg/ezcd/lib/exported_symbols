@@ -78,3 +78,4 @@ pop_etc_keys_data_partition_key
 pop_etc_lxc_lxc_conf
 pop_etc_chilli_conf
 pop_etc_ppp_pppoe_server_options
+pop_etc_ppp_rp_pppoe_options

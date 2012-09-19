@@ -1,8 +1,8 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : pop_etc_ppp_pppoe_server_options.c
+ * Module Name  : pop_etc_ppp_rp_pppoe_options.c
  *
- * Description  : ezbox /etc/ppp/pppoe-server-options file generating program
+ * Description  : ezbox /etc/ppp/rp-pppoe-options file generating program
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
@@ -40,12 +40,12 @@
 #include "ezcd.h"
 #include "pop_func.h"
 
-int pop_etc_ppp_pppoe_server_options(int flag)
+int pop_etc_ppp_rp_pppoe_options(int flag)
 {
         FILE *file = NULL;
 
-	/* generate /etc/ppp/pppoe-server-options */
-	file = fopen("/etc/ppp/pppoe-server-options", "w");
+	/* generate /etc/ppp/rp-pppoe-options */
+	file = fopen("/etc/ppp/rp-pppoe-options", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 

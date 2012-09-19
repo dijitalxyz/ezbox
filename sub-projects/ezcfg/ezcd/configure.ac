@@ -924,6 +924,25 @@ AC_ARG_ENABLE([service-pppoe_server],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_PPPOE_SERVER, test "x$config_ezbox_service_pppoe_server" = xyes)
 
+# Configure ppp rp-pppoe service.
+config_ezbox_service_ppp_rp_pppoe=no
+AC_MSG_CHECKING([if PPP RP-PPPoE service is enabled])
+AC_ARG_ENABLE([service-ppp_rp_pppoe],
+	AS_HELP_STRING([--enable-service-ppp_rp_pppoe], [Enable PPP RP-PPPoE service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_PPP_RP_PPPOE], [1], [Enable PPP RP-PPPoE service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ppp_rp_pppoe=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE, test "x$config_ezbox_service_ppp_rp_pppoe" = xyes)
+
 # Checks for libraries.
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and

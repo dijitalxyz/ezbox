@@ -21,3 +21,6 @@ dnsmasq wan start
 
 # start upnp monitor
 upnp_monitor wan start
+
+# start pppoe server
+pppoe_server wan start

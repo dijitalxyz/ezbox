@@ -19,3 +19,6 @@ dnsmasq lan start
 
 # start upnp monitor
 upnp_monitor lan start
+
+# start pppoe server
+pppoe_server lan start

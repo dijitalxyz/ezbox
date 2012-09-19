@@ -8,6 +8,9 @@ upnp_monitor lan stop
 # stop ezcfg igrsd
 ezcfg_igrsd lan stop
 
+# stop pppoe server
+pppoe_server lan stop
+
 # stop dns/dhcpd service
 dnsmasq lan stop
 
