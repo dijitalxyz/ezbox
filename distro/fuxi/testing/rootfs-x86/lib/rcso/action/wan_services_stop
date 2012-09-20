@@ -7,6 +7,9 @@ ezcfg_upnpd wan stop
 # stop upnp monitor
 upnp_monitor wan stop
 
+# stop pppoe server
+pppoe_server wan stop
+
 # stop dnsmasq service
 dnsmasq wan stop
 
