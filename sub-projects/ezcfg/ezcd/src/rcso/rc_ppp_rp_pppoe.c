@@ -151,9 +151,8 @@ int rc_ppp_rp_pppoe(int argc, char **argv)
 
 		pop_etc_ppp_rp_pppoe_options(RC_ACT_START);
 
-		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n pppd -a %s -- -I %s -L %s -R %s -N %s",
-			CMD_PPPD,
-			ifname, lipaddr, ripaddr, session_num);
+		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n pppd -a %s -- file %s",
+			CMD_PPPD, "/etc/ppp/rp-pppoe-options");
 		utils_system(buf);
 
 		ret = EXIT_SUCCESS;

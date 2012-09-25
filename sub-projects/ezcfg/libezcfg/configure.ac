@@ -905,6 +905,25 @@ AC_ARG_ENABLE([service-radvd],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_RADVD, test "x$config_ezbox_service_radvd" = xyes)
 
+# Configure ppp service.
+config_ezbox_service_ppp=no
+AC_MSG_CHECKING([if PPP service is enabled])
+AC_ARG_ENABLE([service-ppp],
+	AS_HELP_STRING([--enable-service-ppp], [Enable PPP service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_PPP], [1], [Enable PPP service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ppp=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_PPP, test "x$config_ezbox_service_ppp" = xyes)
+
 # Configure pppoe-server service.
 config_ezbox_service_pppoe_server=no
 AC_MSG_CHECKING([if PPPoE server service is enabled])

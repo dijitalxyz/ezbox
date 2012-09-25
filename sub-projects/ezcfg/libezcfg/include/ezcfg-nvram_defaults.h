@@ -37,7 +37,9 @@
 #include "ezcfg-upnp.h"
 #include "ezcfg-ssl.h"
 #include "ezcfg-openssl.h"
+#include "ezcfg-ppp.h"
 #include "ezcfg-pppoe_server.h"
+#include "ezcfg-rp_pppoe.h"
 
 #define GLUE2(a, b)      	a ## b
 #define GLUE3(a, b, c)   	a ## b ## c

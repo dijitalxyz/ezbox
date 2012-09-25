@@ -52,6 +52,7 @@ args="--prefix=/usr/local \
 --enable-service-lxc \
 --enable-service-coova_chilli \
 --enable-service-radvd \
+--enable-service-ppp \
 --enable-service-pppoe_server \
 --enable-service-ppp_rp_pppoe \
 "
