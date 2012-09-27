@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1754
+PKG_REV:=1762
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -294,6 +294,12 @@ endif
 ifneq ($(CONFIG_PACKAGE_lxc),)
 CONFIGURE_ARGS += \
 	--enable-service-lxc
+endif
+
+# set PPP service
+ifneq ($(CONFIG_PACKAGE_ppp),)
+CONFIGURE_ARGS += \
+	--enable-service-ppp
 endif
 
 # set PPPoE server service
