@@ -20,6 +20,9 @@
 /* PPP general options */
 #define EZCFG_RP_PPPOE_PPP_DEBUG        "ppp_debug"
 #define EZCFG_RP_PPPOE_PPP_KDEBUG       "ppp_kdebug"
+#define EZCFG_RP_PPPOE_PPP_NODETACH     "ppp_nodetach"
+#define EZCFG_RP_PPPOE_PPP_UPDETACH     "ppp_updetach"
+#define EZCFG_RP_PPPOE_PPP_HOLDOFF      "ppp_holdoff"
 #define EZCFG_RP_PPPOE_PPP_IDLE         "ppp_idle"
 #define EZCFG_RP_PPPOE_PPP_MAXCONNECT   "ppp_maxconnect"
 #define EZCFG_RP_PPPOE_PPP_DOMAIN       "ppp_domain"

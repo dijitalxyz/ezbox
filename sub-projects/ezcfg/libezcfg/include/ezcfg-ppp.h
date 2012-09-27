@@ -188,4 +188,14 @@
 #define EZCFG_PPP_OPT_KEYWORD_NOSENDIP      "nosendip"
 #define EZCFG_PPP_OPT_KEYWORD_IP_ADDRESSES  "IP addresses"
 
+/* ezcfg ppp plugin rp-pppoe options names */
+#define EZCFG_PPP_OPT_KEYWORD_DEVICE_NAME   "device name"
+#define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_SERVICE \
+	"rp_pppoe_service"
+#define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_AC   "rp_pppoe_ac"
+#define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_SESS "rp_pppoe_sess"
+#define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_VERBOSE \
+	"rp_pppoe_verbose"
+#define EZCFG_PPP_OPT_KEYWORD_PPPOE_MAC     "pppoe-mac"
+
 #endif

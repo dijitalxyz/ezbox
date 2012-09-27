@@ -66,6 +66,33 @@ static int gen_ppp_general_options(FILE *file)
 		}
 	}
 
+	/* nodetach */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_NODETACH), buf, sizeof(buf));
+	if (rc > 0) {
+		rc = atoi(buf);
+		if (rc > 0) {
+			fprintf(file, "%s\n", EZCFG_PPP_OPT_KEYWORD_NODETACH);
+		}
+	}
+
+	/* updetach */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_UPDETACH), buf, sizeof(buf));
+	if (rc > 0) {
+		rc = atoi(buf);
+		if (rc > 0) {
+			fprintf(file, "%s\n", EZCFG_PPP_OPT_KEYWORD_UPDETACH);
+		}
+	}
+
+	/* holdoff */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_HOLDOFF), buf, sizeof(buf));
+	if (rc > 0) {
+		rc = atoi(buf);
+		if (rc > 0) {
+			fprintf(file, "%s %d\n", EZCFG_PPP_OPT_KEYWORD_HOLDOFF, rc);
+		}
+	}
+
 	/* idle */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_IDLE), buf, sizeof(buf));
 	if (rc > 0) {
@@ -793,6 +820,56 @@ static int gen_ppp_ipcp_options(FILE *file)
 	return EXIT_SUCCESS;
 }
 
+static int gen_ppp_plugin_rp_pppoe_options(FILE *file)
+{
+	int rc;
+	char buf[256];
+
+	/* ppp plugin rp-pppoe options */
+	fprintf(file, "# %s\n", "ppp plugin rp-pppoe options");
+
+	/* device name */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_DEVICE_NAME, buf);
+	}
+
+	/* rp_pppoe_service */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, RP_PPPOE_SERVICE), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_SERVICE, buf);
+	}
+
+	/* rp_pppoe_ac */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, RP_PPPOE_AC), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_AC, buf);
+	}
+
+	/* rp_pppoe_sess */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, RP_PPPOE_SESS), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_SESS, buf);
+	}
+
+	/* rp_pppoe_verbose */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, RP_PPPOE_VERBOSE), buf, sizeof(buf));
+	if (rc > 0) {
+		rc = atoi(buf);
+		if (rc > 0) {
+			fprintf(file, "%s %d\n", EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_VERBOSE, rc);
+		}
+	}
+
+	/* pppoe-mac */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPPOE_MAC), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_PPPOE_MAC, buf);
+	}
+
+	return EXIT_SUCCESS;
+}
+
 int pop_etc_ppp_rp_pppoe_options(int flag)
 {
         FILE *file = NULL;
@@ -815,6 +892,7 @@ int pop_etc_ppp_rp_pppoe_options(int flag)
 	gen_ppp_ipcp_options(file);
 
 	/* extra options */
+	gen_ppp_plugin_rp_pppoe_options(file);
 
 	fclose(file);
 	return (EXIT_SUCCESS);
