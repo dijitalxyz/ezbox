@@ -62,11 +62,13 @@
 #define EZCFG_WAN_DHCP_LEASE             "dhcp_lease"
 
 /* WAN PPPoE parameters */
+#define EZCFG_WAN_PPPOE_DEVICE_NAME      "pppoe_device_name"
 #define EZCFG_WAN_PPPOE_IFNAME           "pppoe_ifname"
 #define EZCFG_WAN_PPPOE_KEEP_ENABLE      "pppoe_keep_enable"
-#define EZCFG_WAN_PPPOE_PPP_USERNAME            "pppoe_ppp_username"
-#define EZCFG_WAN_PPPOE_PPP_PASSWD              "pppoe_ppp_passwd"
-#define EZCFG_WAN_PPPOE_PPP_IDLE                "pppoe_ppp_idle"
+#define EZCFG_WAN_PPPOE_PPP_OPTIONS_FILE "pppoe_ppp_options_file"
+#define EZCFG_WAN_PPPOE_PPP_USERNAME     "pppoe_ppp_username"
+#define EZCFG_WAN_PPPOE_PPP_PASSWD       "pppoe_ppp_passwd"
+#define EZCFG_WAN_PPPOE_PPP_IDLE         "pppoe_ppp_idle"
 #define EZCFG_WAN_PPPOE_PPP_LCP_ECHO_INTERVAL   "pppoe_ppp_lcp_echo_interval"
 #define EZCFG_WAN_PPPOE_PPP_LCP_ECHO_FAILURE    "pppoe_ppp_lcp_echo_failure"
 #define EZCFG_WAN_PPPOE_MRU              "pppoe_mru"

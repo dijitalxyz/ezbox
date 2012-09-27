@@ -209,7 +209,7 @@ static int set_wan_interface(FILE *file)
 		break;
 
 	case WAN_TYPE_PPPOE :
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_IFNAME), wan_ifname, sizeof(wan_ifname));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), wan_ifname, sizeof(wan_ifname));
 		if (rc < 0)
 			return (EXIT_FAILURE);
 

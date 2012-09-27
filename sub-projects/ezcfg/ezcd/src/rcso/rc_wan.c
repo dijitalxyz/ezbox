@@ -169,6 +169,23 @@ static int start_wan(void)
 
 		break;
 
+	case WAN_TYPE_PPPOE :
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), wan_ifname, sizeof(wan_ifname));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
+		/* config PPPoE device interface */
+		snprintf(buf, sizeof(buf), "%s link set %s up", CMD_IP, wan_ifname);
+		utils_system(buf);
+
+		/* start PPP daemon process */
+		/* FIXME: do it in action file */
+	#if 0
+		snprintf(buf, sizeof(buf), "%s %s wan start", CMD_RC, "ppp_rp_pppoe");
+		utils_system(buf);
+	#endif
+
+		break;
 	}
 
 	return (EXIT_SUCCESS);
@@ -211,6 +228,17 @@ static int stop_wan(void)
 
 		/* deconfig Static IP address */
 		snprintf(buf, sizeof(buf), "%s %s", CMD_IFDOWN, wan_ifname);
+		utils_system(buf);
+
+		break;
+
+	case WAN_TYPE_PPPOE :
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), wan_ifname, sizeof(wan_ifname));
+		if (rc < 0)
+			return (EXIT_FAILURE);
+
+		/* deconfig PPPoE device interface */
+		snprintf(buf, sizeof(buf), "%s set link %s down", CMD_IP, wan_ifname);
 		utils_system(buf);
 
 		break;

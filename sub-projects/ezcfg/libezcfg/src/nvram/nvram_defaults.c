@@ -780,10 +780,16 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 	/* PPPoE parameters */
 #if (HAVE_EZBOX_WAN_PPPOE == 1)
+	/* PPPoE PHY interface */
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), "eth1" },
 	/* PPPoE enslaved interface */
 	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_IFNAME), "ppp0" },
 	/* Restore link automatically [0|1] */
 	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_KEEP_ENABLE), "1" },
+	/* PPP options file name */
+#if (HAVE_EZBOX_SERVICE_PPP_RP_PPPOE == 1)
+	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_OPTIONS_FILE), "/etc/ppp/rp-pppoe-options" },
+#endif
 	/* PPP username */
 	{ NVRAM_SERVICE_OPTION(WAN, PPPOE_PPP_USERNAME), "" },
 	/* PPP password */
