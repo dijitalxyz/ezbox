@@ -238,7 +238,7 @@ static int stop_wan(void)
 			return (EXIT_FAILURE);
 
 		/* deconfig PPPoE device interface */
-		snprintf(buf, sizeof(buf), "%s set link %s down", CMD_IP, wan_ifname);
+		snprintf(buf, sizeof(buf), "%s link set %s down", CMD_IP, wan_ifname);
 		utils_system(buf);
 
 		break;
