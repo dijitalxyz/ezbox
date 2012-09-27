@@ -831,7 +831,7 @@ static int gen_ppp_plugin_rp_pppoe_options(FILE *file)
 	/* device name */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), buf, sizeof(buf));
 	if (rc > 0) {
-		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_DEVICE_NAME, buf);
+		fprintf(file, "%s\n", buf);
 	}
 
 	/* rp_pppoe_service */
