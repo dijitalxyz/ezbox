@@ -33,6 +33,17 @@ define Package/rp-pppoe/Default/description
   a DSL "modem" whose Internet service provider uses PPPoE.
 endef
 
+define Package/rp-pppoe-common
+  $(call Package/rp-pppoe/Default)
+  TITLE+= common
+endef
+
+define Package/rp-pppoe-common/description
+$(call Package/rp-pppoe/Default/description)
+ .
+ This package contains pppoe.
+endef
+
 define Package/rp-pppoe-client
   $(call Package/rp-pppoe/Default)
   DEPENDS += @BROKEN
@@ -58,6 +69,7 @@ endef
 
 define Package/rp-pppoe-server
   $(call Package/rp-pppoe/Default)
+  DEPENDS += rp-pppoe-common
   TITLE+= server
 endef
 
@@ -89,13 +101,18 @@ CONFIGURE_ARGS += ac_cv_path_PPPD=/usr/sbin/pppd --enable-plugin=$(STAGING_DIR)/
 MAKE_FLAGS := DESTDIR="$(PKG_INSTALL_DIR)" install
 MAKE_PATH := ./src
 
+define Package/rp-pppoe-common/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/pppoe $(1)/usr/sbin/
+endef
+
 define Package/rp-pppoe-client/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/pppoe-client.init $(1)/etc/init.d/pppoe-client
 	$(INSTALL_DIR) $(1)/etc/ppp
 	$(CP) $(PKG_INSTALL_DIR)/etc/ppp/pppoe.conf $(1)/etc/ppp/
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/pppoe $(1)/usr/sbin/
+	#$(INSTALL_DIR) $(1)/usr/sbin
+	#$(CP) $(PKG_INSTALL_DIR)/usr/sbin/pppoe $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/pppoe-connect $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/pppoe-start $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/pppoe-stop $(1)/usr/sbin/
@@ -129,6 +146,7 @@ define Package/rp-pppoe-sniff/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/pppoe-sniff $(1)/usr/sbin/
 endef
 
+$(eval $(call BuildPackage,rp-pppoe-common))
 $(eval $(call BuildPackage,rp-pppoe-client))
 $(eval $(call BuildPackage,rp-pppoe-relay))
 $(eval $(call BuildPackage,rp-pppoe-server))
