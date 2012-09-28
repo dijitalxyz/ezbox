@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Thu Sep 13 11:57:02 2012
+# Fri Sep 28 19:28:04 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1211,6 +1211,7 @@ CONFIG_PACKAGE_monserver=y
 #
 # dial-in/up
 #
+CONFIG_PACKAGE_rp-pppoe-common=y
 # CONFIG_PACKAGE_rp-pppoe-relay is not set
 CONFIG_PACKAGE_rp-pppoe-server=y
 # CONFIG_PACKAGE_rp-pppoe-sniff is not set

@@ -14,6 +14,8 @@ klogd start
 netbase restart
 # load kernel modules
 load_modules start
+# populate device nodes
+udev_pop_nodes start
 # mount system supported fs
 mount_system_fs start
 # misc files for the base system
@@ -47,5 +49,8 @@ openssl start
 action lan_services_start
 # bring up WAN interface and configurate it
 wan start
+# prepare PPP files
+ppp_pap_secrets start
+ppp_chap_secrets start
 # start WAN PPPoE ppp deamon
 ppp_rp_pppoe wan start
