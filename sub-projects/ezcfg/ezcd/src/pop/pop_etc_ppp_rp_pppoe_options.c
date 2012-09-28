@@ -132,6 +132,12 @@ static int gen_ppp_general_options(FILE *file)
 		}
 	}
 
+	/* logfile */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_LOGFILE), buf, sizeof(buf));
+	if (rc > 0) {
+		fprintf(file, "%s %s\n", EZCFG_PPP_OPT_KEYWORD_LOGFILE, buf);
+	}
+
 	/* linkname */
 	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_LINKNAME), buf, sizeof(buf));
 	if (rc > 0) {
@@ -820,6 +826,29 @@ static int gen_ppp_ipcp_options(FILE *file)
 	return EXIT_SUCCESS;
 }
 
+static int gen_ppp_tty_options(FILE *file)
+{
+	int rc;
+	char buf[256];
+
+	/* tty options */
+	fprintf(file, "# %s\n", "tty options");
+
+	/* lock */
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(RP_PPPOE, PPP_LOCK), buf, sizeof(buf));
+	if (rc > 0) {
+		rc = atoi(buf);
+		if (rc > 0) {
+			fprintf(file, "%s\n", EZCFG_PPP_OPT_KEYWORD_LOCK);
+		}
+		else {
+			fprintf(file, "%s\n", EZCFG_PPP_OPT_KEYWORD_NOLOCK);
+		}
+	}
+
+	return EXIT_SUCCESS;
+}
+
 static int gen_ppp_plugin_rp_pppoe_options(FILE *file)
 {
 	int rc;
@@ -890,6 +919,9 @@ int pop_etc_ppp_rp_pppoe_options(int flag)
 
 	/* ppp/ipcp options */
 	gen_ppp_ipcp_options(file);
+
+	/* ppp/tty options */
+	gen_ppp_tty_options(file);
 
 	/* extra options */
 	gen_ppp_plugin_rp_pppoe_options(file);

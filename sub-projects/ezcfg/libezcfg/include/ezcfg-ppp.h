@@ -144,6 +144,40 @@
 #define EZCFG_PPP_OPT_KEYWORD_ENDPOINT      "endpoint"
 #define EZCFG_PPP_OPT_KEYWORD_NOENDPOINT    "noendpoint"
 
+/* ezcfg ppp pap options names */
+#define EZCFG_PPP_OPT_KEYWORD_HIDE_PASSWORD "hide-password"
+#define EZCFG_PPP_OPT_KEYWORD_SHOW_PASSWORD "show-password"
+#define EZCFG_PPP_OPT_KEYWORD_PAP_RESTART   "pap-restart"
+#define EZCFG_PPP_OPT_KEYWORD_PAP_MAX_AUTHREQ \
+	"pap-max-authreq"
+#define EZCFG_PPP_OPT_KEYWORD_PAP_TIMEOUT   "pap-timeout"
+
+/* ezcfg ppp chap options names */
+#define EZCFG_PPP_OPT_KEYWORD_CHAP_RESTART  "chap-restart"
+#define EZCFG_PPP_OPT_KEYWORD_CHAP_MAX_CHALLENGE \
+	"chap-max-challenge"
+#define EZCFG_PPP_OPT_KEYWORD_CHAP_INTERVAL "chap-interval"
+#define EZCFG_PPP_OPT_KEYWORD_CHAPMS_STRIP_DOMAIN \
+	"chapms-strip-domain"
+
+/* ezcfg ppp mschap options names */
+#define EZCFG_PPP_OPT_KEYWORD_MS_LANMAN     "ms-lanman"
+#define EZCFG_PPP_OPT_KEYWORD_MSCHAP_CHALLENGE \
+	"mschap-challenge"
+#define EZCFG_PPP_OPT_KEYWORD_MSCHAP2_PEER_CHALLENGE \
+	"mschap2-peer-challenge"
+
+/* ezcfg ppp eap options names */
+#define EZCFG_PPP_OPT_KEYWORD_EAP_RESTART   "eap-restart"
+#define EZCFG_PPP_OPT_KEYWORD_EAP_MAX_SREQ  "eap-max-sreq"
+#define EZCFG_PPP_OPT_KEYWORD_EAP_TIMEOUT   "eap-timeout"
+#define EZCFG_PPP_OPT_KEYWORD_EAP_MAX_RREQ  "eap-max-rreq"
+#define EZCFG_PPP_OPT_KEYWORD_EAP_INTERVAL  "eap-interval"
+#define EZCFG_PPP_OPT_KEYWORD_SRP_INTERVAL  "srp-interval"
+#define EZCFG_PPP_OPT_KEYWORD_SRP_PN_SECRET "srp-pn-secret"
+#define EZCFG_PPP_OPT_KEYWORD_SRP_USE_PSEUDONYM \
+	"srp-use-pseudonym"
+
 /* ezcfg ppp ipcp options names */
 #define EZCFG_PPP_OPT_KEYWORD_NOIP          "noip"
 #define EZCFG_PPP_OPT_KEYWORD_MINUS_IP      "-ip"
@@ -188,6 +222,48 @@
 #define EZCFG_PPP_OPT_KEYWORD_NOSENDIP      "nosendip"
 #define EZCFG_PPP_OPT_KEYWORD_IP_ADDRESSES  "IP addresses"
 
+/* ezcfg ppp ipv6cp options names */
+#define EZCFG_PPP_OPT_KEYWORD_IPV6          "ipv6"
+#define EZCFG_PPP_OPT_KEYWORD_PLUS_IPV6     "+ipv6"
+#define EZCFG_PPP_OPT_KEYWORD_NOIPV6        "noipv6"
+#define EZCFG_PPP_OPT_KEYWORD_MINUS_IPV6    "-ipv6"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_ACCEPT_LOCAL \
+	"ipv6cp-accept-local"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_USE_IPADDR \
+	"ipv6cp-use-ipaddr"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_USE_PERSISTENT \
+	"ipv6cp-use-persistent"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_RESTART \
+	"ipv6cp-restart"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_MAX_TERMINATE \
+	"ipv6cp-max-terminate"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_MAX_CONFIGURE \
+	"ipv6cp-max-configure"
+#define EZCFG_PPP_OPT_KEYWORD_IPV6CP_MAX_FAILURE \
+	"ipv6cp-max-failure"
+
+/* ezcfg ppp tty options names */
+#define EZCFG_PPP_OPT_KEYWORD_LOCK          "lock"
+#define EZCFG_PPP_OPT_KEYWORD_NOLOCK        "nolock"
+#define EZCFG_PPP_OPT_KEYWORD_INIT          "init"
+#define EZCFG_PPP_OPT_KEYWORD_CONNECT       "connect"
+#define EZCFG_PPP_OPT_KEYWORD_DISCONNECT    "disconnect"
+#define EZCFG_PPP_OPT_KEYWORD_WELCOME       "welcome"
+#define EZCFG_PPP_OPT_KEYWORD_PTY           "pty"
+#define EZCFG_PPP_OPT_KEYWORD_NOTTY         "notty"
+#define EZCFG_PPP_OPT_KEYWORD_SOCKET        "socket"
+#define EZCFG_PPP_OPT_KEYWORD_CRTSCTS       "crtscts"
+#define EZCFG_PPP_OPT_KEYWORD_CDTRCTS       "cdtrcts"
+#define EZCFG_PPP_OPT_KEYWORD_NOCRTSCTS     "nocrtscts"
+#define EZCFG_PPP_OPT_KEYWORD_MINUS_CCRTSCTS \
+#define EZCFG_PPP_OPT_KEYWORD_NOCDTRCTS     "nocdtrcts"
+#define EZCFG_PPP_OPT_KEYWORD_XONXOFF       "xonxoff"
+#define EZCFG_PPP_OPT_KEYWORD_MODEM         "modem"
+#define EZCFG_PPP_OPT_KEYWORD_LOCAL         "local"
+#define EZCFG_PPP_OPT_KEYWORD_SYNC          "sync"
+#define EZCFG_PPP_OPT_KEYWORD_DATARATE      "datarate"
+#define EZCFG_PPP_OPT_KEYWORD_ESCAPE        "escape"
+
 /* ezcfg ppp plugin rp-pppoe options names */
 #define EZCFG_PPP_OPT_KEYWORD_DEVICE_NAME   "device name"
 #define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_SERVICE \
@@ -197,5 +273,12 @@
 #define EZCFG_PPP_OPT_KEYWORD_RP_PPPOE_VERBOSE \
 	"rp_pppoe_verbose"
 #define EZCFG_PPP_OPT_KEYWORD_PPPOE_MAC     "pppoe-mac"
+
+/* pap secrets */
+#define EZCFG_PPP_PAP_SECRET_ENTRY          "pap_secret_entry"
+#define EZCFG_PPP_PAP_SECRET_ENTRY_NUM      "pap_secret_entry_num"
+/* chap secrets */
+#define EZCFG_PPP_CHAP_SECRET_ENTRY         "chap_secret_entry"
+#define EZCFG_PPP_CHAP_SECRET_ENTRY_NUM     "chap_secret_entry_num"
 
 #endif

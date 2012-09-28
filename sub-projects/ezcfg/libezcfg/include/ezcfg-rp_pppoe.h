@@ -28,6 +28,7 @@
 #define EZCFG_RP_PPPOE_PPP_DOMAIN       "ppp_domain"
 #define EZCFG_RP_PPPOE_PPP_PERSIST      "ppp_persist"
 #define EZCFG_RP_PPPOE_PPP_DEMAND       "ppp_demand"
+#define EZCFG_RP_PPPOE_PPP_LOGFILE      "ppp_logfile"
 #define EZCFG_RP_PPPOE_PPP_LINKNAME     "ppp_linkname"
 #define EZCFG_RP_PPPOE_PPP_IFNAME       "ppp_ifname"
 #define EZCFG_RP_PPPOE_PPP_MAXFAIL      "ppp_maxfail"
@@ -111,6 +112,9 @@
 #define EZCFG_RP_PPPOE_PPP_NOREMOTEIP   "ppp_noremoteip"
 #define EZCFG_RP_PPPOE_PPP_NOSENDIP     "ppp_nosendip"
 #define EZCFG_RP_PPPOE_PPP_IP_ADDRESSES "ppp_ip_addresses"
+
+/* PPP tty options */
+#define EZCFG_RP_PPPOE_PPP_LOCK         "ppp_lock"
 
 /* PPP rp-pppoe plugin options */
 #define EZCFG_RP_PPPOE_DEVICE_NAME      "device_name"

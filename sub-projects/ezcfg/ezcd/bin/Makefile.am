@@ -168,6 +168,11 @@ endif
 if CONFIG_EZBOX_SERVICE_LXC
 RCSO_SRC += rc_lxc.c
 endif
+# PPP service
+if CONFIG_EZBOX_SERVICE_PPP
+RCSO_SRC += rc_ppp_pap_secrets.c
+RCSO_SRC += rc_ppp_chap_secrets.c
+endif
 # PPPoE server service
 if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
 RCSO_SRC += rc_pppoe_server.c

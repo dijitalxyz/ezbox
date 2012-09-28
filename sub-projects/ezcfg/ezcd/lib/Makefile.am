@@ -189,6 +189,12 @@ if CONFIG_EZBOX_SERVICE_RADVD
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_radvd_conf.c
 endif
 
+# PPP service
+if CONFIG_EZBOX_SERVICE_PPP
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ppp_pap_secrets.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ppp_chap_secrets.c
+endif
+
 # PPPoE server service
 if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ppp_pppoe_server_options.c

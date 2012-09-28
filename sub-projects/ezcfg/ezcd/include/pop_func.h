@@ -66,6 +66,10 @@ extern int pop_etc_lxc_lxc_conf(int flag);
 #if (HAVE_EZBOX_SERVICE_RADVD == 1)
 extern int pop_etc_radvd_conf(int flag);
 #endif
+#if (HAVE_EZBOX_SERVICE_PPP == 1)
+extern int pop_etc_ppp_pap_secrets(int flag);
+extern int pop_etc_ppp_chap_secrets(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_PPPOE_SERVER == 1)
 extern int pop_etc_ppp_pppoe_server_options(int flag);
 #endif
