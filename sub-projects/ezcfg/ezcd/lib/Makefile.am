@@ -158,6 +158,12 @@ if CONFIG_EZBOX_SERVICE_DHID
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dhid_conf.c
 endif
 
+# DHIS server service
+if CONFIG_EZBOX_SERVICE_DHISD
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dhisd_conf.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_dhis_db.c
+endif
+
 # LUKS/dm-crypt data partition service
 if CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_keys_data_partition_key.c

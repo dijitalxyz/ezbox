@@ -696,6 +696,25 @@ AC_ARG_ENABLE([service-dhid],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DHID, test "x$config_ezbox_service_dhid" = xyes)
 
+# Configure dhisd service.
+config_ezbox_service_dhisd=no
+AC_MSG_CHECKING([if DHIS server service is enabled])
+AC_ARG_ENABLE([service-dhisd],
+	AS_HELP_STRING([--enable-service-dhisd], [Enable DHIS server service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_DHISD], [1], [Enable DHIS server service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_dhisd=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_DHISD, test "x$config_ezbox_service_dhisd" = xyes)
+
 # Configure linux unified key setup (LUKS) for data partition service.
 config_ezbox_service_dmcrypt_data_partition=no
 AC_MSG_CHECKING([if LUKS/dm-crypt for data partition service is enabled])

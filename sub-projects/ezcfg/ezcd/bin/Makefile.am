@@ -142,6 +142,10 @@ endif
 if CONFIG_EZBOX_SERVICE_DHID
 RCSO_SRC += rc_dhid.c
 endif
+# DHIS server service
+if CONFIG_EZBOX_SERVICE_DHISD
+RCSO_SRC += rc_dhisd.c
+endif
 # LUKS/dm-crypt for data partition service
 if CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION
 RCSO_SRC += rc_dmcrypt_data_partition.c

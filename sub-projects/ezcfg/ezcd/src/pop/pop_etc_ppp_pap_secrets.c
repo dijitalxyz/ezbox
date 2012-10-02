@@ -74,5 +74,9 @@ int pop_etc_ppp_pap_secrets(int flag)
 	}
 
 	fclose(file);
-	return (EXIT_SUCCESS);
+	rc = chmod("/etc/ppp/pap-secrets", S_IRUSR | S_IWUSR);
+	if (rc == 0)
+		return (EXIT_SUCCESS);
+	else
+		return (EXIT_FAILURE);
 }
