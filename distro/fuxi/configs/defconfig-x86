@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Attitude Adjustment (unknown)
-# Fri Sep 28 19:28:04 2012
+# Wed Oct  3 02:06:38 2012
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86=y
@@ -1193,6 +1193,8 @@ CONFIG_PACKAGE_iptables-mod-ulog=y
 # IP Addresses and Names
 #
 CONFIG_PACKAGE_dhid=y
+CONFIG_PACKAGE_dhisd=y
+CONFIG_PACKAGE_dhisgenkeys=y
 CONFIG_PACKAGE_udns-libs=y
 CONFIG_PACKAGE_udns-utils=y
 
