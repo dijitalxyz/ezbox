@@ -981,6 +981,25 @@ AC_ARG_ENABLE([service-ppp_rp_pppoe],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE, test "x$config_ezbox_service_ppp_rp_pppoe" = xyes)
 
+# Configure freeradius2 server service.
+config_ezbox_service_freeradius2_server=no
+AC_MSG_CHECKING([if FreeRADIUS2 server service is enabled])
+AC_ARG_ENABLE([service-freeradius2_server],
+	AS_HELP_STRING([--enable-service-freeradius2_server], [Enable FreeRADIUS2 server service (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_SERVICE_FREERADIUS2_SERVER], [1], [Enable FreeRADIUS2 server service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_freeradius2_server=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER, test "x$config_ezbox_service_freeradius2_server" = xyes)
+
 # Checks for libraries.
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and

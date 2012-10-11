@@ -211,5 +211,10 @@ if CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ppp_rp_pppoe_options.c
 endif
 
+# FreeRADIUS2 server service
+if CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_freeradius2_radiusd_conf.c
+endif
+
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libezcd.pc

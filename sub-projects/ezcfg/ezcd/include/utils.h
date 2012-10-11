@@ -43,6 +43,7 @@
 #define CMD_DNSMASQ	"/usr/sbin/dnsmasq"
 #define CMD_PPPD	"/usr/sbin/pppd"
 #define CMD_PPPOE_SERVER	"/usr/sbin/pppoe-server"
+#define CMD_RADIUSD	"/usr/sbin/radiusd"
 #define CMD_RADVD	"/usr/sbin/radvd"
 
 

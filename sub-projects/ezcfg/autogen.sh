@@ -56,6 +56,7 @@ args="--prefix=/usr/local \
 --enable-service-ppp \
 --enable-service-pppoe_server \
 --enable-service-ppp_rp_pppoe \
+--enable-service-freeradius2_server \
 "
 
 export CFLAGS="$CFLAGS $EZCFG_CFLAGS"

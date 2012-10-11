@@ -185,6 +185,10 @@ endif
 if CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE
 RCSO_SRC += rc_ppp_rp_pppoe.c
 endif
+# FreeRADIUS2 server service
+if CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER
+RCSO_SRC += rc_freeradius2_server.c
+endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
