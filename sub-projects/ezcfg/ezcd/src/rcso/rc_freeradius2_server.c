@@ -134,6 +134,20 @@ int rc_freeradius2_server(int argc, char **argv)
 			utils_system(buf);
 			mkdir("/etc/freeradius2", 0755);
 		}
+		/* mkdir for /etc/freeradius2/modules */
+		if ((stat("/etc/freeradius2/modules", &stat_buf) != 0) ||
+		    (S_ISDIR(stat_buf.st_mode) == 0)) {
+			snprintf(buf, sizeof(buf), "%s -rf /etc/freeradius2/modules", CMD_RM);
+			utils_system(buf);
+			mkdir("/etc/freeradius2/modules", 0755);
+		}
+		/* mkdir for /etc/freeradius2/sites */
+		if ((stat("/etc/freeradius2/sites", &stat_buf) != 0) ||
+		    (S_ISDIR(stat_buf.st_mode) == 0)) {
+			snprintf(buf, sizeof(buf), "%s -rf /etc/freeradius2/sites", CMD_RM);
+			utils_system(buf);
+			mkdir("/etc/freeradius2/sites", 0755);
+		}
 
 		/* mkdir for /var/db/radacct */
 		if ((stat("/var/db", &stat_buf) != 0) ||

@@ -22,3 +22,6 @@ upnp_monitor lan start
 
 # start pppoe server
 pppoe_server lan start
+
+# start freeradius2 server
+freeradius2_server lan start
