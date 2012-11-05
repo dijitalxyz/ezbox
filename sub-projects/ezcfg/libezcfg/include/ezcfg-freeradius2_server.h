@@ -15,7 +15,7 @@
 #define _EZCFG_FREERADIUS2_SERVER_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_FREERADIUS2_SERVER_NVRAM_PREFIX   "freeradius2_server_"
+#define EZCFG_FREERADIUS2_SERVER_NVRAM_PREFIX   "freeradius2_server."
 
 /* ezcfg freeradius2 genenal options names */
 #define EZCFG_FREERADIUS2_OPT_KEYWORD_NAME      "name"

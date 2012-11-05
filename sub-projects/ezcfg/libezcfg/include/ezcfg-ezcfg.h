@@ -15,7 +15,7 @@
 #define _EZCFG_EZCFG_H_
 
 /* ezcfg config name prefix */
-#define EZCFG_EZCFG_NVRAM_PREFIX            "ezcfg_"
+#define EZCFG_EZCFG_NVRAM_PREFIX            "ezcfg."
 
 /* ezcfg file trailing charlist */
 #define EZCFG_EZCFG_TRAILING_CHARLIST       "\r\n\t "

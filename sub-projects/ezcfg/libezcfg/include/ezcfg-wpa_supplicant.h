@@ -15,7 +15,7 @@
 #define _EZCFG_WPA_SUPPLICANT_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_WPA_SUPPLICANT_NVRAM_PREFIX            "wpa_supplicant_"
+#define EZCFG_WPA_SUPPLICANT_NVRAM_PREFIX            "wpa_supplicant."
 
 /* hostapd wpa_supplicant related options */
 #define EZCFG_WPA_SUPPLICANT_CTRL_INTERFACE         "ctrl_interface"

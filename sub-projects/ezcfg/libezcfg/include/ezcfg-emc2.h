@@ -15,7 +15,7 @@
 #define _EZCFG_EMC2_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_EMC2_NVRAM_PREFIX             "emc2_"
+#define EZCFG_EMC2_NVRAM_PREFIX             "emc2."
 
 /* ezcfg emc2 config names */
 #define EZCFG_EMC2_MODULES                  "modules"

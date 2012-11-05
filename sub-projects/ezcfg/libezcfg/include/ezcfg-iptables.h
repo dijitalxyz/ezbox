@@ -15,7 +15,7 @@
 #define _EZCFG_IPTABLES_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_IPTABLES_NVRAM_PREFIX             "ipt_"
+#define EZCFG_IPTABLES_NVRAM_PREFIX             "ipt."
 
 /* ezcfg iptables config names */
 #define EZCFG_IPTABLES_FIREWALL_ENABLE      "firewall_enable"

@@ -15,7 +15,7 @@
 #define _EZCFG_BRLAN_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_BRLAN_NVRAM_PREFIX        "brlan_"
+#define EZCFG_BRLAN_NVRAM_PREFIX        "brlan."
 
 /* ezcfg LAN bridge names */
 #define EZCFG_BRLAN_IFNAME                "ifname"

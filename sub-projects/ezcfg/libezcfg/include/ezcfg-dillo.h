@@ -15,7 +15,7 @@
 #define _EZCFG_DILLO_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_DILLO_NVRAM_PREFIX            "dillo_"
+#define EZCFG_DILLO_NVRAM_PREFIX            "dillo."
 
 /* ezcfg dillo config names */
 #define EZCFG_DILLO_GEOMETRY                "geometry"

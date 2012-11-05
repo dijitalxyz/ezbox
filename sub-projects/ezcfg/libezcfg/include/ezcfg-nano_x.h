@@ -15,7 +15,7 @@
 #define _EZCFG_NANO_X_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_NANO_X_NVRAM_PREFIX            "nano-X_"
+#define EZCFG_NANO_X_NVRAM_PREFIX            "nano-X."
 
 /* nano-X control names */
 #define EZCFG_NANO_X_MOUSE_PORT          "mouse_port"

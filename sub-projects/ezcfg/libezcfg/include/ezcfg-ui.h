@@ -15,7 +15,7 @@
 #define _EZCFG_UI_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_UI_NVRAM_PREFIX        "ui_"
+#define EZCFG_UI_NVRAM_PREFIX        "ui."
 
 /* ezcfg UI names */
 #define EZCFG_UI_TZ_AREA             "tz_area"

@@ -15,7 +15,7 @@
 #define _EZCFG_RP_PPPOE_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_RP_PPPOE_NVRAM_PREFIX     "rp_pppoe_"
+#define EZCFG_RP_PPPOE_NVRAM_PREFIX     "rp_pppoe."
 
 /* PPP general options */
 #define EZCFG_RP_PPPOE_PPP_DEBUG        "ppp_debug"

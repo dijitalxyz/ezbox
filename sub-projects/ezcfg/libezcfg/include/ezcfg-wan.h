@@ -15,7 +15,7 @@
 #define _EZCFG_WAN_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_WAN_NVRAM_PREFIX            "wan_"
+#define EZCFG_WAN_NVRAM_PREFIX            "wan."
 
 /* ezcfg wan control names */
 /* WAN H/W parameters */

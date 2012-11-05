@@ -15,7 +15,7 @@
 #define _EZCFG_PPP_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_PPP_NVRAM_PREFIX             "ppp_"
+#define EZCFG_PPP_NVRAM_PREFIX             "ppp."
 
 /* ezcfg ppp genenal options names */
 #define EZCFG_PPP_OPT_KEYWORD_DEBUG         "debug"

@@ -15,7 +15,7 @@
 #define _EZCFG_DHID_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_DHID_NVRAM_PREFIX           "dhid_"
+#define EZCFG_DHID_NVRAM_PREFIX           "dhid."
 
 /* ezcfg dhid config key words */
 #define EZCFG_DHID_KEYWORD_HOST_ID       "HostID"

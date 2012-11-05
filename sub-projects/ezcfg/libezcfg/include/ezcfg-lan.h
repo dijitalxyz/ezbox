@@ -15,7 +15,7 @@
 #define _EZCFG_LAN_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_LAN_NVRAM_PREFIX            "lan_"
+#define EZCFG_LAN_NVRAM_PREFIX            "lan."
 
 /* ezcfg lan control names */
 /* LAN H/W parameters */

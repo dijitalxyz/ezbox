@@ -15,7 +15,7 @@
 #define _EZCFG_PPPOE_SERVER_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_PPPOE_SERVER_NVRAM_PREFIX     "pppoe_server_"
+#define EZCFG_PPPOE_SERVER_NVRAM_PREFIX     "pppoe_server."
 
 #define EZCFG_PPPOE_SERVER_IFNAME           "ifname"
 #define EZCFG_PPPOE_SERVER_LOCAL_IPADDR     "local_ipaddr"

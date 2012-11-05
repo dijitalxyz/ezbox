@@ -101,7 +101,7 @@ struct ezcfg_upnp {
 
 /*----------------------------*/
 /* ezcfg nvram name prefix */
-#define EZCFG_UPNP_NVRAM_PREFIX            "upnp_"
+#define EZCFG_UPNP_NVRAM_PREFIX            "upnp."
 
 /* ezcfg UPnP role string */
 #define EZCFG_UPNP_ROLE_UNKNOWN         0

@@ -15,7 +15,7 @@
 #define _EZCFG_WLAN_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_WLAN_NVRAM_PREFIX            "wlan_"
+#define EZCFG_WLAN_NVRAM_PREFIX            "wlan."
 
 /* ezcfg wlan control names */
 /* WLAN H/W parameters */

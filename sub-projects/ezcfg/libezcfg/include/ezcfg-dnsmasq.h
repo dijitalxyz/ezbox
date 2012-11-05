@@ -15,7 +15,7 @@
 #define _EZCFG_DNSMASQ_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_DNSMASQ_NVRAM_PREFIX        "dnsmasq_"
+#define EZCFG_DNSMASQ_NVRAM_PREFIX        "dnsmasq."
 
 /* ezcfg dnsmasq control names */
 #define EZCFG_DNSMASQ_DOMAIN_NEEDED       "domain-needed"

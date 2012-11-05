@@ -15,7 +15,7 @@
 #define _EZCFG_RC_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_RC_NVRAM_PREFIX            "rc_"
+#define EZCFG_RC_NVRAM_PREFIX            "rc."
 
 /* ezcfg rc control names */
 #define EZCFG_RC_SYSLOGD_ENABLE          "syslogd_enable"

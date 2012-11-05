@@ -15,7 +15,7 @@
 #define _EZCFG_SYS_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_SYS_NVRAM_PREFIX        "sys_"
+#define EZCFG_SYS_NVRAM_PREFIX        "sys."
 
 /* ezcfg system names */
 #define EZCFG_SYS_DEVICE_NAME             "device_name"

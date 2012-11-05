@@ -15,7 +15,7 @@
 #define _EZCFG_DMCRYPT_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_DMCRYPT_NVRAM_PREFIX       "dmcrypt_"
+#define EZCFG_DMCRYPT_NVRAM_PREFIX       "dmcrypt."
 
 /* ezcfg dm-crypt config key words */
 

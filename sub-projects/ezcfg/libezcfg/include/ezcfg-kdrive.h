@@ -15,7 +15,7 @@
 #define _EZCFG_KDRIVE_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_KDRIVE_NVRAM_PREFIX            "kdrive_"
+#define EZCFG_KDRIVE_NVRAM_PREFIX            "kdrive."
 
 /* TinyX/kdrive control names */
 #define EZCFG_KDRIVE_MOUSE_DRIVER            "mouse_driver"

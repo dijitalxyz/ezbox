@@ -15,7 +15,7 @@
 #define _EZCFG_RADVD_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_RADVD_NVRAM_PREFIX              "radvd_"
+#define EZCFG_RADVD_NVRAM_PREFIX              "radvd."
 
 #define EZCFG_RADVD_INTERFACE_NUMBER          "interface_number"
 #define EZCFG_RADVD_PREFIX_NUMBER             "prefix_number"

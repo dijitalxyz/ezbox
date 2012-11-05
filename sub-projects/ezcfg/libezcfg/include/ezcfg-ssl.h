@@ -16,7 +16,7 @@
 
 /*----------------------------*/
 /* ezcfg nvram name prefix */
-#define EZCFG_SSL_NVRAM_PREFIX            "ssl_"
+#define EZCFG_SSL_NVRAM_PREFIX            "ssl."
 
 /* ezcfg SSL role string */
 #define EZCFG_SSL_ROLE_UNKNOWN          0

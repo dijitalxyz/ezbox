@@ -15,7 +15,7 @@
 #define _EZCFG_DHISD_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_DHISD_NVRAM_PREFIX          "dhisd_"
+#define EZCFG_DHISD_NVRAM_PREFIX          "dhisd."
 
 /* ezcfg dhisd config key words */
 #define EZCFG_DHISD_KEYWORD_LOG_FILE      "LogFile"

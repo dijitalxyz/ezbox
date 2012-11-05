@@ -15,7 +15,7 @@
 #define _EZCFG_LXC_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_LXC_NVRAM_PREFIX              "lxc_"
+#define EZCFG_LXC_NVRAM_PREFIX              "lxc."
 
 #define EZCFG_LXC_CONTAINER_NUMBER          "container_number"
 

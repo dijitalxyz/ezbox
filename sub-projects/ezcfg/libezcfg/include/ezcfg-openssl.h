@@ -15,7 +15,7 @@
 #define _EZCFG_OPENSSL_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_OPENSSL_NVRAM_PREFIX        "openssl_"
+#define EZCFG_OPENSSL_NVRAM_PREFIX        "openssl."
 
 /* ezcfg openssl config names */
 #define EZCFG_OPENSSL_HOME                "HOME"

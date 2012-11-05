@@ -15,7 +15,7 @@
 #define _EZCFG_LOOPBACK_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_LOOPBACK_NVRAM_PREFIX            "loopback_"
+#define EZCFG_LOOPBACK_NVRAM_PREFIX            "loopback."
 
 /* ezcfg loopback control names */
 /* Loopback H/W parameters */
