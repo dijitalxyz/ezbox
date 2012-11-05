@@ -70,7 +70,7 @@ int pop_etc_freeradius2_dictionary(int flag)
         FILE *file = NULL;
 
 	/* generate /etc/freeradius2/dictionary */
-	file = fopen("/etc/freeradius2/radiusd.conf", "w");
+	file = fopen("/etc/freeradius2/dictionary", "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
 

@@ -85,4 +85,5 @@ pop_etc_ppp_pppoe_server_options
 pop_etc_ppp_rp_pppoe_options
 pop_etc_freeradius2_radiusd_conf
 pop_etc_freeradius2_clients_conf
+pop_etc_freeradius2_eap_conf
 pop_etc_freeradius2_dictionary

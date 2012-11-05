@@ -83,6 +83,7 @@ extern int pop_etc_ppp_rp_pppoe_options(int flag);
 #if (HAVE_EZBOX_SERVICE_FREERADIUS2_SERVER == 1)
 extern int pop_etc_freeradius2_radiusd_conf(int flag);
 extern int pop_etc_freeradius2_clients_conf(int flag);
+extern int pop_etc_freeradius2_eap_conf(int flag);
 extern int pop_etc_freeradius2_dictionary(int flag);
 #endif
 

@@ -165,6 +165,7 @@ int rc_freeradius2_server(int argc, char **argv)
 
 		pop_etc_freeradius2_radiusd_conf(RC_ACT_START);
 		pop_etc_freeradius2_clients_conf(RC_ACT_START);
+		pop_etc_freeradius2_eap_conf(RC_ACT_START);
 		pop_etc_freeradius2_dictionary(RC_ACT_START);
 
 		snprintf(buf, sizeof(buf), "start-stop-daemon -S -n radiusd -a %s -- -i %s -p %s",

@@ -15,7 +15,7 @@
 #define _EZCFG_FREERADIUS2_SERVER_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_FREERADIUS2_SERVER_NVRAM_PREFIX   "pppoe_server_"
+#define EZCFG_FREERADIUS2_SERVER_NVRAM_PREFIX   "freeradius2_server_"
 
 /* ezcfg freeradius2 genenal options names */
 #define EZCFG_FREERADIUS2_OPT_KEYWORD_NAME      "name"
@@ -82,6 +82,19 @@
 	"virtual_server"
 #define EZCFG_FREERADIUS2_OPT_KEYWORD_COA_SERVER \
 	"coa_server"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_DEFAULT_EAP_TYPE \
+	"default_eap_type"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_TIMER_EXPIRE \
+	"timer_expire"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_IGNORE_UNKNOWN_EAP_TYPES \
+	"ignore_unknown_eap_types"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_CISCO_ACCOUNTING_USERNAME_BUG \
+	"cisco_accounting_username_bug"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_MAX_SESSIONS \
+	"max_sessions"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_TLS	"tls"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_ENABLE	"enable"
+#define EZCFG_FREERADIUS2_OPT_KEYWORD_EAP	"eap"
 
 
 /* ezcfg freeradius2 server nvram names */
@@ -141,6 +154,7 @@
 	"per_socket_clients_entry"
 #define EZCFG_FREERADIUS2_SERVER_PER_SOCKET_CLIENTS_ENTRY_NUM \
 	"per_socket_clients_entry_num"
+#define EZCFG_FREERADIUS2_SERVER_EAP            "eap"
 
 #define EZCFG_FREERADIUS2_SERVER_DEFAULT_IPADDR "192.168.1.1"
 #define EZCFG_FREERADIUS2_SERVER_DEFAULT_PORT   "1812,1813"

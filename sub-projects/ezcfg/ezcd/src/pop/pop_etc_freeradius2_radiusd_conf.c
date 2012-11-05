@@ -360,8 +360,6 @@ static int gen_radiusd_general_confs(FILE *file)
 
 	/* Instantiation */
 	fprintf(file, "instantiate {\n");
-	fprintf(file, "%s\n", "$INCLUDE ${confdir}/modules/");
-	fprintf(file, "%s\n", "$INCLUDE eap.conf");
 	fprintf(file, "}\n");
 
 	/* Load virtual servers. */
@@ -373,6 +371,9 @@ static int gen_radiusd_general_confs(FILE *file)
 int pop_etc_freeradius2_radiusd_conf(int flag)
 {
         FILE *file = NULL;
+
+	/* first change umask for process */
+	umask(S_IWGRP | S_IWOTH);
 
 	/* generate /etc/freeradius2/radiusd.conf */
 	file = fopen("/etc/freeradius2/radiusd.conf", "w");

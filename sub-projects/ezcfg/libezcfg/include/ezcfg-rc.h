@@ -60,7 +60,7 @@
 #define EZCFG_RC_PPP_RP_PPPOE_ENABLE     "ppp_rp_pppoe_enable"
 #define EZCFG_RC_PPP_RP_PPPOE_BINDING    "ppp_rp_pppoe_binding"
 
-#define EZCFG_RC_FREERADIUS2_SERVER_ENABLE      "pppoe_server_enable"
-#define EZCFG_RC_FREERADIUS2_SERVER_BINDING     "pppoe_server_binding"
+#define EZCFG_RC_FREERADIUS2_SERVER_ENABLE      "freeradius2_server_enable"
+#define EZCFG_RC_FREERADIUS2_SERVER_BINDING     "freeradius2_server_binding"
 
 #endif

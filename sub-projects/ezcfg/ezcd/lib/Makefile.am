@@ -215,6 +215,7 @@ endif
 if CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_freeradius2_radiusd_conf.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_freeradius2_clients_conf.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_freeradius2_eap_conf.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_freeradius2_dictionary.c
 endif
 
