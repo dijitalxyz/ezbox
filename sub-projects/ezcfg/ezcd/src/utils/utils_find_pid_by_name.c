@@ -197,7 +197,7 @@ bool utils_has_process_by_name(char *pidName)
 		tmp = strrchr(name, ')');
 		if (tmp) { *tmp = '\0'; }
 
-		if (strcmp(name, pidName) == 0)
+		if (strncmp(name, pidName, 15) == 0)
 		{
 			closedir(dir);
 			return true;
