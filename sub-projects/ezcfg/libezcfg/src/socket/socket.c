@@ -947,7 +947,7 @@ int ezcfg_socket_binding(struct ezcfg_socket *sp)
 #if (HAVE_EZBOX_EZCFG_IPV6 == 1)
 	case AF_INET6:
 		err = bind(sp->sock,
-		           (struct sockaddr *)&usa->u.sin, usa->len);
+		           (struct sockaddr *)&usa->u.sin6, usa->len);
 		break;
 #endif
 

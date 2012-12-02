@@ -109,7 +109,7 @@ proc_stat_t *utils_find_pid_by_name(char *pidName)
 		tmp = strrchr(name, ')');
 		if (tmp) { *tmp = '\0'; }
 
-		if (strcmp(name, pidName) == 0)
+		if (strncmp(name, pidName, 15) == 0)
 		{
 			pidTemp = (proc_stat_t *)realloc(pidList, sizeof(proc_stat_t) * (i+2));
 			if (pidTemp == NULL) {
