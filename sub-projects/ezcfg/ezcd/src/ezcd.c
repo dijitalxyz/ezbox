@@ -202,7 +202,7 @@ int ezcd_main(int argc, char **argv)
 		close(fd);
 	}
 	else {
-		fprintf(stderr, "the path of %s is incorrect\n" "semaphore for ezcfg");
+		fprintf(stderr, "the path of %s is incorrect\n", "semaphore for ezcfg");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
 	{
@@ -220,7 +220,7 @@ int ezcd_main(int argc, char **argv)
 		close(fd);
 	}
 	else {
-		fprintf(stderr, "the path of %s is incorrect\n" "shared memory for ezcfg");
+		fprintf(stderr, "the path of %s is incorrect\n", "shared memory for ezcfg");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
 	{
@@ -238,7 +238,7 @@ int ezcd_main(int argc, char **argv)
 		close(fd);
 	}
 	else {
-		fprintf(stderr, "the path of %s is incorrect\n" "shared memory for ezctp");
+		fprintf(stderr, "the path of %s is incorrect\n", "shared memory for ezctp");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
 	{
