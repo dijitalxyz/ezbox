@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1765
+PKG_REV:=1781
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -227,6 +227,12 @@ CONFIGURE_ARGS += \
 	--enable-service-iptables_dmz
 endif
 
+# set DHIS server service
+ifneq ($(CONFIG_PACKAGE_dhisd),)
+CONFIGURE_ARGS += \
+	--enable-service-dhisd
+endif
+
 # set DHIS client service
 ifneq ($(CONFIG_PACKAGE_dhid),)
 CONFIGURE_ARGS += \
@@ -314,6 +320,12 @@ CONFIGURE_ARGS += \
 	--enable-wan-pppoe
 CONFIGURE_ARGS += \
 	--enable-service-ppp_rp_pppoe
+endif
+
+# set FreeRADIUS2 server service
+ifneq ($(CONFIG_PACKAGE_freeradius2),)
+CONFIGURE_ARGS += \
+	--enable-service-freeradius2_server
 endif
 
 CONFIGURE_VARS += \
