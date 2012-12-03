@@ -45,7 +45,8 @@
 /* ctrl socket, nvram socket, uevent socket */
 #define EZCFG_THREAD_MIN_NUM	3
 
-#define EZCFG_ROOT_PATH		"/var/ezcfg"
+#define EZCFG_ROOT_PATH		SYSCONFDIR "/ezcfg"
+#define EZCFG_VAR_PATH		"/var/ezcfg"
 /* semaphore path */
 #define EZCFG_SEM_ROOT_PATH	EZCFG_ROOT_PATH "/sem"
 #define EZCFG_SEM_EZCFG_PATH	EZCFG_SEM_ROOT_PATH "/ezcfg"
@@ -76,7 +77,7 @@
 #define EZCFG_SOCK_MASTER_PATH  EZCFG_SOCK_ROOT_PATH "/master"
 
 /* Web GUI path */
-//#define EZCFG_WEB_DOCUMENT_ROOT_PATH    "/var/www"
+//#define EZCFG_WEB_DOCUMENT_ROOT_PATH    EZCFG_VAR_PATH "/www"
 
 /* file tail string */
 #define EZCFG_FILE_LINE_TAIL_STRING     " \t\r\n"
@@ -125,9 +126,9 @@
 #define EZCFG_NVRAM_CODING_GZIP            1
 #define EZCFG_NVRAM_CODING_GZIP_STRING     "1"
 //#define EZCFG_NVRAM_STORAGE_PATH           EZCFG_ROOT_PATH "/nvram.bin"
-#define EZCFG_NVRAM_STORAGE_PATH           "/var/ezcfg/nvram.bin"
+#define EZCFG_NVRAM_STORAGE_PATH           EZCFG_VAR_PATH "/nvram.bin"
 //#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    EZCFG_ROOT_PATH "/nvram_backup.bin"
-#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    "/var/ezcfg/nvram_backup.bin"
+#define EZCFG_NVRAM_BACKUP_STORAGE_PATH    EZCFG_VAR_PATH "/nvram_backup.bin"
 #define EZCFG_NVRAM_STORAGE_NUM            2
 
 /* ezcfg authentication type string */
