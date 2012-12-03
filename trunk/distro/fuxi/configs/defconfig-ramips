@@ -1193,6 +1193,39 @@ CONFIG_PACKAGE_rp-pppoe-common=y
 CONFIG_PACKAGE_rp-pppoe-server=y
 # CONFIG_PACKAGE_rp-pppoe-sniff is not set
 # CONFIG_PACKAGE_chat is not set
+CONFIG_PACKAGE_freeradius2=y
+CONFIG_PACKAGE_freeradius2-democerts=y
+CONFIG_PACKAGE_freeradius2-mod-always=y
+CONFIG_PACKAGE_freeradius2-mod-attr-filter=y
+CONFIG_PACKAGE_freeradius2-mod-attr-rewrite=y
+CONFIG_PACKAGE_freeradius2-mod-chap=y
+CONFIG_PACKAGE_freeradius2-mod-detail=y
+CONFIG_PACKAGE_freeradius2-mod-eap=y
+CONFIG_PACKAGE_freeradius2-mod-eap-gtc=y
+CONFIG_PACKAGE_freeradius2-mod-eap-md5=y
+CONFIG_PACKAGE_freeradius2-mod-eap-mschapv2=y
+CONFIG_PACKAGE_freeradius2-mod-eap-peap=y
+CONFIG_PACKAGE_freeradius2-mod-eap-tls=y
+CONFIG_PACKAGE_freeradius2-mod-eap-ttls=y
+CONFIG_PACKAGE_freeradius2-mod-exec=y
+CONFIG_PACKAGE_freeradius2-mod-expiration=y
+CONFIG_PACKAGE_freeradius2-mod-expr=y
+CONFIG_PACKAGE_freeradius2-mod-files=y
+# CONFIG_PACKAGE_freeradius2-mod-ldap is not set
+CONFIG_PACKAGE_freeradius2-mod-logintime=y
+CONFIG_PACKAGE_freeradius2-mod-mschap=y
+CONFIG_PACKAGE_freeradius2-mod-pap=y
+CONFIG_PACKAGE_freeradius2-mod-passwd=y
+CONFIG_PACKAGE_freeradius2-mod-preprocess=y
+CONFIG_PACKAGE_freeradius2-mod-radutmp=y
+CONFIG_PACKAGE_freeradius2-mod-realm=y
+CONFIG_PACKAGE_freeradius2-mod-sql=y
+# CONFIG_PACKAGE_freeradius2-mod-sql-mysql is not set
+# CONFIG_PACKAGE_freeradius2-mod-sql-pgsql is not set
+CONFIG_PACKAGE_freeradius2-mod-sql-sqlite=y
+CONFIG_PACKAGE_freeradius2-mod-sqlcounter=y
+CONFIG_PACKAGE_freeradius2-mod-sqllog=y
+CONFIG_PACKAGE_freeradius2-utils=y
 CONFIG_PACKAGE_ppp=y
 # CONFIG_PACKAGE_ppp-mod-pppoa is not set
 CONFIG_PACKAGE_ppp-mod-pppoe=y
@@ -1206,7 +1239,7 @@ CONFIG_PACKAGE_ulogd-mod-extra=y
 # CONFIG_PACKAGE_ulogd-mod-mysql is not set
 CONFIG_PACKAGE_ulogd-mod-pcap=y
 # CONFIG_PACKAGE_ulogd-mod-pgsql is not set
-# CONFIG_PACKAGE_ulogd-mod-sqlite is not set
+CONFIG_PACKAGE_ulogd-mod-sqlite=y
 CONFIG_PACKAGE_vblade=y
 
 #
@@ -1255,7 +1288,7 @@ CONFIG_PACKAGE_libiconv-full=y
 CONFIG_PACKAGE_libintl-full=y
 CONFIG_PACKAGE_libjemalloc=y
 CONFIG_PACKAGE_libjpeg=y
-# CONFIG_PACKAGE_libltdl is not set
+CONFIG_PACKAGE_libltdl=y
 CONFIG_PACKAGE_liblua=y
 # CONFIG_PACKAGE_libmount is not set
 CONFIG_PACKAGE_libncurses=y
