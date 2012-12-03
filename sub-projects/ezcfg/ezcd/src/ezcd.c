@@ -205,7 +205,7 @@ int ezcd_main(int argc, char **argv)
 		fprintf(stderr, "the path of %s is incorrect\n", "semaphore for ezcfg");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
-	{
+	}
 
 	/* setup shared memory path */
 	p = ezcfg_api_common_get_shm_ezcfg_path(ezcfg);
@@ -223,7 +223,7 @@ int ezcd_main(int argc, char **argv)
 		fprintf(stderr, "the path of %s is incorrect\n", "shared memory for ezcfg");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
-	{
+	}
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	p = ezcfg_api_common_get_shm_ezctp_path(ezcfg);
@@ -241,7 +241,7 @@ int ezcd_main(int argc, char **argv)
 		fprintf(stderr, "the path of %s is incorrect\n", "shared memory for ezctp");
 		ezcfg_api_common_delete(ezcfg);
 		exit(EXIT_FAILURE);
-	{
+	}
 #endif
 
 	ezcfg_api_common_delete(ezcfg);
