@@ -70,7 +70,7 @@
 #define EZCFG_SHM_SIZE_MAX	1073741824 /* 1024*1024*1024 */
 
 /* socket path */
-#define EZCFG_SOCK_ROOT_PATH    "@/var/ezcfg/sock"
+#define EZCFG_SOCK_ROOT_PATH    "@/etc/ezcfg/sock"
 #define EZCFG_SOCK_CTRL_PATH    EZCFG_SOCK_ROOT_PATH "/ctrl"
 #define EZCFG_SOCK_NVRAM_PATH   EZCFG_SOCK_ROOT_PATH "/nvram"
 #define EZCFG_SOCK_UEVENT_PATH  EZCFG_SOCK_ROOT_PATH "/uevent"
