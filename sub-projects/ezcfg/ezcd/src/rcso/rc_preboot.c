@@ -83,6 +83,7 @@ int rc_preboot(int argc, char **argv)
 	char buf[KERNEL_COMMAND_LINE_SIZE];
 	int ret;
 	char *p, *q;
+	struct stat stat_buf;
 	int flag = RC_ACT_UNKNOWN;
 
 	if (argc < 2) {
@@ -137,6 +138,23 @@ int rc_preboot(int argc, char **argv)
 
 		/* prepare boot device path */
 		utils_mount_boot_partition_readonly();
+
+		/* check if the ezbox_boot.cfg is ready */
+		if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) != 0) ||
+		    (!S_ISREG(stat_buf.st_mode))) {
+			/* try to restore to default ezbox_boot.cfg */
+			if ((stat(BOOT_CONFIG_DEFAULT_FILE_PATH, &stat_buf) == 0) &&
+			    (S_ISREG(stat_buf.st_mode))) {
+				/* first make /boot writable */
+				utils_remount_boot_partition_writable();
+				/* remove ezbox_boot.cfg */
+				utils_system("rm -rf " BOOT_CONFIG_FILE_PATH);
+				/* copy default ezbox_boot.cfg.dft ezbox_boot.cfg */
+				utils_system("cp -f " BOOT_CONFIG_DEFAULT_FILE_PATH " " BOOT_CONFIG_FILE_PATH);
+				/* make /boot read-only */
+				utils_remount_boot_partition_readonly();
+			}
+		}
 
 		ret = EXIT_SUCCESS;
 		break;

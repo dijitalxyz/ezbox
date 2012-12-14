@@ -55,14 +55,13 @@ int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 
 	snprintf(keyword, len, "%s=", name);
 
-	if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
-		if (S_ISREG(stat_buf.st_mode)) {
-			/* get keyword's value from boot.cfg file */
-			value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
-			if (value != NULL) {
-				ret = snprintf(buf, buf_len, "%s", value);
-				free(value);
-			}
+	if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) &&
+	    (S_ISREG(stat_buf.st_mode))) {
+		/* get keyword's value from boot.cfg file */
+		value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
+		if (value != NULL) {
+			ret = snprintf(buf, buf_len, "%s", value);
+			free(value);
 		}
 	}
 	free(keyword);

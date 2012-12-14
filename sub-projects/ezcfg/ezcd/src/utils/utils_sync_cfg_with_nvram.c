@@ -67,11 +67,14 @@ int utils_sync_cfg_with_nvram(char *path)
 		p = strchr(buf, '=');
 		if (p != NULL) {
 			*p = '\0';
-			value = p+1;
-			len = sizeof(buf) - strlen(buf) - 1;
-			rc = ezcfg_api_nvram_get(buf, buf2, sizeof(buf2));
-			if (rc >= 0) {
-				snprintf(value, len, "%s", buf2);
+			/* skip "sys." system configuration */
+			if (strcmp(buf, EZCFG_SYS_NVRAM_PREFIX) != 0) {
+				value = p+1;
+				len = sizeof(buf) - strlen(buf) - 1;
+				rc = ezcfg_api_nvram_get(buf, buf2, sizeof(buf2));
+				if (rc >= 0) {
+					snprintf(value, len, "%s", buf2);
+				}
 			}
 			*p = '=';
 		}

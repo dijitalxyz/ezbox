@@ -44,6 +44,7 @@
 #endif
 
 #define EZCFG_SYS_DATA_DEV                "data_dev"
+#define EZCFG_SYS_DATA_DEV_KEY            "data_dev_key"
 #define EZCFG_SYS_MODULES                 "modules"
 #define EZCFG_SYS_IPTABLES_MODULES        "iptables_modules"
 #define EZCFG_SYS_LD_LIBRARY_PATH         "ld_library_path"

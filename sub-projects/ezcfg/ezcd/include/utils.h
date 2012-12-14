@@ -47,6 +47,9 @@
 #define CMD_RADVD	"/usr/sbin/radvd"
 
 
+/* default boot config file path */
+#define BOOT_CONFIG_DEFAULT_FILE_PATH   "/boot/ezbox_boot.cfg.dft"
+
 /* boot config file path */
 #define BOOT_CONFIG_FILE_PATH   "/boot/ezbox_boot.cfg"
 
