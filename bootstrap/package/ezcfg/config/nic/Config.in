@@ -5,19 +5,19 @@
 
 menu "ezcfg Network Interfaces"
 
-config EZCFG_EZBOX_ELAN_NIC
+config EZCFG_EZBOX_ETH_LAN_NIC
 	bool "LAN Ethernet interface"
 	default y
 	help
 	  Enable LAN side Ethernet interface.
 
-config EZCFG_EZBOX_WLAN_NIC
-	bool "WLAN Wifi interface"
+config EZCFG_EZBOX_WIFI_LAN_NIC
+	bool "LAN Wifi interface"
 	default y
 	help
 	  Enable LAN side Wifi interface.
 
-config EZCFG_EZBOX_BRLAN_NIC
+config EZCFG_EZBOX_BR_LAN_NIC
 	bool "LAN bridge interface"
 	default y
 	help

@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1781
+PKG_REV:=1785
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -110,30 +110,30 @@ endif
 
 
 # set LAN Ethernet interface settings
-ifneq ($(CONFIG_EZCFG_EZBOX_ELAN_NIC),)
+ifneq ($(CONFIG_EZCFG_EZBOX_ETH_LAN_NIC),)
 CONFIGURE_ARGS += \
-	--enable-elan-nic
+	--enable-eth-lan-nic
 else
 CONFIGURE_ARGS += \
-	--disable-elan-nic
+	--disable-eth-lan-nic
 endif
 
 # set LAN Wifi interface settings
-ifneq ($(CONFIG_EZCFG_EZBOX_WLAN_NIC),)
+ifneq ($(CONFIG_EZCFG_EZBOX_WIFI_LAN_NIC),)
 CONFIGURE_ARGS += \
-	--enable-wlan-nic
+	--enable-wifi-lan-nic
 else
 CONFIGURE_ARGS += \
-	--disable-wlan-nic
+	--disable-wifi-lan-nic
 endif
 
 # set LAN bridge interface settings
-ifneq ($(CONFIG_EZCFG_EZBOX_BRLAN_NIC),)
+ifneq ($(CONFIG_EZCFG_EZBOX_BR_LAN_NIC),)
 CONFIGURE_ARGS += \
-	--enable-brlan-nic
+	--enable-br-lan-nic
 else
 CONFIGURE_ARGS += \
-	--disable-brlan-nic
+	--disable-br-lan-nic
 endif
 
 # set LAN network interface settings
@@ -368,7 +368,7 @@ define Package/ezcfg/install
 	$(INSTALL_DIR) $(1)/usr/share/ezcfg/html/lang
 	$(CP) $(PKG_BUILD_DIR)/i18n/html/lang/* $(1)/usr/share/ezcfg/html/lang/
 	$(INSTALL_DIR) $(1)/boot
-	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_boot.cfg $(1)/boot/
+	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_boot.cfg.dft $(1)/boot/
 	$(CP) $(PKG_BUILD_DIR)/doc/ezbox_rootfs.cfg $(1)/boot/
 endef
 
