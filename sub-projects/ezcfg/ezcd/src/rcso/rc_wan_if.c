@@ -63,7 +63,7 @@ int rc_wan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WAN_NIC), wan_ifname, sizeof(wan_ifname));
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
 	if (ret < 0)
 		return (EXIT_FAILURE);
 

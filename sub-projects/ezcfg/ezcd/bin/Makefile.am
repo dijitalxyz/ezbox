@@ -110,14 +110,14 @@ RCSO_SRC += rc_klogd.c
 endif
 RCSO_SRC += rc_loopback.c
 # network
-if CONFIG_EZBOX_ELAN_NIC
-RCSO_SRC += rc_elan_if.c
+if CONFIG_EZBOX_ETH_LAN_NIC
+RCSO_SRC += rc_eth_lan_if.c
 endif
-if CONFIG_EZBOX_WLAN_NIC
-RCSO_SRC += rc_wlan_if.c
+if CONFIG_EZBOX_WIFI_LAN_NIC
+RCSO_SRC += rc_wifi_lan_if.c
 endif
-if CONFIG_EZBOX_BRLAN_NIC
-RCSO_SRC += rc_brlan_if.c
+if CONFIG_EZBOX_BR_LAN_NIC
+RCSO_SRC += rc_br_lan_if.c
 endif
 if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
 RCSO_SRC += rc_wpa_supplicant.c

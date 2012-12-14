@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_brlan_if.c
+ * Module Name  : rc_br_lan_if.c
  *
  * Description  : ezbox ethernet LAN bridge interface manipulate
  *
@@ -42,7 +42,7 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *dbg_fp = fopen("/tmp/brlan_if.log", "a"); \
+	FILE *dbg_fp = fopen("/tmp/br_lan_if.log", "a"); \
 	if (dbg_fp) { \
 		fprintf(dbg_fp, format, ## args); \
 		fclose(dbg_fp); \
@@ -52,7 +52,7 @@
 #define DBG(format, arg...)
 #endif
 
-static int brlan_if_user_defined(int argc, char **argv)
+static int br_lan_if_user_defined(int argc, char **argv)
 {
 	int i, ret;
 	char cmdline[256];
@@ -75,11 +75,11 @@ static int brlan_if_user_defined(int argc, char **argv)
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_brlan_if(int argc, char **argv)
+int rc_br_lan_if(int argc, char **argv)
 #endif
 {
-	char brlan_ifname[IFNAMSIZ];
-	char brlan_ifnames[64];
+	char br_lan_ifname[IFNAMSIZ];
+	char br_lan_ifnames[64];
 	int if_argc;
 	char *if_argv[8];
 	char cmdline[256];
@@ -90,7 +90,7 @@ int rc_brlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "brlan_if")) {
+	if (strcmp(argv[0], "br_lan_if")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -98,16 +98,16 @@ int rc_brlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BRLAN, IFNAME), brlan_ifname, sizeof(brlan_ifname));
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BR_LAN, IFNAME), br_lan_ifname, sizeof(br_lan_ifname));
 	if (ret < 0) {
 		return (EXIT_FAILURE);
 	}
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BRLAN, IFNAMES), brlan_ifnames, sizeof(brlan_ifnames));
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BR_LAN, IFNAMES), br_lan_ifnames, sizeof(br_lan_ifnames));
 	if (ret < 0) {
 		return (EXIT_FAILURE);
 	}
-	if_argc = utils_parse_args(brlan_ifnames, strlen(brlan_ifnames) + 1, if_argv);
+	if_argc = utils_parse_args(br_lan_ifnames, strlen(br_lan_ifnames) + 1, if_argv);
 
 	flag = utils_get_rc_act_type(argv[1]);
 
@@ -115,15 +115,15 @@ int rc_brlan_if(int argc, char **argv)
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
 		/* bring down LAN bridge interface */
-		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, brlan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, br_lan_ifname);
 		ret = utils_system(cmdline);
 		/* remove interfaces from bridge */
 		for (i = 0; i < if_argc; i++) {
-			snprintf(cmdline, sizeof(cmdline), "%s delif %s %s", CMD_BRCTL, brlan_ifname, if_argv[i]);
+			snprintf(cmdline, sizeof(cmdline), "%s delif %s %s", CMD_BRCTL, br_lan_ifname, if_argv[i]);
 			ret = utils_system(cmdline);
 		}
 		/* remove from bridge */
-		snprintf(cmdline, sizeof(cmdline), "%s delbr %s", CMD_BRCTL, brlan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s delbr %s", CMD_BRCTL, br_lan_ifname);
 		ret = utils_system(cmdline);
 
 		if (flag == RC_ACT_STOP) {
@@ -135,22 +135,22 @@ int rc_brlan_if(int argc, char **argv)
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
 		/* add bridge */
-		snprintf(cmdline, sizeof(cmdline), "%s addbr %s", CMD_BRCTL, brlan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s addbr %s", CMD_BRCTL, br_lan_ifname);
 		ret = utils_system(cmdline);
 
 		/* add interfaces to bridge */
 		for (i = 0; i < if_argc; i++) {
-			snprintf(cmdline, sizeof(cmdline), "%s addif %s %s", CMD_BRCTL, brlan_ifname, if_argv[i]);
+			snprintf(cmdline, sizeof(cmdline), "%s addif %s %s", CMD_BRCTL, br_lan_ifname, if_argv[i]);
 			ret = utils_system(cmdline);
 		}
 		/* bring up LAN interface, but not config it */
-		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, brlan_ifname);
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, br_lan_ifname);
 		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_USRDEF :
-		ret = brlan_if_user_defined(argc-2, &(argv[2]));
+		ret = br_lan_if_user_defined(argc-2, &(argv[2]));
 		break;
 
 	default :

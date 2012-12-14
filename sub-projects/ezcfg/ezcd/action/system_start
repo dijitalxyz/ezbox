@@ -30,11 +30,11 @@ shelld start
 # load iptables kernel modules
 iptables load start
 # bring up ethernet interface but not configurate it
-elan_if start
-# bring up WLAN interface but not configurate it
-wlan_if start
+eth_lan_if start
+# bring up Wifi LAN interface but not configurate it
+wifi_lan_if start
 # bring up LAN bridge interface but not configurate it
-brlan_if start
+br_lan_if start
 # bring up WAN interface but not configurate it, LAN interface alias need it
 wan_if start
 # bring up LAN interface and configurate it

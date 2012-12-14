@@ -57,19 +57,19 @@
 int pop_etc_wpa_supplicant_conf(int flag)
 {
         FILE *file = NULL;
-	char wlan_nic[IFNAMSIZ];
+	char wifi_nic[IFNAMSIZ];
 	char name[64];
 	char buf[128];
 	char *s_name;
 	int rc;
 
-	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), wlan_nic, sizeof(wlan_nic));
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WIFI_LAN, IFNAME), wifi_nic, sizeof(wifi_nic));
 	if (rc <= 0) {
 		return (EXIT_FAILURE);
 	}
 
 	/* generate /etc/wpa_supplicant-$ifname.conf */
-	snprintf(name, sizeof(name), "/etc/wpa_supplicant-%s.conf", wlan_nic);
+	snprintf(name, sizeof(name), "/etc/wpa_supplicant-%s.conf", wifi_nic);
 	file = fopen(name, "w");
 	if (file == NULL)
 		return (EXIT_FAILURE);
@@ -82,7 +82,7 @@ int pop_etc_wpa_supplicant_conf(int flag)
 		snprintf(name, sizeof(name), "%s", NVRAM_SERVICE_OPTION(WPA_SUPPLICANT, CTRL_INTERFACE));
 		rc = ezcfg_api_nvram_get(name, buf, sizeof(buf));
 		if (rc <= 0) {
-			snprintf(buf, sizeof(buf), "/var/run/wpa_supplicant-%s.conf", wlan_nic);
+			snprintf(buf, sizeof(buf), "/var/run/wpa_supplicant-%s.conf", wifi_nic);
 			rc = ezcfg_api_nvram_set(name, buf);
 		}
 		fprintf(file, "%s=%s\n", s_name, buf);

@@ -125,62 +125,62 @@ AC_ARG_ENABLE([ezcfg_ipv6],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_IPV6, test "x$config_ezbox_ezcfg_ipv6" = xyes)
 
-# Configure ELAN NIC.
-config_ezbox_elan_nic=yes
-AC_MSG_CHECKING([if Ethernet network interface is enabled])
-AC_ARG_ENABLE([elan-nic],
-	AS_HELP_STRING([--enable-elan-nic], [Enable Ethernet network interface (default yes)]),
+# Configure EtherLAN NIC.
+config_ezbox_eth_lan_nic=yes
+AC_MSG_CHECKING([if Ethernet LAN network interface is enabled])
+AC_ARG_ENABLE([eth-lan-nic],
+	AS_HELP_STRING([--enable-eth-lan-nic], [Enable Ethernet LAN network interface (default yes)]),
 	[case "$enableval" in
 	no)
 		AC_MSG_RESULT(no)
-		config_ezbox_elan_nic=no
+		config_ezbox_eth_lan_nic=no
 	;;
 	*)
-		AC_DEFINE([HAVE_EZBOX_ELAN_NIC], [1], [Enable Ethernet network interface])
+		AC_DEFINE([HAVE_EZBOX_ETH_LAN_NIC], [1], [Enable Ethernet LAN network interface])
 		AC_MSG_RESULT(yes)
 	;;
 	esac] ,
-	[AC_DEFINE([HAVE_EZBOX_ELAN_NIC], [1], [Enable Ethernet network interface]) AC_MSG_RESULT(yes)]
+	[AC_DEFINE([HAVE_EZBOX_ETH_LAN_NIC], [1], [Enable Ethernet LAN network interface]) AC_MSG_RESULT(yes)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_ELAN_NIC, test "x$config_ezbox_elan_nic" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_ETH_LAN_NIC, test "x$config_ezbox_eth_lan_nic" = xyes)
 
-# Configure WLAN NIC.
-config_ezbox_wlan_nic=yes
-AC_MSG_CHECKING([if WLAN network interface is enabled])
-AC_ARG_ENABLE([wlan-nic],
-	AS_HELP_STRING([--enable-wlan-nic], [Enable WLAN network interface (default yes)]),
+# Configure WifiLAN NIC.
+config_ezbox_wifi_lan_nic=yes
+AC_MSG_CHECKING([if Wifi LAN network interface is enabled])
+AC_ARG_ENABLE([wifi-lan-nic],
+	AS_HELP_STRING([--enable-wifi-lan-nic], [Enable Wifi LAN network interface (default yes)]),
 	[case "$enableval" in
 	no)
 		AC_MSG_RESULT(no)
-		config_ezbox_wlan_nic=no
+		config_ezbox_wifi_lan_nic=no
 	;;
 	*)
-		AC_DEFINE([HAVE_EZBOX_WLAN_NIC], [1], [Enable WLAN network interface])
+		AC_DEFINE([HAVE_EZBOX_WIFI_LAN_NIC], [1], [Enable Wifi LAN network interface])
 		AC_MSG_RESULT(yes)
 	;;
 	esac] ,
-	[AC_DEFINE([HAVE_EZBOX_WLAN_NIC], [1], [Enable WLAN network interface]) AC_MSG_RESULT(yes)]
+	[AC_DEFINE([HAVE_EZBOX_WIFI_LAN_NIC], [1], [Enable Wifi LAN network interface]) AC_MSG_RESULT(yes)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_WLAN_NIC, test "x$config_ezbox_wlan_nic" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_WIFI_LAN_NIC, test "x$config_ezbox_wifi_lan_nic" = xyes)
 
 # Configure LAN bridge NIC.
-config_ezbox_brlan_nic=yes
+config_ezbox_br_lan_nic=yes
 AC_MSG_CHECKING([if LAN bridge network interface is enabled])
-AC_ARG_ENABLE([brlan-nic],
-	AS_HELP_STRING([--enable-brlan-nic], [Enable LAN bridge network interface (default yes)]),
+AC_ARG_ENABLE([br-lan-nic],
+	AS_HELP_STRING([--enable-br-lan-nic], [Enable LAN bridge network interface (default yes)]),
 	[case "$enableval" in
 	no)
 		AC_MSG_RESULT(no)
-		config_ezbox_brlan_nic=no
+		config_ezbox_br_lan_nic=no
 	;;
 	*)
-		AC_DEFINE([HAVE_EZBOX_BRLAN_NIC], [1], [Enable LAN bridge network interface])
+		AC_DEFINE([HAVE_EZBOX_BR_LAN_NIC], [1], [Enable LAN bridge network interface])
 		AC_MSG_RESULT(yes)
 	;;
 	esac] ,
-	[AC_DEFINE([HAVE_EZBOX_BRLAN_NIC], [1], [Enable LAN bridge network interface]) AC_MSG_RESULT(yes)]
+	[AC_DEFINE([HAVE_EZBOX_BR_LAN_NIC], [1], [Enable LAN bridge network interface]) AC_MSG_RESULT(yes)]
 )
-AM_CONDITIONAL(CONFIG_EZBOX_BRLAN_NIC, test "x$config_ezbox_brlan_nic" = xyes)
+AM_CONDITIONAL(CONFIG_EZBOX_BR_LAN_NIC, test "x$config_ezbox_br_lan_nic" = xyes)
 
 # Configure LAN NIC.
 config_ezbox_lan_nic=yes

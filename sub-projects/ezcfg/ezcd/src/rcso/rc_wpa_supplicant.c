@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 int rc_wpa_supplicant(int argc, char **argv)
 #endif
 {
-	char wlan_nic[IFNAMSIZ];
+	char wifi_nic[IFNAMSIZ];
 	char cmd[256];
 	int rc;
 	int flag, ret;
@@ -96,13 +96,13 @@ int rc_wpa_supplicant(int argc, char **argv)
 			return (EXIT_FAILURE);
 		}
 
-		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), wlan_nic, sizeof(wlan_nic));
+		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WIFI_LAN, IFNAME), wifi_nic, sizeof(wifi_nic));
 		if (rc <= 0) {
 			return (EXIT_FAILURE);
 		}
 
 		pop_etc_wpa_supplicant_conf(RC_ACT_START);
-		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -B -D%s -i%s -c/etc/wpa_supplicant-%s.conf", "nl80211", wlan_nic, wlan_nic);
+		snprintf(cmd, sizeof(cmd), "start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -B -D%s -i%s -c/etc/wpa_supplicant-%s.conf", "nl80211", wifi_nic, wifi_nic);
 #if 0
 		utils_system("start-stop-daemon -S -n wpa_supplicant -a /usr/sbin/wpa_supplicant -- -i wlan0 -c /etc/wpa_supplicant-wlan0.conf");
 #else

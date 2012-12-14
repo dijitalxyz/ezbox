@@ -29,12 +29,19 @@
 
 #define EZCFG_SYS_RESTORE_DEFAULTS        "restore_defaults"
 #define EZCFG_SYS_UPGRADE_IMAGE           "upgrade_image"
+
+#if 0
 #define EZCFG_SYS_NICS                    "nics"
-#define EZCFG_SYS_ELAN_NIC                "elan_nic"
-#define EZCFG_SYS_WLAN_NIC                "wlan_nic"
-#define EZCFG_SYS_BRLAN_NICS              "brlan_nics"
+#define EZCFG_SYS_ETH_LAN_NIC             "eth_lan_nic"
+#define EZCFG_SYS_WIFI_LAN_NIC            "wifi_lan_nic"
+#define EZCFG_SYS_BR_LAN_NICS             "br_lan_nics"
 #define EZCFG_SYS_LAN_NIC                 "lan_nic"
+#define EZCFG_SYS_ETH_WAN_NIC             "eth_wan_nic"
+#define EZCFG_SYS_ADLS_WAN_NIC            "adsl_wan_nic"
+#define EZCFG_SYS_VDLS_WAN_NIC            "vdsl_wan_nic"
+#define EZCFG_SYS_WIFI_WAN_NIC            "wifi_wan_nic"
 #define EZCFG_SYS_WAN_NIC                 "wan_nic"
+#endif
 
 #define EZCFG_SYS_DATA_DEV                "data_dev"
 #define EZCFG_SYS_MODULES                 "modules"

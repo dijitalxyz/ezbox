@@ -30,24 +30,35 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
 	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
-	/* system network interfaces, LAN_NIC+WAN_NIC+WLAN_NIC */
+
+#if 0
+	/* system network interfaces, LAN_NIC+WAN_NIC */
 	{ NVRAM_SERVICE_OPTION(SYS, NICS), "" },
-#if (HAVE_EZBOX_ELAN_NIC == 1)
-	{ NVRAM_SERVICE_OPTION(SYS, ELAN_NIC), "eth0" },
+#if (HAVE_EZBOX_ETH_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, ETH_LAN_NIC), "eth0" },
 #endif
-#if (HAVE_EZBOX_WLAN_NIC == 1)
-	{ NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), "wlan0" },
+#if (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, WIFI_LAN_NIC), "wlan0" },
+#endif
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, BR_LAN_NIC), "br-lan" },
 #endif
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "br-lan" },
-#else
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "eth0" },
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "wlan0" },
+#else
+	{ NVRAM_SERVICE_OPTION(SYS, LAN_NIC), "" },
 #endif
 #endif
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(SYS, WAN_NIC), "eth1" },
 #endif
+#endif
+
 	/* dynamic data storage device */
 	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV), "" },
 	/* kernel modules */
@@ -246,10 +257,14 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG UPnP binding interfaces */
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_0_INTERFACE),
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	  "br-lan"
-#else
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	  "eth0"
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	  "wlan0"
+#else
+	  ""
 #endif
 #else
 	  "eth1"
@@ -267,10 +282,14 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* EZCFG UPnP binding interfaces */
 	{ NVRAM_SERVICE_OPTION(EZCFG, UPNP_1_INTERFACE),
 #if (HAVE_EZBOX_LAN_NIC == 1)
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	  "br-lan"
-#else
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	  "eth0"
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	  "wlan0"
+#else
+	  ""
 #endif
 #else
 	  "eth1"
@@ -691,14 +710,32 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LOOPBACK, NETMASK),
 	  EZCFG_LOOPBACK_DEFAULT_NETMASK },
 
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_ETH_LAN_NIC == 1)
+	/* EtherLAN interface name */
+	{ NVRAM_SERVICE_OPTION(ETH_LAN, IFNAME), "eth0" },
+	/* EtherLAN driver names (e.g. 8139too) */
+	{ NVRAM_SERVICE_OPTION(ETH_LAN, HWNAME), "" },
+	/* EtherLAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
+	{ NVRAM_SERVICE_OPTION(ETH_LAN, PHYMODE), "auto" },
+#endif
+
+#if (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	/* WifiLAN interface name */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, IFNAME), "wlan0" },
+	/* WifiLAN driver names (e.g. rt73usb) */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, HWNAME), "" },
+	/* WifiLAN PHY port mode [a|bg|an|bgn|abgn|ac] */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, PHYMODE), "bgn" },
+#endif
+
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	/*--------------------*/
 	/* LAN bridge H/W parameters */
 	/*--------------------*/
 	/* LAN bridge name */
-	{ NVRAM_SERVICE_OPTION(BRLAN, IFNAME), "br-lan" },
+	{ NVRAM_SERVICE_OPTION(BR_LAN, IFNAME), "br-lan" },
 	/* LAN bridge included interfaces' name */
-	{ NVRAM_SERVICE_OPTION(BRLAN, IFNAMES), "eth0 wlan0" },
+	{ NVRAM_SERVICE_OPTION(BR_LAN, IFNAMES), "eth0 wlan0" },
 #endif
 
 #if (HAVE_EZBOX_LAN_NIC == 1)
@@ -706,15 +743,17 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* LAN H/W parameters */
 	/*--------------------*/
 	/* LAN interface name */
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(LAN, IFNAME), "br-lan" },
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(LAN, IFNAME), "eth0" },
-	/* Enslaved LAN interfaces */
-	{ NVRAM_SERVICE_OPTION(LAN, IFNAMES), "" },
-	/* LAN driver names (e.g. 8139too) */
-	{ NVRAM_SERVICE_OPTION(LAN, HWNAME), "" },
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(LAN, IFNAME), "wlan0" },
+#else
+	{ NVRAM_SERVICE_OPTION(LAN, IFNAME), "" },
+#endif
 	/* LAN interface MAC address */
 	{ NVRAM_SERVICE_OPTION(LAN, HWADDR), "" },
-	/* LAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
-	{ NVRAM_SERVICE_OPTION(LAN, PHYMODE), "auto" },
 
 	/* LAN TCP/IP parameters */
 	/* LAN IP address */
@@ -731,25 +770,57 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(LAN, STP_ENABLE), "0" },
 #endif
 
+#if (HAVE_EZBOX_ETH_WAN_NIC == 1)
+	/* EtherWAN interface name */
+	{ NVRAM_SERVICE_OPTION(ETH_WAN, IFNAME), "eth1" },
+	/* EtherWAN driver name (e.g. 8139cp) */
+	{ NVRAM_SERVICE_OPTION(ETH_WAN, HWNAME), "" },
+	/* EtherWAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
+	{ NVRAM_SERVICE_OPTION(ETH_WAN, PHYMODE), "auto" },
+#endif
+
+#if (HAVE_EZBOX_ADLS_WAN_NIC == 1)
+	/* ADSL WAN interface name */
+	{ NVRAM_SERVICE_OPTION(ADSL_WAN, IFNAME), "nas0" },
+#endif
+
+#if (HAVE_EZBOX_VDLS_WAN_NIC == 1)
+	/* VDSL WAN interface name */
+	{ NVRAM_SERVICE_OPTION(VDSL_WAN, IFNAME), "ptm0" },
+#endif
+
+#if (HAVE_EZBOX_WIFI_WAN_NIC == 1)
+	/* WifiWAN interface name */
+	{ NVRAM_SERVICE_OPTION(WIFI_WAN, IFNAME), "wlan1" },
+	/* WifiWAN driver name (e.g. rt73usb) */
+	{ NVRAM_SERVICE_OPTION(WIFI_WAN, HWNAME), "" },
+	/* WifiWAN PHY port mode [a|bg|an|bgn|abgn|ac] */
+	{ NVRAM_SERVICE_OPTION(WIFI_WAN, PHYMODE), "bgn" },
+#endif
+
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	/* WAN H/W parameters */
 	/* WAN interface name */
+#if (HAVE_EZBOX_ETH_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "eth1" },
-	/* Enslaved WAN interfaces */
-	{ NVRAM_SERVICE_OPTION(WAN, IFNAMES), "" },
-	/* WAN driver name (e.g. 8139cp) */
-	{ NVRAM_SERVICE_OPTION(WAN, HWNAME), "" },
+#elif (HAVE_EZBOX_ADSL_WAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "nas0" },
+#elif (HAVE_EZBOX_VDSL_WAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "ptm0" },
+#elif (HAVE_EZBOX_WIFI_WAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "wlan1" },
+#else
+	{ NVRAM_SERVICE_OPTION(WAN, IFNAME), "" },
+#endif
 	/* WAN interface MAC address */
 	{ NVRAM_SERVICE_OPTION(WAN, HWADDR), "" },
-	/* WAN PHY port mode [auto|10half|10full|100half|100full|1000full] */
-	{ NVRAM_SERVICE_OPTION(WAN, PHYMODE), "auto" },
 	/* WAN interface MAC clone [0|1] */
 	{ NVRAM_SERVICE_OPTION(WAN, MACCLONE_ENABLE), "0" },
 	/* WAN interface MAC clone address */
 	{ NVRAM_SERVICE_OPTION(WAN, CLONE_HWADDR), "" },
 
         /* WAN TCP/IP parameters */
-	/* WAN connection type [dhcp|static|pppoe|pptp|l2tp|disabled] */
+	/* WAN connection type [dhcp|static|pppoe|disabled] */
 	{ NVRAM_SERVICE_OPTION(WAN, TYPE), "dhcp" },
 	/* WAN connection release [1|0] */
 	{ NVRAM_SERVICE_OPTION(WAN, RELEASE), "0" },
@@ -876,18 +947,18 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 #endif
 
-#if (HAVE_EZBOX_WLAN_NIC == 1)
+#if (HAVE_EZBOX_WIFI_LAN_NIC == 1)
 	/*--------------------*/
-	/* WLAN H/W parameters */
+	/* WifiLAN H/W parameters */
 	/*--------------------*/
-	/* WLAN driver names (e.g. rt87usb) */
-	{ NVRAM_SERVICE_OPTION(WLAN, HWNAME), "" },
-	/* WLAN interface MAC address */
-	{ NVRAM_SERVICE_OPTION(WLAN, HWADDR), "" },
-	/* WLAN PHY mode [auto] */
-	{ NVRAM_SERVICE_OPTION(WLAN, PHYMODE), "auto" },
-	/* WLAN node type [ap|sta|mp|map] */
-	{ NVRAM_SERVICE_OPTION(WLAN, NODE_TYPE), "sta" },
+	/* WifiLAN driver names (e.g. rt87usb) */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, HWNAME), "" },
+	/* WifiLAN interface MAC address */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, HWADDR), "" },
+	/* WifiLAN PHY mode [auto] */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, PHYMODE), "auto" },
+	/* WifiLAN node type [ap|sta|mp|map] */
+	{ NVRAM_SERVICE_OPTION(WIFI_LAN, NODE_TYPE), "sta" },
 #endif
 
 #if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
@@ -1477,14 +1548,22 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(RC, PPPOE_SERVER_ENABLE), "0" },
 #if (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, PPPOE_SERVER_BINDING), "lan" },
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "br-lan" },
-#else
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "eth0" },
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "wlan0" },
+#else
+	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "" },
 #endif
 #elif (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, PPPOE_SERVER_BINDING), "wan" },
+#if (HAVE_EZBOX_ETH_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "eth1" },
+#else
+	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, IFNAME), "" },
+#endif
 #endif
 	{ NVRAM_SERVICE_OPTION(PPPOE_SERVER, LOCAL_IPADDR),
 		EZCFG_PPPOE_SERVER_DEFAULT_LOCAL_IPADDR },
@@ -1669,13 +1748,21 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* PPP rp-pppoe plugin options */
 #if (HAVE_EZBOX_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, PPP_RP_PPPOE_BINDING), "wan" },
+#if (HAVE_EZBOX_ETH_WAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "nic-eth1" },
+#else
+	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "" },
+#endif
 #elif (HAVE_EZBOX_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RC, PPP_RP_PPPOE_BINDING), "lan" },
-#if (HAVE_EZBOX_BRLAN_NIC == 1)
+#if (HAVE_EZBOX_BR_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "nic-br-lan" },
-#else
+#elif (HAVE_EZBOX_ETH_LAN_NIC == 1)
 	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "nic-eth0" },
+#elif (HAVE_EZBOX_WIFI_LAN_NIC == 1)
+	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "nic-wlan0" },
+#else
+	{ NVRAM_SERVICE_OPTION(RP_PPPOE, DEVICE_NAME), "" },
 #endif
 #endif
 	{ NVRAM_SERVICE_OPTION(RP_PPPOE, RP_PPPOE_SERVICE), "" },

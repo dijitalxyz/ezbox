@@ -1,14 +1,14 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_wlan_if.c
+ * Module Name  : rc_eth_lan_if.c
  *
- * Description  : ezbox run network WLAN interface service
+ * Description  : ezbox run ethernet LAN interface service
  *
  * Copyright (C) 2008-2012 by ezbox-project
  *
  * History      Rev       Description
- * 2011-08-04   0.1       Write it from scratch
- * 2011-10-04   0.2       Modify it to use rcso framework
+ * 2010-11-03   0.1       Write it from scratch
+ * 2011-10-05   0.2       Modify it to use rcso framework
  * ============================================================================
  */
 
@@ -41,49 +41,13 @@
 
 #include "ezcd.h"
 
-#if 0
-static int start_wlan_if(void)
-{
-	int rc;
-	char buf[64];
-
-	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WLAN, NODE_TYPE), buf, sizeof(buf));
-	if (rc > 0) {
-#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
-		if (strcmp(buf, "sta") == 0) {
-			/* wireless client node */
-			return rc_wpa_supplicant(RC_ACT_START);
-		}
-#endif
-	}
-	return (EXIT_FAILURE);
-}
-
-static int stop_wlan_if(void)
-{
-	int rc;
-	char buf[64];
-
-	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WLAN, NODE_TYPE), buf, sizeof(buf));
-	if (rc > 0) {
-#if (HAVE_EZBOX_SERVICE_WPA_SUPPLICANT == 1)
-		if (strcmp(buf, "sta") == 0) {
-			/* wireless client node */
-			return rc_wpa_supplicant(RC_ACT_STOP);
-		}
-#endif
-	}
-	return (EXIT_FAILURE);
-}
-#endif
-
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_wlan_if(int argc, char **argv)
+int rc_eth_lan_if(int argc, char **argv)
 #endif
 {
-	char wlan_ifname[IFNAMSIZ];
+	char eth_lan_ifname[IFNAMSIZ];
 	char cmdline[256];
 	int flag, ret;
 
@@ -91,7 +55,7 @@ int rc_wlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "wlan_if")) {
+	if (strcmp(argv[0], "eth_lan_if")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -99,7 +63,7 @@ int rc_wlan_if(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(SYS, WLAN_NIC), wlan_ifname, sizeof(wlan_ifname));
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(ETH_LAN, IFNAME), eth_lan_ifname, sizeof(eth_lan_ifname));
 	if (ret < 0)
 		return (EXIT_FAILURE);
 
@@ -108,12 +72,8 @@ int rc_wlan_if(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		/* clean WLAN interface phy link */
-#if 0
-		ret = stop_wlan_if();
-#endif
-		/* bring down WLAN interface */
-		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, wlan_ifname);
+		/* bring down LAN interface */
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, eth_lan_ifname);
 		ret = utils_system(cmdline);
 		if (flag == RC_ACT_STOP) {
 			ret = EXIT_SUCCESS;
@@ -123,13 +83,9 @@ int rc_wlan_if(int argc, char **argv)
 		/* RC_ACT_RESTART fall through */
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
-		/* bring up WLAN interface, but not config it */
-		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, wlan_ifname);
+		/* bring up LAN interface, but not config it */
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, eth_lan_ifname);
 		ret = utils_system(cmdline);
-		/* setup WLAN interface phy link */
-#if 0
-		ret = start_wlan_if();
-#endif
 		ret = EXIT_SUCCESS;
 		break;
 

@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : ezcfg-brlan.h
+ * File Name    : ezcfg-br_lan.h
  *
  * Description  : interface to configurate ezbox information
  *
@@ -11,14 +11,14 @@
  * ============================================================================
  */
 
-#ifndef _EZCFG_BRLAN_H_
-#define _EZCFG_BRLAN_H_
+#ifndef _EZCFG_BR_LAN_H_
+#define _EZCFG_BR_LAN_H_
 
 /* ezcfg nvram name prefix */
-#define EZCFG_BRLAN_NVRAM_PREFIX        "brlan."
+#define EZCFG_BR_LAN_NVRAM_PREFIX        "br_lan."
 
 /* ezcfg LAN bridge names */
-#define EZCFG_BRLAN_IFNAME                "ifname"
-#define EZCFG_BRLAN_IFNAMES               "ifnames"
+#define EZCFG_BR_LAN_IFNAME              "ifname"
+#define EZCFG_BR_LAN_IFNAMES             "ifnames"
 
 #endif
