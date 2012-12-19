@@ -68,6 +68,10 @@
 #define EZCFG_SHM_PROJID_EZCTP	't'
 /* shared memory size */
 #define EZCFG_SHM_SIZE_MAX	1073741824 /* 1024*1024*1024 */
+/* shared memory nvram queue minimum length */
+#define EZCFG_SHM_EZCFG_NVRAM_QUEUE_MIN        64
+/* shared memory nvram queue minimum length */
+#define EZCFG_SHM_EZCFG_RC_QUEUE_MIN           64
 
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH    "@/etc/ezcfg/sock"

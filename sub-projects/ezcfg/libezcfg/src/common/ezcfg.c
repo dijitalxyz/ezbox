@@ -59,6 +59,8 @@ struct ezcfg {
 	char 		sem_ezcfg_path[EZCFG_PATH_MAX];
 	char 		shm_ezcfg_path[EZCFG_PATH_MAX];
 	size_t 		shm_ezcfg_size;
+	size_t 		shm_ezcfg_nvram_queue_length;
+	size_t 		shm_ezcfg_rc_queue_length;
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
 	char 		sock_uevent_path[EZCFG_PATH_MAX];
@@ -210,6 +212,16 @@ void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path)
 size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg)
 {
 	return ezcfg->shm_ezcfg_size;
+}
+
+size_t ezcfg_common_get_shm_ezcfg_nvram_queue_length(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezcfg_nvram_queue_length;
+}
+
+size_t ezcfg_common_get_shm_ezcfg_rc_queue_length(struct ezcfg *ezcfg)
+{
+	return ezcfg->shm_ezcfg_rc_queue_length;
 }
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
@@ -401,6 +413,28 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 		size = strtoul(p, NULL, 10);
 		if (size <= EZCFG_SHM_SIZE_MAX) {
 			ezcfg->shm_ezcfg_size = size;
+		}
+		free(p);
+	}
+
+	/* find shm_ezcfg_nvram_queue_length keyword */
+	ezcfg->shm_ezcfg_nvram_queue_length = EZCFG_SHM_EZCFG_NVRAM_QUEUE_MIN;
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCFG_NVRAM_QUEUE_LENGTH);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		if (size > EZCFG_SHM_EZCFG_NVRAM_QUEUE_MIN) {
+			ezcfg->shm_ezcfg_nvram_queue_length = size;
+		}
+		free(p);
+	}
+
+	/* find shm_ezcfg_rc_queue_length keyword */
+	ezcfg->shm_ezcfg_rc_queue_length = EZCFG_SHM_EZCFG_RC_QUEUE_MIN;
+	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SHM_EZCFG_RC_QUEUE_LENGTH);
+	if (p != NULL) {
+		size = strtoul(p, NULL, 10);
+		if (size > EZCFG_SHM_EZCFG_RC_QUEUE_MIN) {
+			ezcfg->shm_ezcfg_rc_queue_length = size;
 		}
 		free(p);
 	}

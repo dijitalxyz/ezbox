@@ -84,6 +84,8 @@ void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path);
 size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg);
+size_t ezcfg_common_get_shm_ezcfg_nvram_queue_length(struct ezcfg *ezcfg);
+size_t ezcfg_common_get_shm_ezcfg_rc_queue_length(struct ezcfg *ezcfg);
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_shm_ezctp_path(struct ezcfg *ezcfg, char *path);
@@ -173,7 +175,7 @@ char *ezcfg_link_list_get_node_name_by_index(struct ezcfg_link_list *list, int i
 char *ezcfg_link_list_get_node_value_by_index(struct ezcfg_link_list *list, int i);
 char *ezcfg_link_list_get_node_value_by_name(struct ezcfg_link_list *list, char *name);
 
-/* common/link_list.c */
+/* common/shm.c */
 struct ezcfg_shm;
 size_t ezcfg_shm_get_size(void);
 int ezcfg_shm_get_ezcfg_sem_id(const struct ezcfg_shm *shm);
@@ -182,6 +184,14 @@ int ezcfg_shm_get_ezcfg_shm_id(const struct ezcfg_shm *shm);
 void ezcfg_shm_set_ezcfg_shm_id(struct ezcfg_shm *shm, int shm_id);
 size_t ezcfg_shm_get_ezcfg_shm_size(const struct ezcfg_shm *shm);
 void ezcfg_shm_set_ezcfg_shm_size(struct ezcfg_shm *shm, size_t shm_size);
+size_t ezcfg_shm_get_ezcfg_nvram_queue_length(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_nvram_queue_length(struct ezcfg_shm *shm, size_t length);
+size_t ezcfg_shm_get_ezcfg_nvram_queue_num(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_nvram_queue_num(struct ezcfg_shm *shm, size_t num);
+size_t ezcfg_shm_get_ezcfg_rc_queue_length(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_rc_queue_length(struct ezcfg_shm *shm, size_t length);
+size_t ezcfg_shm_get_ezcfg_rc_queue_num(const struct ezcfg_shm *shm);
+void ezcfg_shm_set_ezcfg_rc_queue_num(struct ezcfg_shm *shm, size_t num);
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 void ezcfg_shm_delete_ezctp_shm(struct ezcfg_shm *shm);
 int ezcfg_shm_get_ezctp_shm_id(const struct ezcfg_shm *shm);

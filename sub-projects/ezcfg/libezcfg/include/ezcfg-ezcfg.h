@@ -29,6 +29,10 @@
 #define EZCFG_EZCFG_KEYWORD_SEM_EZCFG_PATH  "sem_ezcfg_path"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCFG_PATH  "shm_ezcfg_path"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCFG_SIZE  "shm_ezcfg_size"
+#define EZCFG_EZCFG_KEYWORD_SHM_EZCFG_NVRAM_QUEUE_LENGTH \
+	"shm_ezcfg_nvram_queue_length"
+#define EZCFG_EZCFG_KEYWORD_SHM_EZCFG_RC_QUEUE_LENGTH \
+	"shm_ezcfg_rc_queue_length"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_PATH  "shm_ezctp_path"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_SIZE  "shm_ezctp_size"
 #define EZCFG_EZCFG_KEYWORD_SHM_EZCTP_CQ_UNIT_SIZE \

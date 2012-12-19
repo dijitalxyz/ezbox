@@ -33,12 +33,12 @@
 #if 0
 #define DBG(format, args...) do { \
 	char path[256]; \
-	FILE *fp; \
+	FILE *dbg_fp; \
 	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	dbg_fp = fopen(path, "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -49,6 +49,10 @@ struct ezcfg_shm {
 	int ezcfg_sem_id;
 	int ezcfg_shm_id;
 	size_t ezcfg_shm_size;
+	size_t ezcfg_nvram_queue_length;
+	size_t ezcfg_nvram_queue_num;
+	size_t ezcfg_rc_queue_length;
+	size_t ezcfg_rc_queue_num;
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* ezctp shared memory */
 	int ezctp_shm_id;
@@ -121,6 +125,70 @@ void ezcfg_shm_set_ezcfg_shm_size(struct ezcfg_shm *shm, size_t shm_size)
 	ASSERT(shm != (void *)-1);
 
 	shm->ezcfg_shm_size = shm_size;
+}
+
+size_t ezcfg_shm_get_ezcfg_nvram_queue_length(const struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	return shm->ezcfg_nvram_queue_length;
+}
+
+void ezcfg_shm_set_ezcfg_nvram_queue_length(struct ezcfg_shm *shm, size_t length)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	shm->ezcfg_nvram_queue_length = length;
+}
+
+size_t ezcfg_shm_get_ezcfg_nvram_queue_num(const struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	return shm->ezcfg_nvram_queue_num;
+}
+
+void ezcfg_shm_set_ezcfg_nvram_queue_num(struct ezcfg_shm *shm, size_t num)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	shm->ezcfg_nvram_queue_num = num;
+}
+
+size_t ezcfg_shm_get_ezcfg_rc_queue_length(const struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	return shm->ezcfg_rc_queue_length;
+}
+
+void ezcfg_shm_set_ezcfg_rc_queue_length(struct ezcfg_shm *shm, size_t length)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	shm->ezcfg_rc_queue_length = length;
+}
+
+size_t ezcfg_shm_get_ezcfg_rc_queue_num(const struct ezcfg_shm *shm)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	return shm->ezcfg_rc_queue_num;
+}
+
+void ezcfg_shm_set_ezcfg_rc_queue_num(struct ezcfg_shm *shm, size_t num)
+{
+	ASSERT(shm != NULL);
+	ASSERT(shm != (void *)-1);
+
+	shm->ezcfg_rc_queue_num = num;
 }
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)

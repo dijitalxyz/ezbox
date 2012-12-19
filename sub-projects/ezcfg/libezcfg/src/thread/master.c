@@ -67,6 +67,8 @@ struct ezcfg_master {
 	int shm_id; /* for IPC shared memory access */
 	size_t shm_size; /* for IPC shared memory access */
 	void *shm_addr; /* for IPC shared memory access */
+	size_t nvram_queue_length; /* for nvram operation queue length */
+	size_t rc_queue_length; /* for rc operation queue length */
 	struct ezcfg *ezcfg;
 	int stop_flag; /* Should we stop event loop */
 	int threads_max; /* MAX number of threads */
@@ -298,9 +300,11 @@ static bool master_init_shm(struct ezcfg_master *master)
 	int shm_id;
 	size_t shm_size;
 	void *shm_addr;
+	size_t nvram_queue_length; /* the length of nvram operation queue */
+	size_t rc_queue_length; /* the length of rc operation queue */
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
-        size_t ezctp_cq_unit_size; /* the size per unit in the queue */
-        size_t ezctp_cq_length; /* the length of queue */
+	size_t ezctp_cq_unit_size; /* the size per unit in the queue */
+	size_t ezctp_cq_length; /* the length of queue */
 #endif
 
 	/* prepare shared memory */
@@ -328,9 +332,14 @@ static bool master_init_shm(struct ezcfg_master *master)
 		return false;
 	}
 
+	nvram_queue_length = ezcfg_common_get_shm_ezcfg_nvram_queue_length(master->ezcfg);
+	rc_queue_length = ezcfg_common_get_shm_ezcfg_rc_queue_length(master->ezcfg);
+
 	master->shm_id = shm_id;
 	master->shm_size = shm_size;
 	master->shm_addr = shm_addr;
+	master->nvram_queue_length = nvram_queue_length;
+	master->rc_queue_length = rc_queue_length;
 
 	/* initialize shared memory */
 	memset(shm_addr, 0, shm_size);
@@ -338,6 +347,8 @@ static bool master_init_shm(struct ezcfg_master *master)
 	ezcfg_shm_set_ezcfg_sem_id(shm_addr, master->sem_id);
 	ezcfg_shm_set_ezcfg_shm_id(shm_addr, master->shm_id);
 	ezcfg_shm_set_ezcfg_shm_size(shm_addr, master->shm_size);
+	ezcfg_shm_set_ezcfg_nvram_queue_length(shm_addr, master->nvram_queue_length);
+	ezcfg_shm_set_ezcfg_rc_queue_length(shm_addr, master->rc_queue_length);
 
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 	/* first initialize ezctp shared memory parameters in shared memory */
