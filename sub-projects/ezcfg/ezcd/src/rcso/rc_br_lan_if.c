@@ -99,12 +99,12 @@ int rc_br_lan_if(int argc, char **argv)
 	}
 
 	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BR_LAN, IFNAME), br_lan_ifname, sizeof(br_lan_ifname));
-	if (ret < 0) {
+	if (ret <= 0) {
 		return (EXIT_FAILURE);
 	}
 
 	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(BR_LAN, IFNAMES), br_lan_ifnames, sizeof(br_lan_ifnames));
-	if (ret < 0) {
+	if (ret <= 0) {
 		return (EXIT_FAILURE);
 	}
 	if_argc = utils_parse_args(br_lan_ifnames, strlen(br_lan_ifnames) + 1, if_argv);

@@ -131,6 +131,9 @@ static int udhcpc_bound(void)
 	if ((iface == NULL) || (ipaddr == NULL))
 		return (EXIT_FAILURE);
 
+	if ((*iface == '\0') || (*ipaddr == '\0'))
+		return (EXIT_FAILURE);
+
 	subnet = getenv("subnet");
 	bcast = getenv("broadcast");
 
@@ -246,6 +249,9 @@ static int udhcpc_renew(void)
 	iface = getenv("interface");
 	ipaddr = getenv("ip");
 	if ((iface == NULL) || (ipaddr == NULL))
+		return (EXIT_FAILURE);
+
+	if ((*iface == '\0') || (*ipaddr == '\0'))
 		return (EXIT_FAILURE);
 
 	subnet = getenv("subnet");

@@ -64,14 +64,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* dynamic data storage device key */
 	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV_KEY), "" },
 	/* kernel modules */
-	{ NVRAM_SERVICE_OPTION(SYS, MODULES),
-#if (HAVE_EZBOX_SERVICE_PPP_RP_PPPOE == 1)
-		"pppoe,"
-#elif (HAVE_EZBOX_SERVICE_PPPOE_SERVER == 1)
-		"pppoe,"
-#endif
-		""
-	},
+	{ NVRAM_SERVICE_OPTION(SYS, MODULES), "" },
 #if (HAVE_EZBOX_SERVICE_IPTABLES == 1)
 	/* iptables kernel modules */
 	{ NVRAM_SERVICE_OPTION(SYS, IPTABLES_MODULES),

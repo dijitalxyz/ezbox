@@ -43,7 +43,13 @@
 #include "pop_func.h"
 
 #if 0
-#define DBG printf
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
 #else
 #define DBG(format, arg...)
 #endif
@@ -112,7 +118,7 @@ int rc_nvram(int argc, char **argv)
 		pop_etc_nvram_conf(RC_ACT_BOOT);
 #endif
 		/* update nvram with ezbox_boot.cfg */
-		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH);
+		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH, NULL);
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -121,8 +127,10 @@ int rc_nvram(int argc, char **argv)
 		/* re-generate nvram config file */
 		pop_etc_nvram_conf(RC_ACT_RELOAD);
 #endif
+		/* update nvram with ezbox_boot.cfg not including "sys." prefix*/
+		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
 		/* update nvram with ezbox_upgrade.cfg */
-		utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH);
+		utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH, NULL);
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -131,8 +139,8 @@ int rc_nvram(int argc, char **argv)
 		utils_remount_boot_partition_writable();
 		/* remove ezbox_upgrade.cfg */
 		unlink(UPGRADE_CONFIG_FILE_PATH);
-		/* update ezbox_boot.cfg with nvram */
-		utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH);
+		/* update ezbox_boot.cfg with nvram not including "sys." prefix */
+		utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
 		/* make /boot read-only */
 		utils_remount_boot_partition_readonly();
 		ret = EXIT_SUCCESS;

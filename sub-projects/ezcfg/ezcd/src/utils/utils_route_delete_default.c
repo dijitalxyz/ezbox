@@ -59,9 +59,9 @@ int utils_route_delete_default(char *iface)
 	int ret = 0;
 	char *argv[] = { CMD_IP, "route", "del", "default", "dev", iface, NULL };
 
-	if (iface == NULL) {
-		argv[3] = NULL;
-		argv[4] = NULL;
+	if ((iface == NULL) || (*iface == '\0')){
+		argv[4] = NULL;	/* "dev" to NULL */
+		argv[5] = NULL;	/* iface to NULL */
 	}
 
 	/* get route info from /proc/net/route */
@@ -75,7 +75,9 @@ int utils_route_delete_default(char *iface)
 			if (p == NULL)
 				continue;
 			*p = '\0';
-			if (iface != NULL && strcmp(iface, buf) != 0)
+			if ((iface != NULL) &&
+			    (*iface != '\0') &&
+			    (strcmp(iface, buf) != 0))
 				continue;
 
 			/* then check Destination */

@@ -39,15 +39,30 @@
 
 #include "ezcd.h"
 
-int utils_sync_nvram_with_cfg(char *path)
+/*
+ * prefix pattern format: [!][a-z|A-Z][a-z|A-Z|0-9|_|.]
+ */
+int utils_sync_nvram_with_cfg(char *path, char *pattern)
 {
 	FILE *file = NULL;
 	char buf[FILE_LINE_BUFFER_SIZE];
-	char *keyword=NULL, *value=NULL;
+	char *keyword = NULL;
+	char *value = NULL;
+	char *prefix = pattern;
+	int prefix_len = 0;
+	int negative = 0;
 	int rc;
 
 	if (path == NULL)
 		return EXIT_FAILURE;
+
+	if (prefix != NULL) {
+		if (*prefix == '!') {
+			negative = 1;
+			prefix++;
+		}
+		prefix_len = strlen(prefix);
+	}
 
 	file = fopen(path, "r");
 	if (file == NULL)
@@ -59,7 +74,30 @@ int utils_sync_nvram_with_cfg(char *path)
 			*value = '\0';
 			keyword = buf;
 			value++;
-			rc = ezcfg_api_nvram_set(keyword, value);
+			if (prefix_len > 0) {
+				if (negative == 1) {
+					/* skip setting nvram name matched prefix */
+					if (strncmp(keyword, prefix, prefix_len) != 0) {
+						rc = ezcfg_api_nvram_set(keyword, value);
+					}
+					else {
+						rc = 0;
+					}
+				}
+				else {
+					/* only set nvram name matched prefix */
+					if (strncmp(keyword, prefix, prefix_len) == 0) {
+						rc = ezcfg_api_nvram_set(keyword, value);
+					}
+					else {
+						rc = 0;
+					}
+				}
+			}
+			else {
+				/* set all nvram in file */
+				rc = ezcfg_api_nvram_set(keyword, value);
+			}
 			if (rc < 0) {
 				fclose(file);
 				return EXIT_FAILURE;

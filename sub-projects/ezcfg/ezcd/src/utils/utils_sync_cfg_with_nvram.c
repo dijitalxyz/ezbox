@@ -39,19 +39,34 @@
 
 #include "ezcd.h"
 
-int utils_sync_cfg_with_nvram(char *path)
+/*
+ * prefix pattern format: [!][a-z|A-Z][a-z|A-Z|0-9|_|.]
+ */
+int utils_sync_cfg_with_nvram(char *path, char *pattern)
 {
 	FILE *file = NULL;
 	char path2[64];
 	FILE *file2 = NULL;
 	char buf[FILE_LINE_BUFFER_SIZE];
 	char buf2[FILE_LINE_BUFFER_SIZE];
-	char *p=NULL, *value=NULL;
+	char *p = NULL;
+	char *value = NULL;
 	int ret = EXIT_FAILURE;
+	char *prefix = pattern;
+	int prefix_len = 0;
+	int negative = 0;
 	int len, rc;
 
 	if (path == NULL)
 		return ret;
+
+	if (prefix != NULL) {
+		if (*prefix == '!') {
+			negative = 1;
+			prefix++;
+		}
+		prefix_len = strlen(prefix);
+	}
 
 	file = fopen(path, "r");
 	if (file == NULL) 
@@ -67,8 +82,31 @@ int utils_sync_cfg_with_nvram(char *path)
 		p = strchr(buf, '=');
 		if (p != NULL) {
 			*p = '\0';
-			/* skip "sys." system configuration */
-			if (strcmp(buf, EZCFG_SYS_NVRAM_PREFIX) != 0) {
+			if (prefix_len > 0) {
+				if (negative == 1) {
+					/* skip syncing prefix-matched nvram */
+					if (strncmp(buf, prefix, prefix_len) != 0) {
+						value = p+1;
+						len = sizeof(buf) - strlen(buf) - 1;
+						rc = ezcfg_api_nvram_get(buf, buf2, sizeof(buf2));
+						if (rc >= 0) {
+							snprintf(value, len, "%s", buf2);
+						}
+					}
+				}
+				else {
+					/* only sync prefix-matched nvram */
+					if (strncmp(buf, prefix, prefix_len) == 0) {
+						value = p+1;
+						len = sizeof(buf) - strlen(buf) - 1;
+						rc = ezcfg_api_nvram_get(buf, buf2, sizeof(buf2));
+						if (rc >= 0) {
+							snprintf(value, len, "%s", buf2);
+						}
+					}
+				}
+			}
+			else {
 				value = p+1;
 				len = sizeof(buf) - strlen(buf) - 1;
 				rc = ezcfg_api_nvram_get(buf, buf2, sizeof(buf2));

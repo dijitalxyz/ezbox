@@ -147,7 +147,7 @@ static int start_wan(void)
 	switch (wan_type) {
 	case WAN_TYPE_DHCP :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DHCP_IFNAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		/* start DHCP client process */
@@ -158,7 +158,7 @@ static int start_wan(void)
 
 	case WAN_TYPE_STATIC :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_IFNAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		/* config Static IP address */
@@ -171,7 +171,7 @@ static int start_wan(void)
 
 	case WAN_TYPE_PPPOE :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		/* config PPPoE device interface */
@@ -210,7 +210,7 @@ static int stop_wan(void)
 	switch (wan_type) {
 	case WAN_TYPE_DHCP :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, DHCP_IFNAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		/* stop DHCP client process */
@@ -221,7 +221,7 @@ static int stop_wan(void)
 
 	case WAN_TYPE_STATIC :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, STATIC_IFNAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		deconfig_wan_static();
@@ -234,7 +234,7 @@ static int stop_wan(void)
 
 	case WAN_TYPE_PPPOE :
 		rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(WAN, PPPOE_DEVICE_NAME), wan_ifname, sizeof(wan_ifname));
-		if (rc < 0)
+		if (rc <= 0)
 			return (EXIT_FAILURE);
 
 		/* deconfig PPPoE device interface */
