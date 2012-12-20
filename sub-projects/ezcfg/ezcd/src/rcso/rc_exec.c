@@ -42,10 +42,10 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -54,22 +54,22 @@
 
 #define DBG2() do {\
 	pid_t pid = getpid(); \
-	FILE *fp = fopen("/dev/kmsg", "a"); \
+	FILE *dbg2_fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
 		char buf[32]; \
-		FILE *fp2; \
+		FILE *dbg2_fp2; \
 		int i; \
 		for(i=pid; i<pid+30; i++) { \
 			snprintf(buf, sizeof(buf), "/proc/%d/stat", i); \
-			fp2 = fopen(buf, "r"); \
-			if (fp2) { \
-				if (fgets(buf, sizeof(buf)-1, fp2) != NULL) { \
-					fprintf(fp, "pid=[%d] buf=%s\n", i, buf); \
+			dbg2_fp2 = fopen(buf, "r"); \
+			if (dbg2_fp2) { \
+				if (fgets(buf, sizeof(buf)-1, dbg2_fp2) != NULL) { \
+					fprintf(dbg2_fp, "pid=[%d] buf=%s\n", i, buf); \
 				} \
-				fclose(fp2); \
+				fclose(dbg2_fp2); \
 			} \
 		} \
-		fclose(fp); \
+		fclose(dbg2_fp); \
 	} \
 } while(0)
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
 int rc_exec(int argc, char **argv)
 #endif
 {
-	char path[64];
+	char path[128];
 	struct stat stat_buf;
 	int ret;
 

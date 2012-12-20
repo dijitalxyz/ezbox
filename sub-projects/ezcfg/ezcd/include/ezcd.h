@@ -12,8 +12,8 @@
 
 #define RCSO_PATH_PREFIX "/lib/rcso"
 #define RCSO_PATH_PREFIX2 "/usr/lib/rcso"
-#define ACTION_PATH_PREFIX "/lib/rcso/action"
-#define ACTION_PATH_PREFIX2 "/usr/lib/rcso/action"
+#define AGENTS_PATH_PREFIX "/lib/rcso/agents"
+#define AGENTS_PATH_PREFIX2 "/usr/lib/rcso/agents"
 #define EXEC_PATH_PREFIX "/lib/rcso/exec"
 #define EXEC_PATH_PREFIX2 "/usr/lib/rcso/exec"
 

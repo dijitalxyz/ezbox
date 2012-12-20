@@ -97,6 +97,9 @@ func_exit:
 	return (ret);
 }
 
+/*
+ * usage: rc action [agent name] [action name]
+ */
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
@@ -104,13 +107,13 @@ int rc_action(int argc, char **argv)
 #endif
 {
 	char buf[RC_COMMAND_LINE_SIZE];
-	char path[64];
+	char path[128];
 	int fargc;
 	char *fargv[RC_MAX_ARGS];
 	FILE *fp;
 	int ret = EXIT_FAILURE;
 
-	if (argc < 2) {
+	if (argc < 3) {
 		return (EXIT_FAILURE);
 	}
 
@@ -119,11 +122,11 @@ int rc_action(int argc, char **argv)
 	}
 
 	/* check first place */
-	snprintf(path, sizeof(path), "%s/%s", ACTION_PATH_PREFIX, argv[1]);
+	snprintf(path, sizeof(path), "%s/%s/action/%s", AGENTS_PATH_PREFIX, argv[1], argv[2]);
 	fp = fopen(path, "r");
 	if (fp == NULL) {
 		/* check second place */
-		snprintf(path, sizeof(path), "%s/%s", ACTION_PATH_PREFIX2, argv[1]);
+		snprintf(path, sizeof(path), "%s/%s/action/%s", AGENTS_PATH_PREFIX2, argv[1], argv[2]);
 		if (fp == NULL) {
 			return (EXIT_FAILURE);
 		}

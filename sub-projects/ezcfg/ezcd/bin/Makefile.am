@@ -77,6 +77,7 @@ RCSO_SRC += rc_udev_pop_nodes.c
 RCSO_SRC += rc_data_partition.c
 RCSO_SRC += rc_data_storage.c
 RCSO_SRC += rc_nvram.c
+RCSO_SRC += rc_env.c
 RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD

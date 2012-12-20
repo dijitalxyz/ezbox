@@ -78,6 +78,7 @@ int rc_main(int argc, char **argv)
 	pid_t pid;
 	int ret = EXIT_FAILURE;
 	int i;
+	char *wait_time;
 	char *p;
 	char path[64];
 	char name[32];
@@ -90,6 +91,7 @@ int rc_main(int argc, char **argv)
 	char *sem_path = NULL;
 
 	/* argv[0] : "rc" */
+	/*        /argv[1] : wait time = [number|-number] */
 	/* argv[1]/argv[2] : action name */
 	/* argv[2]/argv[3]... : action arguments */
 	if (argc < 3)
@@ -106,16 +108,17 @@ int rc_main(int argc, char **argv)
 	i = 1;
 	req.tv_sec = 0;
 	req.tv_nsec = 0;
+	wait_time = argv[i];
 
 	/* first check if we need to fork */
-	if (*(argv[i]) == '-') {
+	if (wait_time[0] == '-') {
 		b_fork = false;
-		i++;
+		wait_time++;
 	}
 
 	/* then check how long should we wait for */
-	if (isdigit(*argv[i])) {
-		req.tv_sec = strtol(argv[i], &p, 10);
+	if (isdigit(wait_time[0])) {
+		req.tv_sec = strtol(wait_time, &p, 10);
 		if ((p != NULL) && (*p == '.')) {
 			long base = 100000000;
 			p++;

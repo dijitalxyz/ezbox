@@ -77,7 +77,7 @@ static void init_halt_reboot_poweroff(int sig)
 		rc_function_t func;
 		void * obj;
 	} alias;
-	char *stop_argv[] = { "action", "system_stop", NULL };
+	char *stop_argv[] = { "action", "sys", "stop", NULL };
 	sigset_t set;
 	pid_t pid;
 	unsigned rb;
@@ -150,7 +150,7 @@ int init_main(int argc, char **argv)
 		rc_function_t func;
 		void * obj;
 	} alias;
-	char *start_argv[] = { "action", "system_start", NULL };
+	char *start_argv[] = { "action", "sys", "start", NULL };
 	sigset_t sigset;
 
 	/* unset umask */

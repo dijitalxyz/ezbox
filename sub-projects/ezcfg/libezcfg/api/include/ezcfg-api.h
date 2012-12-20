@@ -12,6 +12,8 @@ char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
 int ezcfg_api_common_get_shm_ezcfg_size(struct ezcfg *ezcfg, size_t *psize);
+int ezcfg_api_common_increase_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg);
+int ezcfg_api_common_decrease_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg);
 int ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg);
 int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg);
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)

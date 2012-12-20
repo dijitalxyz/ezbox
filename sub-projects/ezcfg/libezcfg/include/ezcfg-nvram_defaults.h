@@ -14,6 +14,7 @@
 #ifndef _EZCFG_NVRAM_DEFAULTS_H_
 #define _EZCFG_NVRAM_DEFAULTS_H_
 
+#include "ezcfg-env.h"
 #include "ezcfg-sys.h"
 #include "ezcfg-ezcfg.h"
 #include "ezcfg-loopback.h"
