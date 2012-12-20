@@ -65,12 +65,14 @@
  *
  * 3. call action directly, and wait it to be finished
  *    rc -1 dnsmasq start
- *    call "dnsmasq start" and wait
+ *    sleep 1 second then call "dnsmasq start" and wait
  */
 int rc_main(int argc, char **argv)
 {
 	bool b_sleep = false;
 	bool b_fork = true;
+	bool b_rc_semaphore = false;
+	bool b_queue_increase = false;
 	struct timespec req;
 	int fd = -1;
 	pid_t pid;
@@ -79,7 +81,7 @@ int rc_main(int argc, char **argv)
 	char *p;
 	char path[64];
 	char name[32];
-	void *handle;
+	void *handle = NULL;
 	union {
 		rc_function_t func;
 		void * obj;
@@ -104,6 +106,14 @@ int rc_main(int argc, char **argv)
 	i = 1;
 	req.tv_sec = 0;
 	req.tv_nsec = 0;
+
+	/* first check if we need to fork */
+	if (*(argv[i]) == '-') {
+		b_fork = false;
+		i++;
+	}
+
+	/* then check how long should we wait for */
 	if (isdigit(*argv[i])) {
 		req.tv_sec = strtol(argv[i], &p, 10);
 		if ((p != NULL) && (*p == '.')) {
@@ -125,10 +135,6 @@ int rc_main(int argc, char **argv)
 		if ((req.tv_sec > 0) || ((req.tv_sec == 0) && (req.tv_nsec > 0))) {
 			b_sleep = true;
 		}
-		i++;
-	}
-	else if (strcmp(argv[i], "-1") == 0) {
-		b_fork = false;
 		i++;
 	}
 
@@ -170,6 +176,7 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* child process main */
+	ret = EXIT_FAILURE;
 	snprintf(name, sizeof(name), "rc_%s", argv[i]);
 	snprintf(path, sizeof(path), "%s/%s.so", RCSO_PATH_PREFIX, name);
 	handle = dlopen(path, RTLD_NOW);
@@ -179,7 +186,7 @@ int rc_main(int argc, char **argv)
 		handle = dlopen(path, RTLD_NOW);
 		if (handle == NULL) {
 			DBG("<6>rc: dlopen(%s) error %s\n", path, dlerror());
-			return (EXIT_FAILURE);
+			goto rc_exit;
 		}
 	}
 
@@ -198,6 +205,14 @@ int rc_main(int argc, char **argv)
 		DBG("<6>rc: %s format error\n", EZCD_CONFIG_FILE_PATH);
 		goto rc_exit;
 	}
+
+	/* increase rc queue number */
+	if ((i = ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
+		DBG("<6>rc:pid=[%d] increase rc queue number error=[%d].\n", getpid(), i);
+		goto rc_exit;
+	}
+	b_queue_increase = true;
+
 	sem_path = ezcfg_api_common_get_sem_ezcfg_path(ezcfg);
 	if ((sem_path == NULL) || (*sem_path == '\0')) {
 		DBG("<6>rc: sem_ezcfg_path error\n");
@@ -205,10 +220,11 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* prepare semaphore */
-	if (ezcfg_api_rc_require_semaphore(sem_path) == false) {
-		DBG("<6>rc:pid=[%d] require semaphore error.\n", getpid());
+	if ((i = ezcfg_api_rc_require_semaphore(sem_path)) < 0) {
+		DBG("<6>rc:pid=[%d] require semaphore error=[%d].\n", getpid(), i);
 		goto rc_exit;
 	}
+	b_rc_semaphore = true;
 
 	/* handle rc operations */
 	/* wait s seconds */
@@ -225,19 +241,28 @@ int rc_main(int argc, char **argv)
 
 	ret = alias.func(argc - i, &(argv[i]));
 
+rc_exit:
 	/* now release resource */
-	if (ezcfg_api_rc_release_semaphore(sem_path) == false) {
-		DBG("<6>rc:pid=[%d] release semaphore error.\n", getpid());
-		goto rc_exit;
+	if (b_rc_semaphore == true) {
+		if ((i = ezcfg_api_rc_release_semaphore(sem_path)) < 0) {
+			DBG("<6>rc:pid=[%d] release semaphore error=[%d].\n", getpid(), i);
+		}
 	}
 
-rc_exit:
+	if (b_queue_increase == true) {
+		if ((i = ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
+			DBG("<6>rc:pid=[%d] decrease rc queue number error=[%d].\n", getpid(), i);
+		}
+	}
+
 	if (ezcfg != NULL) {
 		ezcfg_api_common_delete(ezcfg);
 	}
 
 	/* close loader handle */
-	dlclose(handle);
+	if (handle != NULL) {
+		dlclose(handle);
+	}
 
 	/* special actions for rc_system stop/restart */
 #if 0

@@ -52,13 +52,14 @@
 #define EZCFG_SEM_EZCFG_PATH	EZCFG_SEM_ROOT_PATH "/ezcfg"
 #define EZCFG_SEM_PROJID_EZCFG	'e'
 
-#define EZCFG_SEM_CTRL_INDEX	0
-#define EZCFG_SEM_NVRAM_INDEX	1
-#define EZCFG_SEM_RC_INDEX	2
-#define EZCFG_SEM_UPNP_INDEX	3
-#define EZCFG_SEM_EZCTP_INDEX	4
-#define EZCFG_SEM_SHM_INDEX	5
-#define EZCFG_SEM_NUMBER	6
+#define EZCFG_SEM_CTRL_INDEX            0
+#define EZCFG_SEM_NVRAM_INDEX           1
+#define EZCFG_SEM_RC_INDEX              2
+#define EZCFG_SEM_UPNP_INDEX            3
+#define EZCFG_SEM_EZCTP_INDEX           4
+#define EZCFG_SEM_SHM_INDEX             5
+#define EZCFG_SEM_SHM_QUEUE_INDEX       6
+#define EZCFG_SEM_NUMBER                7
 
 /* shared memory path */
 #define EZCFG_SHM_ROOT_PATH	EZCFG_ROOT_PATH "/shm"

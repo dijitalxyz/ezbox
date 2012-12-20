@@ -60,19 +60,19 @@
  * ezcfg_api_rc_require_semaphore:
  *
  **/
-bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path)
+int ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
 	if (sem_ezcfg_path == NULL) {
-		return false;
+		return -EZCFG_E_ARGUMENT ;
 	}
 
 	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
 	/* create a semaphore set that only includes one semaphore */
@@ -80,7 +80,7 @@ bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path)
 	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	if (semid < 0) {
 		DBG("<6>rc: semget error\n");
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
 	/* now require available resource */
@@ -90,29 +90,29 @@ bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path)
 
 	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>rc: semop require res error\n");
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
-	return true;
+	return 0;
 }
 
 /**
  * ezcfg_api_rc_release_semaphore:
  *
  **/
-bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
+int ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
 {
 	int key, semid;
 	struct sembuf res;
 
 	if (sem_ezcfg_path == NULL) {
-		return false;
+		return -EZCFG_E_ARGUMENT ;
 	}
 
 	key = ftok(sem_ezcfg_path, EZCFG_SEM_PROJID_EZCFG);
 	if (key == -1) {
 		DBG("<6>rc:pid=[%d] ftok error.\n", getpid());
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
 	/* create a semaphore set that only includes one semaphore */
@@ -120,7 +120,7 @@ bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
 	semid = semget(key, EZCFG_SEM_NUMBER, 00666);
 	if (semid < 0) {
 		DBG("<6>rc: semget error\n");
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
 	/* now release available resource */
@@ -130,8 +130,8 @@ bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path)
 
 	if (semop(semid, &res, 1) == -1) {
 		DBG("<6>rc: semop release res error\n");
-		return false;
+		return -EZCFG_E_RESOURCE ;
 	}
 
-	return true;
+	return 0;
 }

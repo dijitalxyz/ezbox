@@ -11,10 +11,12 @@ void ezcfg_api_common_delete(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_root_path(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
 char *ezcfg_api_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
-size_t ezcfg_api_common_get_shm_ezcfg_size(struct ezcfg *ezcfg);
+int ezcfg_api_common_get_shm_ezcfg_size(struct ezcfg *ezcfg, size_t *psize);
+int ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg);
+int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg);
 #if (HAVE_EZBOX_SERVICE_EZCTP == 1)
 char *ezcfg_api_common_get_shm_ezctp_path(struct ezcfg *ezcfg);
-size_t ezcfg_api_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
+int ezcfg_api_common_get_shm_ezctp_size(struct ezcfg *ezcfg, size_t *psize);
 #endif
 
 /* common utilities */
@@ -90,13 +92,13 @@ int ezcfg_api_nvram_remove_ssl(struct ezcfg_arg_nvram_ssl *ap);
 bool ezcfg_api_ezctp_require_semaphore(char *sem_ezcfg_path);
 bool ezcfg_api_ezctp_release_semaphore(char *sem_ezcfg_path);
 bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, size_t n, size_t size);
-bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_t *n, size_t *size);
+bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **pdata, size_t *n, size_t *psize);
 bool ezcfg_api_ezctp_save_market_data(void *shm_ezcfg_addr, FILE *fp, size_t size, int flag);
 #endif
 
 /* rc interface */
-bool ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path);
-bool ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path);
+int ezcfg_api_rc_require_semaphore(char *sem_ezcfg_path);
+int ezcfg_api_rc_release_semaphore(char *sem_ezcfg_path);
 
 /* UUID interface */
 int ezcfg_api_uuid1_string(char *str, int len);

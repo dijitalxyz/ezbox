@@ -112,7 +112,7 @@ bool ezcfg_api_ezctp_insert_market_data(void *shm_ezcfg_addr, const void *data, 
  * ezcfg_api_ezctp_remove_market_data:
  *
  **/
-bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_t *n, size_t *size)
+bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **pdata, size_t *n, size_t *psize)
 {
 	int sem_id;
 	struct sembuf res;
@@ -122,7 +122,7 @@ bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_
 		return false;
 	}
 
-	if ((data == NULL) || (n == NULL) || (size == NULL)) {
+	if ((pdata == NULL) || (n == NULL) || (psize == NULL)) {
 		return false;
 	}
 
@@ -145,7 +145,7 @@ bool ezcfg_api_ezctp_remove_market_data(void *shm_ezcfg_addr, void **data, size_
 	}
 
 	/* insert the data to ezctp shared memory */
-	insert_flag = ezcfg_shm_remove_ezctp_market_data(shm_ezcfg_addr, data, n, size);
+	insert_flag = ezcfg_shm_remove_ezctp_market_data(shm_ezcfg_addr, pdata, n, psize);
 
 	/* now release available resource */
 	res.sem_num = EZCFG_SEM_EZCTP_INDEX;
