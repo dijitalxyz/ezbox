@@ -328,7 +328,7 @@ static bool master_init_shm(struct ezcfg_master *master)
 
 	shm_addr = shmat(shm_id, NULL, 0);
 	if ((void *) -1 == shm_addr) {
-		DBG("<6>pid=[%d] %s(%d) shmat error with errono=[%d]\n", getpid(), __func__, __LINE__, errno);
+		DBG("<6>pid=[%d] %s(%d) shmat error with errno=[%d]\n", getpid(), __func__, __LINE__, errno);
 		return false;
 	}
 
@@ -380,7 +380,7 @@ static bool master_init_shm(struct ezcfg_master *master)
 
 	shm_addr = shmat(shm_id, NULL, 0);
 	if ((void *) -1 == shm_addr) {
-		DBG("<6>pid=[%d] %s(%d) shmat error with errono=[%d]\n", getpid(), __func__, __LINE__, errno);
+		DBG("<6>pid=[%d] %s(%d) shmat error with errno=[%d]\n", getpid(), __func__, __LINE__, errno);
 		return false;
 	}
 

@@ -42,10 +42,11 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/tmp/rc.log", "a"); \
 	if (dbg_fp) { \
+		fprintf(dbg_fp, "pid=[%d]: ", getpid()); \
 		fprintf(dbg_fp, format, ## args); \
 		fclose(dbg_fp); \
 	} \
@@ -77,6 +78,7 @@ int rc_main(int argc, char **argv)
 	int fd = -1;
 	pid_t pid;
 	int ret = EXIT_FAILURE;
+	int rc = 0;
 	int i;
 	char *wait_time;
 	char *p;
@@ -94,11 +96,15 @@ int rc_main(int argc, char **argv)
 	/*        /argv[1] : wait time = [number|-number] */
 	/* argv[1]/argv[2] : action name */
 	/* argv[2]/argv[3]... : action arguments */
-	if (argc < 3)
+	if (argc < 3) {
+		DBG("<6>rc: argc=[%d] is too short\n", argc);
 		return (EXIT_FAILURE);
+	}
 
-	if (getuid() != 0) {
-		exit(EXIT_FAILURE);
+	rc = getuid();
+	if (rc != 0) {
+		DBG("<6>rc: uid=[%d] is not 0\n", rc);
+		return (EXIT_FAILURE);
 	}
 
 	for (i = 0; i < argc; i++) {
@@ -149,7 +155,7 @@ int rc_main(int argc, char **argv)
 		/* before opening new files, make sure std{in,out,err} fds are in a same state */
 		fd = open("/dev/null", O_RDWR);
 		if (fd < 0) {
-			exit(EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		}
 		dup2(fd, STDIN_FILENO);
 		dup2(fd, STDOUT_FILENO);
@@ -210,8 +216,8 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* increase rc queue number */
-	if ((i = ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
-		DBG("<6>rc:pid=[%d] increase rc queue number error=[%d].\n", getpid(), i);
+	if ((rc = ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
+		DBG("<6>rc:pid=[%d] increase rc queue number error=[%d].\n", getpid(), rc);
 		goto rc_exit;
 	}
 	b_queue_increase = true;
@@ -223,8 +229,8 @@ int rc_main(int argc, char **argv)
 	}
 
 	/* prepare semaphore */
-	if ((i = ezcfg_api_rc_require_semaphore(sem_path)) < 0) {
-		DBG("<6>rc:pid=[%d] require semaphore error=[%d].\n", getpid(), i);
+	if ((rc = ezcfg_api_rc_require_semaphore(sem_path)) < 0) {
+		DBG("<6>rc:pid=[%d] require semaphore error=[%d].\n", getpid(), rc);
 		goto rc_exit;
 	}
 	b_rc_semaphore = true;
@@ -247,14 +253,14 @@ int rc_main(int argc, char **argv)
 rc_exit:
 	/* now release resource */
 	if (b_rc_semaphore == true) {
-		if ((i = ezcfg_api_rc_release_semaphore(sem_path)) < 0) {
-			DBG("<6>rc:pid=[%d] release semaphore error=[%d].\n", getpid(), i);
+		if ((rc = ezcfg_api_rc_release_semaphore(sem_path)) < 0) {
+			DBG("<6>rc:pid=[%d] release semaphore error=[%d].\n", getpid(), rc);
 		}
 	}
 
 	if (b_queue_increase == true) {
-		if ((i = ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
-			DBG("<6>rc:pid=[%d] decrease rc queue number error=[%d].\n", getpid(), i);
+		if ((rc = ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(ezcfg)) < 0) {
+			DBG("<6>rc:pid=[%d] decrease rc queue number error=[%d].\n", getpid(), rc);
 		}
 	}
 

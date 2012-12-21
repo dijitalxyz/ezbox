@@ -210,7 +210,7 @@ static int udhcpc_bound(void)
 	utils_system(buf);
 
 	/* start WAN interface binding services */
-	snprintf(buf, sizeof(buf), "%s action wan_services_start", CMD_RC);
+	snprintf(buf, sizeof(buf), "%s %s %s %s", CMD_RC, "action", "wan", "services_start");
 	utils_system(buf);
 
 	return (EXIT_SUCCESS);
@@ -330,7 +330,7 @@ static int udhcpc_renew(void)
 	utils_system(buf);
 
 	/* start WAN interface binding services */
-	snprintf(buf, sizeof(buf), "%s action wan_services_start", CMD_RC);
+	snprintf(buf, sizeof(buf), "%s %s %s %s", CMD_RC, "action", "wan", "services_start");
 	utils_system(buf);
 
 	return (EXIT_SUCCESS);

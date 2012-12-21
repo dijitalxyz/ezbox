@@ -45,9 +45,9 @@
 
 #include "ezcfg-api.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
-	FILE *dbg_fp = fopen("/tmp/api-common.log", "a"); \
+	FILE *dbg_fp = fopen("/tmp/libezcfg-api-common.log", "a"); \
 	if (dbg_fp) { \
 		fprintf(dbg_fp, format, ## args); \
 		fclose(dbg_fp); \
@@ -175,118 +175,6 @@ int ezcfg_api_common_get_shm_ezcfg_size(struct ezcfg *ezcfg, size_t *psize)
 }
 
 /**
- * ezcfg_api_common_increase_shm_ezcfg_rc_queue_num:
- *
- **/
-int ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
-{
-	int rc = 0;
-	int key, sem_id, shm_id;
-	struct sembuf res;
-	size_t shm_size;
-	void *shm_addr;
-	char *path;
-	size_t num;
-
-	if (ezcfg == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
-
-	/* prepare for semaphore parameters */
-	path = ezcfg_common_get_sem_ezcfg_path(ezcfg);
-	if (path == NULL) {
-		return -EZCFG_E_RESULT ;
-	}
-
-	key = ftok(path, EZCFG_SEM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	/* create a semaphore set that only includes one semaphore */
-	/* shm queue semaphore has been initialized in ezcd */
-	sem_id = semget(key, EZCFG_SEM_NUMBER, 00666);
-	if (sem_id < 0) {
-		DBG("%s(%d): pid=[%d] semget error\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	/* prepare for shared memory parameters */
-	path = ezcfg_common_get_shm_ezcfg_path(ezcfg);
-	if (path == NULL) {
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	key = ftok(path, EZCFG_SHM_PROJID_EZCFG);
-	if (key == -1) {
-		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	shm_size = ezcfg_common_get_shm_ezcfg_size(ezcfg);
-	if (shm_size < ezcfg_shm_get_size()) {
-		DBG("%s(%d): pid=[%d] shm_size is too small.\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	/* get shared memory */
-	shm_id = shmget(key, shm_size, 00666);
-	if (shm_id < 0) {
-		DBG("%s(%d): pid=[%d] try to get shm error.\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	/* now require available resource */
-	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
-	res.sem_op = -1;
-	res.sem_flg = 0;
-
-	if (semop(sem_id, &res, 1) == -1) {
-		DBG("%s(%d): pid=[%d] semop require res error\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	/* attach share memeory */
-	shm_addr = shmat(shm_id, NULL, 0);
-	if ((void *) -1 == shm_addr) {
-		DBG("%s(%d): pid=[%d] shmat error with errono=[%d]\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
-		goto func_out;
-	}
-
-	num = ezcfg_shm_get_ezcfg_rc_queue_num(shm_addr);
-	if (num < ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr)) {
-		ezcfg_shm_set_ezcfg_rc_queue_num(shm_addr, num+1);
-	}
-	else {
-		/* queue is full */
-		DBG("%s(%d): pid=[%d] queue is full\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
-	}
-
-	/* dettach share memeory */
-	if (shmdt(shm_addr) == -1) {
-		DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
-		goto func_out;
-	}
-
-func_out:
-	/* now release available resource */
-	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
-	res.sem_op = 1;
-	res.sem_flg = 0;
-
-	if (semop(sem_id, &res, 1) == -1) {
-		DBG("%s(%d): pid=[%d] semop release res error\n", __func__, __LINE__, getpid());
-		return -EZCFG_E_RESOURCE ;
-	}
-
-	return rc;
-}
-
-/**
  * ezcfg_api_common_increase_shm_ezcfg_nvram_queue_num:
  *
  **/
@@ -296,7 +184,7 @@ int ezcfg_api_common_increase_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 	int key, sem_id, shm_id;
 	struct sembuf res;
 	size_t shm_size;
-	void *shm_addr;
+	void *shm_addr = (void *)-1;
 	char *path;
 	size_t num;
 
@@ -362,7 +250,7 @@ int ezcfg_api_common_increase_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 	/* attach share memeory */
 	shm_addr = shmat(shm_id, NULL, 0);
 	if ((void *) -1 == shm_addr) {
-		DBG("%s(%d): pid=[%d] shmat error with errono=[%d]\n", __func__, __LINE__, getpid());
+		DBG("%s(%d): pid=[%d] shmat error with errno=[%d]\n", __func__, __LINE__, getpid(), errno);
 		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
@@ -375,16 +263,18 @@ int ezcfg_api_common_increase_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 		/* queue is full */
 		DBG("%s(%d): pid=[%d] queue is full\n", __func__, __LINE__, getpid());
 		rc = -EZCFG_E_RESOURCE ;
-	}
-
-	/* dettach share memeory */
-	if (shmdt(shm_addr) == -1) {
-		DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
 
 func_out:
+	/* dettach share memeory */
+	if ((void *) -1 != shm_addr) {
+		if (shmdt(shm_addr) == -1) {
+			DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
+			rc = -EZCFG_E_RESOURCE ;
+		}
+	}
+
 	/* now release available resource */
 	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
 	res.sem_op = 1;
@@ -408,7 +298,7 @@ int ezcfg_api_common_decrease_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 	int key, sem_id, shm_id;
 	struct sembuf res;
 	size_t shm_size;
-	void *shm_addr;
+	void *shm_addr = (void *)-1;
 	char *path;
 	size_t num;
 
@@ -474,12 +364,13 @@ int ezcfg_api_common_decrease_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 	/* attach share memeory */
 	shm_addr = shmat(shm_id, NULL, 0);
 	if ((void *) -1 == shm_addr) {
-		DBG("%s(%d): pid=[%d] shmat error with errono=[%d]\n", __func__, __LINE__, getpid());
+		DBG("%s(%d): pid=[%d] shmat error with errno=[%d]\n", __func__, __LINE__, getpid(), errno);
 		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
 
 	num = ezcfg_shm_get_ezcfg_nvram_queue_num(shm_addr);
+	DBG("%s(%d): pid=[%d] num=[%d]\n", __func__, __LINE__, getpid(), num);
 	if (num > 0) {
 		ezcfg_shm_set_ezcfg_nvram_queue_num(shm_addr, num-1);
 	}
@@ -487,16 +378,18 @@ int ezcfg_api_common_decrease_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 		/* queue is empty */
 		DBG("%s(%d): pid=[%d] queue is empty\n", __func__, __LINE__, getpid());
 		rc = -EZCFG_E_RESOURCE ;
-	}
-
-	/* dettach share memeory */
-	if (shmdt(shm_addr) == -1) {
-		DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
 
 func_out:
+	/* dettach share memeory */
+	if ((void *) -1 != shm_addr) {
+		if (shmdt(shm_addr) == -1) {
+			DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
+			rc = -EZCFG_E_RESOURCE ;
+		}
+	}
+
 	/* now release available resource */
 	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
 	res.sem_op = 1;
@@ -511,16 +404,16 @@ func_out:
 }
 
 /**
- * ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num:
+ * ezcfg_api_common_increase_shm_ezcfg_rc_queue_num:
  *
  **/
-int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
+int ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 {
 	int rc = 0;
 	int key, sem_id, shm_id;
 	struct sembuf res;
 	size_t shm_size;
-	void *shm_addr;
+	void *shm_addr = (void *)-1;
 	char *path;
 	size_t num;
 
@@ -531,10 +424,12 @@ int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 	/* prepare for semaphore parameters */
 	path = ezcfg_common_get_sem_ezcfg_path(ezcfg);
 	if (path == NULL) {
+		DBG("%s(%d): pid=[%d] ezcfg_common_get_sem_ezcfg_path() error.\n", __func__, __LINE__, getpid());
 		return -EZCFG_E_RESULT ;
 	}
 
 	key = ftok(path, EZCFG_SEM_PROJID_EZCFG);
+	DBG("%s(%d): pid=[%d] key=[%d] path=[%s].\n", __func__, __LINE__, getpid(), key, path);
 	if (key == -1) {
 		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
 		return -EZCFG_E_RESOURCE ;
@@ -551,10 +446,12 @@ int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 	/* prepare for shared memory parameters */
 	path = ezcfg_common_get_shm_ezcfg_path(ezcfg);
 	if (path == NULL) {
+		DBG("%s(%d): pid=[%d] ezcfg_common_get_shm_ezcfg_path() error.\n", __func__, __LINE__, getpid());
 		return -EZCFG_E_RESOURCE ;
 	}
 
 	key = ftok(path, EZCFG_SHM_PROJID_EZCFG);
+	DBG("%s(%d): pid=[%d] key=[%d] path=[%s].\n", __func__, __LINE__, getpid(), key, path);
 	if (key == -1) {
 		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
 		return -EZCFG_E_RESOURCE ;
@@ -586,7 +483,128 @@ int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 	/* attach share memeory */
 	shm_addr = shmat(shm_id, NULL, 0);
 	if ((void *) -1 == shm_addr) {
-		DBG("%s(%d): pid=[%d] shmat error with errono=[%d]\n", __func__, __LINE__, getpid());
+		DBG("%s(%d): pid=[%d] shmat error with errno=[%d]\n", __func__, __LINE__, getpid(), errno);
+		rc = -EZCFG_E_RESOURCE ;
+		goto func_out;
+	}
+
+	num = ezcfg_shm_get_ezcfg_rc_queue_num(shm_addr);
+	DBG("%s(%d): pid=[%d] num=[%d]\n", __func__, __LINE__, getpid(), num);
+	DBG("%s(%d): pid=[%d] rc_queue_length=[%d]\n", __func__, __LINE__, getpid(), ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr));
+	if (num < ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr)) {
+		ezcfg_shm_set_ezcfg_rc_queue_num(shm_addr, num+1);
+	}
+	else {
+		/* queue is full */
+		DBG("%s(%d): pid=[%d] queue is full\n", __func__, __LINE__, getpid());
+		rc = -EZCFG_E_RESOURCE ;
+		goto func_out;
+	}
+
+func_out:
+	/* dettach share memeory */
+	if ((void *) -1 != shm_addr) {
+		if (shmdt(shm_addr) == -1) {
+			DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
+			rc = -EZCFG_E_RESOURCE ;
+		}
+	}
+
+	/* now release available resource */
+	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
+	res.sem_op = 1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("%s(%d): pid=[%d] semop release res error\n", __func__, __LINE__, getpid());
+		rc = -EZCFG_E_RESOURCE ;
+	}
+
+	DBG("%s(%d): pid=[%d] rc=[%d]\n", __func__, __LINE__, getpid(), rc);
+	return rc;
+}
+
+/**
+ * ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num:
+ *
+ **/
+int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
+{
+	int rc = 0;
+	int key, sem_id, shm_id;
+	struct sembuf res;
+	size_t shm_size;
+	void *shm_addr = (void *)-1;
+	char *path;
+	size_t num;
+
+	if (ezcfg == NULL) {
+		return -EZCFG_E_ARGUMENT ;
+	}
+
+	/* prepare for semaphore parameters */
+	path = ezcfg_common_get_sem_ezcfg_path(ezcfg);
+	if (path == NULL) {
+		DBG("%s(%d): pid=[%d] ezcfg_common_get_sem_ezcfg_path() error.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESULT ;
+	}
+
+	key = ftok(path, EZCFG_SEM_PROJID_EZCFG);
+	DBG("%s(%d): pid=[%d] key=[%d] path=[%s].\n", __func__, __LINE__, getpid(), key, path);
+	if (key == -1) {
+		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	/* create a semaphore set that only includes one semaphore */
+	/* shm queue semaphore has been initialized in ezcd */
+	sem_id = semget(key, EZCFG_SEM_NUMBER, 00666);
+	if (sem_id < 0) {
+		DBG("%s(%d): pid=[%d] semget error\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	/* prepare for shared memory parameters */
+	path = ezcfg_common_get_shm_ezcfg_path(ezcfg);
+	if (path == NULL) {
+		DBG("%s(%d): pid=[%d] ezcfg_common_get_shm_ezcfg_path() error.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	key = ftok(path, EZCFG_SHM_PROJID_EZCFG);
+	DBG("%s(%d): pid=[%d] key=[%d] path=[%s].\n", __func__, __LINE__, getpid(), key, path);
+	if (key == -1) {
+		DBG("%s(%d): pid=[%d] ftok error.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	shm_size = ezcfg_common_get_shm_ezcfg_size(ezcfg);
+	if (shm_size < ezcfg_shm_get_size()) {
+		DBG("%s(%d): pid=[%d] shm_size is too small.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	/* get shared memory */
+	shm_id = shmget(key, shm_size, 00666);
+	if (shm_id < 0) {
+		DBG("%s(%d): pid=[%d] try to get shm error.\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	/* now require available resource */
+	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
+	res.sem_op = -1;
+	res.sem_flg = 0;
+
+	if (semop(sem_id, &res, 1) == -1) {
+		DBG("%s(%d): pid=[%d] semop require res error\n", __func__, __LINE__, getpid());
+		return -EZCFG_E_RESOURCE ;
+	}
+
+	/* attach share memeory */
+	shm_addr = shmat(shm_id, NULL, 0);
+	if ((void *) -1 == shm_addr) {
+		DBG("%s(%d): pid=[%d] shmat error with errno=[%d]\n", __func__, __LINE__, getpid(), errno);
 		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
@@ -599,16 +617,18 @@ int ezcfg_api_common_decrease_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 		/* queue is empty */
 		DBG("%s(%d): pid=[%d] queue is empty\n", __func__, __LINE__, getpid());
 		rc = -EZCFG_E_RESOURCE ;
-	}
-
-	/* dettach share memeory */
-	if (shmdt(shm_addr) == -1) {
-		DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
-		rc = -EZCFG_E_RESOURCE ;
 		goto func_out;
 	}
 
 func_out:
+	/* dettach share memeory */
+	if ((void *) -1 != shm_addr) {
+		if (shmdt(shm_addr) == -1) {
+			DBG("%s(%d): pid=[%d] shmdt error\n", __func__, __LINE__, getpid());
+			rc = -EZCFG_E_RESOURCE ;
+		}
+	}
+
 	/* now release available resource */
 	res.sem_num = EZCFG_SEM_SHM_QUEUE_INDEX;
 	res.sem_op = 1;
