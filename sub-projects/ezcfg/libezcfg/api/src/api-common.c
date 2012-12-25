@@ -370,7 +370,7 @@ int ezcfg_api_common_decrease_shm_ezcfg_nvram_queue_num(struct ezcfg *ezcfg)
 	}
 
 	num = ezcfg_shm_get_ezcfg_nvram_queue_num(shm_addr);
-	DBG("%s(%d): pid=[%d] num=[%lu]\n", __func__, __LINE__, getpid(), num);
+	DBG("%s(%d): pid=[%d] num=[%d]\n", __func__, __LINE__, getpid(), (int)num);
 	if (num > 0) {
 		ezcfg_shm_set_ezcfg_nvram_queue_num(shm_addr, num-1);
 	}
@@ -489,8 +489,8 @@ int ezcfg_api_common_increase_shm_ezcfg_rc_queue_num(struct ezcfg *ezcfg)
 	}
 
 	num = ezcfg_shm_get_ezcfg_rc_queue_num(shm_addr);
-	DBG("%s(%d): pid=[%d] num=[%lu]\n", __func__, __LINE__, getpid(), num);
-	DBG("%s(%d): pid=[%d] rc_queue_length=[%lu]\n", __func__, __LINE__, getpid(), ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr));
+	DBG("%s(%d): pid=[%d] num=[%d]\n", __func__, __LINE__, getpid(), (int)num);
+	DBG("%s(%d): pid=[%d] rc_queue_length=[%d]\n", __func__, __LINE__, getpid(), (int)ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr));
 	if (num < ezcfg_shm_get_ezcfg_rc_queue_length(shm_addr)) {
 		ezcfg_shm_set_ezcfg_rc_queue_num(shm_addr, num+1);
 	}
