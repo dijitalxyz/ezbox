@@ -17,6 +17,7 @@ AM_LDFLAGS = -L. -ldl
 # ezcd depends on libezcfg
 # LIBS += -lezcfg
 ezcd_DEPENDENCIES = libezcfg.so libezcd.so $(RCSO_SO) $(RCSO_EXE)
+ezcd_DEPENDENCIES += $(AGENT_ENV_SO) $(AGENT_ENV_EXE)
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LDADD) -L$(top_builddir)/lib/.libs -lezcd
 ezcd_LDFLAGS = $(AM_LDFLAGS) -lezcfg -lezcd
@@ -66,19 +67,11 @@ libezcd.so: $(top_builddir)/lib/.libs/libezcd.so
 ###############################
 RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
 RCSO_CFLAGS += $(ezcd_CPPFLAGS)
-RCSO_SRC = rc_action.c
+RCSO_SRC = rc_agent.c
 RCSO_SRC += rc_exec.c
-RCSO_SRC += rc_login.c
-RCSO_SRC += rc_preboot.c
 RCSO_SRC += rc_system.c
-RCSO_SRC += rc_load_modules.c
-RCSO_SRC += rc_mount_system_fs.c
-RCSO_SRC += rc_udev_pop_nodes.c
 RCSO_SRC += rc_data_partition.c
-RCSO_SRC += rc_data_storage.c
-RCSO_SRC += rc_nvram.c
 RCSO_SRC += rc_env.c
-RCSO_SRC += rc_ezcd.c
 RCSO_SRC += rc_ezcfg_httpd.c
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
 RCSO_SRC += rc_ezcfg_igrsd.c
@@ -87,48 +80,11 @@ if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 RCSO_SRC += rc_ezcfg_upnpd.c
 RCSO_SRC += rc_upnp_monitor.c
 endif
-RCSO_SRC += rc_ezcm.c
-RCSO_SRC += rc_overlay_rootfs.c
-RCSO_SRC += rc_netbase.c
 RCSO_SRC += rc_resolv_conf.c
-if CONFIG_EZBOX_SERVICE_OPENSSL
-RCSO_SRC += rc_openssl.c
-endif
-if CONFIG_EZBOX_SERVICE_IPTABLES
-RCSO_SRC += rc_iptables.c
-endif
 RCSO_SRC += rc_init.c
-RCSO_SRC += rc_shelld.c
-RCSO_SRC += rc_base_files.c
 RCSO_SRC += rc_ldconfig.c
-# syslogd service
-if CONFIG_EZBOX_SERVICE_SYSLOGD
-RCSO_SRC += rc_syslogd.c
-endif
-# klogd service
-if CONFIG_EZBOX_SERVICE_KLOGD
-RCSO_SRC += rc_klogd.c
-endif
-RCSO_SRC += rc_loopback.c
-# network
-if CONFIG_EZBOX_ETH_LAN_NIC
-RCSO_SRC += rc_eth_lan_if.c
-endif
-if CONFIG_EZBOX_WIFI_LAN_NIC
-RCSO_SRC += rc_wifi_lan_if.c
-endif
-if CONFIG_EZBOX_BR_LAN_NIC
-RCSO_SRC += rc_br_lan_if.c
-endif
 if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
 RCSO_SRC += rc_wpa_supplicant.c
-endif
-if CONFIG_EZBOX_LAN_NIC
-RCSO_SRC += rc_lan.c
-endif
-if CONFIG_EZBOX_WAN_NIC
-RCSO_SRC += rc_wan_if.c
-RCSO_SRC += rc_wan.c
 endif
 
 # telnet service
@@ -173,18 +129,9 @@ endif
 if CONFIG_EZBOX_SERVICE_LXC
 RCSO_SRC += rc_lxc.c
 endif
-# PPP service
-if CONFIG_EZBOX_SERVICE_PPP
-RCSO_SRC += rc_ppp_pap_secrets.c
-RCSO_SRC += rc_ppp_chap_secrets.c
-endif
 # PPPoE server service
 if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
 RCSO_SRC += rc_pppoe_server.c
-endif
-# PPP RP-PPPoE service
-if CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE
-RCSO_SRC += rc_ppp_rp_pppoe.c
 endif
 # FreeRADIUS2 server service
 if CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER
@@ -193,6 +140,70 @@ endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))
 RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
+
+###############################
+# agent environment
+###############################
+AGENT_ENV_SRC = env_action_base_files.c
+if CONFIG_EZBOX_BR_LAN_NIC
+AGENT_ENV_SRC += env_action_br_lan_if.c
+endif
+AGENT_ENV_SRC += env_action_data_storage.c
+AGENT_ENV_SRC += env_action_dmcrypt_data_partition.c
+# network
+if CONFIG_EZBOX_ETH_LAN_NIC
+AGENT_ENV_SRC += env_action_eth_lan_if.c
+endif
+AGENT_ENV_SRC += env_action_ezcd.c
+AGENT_ENV_SRC += env_action_ezcm.c
+if CONFIG_EZBOX_SERVICE_IPTABLES
+AGENT_ENV_SRC += env_action_iptables.c
+endif
+# klogd service
+if CONFIG_EZBOX_SERVICE_KLOGD
+AGENT_ENV_SRC += env_action_klogd.c
+endif
+if CONFIG_EZBOX_LAN_NIC
+AGENT_ENV_SRC += env_action_lan.c
+endif
+AGENT_ENV_SRC += env_action_load_modules.c
+AGENT_ENV_SRC += env_action_login.c
+AGENT_ENV_SRC += env_action_loopback.c
+AGENT_ENV_SRC += env_action_mount_system_fs.c
+AGENT_ENV_SRC += env_action_netbase.c
+AGENT_ENV_SRC += env_action_nvram.c
+if CONFIG_EZBOX_SERVICE_OPENSSL
+AGENT_ENV_SRC += env_action_openssl.c
+endif
+AGENT_ENV_SRC += env_action_overlay_rootfs.c
+# PPP service
+if CONFIG_EZBOX_SERVICE_PPP
+AGENT_ENV_SRC += env_action_ppp_chap_secrets.c
+AGENT_ENV_SRC += env_action_ppp_pap_secrets.c
+endif
+# PPP RP-PPPoE service
+if CONFIG_EZBOX_SERVICE_PPP_RP_PPPOE
+AGENT_ENV_SRC += env_action_ppp_rp_pppoe.c
+endif
+AGENT_ENV_SRC += env_action_preboot.c
+AGENT_ENV_SRC += env_action_shelld.c
+AGENT_ENV_SRC += env_action_state.c
+# syslogd service
+if CONFIG_EZBOX_SERVICE_SYSLOGD
+AGENT_ENV_SRC += env_action_syslogd.c
+endif
+AGENT_ENV_SRC += env_action_udev_pop_nodes.c
+if CONFIG_EZBOX_WAN_NIC
+AGENT_ENV_SRC += env_action_wan.c
+AGENT_ENV_SRC += env_action_wan_if.c
+endif
+if CONFIG_EZBOX_WIFI_LAN_NIC
+AGENT_ENV_SRC += env_action_wifi_lan_if.c
+endif
+
+AGENT_ENV_SO = $(subst .c,.so,$(AGENT_ENV_SRC))
+AGENT_ENV_EXE = $(subst .c,.exe,$(AGENT_ENV_SRC))
+
 
 %.so : $(top_builddir)/src/rcso/%.c
 	$(CC) $(RCSO_CFLAGS) -L. -lezcd -ldl -shared $< -o $@

@@ -77,7 +77,7 @@ static void init_halt_reboot_poweroff(int sig)
 		rc_function_t func;
 		void * obj;
 	} alias;
-	char *stop_argv[] = { "action", "sys", "stop", NULL };
+	char *stop_argv[] = { "agent", "env", "stop", NULL };
 	sigset_t set;
 	pid_t pid;
 	unsigned rb;
@@ -89,17 +89,17 @@ static void init_halt_reboot_poweroff(int sig)
 	sigfillset(&set);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 
-	/* run action processes */
-	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
+	/* run agent environment stop processes */
+	handle = dlopen("/lib/rcso/rc_agent.so", RTLD_NOW);
 	if (handle == NULL) {
-		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
+		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_agent.so", dlerror());
 		return;
 	}
 
 	/* clear any existing error */
 	dlerror();
 
-	alias.obj = dlsym(handle, "rc_action");
+	alias.obj = dlsym(handle, "rc_agent");
 
 	if ((p = dlerror()) != NULL)  {
 		DBG("<6>init: dlsym error %s\n", p);
@@ -150,7 +150,7 @@ int init_main(int argc, char **argv)
 		rc_function_t func;
 		void * obj;
 	} alias;
-	char *start_argv[] = { "action", "sys", "start", NULL };
+	char *start_argv[] = { "agent", "env", "start", NULL };
 	sigset_t sigset;
 
 	/* unset umask */
@@ -169,17 +169,17 @@ int init_main(int argc, char **argv)
 
 	sigemptyset(&sigset);
 
-	/* run start processes */
-	handle = dlopen("/lib/rcso/rc_action.so", RTLD_NOW);
+	/* run agent environment start processes */
+	handle = dlopen("/lib/rcso/rc_agent.so", RTLD_NOW);
 	if (!handle) {
-		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_action.so", dlerror());
+		DBG("<6>init: dlopen(%s) error %s\n", "/lib/rcso/rc_agent.so", dlerror());
 		return (EXIT_FAILURE);
 	}
 
 	/* clear any existing error */
 	dlerror();
 
-	alias.obj = dlsym(handle, "rc_action");
+	alias.obj = dlsym(handle, "rc_agent");
 
 	if ((p = dlerror()) != NULL)  {
 		DBG("<6>init: dlsym error %s\n", p);

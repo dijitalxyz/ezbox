@@ -122,6 +122,7 @@
 #define IS_COLON(c)	((c) == ':')
 
 typedef int (*rc_function_t)(int, char **);
+typedef int (*action_func_t)(int, char **);
 
 typedef struct rc_func_s {
 	char *name;
