@@ -103,10 +103,6 @@ endif
 if CONFIG_EZBOX_SERVICE_DHISD
 RCSO_SRC += rc_dhisd.c
 endif
-# LUKS/dm-crypt for data partition service
-if CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION
-RCSO_SRC += rc_dmcrypt_data_partition.c
-endif
 # ezctp service
 if CONFIG_EZBOX_SERVICE_EZCTP
 RCSO_SRC += rc_ezctp.c
@@ -149,7 +145,10 @@ if CONFIG_EZBOX_BR_LAN_NIC
 AGENT_ENV_SRC += env_action_br_lan_if.c
 endif
 AGENT_ENV_SRC += env_action_data_storage.c
+# LUKS/dm-crypt for data partition service
+if CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION
 AGENT_ENV_SRC += env_action_dmcrypt_data_partition.c
+endif
 # network
 if CONFIG_EZBOX_ETH_LAN_NIC
 AGENT_ENV_SRC += env_action_eth_lan_if.c
