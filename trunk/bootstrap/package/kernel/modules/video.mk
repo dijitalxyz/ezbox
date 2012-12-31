@@ -8,12 +8,76 @@
 
 VIDEO_MENU:=Video Support
 
+
+define KernelPackage/fb
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Framebuffer support
+  DEPENDS:=@DISPLAY_SUPPORT
+  KCONFIG:=CONFIG_FB
+  FILES:=$(LINUX_DIR)/drivers/video/fb.ko
+  AUTOLOAD:=$(call AutoLoad,06,fb)
+endef
+
+define KernelPackage/fb/description
+  Kernel support for framebuffers
+endef
+
+$(eval $(call KernelPackage,fb))
+
+define KernelPackage/fb-cfb-fillrect
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Framebuffer software rectangle filling support
+  DEPENDS:=+kmod-fb
+  KCONFIG:=CONFIG_FB_CFB_FILLRECT
+  FILES:=$(LINUX_DIR)/drivers/video/cfbfillrect.ko
+  AUTOLOAD:=$(call AutoLoad,07,cfbfillrect)
+endef
+
+define KernelPackage/fb-cfb-fillrect/description
+  Kernel support for software rectangle filling
+endef
+
+$(eval $(call KernelPackage,fb-cfb-fillrect))
+
+
+define KernelPackage/fb-cfb-copyarea
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Framebuffer software copy area support
+  DEPENDS:=+kmod-fb
+  KCONFIG:=CONFIG_FB_CFB_COPYAREA
+  FILES:=$(LINUX_DIR)/drivers/video/cfbcopyarea.ko
+  AUTOLOAD:=$(call AutoLoad,07,cfbcopyarea)
+endef
+
+define KernelPackage/fb-cfb-copyarea/description
+  Kernel support for software copy area
+endef
+
+$(eval $(call KernelPackage,fb-cfb-copyarea))
+
+define KernelPackage/fb-cfb-imgblt
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Framebuffer software image blit support
+  DEPENDS:=+kmod-fb
+  KCONFIG:=CONFIG_FB_CFB_IMAGEBLIT
+  FILES:=$(LINUX_DIR)/drivers/video/cfbimgblt.ko
+  AUTOLOAD:=$(call AutoLoad,07,cfbimgblt)
+endef
+
+define KernelPackage/fb-cfb-imgblt/description
+  Kernel support for software image blitting
+endef
+
+$(eval $(call KernelPackage,fb-cfb-imgblt))
+
+
 define KernelPackage/video-core
   SUBMENU:=$(VIDEO_MENU)
   TITLE=Video4Linux support
   DEPENDS:=@PCI_SUPPORT||USB_SUPPORT +!TARGET_etrax:kmod-i2c-core
   KCONFIG:= \
 	CONFIG_MEDIA_SUPPORT=m \
+	CONFIG_MEDIA_CAMERA_SUPPORT=y \
 	CONFIG_VIDEO_DEV \
 	CONFIG_VIDEO_V4L1=y \
 	CONFIG_VIDEO_ALLOW_V4L1=y \
@@ -98,7 +162,7 @@ $(eval $(call KernelPackage,video-sn9c102))
 
 define KernelPackage/video-pwc
   TITLE:=Philips USB webcam support
-  DEPENDS:=@USB_SUPPORT +kmod-usb-core +!LINUX_2_6_39:kmod-video-videobuf2
+  DEPENDS:=@USB_SUPPORT +kmod-usb-core +kmod-video-videobuf2
   KCONFIG:= \
 	CONFIG_USB_PWC \
 	CONFIG_USB_PWC_DEBUG=n
@@ -325,7 +389,7 @@ define KernelPackage/video-gspca-sn9c20x
   TITLE:=sn9c20x webcam support
   KCONFIG:=CONFIG_USB_GSPCA_SN9C20X
   FILES:=$(LINUX_DIR)/drivers/media/video/gspca/gspca_sn9c20x.ko
-  AUTOLOAD:=$(call AutoLoad,75,sn9c20x)
+  AUTOLOAD:=$(call AutoLoad,75,gspca_sn9c20x)
   $(call AddDepends/video-gspca)
 endef
 
