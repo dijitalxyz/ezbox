@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.19.4
-PKG_RELEASE:=3
+PKG_RELEASE:=5
 PKG_FLAGS:=essential
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
@@ -19,6 +19,9 @@ PKG_MD5SUM:=9c0cae5a0379228e7b55e5b29528df8e
 
 PKG_BUILD_DEPENDS:=BUSYBOX_CONFIG_FEATURE_HAVE_RPC:librpc
 PKG_BUILD_PARALLEL:=1
+
+PKG_LICENSE:=GPLv2 BSD-4c
+PKG_LICENSE_FILES:=LICENSE archival/libarchive/bz/LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -33,7 +36,6 @@ else
 endif
 
 init-y :=
-init-$(CONFIG_BUSYBOX_CONFIG_HTTPD) += httpd
 init-$(CONFIG_BUSYBOX_CONFIG_CROND) += cron
 init-$(CONFIG_BUSYBOX_CONFIG_TELNETD) += telnet
 
@@ -80,7 +82,7 @@ ifdef CONFIG_BUSYBOX_CONFIG_FEATURE_HAVE_RPC
 endif
 
 define Build/Compile
-	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
 		CROSS_COMPILE="$(TARGET_CROSS)" \
 		KBUILD_HAVE_NLS=no \
