@@ -16,6 +16,9 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/ncurses
 PKG_MD5SUM:=cce05daf61a64501ef6cd8da1f727ec6
 
+PKG_LICENSE:=FREE
+PKG_LICENSE_FILES:=README
+
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
@@ -63,6 +66,11 @@ CONFIGURE_ARGS += \
 	--with-shared \
 	--with-terminfo-dirs=/usr/share/terminfo \
 	--with-default-terminfo-dir=/usr/share/terminfo
+
+ifneq ($(INSTALL_LIBSTDCPP),y)
+CONFIGURE_ARGS += \
+	--without-cxx-binding
+endif
 
 ifeq ($(HOST_OS),FreeBSD)
 	CONFIGURE_ARGS +=
