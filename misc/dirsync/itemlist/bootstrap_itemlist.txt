@@ -8,6 +8,7 @@ m:include/target.mk
 m:rules.mk
 m:package/Makefile
 m:toolchain/uClibc/Makefile
+m:toolchain/uClibc/common.mk
 m:toolchain/uClibc/config-0.9.33.2/common
 m:toolchain/uClibc/config-0.9.33.2/locale
 m:toolchain/gcc/common.mk
@@ -100,6 +101,6 @@ d:package/base-files/
 d:package/busybox/
 d:package/kernel/
 d:package/libtool/
-d:package/librpc/
+d:package/libs/librpc/
 d:package/ocf-crypto-headers/
 d:package/opkg/
