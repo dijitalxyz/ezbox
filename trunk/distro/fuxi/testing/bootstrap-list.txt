@@ -1,12 +1,12 @@
 # basic packages
-package/dnsmasq/dnsmasq-2.59:package/dnsmasq
-package/dropbear/dropbear-2011.54:package/dropbear
-package/e2fsprogs/e2fsprogs-1.42.2:package/e2fsprogs
-package/libpcap/libpcap-1.1.1:package/libpcap
-package/libreadline/libreadline-5.2:package/libreadline
-package/lua/lua-5.1.4:package/lua
-package/ncurses/ncurses-5.7:package/ncurses
-package/openssl/openssl-1.0.1c:package/openssl
-package/ppp/ppp-2.4.5:package/ppp
-package/util-linux/util-linux-2.21.1:package/util-linux
-package/zlib/zlib-1.2.5:package/zlib
+package/e2fsprogs/e2fsprogs-1.42.4:package/e2fsprogs
+package/libs/libpcap/libpcap-1.1.1:package/libs/libpcap
+package/libs/libreadline/libreadline-6.2:package/libs/libreadline
+package/libs/ncurses/ncurses-5.7:package/libs/ncurses
+package/libs/openssl/openssl-1.0.1c:package/libs/openssl
+package/libs/zlib/zlib-1.2.7:package/libs/zlib
+package/lua/lua-5.1.5:package/lua
+package/network/services/dnsmasq/dnsmasq-2.62:package/network/services/dnsmasq
+package/network/services/dropbear/dropbear-2012.55:package/network/services/dropbear
+package/network/services/ppp/ppp-2.4.5:package/network/services/ppp
+package/util-linux/util-linux-2.21.2:package/util-linux
