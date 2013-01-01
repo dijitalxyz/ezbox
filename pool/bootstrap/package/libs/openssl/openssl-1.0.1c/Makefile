@@ -18,8 +18,10 @@ PKG_SOURCE_URL:=http://www.openssl.org/source/ \
 	ftp://ftp.sunet.se/pub/security/tools/net/openssl/source/
 PKG_MD5SUM:=ae412727c8c15b67880aef7bd2999b2e
 
+PKG_LICENSE:=SSLEAY OPENSSL
+PKG_LICENSE_FILES:=LICENSE
 PKG_BUILD_DEPENDS:=ocf-crypto-headers
-PKG_CONFIG_DEPENDS:=CONFIG_OPENSSL_ENGINE
+PKG_CONFIG_DEPENDS:=CONFIG_OPENSSL_ENGINE_CRYPTO CONFIG_OPENSSL_ENGINE_DIGEST
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -73,11 +75,14 @@ endef
 
 
 OPENSSL_NO_CIPHERS:= no-idea no-md2 no-mdc2 no-rc5 no-sha0 no-smime \
-					no-rmd160 no-aes192 no-ripemd no-camellia no-ans1 no-krb5
+	no-rmd160 no-aes192 no-ripemd no-camellia no-ans1 no-krb5
 OPENSSL_OPTIONS:= shared no-ec no-err no-hw no-threads zlib-dynamic no-sse2
 
-ifdef CONFIG_OPENSSL_ENGINE
+ifdef CONFIG_OPENSSL_ENGINE_CRYPTO
   OPENSSL_OPTIONS += -DHAVE_CRYPTODEV
+  ifdef CONFIG_OPENSSL_ENGINE_DIGEST
+    OPENSSL_OPTIONS += -DUSE_CRYPTODEV_DIGESTS
+  endif
 else
   OPENSSL_OPTIONS += no-engines
 endif
@@ -85,8 +90,13 @@ endif
 ifeq ($(CONFIG_x86_64),y)
   OPENSSL_TARGET:=linux-x86_64
 else
-  OPENSSL_TARGET:=linux-openwrt
-  OPENSSL_OPTIONS+=no-perlasm no-sse2
+  OPENSSL_OPTIONS+=no-sse2
+  ifeq ($(CONFIG_mips)$(CONFIG_mipsel),y)
+    OPENSSL_TARGET:=linux-mips-openwrt
+  else
+    OPENSSL_TARGET:=linux-generic-openwrt
+    OPENSSL_OPTIONS+=no-perlasm
+  endif
 endif
 
 define Build/Configure
@@ -94,7 +104,6 @@ define Build/Configure
 		./Configure $(OPENSSL_TARGET) \
 			--prefix=/usr \
 			--openssldir=/etc/ssl \
-			--libdir=lib \
 			$(TARGET_CPPFLAGS) \
 			$(TARGET_LDFLAGS) -ldl \
 			-DOPENSSL_SMALL_FOOTPRINT \
