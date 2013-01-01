@@ -13,7 +13,7 @@ DEVICE_TYPE?=router
 
 # Default packages - the really basic set
 DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg hotplug2 netifd
-# ezbox special settings
+# FIXME: ezbox special settings
 DEFAULT_PACKAGES:=ezcfg libc libgcc busybox
 # For router targets
 DEFAULT_PACKAGES.router:=dnsmasq iptables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall
@@ -195,7 +195,7 @@ ifeq ($(DUMP),1)
   DEFAULT_CFLAGS_i386=-O2 -pipe -march=i486 -fno-caller-saves
   DEFAULT_CFLAGS_x86_64=-O2 -pipe -march=athlon64 -fno-caller-saves
   DEFAULT_CFLAGS_m68k=-Os -pipe -mcfv4e -fno-caller-saves
-  DEFAULT_CFLAGS_mips=-Os -pipe -mips32 -mtune=mips32 -fno-caller-saves
+  DEFAULT_CFLAGS_mips=-Os -pipe -mips32 -mtune=mips32 -fno-caller-saves -mno-branch-likely
   DEFAULT_CFLAGS_mipsel=$(DEFAULT_CFLAGS_mips)
   DEFAULT_CFLAGS_mips64=-Os -pipe -mips64 -mtune=mips64 -mabi=64 -fno-caller-saves
   DEFAULT_CFLAGS_mips64el=$(DEFAULT_CFLAGS_mips64)
