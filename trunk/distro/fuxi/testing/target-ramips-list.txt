@@ -1,4 +1,4 @@
 #FIXME: we need copy it to the workspace
 
 # target
-target/linux/ramips:target/linux/ramips
+c:target/linux/ramips:target/linux/ramips

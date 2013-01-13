@@ -38,10 +38,17 @@ do
   if [ $FIRST_CHAR = "#" ] ; then
     echo "it's a comment"
   else
-    SOURCE=${LINE%:*}
-    TARGET=${LINE#*:}
+    LINE2=${LINE#*:}
+    SOURCE=${LINE2%:*}
+    TARGET=${LINE2#*:}
+    dbg "LINE2=[$LINE2]"
+    dbg "FIRST_CHAR=[$FIRST_CHAR]"
     dbg "SOURCE=[$SOURCE]"
     dbg "TARGET=[$TARGET]"
+    if [ "x$FIRST_CHAR" = "x" ] ; then
+      echo "file format error @ [$FIRST_CHAR] !!!"
+      exit -1
+    fi
     if [ "x$SOURCE" = "x" ] ; then
       echo "file format error @ [$LINE] !!!"
       exit -1
@@ -56,12 +63,23 @@ do
         exit -1
       fi
     fi
-    dbg "mkdir -p $TARGET_DIR/$TARGET"
-    mkdir -p $TARGET_DIR/$TARGET
-    dbg "rm -rf $TARGET_DIR/$TARGET"
-    rm -rf $TARGET_DIR/$TARGET
-    dbg "cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET"
-    cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET
+    if [ "$FIRST_CHAR" = "c" ] ; then
+      dbg "mkdir -p $TARGET_DIR/$TARGET"
+      mkdir -p $TARGET_DIR/$TARGET
+      dbg "rm -rf $TARGET_DIR/$TARGET"
+      rm -rf $TARGET_DIR/$TARGET
+      dbg "cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET"
+      cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET
+    elif [ "$FIRST_CHAR" = "l" ] ; then
+      dbg "mkdir -p $TARGET_DIR/$TARGET"
+      mkdir -p $TARGET_DIR/$TARGET
+      dbg "rm -rf $TARGET_DIR/$TARGET"
+      rm -rf $TARGET_DIR/$TARGET
+      dbg "ln -sf $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET"
+      ln -sf $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET
+    else
+      dbg "unknown command=[$FIRST_CHAR] skip it."
+    fi
   fi
 done < $PACKAGE_LIST
 
