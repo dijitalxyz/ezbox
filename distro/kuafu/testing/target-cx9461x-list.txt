@@ -1,4 +1,4 @@
 #FIXME: we need copy it to the workspace
 
 # target
-target/linux/cx9461x:target/linux/cx9461x
+c:target/linux/cx9461x:target/linux/cx9461x

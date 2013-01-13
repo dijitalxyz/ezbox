@@ -1,4 +1,4 @@
 # realtime packages
-realtime/emc2/emc2-20110710:emc2
-realtime/ezcnc/ezcnc-0.1:ezcnc
-realtime/rtai/rtai-20110603:rtai
+c:realtime/emc2/emc2-20110710:realtime/emc2
+c:realtime/ezcnc/ezcnc-0.1:realtime/ezcnc
+c:realtime/rtai/rtai-20110603:realtime/rtai

@@ -3,6 +3,11 @@
 BUILD_DIR=$1
 PACKAGE_LIST=$2
 
+# PACKAGE_LIST has format[c:source:target]
+# c: command, c=copy, l=link
+# source: source directory
+# target: target directory
+
 usage() {
   echo "usage: ./clean-link.sh <build directory> <packages list>"
 }
@@ -29,13 +34,19 @@ do
     continue;
   fi
   FIRST_CHAR=${LINE:0:1}
+  LINE2=${LINE%:*}
   if [ $FIRST_CHAR = "#" ] ; then
     echo "it's a comment"
   else
-    SOURCE=${LINE%:*}
-    TARGET=${LINE#*:}
+    SOURCE=${LINE2%:*}
+    TARGET=${LINE2#*:}
+    dbg "FIRST_CHAR=[$FIRST_CHAR]"
     dbg "SOURCE=[$SOURCE]"
     dbg "TARGET=[$TARGET]"
+    if [ "x$FIRST_CHAR" = "x" ] ; then
+      echo "file format error @ [$LINE] !!!"
+      exit -1
+    fi
     if [ "x$SOURCE" = "x" ] ; then
       echo "file format error @ [$LINE] !!!"
       exit -1

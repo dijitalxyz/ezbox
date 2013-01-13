@@ -1,4 +1,4 @@
 #FIXME: we need copy it to the workspace
 
 # target
-target/linux/lantiq:target/linux/lantiq
+c:target/linux/lantiq:target/linux/lantiq
