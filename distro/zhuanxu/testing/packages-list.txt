@@ -3,9 +3,9 @@ c:libs/gettext-full/gettext-full-0.18.1.1:libs/gettext-full
 c:libs/glib2/glib2-2.26.1:libs/glib2
 c:libs/gmp/gmp-4.3.1:libs/gmp
 c:libs/libcap/libcap-2.22:libs/libcap
-c:libs/libiconv-full/libiconv-full-1.11.1:libs/libiconv-full
 c:libs/libgcrypt/libgcrypt-1.5.0:libs/libgcrypt
 c:libs/libgpg-error/libgpg-error-1.9:libs/libgpg-error
+c:libs/libiconv-full/libiconv-full-1.11.1:libs/libiconv-full
 c:libs/popt/popt-1.7:libs/popt
 c:net/aoetools/aoetools-32:net/aoetools
 c:utils/cryptsetup/cryptsetup-1.4.1:utils/cryptsetup
