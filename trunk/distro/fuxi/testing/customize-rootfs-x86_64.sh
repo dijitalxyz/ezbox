@@ -62,8 +62,8 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/8139too.ko $ROOTFS_DIR/lib/modules
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/8390.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aead.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aes_generic.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aes-i586.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aes-i586.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/aoe.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/arc4.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/b44.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
@@ -84,7 +84,7 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/e1000e.ko $ROOTFS_DIR/lib/modules/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/e1000.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/e100.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ecb.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ehci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ehci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/eseqiv.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ip_queue.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/iptable_filter.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
@@ -101,7 +101,7 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_REDIRECT.ko $ROOTFS_DIR/lib/mo
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_REJECT.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ipt_ULOG.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/krng.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/libahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/libahci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/natsemi.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ne2k-pci.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nf_conntrack_broadcast.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
@@ -111,7 +111,7 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nf_conntrack_proto_gre.ko $ROOTFS_
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nf_defrag_ipv4.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nf_nat.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/nfnetlink.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ohci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ohci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/pcnet32.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/r8169.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/rng.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
@@ -122,10 +122,10 @@ cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/sky2.ko $ROOTFS_DIR/lib/modules/$L
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/ssb.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/tg3.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/tun.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/uhci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usb-common.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usbcore.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
-cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usb-storage.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/uhci-hcd.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usb-common.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usbcore.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
+#cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/usb-storage.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/via-rhine.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/via-velocity.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
 cp -af $ROOTFS_BAK_DIR/lib/modules/$LINUX_VER/x_tables.ko $ROOTFS_DIR/lib/modules/$LINUX_VER/
