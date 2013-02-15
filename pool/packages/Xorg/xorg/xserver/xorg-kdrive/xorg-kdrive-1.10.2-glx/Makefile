@@ -84,7 +84,6 @@ endef
 
 define Build/Configure
 	$(call Build/Configure/Default, \
-		--enable-kdrive \
 		$(if $(CONFIG_PACKAGE_xserver-kdrive-xfbdev), \
 			--enable-xfbdev, \
 			--disable-xfbdev) \
@@ -134,6 +133,7 @@ define Build/Configure
 		--disable-xquartz \
 		--disable-standalone-xpbproxy \
 		--disable-xwin \
+		--enable-kdrive \
 		--disable-xfake \
 		--disable-installsetuid \
 		--disable-secure-rpc \
