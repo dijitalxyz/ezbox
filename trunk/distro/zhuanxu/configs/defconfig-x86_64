@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Barrier Breaker (unknown)
-# Sat Feb 16 01:45:07 2013
+# Sat Feb 16 10:16:28 2013
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1079,6 +1079,28 @@ CONFIG_PACKAGE_librt=y
 CONFIG_PACKAGE_libssp=y
 CONFIG_PACKAGE_libstdcpp=y
 # CONFIG_PACKAGE_opkg is not set
+CONFIG_PACKAGE_udev=y
+
+#
+# Configuration
+#
+# CONFIG_UDEV_DISABLE_LOGGING is not set
+# CONFIG_UDEV_ENABLE_DEBUG is not set
+CONFIG_UDEV_EXTRA_accelerometer=y
+CONFIG_UDEV_EXTRA_ata_id=y
+CONFIG_UDEV_EXTRA_cdrom_id=y
+# CONFIG_UDEV_EXTRA_collect is not set
+# CONFIG_UDEV_EXTRA_edd_id is not set
+# CONFIG_UDEV_EXTRA_firmware is not set
+# CONFIG_UDEV_EXTRA_floppy is not set
+CONFIG_UDEV_EXTRA_input_id=y
+CONFIG_UDEV_EXTRA_mtd_probe=y
+CONFIG_UDEV_EXTRA_path_id=y
+CONFIG_UDEV_EXTRA_qemu=y
+CONFIG_UDEV_EXTRA_rule_generator=y
+CONFIG_UDEV_EXTRA_scsi_id=y
+CONFIG_UDEV_EXTRA_usb_id=y
+CONFIG_UDEV_EXTRA_v4l_id=y
 
 #
 # Utilities
@@ -1206,6 +1228,7 @@ CONFIG_PACKAGE_libopenssl=y
 #
 CONFIG_OPENSSL_ENGINE_CRYPTO=y
 CONFIG_OPENSSL_ENGINE_DIGEST=y
+CONFIG_PACKAGE_alsa-lib=y
 CONFIG_PACKAGE_glib2=y
 CONFIG_PACKAGE_libblkid=y
 CONFIG_PACKAGE_libcap=y
@@ -1216,7 +1239,8 @@ CONFIG_PACKAGE_libgmp=y
 CONFIG_PACKAGE_libgpg-error=y
 CONFIG_PACKAGE_libiconv-full=y
 CONFIG_PACKAGE_libintl-full=y
-# CONFIG_PACKAGE_libltdl is not set
+CONFIG_PACKAGE_libjson=y
+CONFIG_PACKAGE_libltdl=y
 # CONFIG_PACKAGE_libmount is not set
 CONFIG_PACKAGE_libncurses=y
 # CONFIG_PACKAGE_libncursesw is not set
@@ -1229,6 +1253,9 @@ CONFIG_PCAP_HAS_USB=y
 CONFIG_PACKAGE_libpopt=y
 CONFIG_PACKAGE_libreadline=y
 CONFIG_PACKAGE_librpc=y
+CONFIG_PACKAGE_libsndfile=y
+CONFIG_PACKAGE_libspeex=y
+CONFIG_PACKAGE_libspeexdsp=y
 CONFIG_PACKAGE_libuuid=y
 CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_zlib=y
@@ -1504,7 +1531,7 @@ CONFIG_PACKAGE_kmod-tun=y
 # CONFIG_PACKAGE_kmod-gpio-nxp-74hc164 is not set
 # CONFIG_PACKAGE_kmod-hid is not set
 CONFIG_PACKAGE_kmod-ikconfig=y
-# CONFIG_PACKAGE_kmod-input-core is not set
+CONFIG_PACKAGE_kmod-input-core=y
 # CONFIG_PACKAGE_kmod-input-evdev is not set
 # CONFIG_PACKAGE_kmod-input-joydev is not set
 # CONFIG_PACKAGE_kmod-input-polldev is not set
@@ -1514,7 +1541,7 @@ CONFIG_PACKAGE_kmod-ikconfig=y
 # CONFIG_PACKAGE_kmod-nandsim is not set
 # CONFIG_PACKAGE_kmod-pwm is not set
 # CONFIG_PACKAGE_kmod-pwm-gpio is not set
-# CONFIG_PACKAGE_kmod-regmap is not set
+CONFIG_PACKAGE_kmod-regmap=y
 # CONFIG_PACKAGE_kmod-rtc-pcf2123 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
 # CONFIG_PACKAGE_kmod-rtc-pt7c4338 is not set
@@ -1531,13 +1558,21 @@ CONFIG_PACKAGE_kmod-ssb=y
 # SPI Support
 #
 # CONFIG_PACKAGE_kmod-mmc-spi is not set
-# CONFIG_PACKAGE_kmod-spi-bitbang is not set
-# CONFIG_PACKAGE_kmod-spi-dev is not set
+CONFIG_PACKAGE_kmod-spi-bitbang=y
+CONFIG_PACKAGE_kmod-spi-dev=y
 
 #
 # Sound Support
 #
-# CONFIG_PACKAGE_kmod-sound-core is not set
+CONFIG_PACKAGE_kmod-sound-core=y
+CONFIG_PACKAGE_kmod-ac97=y
+CONFIG_PACKAGE_kmod-pcspkr=y
+CONFIG_PACKAGE_kmod-sound-cs5535audio=y
+CONFIG_PACKAGE_kmod-sound-i8x0=y
+CONFIG_PACKAGE_kmod-sound-seq=y
+CONFIG_PACKAGE_kmod-sound-soc-ac97=y
+CONFIG_PACKAGE_kmod-sound-soc-core=y
+CONFIG_PACKAGE_kmod-usb-audio=y
 
 #
 # USB Support
@@ -1585,3 +1620,11 @@ CONFIG_PACKAGE_kmod-usb2=y
 # CONFIG_PACKAGE_kmod-net-airo is not set
 # CONFIG_PACKAGE_kmod-net-prism54 is not set
 # CONFIG_PACKAGE_kmod-net-zd1201 is not set
+
+#
+# Sound
+#
+CONFIG_PACKAGE_pulseaudio-daemon=y
+# CONFIG_PACKAGE_pulseaudio-daemon-avahi is not set
+CONFIG_PACKAGE_pulseaudio-profiles=y
+CONFIG_PACKAGE_pulseaudio-tools=y
