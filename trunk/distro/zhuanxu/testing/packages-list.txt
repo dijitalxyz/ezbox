@@ -1,7 +1,9 @@
 c:lang/python/python-2.7.3:lang/python
+# c:lang/python-libxml2/python-libxml2-2.7.8:lang/python-libxml2
 c:libs/alsa-lib/alsa-lib-1.0.24.1:libs/alsa-lib
 # c:libs/check/check-0.9.8:libs/check
 c:libs/expat/expat-2.0.1:libs/expat
+c:libs/freetype/freetype-2.3.12:libs/freetype
 c:libs/gettext-full/gettext-full-0.18.1.1:libs/gettext-full
 c:libs/glib2/glib2-2.26.1:libs/glib2
 c:libs/gmp/gmp-4.3.1:libs/gmp
@@ -10,7 +12,9 @@ c:libs/libcap/libcap-2.22:libs/libcap
 c:libs/libgcrypt/libgcrypt-1.5.0:libs/libgcrypt
 c:libs/libgpg-error/libgpg-error-1.9:libs/libgpg-error
 c:libs/libiconv-full/libiconv-full-1.11.1:libs/libiconv-full
+c:libs/libpthread-stubs/libpthread-stubs-0.1:libs/libpthread-stubs
 c:libs/libsndfile/libsndfile-1.0.25:libs/libsndfile
+# c:libs/libxml2/libxml2-2.7.8:libs/libxml2
 c:libs/popt/popt-1.7:libs/popt
 c:libs/speex/speex-1.2rc1:libs/speex
 c:net/aoetools/aoetools-32:net/aoetools
@@ -52,6 +56,7 @@ c:utils/qemu/qemu-1.1.1:utils/qemu
 # c:Xorg/xorg/proto/xextproto/xextproto-7.2.0:xorg/xextproto
 # c:Xorg/xorg/proto/xf86dgaproto/xf86dgaproto-2.1:xorg/xf86dgaproto
 # c:Xorg/xorg/proto/xf86driproto/xf86driproto-2.1.1:xorg/xf86driproto
+# c:Xorg/xorg/proto/xf86vidmodeproto/xf86vidmodeproto-2.3:xf86vidmodeproto
 # c:Xorg/xorg/proto/xineramaproto/xineramaproto-1.2.1:xorg/xineramaproto
 # c:Xorg/xorg/proto/xproto/xproto-7.0.21:xorg/xproto
 # c:Xorg/xorg/proto/videoproto/videoproto-2.3.1:xorg/videoproto

@@ -50,18 +50,14 @@ define Package/libgl-mesa-dri-$(1)
 endef
 endef
 
-DRIDRIVERS:=i810 i915 i965 mach64 mga nouveau r128 r200 r300 r600 radeon \
-            savage sis tdfx unichrome swrast
+#DRIDRIVERS:=i810 i915 i965 mach64 mga nouveau r128 r200 r300 r600 radeon \
+#            savage sis tdfx unichrome swrast
 
-$(foreach dri,$(DRIDRIVERS),$(eval $(call Package/libgl-mesa-dri/Default,$(dri))))
+#$(foreach dri,$(DRIDRIVERS),$(eval $(call Package/libgl-mesa-dri/Default,$(dri))))
 
 STAMP_CONFIGURED:=$(STAMP_CONFIGURED)_$(call confvar,CONFIG_PACKAGE_libgl-mesa \
-    CONFIG_PACKAGE_libglu-mesa \
-    $(foreach dri,$(DRIDRIVERS),CONFIG_PACKAGE_libgl-mesa-dri-$(dri)))
-
-CONFIGURE_VARS += \
-	ac_cv_prog_PYTHON2="/usr/bin/python2" \
-
+    CONFIG_PACKAGE_libglu-mesa)
+#$(foreach dri,$(DRIDRIVERS),CONFIG_PACKAGE_libgl-mesa-dri-$(dri)))
 
 define Build/Configure
 	$(call Build/Configure/Default, \
@@ -69,8 +65,8 @@ define Build/Configure
 		--disable-glw \
 		--disable-glut \
 		--disable-gallium \
-		--with-driver=dri \
-		--with-dri-drivers="$(foreach dri,$(DRIDRIVERS),$(if $(CONFIG_PACKAGE_libgl-mesa-dri-$(dri)),$(dri)))" \
+		--with-x \
+		--with-driver=xlib \
 	)
 endef
 
@@ -103,17 +99,17 @@ define Package/libglu-mesa/install
 		$(1)/usr/lib/
 endef
 
-define Package/libgl-mesa-dri/install/Default
-define Package/libgl-mesa-dri-$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/lib/dri/
-	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/dri/$(1)_dri.so* \
-		$$(1)/usr/lib/dri
-endef
-endef
+#define Package/libgl-mesa-dri/install/Default
+#define Package/libgl-mesa-dri-$(1)/install
+#	$(INSTALL_DIR) $$(1)/usr/lib/dri/
+#	$(CP) \
+#		$(PKG_INSTALL_DIR)/usr/lib/dri/$(1)_dri.so* \
+#		$$(1)/usr/lib/dri
+#endef
+#endef
 
 $(foreach dri,$(DRIDRIVERS),$(eval $(call Package/libgl-mesa-dri/install/Default,$(dri))))
 
 $(eval $(call BuildPackage,libgl-mesa))
 $(eval $(call BuildPackage,libglu-mesa))
-$(foreach dri,$(DRIDRIVERS),$(eval $(call BuildPackage,libgl-mesa-dri-$(dri))))
+#$(foreach dri,$(DRIDRIVERS),$(eval $(call BuildPackage,libgl-mesa-dri-$(dri))))
