@@ -58,7 +58,7 @@ endif
 CUR_DIR:=${CURDIR}
 # workspace directories
 WK_DIR:=$(CUR_DIR)/bootstrap.$(DISTRO)-$(SUFFIX)
-FD_DIR:=$(WK_DIR)/package/feeds/packages
+FEEDS_DIR:=$(WK_DIR)/package/feeds
 CUSTOMIZE_DIR:=$(WK_DIR)/customize
 ####################### 
 POOL_DIR:=$(CUR_DIR)/pool
@@ -71,12 +71,16 @@ ifeq ($(BUILD_TYPE),testing)
 PKGLIST_DIR:=$(DISTRO_DIR)/testing
 #BOOTSTRAP_DIR:=$(DISTRO_DIR)/bootstrap
 BOOTSTRAP_DIR:=$(POOL_DIR)/bootstrap
-PKGS_DIR:=$(POOL_DIR)/packages
+PKGS_DIR:=$(POOL_DIR)/feeds/packages
+XORG_DIR:=$(POOL_DIR)/feeds/xorg
+RT_PKGS_DIR:=$(POOL_DIR)/feeds/realtime
 endif
 ifeq ($(BUILD_TYPE),release)
 PKGLIST_DIR:=$(DISTRO_DIR)/release/$(RELEASE_VERSION)
 BOOTSTRAP_DIR:=$(POOL_DIR)/bootstrap
-PKGS_DIR:=$(POOL_DIR)/packages
+PKGS_DIR:=$(POOL_DIR)/feeds/packages
+XORG_DIR:=$(POOL_DIR)/feeds/xorg
+RT_PKGS_DIR:=$(POOL_DIR)/feeds/realtime
 endif
 # set realtime symbol links directory
 RT_DIR:=$(POOL_DIR)/realtime/$(RT_TYPE)
@@ -104,7 +108,7 @@ prepare-workspace:
 	mkdir -p $(WK_DIR)
 	cp -af bootstrap/* $(WK_DIR)/
 	# feeds directory
-	mkdir -p $(FD_DIR)
+	mkdir -p $(FEEDS_DIR)
 	# customize directory
 	mkdir -p $(CUSTOMIZE_DIR)
 	mkdir -p $(CUSTOMIZE_DIR)/backup
@@ -135,10 +139,12 @@ prepare-customize:
 
 #ifeq ($(BUILD_TYPE),release)
 prepare-packages:
-	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(FD_DIR) $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(FEEDS_DIR)/packages $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/xorg-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(XORG_DIR) $(FEEDS_DIR)/xorg $(PKGLIST_DIR)/xorg-list.txt
 
 clean-packages-links:
-	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(FD_DIR) $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(FEEDS_DIR)/packages $(PKGLIST_DIR)/packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/xorg-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(FEEDS_DIR)/xorg $(PKGLIST_DIR)/xorg-list.txt
 #endif
 
 prepare-download:
@@ -147,9 +153,12 @@ prepare-download:
 	ln -s $(DL_DIR) $(WK_DIR)/dl
 
 prepare-realtime: prepare-bootstrap
-	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(PKGS_DIR) $(FD_DIR) $(PKGLIST_DIR)/realtime-packages-list.txt
+	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(RT_PKGS_DIR) $(FEEDS_DIR)/realtime $(PKGLIST_DIR)/realtime-packages-list.txt
 	find $(WK_DIR)/target/linux/$(TARGET) -iname config-* |xargs rm -f
 	[ ! -f $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt ] || $(SCRIPTS_DIR)/symbol-link.sh $(RT_DIR) $(WK_DIR) $(PKGLIST_DIR)/realtime-target-$(TARGET)-list.txt
+
+clean-realtime-links:
+	[ ! -f $(PKGLIST_DIR)/realtime-packages-list.txt ] || $(SCRIPTS_DIR)/clean-link.sh $(FEEDS_DIR)/realtime $(PKGLIST_DIR)/realtime-packages-list.txt
 
 
 prepare-special-kernel:

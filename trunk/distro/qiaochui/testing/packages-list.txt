@@ -74,8 +74,8 @@ c:Xorg/xorg/proto/xcmiscproto/xcmiscproto-1.2.1:Xorg/xorg/proto/xcmiscproto
 c:Xorg/xorg/proto/xextproto/xextproto-7.2.0:Xorg/xorg/proto/xextproto
 c:Xorg/xorg/proto/xf86dgaproto/xf86dgaproto-2.1:Xorg/xorg/proto/xf86dgaproto
 c:Xorg/xorg/proto/xf86driproto/xf86driproto-2.1.1:Xorg/xorg/proto/xf86driproto
-Xorg/xorg/proto/xf86vidmodeproto/xf86vidmodeproto-2.3:xf86vidmodeproto
-Xorg/xorg/proto/xineramaproto/xineramaproto-1.2.1:xineramaproto
+c:Xorg/xorg/proto/xf86vidmodeproto/xf86vidmodeproto-2.3:xf86vidmodeproto
+c:Xorg/xorg/proto/xineramaproto/xineramaproto-1.2.1:xineramaproto
 c:Xorg/xorg/proto/xproto/xproto-7.0.21:Xorg/xorg/proto/xproto
 c:Xorg/xorg/xserver/xorg-kdrive/xorg-kdrive-1.10.2:Xorg/xorg/proto/xorg-kdrive
 c:Xorg/xserver/microwin/microwin-20110220:Xorg/xorg/proto/microwin
