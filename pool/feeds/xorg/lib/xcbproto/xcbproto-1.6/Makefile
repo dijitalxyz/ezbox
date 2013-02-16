@@ -33,14 +33,14 @@ define Package/xcbproto
 endef
 
 define InstallPy
-	$(INSTALL_DIR) $(1)/host/lib/$(PYTHON)/site-packages/xcbgen
+	$(INSTALL_DIR) $(1)/host/lib/$(PYTHON)/dist-packages/xcbgen
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/lib/$(PYTHON)/site-packages/xcbgen/*.py \
-		$(1)/host/lib/$(PYTHON)/site-packages/xcbgen/
-	$(INSTALL_DIR) $(1)/usr/lib/$(PYTHON)/site-packages/xcbgen
+		$(1)/host/lib/$(PYTHON)/dist-packages/xcbgen/
+	$(INSTALL_DIR) $(1)/usr/lib/$(PYTHON)/dist-packages/xcbgen
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/lib/$(PYTHON)/site-packages/xcbgen/*.py \
-		$(1)/usr/lib/$(PYTHON)/site-packages/xcbgen/
+		$(1)/usr/lib/$(PYTHON)/dist-packages/xcbgen/
 endef
 
 define Build/InstallDev
