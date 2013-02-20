@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run WAN services
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-10   0.1       Write it from scratch

@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/network/interfaces generating program
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-03   0.1       Write it from scratch

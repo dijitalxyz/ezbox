@@ -4,7 +4,7 @@
  *
  * Description  : replace var text escaped char in javascript
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-01-19   0.1       Write it from scratch

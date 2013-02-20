@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/freeradius2/dictionary file generating program
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-10-15   0.1       Write it from scratch

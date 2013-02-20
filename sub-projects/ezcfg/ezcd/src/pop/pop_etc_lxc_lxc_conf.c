@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/lxc/lxc.conf file generating program
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-07-23   0.1       Write it from scratch

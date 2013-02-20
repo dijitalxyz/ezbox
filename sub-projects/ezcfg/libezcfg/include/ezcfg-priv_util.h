@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-12-09   0.1       Split it from ezcfg-private.h
@@ -132,5 +132,8 @@ int ezcfg_util_service_binding(char *interface);
 
 /* util/util_if_ipaddr.c */
 bool ezcfg_util_if_get_ipaddr(const char ifname[IFNAMSIZ], char ip[INET_ADDRSTRLEN]);
+
+/* util/util_mkdir.c */
+int ezcfg_util_mkdir(const char *path, mode_t mode, bool is_dir);
 
 #endif /* _EZCFG_PRIV_UTIL_H_ */

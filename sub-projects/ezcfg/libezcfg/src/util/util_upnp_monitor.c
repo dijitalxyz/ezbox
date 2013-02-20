@@ -4,7 +4,7 @@
  *
  * Description  : ezcfg API for ezcfg upnp manipulate
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-12-25   0.1       Copy from api-upnp.c

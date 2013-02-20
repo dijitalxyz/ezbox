@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run wpa_supplicant service
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-08-04   0.1       Write it from scratch

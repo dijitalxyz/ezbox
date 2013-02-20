@@ -4,7 +4,7 @@
  *
  * Description  : replace mkdir
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-03-06   0.1       Write it from scrach

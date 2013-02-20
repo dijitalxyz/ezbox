@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run radvd Linux IPv6 Router Advertisement Daemon service
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-08-21   0.1       Write it from scratch

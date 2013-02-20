@@ -4,7 +4,7 @@
  *
  * Description  : socket protocol settings
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-11-24   0.1       Write it from scrach

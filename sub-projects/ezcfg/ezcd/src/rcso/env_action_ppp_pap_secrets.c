@@ -4,7 +4,7 @@
  *
  * Description  : ezbox env agent populates /etc/ppp/pap-secrets
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-09-28   0.1       Write it from scratch

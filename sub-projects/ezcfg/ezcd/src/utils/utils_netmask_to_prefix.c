@@ -4,7 +4,7 @@
  *
  * Description  : convert netmask 255.255.255.0 to prefix-length 24
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-06-28   0.1       Write it from scratch

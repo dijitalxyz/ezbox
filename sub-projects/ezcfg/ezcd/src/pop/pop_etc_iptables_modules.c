@@ -4,7 +4,7 @@
  *
  * Description  : ezbox /etc/iptables/modules generating program
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-01-08   0.1       Write it from scratch

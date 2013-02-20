@@ -4,7 +4,7 @@
  *
  * Description  : ezcfg API for function arguments for nvram socket manipulate
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-02-14   0.1       Write it from scratch

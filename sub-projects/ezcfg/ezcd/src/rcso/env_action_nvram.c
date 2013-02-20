@@ -4,13 +4,13 @@
  *
  * Description  : ezbox env agent populates nvram command config file
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-24   0.1       Write it from scratch
  * 2011-10-21   0.2       Modify it to use rcso framework
  * 2012-09-06   0.3       Add user defined command support
- * 2012-12-25   0.3       Modify it to use agent action framework
+ * 2012-12-25   0.4       Modify it to use agent action framework
  * ============================================================================
  */
 

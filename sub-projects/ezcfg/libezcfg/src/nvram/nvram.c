@@ -5,7 +5,7 @@
  * Description  : implement Non-Volatile RAM
  * Warning      : must exclusively use it, say lock NVRAM before using it.
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2010-08-20   0.1       Write it from scratch
@@ -1033,11 +1033,19 @@ static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int idx)
 	struct ezcfg *ezcfg;
 	FILE *fp = NULL;
 	bool ret = false;
+	struct stat stat_buf;
 
 	ezcfg = nvram->ezcfg;
 
 	/* generate nvram header info */
 	generate_nvram_header(nvram, idx);
+
+	/* check path */
+	if ((stat(nvram->storage[idx].path, &stat_buf) != 0) ||
+	    (S_ISREG(stat_buf.st_mode) == 0)) {
+		remove(nvram->storage[idx].path);
+		ezcfg_util_mkdir(nvram->storage[idx].path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 0);
+	}
 
 	fp = fopen(nvram->storage[idx].path, "w");
 	if (fp == NULL) {

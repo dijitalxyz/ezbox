@@ -4,7 +4,7 @@
  *
  * Description  : ezbox run mount/umount data partition service
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-08-06   0.1       Write it from scratch

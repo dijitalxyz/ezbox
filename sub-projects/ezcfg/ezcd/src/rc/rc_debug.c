@@ -4,7 +4,7 @@
  *
  * Description  : ezbox debug rc running state service
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-08-05   0.1       Write it from scratch

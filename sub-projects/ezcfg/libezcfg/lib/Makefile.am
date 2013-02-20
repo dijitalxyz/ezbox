@@ -106,6 +106,7 @@ libezcfg_la_SOURCES += $(top_builddir)/src/util/util_text.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_tzdata.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_url.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_wan.c
+libezcfg_la_SOURCES += $(top_builddir)/src/util/util_mkdir.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_upnp_role.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_upnp_device_type.c

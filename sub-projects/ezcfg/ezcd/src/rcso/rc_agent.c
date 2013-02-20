@@ -4,7 +4,7 @@
  *
  * Description  : implement running action command rcso
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-12-21   0.1       Write it from scratch

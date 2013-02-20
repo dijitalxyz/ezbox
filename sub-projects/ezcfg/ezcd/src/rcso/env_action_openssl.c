@@ -4,11 +4,11 @@
  *
  * Description  : ezbox env agent runs OpenSSL service
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2012-02-17   0.1       Write it from scratch
- * 2012-12-25   0.3       Modify it to use agent action framework
+ * 2012-12-25   0.2       Modify it to use agent action framework
  * ============================================================================
  */
 

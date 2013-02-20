@@ -69,7 +69,6 @@ RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
 RCSO_CFLAGS += $(ezcd_CPPFLAGS)
 RCSO_SRC = rc_agent.c
 RCSO_SRC += rc_exec.c
-RCSO_SRC += rc_system.c
 RCSO_SRC += rc_data_partition.c
 RCSO_SRC += rc_env.c
 RCSO_SRC += rc_ezcfg_httpd.c
@@ -191,6 +190,7 @@ AGENT_ENV_SRC += env_action_state.c
 if CONFIG_EZBOX_SERVICE_SYSLOGD
 AGENT_ENV_SRC += env_action_syslogd.c
 endif
+AGENT_ENV_SRC += env_action_system.c
 AGENT_ENV_SRC += env_action_udev_pop_nodes.c
 if CONFIG_EZBOX_WAN_NIC
 AGENT_ENV_SRC += env_action_wan.c

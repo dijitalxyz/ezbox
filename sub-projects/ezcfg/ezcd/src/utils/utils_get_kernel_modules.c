@@ -4,7 +4,7 @@
  *
  * Description  : ezcfg get kernel modules function
  *
- * Copyright (C) 2008-2012 by ezbox-project
+ * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
  * 2011-02-27   0.1       Write it from scratch
