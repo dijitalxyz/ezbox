@@ -1,6 +1,7 @@
 # basic packages
 c:package/e2fsprogs/e2fsprogs-1.42.4:package/e2fsprogs
 c:package/libs/libjson-c/libjson-c-0.9:package/libs/libjson-c
+c:package/libs/libnl/libnl-2.0:package/libs/libnl
 c:package/libs/libpcap/libpcap-1.1.1:package/libs/libpcap
 c:package/libs/libreadline/libreadline-6.2:package/libs/libreadline
 c:package/libs/ncurses/ncurses-5.7:package/libs/ncurses
