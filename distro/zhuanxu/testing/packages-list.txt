@@ -7,6 +7,7 @@ c:libs/freetype/freetype-2.3.12:libs/freetype
 c:libs/gettext-full/gettext-full-0.18.1.1:libs/gettext-full
 c:libs/glib2/glib2-2.26.1:libs/glib2
 c:libs/gmp/gmp-4.3.1:libs/gmp
+c:libs/gnutls/gnutls-2.8.6:libs/gnutls
 c:libs/intltool/intltool-0.40:libs/intltool
 c:libs/libcap/libcap-2.22:libs/libcap
 c:libs/libgcrypt/libgcrypt-1.5.0:libs/libgcrypt
@@ -14,7 +15,8 @@ c:libs/libgpg-error/libgpg-error-1.9:libs/libgpg-error
 c:libs/libiconv-full/libiconv-full-1.11.1:libs/libiconv-full
 c:libs/libpthread-stubs/libpthread-stubs-0.1:libs/libpthread-stubs
 c:libs/libsndfile/libsndfile-1.0.25:libs/libsndfile
-# c:libs/libxml2/libxml2-2.7.8:libs/libxml2
+c:libs/libvirt/libvirt-1.0.2:libs/libvirt
+c:libs/libxml2/libxml2-2.7.8:libs/libxml2
 c:libs/popt/popt-1.7:libs/popt
 c:libs/speex/speex-1.2rc1:libs/speex
 c:net/aoetools/aoetools-32:net/aoetools
