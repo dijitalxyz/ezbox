@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lxc
-PKG_VERSION:=0.8.0-rc2
+PKG_VERSION:=0.8.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -26,7 +26,7 @@ define Package/lxc
   CATEGORY:=Utilities
   TITLE:=LXC userspace tools
   URL:=http://lxc.sourceforge.net/
-  DEPENDS:= +libcap
+  DEPENDS:= +libcap +apparmor
 endef
 
 define Package/lxc/description
@@ -37,7 +37,7 @@ CONFIGURE_ARGS += \
 	--with-linuxdir="$(LINUX_DIR)"
 
 define Package/lxc/install
-	$(INSTALL_DIR) $(1)/usr/bin    
+	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lxc-attach $(1)/usr/bin/lxc-attach
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lxc-cgroup $(1)/usr/bin/lxc-cgroup
 	# $(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lxc-checkconfig $(1)/usr/bin/lxc-checkconfig
