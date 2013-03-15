@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Barrier Breaker (unknown)
-# Thu Feb 21 23:21:39 2013
+# Thu Mar 14 18:22:24 2013
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1568,6 +1568,7 @@ CONFIG_PACKAGE_lvm2=y
 # CONFIG_PACKAGE_sfdisk is not set
 # CONFIG_PACKAGE_swap-utils is not set
 # CONFIG_PACKAGE_wipefs is not set
+CONFIG_PACKAGE_apparmor=y
 # CONFIG_PACKAGE_cal is not set
 CONFIG_PACKAGE_cryptsetup=y
 # CONFIG_PACKAGE_dmesg is not set
