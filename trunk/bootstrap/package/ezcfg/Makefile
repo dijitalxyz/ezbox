@@ -332,7 +332,7 @@ CONFIGURE_VARS += \
 	ac_cv_func_malloc_0_nonnull=yes
 
 define Build/Configure
-	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink );
+	(cd $(PKG_BUILD_DIR); autoreconf --install --symlink);
 	$(call Build/Configure/Default, )
 endef
 
