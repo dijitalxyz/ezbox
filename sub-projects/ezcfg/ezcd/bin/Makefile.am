@@ -68,69 +68,69 @@ libezcd.so: $(top_builddir)/lib/.libs/libezcd.so
 RCSO_CFLAGS = -Wall -Werror -rdynamic -fPIC
 RCSO_CFLAGS += $(ezcd_CPPFLAGS)
 RCSO_SRC = rc_agent.c
-RCSO_SRC += rc_exec.c
-RCSO_SRC += rc_data_partition.c
-RCSO_SRC += rc_env.c
-RCSO_SRC += rc_ezcfg_httpd.c
+#RCSO_SRC += rc_exec.c
+#RCSO_SRC += rc_data_partition.c
+#RCSO_SRC += rc_env.c
+#RCSO_SRC += rc_ezcfg_httpd.c
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
-RCSO_SRC += rc_ezcfg_igrsd.c
+#RCSO_SRC += rc_ezcfg_igrsd.c
 endif
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-RCSO_SRC += rc_ezcfg_upnpd.c
-RCSO_SRC += rc_upnp_monitor.c
+#RCSO_SRC += rc_ezcfg_upnpd.c
+#RCSO_SRC += rc_upnp_monitor.c
 endif
-RCSO_SRC += rc_resolv_conf.c
-RCSO_SRC += rc_init.c
-RCSO_SRC += rc_ldconfig.c
+#RCSO_SRC += rc_resolv_conf.c
+#RCSO_SRC += rc_init.c
+#RCSO_SRC += rc_ldconfig.c
 if CONFIG_EZBOX_SERVICE_WPA_SUPPLICANT
-RCSO_SRC += rc_wpa_supplicant.c
+#RCSO_SRC += rc_wpa_supplicant.c
 endif
 
 # telnet service
 if CONFIG_EZBOX_SERVICE_TELNETD
-RCSO_SRC += rc_telnetd.c
+#RCSO_SRC += rc_telnetd.c
 endif
 # dhcp/dns service
 if CONFIG_EZBOX_SERVICE_DNSMASQ
-RCSO_SRC += rc_dnsmasq.c
+#RCSO_SRC += rc_dnsmasq.c
 endif
 # DHIS client service
 if CONFIG_EZBOX_SERVICE_DHID
-RCSO_SRC += rc_dhid.c
+#RCSO_SRC += rc_dhid.c
 endif
 # DHIS server service
 if CONFIG_EZBOX_SERVICE_DHISD
-RCSO_SRC += rc_dhisd.c
+#RCSO_SRC += rc_dhisd.c
 endif
 # ezctp service
 if CONFIG_EZBOX_SERVICE_EZCTP
-RCSO_SRC += rc_ezctp.c
+#RCSO_SRC += rc_ezctp.c
 endif
 # dillo web browser service
 if CONFIG_EZBOX_SERVICE_DILLO
-RCSO_SRC += rc_dillo.c
+#RCSO_SRC += rc_dillo.c
 endif
 # EMC2 Enhanced Machine Controller service
 if CONFIG_EZBOX_SERVICE_EMC2
-RCSO_SRC += rc_realtime.c
-RCSO_SRC += rc_emc2.c
-RCSO_SRC += rc_emc2_latency_test.c
+#RCSO_SRC += rc_realtime.c
+#RCSO_SRC += rc_emc2.c
+#RCSO_SRC += rc_emc2_latency_test.c
 endif
 # coova-chilli Hotspot Manager
 if CONFIG_EZBOX_SERVICE_COOVA_CHILLI
-RCSO_SRC += rc_coova_chilli.c
+#RCSO_SRC += rc_coova_chilli.c
 endif
 # LXC Linux Container service
 if CONFIG_EZBOX_SERVICE_LXC
-RCSO_SRC += rc_lxc.c
+#RCSO_SRC += rc_lxc.c
 endif
 # PPPoE server service
 if CONFIG_EZBOX_SERVICE_PPPOE_SERVER
-RCSO_SRC += rc_pppoe_server.c
+#RCSO_SRC += rc_pppoe_server.c
 endif
 # FreeRADIUS2 server service
 if CONFIG_EZBOX_SERVICE_FREERADIUS2_SERVER
-RCSO_SRC += rc_freeradius2_server.c
+#RCSO_SRC += rc_freeradius2_server.c
 endif
 
 RCSO_SO = $(subst .c,.so,$(RCSO_SRC))

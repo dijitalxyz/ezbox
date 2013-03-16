@@ -40,7 +40,7 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
@@ -139,10 +139,12 @@ int rc_agent(int argc, char **argv)
 		}
 	}
 
+	DBG("<6> agent: action file=[%s]\n", path);
 	/* read action file */
 	while (utils_file_get_line(fp, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 		fargc = utils_parse_args(buf, strlen(buf) + 1, fargv);
 		if (fargc > 0) {
+			DBG("<6> action: %s (%s) start!\n", fargv[0], fargv[1]);
 			ret = call_action_function(fargc, fargv, prefix, argv[1]);
 			if (ret == EXIT_FAILURE) {
 				DBG("<6> action: %s error!\n", fargv[0]);

@@ -18,7 +18,8 @@ klogd stop
 state stop
 # stop nvram to sync with cfg
 nvram stop
+# FIXME: following actions been done in boot, should not be executed here!!!
 # stop overlayfs on /data/rootfs directory
-overlay_rootfs stop
+#overlay_rootfs stop
 # stop dm-crypt data partition
-dmcrypt_data_partition stop
+#dmcrypt_data_partition stop
