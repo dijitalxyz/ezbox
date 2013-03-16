@@ -69,3 +69,8 @@ rm -f $ROOTFS_DIR/usr/share/opkg
 # overwrite by predefined target rootfs stuff
 cp -af $ROOTFS_TARGET_DIR/boot/ezbox_boot.cfg $ROOTFS_DIR/boot/
 cp -af $ROOTFS_TARGET_DIR/boot/ezbox_rootfs.cfg $ROOTFS_DIR/boot/
+cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/boot $ROOTFS_DIR/lib/rcso/agents/env/action/
+cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/start $ROOTFS_DIR/lib/rcso/agents/env/action/
+cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/stop $ROOTFS_DIR/lib/rcso/agents/env/action/
+cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/sys_stop $ROOTFS_DIR/lib/rcso/agents/env/action/
+cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/sys_restart $ROOTFS_DIR/lib/rcso/agents/env/action/
