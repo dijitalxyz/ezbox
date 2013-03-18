@@ -155,13 +155,18 @@ int env_action_mount_system_fs(int argc, char **argv)
 	case RC_ACT_BOOT :
 	case RC_ACT_START :
 		if ((support_fs("debugfs") == true) &&
-		    (fs_not_mounted("debugfs") == true)){
+		    (fs_not_mounted("debugfs") == true)) {
 			mount("debugfs", "/sys/kernel/debug", "debugfs", MS_MGC_VAL, NULL);
 		}
 
 		if ((support_fs("usbfs") == true) &&
-		    (fs_not_mounted("usbfs") == true)){
+		    (fs_not_mounted("usbfs") == true)) {
 			mount("none", "/proc/bus/usb", "usbfs", MS_MGC_VAL, NULL);
+		}
+
+		if ((support_fs("cgroup") == true) &&
+		    (fs_not_mounted("cgroup") == true)) {
+			mount("cgroup", "/sys/fs/cgroup", "cgroup", MS_MGC_VAL, NULL);
 		}
 
 		ret = EXIT_SUCCESS;
