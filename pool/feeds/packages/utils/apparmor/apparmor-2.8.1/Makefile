@@ -76,13 +76,9 @@ endef
 
 define Package/apparmor/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	# $(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lxc-checkconfig $(1)/usr/bin/lxc-checkconfig
 
 	$(INSTALL_DIR) $(1)/usr/lib
-	#$(CP) $(PKG_INSTALL_DIR)/usr/lib/liblxc.so* $(1)/usr/lib/
-
-	#$(INSTALL_DIR) $(1)/usr/lib/lxc/rootfs
-	#$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/lxc/rootfs/README $(1)/usr/lib/lxc/rootfs/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libapparmor.so* $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,apparmor))
