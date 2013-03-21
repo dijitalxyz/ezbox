@@ -38,6 +38,7 @@ args="--prefix=/usr/local \
 --with-ezbox-distro=fuxi \
 --enable-ezcfg_test \
 --enable-ezcfg_ipv6 \
+--enable-ezcfg_cgroup \
 --enable-wan-pppoe \
 --enable-service-ezcfg_httpd \
 --enable-service-ezcfg_httpd_cgi_apply \

@@ -38,6 +38,8 @@
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
 
 /* service commands */
+#define CMD_CGCONFIGPARSER	"/usr/sbin/cgconfigparser"
+#define CMD_CGRULESENGD	"/usr/sbin/cgrulesengd"
 #define CMD_CRYPTSETUP	"/usr/sbin/cryptsetup"
 #define CMD_DHID	"/usr/sbin/dhid"
 #define CMD_DNSMASQ	"/usr/sbin/dnsmasq"

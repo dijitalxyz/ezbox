@@ -109,6 +109,12 @@ libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_protocols.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_mactab.c
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_resolv_conf.c
 
+# cgroup
+if CONFIG_EZBOX_EZCFG_CGROUP
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_cgconfig_conf.c
+libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_cgrules_conf.c
+endif
+
 # openssl service
 if CONFIG_EZBOX_SERVICE_OPENSSL
 libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ssl_openssl_cnf.c

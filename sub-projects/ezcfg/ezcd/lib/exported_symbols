@@ -65,6 +65,8 @@ pop_etc_profile
 pop_etc_banner
 pop_etc_mtab
 pop_etc_mdev_conf
+pop_etc_cgconfig_conf
+pop_etc_cgrules_conf
 pop_etc_ezcfg_igrsd
 pop_etc_ezcfg_upnpd
 pop_etc_ezcfg_upnpd_igd1

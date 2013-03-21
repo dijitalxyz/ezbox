@@ -19,6 +19,10 @@ extern int pop_etc_hosts(int flag);
 extern int pop_etc_mactab(int flag);
 extern int pop_etc_resolv_conf(int flag);
 extern int pop_etc_protocols(int flag);
+#if (HAVE_EZBOX_EZCFG_CGROUP == 1)
+extern int pop_etc_cgconfig_conf(int flag);
+extern int pop_etc_cgrules_conf(int flag);
+#endif
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 extern int pop_etc_ssl_openssl_cnf(int flag);
 #endif

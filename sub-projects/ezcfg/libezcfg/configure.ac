@@ -125,6 +125,26 @@ AC_ARG_ENABLE([ezcfg_ipv6],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_IPV6, test "x$config_ezbox_ezcfg_ipv6" = xyes)
 
+# Configure ezcfg cgroup support.
+config_ezbox_ezcfg_cgroup=no
+AC_MSG_CHECKING([if ezcfg_cgroup is enabled])
+AC_ARG_ENABLE([ezcfg_cgroup],
+	AS_HELP_STRING([--enable-ezcfg_cgroup], [Enable ezcfg_cgroup (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_CGROUP], [1], [Enable ezcfg_cgroup])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_cgroup=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_cgroup=no
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_CGROUP, test "x$config_ezbox_ezcfg_cgroup" = xyes)
+
 # Configure EtherLAN NIC.
 config_ezbox_eth_lan_nic=yes
 AC_MSG_CHECKING([if Ethernet LAN network interface is enabled])

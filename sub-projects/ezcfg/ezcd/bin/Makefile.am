@@ -140,6 +140,9 @@ RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 # agent environment
 ###############################
 AGENT_ENV_SRC = env_action_base_files.c
+if CONFIG_EZBOX_EZCFG_CGROUP
+AGENT_ENV_SRC += env_action_cgroup.c
+endif
 if CONFIG_EZBOX_BR_LAN_NIC
 AGENT_ENV_SRC += env_action_br_lan_if.c
 endif

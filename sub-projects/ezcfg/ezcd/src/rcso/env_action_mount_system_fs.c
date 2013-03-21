@@ -164,10 +164,12 @@ int env_action_mount_system_fs(int argc, char **argv)
 			mount("none", "/proc/bus/usb", "usbfs", MS_MGC_VAL, NULL);
 		}
 
+#if (HAVE_EZBOX_EZCFG_CGROUP == 1)
 		if ((support_fs("cgroup") == true) &&
-		    (fs_not_mounted("cgroup") == true)) {
-			mount("cgroup", "/sys/fs/cgroup", "cgroup", MS_MGC_VAL, NULL);
+		    (fs_not_mounted("cgroups") == true)) {
+			mount("cgroups", "/sys/fs/cgroup", "tmpfs", MS_MGC_VAL, NULL);
 		}
+#endif
 
 		ret = EXIT_SUCCESS;
 		break;
