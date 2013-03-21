@@ -10,6 +10,7 @@ c:libs/gmp/gmp-4.3.1:libs/gmp
 c:libs/gnutls/gnutls-2.8.6:libs/gnutls
 c:libs/intltool/intltool-0.40:libs/intltool
 c:libs/libcap/libcap-2.22:libs/libcap
+c:libs/libcgroup/libcgroup-0.38:libs/libcgroup
 c:libs/libgcrypt/libgcrypt-1.5.0:libs/libgcrypt
 c:libs/libgpg-error/libgpg-error-1.9:libs/libgpg-error
 c:libs/libiconv-full/libiconv-full-1.11.1:libs/libiconv-full

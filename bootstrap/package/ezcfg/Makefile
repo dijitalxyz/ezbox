@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1904
+PKG_REV:=1909
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -106,6 +106,24 @@ CONFIGURE_ARGS += \
 else
 CONFIGURE_ARGS += \
 	--disable-ezcfg_nls
+endif
+
+# set IPv6 support
+ifneq ($(CONFIG_IPV6),)
+CONFIGURE_ARGS += \
+	--enable-ezcfg_ipv6
+else
+CONFIGURE_ARGS += \
+	--disable-ezcfg_ipv6
+endif
+
+# set cgroup support
+ifneq ($(CONFIG_KERNEL_CGROUPS),)
+CONFIGURE_ARGS += \
+	--enable-ezcfg_cgroup
+else
+CONFIGURE_ARGS += \
+	--disable-ezcfg_cgroup
 endif
 
 
