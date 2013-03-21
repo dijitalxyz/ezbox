@@ -20,6 +20,8 @@ load_modules start
 udev_pop_nodes start
 # mount system supported fs
 mount_system_fs start
+# setup cgroup
+cgroup start
 # misc files for the base system
 base_files start
 # build /etc/passwd & /etc/group,

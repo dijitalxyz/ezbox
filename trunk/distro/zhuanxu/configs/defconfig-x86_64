@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # OpenWrt version: Barrier Breaker (unknown)
-# Sun Mar 17 00:48:45 2013
+# Tue Mar 19 14:28:41 2013
 #
 CONFIG_HAVE_DOT_CONFIG=y
 CONFIG_TARGET_x86_64=y
@@ -1190,6 +1190,7 @@ CONFIG_PACKAGE_alsa-lib=y
 CONFIG_PACKAGE_glib2=y
 CONFIG_PACKAGE_libblkid=y
 CONFIG_PACKAGE_libcap=y
+CONFIG_PACKAGE_libcgroup=y
 CONFIG_PACKAGE_libcharset=y
 CONFIG_PACKAGE_libdevmapper=y
 CONFIG_PACKAGE_libexpat=y
@@ -1636,6 +1637,7 @@ CONFIG_PACKAGE_lvm2=y
 # CONFIG_PACKAGE_wipefs is not set
 CONFIG_PACKAGE_apparmor=y
 # CONFIG_PACKAGE_cal is not set
+CONFIG_PACKAGE_cgroup-bin=y
 CONFIG_PACKAGE_cryptsetup=y
 # CONFIG_PACKAGE_dmesg is not set
 CONFIG_PACKAGE_dropbearconvert=y
