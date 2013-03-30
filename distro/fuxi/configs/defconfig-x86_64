@@ -1122,6 +1122,7 @@ CONFIG_PACKAGE_lvm2=y
 # CONFIG_PACKAGE_sfdisk is not set
 # CONFIG_PACKAGE_swap-utils is not set
 # CONFIG_PACKAGE_wipefs is not set
+CONFIG_PACKAGE_apparmor=y
 # CONFIG_PACKAGE_cal is not set
 CONFIG_PACKAGE_cryptsetup=y
 # CONFIG_PACKAGE_dmesg is not set
@@ -1699,6 +1700,7 @@ CONFIG_PACKAGE_kmod-usb2=y
 #
 # JavaScript
 #
+CONFIG_PACKAGE_js=y
 CONFIG_PACKAGE_mozjs=y
 
 #

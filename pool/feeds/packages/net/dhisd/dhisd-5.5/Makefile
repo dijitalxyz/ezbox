@@ -36,6 +36,8 @@ define Package/dhisd/conffiles
 /etc/dhisd.conf
 endef
 
+MAKE_FLAGS += LFLAGS="$(TARGET_LDFLAGS)"
+
 define Package/dhisd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/dhisd $(1)/usr/sbin

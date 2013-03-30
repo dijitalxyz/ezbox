@@ -18,6 +18,8 @@ PKG_MD5SUM:=20b6f8f1140ef6e47daa3b16965c9202
 #PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)$(PKG_VERSION)
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/mozjs/Default
@@ -84,18 +86,17 @@ MAKE_PATH:=js/src
 #endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/include/js
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/js/*.h $(1)/usr/include/js/
-	$(CP) $(PKG_INSTALL_DIR)/usr/include/js/*.tbl $(1)/usr/include/js/
+	$(INSTALL_DIR) $(1)/usr/include
+	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.{a,so*} $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/mozjs185.pc $(1)/usr/lib/pkgconfig/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/mozjs-17.0.pc $(1)/usr/lib/pkgconfig/
 	$(INSTALL_DIR) $(1)/usr/bin $(2)/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/js-config $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/js17-config $(1)/usr/bin/
 	$(SED) \
 		's,^\(prefix\|exec_prefix\)=.*,\1=$(STAGING_DIR)/usr,g' \
-		$(1)/usr/bin/js-config
+		$(1)/usr/bin/js17-config
 	for f in js-config; do \
 		$(LN) ../../usr/bin/$$$$f $(2)/bin/ ; \
 	done

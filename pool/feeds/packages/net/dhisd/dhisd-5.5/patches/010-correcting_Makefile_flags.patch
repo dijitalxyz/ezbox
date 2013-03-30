@@ -24,7 +24,7 @@ diff -urNd dhisd-5.5.orig/Makefile dhisd-5.5/Makefile
 -CFLAGS= -O3 $(WFLAGS) -I. -I/usr/local/include # $(MYSQL_INCLUDE) -DWITH_MYSQL=1
 -LFLAGS= -L/usr/local/lib # $(MYSQL_LIBDIR)
 +CFLAGS?= -O3 $(WFLAGS) -I. -I/usr/local/include # $(MYSQL_INCLUDE) -DWITH_MYSQL=1
-+LFLAGS?= -L/usr/local/lib # $(MYSQL_LIBDIR)
++LFLAGS?=
  
  # For System V (Solaris) add -lnsl and -lsocket
  # For MySQL support add -lmysqlclient
