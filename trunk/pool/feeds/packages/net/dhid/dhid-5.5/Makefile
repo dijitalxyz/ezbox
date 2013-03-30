@@ -27,6 +27,8 @@ define Package/dhid/conffiles
 /etc/dhid.conf
 endef
 
+MAKE_FLAGS += LFLAGS="$(TARGET_LDFLAGS)"
+
 define Package/dhid/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_BUILD_DIR)/dhid $(1)/usr/sbin
