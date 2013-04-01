@@ -21,6 +21,7 @@ ezcd_DEPENDENCIES += $(AGENT_ENV_SO) $(AGENT_ENV_EXE)
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LDADD) -L$(top_builddir)/lib/.libs -lezcd
 ezcd_LDFLAGS = $(AM_LDFLAGS) -lezcfg -lezcd
+ezcd_LDFLAGS += -Wl,-Map,ezcd.map
 
 sbin_PROGRAMS =	ezcd
 
@@ -208,7 +209,7 @@ AGENT_ENV_EXE = $(subst .c,.exe,$(AGENT_ENV_SRC))
 
 
 %.so : $(top_builddir)/src/rcso/%.c
-	$(CC) $(RCSO_CFLAGS) -L. -lezcd -ldl -shared $< -o $@
+	$(CC) $(RCSO_CFLAGS) -Wl,-Map,$@.map -L. -lezcd -ldl -shared $< -o $@
 
 %.exe : $(top_builddir)/src/rcso/%.c
 	$(CC) $(RCSO_CFLAGS) $(CFLAGS) $(LDFLAGS) $(LIBS) -D_EXEC_ $< -o $@ -L. -lezcd -lezcfg -ldl

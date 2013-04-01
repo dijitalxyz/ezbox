@@ -39,6 +39,9 @@ uint32_t ezcfg_util_adler32(unsigned char *data, size_t len);
 int ezcfg_util_base64_encode(unsigned char *src, unsigned char *dst, size_t src_len, size_t dst_len);
 int ezcfg_util_base64_decode(unsigned char *src, unsigned char *dst, size_t src_len, size_t dst_len);
 
+/* util/util_sha1.c */
+int ezcfg_util_sha1(unsigned char *src, unsigned char *dst, size_t src_len, size_t dst_len);
+
 /* util/util_crc32.c */
 uint32_t ezcfg_util_crc32(unsigned char *data, size_t len);
 

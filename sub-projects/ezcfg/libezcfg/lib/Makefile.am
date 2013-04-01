@@ -87,6 +87,7 @@ endif
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_adler32.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_base64.c
+libezcfg_la_SOURCES += $(top_builddir)/src/util/util_sha1.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_crc32.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_conf.c
 libezcfg_la_SOURCES += $(top_builddir)/src/util/util_file_get_line.c
