@@ -490,6 +490,29 @@ fi
 )
 AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_SSI, test "x$config_ezbox_service_ezcfg_httpd_ssi" = xyes)
 
+# Configure ezcfg_httpd_websocket service.
+config_ezbox_service_ezcfg_httpd_websocket=no
+AC_MSG_CHECKING([if ezcfg_httpd_websocket service is enabled])
+AC_ARG_ENABLE([service-ezcfg_httpd_websocket],
+	AS_HELP_STRING([--enable-service-ezcfg_httpd_websocket], [Enable ezcfg_httpd_websocket service (default no)]),
+	[case "$enableval" in
+	yes)
+if test "x$config_ezbox_service_ezcfg_httpd" = xyes; then
+		AC_DEFINE([HAVE_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET], [1], [Enable ezcfg_httpd_websocket service])
+		AC_MSG_RESULT(yes)
+		config_ezbox_service_ezcfg_httpd_websocket=yes
+else
+		AC_MSG_RESULT(no)
+fi
+	;;
+	*)
+		AC_MSG_RESULT(no)
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET, test "x$config_ezbox_service_ezcfg_httpd_websocket" = xyes)
+
 # Configure ezcfg_igrsd service.
 config_ezbox_service_ezcfg_igrsd=yes
 AC_MSG_CHECKING([if ezcfg_igrsd service is enabled])

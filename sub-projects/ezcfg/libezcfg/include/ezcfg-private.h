@@ -181,6 +181,12 @@ int ezcfg_css_write_message(struct ezcfg_css *css, char *buf, int len);
 #include "ezcfg-priv_ssl.h"
 
 
+/* websocket/websocket.c */
+#include "ezcfg-priv_websocket.h"
+/* websocket/http_websocket.c */
+#include "ezcfg-priv_http_websocket.h"
+
+
 /* ssi/ssi.c */
 struct ezcfg_ssi;
 struct ezcfg_ssi *ezcfg_ssi_new(struct ezcfg *ezcfg, struct ezcfg_nvram *nvram);

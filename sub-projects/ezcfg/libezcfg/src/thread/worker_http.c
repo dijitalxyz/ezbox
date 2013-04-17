@@ -35,6 +35,7 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 #include "ezcfg-soap_http.h"
+#include "ezcfg-websocket.h"
 
 #if 1
 #define DBG(format, args...) do { \
@@ -133,6 +134,54 @@ func_exit:
 	if (msg != NULL)
 		free(msg);
 }
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET == 1)
+static bool is_http_websocket_request(struct ezcfg_http *http)
+{
+	char *val;
+
+	/* The requirements for this handshake are as follows.*/
+	/* 2.   The method of the request MUST be GET, and the HTTP version MUST
+	 *      be at least 1.1.
+	 */
+	if (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_GET) != 0)
+		return false;
+	if (ezcfg_http_get_version_major(http) < 1)
+		return false;
+	if ((ezcfg_http_get_version_major(http) == 1) && (ezcfg_http_get_version_minor(http) < 1))
+		return false;
+
+	/* 5.   The request MUST contain an |Upgrade| header field whose value
+	 *      MUST include the "websocket" keyword.
+	 */
+	val = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_UPGRADE);
+	if ((val == NULL) || (strcmp(val, EZCFG_WS_HTTP_HEADER_KEYWORD_WEBSOCKET) != 0))
+		return false;
+
+	/* 6.   The request MUST contain a |Connection| header field whose value
+	 *      MUST include the "Upgrade" token.
+	 */
+	val = ezcfg_http_get_header_value(http, EZCFG_HTTP_HEADER_CONNECTION);
+	if ((val == NULL) || (strcmp(val, EZCFG_HTTP_HEADER_UPGRADE) != 0))
+		return false;
+
+	/* 7.   The request MUST include a header field with the name
+	 *      |Sec-WebSocket-Key|.
+	 */
+	val = ezcfg_http_get_header_value(http, EZCFG_WS_HTTP_HEADER_SEC_WEBSOCKET_KEY);
+	if (val == NULL)
+		return false;
+
+	/* 9.   The request MUST include a header field with the name
+	 *      |Sec-WebSocket-Version|.  The value of this header field MUST be 13.
+	 */
+	val = ezcfg_http_get_header_value(http, EZCFG_WS_HTTP_HEADER_SEC_WEBSOCKET_VERSION);
+	if ((val == NULL) || strcmp(val, "13"))
+		return false;
+
+	return true;
+}
+#endif
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 static bool is_http_html_ssi_request(const char *uri)
@@ -386,6 +435,107 @@ func_exit:
 	if (msg != NULL)
 		free(msg);
 }
+
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET == 1)
+static void handle_websocket_request(struct ezcfg_worker *worker)
+{
+	struct ezcfg *ezcfg;
+	struct ezcfg_http *http;
+	struct ezcfg_master *master;
+	//struct ezcfg_nvram *nvram;
+	struct ezcfg_websocket *ws = NULL;
+	struct ezcfg_http_websocket *hws = NULL;
+	char buf[1024];
+	//char *request_uri;
+	//size_t uri_len;
+	char *msg = NULL;
+	int msg_len;
+
+	ASSERT(worker != NULL);
+
+	http = (struct ezcfg_http *)ezcfg_worker_get_proto_data(worker);
+	ASSERT(http != NULL);
+
+	ezcfg = ezcfg_worker_get_ezcfg(worker);
+	master = ezcfg_worker_get_master(worker);
+	//nvram = ezcfg_master_get_nvram(master);
+
+	ws = ezcfg_websocket_new(ezcfg);
+	if (ws == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	hws = ezcfg_http_websocket_new(ezcfg, http, ws);
+	if (hws == NULL) {
+		send_http_error(worker, 500,
+		                "Internal Server Error",
+		                "%s", "Not enough memory");
+		goto func_exit;
+	}
+
+	if (ezcfg_http_handle_websocket_request(hws) < 0) {
+		send_http_bad_request(worker);
+		goto func_exit;
+	}
+	else {
+		/* build HTTP response */
+		/* HTTP header content-type */
+		snprintf(buf, sizeof(buf), "%s; %s=%s", EZCFG_HTTP_MIME_TEXT_HTML, EZCFG_HTTP_CHARSET_NAME, EZCFG_HTTP_CHARSET_UTF8);
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CONTENT_TYPE, buf) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header cache-control */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_CACHE_CONTROL, EZCFG_HTTP_CACHE_REQUEST_NO_CACHE) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header expires */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_EXPIRES, "0") == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		/* HTTP header pragma */
+		if (ezcfg_http_add_header(http, EZCFG_HTTP_HEADER_PRAGMA, EZCFG_HTTP_PRAGMA_NO_CACHE) == false) {
+			err(ezcfg, "HTTP add header error.\n");
+			goto func_exit;
+		}
+
+		msg_len = ezcfg_http_get_message_length(http);
+		if (msg_len < 0) {
+			err(ezcfg, "ezcfg_http_get_message_length error.\n");
+			goto func_exit;
+		}
+		msg_len++; /* one more for '\0' */
+		msg = (char *)malloc(msg_len);
+		if (msg == NULL) {
+			err(ezcfg, "malloc msg error.\n");
+			goto func_exit;
+		}
+		memset(msg, 0, msg_len);
+		msg_len = ezcfg_http_write_message(http, msg, msg_len);
+		ezcfg_worker_write(worker, msg, msg_len);
+
+		goto func_exit;
+	}
+
+func_exit:
+	if (msg != NULL)
+		free(msg);
+
+	if (hws != NULL)
+		ezcfg_http_websocket_delete(hws);
+
+	if (ws != NULL)
+		ezcfg_websocket_delete(ws);
+}
+#endif
 
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 static void handle_ssi_request(struct ezcfg_worker *worker)
@@ -810,6 +960,13 @@ static void handle_http_request(struct ezcfg_worker *worker)
 	}
 
 	/* don't need authenticate or has been authenticated */
+#if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET == 1)
+	if (is_http_websocket_request(http) == true) {
+		/* handle SSI enabled web page */
+		handle_websocket_request(worker);
+	}
+	else
+#endif
 #if (HAVE_EZBOX_SERVICE_EZCFG_HTTPD_SSI == 1)
 	if (is_http_html_ssi_request(request_uri) == true) {
 		/* handle SSI enabled web page */

@@ -126,7 +126,7 @@ void ezcfg_ssl_delete(struct ezcfg_ssl *sslp)
 }
 
 /**
- * ezcfg_socket_new:
+ * ezcfg_ssl_new:
  * Create ezcfg SSL socket.
  * Returns: a new ezcfg SSL socket
  **/

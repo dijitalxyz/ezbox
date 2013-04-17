@@ -43,6 +43,7 @@ args="--prefix=/usr/local \
 --enable-service-ezcfg_httpd \
 --enable-service-ezcfg_httpd_cgi_apply \
 --enable-service-ezcfg_httpd_ssi \
+--enable-service-ezcfg_httpd_websocket \
 --enable-service-ezcfg_upnpd \
 --enable-service-ezcfg_upnpd_igd1 \
 --enable-service-openssl \

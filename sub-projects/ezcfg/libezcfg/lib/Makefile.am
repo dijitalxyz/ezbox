@@ -161,6 +161,12 @@ if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_SSI
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_ssi.c
 endif
 
+if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_WEBSOCKET
+# ezcfg HTTP WEBSOCKET handling
+libezcfg_la_SOURCES += $(top_builddir)/src/websocket/websocket.c
+libezcfg_la_SOURCES += $(top_builddir)/src/websocket/http_websocket.c
+endif
+
 if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD_CGI_NVRAM
 # ezcfg HTTP nvram handling
 libezcfg_la_SOURCES += $(top_builddir)/src/http/http_nvram.c

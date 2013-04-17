@@ -74,4 +74,10 @@ struct ezcfg_ezctp;
 /* ssl/ssl.c */
 struct ezcfg_ssl;
 
+/* websocket/websocket.c */
+struct ezcfg_websocket;
+
+/* websocket/http_websocket.c */
+struct ezcfg_http_websocket;
+
 #endif /* _EZCFG_TYPES_H_ */
