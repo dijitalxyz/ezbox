@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=1909
+PKG_REV:=1914
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -203,6 +203,10 @@ CONFIGURE_ARGS += \
 # set ezcfg_httpd_ssi service
 CONFIGURE_ARGS += \
 	--enable-service-ezcfg_httpd_ssi
+
+# set ezcfg_httpd_websocket service
+CONFIGURE_ARGS += \
+	--enable-service-ezcfg_httpd_websocket
 
 # set ezcfg_igrsd service
 CONFIGURE_ARGS += \
