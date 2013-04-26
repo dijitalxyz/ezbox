@@ -58,7 +58,7 @@ $(eval $(if $(NF_KMOD),$(call nf_add,IPT_CONNTRACK,CONFIG_NF_CONNTRACK_IPV4, $(P
 
 $(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_MATCH_STATE, $(P_XT)xt_state))
 $(eval $(call nf_add,IPT_CONNTRACK,CONFIG_IP_NF_RAW, $(P_V4)iptable_raw))
-$(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_TARGET_NOTRACK, $(P_XT)xt_NOTRACK))
+$(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_TARGET_NOTRACK, $(P_XT)xt_NOTRACK, lt 3.7.0))
 $(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_TARGET_CT, $(P_XT)xt_CT))
 $(eval $(call nf_add,IPT_CONNTRACK,CONFIG_NETFILTER_XT_MATCH_CONNTRACK, $(P_XT)xt_conntrack))
 
@@ -76,8 +76,7 @@ $(eval $(if $(NF_KMOD),,$(call nf_add,IPT_CONNTRACK_EXTRA,CONFIG_NETFILTER_XT_TA
 
 # extra
 
-# kernel only
-
+$(eval $(call nf_add,IPT_EXTRA,CONFIG_NETFILTER_XT_MATCH_ADDRTYPE, $(if $(NF_KMOD),$(P_XT)xt_addrtype,$(P_XT)ipt_addrtype)))
 $(eval $(call nf_add,IPT_EXTRA,CONFIG_NETFILTER_XT_MATCH_OWNER, $(P_XT)xt_owner))
 $(eval $(call nf_add,IPT_EXTRA,CONFIG_NETFILTER_XT_MATCH_PHYSDEV, $(P_XT)xt_physdev))
 $(eval $(call nf_add,IPT_EXTRA,CONFIG_NETFILTER_XT_MATCH_PKTTYPE, $(P_XT)xt_pkttype))
@@ -144,6 +143,8 @@ $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_FILTER, $(P_V6)ip6ta
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MANGLE, $(P_V6)ip6table_mangle),))
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_QUEUE, $(P_V6)ip6_queue),))
 $(eval $(if $(NF_KMOD),$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_RAW, $(P_V6)ip6table_raw),))
+
+$(eval $(if $(NF_KMOD),,$(call nf_add,IPT_IPV6,CONFIG_IP6_NF_IPTABLES, ip6t_icmp6)))
 
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_AH, $(P_V6)ip6t_ah))
 $(eval $(call nf_add,IPT_IPV6,CONFIG_IP6_NF_MATCH_EUI64, $(P_V6)ip6t_eui64))
@@ -284,7 +285,7 @@ IPT_BUILTIN += $(IPT_FILTER-y)
 IPT_BUILTIN += $(IPT_IPOPT-y)
 IPT_BUILTIN += $(IPT_IPRANGE-y)
 IPT_BUILTIN += $(IPT_IPSEC-y)
-IPT_BUILTIN += $(IPT_IPV6-y)
+IPT_BUILTIN += $(IPT_IPV6-y) $(IPT_IPV6-m)
 IPT_BUILTIN += $(IPT_NAT-y)
 IPT_BUILTIN += $(IPT_NAT_EXTRA-y)
 IPT_BUILTIN += $(IPT_NATHELPER-y)
