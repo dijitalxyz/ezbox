@@ -6,6 +6,7 @@ m:Config.in
 m:include/nls.mk
 m:include/target.mk
 m:rules.mk
+m:package/base-files
 m:package/Makefile
 m:toolchain/uClibc/Makefile
 m:toolchain/uClibc/common.mk
@@ -97,7 +98,6 @@ d:target/linux/generic/
 #########################
 # package/ directory
 #########################
-d:package/base-files/
 d:package/busybox/
 d:package/kernel/
 d:package/libtool/
