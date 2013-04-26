@@ -1,5 +1,5 @@
 # 
-# Copyright (C) 2012-2013 ezbox project
+# Copyright (C) 2006-2012 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -67,6 +67,7 @@ ifneq ($(CONFIG_X86_GRUB_IMAGES),)
 	$(INSTALL_DIR) $(KDIR)/root.grub/boot/grub $(KDIR)/grub2
 	$(CP) $(KDIR)/bzImage $(KDIR)/root.grub/boot/vmlinuz
 	grub-mkimage \
+		-d $(STAGING_DIR_HOST)/lib/grub/i386-pc \
 		-o $(KDIR)/grub2/core.img \
 		-O i386-pc \
 		-c ./grub-early.cfg \
@@ -135,6 +136,7 @@ define Image/Build/iso
 	$(INSTALL_DIR) $(KDIR)/root.grub/boot/grub $(KDIR)/grub2
 	$(CP) $(KDIR)/bzImage $(KDIR)/root.grub/boot/vmlinuz
 	grub-mkimage \
+		-d $(STAGING_DIR_HOST)/lib/grub/i386-pc \
 		-o $(KDIR)/grub2/eltorito.img \
 		-O i386-pc \
 		-c ./grub-early.cfg \
