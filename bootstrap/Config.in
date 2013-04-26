@@ -168,7 +168,7 @@ menu "Global build settings"
 	config ENABLE_LOCALE
 		default n
 		bool "Enable native language support"
-		depends BUILD_NLS
+		depends on BUILD_NLS
 		help
 		  This will enable NLS
 
