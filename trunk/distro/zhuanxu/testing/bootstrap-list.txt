@@ -8,5 +8,6 @@ c:package/libs/ncurses/ncurses-5.7:package/libs/ncurses
 c:package/libs/openssl/openssl-1.0.1e:package/libs/openssl
 c:package/libs/zlib/zlib-1.2.7:package/libs/zlib
 c:package/network/services/dropbear/dropbear-2012.55:package/network/services/dropbear
+c:package/network/utils/iptables/iptables-1.4.18:package/network/utils/iptables
 c:package/udev/udev-173:package/udev
 c:package/util-linux/util-linux-2.21.2:package/util-linux
