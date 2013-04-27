@@ -7,11 +7,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ppl
-PKG_VERSION:=0.10.2
+PKG_VERSION:=0.11
 
 PKG_SOURCE_URL:=ftp://gcc.gnu.org/pub/gcc/infrastructure
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_MD5SUM:=e7dd265afdeaea81f7e87a72b182d875
+PKG_MD5SUM:=ba527ec0ffc830ce16fad8a4195a337e
 
 HOST_FIXUP:=autoreconf
 
