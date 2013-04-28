@@ -100,7 +100,8 @@ d:target/linux/generic/
 #########################
 d:package/busybox/
 d:package/kernel/
-d:package/libtool/
 d:package/libs/librpc/
-d:package/ocf-crypto-headers/
+d:package/libs/libtool/
+d:package/libs/ocf-crypto-headers/
 d:package/opkg/
+d:package/toolchain/
