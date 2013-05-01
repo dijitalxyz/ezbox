@@ -85,18 +85,24 @@ void ezcfg_websocket_delete(struct ezcfg_websocket *wsp)
 {
 	//struct ezcfg *ezcfg;
 	struct ezcfg_socket *sp;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	struct ezcfg_ssl *sslp;
+#endif
 	ASSERT(wsp != NULL);
 
 	//ezcfg = wsp->ezcfg;
 	sp = wsp->sp;
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	sslp = wsp->ssl;
+#endif
 
 	/* FIXME: must close socket first */
 	if (sp != NULL)
 		ezcfg_socket_delete(sp);
+#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	if (sslp != NULL)
 		ezcfg_ssl_delete(sslp);
+#endif
 
 	free(wsp);
 }
