@@ -3,7 +3,7 @@
 #
 
 # DISTRO set the ezbox distro to be build
-# support [kuafu|huangdi|jingwei|qiaochui]
+# support [kuafu|huangdi|jingwei|qiaochui|lilou|fuxi|zhuanxu]
 DISTRO := kuafu
 
 # BUILD_TYPE set the ezbox distro release type
@@ -17,7 +17,7 @@ BUILD_TYPE := testing
 RELEASE_VERSION := 0.1
 
 # TARGET set the ezbox target running board
-# support [x86|ar71xx|brcm47xx|cx9461x|s3c24xx]
+# support [x86|x86_64|ar71xx|brcm47xx|cx9461x|s3c24xx]
 TARGET := ar71xx
 
 # DEVICE_TYPE set the openwrt device type
@@ -25,7 +25,7 @@ TARGET := ar71xx
 DEVICE_TYPE := ezbox
 
 # ARCH set the CPU arch, please see README to set correct TARGET/ARCH
-# support [i386|mips|mipsel|arm]
+# support [i386|x86_64|mips|mipsel|arm]
 ARCH := mips
 
 # KERNEL_VERSION set Linux kernel version string
