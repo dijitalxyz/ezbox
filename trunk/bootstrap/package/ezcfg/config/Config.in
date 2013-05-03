@@ -48,6 +48,12 @@ config EZCFG_EZBOX_DISTRO_ZHUANXU
 
 endchoice
 
+config EZCFG_EZBOX_SYSUP
+	bool "Static /init"
+	default n
+	help
+	  Use static linked /init for system up.
+
 endmenu
 
 comment "Network Interfaces"
