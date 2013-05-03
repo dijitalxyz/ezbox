@@ -95,6 +95,15 @@ CONFIGURE_ARGS += \
 	--disable-ezcfg_test
 endif
 
+# set sysup settings
+ifneq ($(CONFIG_EZCFG_EZBOX_SYSUP),)
+CONFIGURE_ARGS += \
+	--enable-ezcfg_sysup
+else
+CONFIGURE_ARGS += \
+	--disable-ezcfg_sysup
+endif
+
 # set nls settings
 #ifeq ($(EZBOX_DISTRO), "kuafu")
 #CONFIGURE_ARGS += \
@@ -379,7 +388,11 @@ define Package/ezcfg/install
 	$(CP) $(PKG_BUILD_DIR)/ezcd/bin/env_action_*.so* $(1)/lib/rcso/agents/env/rcso/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/ezcd $(1)/sbin/
-	$(LN) sbin/ezcd $(1)/init
+	if [ -f $(PKG_BUILD_DIR)/ezcd/bin/sysup ]; then \
+		$(CP) $(PKG_BUILD_DIR)/ezcd/bin/sysup $(1)/init ; \
+	else \
+		$(LN) sbin/ezcd $(1)/init ; \
+	fi
 	$(LN) ezcd $(1)/sbin/ezcm
 	$(LN) ezcd $(1)/sbin/nvram
 	$(LN) ezcd $(1)/sbin/rc
