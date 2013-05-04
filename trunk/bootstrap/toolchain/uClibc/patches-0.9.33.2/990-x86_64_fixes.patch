@@ -1,0 +1,11 @@
+diff -Nur uClibc-0.9.33.2.orig/extra/Configs/Config.in uClibc-0.9.33.2/extra/Configs/Config.in
+--- uClibc-0.9.33.2.orig/extra/Configs/Config.in	2012-05-15 09:20:09.000000000 +0200
++++ uClibc-0.9.33.2/extra/Configs/Config.in	2012-10-01 12:17:14.000000000 +0200
+@@ -238,6 +238,7 @@
+ 	default "mips" if CONFIG_MIPS_N32_ABI
+ 	default "mips" if CONFIG_MIPS_O32_ABI
+ 	default "mips64" if CONFIG_MIPS_N64_ABI
++	default "x86_64" if TARGET_ARCH = "x86_64"
+ 	default ""
+ 
+ source "extra/Configs/Config.in.arch"
