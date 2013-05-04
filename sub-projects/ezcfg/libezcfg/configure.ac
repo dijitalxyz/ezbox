@@ -85,6 +85,26 @@ fi
 )
 AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_TEST, test "x$config_ezbox_ezcfg_test" = xyes)
 
+# Configure ezcfg sysup support.
+config_ezbox_ezcfg_sysup=no
+AC_MSG_CHECKING([if ezcfg_sysup is enabled])
+AC_ARG_ENABLE([ezcfg_sysup],
+	AS_HELP_STRING([--enable-ezcfg_sysup], [Enable ezcfg_sysup (default no)]),
+	[case "$enableval" in
+	yes)
+		AC_DEFINE([HAVE_EZBOX_EZCFG_SYSUP], [1], [Enable ezcfg_sysup])
+		AC_MSG_RESULT(yes)
+		config_ezbox_ezcfg_sysup=yes
+	;;
+	*)
+		AC_MSG_RESULT(no)
+		config_ezbox_ezcfg_sysup=no
+	;;
+	esac] ,
+	[AC_MSG_RESULT(no)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_EZCFG_SYSUP, test "x$config_ezbox_ezcfg_sysup" = xyes)
+
 # Configure ezcfg nls support.
 config_ezbox_ezcfg_nls=no
 AC_MSG_CHECKING([if ezcfg_nls is enabled])

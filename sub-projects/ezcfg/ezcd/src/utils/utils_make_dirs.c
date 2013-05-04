@@ -88,6 +88,17 @@ int utils_make_preboot_dirs(void)
 	mkdir("/dev", 0755);
 	mount("devfs", "/dev", "tmpfs", MS_MGC_VAL, NULL);
 
+	/* init shms */
+	mkdir("/dev/shm", 0777);
+
+	/* mount /dev/pts */
+	mkdir("/dev/pts", 0777);
+	mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
+
+	mknod("/dev/console", S_IRUSR|S_IWUSR|S_IFCHR, makedev(5, 1));
+	mknod("/dev/null", S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|S_IFCHR, makedev(1, 3));
+	mknod("/dev/kmsg", S_IRUSR|S_IWUSR|S_IFCHR, makedev(1, 11));
+
 	/* /etc */
 	mkdir("/etc", 0755);
 	mount("tmpfs", "/etc", "tmpfs", MS_MGC_VAL, NULL);
@@ -115,16 +126,6 @@ int utils_make_preboot_dirs(void)
 	if (symlink("/var/tmp", "/tmp") == -1) {
 		DBG("%s-%s(%d)\n", __FILE__, __func__, __LINE__);
 	}
-
-	/* init shms */
-	mkdir("/dev/shm", 0777);
-
-	/* mount /dev/pts */
-	mkdir("/dev/pts", 0777);
-	mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL, NULL);
-
-	mknod("/dev/console", S_IRUSR|S_IWUSR|S_IFCHR, makedev(5, 1));
-	mknod("/dev/null", S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|S_IFCHR, makedev(1, 3));
 
 	/* user's home directory */
 	mkdir("/home", 0755);

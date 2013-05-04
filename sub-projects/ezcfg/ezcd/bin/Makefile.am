@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (C) 2010-2011 ezbox project
+# Copyright (C) 2008-2013 ezbox project
 # ------------------------------------------------------------------------------
 
 SUBDIRS = .
@@ -18,12 +18,16 @@ AM_LDFLAGS = -L. -ldl
 # LIBS += -lezcfg
 ezcd_DEPENDENCIES = libezcfg.so libezcd.so $(RCSO_SO) $(RCSO_EXE)
 ezcd_DEPENDENCIES += $(AGENT_ENV_SO) $(AGENT_ENV_EXE)
+if CONFIG_EZBOX_EZCFG_SYSUP
+ezcd_DEPENDENCIES += sysup
+endif
 ezcd_CPPFLAGS = $(AM_CPPFLAGS) $(EZBOX_DISTRO_DEFINE) $(LIBEZCFG_INCLUDE) $(LIBEZCFG_API_INCLUDE)
 #ezcd_LDADD = $(LDADD) -L$(top_builddir)/lib/.libs -lezcd
 ezcd_LDFLAGS = $(AM_LDFLAGS) -lezcfg -lezcd
 ezcd_LDFLAGS += -Wl,-Map,ezcd.map
 
 sbin_PROGRAMS =	ezcd
+
 
 # basic functions
 ezcd_SOURCES = $(top_builddir)/src/main.c
@@ -62,6 +66,9 @@ libezcfg.so: $(LIBEZCFG_LIB)
 libezcd.so: $(top_builddir)/lib/.libs/libezcd.so
 	-rm -f libezcd.so
 	$(LN_S) $(top_builddir)/lib/.libs/libezcd.so libezcd.so
+
+sysup: $(top_builddir)/src/sysup.c
+	$(CC) -static -o $@ $<
 
 ###############################
 # rcso
