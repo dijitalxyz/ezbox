@@ -59,8 +59,8 @@ cp -af $ROOTFS_BAK_DIR/sbin $ROOTFS_DIR/
 rm -f $ROOTFS_DIR/sbin/lvm
 mkdir -p $ROOTFS_DIR/usr
 cp -af $ROOTFS_BAK_DIR/usr/lib $ROOTFS_DIR/usr/
-rm -f $ROOTFS_DIR/usr/lib/libext2fs.so*
-rm -f $ROOTFS_DIR/usr/lib/libgmp.so*
+#rm -f $ROOTFS_DIR/usr/lib/libext2fs.so*
+#rm -f $ROOTFS_DIR/usr/lib/libgmp.so*
 mkdir -p $ROOTFS_DIR/usr/sbin
 cp -af $ROOTFS_BAK_DIR/usr/sbin/cryptsetup $ROOTFS_DIR/usr/sbin/
 cp -af $ROOTFS_BAK_DIR/usr/share $ROOTFS_DIR/usr/
