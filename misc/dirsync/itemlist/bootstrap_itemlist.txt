@@ -8,6 +8,7 @@ m:include/target.mk
 m:rules.mk
 m:package/base-files
 m:package/Makefile
+m:package/kernel/modules/crypto.mk
 m:toolchain/uClibc/Makefile
 m:toolchain/uClibc/common.mk
 m:toolchain/uClibc/config-0.9.33.2/common
