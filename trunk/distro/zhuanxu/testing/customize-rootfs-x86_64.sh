@@ -58,13 +58,24 @@ cp -af $ROOTFS_BAK_DIR/lib/modules $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/sbin $ROOTFS_DIR/
 rm -f $ROOTFS_DIR/sbin/lvm
 mkdir -p $ROOTFS_DIR/usr
-cp -af $ROOTFS_BAK_DIR/usr/lib $ROOTFS_DIR/usr/
-#rm -f $ROOTFS_DIR/usr/lib/libext2fs.so*
-#rm -f $ROOTFS_DIR/usr/lib/libgmp.so*
+mkdir -p $ROOTFS_DIR/usr/lib
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcom_err.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libe2p.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libext2fs.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libintl.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libssl.so* $ROOTFS_DIR/usr/lib/
+cp -af $ROOTFS_BAK_DIR/usr/lib/libcrypto.so* $ROOTFS_DIR/usr/lib/
 mkdir -p $ROOTFS_DIR/usr/sbin
 cp -af $ROOTFS_BAK_DIR/usr/sbin/cryptsetup $ROOTFS_DIR/usr/sbin/
-cp -af $ROOTFS_BAK_DIR/usr/share $ROOTFS_DIR/usr/
-rm -f $ROOTFS_DIR/usr/share/opkg
+cp -af $ROOTFS_BAK_DIR/usr/sbin/e2fsck $ROOTFS_DIR/usr/sbin/
+cp -af $ROOTFS_BAK_DIR/usr/sbin/mke2fs $ROOTFS_DIR/usr/sbin/
+cp -af $ROOTFS_BAK_DIR/usr/sbin/mkfs.ext* $ROOTFS_DIR/usr/sbin/
+cp -af $ROOTFS_BAK_DIR/usr/sbin/tune2fs $ROOTFS_DIR/usr/sbin/
+mkdir -p $ROOTFS_DIR/usr/share
+cp -af $ROOTFS_BAK_DIR/usr/share/ezcfg $ROOTFS_DIR/usr/share/
+cp -af $ROOTFS_BAK_DIR/usr/share/terminfo $ROOTFS_DIR/usr/share/
+cp -af $ROOTFS_BAK_DIR/usr/share/alsa $ROOTFS_DIR/usr/share/
+cp -af $ROOTFS_BAK_DIR/usr/share/pulseaudio $ROOTFS_DIR/usr/share/
 
 # overwrite by predefined target rootfs stuff
 cp -af $ROOTFS_TARGET_DIR/boot/ezbox_boot.cfg $ROOTFS_DIR/boot/
