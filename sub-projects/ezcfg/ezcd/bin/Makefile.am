@@ -155,6 +155,7 @@ if CONFIG_EZBOX_BR_LAN_NIC
 AGENT_ENV_SRC += env_action_br_lan_if.c
 endif
 AGENT_ENV_SRC += env_action_data_storage.c
+AGENT_ENV_SRC += env_action_data_partition.c
 # LUKS/dm-crypt for data partition service
 if CONFIG_EZBOX_SERVICE_DMCRYPT_DATA_PARTITION
 AGENT_ENV_SRC += env_action_dmcrypt_data_partition.c

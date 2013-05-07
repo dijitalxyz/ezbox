@@ -1,6 +1,6 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : rc_data_partition.c
+ * Module Name  : env_action_data_partition.c
  *
  * Description  : ezbox run mount/umount data partition service
  *
@@ -8,6 +8,7 @@
  *
  * History      Rev       Description
  * 2012-08-06   0.1       Write it from scratch
+ * 2013-05-07   0.2       Modify it to use agent action framework
  * ============================================================================
  */
 
@@ -43,7 +44,7 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int rc_data_partition(int argc, char **argv)
+int env_action_data_partition(int argc, char **argv)
 #endif
 {
 	int flag, ret;
