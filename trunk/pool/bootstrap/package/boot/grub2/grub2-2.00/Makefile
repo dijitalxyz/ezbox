@@ -16,7 +16,6 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=@GNU/grub
 PKG_MD5SUM:=e927540b6eda8b024fb0391eeaa4091c
 
-#PKG_HOST_ONLY:=1
 HOST_BUILD_PARALLEL:=1
 PKG_BUILD_DEPENDS:=grub2/host
 
@@ -35,39 +34,24 @@ define Package/grub2
   DEPENDS:=@(TARGET_x86||TARGET_x86_64)
 endef
 
-define Build/Configure
-	$(call Build/Configure/Default, \
-		--enable-shared \
-		--enable-static \
-		--program-prefix="" \
-		--program-suffix="" \
-		--prefix=/usr \
-		--exec-prefix=/usr \
-		--bindir=/usr/sbin \
-		--sbindir=/usr/sbin \
-		--libexecdir=/usr/lib \
-		--sysconfdir=/etc \
-		--datadir=/usr/share \
-		--localstatedir=/usr/var \
-		--mandir=/usr/man \
-		--infodir=/usr/info \
-		--disable-grub-mkfont \
-		--disable-nls \
-		--disable-auto-linux-mem-opt \
-	)
+define Package/grub2-editenv
+  CATEGORY:=Utilities
+  SECTION:=utils
+  TITLE:=Grub2 Environment editor
+  URL:=http://www.gnu.org/software/grub/
+  DEPENDS:=@(TARGET_x86||TARGET_x86_64)
 endef
 
-define Package/grub2/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/grub-* $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/usr/lib/grub
-	$(INSTALL_DIR) $(1)/usr/lib/grub/i386-pc
-	(cd $(PKG_INSTALL_DIR)/usr/lib/grub/i386-pc ; \
-		$(CP) * $(1)/usr/lib/grub/i386-pc/ \
-	)
-	$(INSTALL_DIR) $(1)/etc/grub.d
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/etc/grub.d/*_* $(1)/etc/grub.d/
+define Package/grub2-editenv/description
+	Edit grub2 environment files.
 endef
+
+CONFIGURE_ARGS += \
+	--target=$(REAL_GNU_TARGET_NAME) \
+	--disable-grub-mkfont \
+	--disable-auto-linux-mem-opt \
+	--disable-werror \
+	--disable-nls
 
 HOST_CONFIGURE_ARGS += \
 	--target=$(REAL_GNU_TARGET_NAME) \
@@ -84,5 +68,23 @@ define Host/Configure
 	$(Host/Configure/Default)
 endef
 
+define Package/grub2/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/grub-* $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/lib/grub
+	$(INSTALL_DIR) $(1)/usr/lib/grub/i386-pc
+	(cd $(PKG_INSTALL_DIR)/usr/lib/grub/i386-pc ; \
+		$(CP) * $(1)/usr/lib/grub/i386-pc/ \
+	)
+	$(INSTALL_DIR) $(1)/etc/grub.d
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/etc/grub.d/*_* $(1)/etc/grub.d/
+endef
+
+define Package/grub2-editenv/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/grub-editenv $(1)/usr/sbin/
+endef
+
 $(eval $(call HostBuild))
 $(eval $(call BuildPackage,grub2))
+$(eval $(call BuildPackage,grub2-editenv))
