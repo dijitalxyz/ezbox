@@ -22,7 +22,8 @@ if [ "x$WORK_DIR" = "x" ] ; then
 fi
 
 do_customize() {
-  [ ! -d $POOL_DIR/customize/target/linux/x86 ] || cp -af $POOL_DIR/customize/target/linux/x86/* $WORK_DIR/target/linux/x86/
+#  [ ! -d $POOL_DIR/customize/target/linux/x86 ] || cp -af $POOL_DIR/customize/target/linux/x86/* $WORK_DIR/target/linux/x86/
+  echo "do_customize OK!"
 }
 
 do_customize

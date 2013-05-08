@@ -22,8 +22,9 @@ if [ "x$WORK_DIR" = "x" ] ; then
 fi
 
 do_customize() {
-  [ ! -d $POOL_DIR/customize/target/linux/generic ] || cp -af $POOL_DIR/customize/target/linux/generic/* $WORK_DIR/target/linux/generic/
-  [ ! -d $POOL_DIR/customize/target/linux/x86_64 ] || cp -af $POOL_DIR/customize/target/linux/x86_64/* $WORK_DIR/target/linux/x86_64/
+#  [ ! -d $POOL_DIR/customize/target/linux/generic ] || cp -af $POOL_DIR/customize/target/linux/generic/* $WORK_DIR/target/linux/generic/
+#  [ ! -d $POOL_DIR/customize/target/linux/x86_64 ] || cp -af $POOL_DIR/customize/target/linux/x86_64/* $WORK_DIR/target/linux/x86_64/
+  echo "do_customize OK!"
 }
 
 do_customize

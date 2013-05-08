@@ -1659,6 +1659,7 @@ CONFIG_PACKAGE_kmod-usb2=y
 # Boot Loaders
 #
 CONFIG_PACKAGE_grub2=y
+CONFIG_PACKAGE_grub2-editenv=y
 
 #
 # Filesystem
