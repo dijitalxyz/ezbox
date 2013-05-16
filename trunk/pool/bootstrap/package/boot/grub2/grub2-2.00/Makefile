@@ -25,6 +25,9 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
+RSTRIP:=/bin/true
+export RSTRIP
+
 define Package/grub2
   SUBMENU:=Boot Loaders
   CATEGORY:=Utilities
@@ -69,13 +72,13 @@ define Host/Configure
 endef
 
 define Package/grub2/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/grub-* $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/grub-* $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/usr/lib/grub
 	$(INSTALL_DIR) $(1)/usr/lib/grub/i386-pc
-	(cd $(PKG_INSTALL_DIR)/usr/lib/grub/i386-pc ; \
-		$(CP) * $(1)/usr/lib/grub/i386-pc/ \
-	)
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/grub/i386-pc/* $(1)/usr/lib/grub/i386-pc/
 	$(INSTALL_DIR) $(1)/etc/grub.d
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/etc/grub.d/*_* $(1)/etc/grub.d/
 endef
