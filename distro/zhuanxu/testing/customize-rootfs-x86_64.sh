@@ -47,9 +47,15 @@ fi
 rm -rf $ROOTFS_BAK_DIR
 mv -f $ROOTFS_DIR $ROOTFS_BAK_DIR
 mkdir -p $ROOTFS_DIR
+if [ -e $ROOTFS_TARGET_DIR/boot/vmlinuz ]; then
+cp -af $ROOTFS_BAK_DIR/* $ROOTFS_DIR/
+cp -af $ROOTFS_TARGET_DIR/boot/vmlinuz* $ROOTFS_DIR/boot/
+cp -af $ROOTFS_TARGET_DIR/boot/rootfs* $ROOTFS_DIR/boot/
+else
 cp -af $ROOTFS_BAK_DIR/bin $ROOTFS_DIR/
 cp -af $ROOTFS_BAK_DIR/boot $ROOTFS_DIR/
 cp -af $ROOTFS_BAK_DIR/init $ROOTFS_DIR/
+# copy needed stuff
 mkdir -p $ROOTFS_DIR/lib
 cp -af $ROOTFS_BAK_DIR/lib/ld*.so* $ROOTFS_DIR/lib/
 cp -af $ROOTFS_BAK_DIR/lib/lib*.so* $ROOTFS_DIR/lib/
@@ -76,9 +82,10 @@ cp -af $ROOTFS_BAK_DIR/usr/share/ezcfg $ROOTFS_DIR/usr/share/
 cp -af $ROOTFS_BAK_DIR/usr/share/terminfo $ROOTFS_DIR/usr/share/
 cp -af $ROOTFS_BAK_DIR/usr/share/alsa $ROOTFS_DIR/usr/share/
 cp -af $ROOTFS_BAK_DIR/usr/share/pulseaudio $ROOTFS_DIR/usr/share/
+fi
 
 # overwrite by predefined target rootfs stuff
-cp -af $ROOTFS_TARGET_DIR/boot/ezbox_boot.cfg $ROOTFS_DIR/boot/
+cp -af $ROOTFS_TARGET_DIR/boot/ezbox_boot.cfg* $ROOTFS_DIR/boot/
 cp -af $ROOTFS_TARGET_DIR/boot/ezbox_rootfs.cfg $ROOTFS_DIR/boot/
 cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/boot $ROOTFS_DIR/lib/rcso/agents/env/action/
 cp -af $ROOTFS_TARGET_DIR/lib/rcso/agents/env/action/start $ROOTFS_DIR/lib/rcso/agents/env/action/
