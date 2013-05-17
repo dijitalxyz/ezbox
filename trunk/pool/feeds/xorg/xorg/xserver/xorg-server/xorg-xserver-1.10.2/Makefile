@@ -69,6 +69,9 @@ $(call Package/xorg/Default)
   +xkeyboard-config \
   +libdrm \
   +libgl-mesa \
+  +libgcrypt \
+  +libpciaccess \
+  +udev \
   @DISPLAY_SUPPORT
 endef
 

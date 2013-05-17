@@ -17,6 +17,7 @@ PKG_SOURCE:=$(PKG_NAME)Lib-$(PKG_VERSION).tar.bz2
 PKG_FIXUP:=libtool
 PKG_BUILD_DEPENDS:=glproto dri2proto
 
+include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
 PKG_INSTALL:=1
@@ -25,7 +26,7 @@ define Package/libgl-mesa
   SECTION:=xorg-libraries
   CATEGORY:=Xorg
   SUBMENU:=libraries
-  DEPENDS:=+libX11 +libXext +libXfixes +libXdamage +libXxf86vm +libdrm +libexpat
+  DEPENDS:=$(CXX_DEPENDS) +libX11 +libXext +libXfixes +libXdamage +libXxf86vm +libdrm +libexpat +libpthread 
   TITLE:=Mesa OpenGL library
   URL:=http://mesa3d.org
 endef

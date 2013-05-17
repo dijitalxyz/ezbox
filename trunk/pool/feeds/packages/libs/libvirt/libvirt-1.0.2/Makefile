@@ -28,7 +28,7 @@ define Package/libvirt
   TITLE:=Libvirt Virtualization API
   URL:=http://libvirt.org
   DEPENDS:= +gnutls-utils +libgnutls +libgnutls-extra +libgnutls-openssl +certtool \
-            +libnl +libgcrypt +librpc +libxml2 +lvm2 +libdevmapper \
+            +libnl +libgcrypt +librpc +libxml2 +lvm2 +libdevmapper +libpcap \
             +libblkid +libuuid
 endef
 
