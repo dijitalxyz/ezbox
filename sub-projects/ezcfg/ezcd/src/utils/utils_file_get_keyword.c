@@ -41,10 +41,10 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -67,14 +67,18 @@ char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
 
 	memset(buf, 0, sizeof(buf));
 
+	DBG("%s(%d) fn=[%s] kw=[%s] idx=[%d]\n", __func__, __LINE__, filename, keyword, idx);
+
 	while (utils_file_get_line(file, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 
 		q = strstr(buf, keyword);
 		if (q == NULL)
 			continue;
 
+		DBG("buf=[%s]\n", buf);
 		/* skip key word length */
 		p = q + strlen(keyword);
+		DBG("p=[%s]\n", p);
 		q = strchr(p, ' ');
 		if (q != NULL)
 			*q = '\0';

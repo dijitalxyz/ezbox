@@ -39,11 +39,25 @@
 
 #include "ezcd.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
 int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 {
 	int len, ret=-1;
 	struct stat stat_buf;
 	char *keyword=NULL, *value=NULL;
+
+	DBG("%s(%d) name=[%s] buf==NULL[%d] buf_len=[%d]\n", __func__, __LINE__, name, (buf == NULL), buf_len);
 
 	if ((name == NULL) || (buf == NULL) || (buf_len < 1))
 		return -1;
@@ -54,11 +68,14 @@ int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 		return -1;
 
 	snprintf(keyword, len, "%s=", name);
+	DBG("%s(%d) keyword=[%s] BOOT_CONFIG_FILE_PATH=[%s]\n", __func__, __LINE__, keyword, BOOT_CONFIG_FILE_PATH);
 
 	if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) &&
 	    (S_ISREG(stat_buf.st_mode))) {
+		DBG("%s(%d)\n", __func__, __LINE__);
 		/* get keyword's value from boot.cfg file */
 		value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
+		DBG("%s(%d) value=[%s]\n", __func__, __LINE__, value);
 		if (value != NULL) {
 			ret = snprintf(buf, buf_len, "%s", value);
 			free(value);
