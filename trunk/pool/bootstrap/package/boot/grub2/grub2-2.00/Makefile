@@ -34,7 +34,7 @@ define Package/grub2
   SECTION:=utils
   TITLE:=GRand Unified Bootloader
   URL:=http://www.gnu.org/software/grub/
-  DEPENDS:=@(TARGET_x86||TARGET_x86_64)
+  DEPENDS:=@(TARGET_x86||TARGET_x86_64) +libdevmapper
 endef
 
 define Package/grub2-editenv
@@ -42,7 +42,7 @@ define Package/grub2-editenv
   SECTION:=utils
   TITLE:=Grub2 Environment editor
   URL:=http://www.gnu.org/software/grub/
-  DEPENDS:=@(TARGET_x86||TARGET_x86_64)
+  DEPENDS:=@(TARGET_x86||TARGET_x86_64) +libdevmapper
 endef
 
 define Package/grub2-editenv/description
@@ -79,6 +79,9 @@ define Package/grub2/install
 	$(INSTALL_DIR) $(1)/usr/lib/grub
 	$(INSTALL_DIR) $(1)/usr/lib/grub/i386-pc
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/grub/i386-pc/* $(1)/usr/lib/grub/i386-pc/
+	$(INSTALL_DIR) $(1)/usr/share
+	$(INSTALL_DIR) $(1)/usr/share/grub
+	$(CP) $(PKG_INSTALL_DIR)/usr/share/grub/* $(1)/usr/share/grub/
 	$(INSTALL_DIR) $(1)/etc/grub.d
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/etc/grub.d/*_* $(1)/etc/grub.d/
 endef
