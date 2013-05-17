@@ -30,6 +30,7 @@ endef
 define Package/libcgroup
 $(call Package/libcgroup/Default)
   TITLE:=Control Group Configuration (library)
+  DEPENDS:=+libpthread
 endef
 
 define Package/libcgroup/description
@@ -65,7 +66,7 @@ $(call Package/libcgroup/Default)
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Control Group Configuration (utils)
-  DEPENDS:=+libcgroup
+  DEPENDS:=+libcgroup +librt
 endef
 
 define Package/cgroup-bin/install
