@@ -45,6 +45,7 @@ libezcd_la_LDFLAGS = \
 
 # utils
 libezcd_la_SOURCES = $(top_builddir)/src/utils/utils_check_ezcd.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_check_boot_ready.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_check_service.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_check_wan_interface.c

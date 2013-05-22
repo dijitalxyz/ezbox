@@ -159,6 +159,10 @@ int utils_mount_boot_partition_readonly(void)
 		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
 		dev = dev_buf;
 	}
+	else {
+		DBG("%s(%d) utils_get_boot_device_path() error!\n", __func__, __LINE__);
+		return EXIT_FAILURE;
+	}
 
 	rc = utils_get_boot_device_fs_type(buf, sizeof(buf));
 	if (rc > 0) {
@@ -209,6 +213,10 @@ int utils_mount_boot_partition_writable(void)
 	if (rc > 0) {
 		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
 		dev = dev_buf;
+	}
+	else {
+		DBG("%s(%d) utils_get_boot_device_path() error!\n", __func__, __LINE__);
+		return EXIT_FAILURE;
 	}
 
 	rc = utils_get_boot_device_fs_type(buf, sizeof(buf));

@@ -122,3 +122,31 @@ int utils_get_data_device_fs_type(char *buf, int buf_len)
 	}
 	return rc;
 }
+
+int utils_get_hdd_device_path(char *buf, int buf_len)
+{
+	int i;
+	struct stat stat_buf;
+	int rc = -1;
+	char *p;
+
+	for (i = 3; i > 0; i--) {
+		if (stat(BOOT_CONFIG_FILE_PATH, &stat_buf) == 0) {
+			if (S_ISREG(stat_buf.st_mode)) {
+				/* get data device path string */
+				p = utils_file_get_keyword_by_index(BOOT_CONFIG_FILE_PATH,
+					NVRAM_SERVICE_OPTION(SYS, HDD_DEVICE) "=",
+					DEVICE_INFO_PATH_INDEX);
+				if (p != NULL) {
+					rc = snprintf(buf, buf_len, "%s", p);
+					free(p);
+				}
+				return rc;
+			}
+		}
+		/* wait a second then try again */
+		sleep(1);
+	}
+	return rc;
+}
+

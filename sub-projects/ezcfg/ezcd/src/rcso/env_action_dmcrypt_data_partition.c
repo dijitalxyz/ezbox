@@ -57,6 +57,10 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_boot_is_ready() == false) {
+		return (EXIT_FAILURE);
+	}
+
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
 	}

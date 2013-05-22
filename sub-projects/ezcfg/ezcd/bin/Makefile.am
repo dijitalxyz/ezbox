@@ -148,6 +148,7 @@ RCSO_EXE = $(subst .c,.exe,$(RCSO_SRC))
 # agent environment
 ###############################
 AGENT_ENV_SRC = env_action_base_files.c
+AGENT_ENV_SRC += env_action_bootstrap.c
 if CONFIG_EZBOX_EZCFG_CGROUP
 AGENT_ENV_SRC += env_action_cgroup.c
 endif

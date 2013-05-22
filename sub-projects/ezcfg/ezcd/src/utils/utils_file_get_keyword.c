@@ -71,11 +71,21 @@ char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
 
 	while (utils_file_get_line(file, buf, sizeof(buf), "#", LINE_TAIL_STRING) == true) {
 
-		q = strstr(buf, keyword);
-		if (q == NULL)
-			continue;
-
 		DBG("buf=[%s]\n", buf);
+		q = strstr(buf, keyword);
+		if (q == NULL) {
+			continue;
+		}
+		else if ((q != buf) && !isspace(*(q-1))) {
+			while ((q != NULL) && (!isspace(*(q-1)))) {
+				p = q + strlen(keyword);
+				q = strstr(p, keyword);
+			}
+			if (q == NULL) {
+				continue;
+			}
+		}
+
 		/* skip key word length */
 		p = q + strlen(keyword);
 		DBG("p=[%s]\n", p);

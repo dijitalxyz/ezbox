@@ -20,8 +20,14 @@
 /* ezcfg system names */
 #define EZCFG_SYS_DEVICE_NAME             "device_name"
 #define EZCFG_SYS_SERIAL_NUMBER           "serial_number"
+#define EZCFG_SYS_DISTRO_NAME             "distro_name"
+#define EZCFG_SYS_HARDWARE_ARCH           "hardware_arch"
 #define EZCFG_SYS_HARDWARE_VERSION        "hardware_version"
 #define EZCFG_SYS_SOFTWARE_VERSION        "software_version"
+#define EZCFG_SYS_SOFTWARE_REVISION       "software_revision"
+
+#define EZCFG_SYS_HDD_DEVICE              "hdd_device"
+#define EZCFG_SYS_BOOT_ARGS               "boot_args"
 
 #define EZCFG_SYS_LANGUAGE                "language"
 #define EZCFG_SYS_TZ_AREA                 "tz_area"

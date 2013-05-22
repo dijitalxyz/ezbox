@@ -40,6 +40,7 @@ int utils_get_boot_device_path(char *buf, int buf_len);
 int utils_get_boot_device_fs_type(char *buf, int buf_len);
 int utils_get_data_device_path(char *buf, int buf_len);
 int utils_get_data_device_fs_type(char *buf, int buf_len);
+int utils_get_hdd_device_path(char *buf, int buf_len);
 
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 bool utils_file_print_line(FILE *fp, char *buf, size_t size, const char *fmt, ...);
@@ -92,6 +93,9 @@ int utils_get_rc_act_type(char *act);
 #if (HAVE_EZBOX_WAN_NIC == 1)
 int utils_get_wan_type(void);
 #endif
+
+bool utils_boot_is_ready(void);
+
 bool utils_ezcd_is_alive(void);
 bool utils_ezcd_is_ready(void);
 bool utils_ezcd_wait_up(int s);

@@ -24,8 +24,13 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* System configuration */
 	{ NVRAM_SERVICE_OPTION(SYS, DEVICE_NAME), "ezbox" }, /* ezbox */
 	{ NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER), "012345678901234567" }, /* */
+	{ NVRAM_SERVICE_OPTION(SYS, DISTRO_NAME), "kuafu" }, /* kuafu */
+	{ NVRAM_SERVICE_OPTION(SYS, HARDWARE_ARCH), "x86_64" }, /* x86_64 */
 	{ NVRAM_SERVICE_OPTION(SYS, HARDWARE_VERSION), "1.0" }, /* 1.0 */
 	{ NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION), "1.0" }, /* 1.0 */
+	{ NVRAM_SERVICE_OPTION(SYS, SOFTWARE_REVISION), "001" }, /* 001 */
+	{ NVRAM_SERVICE_OPTION(SYS, HDD_DEVICE), "sda" }, /* sda */
+	{ NVRAM_SERVICE_OPTION(SYS, BOOT_ARGS), "boot_dev=sda1,ext4" }, /* sda1,ext4 */
 	{ NVRAM_SERVICE_OPTION(SYS, LANGUAGE), "zh_CN" }, /* zh_CN */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
 	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */

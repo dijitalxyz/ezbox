@@ -1,5 +1,19 @@
-# data partition is at /dev/sda2, file system is ext4
-sys.data_dev=sda2,ext4
+# distro name
+sys.distro_name=kuafu
+# hardware architecture
+sys.hardware_arch=x86_64
+# hardware version
+sys.hardware_version=1.0
+# software version
+sys.software_version=1.0
+# software revision
+sys.software_revision=001
+# HDD device is sda
+sys.hdd_device=sda
+# boot arguments for Linux kernel
+sys.boot_args=boot_dev=sda1,ext4
+# data partition is at /dev/sda6, file system is ext4
+sys.data_dev=sda6,ext4
 # data partition key
 sys.data_dev_key=12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 # preinit kernel modules

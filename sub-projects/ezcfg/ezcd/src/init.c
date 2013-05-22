@@ -169,6 +169,9 @@ int init_main(int argc, char **argv)
 
 	sigemptyset(&sigset);
 
+	if (utils_boot_is_ready() == false)
+		start_argv[2] = "bootstrap";
+
 	/* run agent environment start processes */
 	handle = dlopen("/lib/rcso/rc_agent.so", RTLD_NOW);
 	if (!handle) {
