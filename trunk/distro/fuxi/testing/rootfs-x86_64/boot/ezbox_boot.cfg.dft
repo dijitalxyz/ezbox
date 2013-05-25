@@ -12,6 +12,8 @@ sys.software_revision=001
 sys.hdd_device=sda
 # boot arguments for Linux kernel
 sys.boot_args=boot_dev=sda1,ext4
+# swap partition is at /dev/sda5
+sys.swap_dev=sda5
 # data partition is at /dev/sda6, file system is ext4
 sys.data_dev=sda6,ext4
 # data partition key
