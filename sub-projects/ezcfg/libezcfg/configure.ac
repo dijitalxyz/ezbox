@@ -241,6 +241,25 @@ AC_ARG_ENABLE([lan-nic],
 )
 AM_CONDITIONAL(CONFIG_EZBOX_LAN_NIC, test "x$config_ezbox_lan_nic" = xyes)
 
+# Configure EtherWAN NIC.
+config_ezbox_eth_wan_nic=yes
+AC_MSG_CHECKING([if Ethernet WAN network interface is enabled])
+AC_ARG_ENABLE([eth-wan-nic],
+	AS_HELP_STRING([--enable-eth-wan-nic], [Enable Ethernet WAN network interface (default yes)]),
+	[case "$enableval" in
+	no)
+		AC_MSG_RESULT(no)
+		config_ezbox_eth_wan_nic=no
+	;;
+	*)
+		AC_DEFINE([HAVE_EZBOX_ETH_WAN_NIC], [1], [Enable Ethernet WAN network interface])
+		AC_MSG_RESULT(yes)
+	;;
+	esac] ,
+	[AC_DEFINE([HAVE_EZBOX_ETH_WAN_NIC], [1], [Enable Ethernet WAN network interface]) AC_MSG_RESULT(yes)]
+)
+AM_CONDITIONAL(CONFIG_EZBOX_ETH_WAN_NIC, test "x$config_ezbox_eth_wan_nic" = xyes)
+
 # Configure WAN NIC.
 config_ezbox_wan_nic=yes
 AC_MSG_CHECKING([if WAN network interface is enabled])

@@ -29,6 +29,8 @@ int utils_udev_pop_nodes(void);
 
 int utils_get_kernel_modules(char *buf, int buf_len);
 
+int utils_get_mem_size_mb(void);
+
 int utils_install_kernel_module(char *name, char *args);
 int utils_remove_kernel_module(char *name);
 int utils_probe_kernel_module(char *name, char *args);
@@ -41,23 +43,29 @@ int utils_get_boot_device_fs_type(char *buf, int buf_len);
 int utils_get_data_device_path(char *buf, int buf_len);
 int utils_get_data_device_fs_type(char *buf, int buf_len);
 int utils_get_hdd_device_path(char *buf, int buf_len);
+int utils_get_swap_device_path(char *buf, int buf_len);
 
 bool utils_file_get_line(FILE *fp, char *buf, size_t size, char *comment, char *remove);
 bool utils_file_print_line(FILE *fp, char *buf, size_t size, const char *fmt, ...);
 
 bool utils_init_ezcfg_api(const char *path);
 
+bool utils_partition_is_mounted(char *dev, char *mount_point);
 int utils_mount_partition(char *dev, char *path, char *fs_type, char *args);
 int utils_umount_partition(char *path);
 int utils_remount_partition(char *dev, char *path, char *fs_type, char *args);
 int utils_mount_boot_partition_readonly(void);
 int utils_mount_boot_partition_writable(void);
+int utils_umount_boot_partition(void);
 int utils_remount_boot_partition_readonly(void);
 int utils_remount_boot_partition_writable(void);
 int utils_mount_data_partition_writable(void);
 int utils_umount_data_partition(void);
 int utils_mount_dmcrypt_data_partition_writable(void);
 int utils_umount_dmcrypt_data_partition(void);
+
+int utils_swap_partition_on(void);
+int utils_swap_partition_off(void);
 
 int utils_sync_nvram_with_cfg(char *path, char *pattern);
 int utils_sync_cfg_with_nvram(char *path, char *pattern);
@@ -94,7 +102,8 @@ int utils_get_rc_act_type(char *act);
 int utils_get_wan_type(void);
 #endif
 
-bool utils_boot_is_ready(void);
+bool utils_boot_partition_is_ready(void);
+bool utils_data_partition_is_ready(void);
 
 bool utils_ezcd_is_alive(void);
 bool utils_ezcd_is_ready(void);

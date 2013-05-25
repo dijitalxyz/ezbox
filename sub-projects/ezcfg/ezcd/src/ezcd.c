@@ -82,6 +82,7 @@ static void ezcd_show_usage(void)
 	printf("\n");
 }
 
+#if 0
 static int mem_size_mb(void)
 {
 	FILE *fp;
@@ -104,6 +105,7 @@ static int mem_size_mb(void)
 	fclose(fp);
 	return memsize;
 }
+#endif
 
 static void *sig_thread_routine(void *arg)
 {
@@ -312,7 +314,7 @@ int ezcd_main(int argc, char **argv)
 	}
 
 	if (threads_max < EZCFG_THREAD_MIN_NUM) {
-		int memsize = mem_size_mb();
+		int memsize = utils_get_mem_size_mb();
 
 		/* set value depending on the amount of RAM */
 		if (memsize > 0)

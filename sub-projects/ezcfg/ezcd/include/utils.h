@@ -27,6 +27,7 @@
 #define CMD_LOGIN  		"/bin/login"
 #define CMD_MKFS_EXT4  		"/usr/sbin/mkfs.ext4"
 #define CMD_MKDIR  		"/bin/mkdir"
+#define CMD_MKSWAP  		"/sbin/mkswap"
 #define CMD_MODPROBE  		"/sbin/modprobe"
 #define CMD_MOUNT  		"/bin/mount"
 #define CMD_MV  		"/bin/mv"
@@ -36,11 +37,15 @@
 //#define CMD_ROUTE  		"/sbin/route"
 #define CMD_SH  		"/bin/sh"
 #define CMD_SHELLD  		"/sbin/shelld"
+#define CMD_SWAPOFF  		"/sbin/swapoff"
+#define CMD_SWAPON  		"/sbin/swapon"
 #define CMD_SYSLOGD  		"/sbin/syslogd"
+#define CMD_TAR  		"/bin/tar"
 #define CMD_TELNETD  		"/sbin/telnetd"
 #define CMD_UDHCPC_SCRIPT	"/sbin/udhcpc.script"
 #define CMD_UMOUNT		"/bin/umount"
 #define CMD_UPNP_MONITOR	"/sbin/upnp_monitor"
+#define CMD_XZCAT		"/bin/xzcat"
 
 /* service commands */
 #define CMD_CGCONFIGPARSER	"/usr/sbin/cgconfigparser"
@@ -65,6 +70,12 @@
 
 /* rootfs cleanup config file path */
 #define ROOTFS_CONFIG_FILE_PATH   "/boot/ezbox_rootfs.cfg"
+
+/* kernel image file path */
+#define KERNEL_IMAGE_FILE_PATH   "/boot/vmlinuz"
+
+/* rootfs image file path */
+#define ROOTFS_IMAGE_FILE_PATH   "/boot/rootfs.tar.xz"
 
 /* root HOME path */
 #define ROOT_HOME_PATH		"/root"

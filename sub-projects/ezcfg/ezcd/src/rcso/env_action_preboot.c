@@ -138,7 +138,13 @@ int env_action_preboot(int argc, char **argv)
 		utils_udev_pop_nodes();
 
 		/* prepare boot device path */
-		utils_mount_boot_partition_readonly();
+		utils_mount_boot_partition_writable();
+
+		/* check if we need umount /boot so that */
+		/* we may have a chance to copy the ezbox_boot.cfg.dft to ezbox_boot.cfg */
+		if (utils_boot_partition_is_ready() == false) {
+			utils_umount_boot_partition();
+		}
 
 		/* check if the ezbox_boot.cfg is ready */
 		if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) != 0) ||
@@ -146,15 +152,16 @@ int env_action_preboot(int argc, char **argv)
 			/* try to restore to default ezbox_boot.cfg */
 			if ((stat(BOOT_CONFIG_DEFAULT_FILE_PATH, &stat_buf) == 0) &&
 			    (S_ISREG(stat_buf.st_mode))) {
-				/* first make /boot writable */
-				utils_remount_boot_partition_writable();
 				/* remove ezbox_boot.cfg */
 				utils_system("rm -rf " BOOT_CONFIG_FILE_PATH);
 				/* copy default ezbox_boot.cfg.dft ezbox_boot.cfg */
 				utils_system("cp -f " BOOT_CONFIG_DEFAULT_FILE_PATH " " BOOT_CONFIG_FILE_PATH);
-				/* make /boot read-only */
-				utils_remount_boot_partition_readonly();
 			}
+		}
+
+		if (utils_boot_partition_is_ready() == true) {
+			/* make /boot read-only */
+			utils_remount_boot_partition_readonly();
 		}
 
 		ret = EXIT_SUCCESS;

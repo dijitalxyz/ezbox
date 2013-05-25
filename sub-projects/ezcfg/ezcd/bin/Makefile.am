@@ -155,6 +155,7 @@ endif
 if CONFIG_EZBOX_BR_LAN_NIC
 AGENT_ENV_SRC += env_action_br_lan_if.c
 endif
+AGENT_ENV_SRC += env_action_swap_partition.c
 AGENT_ENV_SRC += env_action_data_storage.c
 AGENT_ENV_SRC += env_action_data_partition.c
 # LUKS/dm-crypt for data partition service
@@ -205,6 +206,9 @@ AGENT_ENV_SRC += env_action_syslogd.c
 endif
 AGENT_ENV_SRC += env_action_system.c
 AGENT_ENV_SRC += env_action_udev_pop_nodes.c
+if CONFIG_EZBOX_ETH_WAN_NIC
+AGENT_ENV_SRC += env_action_eth_wan_if.c
+endif
 if CONFIG_EZBOX_WAN_NIC
 AGENT_ENV_SRC += env_action_wan.c
 AGENT_ENV_SRC += env_action_wan_if.c

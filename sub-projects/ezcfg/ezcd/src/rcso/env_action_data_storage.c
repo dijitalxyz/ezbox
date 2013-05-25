@@ -93,6 +93,10 @@ int env_action_data_storage(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	if (utils_data_partition_is_ready() == false) {
+		return (EXIT_FAILURE);
+	}
+
 	if (utils_init_ezcfg_api(EZCD_CONFIG_FILE_PATH) == false) {
 		return (EXIT_FAILURE);
 	}

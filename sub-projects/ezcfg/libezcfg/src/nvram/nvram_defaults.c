@@ -64,8 +64,10 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 #endif
 #endif
 
+	/* swap device */
+	{ NVRAM_SERVICE_OPTION(SYS, SWAP_DEV), "sda5" },
 	/* dynamic data storage device */
-	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV), "" },
+	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV), "sda6" },
 	/* dynamic data storage device key */
 	{ NVRAM_SERVICE_OPTION(SYS, DATA_DEV_KEY), "" },
 	/* kernel modules */

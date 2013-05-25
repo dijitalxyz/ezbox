@@ -1,4 +1,5 @@
-utils_boot_is_ready
+utils_boot_partition_is_ready
+utils_data_partition_is_ready
 utils_ezcd_is_alive
 utils_ezcd_is_ready
 utils_ezcd_wait_up
@@ -7,6 +8,7 @@ utils_get_bootcfg_keyword
 utils_get_boot_device_path
 utils_get_data_device_path
 utils_get_hdd_device_path
+utils_get_swap_device_path
 utils_init_ezcfg_api
 utils_file_get_line
 utils_file_print_line
@@ -15,6 +17,7 @@ utils_has_process_by_name
 utils_get_rc_act_type
 utils_cleanup_rootfs
 utils_get_kernel_modules
+utils_get_mem_size_mb
 utils_install_kernel_module
 utils_remove_kernel_module
 utils_probe_kernel_module
@@ -25,14 +28,18 @@ utils_netmask_to_prefix
 utils_udev_pop_nodes
 utils_mount_partition
 utils_mount_boot_partition_readonly
+utils_mount_boot_partition_writable
 utils_mount_data_partition_writable
 utils_mount_dmcrypt_data_partition_writable
 utils_nvram_cmp
 utils_remount_boot_partition_writable
 utils_remount_boot_partition_readonly
+utils_umount_boot_partition
 utils_umount_data_partition
 utils_umount_dmcrypt_data_partition
 utils_umount_partition
+utils_swap_partition_on
+utils_swap_partition_off
 utils_service_enable
 utils_service_binding_lan
 utils_service_binding_wan

@@ -57,7 +57,7 @@ int env_action_data_partition(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (utils_boot_is_ready() == false) {
+	if (utils_boot_partition_is_ready() == false) {
 		return (EXIT_FAILURE);
 	}
 

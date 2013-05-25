@@ -169,8 +169,10 @@ int init_main(int argc, char **argv)
 
 	sigemptyset(&sigset);
 
-	if (utils_boot_is_ready() == false)
+	if (utils_boot_partition_is_ready() == false) {
+		DBG("<6>init: utils_boot_partition_is_ready() == false!\n");
 		start_argv[2] = "bootstrap";
+	}
 
 	/* run agent environment start processes */
 	handle = dlopen("/lib/rcso/rc_agent.so", RTLD_NOW);

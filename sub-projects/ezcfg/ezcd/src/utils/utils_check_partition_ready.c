@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_check_boot_ready.c
+ * Module Name  : utils_check_partition_ready.c
  *
- * Description  : ezbox check boot partition is ready
+ * Description  : ezbox check partition is ready
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
- * 2013-05-20   0.1       Write it from scratch
+ * 2013-05-23   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -51,7 +51,7 @@
 #define DBG(format, args...)
 #endif
 
-bool utils_boot_is_ready(void)
+bool utils_boot_partition_is_ready(void)
 {
 	char name[64];
 	char buf[256];
@@ -143,6 +143,45 @@ bool utils_boot_is_ready(void)
 	ret = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	if (ret < 1) {
 		DBG("%s(%d) utils_get_bootcfg_keyword(%s)=[%s] error!\n", __func__, __LINE__, name, buf);
+		return false;
+	}
+
+	return true;
+}
+
+bool utils_data_partition_is_ready(void)
+{
+	char buf[256];
+	char data_dev[64];
+	char data_mount_entry[128];
+	FILE *fp;
+	int ret;
+
+	/* get boot partition device name */
+	ret = utils_get_data_device_path(data_dev, sizeof(data_dev));
+	if (ret < 1) {
+		return (false);
+	}
+
+	/* get mounts info from /proc/mounts */
+	fp = fopen("/proc/mounts", "r");
+	if (fp == NULL) {
+		return (false);
+	}
+
+	ret = -1;
+	snprintf(data_mount_entry, sizeof(data_mount_entry), "/dev/%s /data ", data_dev);
+
+	while (utils_file_get_line(fp, buf, sizeof(buf), "", LINE_TAIL_STRING) == true) {
+		if (strncmp(buf, data_mount_entry, strlen(data_mount_entry)) == 0) {
+			ret = 0;
+			break;
+		}
+	}
+
+	fclose(fp);
+
+	if (ret != 0) {
 		return false;
 	}
 

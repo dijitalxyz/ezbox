@@ -1,14 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : env_action_dmcrypt_data_partition.c
+ * Module Name  : env_action_swap_partition.c
  *
- * Description  : ezbox env agent runs LUKS/dm-crypt for data partition service
+ * Description  : ezbox run swapon/swapoff swap partition service
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
- * 2012-06-13   0.1       Write it from scratch
- * 2012-12-25   0.2       Modify it to use agent action framework
+ * 2013-05-24   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -44,7 +43,7 @@
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int env_action_dmcrypt_data_partition(int argc, char **argv)
+int env_action_swap_partition(int argc, char **argv)
 #endif
 {
 	int flag, ret;
@@ -53,7 +52,7 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dmcrypt_data_partition")) {
+	if (strcmp(argv[0], "swap_partition")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -68,25 +67,16 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_ACT_BOOT :
-		/* prepare /etc/keys directory first */
-		mkdir("/etc/keys", 0755);
-
-		/* prepare dm-crypt data partition key file */
-		pop_etc_keys_data_partition_key(RC_ACT_BOOT);
-
-		/* prepare dm-crypt data partition */
-		utils_mount_dmcrypt_data_partition_writable();
-
-		/* remove dm-crypt data partition key file */
-		pop_etc_keys_data_partition_key(RC_ACT_STOP);
+	case RC_ACT_START :
+		/* prepare swap partition */
+		utils_swap_partition_on();
 
 		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_STOP :
-		/* remove dm-crypt data partition */
-		utils_umount_dmcrypt_data_partition();
+		/* remove swap partition */
+		utils_swap_partition_off();
 
 		ret = EXIT_SUCCESS;
 		break;
@@ -97,4 +87,3 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 	}
 	return (ret);
 }
-

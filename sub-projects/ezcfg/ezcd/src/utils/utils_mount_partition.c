@@ -87,6 +87,42 @@ static int install_fs_modules(char *fs_type)
 	return rc;
 }
 
+bool utils_partition_is_mounted(char *dev, char *mount_point)
+{
+	FILE *fp;
+	char buf[256];
+	char mount_entry[128];
+	int ret;
+
+	DBG("%s(%d) dev=[%s] mount_point=[%s]\n", __func__, __LINE__, dev, mount_point);
+
+	/* get mounts info from /proc/mounts */
+	fp = fopen("/proc/mounts", "r");
+	if (fp == NULL) {
+		DBG("%s(%d) fopen(/proc/mounts) error\n", __func__, __LINE__);
+		return (false);
+	}
+
+	ret = -1;
+	snprintf(mount_entry, sizeof(mount_entry), "%s %s ", dev, mount_point);
+
+	while (utils_file_get_line(fp, buf, sizeof(buf), "", LINE_TAIL_STRING) == true) {
+		DBG("%s(%d) buf=[%s]\n", __func__, __LINE__, buf);
+		if (strncmp(buf, mount_entry, strlen(mount_entry)) == 0) {
+			ret = 0;
+			break;
+		}
+	}
+
+	fclose(fp);
+
+	if (ret != 0) {
+		return false;
+	}
+
+	return true;
+}
+
 int utils_mount_partition(char *dev, char *path, char *fs_type, char *args)
 {
 	char buf[128];
@@ -153,6 +189,8 @@ int utils_mount_boot_partition_readonly(void)
 	char *fs_type = NULL;
 	char *args = NULL;
 
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
 	/* prepare boot device path */
 	rc = utils_get_boot_device_path(buf, sizeof(buf));
 	if (rc > 0) {
@@ -208,6 +246,8 @@ int utils_mount_boot_partition_writable(void)
 	char *fs_type = NULL;
 	char *args = NULL;
 
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
 	/* prepare boot device path */
 	rc = utils_get_boot_device_path(buf, sizeof(buf));
 	if (rc > 0) {
@@ -251,6 +291,33 @@ int utils_mount_boot_partition_writable(void)
 	return (ret);
 }
 
+int utils_umount_boot_partition(void)
+{
+	char buf[64];
+	char dev_buf[64];
+	int rc, ret = EXIT_FAILURE;
+
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
+	/* prepare boot device path */
+	rc = utils_get_boot_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+	}
+	else {
+		DBG("%s(%d) utils_get_boot_device_path() error!\n", __func__, __LINE__);
+		return EXIT_FAILURE;
+	}
+
+	if (utils_partition_is_mounted(dev_buf, "/boot") == true) {
+		/* umount /boot */
+		utils_umount_partition("/boot");
+	}
+
+	ret = EXIT_SUCCESS;
+	return (ret);
+}
+
 #if 0
 static int remount_boot_partition(char *args)
 {
@@ -275,8 +342,10 @@ static int remount_boot_partition(char *args)
 
 int utils_remount_boot_partition_readonly(void)
 {
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
 	/* first umount dev from /boot */
-	utils_umount_partition("/boot");
+	utils_umount_boot_partition();
 
 	/* wait a second */
 	sleep(1);
@@ -287,8 +356,10 @@ int utils_remount_boot_partition_readonly(void)
 
 int utils_remount_boot_partition_writable(void)
 {
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
 	/* first umount dev from /boot */
-	utils_umount_partition("/boot");
+	utils_umount_boot_partition();
 
 	/* wait a second */
 	sleep(1);
@@ -352,10 +423,23 @@ int utils_mount_data_partition_writable(void)
 
 int utils_umount_data_partition(void)
 {
-	int ret = EXIT_FAILURE;
+	char buf[64];
+	char dev_buf[64];
+	int rc, ret = EXIT_FAILURE;
 
-	/* umount /data */
-	utils_umount_partition("/data");
+	/* prepare dynamic data storage path */
+	rc = utils_get_data_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+	}
+	else {
+		return (ret);
+	}
+
+	if (utils_partition_is_mounted(dev_buf, "/data") == true) {
+		/* umount /data */
+		utils_umount_partition("/data");
+	}
 
 	ret = EXIT_SUCCESS;
 	return (ret);

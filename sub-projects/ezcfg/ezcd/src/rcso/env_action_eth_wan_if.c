@@ -1,14 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : env_action_dmcrypt_data_partition.c
+ * Module Name  : env_action_eth_wan_if.c
  *
- * Description  : ezbox env agent runs LUKS/dm-crypt for data partition service
+ * Description  : ezbox run network EtherWAN interface service
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
- * 2012-06-13   0.1       Write it from scratch
- * 2012-12-25   0.2       Modify it to use agent action framework
+ * 2013-05-25   0.1       Modify it to env_action_wan_if.c
  * ============================================================================
  */
 
@@ -37,27 +36,25 @@
 #include <syslog.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <net/if.h>
 
 #include "ezcd.h"
-#include "pop_func.h"
 
 #ifdef _EXEC_
 int main(int argc, char **argv)
 #else
-int env_action_dmcrypt_data_partition(int argc, char **argv)
+int env_action_eth_wan_if(int argc, char **argv)
 #endif
 {
+	char wan_ifname[IFNAMSIZ];
+	char cmdline[256];
 	int flag, ret;
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
 	}
 
-	if (strcmp(argv[0], "dmcrypt_data_partition")) {
-		return (EXIT_FAILURE);
-	}
-
-	if (utils_boot_partition_is_ready() == false) {
+	if (strcmp(argv[0], "eth_wan_if")) {
 		return (EXIT_FAILURE);
 	}
 
@@ -65,29 +62,29 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	ret = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(ETH_WAN, IFNAME), wan_ifname, sizeof(wan_ifname));
+	if (ret <= 0)
+		return (EXIT_FAILURE);
+
 	flag = utils_get_rc_act_type(argv[1]);
 
 	switch (flag) {
-	case RC_ACT_BOOT :
-		/* prepare /etc/keys directory first */
-		mkdir("/etc/keys", 0755);
-
-		/* prepare dm-crypt data partition key file */
-		pop_etc_keys_data_partition_key(RC_ACT_BOOT);
-
-		/* prepare dm-crypt data partition */
-		utils_mount_dmcrypt_data_partition_writable();
-
-		/* remove dm-crypt data partition key file */
-		pop_etc_keys_data_partition_key(RC_ACT_STOP);
-
-		ret = EXIT_SUCCESS;
-		break;
-
+	case RC_ACT_RESTART :
 	case RC_ACT_STOP :
-		/* remove dm-crypt data partition */
-		utils_umount_dmcrypt_data_partition();
+		/* bring down WAN interface */
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s down", CMD_IP, wan_ifname);
+		ret = utils_system(cmdline);
+		if (flag == RC_ACT_STOP) {
+			ret = EXIT_SUCCESS;
+			break;
+		}
 
+		/* RC_ACT_RESTART fall through */
+	case RC_ACT_BOOT :
+	case RC_ACT_START :
+		/* bring up WAN interface, but not config it */
+		snprintf(cmdline, sizeof(cmdline), "%s link set %s up", CMD_IP, wan_ifname);
+		ret = utils_system(cmdline);
 		ret = EXIT_SUCCESS;
 		break;
 
@@ -95,6 +92,6 @@ int env_action_dmcrypt_data_partition(int argc, char **argv)
 		ret = EXIT_FAILURE;
 		break;
 	}
+
 	return (ret);
 }
-

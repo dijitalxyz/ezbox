@@ -42,11 +42,34 @@
 
 #define FDISK_COMMAND_FILE	"/tmp/fdisk-command"
 
-static int generate_fdisk_command(char *name)
+#if 0
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, args...)
+#endif
+
+static int generate_fdisk_command(char *name, int boot_n, int swap_n, int data_n)
 {
-	FILE *fp = fopen(name, "w");
+	int memsize;
+	FILE *fp;
+
+	if (boot_n > 3)
+		return (EXIT_FAILURE);
+
+	fp = fopen(name, "w");
 	if (fp == NULL)
 		return (EXIT_FAILURE);
+
+	memsize = utils_get_mem_size_mb();
+	if (memsize < 1) {
+		memsize = 512;
+	}
 
 	/* sda1 */
 	/* add a new partition */
@@ -54,7 +77,7 @@ static int generate_fdisk_command(char *name)
 	/* primary partition */
 	fprintf(fp, "p\n");
 	/* partition number is 1 */
-	fprintf(fp, "1\n");
+	fprintf(fp, "%d\n", boot_n);
 	/* first cylinder use default */
 	fprintf(fp, "\n");
 	/* last cylinder use 256M */
@@ -63,7 +86,7 @@ static int generate_fdisk_command(char *name)
 	/* toggle a bootable flag */
 	fprintf(fp, "a\n");
 	/* partition number is 1 */
-	fprintf(fp, "1\n");
+	fprintf(fp, "%d\n", boot_n);
 
 	/* sda2 */
 	/* add a new partition */
@@ -71,7 +94,7 @@ static int generate_fdisk_command(char *name)
 	/* extended */
 	fprintf(fp, "e\n");
 	/* partition number is 2 */
-	fprintf(fp, "2\n");
+	fprintf(fp, "%d\n", boot_n+1);
 	/* first cylinder use default */
 	fprintf(fp, "\n");
 	/* last cylinder use default */
@@ -85,7 +108,7 @@ static int generate_fdisk_command(char *name)
 	/* first cylinder use default */
 	fprintf(fp, "\n");
 	/* last cylinder use 512M */
-	fprintf(fp, "+512M\n");
+	fprintf(fp, "+%dM\n", memsize);
 
 	/* change a partition's system id */
 	fprintf(fp, "t\n");
@@ -120,24 +143,29 @@ static int generate_grub_cfg(char *name)
 	FILE *fp;
 	int ret;
 
-	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, BOOT_ARGS) "=", boot_args, sizeof(boot_args));
+	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, BOOT_ARGS), boot_args, sizeof(boot_args));
 	if (ret < 0) {
+		DBG("%s(%d) utils_get_bootcfg_keyword(%s) error!\n", __func__, __LINE__, NVRAM_SERVICE_OPTION(SYS, BOOT_ARGS));
 		return (EXIT_FAILURE);
 	}
 
-	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, DISTRO_NAME) "=", distro_name, sizeof(distro_name));
+	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, DISTRO_NAME), distro_name, sizeof(distro_name));
 	if (ret < 0) {
+		DBG("%s(%d) utils_get_bootcfg_keyword(%s) error!\n", __func__, __LINE__, NVRAM_SERVICE_OPTION(SYS, DISTRO_NAME));
 		return (EXIT_FAILURE);
 	}
 
-	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION) "=", sw_ver, sizeof(sw_ver));
+	ret = utils_get_bootcfg_keyword(NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION), sw_ver, sizeof(sw_ver));
 	if (ret < 0) {
+		DBG("%s(%d) utils_get_bootcfg_keyword(%s) error!\n", __func__, __LINE__, NVRAM_SERVICE_OPTION(SYS, SOFTWARE_VERSION));
 		return (EXIT_FAILURE);
 	}
 
 	fp = fopen(name, "w");
-	if (fp == NULL)
+	if (fp == NULL) {
+		DBG("%s(%d) fopen(%s) error!\n", __func__, __LINE__, name);
 		return (EXIT_FAILURE);
+	}
 
 	fprintf(fp, "set default=\"%d\"\n", 0);
 	fprintf(fp, "set timeout=%d\n", 0);
@@ -159,13 +187,18 @@ int env_action_bootstrap(int argc, char **argv)
 #endif
 {
 	int ret, flag;
-	char cmd[256];
+	char buf[256];
 	char name[64];
 	char hdd_dev[64];
 	char boot_dev[64];
 	char data_dev[64];
+	char swap_dev[64];
 	char boot_mount_point[64];
 	char data_mount_point[64];
+	struct stat stat_buf;
+	int boot_n, swap_n, data_n;
+	char *fdisk_argv[] = { CMD_FDISK, buf, NULL };
+	char *xzcat_argv[] = { CMD_XZCAT, ROOTFS_IMAGE_FILE_PATH, NULL };
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
@@ -197,10 +230,39 @@ int env_action_bootstrap(int argc, char **argv)
 		return (EXIT_FAILURE);
 	}
 
+	/* get swap partition device name */
+	ret = utils_get_swap_device_path(swap_dev, sizeof(swap_dev));
+	if (ret < 1) {
+		return (EXIT_FAILURE);
+	}
+
 	if (strncmp(boot_dev, hdd_dev, strlen(hdd_dev)) != 0) {
 		return (EXIT_FAILURE);
 	}
 	if (strncmp(data_dev, hdd_dev, strlen(hdd_dev)) != 0) {
+		return (EXIT_FAILURE);
+	}
+	if (strncmp(swap_dev, hdd_dev, strlen(hdd_dev)) != 0) {
+		return (EXIT_FAILURE);
+	}
+	boot_n = atoi(boot_dev + strlen(hdd_dev));
+	data_n = atoi(data_dev + strlen(hdd_dev));
+	swap_n = atoi(swap_dev + strlen(hdd_dev));
+	if ((boot_n > 3) || (swap_n != 5) || (data_n != 6)) {
+		return (EXIT_FAILURE);
+	}
+
+	/* check vmlinuz is OK */
+	if ((stat(KERNEL_IMAGE_FILE_PATH, &stat_buf) != 0) ||
+	    (!S_ISREG(stat_buf.st_mode))) {
+		DBG("%s(%d) %s is not OK!\n", __func__, __LINE__, KERNEL_IMAGE_FILE_PATH);
+		return (EXIT_FAILURE);
+	}
+
+	/* check rootfs is OK */
+	if ((stat(ROOTFS_IMAGE_FILE_PATH, &stat_buf) != 0) ||
+	    (!S_ISREG(stat_buf.st_mode))) {
+		DBG("%s(%d) %s is not OK!\n", __func__, __LINE__, ROOTFS_IMAGE_FILE_PATH);
 		return (EXIT_FAILURE);
 	}
 
@@ -212,54 +274,92 @@ int env_action_bootstrap(int argc, char **argv)
 	switch (flag) {
 	case RC_ACT_START :
 		/* cleanup HDD partition table */
-		snprintf(cmd, sizeof(cmd), "%s if=/dev/zero of=/dev/%s bs=1024 count=1024", CMD_DD, hdd_dev);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s if=/dev/zero of=/dev/%s bs=1024 count=1024", CMD_DD, hdd_dev);
+		utils_system(buf);
 
 		/* generate fdisk command */
 		snprintf(name, sizeof(name), "%s-%d", FDISK_COMMAND_FILE, getpid());
-		generate_fdisk_command(name);
+		generate_fdisk_command(name, boot_n, swap_n, data_n);
 
 		/* make partitions */
-		snprintf(cmd, sizeof(cmd), "%s < %s", CMD_FDISK, name);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "/dev/%s", hdd_dev);
+		utils_execute(fdisk_argv, name, NULL, 0, NULL);
 
 		unlink(name);
 
+		/* populate /dev/sda1 ~ /dev/sda6 */
+		utils_udev_pop_nodes();
+
 		/* make boot device filesystem */
-		snprintf(cmd, sizeof(cmd), "%s /dev/%s", CMD_MKFS_EXT4, boot_dev);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s /dev/%s", CMD_MKFS_EXT4, boot_dev);
+		utils_system(buf);
 
 		/* mkdir -p boot_mount_point */
-		snprintf(cmd, sizeof(cmd), "%s -p %s", CMD_MKDIR, boot_mount_point);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s -p %s", CMD_MKDIR, boot_mount_point);
+		utils_system(buf);
 
 		/* mount boot partition */
-		snprintf(cmd, sizeof(cmd), "%s /dev/%s %s", CMD_MOUNT, boot_dev, boot_mount_point);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s /dev/%s %s", CMD_MOUNT, boot_dev, boot_mount_point);
+		utils_system(buf);
 
 		/* install bootloader */
-		snprintf(cmd, sizeof(cmd), "%s --boot-directory=%s /dev/%s", CMD_GRUB_INSTALL, boot_mount_point, hdd_dev);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s --boot-directory=%s /dev/%s", CMD_GRUB_INSTALL, boot_mount_point, hdd_dev);
+		utils_system(buf);
 
 		/* generate grub.cfg */
 		snprintf(name, sizeof(name), "%s/grub/grub.cfg", boot_mount_point);
 		generate_grub_cfg(name);
 
 		/* copy needed boot files */
-		snprintf(cmd, sizeof(cmd), "%s /boot/* %s/", CMD_CP, boot_mount_point);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, BOOT_CONFIG_FILE_PATH, boot_mount_point);
+		utils_system(buf);
+		snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, BOOT_CONFIG_DEFAULT_FILE_PATH, boot_mount_point);
+		utils_system(buf);
+		snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, KERNEL_IMAGE_FILE_PATH, boot_mount_point);
+		utils_system(buf);
+		snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, ROOTFS_IMAGE_FILE_PATH, boot_mount_point);
+		utils_system(buf);
+		if ((stat(ROOTFS_CONFIG_FILE_PATH, &stat_buf) == 0) &&
+		    (S_ISREG(stat_buf.st_mode))) {
+			snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, ROOTFS_CONFIG_FILE_PATH, boot_mount_point);
+			utils_system(buf);
+		}
+		if ((stat(UPGRADE_CONFIG_FILE_PATH, &stat_buf) == 0) &&
+		    (S_ISREG(stat_buf.st_mode))) {
+			snprintf(buf, sizeof(buf), "%s -af %s %s/", CMD_CP, UPGRADE_CONFIG_FILE_PATH, boot_mount_point);
+			utils_system(buf);
+		}
 
 		/* umount boot partition */
-		snprintf(cmd, sizeof(cmd), "%s %s", CMD_UMOUNT, boot_mount_point);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, boot_mount_point);
+		utils_system(buf);
+
+		/* make swap partition */
+		snprintf(buf, sizeof(buf), "%s /dev/%s", CMD_MKSWAP, swap_dev);
+		utils_system(buf);
 
 		/* make data device filesystem */
-		snprintf(cmd, sizeof(cmd), "%s /dev/%s", CMD_MKFS_EXT4, data_dev);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s /dev/%s", CMD_MKFS_EXT4, data_dev);
+		utils_system(buf);
+
+		/* mkdir -p data_mount_point */
+		snprintf(buf, sizeof(buf), "%s -p %s", CMD_MKDIR, data_mount_point);
+		utils_system(buf);
 
 		/* mount data partition */
-		snprintf(cmd, sizeof(cmd), "%s /dev/%s %s", CMD_MOUNT, data_dev, data_mount_point);
-		utils_system(cmd);
+		snprintf(buf, sizeof(buf), "%s /dev/%s %s", CMD_MOUNT, data_dev, data_mount_point);
+		utils_system(buf);
+
+		/* uncompress rootfs image */
+		snprintf(name, sizeof(name), ">%s/rootfs-%d.tar", data_mount_point, getpid());
+		utils_execute(xzcat_argv, NULL, name, 0, NULL);
+		snprintf(buf, sizeof(buf), "%s -C %s -vxf %s", CMD_TAR, data_mount_point, name+1);
+		utils_system(buf);
+		unlink(name+1);
+
+		/* umount data partition */
+		snprintf(buf, sizeof(buf), "%s %s", CMD_UMOUNT, data_mount_point);
+		utils_system(buf);
 
 		ret = EXIT_SUCCESS;
 		break;
