@@ -23,6 +23,10 @@ sys.modules=e1000,r8169,ehci-hcd,ohci-hcd,usb-storage,libahci,ahci,dm-crypt,cryp
 ####################
 # ezcfg config
 ####################
+ezcfg.sys.language=zh_CN
+ezcfg.sys.tz_area=Asia
+ezcfg.sys.tz_location=Shanghai
+ezcfg.sys.restore_defaults=1
 ezcfg.common.log_level=err
 ezcfg.common.rules_path=/etc/ezcfg.rules
 ezcfg.common.root_path=/etc/ezcfg
@@ -60,3 +64,15 @@ ezcfg.auth.0.user=root
 ezcfg.auth.0.realm=ezbox
 ezcfg.auth.0.domain=/admin/
 ezcfg.auth.0.secret=admin
+# LAN settings
+eth_lan.ifname=eth1
+wifi_lan.ifname=wlan0
+br_lan.ifnames=eth1 wlan0
+# WAN settings
+eth_wan.ifname=eth0
+wan.ifname=eth0
+wan.static_ifname=eth0
+wan.dhcp_ifname=eth0
+# LAN network settings
+lan.ipaddr=192.168.99.1
+lan.netmask=255.255.255.0
