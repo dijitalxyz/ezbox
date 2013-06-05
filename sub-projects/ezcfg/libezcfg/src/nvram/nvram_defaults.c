@@ -31,10 +31,6 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	{ NVRAM_SERVICE_OPTION(SYS, SOFTWARE_REVISION), "001" }, /* 001 */
 	{ NVRAM_SERVICE_OPTION(SYS, HDD_DEVICE), "sda" }, /* sda */
 	{ NVRAM_SERVICE_OPTION(SYS, BOOT_ARGS), "boot_dev=sda1,ext4" }, /* sda1,ext4 */
-	{ NVRAM_SERVICE_OPTION(SYS, LANGUAGE), "zh_CN" }, /* zh_CN */
-	{ NVRAM_SERVICE_OPTION(SYS, TZ_AREA), "Asia" }, /* Asia */
-	{ NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), "Shanghai" }, /* Shanghai */
-	{ NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
 
 #if 0
 	/* system network interfaces, LAN_NIC+WAN_NIC */
@@ -111,6 +107,11 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/*--------------------*/
 	/* EZCFG parameters */
 	/*--------------------*/
+	{ NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE), "zh_CN" }, /* zh_CN */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), "Asia" }, /* Asia */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), "Shanghai" }, /* Shanghai */
+	{ NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "0" }, /* Set to 0 not restore defaults on boot */
+
 	/* EZCFG common log level */
 	{ NVRAM_SERVICE_OPTION(EZCFG, COMMON_LOG_LEVEL),
 	  EZCFG_COMMON_LOG_LEVEL_ERR_STRING }, /* err | info | debug */
@@ -1793,7 +1794,7 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 
 char *default_nvram_savings[] = {
 	NVRAM_SERVICE_OPTION(SYS, SERIAL_NUMBER),
-	NVRAM_SERVICE_OPTION(SYS, LANGUAGE),
+	NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE),
 };
 
 /* Public functions */

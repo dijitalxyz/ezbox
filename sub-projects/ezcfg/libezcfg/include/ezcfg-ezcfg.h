@@ -20,6 +20,20 @@
 /* ezcfg file trailing charlist */
 #define EZCFG_EZCFG_TRAILING_CHARLIST       "\r\n\t "
 
+/* ezcfg config [sys] section */
+#define EZCFG_EZCFG_SECTION_SYS             "sys"
+#define EZCFG_EZCFG_KEYWORD_LANGUAGE        "language"
+#define EZCFG_EZCFG_KEYWORD_TZ_AREA         "tz_area"
+#define EZCFG_EZCFG_KEYWORD_TZ_LOCATION     "tz_location"
+
+#define EZCFG_EZCFG_KEYWORD_RESTORE_DEFAULTS \
+	"restore_defaults"
+
+#define EZCFG_EZCFG_SYS_LANGUAGE            "sys.language"
+#define EZCFG_EZCFG_SYS_TZ_AREA             "sys.tz_area"
+#define EZCFG_EZCFG_SYS_TZ_LOCATION         "sys.tz_location"
+#define EZCFG_EZCFG_SYS_RESTORE_DEFAULTS    "sys.restore_defaults"
+
 /* ezcfg config [common] section */
 #define EZCFG_EZCFG_SECTION_COMMON          "common"
 

@@ -52,7 +52,7 @@ static bool wan_type_validator(const char *value)
 
 ezcfg_nv_validator_t default_nvram_validators[] = {
 	/* System configuration */
-	{ NVRAM_SERVICE_OPTION(SYS, LANGUAGE), sys_language_validator },
+	{ NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE), sys_language_validator },
 
 	/* UI configuration */
 	{ NVRAM_SERVICE_OPTION(UI, TZ_AREA), ui_tz_area_validator },

@@ -29,14 +29,15 @@
 #define EZCFG_SYS_HDD_DEVICE              "hdd_device"
 #define EZCFG_SYS_BOOT_ARGS               "boot_args"
 
+#define EZCFG_SYS_UPGRADE_IMAGE           "upgrade_image"
+
+#if 0
 #define EZCFG_SYS_LANGUAGE                "language"
 #define EZCFG_SYS_TZ_AREA                 "tz_area"
 #define EZCFG_SYS_TZ_LOCATION             "tz_location"
 
 #define EZCFG_SYS_RESTORE_DEFAULTS        "restore_defaults"
-#define EZCFG_SYS_UPGRADE_IMAGE           "upgrade_image"
 
-#if 0
 #define EZCFG_SYS_NICS                    "nics"
 #define EZCFG_SYS_ETH_LAN_NIC             "eth_lan_nic"
 #define EZCFG_SYS_WIFI_LAN_NIC            "wifi_lan_nic"

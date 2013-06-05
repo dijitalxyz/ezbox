@@ -119,8 +119,9 @@ int env_action_nvram(int argc, char **argv)
 		pop_etc_nvram_conf(RC_ACT_BOOT);
 #endif
 		/* update nvram with ezbox_boot.cfg */
-		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH, NULL);
-		ret = EXIT_SUCCESS;
+		DBG("%s(%d)!\n", __func__, __LINE__);
+		ret = utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH, NULL);
+		DBG("%s(%d)!\n", __func__, __LINE__);
 		break;
 
 	case RC_ACT_RELOAD :
@@ -128,23 +129,40 @@ int env_action_nvram(int argc, char **argv)
 		/* re-generate nvram config file */
 		pop_etc_nvram_conf(RC_ACT_RELOAD);
 #endif
-		/* update nvram with ezbox_boot.cfg not including "sys." prefix*/
-		utils_sync_nvram_with_cfg(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
+		/* stop */
+		/* first make /boot writable */
+		utils_remount_boot_partition_writable();
+		/* update ezbox_boot.cfg with nvram not including "sys." prefix */
+		ret = utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
+		/* make /boot read-only */
+		utils_remount_boot_partition_readonly();
+
+		/* start */
 		/* update nvram with ezbox_upgrade.cfg */
-		utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH, NULL);
-		ret = EXIT_SUCCESS;
+		ret = utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH, NULL);
+		if (ret == EXIT_SUCCESS) {
+			if (ezcfg_api_nvram_commit() < 0) {
+				ret = EXIT_FAILURE;
+			}
+			else {
+				/* remove ezbox_upgrade.cfg */
+				unlink(UPGRADE_CONFIG_FILE_PATH);
+				ret = EXIT_SUCCESS;
+			}
+		}
 		break;
 
 	case RC_ACT_STOP :
 		/* first make /boot writable */
 		utils_remount_boot_partition_writable();
+#if 0
 		/* remove ezbox_upgrade.cfg */
 		unlink(UPGRADE_CONFIG_FILE_PATH);
+#endif
 		/* update ezbox_boot.cfg with nvram not including "sys." prefix */
-		utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
+		ret = utils_sync_cfg_with_nvram(BOOT_CONFIG_FILE_PATH, "!" EZCFG_SYS_NVRAM_PREFIX);
 		/* make /boot read-only */
 		utils_remount_boot_partition_readonly();
-		ret = EXIT_SUCCESS;
 		break;
 
 	case RC_ACT_USRDEF :

@@ -77,7 +77,21 @@ bool utils_boot_partition_is_ready(void)
 	if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) != 0) ||
 	    (!S_ISREG(stat_buf.st_mode))) {
 		DBG("%s(%d) %s is not OK!\n", __func__, __LINE__, BOOT_CONFIG_FILE_PATH);
-		return false;
+		if ((stat(BOOT_CONFIG_DEFAULT_FILE_PATH, &stat_buf) != 0) ||
+		    (!S_ISREG(stat_buf.st_mode))) {
+			DBG("%s(%d) %s is not OK too!\n", __func__, __LINE__, BOOT_CONFIG_DEFAULT_FILE_PATH);
+			return false;
+		}
+		/* remove ezbox_boot.cfg */
+		utils_system("rm -rf " BOOT_CONFIG_FILE_PATH);
+		/* copy default ezbox_boot.cfg.dft ezbox_boot.cfg */
+		utils_system("cp -f " BOOT_CONFIG_DEFAULT_FILE_PATH " " BOOT_CONFIG_FILE_PATH);
+		/* double check if ezbox_boot.cfg is OK */
+		if ((stat(BOOT_CONFIG_FILE_PATH, &stat_buf) != 0) ||
+		    (!S_ISREG(stat_buf.st_mode))) {
+			DBG("%s(%d) %s is not OK after copy!\n", __func__, __LINE__, BOOT_CONFIG_FILE_PATH);
+			return false;
+		}
 	}
 
 	/* root_path */
@@ -143,6 +157,20 @@ bool utils_boot_partition_is_ready(void)
 	ret = utils_get_bootcfg_keyword(name, buf, sizeof(buf));
 	if (ret < 1) {
 		DBG("%s(%d) utils_get_bootcfg_keyword(%s)=[%s] error!\n", __func__, __LINE__, name, buf);
+		return false;
+	}
+
+	/* check vmlinuz is OK */
+	if ((stat(KERNEL_IMAGE_FILE_PATH, &stat_buf) != 0) ||
+	    (!S_ISREG(stat_buf.st_mode))) {
+		DBG("%s(%d) %s is not OK!\n", __func__, __LINE__, KERNEL_IMAGE_FILE_PATH);
+		return false;
+	}
+
+	/* check rootfs image is OK */
+	if ((stat(ROOTFS_IMAGE_FILE_PATH, &stat_buf) != 0) ||
+	    (!S_ISREG(stat_buf.st_mode))) {
+		DBG("%s(%d) %s is not OK!\n", __func__, __LINE__, ROOTFS_IMAGE_FILE_PATH);
 		return false;
 	}
 

@@ -889,11 +889,15 @@ static bool nvram_load_by_defaults(struct ezcfg_nvram *nvram, const int flag)
 {
 	struct ezcfg *ezcfg;
 	ezcfg_nv_pair_t *nvp;
+	char *data, *p;
 	int i;
 
 	ezcfg = nvram->ezcfg;
+	data = nvram->buffer + sizeof(struct nvram_header);
 
-	/* clean up runtime generated nvram values */
+	DBG("%s(%d) flag=[%d]\n", __func__, __LINE__, flag);
+
+	/* clean up runtime generated nvram values for init */
 	if (flag == NV_INIT) {
 		if (nvram_cleanup_runtime_entries(nvram) == false)
 			return false;
@@ -902,11 +906,25 @@ static bool nvram_load_by_defaults(struct ezcfg_nvram *nvram, const int flag)
 	/* fill missing critic nvram with default settings */
 	for (i=0; i<nvram->num_default_settings; i++) {
 		nvp = &nvram->default_settings[i];
+
+		DBG("%s(%d) name=[%s] value=[%s]\n", __func__, __LINE__, nvp->name, nvp->value);
+		/* skip setting name/value in reload if it's set already */
+		if (flag ==  NV_RELOAD) {
+			/* find nvram entry position */
+			p = find_nvram_entry_position(data, nvp->name);
+			if (*p != '\0') {
+				/* find nvram entry */
+				DBG("%s(%d) name=[%s] continue p=[%s]\n", __func__, __LINE__, nvp->name, p);
+				continue;
+			}
+		}
+
 		if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
 			err(ezcfg, "set nvram entry error.\n");
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -1192,19 +1210,19 @@ static void sync_ui_settings(struct ezcfg_nvram *nvram)
 	/* UI setting has been finished */
 	if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
 		/* ui_tz_area */
-		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(SYS, TZ_AREA)) == false) {
+		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA)) == false) {
 			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
 			if (p != NULL) {
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), p);
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), p);
 				free(p);
 			}
 		}
 
 		/* ui_tz_location */
-		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION)) == false) {
+		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION)) == false) {
 			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
 			if (p != NULL) {
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), p);
+				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), p);
 				free(p);
 			}
 		}
@@ -1330,6 +1348,47 @@ static void nvram_check_entries(struct ezcfg_nvram *nvram)
 {
 	/* sync UI settings */
 	check_sys_settings(nvram);
+}
+
+static bool nvram_commit(struct ezcfg_nvram *nvram)
+{
+	struct ezcfg *ezcfg;
+	bool ret;
+	int i;
+
+	ezcfg = nvram->ezcfg;
+
+	/* check nvram entries */
+	nvram_check_entries(nvram);
+
+	/* sync nvram entries */
+	nvram_sync_entries(nvram);
+
+	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
+		switch (nvram->storage[i].backend) {
+		case EZCFG_NVRAM_BACKEND_NONE :
+			info(ezcfg, "nvram in memory only, do nothing\n");
+			ret = true;
+			break;
+
+		case EZCFG_NVRAM_BACKEND_FILE :
+			info(ezcfg, "nvram store on file-system file\n");
+			ret = nvram_commit_to_file(nvram, i);
+			break;
+
+		case EZCFG_NVRAM_BACKEND_FLASH :
+			info(ezcfg, "nvram store on flash chip\n");
+			ret = nvram_commit_to_flash(nvram, i);
+			break;
+
+		default:
+			err(ezcfg, "unknown nvram type.\n");
+			ret = false;
+			break;
+		}
+	}
+
+	return ret;
 }
 
 /*
@@ -1737,17 +1796,17 @@ bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
 
 bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 {
-	struct ezcfg *ezcfg;
+	//struct ezcfg *ezcfg;
 	bool ret;
-	int i;
 
 	ASSERT(nvram != NULL);
 
-	ezcfg = nvram->ezcfg;
+	//ezcfg = nvram->ezcfg;
 
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
+#if 0
 	/* check nvram entries */
 	nvram_check_entries(nvram);
 
@@ -1777,6 +1836,9 @@ bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 			break;
 		}
 	}
+#else
+	ret = nvram_commit(nvram);
+#endif
 
 	/* unlock nvram access */
 	pthread_mutex_unlock(&nvram->mutex);
@@ -1907,39 +1969,60 @@ bool ezcfg_nvram_load(struct ezcfg_nvram *nvram, int flag)
 	/* lock nvram access */
 	pthread_mutex_lock(&nvram->mutex);
 
-	/* break the loop when load is OK */
-	for (i = 0; (ret == false) && (i < EZCFG_NVRAM_STORAGE_NUM); i++) {
-		switch (nvram->storage[i].backend) {
-		case EZCFG_NVRAM_BACKEND_NONE :
-			ret = nvram_load_by_defaults(nvram, flag);
-			break;
+	/* check if restore_defaults is set */
+	if ((flag == NV_RELOAD) && (nvram_match_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "1") == true)) {
 
-		case EZCFG_NVRAM_BACKEND_FILE :
-			ret = nvram_load_from_file(nvram, i, flag);
+		info(ezcfg, "restore system defaults.\n");
+
+		/* set default settings */
+		ret = nvram_load_by_defaults(nvram, flag);
+
+		/* clean up restore_defaults flag */
+		if (ret == true) {
+			ret = nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "0");
 			if (ret == false) {
-				err(ezcfg, "nvram_load_from_file fail, use default settings.\n");
-				ret = nvram_load_by_defaults(nvram, flag);
+				err(ezcfg, "clean up restore system defaults flag fail.\n");
 			}
-			break;
-
-		case EZCFG_NVRAM_BACKEND_FLASH :
-			ret = nvram_load_from_flash(nvram, i, flag);
-			if (ret == false) {
-				err(ezcfg, "nvram_load_from_flash fail, use default settings.\n");
+			ret = nvram_commit(nvram);
+		}
+	}
+	else {
+		/* break the loop when load is OK */
+		for (i = 0; (ret == false) && (i < EZCFG_NVRAM_STORAGE_NUM); i++) {
+			switch (nvram->storage[i].backend) {
+			case EZCFG_NVRAM_BACKEND_NONE :
 				ret = nvram_load_by_defaults(nvram, flag);
-			}
-			break;
+				break;
 
-		default:
-			err(ezcfg, "unknown nvram type.\n");
-			ret = false;
-			break;
+			case EZCFG_NVRAM_BACKEND_FILE :
+				ret = nvram_load_from_file(nvram, i, flag);
+				if (ret == false) {
+					err(ezcfg, "nvram_load_from_file fail, use default settings.\n");
+					ret = nvram_load_by_defaults(nvram, flag);
+				}
+				break;
+
+			case EZCFG_NVRAM_BACKEND_FLASH :
+				ret = nvram_load_from_flash(nvram, i, flag);
+				if (ret == false) {
+					err(ezcfg, "nvram_load_from_flash fail, use default settings.\n");
+					ret = nvram_load_by_defaults(nvram, flag);
+				}
+				break;
+
+			default:
+				err(ezcfg, "unknown nvram type.\n");
+				ret = false;
+				break;
+			}
 		}
 	}
 
+#if 0
 	/* check if restore_defaults is set */
-	if ((flag == NV_INIT) && (nvram_match_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true)) {
+	if ((flag == NV_RELOAD) && (nvram_match_entry_value(nvram,
+		NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "1") == true)) {
 		struct ezcfg_link_list *list=NULL;
 		char *name, *value;
 
@@ -1990,6 +2073,7 @@ restore_out:
 		if (list != NULL)
 			ezcfg_link_list_delete(list);
 	}
+#endif
 
 	/* check nvram entries */
 	nvram_check_entries(nvram);

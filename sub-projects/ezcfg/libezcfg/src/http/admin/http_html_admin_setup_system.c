@@ -114,11 +114,11 @@ static int set_html_main_setup_system(
 		err(ezcfg, "ezcfg_html_add_body_child error.\n");
 		goto func_exit;
 	}
-	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, select_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <p>Language : <select><option></option></select> </p> */
 	buf[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE), &p);
 	if (p != NULL) {
 		snprintf(buf, sizeof(buf), "%s", p);
 		free(p);
@@ -170,7 +170,7 @@ static int set_html_main_setup_system(
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
 	if (p == NULL) {
 		/* ui_tz_area is not set, use sys_tz_area */
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), &p);
 	}
 	if (p != NULL) {
 		snprintf(tz_area, sizeof(tz_area), "%s", p);
@@ -190,7 +190,7 @@ static int set_html_main_setup_system(
 		}
 	}
 
-	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), tz_area) == false) {
+	if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), tz_area) == false) {
 		/* <p>  (Warning : time zone area has been changed, please set location again!)</p> */
 		snprintf(buf, sizeof(buf), "%s%s%s%s%s",
 			ezcfg_locale_text(locale, " ("),
@@ -231,7 +231,7 @@ static int set_html_main_setup_system(
 	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
 	if (p == NULL) {
 		/* ui_tz_location is not set, use sys_tz_location */
-		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+		ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), &p);
 	}
 	if (p != NULL) {
 		snprintf(tz_location, sizeof(tz_location), "%s", p);
@@ -422,11 +422,11 @@ static bool do_admin_setup_system_action(struct ezcfg_http_html_admin *admin)
 		tz_location = ezcfg_link_list_get_node_value_by_name(list, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION));
 		if ((tz_area != NULL) && (tz_location != NULL)) {
 			if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
-				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), tz_area);
+				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), tz_area);
 				if (ret == false) {
 					return false;
 				}
-				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), tz_location);
+				ret = ezcfg_link_list_insert(list, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), tz_location);
 				if (ret == false) {
 					return false;
 				}

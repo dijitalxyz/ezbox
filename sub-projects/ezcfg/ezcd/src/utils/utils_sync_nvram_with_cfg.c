@@ -39,6 +39,18 @@
 
 #include "ezcd.h"
 
+#if 0
+#define DBG(format, args...) do {\
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
+	} \
+} while(0)
+#else
+#define DBG(format, arg...)
+#endif
+
 /*
  * prefix pattern format: [!][a-z|A-Z][a-z|A-Z|0-9|_|.]
  */
@@ -52,6 +64,7 @@ int utils_sync_nvram_with_cfg(char *path, char *pattern)
 	int prefix_len = 0;
 	int negative = 0;
 	int rc;
+	int ret = EXIT_SUCCESS;
 
 	if (path == NULL)
 		return EXIT_FAILURE;
@@ -78,7 +91,14 @@ int utils_sync_nvram_with_cfg(char *path, char *pattern)
 				if (negative == 1) {
 					/* skip setting nvram name matched prefix */
 					if (strncmp(keyword, prefix, prefix_len) != 0) {
-						rc = ezcfg_api_nvram_set(keyword, value);
+						DBG("%s(%d) keyword=[%s] value=[%s]\n", __func__, __LINE__, keyword, value);
+						if (*value == '\0') {
+							rc = ezcfg_api_nvram_unset(keyword);
+						}
+						else {
+							rc = ezcfg_api_nvram_set(keyword, value);
+						}
+						DBG("%s(%d)\n", __func__, __LINE__);
 					}
 					else {
 						rc = 0;
@@ -87,7 +107,14 @@ int utils_sync_nvram_with_cfg(char *path, char *pattern)
 				else {
 					/* only set nvram name matched prefix */
 					if (strncmp(keyword, prefix, prefix_len) == 0) {
-						rc = ezcfg_api_nvram_set(keyword, value);
+						DBG("%s(%d) keyword=[%s] value=[%s]\n", __func__, __LINE__, keyword, value);
+						if (*value == '\0') {
+							rc = ezcfg_api_nvram_unset(keyword);
+						}
+						else {
+							rc = ezcfg_api_nvram_set(keyword, value);
+						}
+						DBG("%s(%d)\n", __func__, __LINE__);
 					}
 					else {
 						rc = 0;
@@ -96,15 +123,21 @@ int utils_sync_nvram_with_cfg(char *path, char *pattern)
 			}
 			else {
 				/* set all nvram in file */
-				rc = ezcfg_api_nvram_set(keyword, value);
+				DBG("%s(%d) keyword=[%s] value=[%s]\n", __func__, __LINE__, keyword, value);
+				if (*value == '\0') {
+					rc = ezcfg_api_nvram_unset(keyword);
+				}
+				else {
+					rc = ezcfg_api_nvram_set(keyword, value);
+				}
+				DBG("%s(%d)\n", __func__, __LINE__);
 			}
 			if (rc < 0) {
-				fclose(file);
-				return EXIT_FAILURE;
+				ret = EXIT_FAILURE;
 			}
 		}
 	}
 
 	fclose(file);
-	return EXIT_SUCCESS;
+	return (ret);
 }

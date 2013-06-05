@@ -199,7 +199,7 @@ static int set_html_main_status_system(
 
 	/* <p>Language : Chinese (China) </p> */
 	lang[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, LANGUAGE), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_LANGUAGE), &p);
 	if (p != NULL) {
 		snprintf(lang, sizeof(lang), "%s", p);
 		free(p);
@@ -226,13 +226,13 @@ static int set_html_main_status_system(
 
 	/* <p>Time Zone : Asia/Shanghai</p> */
 	tz_area[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_AREA), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), &p);
 	if (p != NULL) {
 		snprintf(tz_area, sizeof(tz_area), "%s", p);
 		free(p);
 	}
 	tz_location[0] = '\0';
-	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, TZ_LOCATION), &p);
+	ezcfg_nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), &p);
 	if (p != NULL) {
 		snprintf(tz_location, sizeof(tz_location), "%s", p);
 		free(p);

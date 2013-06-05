@@ -236,7 +236,7 @@ static int set_html_main_management_default(
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "1", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
 	/* <i> Yes </i> */
@@ -257,7 +257,7 @@ static int set_html_main_management_default(
 		goto func_exit;
 	}
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_TYPE_ATTRIBUTE_NAME, EZCFG_HTTP_HTML_ADMIN_INPUT_TYPE_RADIO, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
-	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
+	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_NAME_ATTRIBUTE_NAME, NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_VALUE_ATTRIBUTE_NAME, "0", EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 	ezcfg_html_add_body_child_attribute(html, input_index, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_HTML_CHECKED_ATTRIBUTE_NAME, EZCFG_XML_ELEMENT_ATTRIBUTE_TAIL);
 
@@ -605,7 +605,7 @@ int ezcfg_http_html_admin_management_default_handler(struct ezcfg_http_html_admi
 		/* do post handling */
 		handle_admin_management_default_post(admin);
 		/* do service actions */
-		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(SYS, RESTORE_DEFAULTS), "1") == true) {
+		if (ezcfg_nvram_match_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "1") == true) {
 			ezcfg_util_rc(EZCFG_RC_SERVICE_SYSTEM, EZCFG_RC_ACT_RESTART, 1);
 			ret = build_admin_management_default_result(admin);
 			return ret;
