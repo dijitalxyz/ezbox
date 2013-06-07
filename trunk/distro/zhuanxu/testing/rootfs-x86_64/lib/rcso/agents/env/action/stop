@@ -1,7 +1,5 @@
 # stop WAN interface binding services
 #action wan services_stop
-# stop WAN PPPoE ppp deamon
-ppp_rp_pppoe wan stop
 # bring down WAN interface
 wan stop
 # stop LAN interface binding services
