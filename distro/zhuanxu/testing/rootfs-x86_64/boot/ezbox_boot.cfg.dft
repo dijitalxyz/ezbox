@@ -43,8 +43,6 @@ ezcfg.common.sock_uevent_path=@/etc/ezcfg/sock/uevent
 ezcfg.common.sock_master_path=@/etc/ezcfg/sock/master
 ezcfg.common.web_document_root_path=/var/ezcfg/www
 ezcfg.common.locale=zh_CN.UTF-8
-ezcfg.common.socket_number=1
-ezcfg.common.auth_number=1
 ezcfg.ezctp.shm_size=512000
 ezcfg.ezctp.cq_unit_size=512
 ezcfg.nvram.0.buffer_size=65536
@@ -55,24 +53,41 @@ ezcfg.nvram.1.buffer_size=65536
 ezcfg.nvram.1.backend_type=1
 ezcfg.nvram.1.coding_type=0
 ezcfg.nvram.1.storage_path=/var/ezcfg/nvram_backup.bin
+# socket
+ezcfg.common.socket_number=2
 ezcfg.socket.0.domain=inet
 ezcfg.socket.0.type=stream
 ezcfg.socket.0.protocol=http
 ezcfg.socket.0.address=127.0.0.1:80
+ezcfg.socket.1.domain=inet
+ezcfg.socket.1.type=stream
+ezcfg.socket.1.protocol=http
+ezcfg.socket.1.address=10.0.3.10:80
+# authentication
+ezcfg.common.auth_number=1
 ezcfg.auth.0.type=http-basic
 ezcfg.auth.0.user=root
 ezcfg.auth.0.realm=ezbox
 ezcfg.auth.0.domain=/admin/
 ezcfg.auth.0.secret=admin
+# embedded HTTP service
+ezcfg.httpd.enable=1
+ezcfg.httpd.http=1
+ezcfg.httpd.https=0
+ezcfg.httpd.binding=wan
 # LAN settings
 eth_lan.ifname=eth1
 wifi_lan.ifname=wlan0
 br_lan.ifnames=eth1 wlan0
 # WAN settings
 eth_wan.ifname=eth0
+wan.type=static
 wan.ifname=eth0
-wan.static_ifname=eth0
 wan.dhcp_ifname=eth0
+wan.static_ifname=eth0
+wan.static_ipaddr=10.0.3.10
+wan.static_netmask=255.255.255.0
+wan.static_gateway=10.0.3.1
 # LAN network settings
 lan.ipaddr=192.168.99.1
 lan.netmask=255.255.255.0

@@ -55,8 +55,3 @@ openssl start
 #action lan services_start
 # bring up WAN interface and configurate it
 wan start
-# prepare PPP files
-ppp_pap_secrets start
-ppp_chap_secrets start
-# start WAN PPPoE ppp deamon
-ppp_rp_pppoe wan start
