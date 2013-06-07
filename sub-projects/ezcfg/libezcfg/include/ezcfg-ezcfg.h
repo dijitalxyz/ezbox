@@ -181,18 +181,18 @@
 #define EZCFG_EZCFG_UPNP_1_DESCRIPTION_PATH "upnp.1.description_path"
 #define EZCFG_EZCFG_UPNP_1_INTERFACE        "upnp.1.interface"
 
-#define EZCFG_EZCFG_HTTPD_ENABLE            "httpd_enable"
-#define EZCFG_EZCFG_HTTPD_HTTP              "httpd_http"
-#define EZCFG_EZCFG_HTTPD_HTTPS             "httpd_https"
-#define EZCFG_EZCFG_HTTPD_BINDING           "httpd_binding"
+#define EZCFG_EZCFG_HTTPD_ENABLE            "httpd.enable"
+#define EZCFG_EZCFG_HTTPD_HTTP              "httpd.http"
+#define EZCFG_EZCFG_HTTPD_HTTPS             "httpd.https"
+#define EZCFG_EZCFG_HTTPD_BINDING           "httpd.binding"
 
-#define EZCFG_EZCFG_UPNPD_ENABLE            "upnpd_enable"
-#define EZCFG_EZCFG_UPNPD_BINDING           "upnpd_binding"
+#define EZCFG_EZCFG_UPNPD_ENABLE            "upnpd.enable"
+#define EZCFG_EZCFG_UPNPD_BINDING           "upnpd.binding"
 
-#define EZCFG_EZCFG_UPNPD_IGD1_ENABLE       "upnpd_igd1_enable"
+#define EZCFG_EZCFG_UPNPD_IGD1_ENABLE       "upnpd.igd1_enable"
 
-#define EZCFG_EZCFG_IGRSD_ENABLE            "igrsd_enable"
-#define EZCFG_EZCFG_IGRSD_BINDING           "igrsd_binding"
+#define EZCFG_EZCFG_IGRSD_ENABLE            "igrsd.enable"
+#define EZCFG_EZCFG_IGRSD_BINDING           "igrsd.binding"
 
 /* ezcfg config [ezctp] section */
 #define EZCFG_EZCFG_SECTION_EZCTP           "ezctp"
