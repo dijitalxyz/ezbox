@@ -1,11 +1,11 @@
-c:lang/python/python-2.7.3:lang/python
+# c:lang/python/python-2.7.3:lang/python
 # c:lang/python-libxml2/python-libxml2-2.7.8:lang/python-libxml2
 c:libs/alsa-lib/alsa-lib-1.0.24.1:libs/alsa-lib
 # c:libs/check/check-0.9.8:libs/check
 c:libs/expat/expat-2.0.1:libs/expat
-c:libs/freetype/freetype-2.3.12:libs/freetype
+# c:libs/freetype/freetype-2.3.12:libs/freetype
 c:libs/gettext-full/gettext-full-0.18.1.1:libs/gettext-full
-c:libs/glib2/glib2-2.26.1:libs/glib2
+# c:libs/glib2/glib2-2.26.1:libs/glib2
 c:libs/gmp/gmp-4.3.1:libs/gmp
 c:libs/gnutls/gnutls-2.8.6:libs/gnutls
 c:libs/intltool/intltool-0.40:libs/intltool
