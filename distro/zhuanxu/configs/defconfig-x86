@@ -1321,8 +1321,6 @@ CONFIG_PACKAGE_libsndfile=y
 CONFIG_PACKAGE_libspeex=y
 CONFIG_PACKAGE_libspeexdsp=y
 CONFIG_PACKAGE_libuuid=y
-CONFIG_PACKAGE_libvirt=y
-CONFIG_PACKAGE_libxml2=y
 CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_zlib=y
 

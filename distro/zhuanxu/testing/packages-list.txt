@@ -18,8 +18,8 @@ c:libs/libnetfilter-conntrack/libnetfilter-conntrack-0.9.1:libs/libnetfilter-con
 c:libs/libnfnetlink/libnfnetlink-1.0.0:libs/libnfnetlink
 c:libs/libpthread-stubs/libpthread-stubs-0.1:libs/libpthread-stubs
 c:libs/libsndfile/libsndfile-1.0.25:libs/libsndfile
-c:libs/libvirt/libvirt-1.0.2:libs/libvirt
-c:libs/libxml2/libxml2-2.7.8:libs/libxml2
+# c:libs/libvirt/libvirt-1.0.2:libs/libvirt
+# c:libs/libxml2/libxml2-2.7.8:libs/libxml2
 c:libs/popt/popt-1.7:libs/popt
 c:libs/speex/speex-1.2rc1:libs/speex
 c:net/aoetools/aoetools-32:net/aoetools
