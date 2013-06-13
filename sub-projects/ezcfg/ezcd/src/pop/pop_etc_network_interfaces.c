@@ -54,6 +54,7 @@ static int set_lan_interface(FILE *file)
 	char lan_ifname[IFNAMSIZ];
 	int lan_ipaddr[4];
 	int lan_netmask[4];
+	int lan_gateway[4];
 	char buf[128];
 	int rc;
 
@@ -84,6 +85,17 @@ static int set_lan_interface(FILE *file)
 	       &lan_netmask[3]) != 4)
 		return (EXIT_FAILURE);
 
+	rc = ezcfg_api_nvram_get(NVRAM_SERVICE_OPTION(LAN, GATEWAY), buf, sizeof(buf));
+	if (rc < 0)
+		return (EXIT_FAILURE);
+
+	if (sscanf(buf, "%d.%d.%d.%d",
+	       &lan_gateway[0],
+	       &lan_gateway[1],
+	       &lan_gateway[2],
+	       &lan_gateway[3]) != 4)
+		return (EXIT_FAILURE);
+
 	fprintf(file, "iface %s inet static\n", lan_ifname);
 	fprintf(file, "\taddress %d.%d.%d.%d\n",
 		lan_ipaddr[0],
@@ -100,6 +112,14 @@ static int set_lan_interface(FILE *file)
 		lan_ipaddr[1] & lan_netmask[1],
 		lan_ipaddr[2] & lan_netmask[2],
 		lan_ipaddr[3] & lan_netmask[3]);
+	if ((lan_gateway[0] != 0) &&
+	    (lan_gateway[3] != 0)) {
+		fprintf(file, "\tgateway %d.%d.%d.%d\n",
+			lan_gateway[0],
+			lan_gateway[1],
+			lan_gateway[2],
+			lan_gateway[3]);
+	}
 	fprintf(file, "\n");
 	return (EXIT_SUCCESS);
 }

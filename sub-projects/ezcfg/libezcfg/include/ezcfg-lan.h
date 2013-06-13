@@ -28,6 +28,7 @@
 /* LAN TCP/IP parameters */
 #define EZCFG_LAN_IPADDR                 "ipaddr"
 #define EZCFG_LAN_NETMASK                "netmask"
+#define EZCFG_LAN_GATEWAY                "gateway"
 #define EZCFG_LAN_WINS                   "wins"
 #define EZCFG_LAN_DOMAIN                 "domain"
 #define EZCFG_LAN_LEASE                  "lease"
@@ -36,5 +37,6 @@
 /* default values */
 #define EZCFG_LAN_DEFAULT_IPADDR         "192.168.1.1"
 #define EZCFG_LAN_DEFAULT_NETMASK        "255.255.255.0"
+#define EZCFG_LAN_DEFAULT_GATEWAY        "0.0.0.0"
 
 #endif

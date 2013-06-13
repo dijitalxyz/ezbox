@@ -765,6 +765,9 @@ ezcfg_nv_pair_t default_nvram_settings[] = {
 	/* LAN netmask */
 	{ NVRAM_SERVICE_OPTION(LAN, NETMASK),
 	  EZCFG_LAN_DEFAULT_NETMASK },
+	/* LAN gateway */
+	{ NVRAM_SERVICE_OPTION(LAN, GATEWAY),
+	  EZCFG_LAN_DEFAULT_GATEWAY },
 	/* LAN side WINS server ip list [x.x.x.x x.x.x.x ...] */
 	{ NVRAM_SERVICE_OPTION(LAN, WINS), "" },
 	/* LAN domain name */
