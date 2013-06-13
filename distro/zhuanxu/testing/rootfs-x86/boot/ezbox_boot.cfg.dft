@@ -1,7 +1,7 @@
 # distro name
 sys.distro_name=zhuanxu
 # hardware architecture
-sys.hardware_arch=x86_64
+sys.hardware_arch=x86
 # hardware version
 sys.hardware_version=1.0
 # software version

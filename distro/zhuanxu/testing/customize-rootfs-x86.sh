@@ -6,7 +6,7 @@ ROOTFS_TARGET_DIR=$3
 LINUX_VER=3.8.12
 
 usage() {
-  echo "usage: ./customize-rootfs-x86_64.sh <rootfs dir> <rootfs backup dir> <target rootfs dir>"
+  echo "usage: ./customize-rootfs-x86.sh <rootfs dir> <rootfs backup dir> <target rootfs dir>"
 }
 
 dbg() {

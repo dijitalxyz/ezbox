@@ -1,5 +1,3 @@
-# swap partition on
-swap_partition start
 # restart ezcfg daemon
 ezcd reload
 # re-generate nvram config file
@@ -33,25 +31,5 @@ login start
 loopback start
 # start shell daemon
 shelld start
-# load iptables kernel modules
-iptables load start
-# bring up ethernet LAN interface but not configurate it
-eth_lan_if start
-# bring up Wifi LAN interface but not configurate it
-#wifi_lan_if start
-# bring up LAN bridge interface but not configurate it
-br_lan_if start
-# bring up EtherWAN interface but not configurate it, LAN interface alias need it
-#eth_wan_if start
-# bring up LAN interface and configurate it
-lan start
-# restart klog service
-klogd restart
-# restart syslog service
-syslogd restart
-# start openssl service
-openssl start
-# start LAN side services
-#action lan services_start
-# bring up WAN interface and configurate it
-#wan start
+# start bootstrap
+bootstrap start
