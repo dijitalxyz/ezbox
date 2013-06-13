@@ -1,7 +1,6 @@
 #
-# Automatically generated make config: don't edit
-# OpenWrt version: Barrier Breaker (unknown)
-# Wed Jan  2 04:32:10 2013
+# Automatically generated file; DO NOT EDIT.
+# OpenWrt Configuration
 #
 CONFIG_MODULES=y
 CONFIG_HAVE_DOT_CONFIG=y
@@ -20,18 +19,6 @@ CONFIG_TARGET_x86_generic_Generic=y
 # CONFIG_TARGET_x86_generic_Soekris45xx is not set
 # CONFIG_TARGET_x86_generic_Soekris48xx is not set
 # CONFIG_TARGET_x86_generic_Wrap is not set
-# CONFIG_TARGET_x86_olpc_Default is not set
-# CONFIG_TARGET_x86_xen_domu_Default is not set
-# CONFIG_TARGET_x86_ep80579_Default is not set
-# CONFIG_TARGET_x86_net5501_Default is not set
-# CONFIG_TARGET_x86_kvm_guest_Default is not set
-# CONFIG_TARGET_x86_geos_Default is not set
-# CONFIG_TARGET_x86_alix2_Default is not set
-# CONFIG_TARGET_x86_thincan_DBE61 is not set
-# CONFIG_TARGET_x86_rdc_ar525w is not set
-# CONFIG_TARGET_x86_rdc_bifferboard is not set
-# CONFIG_TARGET_x86_rdc_r8610 is not set
-# CONFIG_TARGET_x86_rdc_sitecom is not set
 CONFIG_HAS_SUBTARGETS=y
 CONFIG_TARGET_BOARD="x86"
 CONFIG_TARGET_ARCH_PACKAGES="x86"
@@ -268,7 +255,6 @@ CONFIG_TARGET_INIT_SUPPRESS_STDERR=y
 #
 # CONFIG_FEATURE_EZCFG_ezcfg-ssl-none is not set
 CONFIG_FEATURE_EZCFG_ezcfg-ssl-openssl=y
-CONFIG_FEATURE_drawing-backend_libX11=y
 
 #
 # Base system
@@ -1302,7 +1288,10 @@ CONFIG_PACKAGE_kmod-dm=y
 # CONFIG_PACKAGE_kmod-libsas is not set
 # CONFIG_PACKAGE_kmod-loop is not set
 # CONFIG_PACKAGE_kmod-md-mod is not set
+# CONFIG_PACKAGE_kmod-mvsas is not set
 # CONFIG_PACKAGE_kmod-nbd is not set
+# CONFIG_PACKAGE_kmod-pata-cs5535 is not set
+# CONFIG_PACKAGE_kmod-pata-cs5536 is not set
 # CONFIG_PACKAGE_kmod-scsi-cdrom is not set
 CONFIG_PACKAGE_kmod-scsi-core=y
 # CONFIG_PACKAGE_kmod-scsi-generic is not set
@@ -1384,8 +1373,10 @@ CONFIG_PACKAGE_kmod-hwmon-core=y
 # CONFIG_PACKAGE_kmod-hwmon-lm90 is not set
 # CONFIG_PACKAGE_kmod-hwmon-lm92 is not set
 # CONFIG_PACKAGE_kmod-hwmon-lm95241 is not set
+# CONFIG_PACKAGE_kmod-hwmon-pc87360 is not set
 # CONFIG_PACKAGE_kmod-hwmon-sht21 is not set
 # CONFIG_PACKAGE_kmod-hwmon-vid is not set
+# CONFIG_PACKAGE_kmod-hwmon-w83627hf is not set
 
 #
 # I2C support
@@ -1395,6 +1386,8 @@ CONFIG_PACKAGE_kmod-i2c-core=y
 # CONFIG_PACKAGE_kmod-i2c-algo-pca is not set
 # CONFIG_PACKAGE_kmod-i2c-algo-pcf is not set
 # CONFIG_PACKAGE_kmod-i2c-mux is not set
+# CONFIG_PACKAGE_kmod-i2c-scx200 is not set
+# CONFIG_PACKAGE_kmod-i2c-scx200-acb is not set
 # CONFIG_PACKAGE_kmod-i2c-tiny-usb is not set
 # CONFIG_PACKAGE_kmod-pca953x is not set
 # CONFIG_PACKAGE_kmod-pcf857x is not set
@@ -1402,6 +1395,7 @@ CONFIG_PACKAGE_kmod-i2c-core=y
 #
 # Input modules
 #
+# CONFIG_PACKAGE_kmod-acpi-button is not set
 CONFIG_PACKAGE_kmod-hid=y
 # CONFIG_PACKAGE_kmod-hid-generic is not set
 CONFIG_PACKAGE_kmod-input-core=y
@@ -1413,6 +1407,8 @@ CONFIG_PACKAGE_kmod-input-evdev=y
 #
 # LED modules
 #
+# CONFIG_PACKAGE_kmod-leds-net48xx is not set
+# CONFIG_PACKAGE_kmod-leds-wrap is not set
 # CONFIG_PACKAGE_kmod-ledtrig-default-on is not set
 # CONFIG_PACKAGE_kmod-ledtrig-gpio is not set
 # CONFIG_PACKAGE_kmod-ledtrig-heartbeat is not set
@@ -1579,10 +1575,18 @@ CONFIG_PACKAGE_kmod-tun=y
 #
 # CONFIG_PACKAGE_kmod-bcma is not set
 # CONFIG_PACKAGE_kmod-bluetooth is not set
+# CONFIG_PACKAGE_kmod-cpu-msr is not set
+# CONFIG_PACKAGE_kmod-cs5535-clockevt is not set
+# CONFIG_PACKAGE_kmod-cs5535-mfd is not set
+# CONFIG_PACKAGE_kmod-cs5535-mfgpt is not set
 # CONFIG_PACKAGE_kmod-eeprom-93cx6 is not set
 # CONFIG_PACKAGE_kmod-eeprom-at24 is not set
 # CONFIG_PACKAGE_kmod-eeprom-at25 is not set
+# CONFIG_PACKAGE_kmod-gpio-cs5535-new is not set
+# CONFIG_PACKAGE_kmod-gpio-nsc is not set
 # CONFIG_PACKAGE_kmod-gpio-nxp-74hc164 is not set
+# CONFIG_PACKAGE_kmod-gpio-pc8736x is not set
+# CONFIG_PACKAGE_kmod-gpio-scx200 is not set
 CONFIG_PACKAGE_kmod-ikconfig=y
 # CONFIG_PACKAGE_kmod-mmc is not set
 # CONFIG_PACKAGE_kmod-mtdtests is not set
@@ -1593,6 +1597,7 @@ CONFIG_PACKAGE_kmod-ptp=y
 # CONFIG_PACKAGE_kmod-pwm is not set
 # CONFIG_PACKAGE_kmod-pwm-gpio is not set
 CONFIG_PACKAGE_kmod-regmap=y
+# CONFIG_PACKAGE_kmod-rfkill is not set
 # CONFIG_PACKAGE_kmod-rtc-isl1208 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf2123 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
@@ -1600,6 +1605,9 @@ CONFIG_PACKAGE_kmod-regmap=y
 # CONFIG_PACKAGE_kmod-serial-8250 is not set
 # CONFIG_PACKAGE_kmod-softdog is not set
 CONFIG_PACKAGE_kmod-ssb=y
+# CONFIG_PACKAGE_kmod-wdt-geode is not set
+# CONFIG_PACKAGE_kmod-wdt-sc520 is not set
+# CONFIG_PACKAGE_kmod-wdt-scx200 is not set
 # CONFIG_PACKAGE_kmod-zram is not set
 
 #
@@ -1619,7 +1627,6 @@ CONFIG_PACKAGE_kmod-spi-dev=y
 #
 CONFIG_PACKAGE_kmod-sound-core=y
 CONFIG_PACKAGE_kmod-ac97=y
-CONFIG_PACKAGE_kmod-pcspkr=y
 CONFIG_PACKAGE_kmod-sound-cs5535audio=y
 CONFIG_PACKAGE_kmod-sound-i8x0=y
 CONFIG_PACKAGE_kmod-sound-seq=y
@@ -1793,92 +1800,3 @@ CONFIG_PACKAGE_python-mini=y
 # CONFIG_PACKAGE_python-openssl is not set
 # CONFIG_PACKAGE_python-shutil is not set
 # CONFIG_PACKAGE_python-sqlite3 is not set
-
-#
-# Xorg
-#
-
-#
-# app
-#
-CONFIG_PACKAGE_xkbcomp=y
-
-#
-# data
-#
-CONFIG_PACKAGE_xkeyboard-config=y
-
-#
-# libraries
-#
-CONFIG_PACKAGE_libX11=y
-CONFIG_PACKAGE_libXau=y
-CONFIG_PACKAGE_libXdamage=y
-CONFIG_PACKAGE_libXdmcp=y
-CONFIG_PACKAGE_libXext=y
-CONFIG_PACKAGE_libXfixes=y
-CONFIG_PACKAGE_libXfont=y
-CONFIG_PACKAGE_libXv=y
-CONFIG_PACKAGE_libXxf86vm=y
-CONFIG_PACKAGE_libdrm=y
-CONFIG_PACKAGE_libfontenc=y
-CONFIG_PACKAGE_libgl-mesa=y
-# CONFIG_PACKAGE_libgl-mesa-dri-swrast is not set
-CONFIG_PACKAGE_libglu-mesa=y
-CONFIG_PACKAGE_libpciaccess=y
-CONFIG_PACKAGE_libxcb=y
-CONFIG_PACKAGE_libxcb-composite=y
-CONFIG_PACKAGE_libxcb-damage=y
-CONFIG_PACKAGE_libxcb-dpms=y
-CONFIG_PACKAGE_libxcb-glx=y
-CONFIG_PACKAGE_libxcb-randr=y
-CONFIG_PACKAGE_libxcb-record=y
-CONFIG_PACKAGE_libxcb-render=y
-CONFIG_PACKAGE_libxcb-res=y
-CONFIG_PACKAGE_libxcb-screensaver=y
-CONFIG_PACKAGE_libxcb-shape=y
-CONFIG_PACKAGE_libxcb-shm=y
-CONFIG_PACKAGE_libxcb-sync=y
-CONFIG_PACKAGE_libxcb-xevie=y
-CONFIG_PACKAGE_libxcb-xf86dri=y
-CONFIG_PACKAGE_libxcb-xfixes=y
-CONFIG_PACKAGE_libxcb-xinerama=y
-CONFIG_PACKAGE_libxcb-xprint=y
-CONFIG_PACKAGE_libxcb-xtest=y
-CONFIG_PACKAGE_libxcb-xv=y
-CONFIG_PACKAGE_libxcb-xvmc=y
-CONFIG_PACKAGE_libxkbfile=y
-CONFIG_PACKAGE_pixman=y
-CONFIG_PACKAGE_xtrans=y
-
-#
-# proto
-#
-CONFIG_PACKAGE_bigreqsproto=y
-CONFIG_PACKAGE_calibrateproto=y
-CONFIG_PACKAGE_compositeproto=y
-CONFIG_PACKAGE_damageproto=y
-CONFIG_PACKAGE_dri2proto=y
-CONFIG_PACKAGE_fixesproto=y
-CONFIG_PACKAGE_fontsproto=y
-CONFIG_PACKAGE_glproto=y
-CONFIG_PACKAGE_inputproto=y
-CONFIG_PACKAGE_kbproto=y
-CONFIG_PACKAGE_randrproto=y
-CONFIG_PACKAGE_renderproto=y
-CONFIG_PACKAGE_resourceproto=y
-CONFIG_PACKAGE_scrnsaverproto=y
-CONFIG_PACKAGE_videoproto=y
-CONFIG_PACKAGE_xcmiscproto=y
-CONFIG_PACKAGE_xextproto=y
-CONFIG_PACKAGE_xf86dgaproto=y
-CONFIG_PACKAGE_xf86driproto=y
-CONFIG_PACKAGE_xf86vidmodeproto=y
-CONFIG_PACKAGE_xineramaproto=y
-CONFIG_PACKAGE_xproto=y
-
-#
-# server
-#
-CONFIG_PACKAGE_xserver-common=y
-CONFIG_PACKAGE_xserver-xorg=y
