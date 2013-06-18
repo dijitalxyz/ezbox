@@ -42,7 +42,7 @@
 
 #include "ezcd.h"
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/tmp/rc.log", "a"); \
 	if (dbg_fp) { \

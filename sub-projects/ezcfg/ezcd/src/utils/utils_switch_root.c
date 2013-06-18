@@ -47,7 +47,7 @@
 # define TMPFS_MAGIC ((unsigned)0x01021994)
 #endif
 
-#if 1
+#if 0
 #define DBG(format, args...) do {\
 	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
 	if (dbg_fp) { \
