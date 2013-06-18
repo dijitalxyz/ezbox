@@ -39,6 +39,7 @@
 #define CMD_SHELLD  		"/sbin/shelld"
 #define CMD_SWAPOFF  		"/sbin/swapoff"
 #define CMD_SWAPON  		"/sbin/swapon"
+#define CMD_SWITCH_ROOT		"/sbin/switch_root"
 #define CMD_SYSLOGD  		"/sbin/syslogd"
 #define CMD_TAR  		"/bin/tar"
 #define CMD_TELNETD  		"/sbin/telnetd"

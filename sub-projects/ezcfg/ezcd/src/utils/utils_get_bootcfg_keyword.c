@@ -51,7 +51,7 @@
 #define DBG(format, args...)
 #endif
 
-int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
+static int get_bootcfg_keyword(char *name, char *buf, int buf_len, int full_flag)
 {
 	int len, ret=-1;
 	struct stat stat_buf;
@@ -74,7 +74,10 @@ int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 	    (S_ISREG(stat_buf.st_mode))) {
 		DBG("%s(%d)\n", __func__, __LINE__);
 		/* get keyword's value from boot.cfg file */
-		value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
+		if (full_flag == 0)
+			value = utils_file_get_keyword(BOOT_CONFIG_FILE_PATH, keyword);
+		else
+			value = utils_file_get_keyword_full(BOOT_CONFIG_FILE_PATH, keyword);
 		DBG("%s(%d) value=[%s]\n", __func__, __LINE__, value);
 		if (value != NULL) {
 			ret = snprintf(buf, buf_len, "%s", value);
@@ -83,4 +86,14 @@ int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
 	}
 	free(keyword);
 	return ret;
+}
+
+int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len)
+{
+	return get_bootcfg_keyword(name, buf, buf_len, 0);
+}
+
+int utils_get_bootcfg_keyword_full(char *name, char *buf, int buf_len)
+{
+	return get_bootcfg_keyword(name, buf, buf_len, 1);
 }

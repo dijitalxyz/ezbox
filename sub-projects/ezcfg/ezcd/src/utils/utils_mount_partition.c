@@ -39,7 +39,7 @@
 
 #include "ezcd.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
 	FILE *fp = fopen("/dev/kmsg", "a"); \
 	if (fp) { \
@@ -145,6 +145,7 @@ int utils_mount_partition(char *dev, char *path, char *fs_type, char *args)
 	else {
 		snprintf(buf, sizeof(buf), "%s %s %s %s", CMD_MOUNT, p, dev, path);
 	}
+	DBG("huedebug %s(%d) buf=[%s]\n", __func__, __LINE__, buf);
 	utils_system(buf);
 	return (EXIT_SUCCESS);
 }
@@ -368,6 +369,65 @@ int utils_remount_boot_partition_writable(void)
 	return utils_mount_boot_partition_writable();
 }
 
+/* root partition */
+int utils_mount_root_partition_writable(void)
+{
+	char buf[KERNEL_COMMAND_LINE_SIZE];
+	int rc, ret = EXIT_FAILURE;
+	int i;
+	struct stat stat_buf;
+	char dev_buf[64];
+	char fs_type_buf[64];
+	char *dev = NULL;
+	char *fs_type = NULL;
+	char *args = NULL;
+
+	DBG("%s(%d) entered!\n", __func__, __LINE__);
+
+	/* prepare root device path */
+	rc = utils_get_root_device_path(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(dev_buf, sizeof(dev_buf), "/dev/%s", buf);
+		dev = dev_buf;
+	}
+	else {
+		DBG("%s(%d) utils_get_boot_device_path() error!\n", __func__, __LINE__);
+		return EXIT_FAILURE;
+	}
+
+	rc = utils_get_root_device_fs_type(buf, sizeof(buf));
+	if (rc > 0) {
+		snprintf(fs_type_buf, sizeof(fs_type_buf), "%s", buf);
+		fs_type = fs_type_buf;
+		if (strcmp(fs_type, "ntfs-3g") == 0)
+			args = NULL;
+		else
+			args = "-w";
+	}
+
+	i = (dev == NULL) ? 0 : PARTITION_MOUNT_TIMEOUT;
+	for ( ; i > 0; sleep(1), i--) {
+		/* check if device node is ready */
+		if (stat(dev, &stat_buf) != 0) {
+			/* populate /dev/ nodes */
+			utils_udev_pop_nodes();
+			continue;
+		}
+
+		/* is not a block device */
+		if (S_ISBLK(stat_buf.st_mode) == 0)
+			break;
+
+		/* mount /dev/sda2 /root */
+		rc = utils_mount_partition(dev, "/root", fs_type, args);
+		ret = EXIT_SUCCESS;
+		break;
+	}
+
+	return (ret);
+}
+
+/* data partition */
 int utils_mount_data_partition_writable(void)
 {
 	char buf[64];

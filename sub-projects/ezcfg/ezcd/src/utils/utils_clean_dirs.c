@@ -1,13 +1,13 @@
 /* ============================================================================
  * Project Name : ezbox Configuration Daemon
- * Module Name  : utils_make_dirs.c
+ * Module Name  : utils_clean_dirs.c
  *
  * Description  : ezbox prepare basic directory structure
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *
  * History      Rev       Description
- * 2011-07-28   0.1       Write it from scratch
+ * 2013-06-17   0.1       Write it from scratch
  * ============================================================================
  */
 
@@ -72,8 +72,9 @@
 	} \
 } while(0)
 
-int utils_make_preboot_dirs(void)
+int utils_clean_preboot_dirs(void)
 {
+#if 0
 	char buf[32];
 
 	/* /proc */
@@ -106,9 +107,6 @@ int utils_make_preboot_dirs(void)
 	/* /boot */
 	mkdir("/boot", 0777);
 
-	/* /root */
-	mkdir("/root", 0777);
-
 	/* /data */
 	mkdir("/data", 0777);
 
@@ -135,38 +133,13 @@ int utils_make_preboot_dirs(void)
 
 	/* root's home directory */
 	mkdir(ROOT_HOME_PATH, 0755);
+#endif
+	umount("/etc");
+	umount("/dev/pts");
+	umount("/dev");
+	umount("/sys");
+	umount("/proc");
 
 	return (EXIT_SUCCESS);
 }
 
-int utils_make_data_dirs(void)
-{
-	/* /data/backup */
-	mkdir(DATA_BACKUP_DIR_PATH, 0777);
-
-	/* /data/rootfs */
-	mkdir(DATA_ROOTFS_DIR_PATH, 0777);
-
-	/* /data/rootfs/bin */
-	mkdir(DATA_ROOTFS_BIN_DIR_PATH, 0777);
-
-	/* /data/rootfs/home */
-	mkdir(DATA_ROOTFS_HOME_DIR_PATH, 0777);
-
-	/* /data/rootfs/lib */
-	mkdir(DATA_ROOTFS_LIB_DIR_PATH, 0777);
-
-	/* /data/rootfs/root */
-	mkdir(DATA_ROOTFS_ROOT_DIR_PATH, 0777);
-
-	/* /data/rootfs/sbin */
-	mkdir(DATA_ROOTFS_SBIN_DIR_PATH, 0777);
-
-	/* /data/rootfs/usr */
-	mkdir(DATA_ROOTFS_USR_DIR_PATH, 0777);
-
-	/* /data/rootfs/var */
-	mkdir(DATA_ROOTFS_VAR_DIR_PATH, 0777);
-
-	return (EXIT_SUCCESS);
-}

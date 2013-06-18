@@ -42,12 +42,12 @@
 #include "ezcd.h"
 #include "utils.h"
 
-#if 0
+#if 1
 #define DBG(format, args...) do {\
-	FILE *fp = fopen("/dev/kmsg", "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
+	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
+	if (dbg_fp) { \
+		fprintf(dbg_fp, format, ## args); \
+		fclose(dbg_fp); \
 	} \
 } while(0)
 #else
@@ -106,6 +106,8 @@ int env_action_preboot(int argc, char **argv)
 		/* setup basic directory structure */
 		utils_make_preboot_dirs();
 
+		DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
+
 		/* run in root HOME path */
 		setenv("HOME", ROOT_HOME_PATH, 1);
 		ret = chdir(ROOT_HOME_PATH);
@@ -136,6 +138,17 @@ int env_action_preboot(int argc, char **argv)
 
 		/* init /dev/ nodes */
 		utils_udev_pop_nodes();
+
+		/* check if we need switch root device */
+		if (utils_switch_root_is_ready() == true) {
+			DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
+			utils_clean_preboot_dirs();
+			/* if switch_root succeed, it should never return */
+			utils_switch_root_device();
+			/* switch_root fail, fall through */
+			DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
+			exit(EXIT_FAILURE);
+		}
 
 		/* prepare boot device path */
 		utils_mount_boot_partition_writable();

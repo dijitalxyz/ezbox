@@ -70,7 +70,9 @@ int env_action_cgroup(int argc, char **argv)
 		/* generate /etc/cgrules.conf */
 		pop_etc_cgrules_conf(RC_ACT_START);
 
+	#if 0
 		utils_system(CMD_CGCONFIGPARSER " -l /etc/cgconfig.conf" );
+	#endif
 
 		ret = EXIT_SUCCESS;
 		break;

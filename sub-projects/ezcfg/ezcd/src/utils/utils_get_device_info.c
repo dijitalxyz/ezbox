@@ -43,7 +43,6 @@
 #define DEVICE_INFO_FS_TYPE_INDEX       2
 /*
  * Returns boot device path string
- * It is the caller's duty to free the returned string.
  */
 int utils_get_boot_device_path(char *buf, int buf_len)
 {
@@ -69,6 +68,39 @@ int utils_get_boot_device_fs_type(char *buf, int buf_len)
 	return rc;
 }
 
+/*
+ * Returns root device path string
+ */
+int utils_get_root_device_path(char *buf, int buf_len)
+{
+	int rc = -1;
+	char *p;
+	p = utils_file_get_keyword("/proc/cmdline", "root=");
+	if (p != NULL) {
+		if (strncmp(p, "/dev/", 5) == 0)
+			rc = snprintf(buf, buf_len, "%s", p+5);
+		else
+			rc = snprintf(buf, buf_len, "%s", p);
+		free(p);
+	}
+	return rc;
+}
+
+int utils_get_root_device_fs_type(char *buf, int buf_len)
+{
+	int rc = -1;
+	char *p;
+	p = utils_file_get_keyword("/proc/cmdline", "rootfstype=");
+	if (p != NULL) {
+		rc = snprintf(buf, buf_len, "%s", p);
+		free(p);
+	}
+	return rc;
+}
+
+/*
+ * Returns data device path string
+ */
 int utils_get_data_device_path(char *buf, int buf_len)
 {
 	int i;

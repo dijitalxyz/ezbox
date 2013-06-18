@@ -89,9 +89,13 @@ char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
 		/* skip key word length */
 		p = q + strlen(keyword);
 		DBG("p=[%s]\n", p);
-		q = strchr(p, ' ');
-		if (q != NULL)
-			*q = '\0';
+
+		/* for single value of keyword */
+		if (idx >= 0) {
+			q = strchr(p, ' ');
+			if (q != NULL)
+				*q = '\0';
+		}
 
 		if (idx > 0) {
 			/* get index part string */
@@ -123,4 +127,9 @@ char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx)
 char *utils_file_get_keyword(char *filename, char *keyword)
 {
 	return utils_file_get_keyword_by_index(filename, keyword, 0);
+}
+
+char *utils_file_get_keyword_full(char *filename, char *keyword)
+{
+	return utils_file_get_keyword_by_index(filename, keyword, -1);
 }

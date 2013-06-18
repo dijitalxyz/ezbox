@@ -40,7 +40,6 @@
 #include "ezcd.h"
 /*
  * Returns kernel modules string
- * It is the caller's duty to free the returned string.
  */
 int utils_get_kernel_modules(char *buf, int buf_len)
 {

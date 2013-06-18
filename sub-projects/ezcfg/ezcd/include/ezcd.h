@@ -21,6 +21,7 @@
 
 /* FIXME: these functions return pointer get from malloc, must free it */
 char *utils_file_get_keyword(char *filename, char *keyword);
+char *utils_file_get_keyword_full(char *filename, char *keyword);
 char *utils_file_get_keyword_by_index(char *filename, char *keyword, int idx);
 char *utils_get_kernel_version(void);
 
@@ -28,6 +29,7 @@ int utils_udev_trigger(void);
 int utils_udev_pop_nodes(void);
 
 int utils_get_kernel_modules(char *buf, int buf_len);
+int utils_get_kernel_root(char *buf, int buf_len);
 
 int utils_get_mem_size_mb(void);
 
@@ -37,9 +39,12 @@ int utils_probe_kernel_module(char *name, char *args);
 int utils_clean_kernel_module(char *name);
 
 int utils_get_bootcfg_keyword(char *name, char *buf, int buf_len);
+int utils_get_bootcfg_keyword_full(char *name, char *buf, int buf_len);
 
 int utils_get_boot_device_path(char *buf, int buf_len);
 int utils_get_boot_device_fs_type(char *buf, int buf_len);
+int utils_get_root_device_path(char *buf, int buf_len);
+int utils_get_root_device_fs_type(char *buf, int buf_len);
 int utils_get_data_device_path(char *buf, int buf_len);
 int utils_get_data_device_fs_type(char *buf, int buf_len);
 int utils_get_hdd_device_path(char *buf, int buf_len);
@@ -59,6 +64,7 @@ int utils_mount_boot_partition_writable(void);
 int utils_umount_boot_partition(void);
 int utils_remount_boot_partition_readonly(void);
 int utils_remount_boot_partition_writable(void);
+int utils_mount_root_partition_writable(void);
 int utils_mount_data_partition_writable(void);
 int utils_umount_data_partition(void);
 int utils_mount_dmcrypt_data_partition_writable(void);
@@ -66,6 +72,9 @@ int utils_umount_dmcrypt_data_partition(void);
 
 int utils_swap_partition_on(void);
 int utils_swap_partition_off(void);
+
+bool utils_switch_root_is_ready(void);
+int utils_switch_root_device(void);
 
 int utils_sync_nvram_with_cfg(char *path, char *pattern);
 int utils_sync_cfg_with_nvram(char *path, char *pattern);
@@ -89,6 +98,8 @@ int utils_route_delete_default(char *iface);
 
 int utils_make_preboot_dirs(void);
 int utils_make_data_dirs(void);
+
+int utils_clean_preboot_dirs(void);
 
 rc_func_t *utils_find_rc_func(char *name);
 int utils_get_rc_funcs_number(void);

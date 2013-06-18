@@ -52,6 +52,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_check_service.c
 if CONFIG_EZBOX_WAN_NIC
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_check_wan_interface.c
 endif
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_switch_root.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_nvram_cmp.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_file_get_keyword.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_modules.c
@@ -59,6 +60,7 @@ libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_version.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_mem_size.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_handle_kernel_module.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_make_dirs.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_clean_dirs.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_mount_partition.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_swap_partition.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_bootcfg_keyword.c
