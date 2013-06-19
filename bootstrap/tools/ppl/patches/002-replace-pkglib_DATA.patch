@@ -1,6 +1,6 @@
 --- a/interfaces/Prolog/Ciao/Makefile.am
 +++ b/interfaces/Prolog/Ciao/Makefile.am
-@@ -169,7 +169,7 @@ $(NO_UNDEFINED_FLAG) \
+@@ -165,7 +165,7 @@ $(NO_UNDEFINED_FLAG) \
  -module \
  -avoid-version
  
@@ -11,7 +11,7 @@
  	$(M4) --prefix-builtin -I../.. -I$(srcdir)/.. -I$(srcdir)/../.. \
 --- a/interfaces/Prolog/GNU/Makefile.am
 +++ b/interfaces/Prolog/GNU/Makefile.am
-@@ -168,7 +168,7 @@ ppl_gprolog.pl: $(interface_generator_de
+@@ -164,7 +164,7 @@ ppl_gprolog.pl: $(interface_generator_de
  	$(M4) --prefix-builtin -I../.. -I$(srcdir)/.. -I$(srcdir)/../.. \
             $(srcdir)/ppl_interface_generator_gprolog_pl.m4 > $@
  
@@ -42,7 +42,7 @@
  
 --- a/interfaces/Prolog/SWI/Makefile.am
 +++ b/interfaces/Prolog/SWI/Makefile.am
-@@ -188,7 +188,7 @@ $(NO_UNDEFINED_FLAG) \
+@@ -184,7 +184,7 @@ $(NO_UNDEFINED_FLAG) \
  bin_PROGRAMS = ppl_pl
  ppl_pl_SOURCES = ppl_pl.cc
  
@@ -53,7 +53,7 @@
  ack.clpq \
 --- a/interfaces/Prolog/XSB/Makefile.am
 +++ b/interfaces/Prolog/XSB/Makefile.am
-@@ -187,7 +187,7 @@ $(NO_UNDEFINED_FLAG) \
+@@ -183,7 +183,7 @@ $(NO_UNDEFINED_FLAG) \
  -module \
  -avoid-version
  
@@ -64,7 +64,7 @@
  	cp -f ppl_xsb.cc ppl_xsb.c
 --- a/interfaces/Prolog/YAP/Makefile.am
 +++ b/interfaces/Prolog/YAP/Makefile.am
-@@ -178,7 +178,7 @@ $(NO_UNDEFINED_FLAG) \
+@@ -173,7 +173,7 @@ $(NO_UNDEFINED_FLAG) \
  -module \
  -avoid-version
  
