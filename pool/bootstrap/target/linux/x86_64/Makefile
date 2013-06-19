@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=x86_64
 BOARD:=x86_64
 BOARDNAME:=x86_64
-FEATURES:=squashfs jffs2 ext4 vdi vmdk pcmcia targz
+FEATURES:=squashfs ext4 vdi vmdk pcmcia targz
 SUBTARGETS=generic
 
 LINUX_VERSION:=3.3.8
