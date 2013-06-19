@@ -11,7 +11,7 @@ sys.software_revision=001
 # HDD device is sda
 sys.hdd_device=sda
 # boot arguments for Linux kernel
-sys.boot_args=boot_dev=sda1,ext4
+sys.boot_args=boot_dev=sda1,ext4 root=sda2 rootfstype=ext4
 # swap partition is at /dev/sda5
 sys.swap_dev=sda5
 # data partition is at /dev/sda6, file system is ext4
@@ -19,7 +19,7 @@ sys.data_dev=sda6,ext4
 # data partition key
 sys.data_dev_key=12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 # preinit kernel modules
-sys.modules=e1000,r8169,ehci-hcd,ohci-hcd,usb-storage,libahci,ahci,dm-crypt,cryptomgr,aes_generic
+sys.modules=r8169,ehci-hcd,ohci-hcd,usb-storage,libahci,ahci,dm-crypt,cryptomgr,aes_generic
 ####################
 # ezcfg config
 ####################
@@ -78,7 +78,7 @@ ezcfg.httpd.binding=lan
 # LAN settings
 eth_lan.ifname=eth0
 wifi_lan.ifname=wlan0
-br_lan.ifnames=eth0 wlan0
+br_lan.ifnames=eth0
 # WAN settings
 eth_wan.ifname=eth1
 wan.type=disabled
