@@ -148,7 +148,7 @@ static int build_nvram_get_response(struct ezcfg_soap_http *sh, struct ezcfg_nvr
 		snprintf(msg, msg_len, "%s; %s=%s", EZCFG_HTTP_MIME_APPLICATION_SOAP_XML , EZCFG_HTTP_CHARSET_NAME , EZCFG_HTTP_CHARSET_UTF8);
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_TYPE , msg);
 
-		snprintf(msg, sizeof(msg), "%u", ezcfg_http_get_message_body_len(http));
+		snprintf(msg, msg_len, "%u", ezcfg_http_get_message_body_len(http));
 		ezcfg_http_add_header(http, EZCFG_SOAP_HTTP_HEADER_CONTENT_LENGTH , msg);
 
 		/* set return value */
