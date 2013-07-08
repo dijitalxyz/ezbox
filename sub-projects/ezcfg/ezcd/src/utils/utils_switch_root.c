@@ -128,7 +128,10 @@ int utils_switch_root_device(void)
 	ret = execv(argv[0], argv);
 
 	/* should never return if switch_root succeed */
-	DBG("huedebug %s(%d) pid=[%d] ret=[%d] errno=[%d]\n", __func__, __LINE__, getpid(), ret, errno);
+	if (ret == -1) {
+		DBG("huedebug %s(%d) pid=[%d] ret=[%d] errno=[%d]\n", __func__, __LINE__, getpid(), ret, errno);
+	}
+	DBG("huedebug %s(%d) pid=[%d] ret=[%d]\n", __func__, __LINE__, getpid(), ret);
 	return (EXIT_FAILURE);
 }
 

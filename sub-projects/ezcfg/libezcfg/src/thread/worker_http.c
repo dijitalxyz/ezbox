@@ -441,7 +441,7 @@ static void handle_websocket_request(struct ezcfg_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_http *http;
-	struct ezcfg_master *master;
+	//struct ezcfg_master *master;
 	//struct ezcfg_nvram *nvram;
 	struct ezcfg_websocket *ws = NULL;
 	struct ezcfg_http_websocket *hws = NULL;
@@ -457,7 +457,7 @@ static void handle_websocket_request(struct ezcfg_worker *worker)
 	ASSERT(http != NULL);
 
 	ezcfg = ezcfg_worker_get_ezcfg(worker);
-	master = ezcfg_worker_get_master(worker);
+	//master = ezcfg_worker_get_master(worker);
 	//nvram = ezcfg_master_get_nvram(master);
 
 	ws = ezcfg_websocket_new(ezcfg);
