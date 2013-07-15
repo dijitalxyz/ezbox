@@ -92,7 +92,7 @@ struct ezcfg_master {
 	pthread_cond_t sq_empty_cond; /* Socket queue empty condvar */
 	pthread_cond_t sq_full_cond;  /* Socket queue full condvar */
 
-	struct ezcfg_nvram *nvram; /* Non-volatile memory */
+	struct ezcfg_nvram *nvram; /* Name-Value random access memory */
 
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	struct ezcfg_ssl *ssl; /* SSL list */

@@ -2,7 +2,7 @@
  * Project Name : ezbox configuration utilities
  * File Name    : nvram/nvram_defaults.c
  *
- * Description  : implement Non-Volatile RAM default settings
+ * Description  : implement Name-Value RAM default settings
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *

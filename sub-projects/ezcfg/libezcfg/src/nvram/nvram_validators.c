@@ -2,7 +2,7 @@
  * Project Name : ezbox configuration utilities
  * File Name    : nvram/nvram_validators.c
  *
- * Description  : implement validating Non-Volatile RAM settings
+ * Description  : implement validating Name-Value RAM settings
  *
  * Copyright (C) 2008-2013 by ezbox-project
  *

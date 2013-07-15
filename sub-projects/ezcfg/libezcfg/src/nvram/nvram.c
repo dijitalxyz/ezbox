@@ -2,7 +2,7 @@
  * Project Name : ezbox configuration utilities
  * File Name    : nvram/nvram.c
  *
- * Description  : implement Non-Volatile RAM
+ * Description  : implement Name-Value RAM
  * Warning      : must exclusively use it, say lock NVRAM before using it.
  *
  * Copyright (C) 2008-2013 by ezbox-project
