@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ezcfg
-PKG_REV:=2008
+PKG_REV:=2030
 PKG_VERSION:=r$(PKG_REV)
 PKG_RELEASE:=1
 
@@ -393,6 +393,7 @@ define Package/ezcfg/install
 	else \
 		$(LN) sbin/ezcd $(1)/init ; \
 	fi
+	$(LN) ezcd $(1)/sbin/agent_env
 	$(LN) ezcd $(1)/sbin/ezcm
 	$(LN) ezcd $(1)/sbin/nvram
 	$(LN) ezcd $(1)/sbin/rc
