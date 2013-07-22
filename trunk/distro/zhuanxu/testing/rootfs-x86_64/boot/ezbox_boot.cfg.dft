@@ -11,7 +11,7 @@ sys.software_revision=001
 # HDD device is sda
 sys.hdd_device=sda
 # boot arguments for Linux kernel
-sys.boot_args=boot_dev=sda1,ext4 root=sda2 rootfstype=ext4
+sys.boot_args=rdinit=/sbin/agent_env modules=libahci,ahci boot_dev=sda1,ext4 root=sda2 rootfstype=ext4 init=/sbin/agent_env
 # swap partition is at /dev/sda5
 sys.swap_dev=sda5
 # data partition is at /dev/sda6, file system is ext4
