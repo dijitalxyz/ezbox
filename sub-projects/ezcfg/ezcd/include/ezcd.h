@@ -29,7 +29,7 @@ int utils_udev_trigger(void);
 int utils_udev_pop_nodes(void);
 
 int utils_get_kernel_modules(char *buf, int buf_len);
-int utils_get_kernel_root(char *buf, int buf_len);
+int utils_get_kernel_init(char *buf, int buf_len);
 
 int utils_get_mem_size_mb(void);
 
@@ -73,8 +73,8 @@ int utils_umount_dmcrypt_data_partition(void);
 int utils_swap_partition_on(void);
 int utils_swap_partition_off(void);
 
-bool utils_switch_root_is_ready(void);
-int utils_switch_root_device(void);
+bool utils_switch_root_is_ready(char *init_path);
+int utils_switch_root_device(char *init_path);
 
 int utils_sync_nvram_with_cfg(char *path, char *pattern);
 int utils_sync_cfg_with_nvram(char *path, char *pattern);
@@ -135,6 +135,7 @@ bool utils_wan_interface_wait_down(int s);
 int utils_nvram_cmp(const char *name, const char *value);
 
 /* command entry point */
+int agent_env_main(int argc, char **argv);
 int preinit_main(int argc, char **argv);
 int init_main(int argc, char **argv);
 int ezcd_main(int argc, char **argv);

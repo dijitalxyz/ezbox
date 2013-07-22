@@ -55,6 +55,7 @@ endif
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_switch_root.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_nvram_cmp.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_file_get_keyword.c
+libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_init.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_modules.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_kernel_version.c
 libezcd_la_SOURCES += $(top_builddir)/src/utils/utils_get_mem_size.c

@@ -31,6 +31,7 @@ sbin_PROGRAMS =	ezcd
 
 # basic functions
 ezcd_SOURCES = $(top_builddir)/src/main.c
+ezcd_SOURCES += $(top_builddir)/src/agent_env.c
 ezcd_SOURCES += $(top_builddir)/src/preinit.c
 ezcd_SOURCES += $(top_builddir)/src/init.c
 ezcd_SOURCES += $(top_builddir)/src/ezcd.c

@@ -139,12 +139,14 @@ int env_action_preboot(int argc, char **argv)
 		/* init /dev/ nodes */
 		utils_udev_pop_nodes();
 
+		/* get the kernel "init=" from /proc/cmdline */
+		ret = utils_get_kernel_init(buf, sizeof(buf));
 		/* check if we need switch root device */
-		if (utils_switch_root_is_ready() == true) {
+		if ((ret > 0) && (utils_switch_root_is_ready(buf) == true)) {
 			DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
 			utils_clean_preboot_dirs();
 			/* if switch_root succeed, it should never return */
-			utils_switch_root_device();
+			utils_switch_root_device(buf);
 			/* switch_root fail, fall through */
 			DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
 			exit(EXIT_FAILURE);

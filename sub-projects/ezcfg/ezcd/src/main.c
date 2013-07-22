@@ -50,6 +50,9 @@ int main(int argc, char **argv)
 	else if (!strcmp(argv[0], "/sbin/init")) {
 		return init_main(argc, argv);
 	}
+	else if (!strcmp(argv[0], "/sbin/agent_env")) {
+		return agent_env_main(argc, argv);
+	}
 	else if (!strcmp(name, "rc")) {
 		return rc_main(argc, argv);
 	}

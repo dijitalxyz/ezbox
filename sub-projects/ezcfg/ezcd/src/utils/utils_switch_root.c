@@ -80,7 +80,7 @@
 	} \
 } while(0)
 
-bool utils_switch_root_is_ready(void)
+bool utils_switch_root_is_ready(char *init_path)
 {
 	char buf[32];
 	struct stat st;
@@ -92,13 +92,18 @@ bool utils_switch_root_is_ready(void)
 		return (false);
 	}
 
+	if (init_path == NULL) {
+		DBG("huedebug %s(%d) init_path is NULL!\n", __func__, __LINE__);
+		return (false);
+	}
+
 	ret = utils_get_root_device_path(buf, sizeof(buf));
 	if (ret < 3) {
 		DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
 		return (false);
 	}
 
-	if (stat("/init", &st) != 0 || !S_ISREG(st.st_mode)) {
+	if (stat(init_path, &st) != 0 || !S_ISREG(st.st_mode)) {
 		DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
 		return (false);
 	}
@@ -119,12 +124,18 @@ bool utils_switch_root_is_ready(void)
 	return (true);
 }
 
-int utils_switch_root_device(void)
+int utils_switch_root_device(char *init_path)
 {
 	int ret;
-	char *argv[] = { CMD_SWITCH_ROOT, "/root", "/init", NULL };
+	char *argv[] = { CMD_SWITCH_ROOT, "/root", init_path, NULL };
 
 	DBG("huedebug %s(%d) pid=[%d]\n", __func__, __LINE__, getpid());
+
+	if (init_path == NULL) {
+		DBG("huedebug %s(%d) init_path is NULL!\n", __func__, __LINE__);
+		return (EXIT_FAILURE);
+	}
+
 	ret = execv(argv[0], argv);
 
 	/* should never return if switch_root succeed */

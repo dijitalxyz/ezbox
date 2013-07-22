@@ -18,6 +18,7 @@ utils_find_pid_by_name
 utils_has_process_by_name
 utils_get_rc_act_type
 utils_cleanup_rootfs
+utils_get_kernel_init
 utils_get_kernel_modules
 utils_get_mem_size_mb
 utils_install_kernel_module
