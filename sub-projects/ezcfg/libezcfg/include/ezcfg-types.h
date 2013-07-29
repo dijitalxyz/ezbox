@@ -24,6 +24,9 @@
  */
 struct ezcfg;
 
+/* agent/agent_core.c */
+struct ezcfg_agent;
+
 /* thread/master.c */
 struct ezcfg_master;
 

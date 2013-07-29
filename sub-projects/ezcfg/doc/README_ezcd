@@ -23,7 +23,7 @@ ezcd is the central part of ezbox system.
 
   The local agent will have a chance to execute sense-think-act process cycle in 6.2 stage.
   6.2.1 The local agent senses its inner state has been changed, so it first updates its inner state which has been represented as nvram entries;
-  6.2.2 The local agent then thinks with the state changing;
+  6.2.2 The local agent then thinks about the state changes;
   6.2.3 The local agent finally performs the action.
 
 7. The birth of the environment agent

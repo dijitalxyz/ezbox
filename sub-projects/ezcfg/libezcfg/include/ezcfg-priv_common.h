@@ -93,6 +93,8 @@ size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
 size_t ezcfg_common_get_shm_ezctp_cq_unit_size(struct ezcfg *ezcfg);
 size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg);
 #endif
+char *ezcfg_common_get_sock_agent_ctrl_path(struct ezcfg *ezcfg);
+void ezcfg_common_set_sock_agent_ctrl_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg);

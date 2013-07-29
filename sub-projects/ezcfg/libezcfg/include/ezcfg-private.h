@@ -416,9 +416,11 @@ void ezcfg_upnp_gena_delete(struct ezcfg_upnp_gena *upnp_gena);
 struct ezcfg_upnp_gena *ezcfg_upnp_gena_new(struct ezcfg *ezcfg);
 void ezcfg_upnp_gena_reset_attributes(struct ezcfg_upnp_gena *upnp_gena);
 
+/* agent/agent_core.c */
+#include "ezcfg-priv_agent.h"
+
 /* thread/master.c */
 #include "ezcfg-priv_master.h"
-
 
 /* thread/worker.c */
 #include "ezcfg-priv_worker.h"

@@ -43,6 +43,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/common/list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/link_list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/shm.c
 
+# ezcfg Multi-Agents System model
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_core.c
+
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/thread.c
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/master.c

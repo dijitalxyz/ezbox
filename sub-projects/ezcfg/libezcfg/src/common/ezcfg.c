@@ -61,6 +61,7 @@ struct ezcfg {
 	size_t 		shm_ezcfg_size;
 	size_t 		shm_ezcfg_nvram_queue_length;
 	size_t 		shm_ezcfg_rc_queue_length;
+	char 		sock_agent_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
 	char 		sock_uevent_path[EZCFG_PATH_MAX];
@@ -253,6 +254,19 @@ size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg)
 	return ezcfg->shm_ezctp_cq_length;
 }
 #endif
+
+char *ezcfg_common_get_sock_agent_ctrl_path(struct ezcfg *ezcfg)
+{
+	return ezcfg->sock_agent_ctrl_path;
+}
+
+void ezcfg_common_set_sock_agent_ctrl_path(struct ezcfg *ezcfg, char *path)
+{
+	if (path == NULL)
+		return;
+
+	snprintf(ezcfg->sock_agent_ctrl_path, EZCFG_PATH_MAX, "%s", path);
+}
 
 char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg)
 {

@@ -503,7 +503,7 @@ fail_exit:
 
 /**
  * master_add_socket:
- * @ezcfg: ezcfg master context
+ * @master: ezcfg master context
  * @socket_path: unix socket path
  *
  * Add a specified socket to the master thread. The
