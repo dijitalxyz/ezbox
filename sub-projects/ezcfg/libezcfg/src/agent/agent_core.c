@@ -67,6 +67,7 @@ struct ezcfg_agent {
 	int state;
 	struct ezcfg_socket *listening_sockets;
 	int sq_len; /* Length of the socket queue */
+	struct ezcfg_nvram *nvram; /* Name-Value random access memory */
 };
 
 /* Private functions */
@@ -82,8 +83,12 @@ static void agent_delete(struct ezcfg_agent *agent)
 
 	if (agent->name != NULL) {
 		free(agent->name);
-		agent->name = NULL;
 	}
+
+	if (agent->nvram != NULL) {
+		ezcfg_nvram_delete(agent->nvram);
+	}
+
 	free(agent);
 }
 
@@ -121,14 +126,36 @@ static struct ezcfg_agent *agent_new(struct ezcfg *ezcfg)
 		err(ezcfg, "calloc ezcfg_agent fail: %m\n");
 		return NULL;
 	}
+
 	/* initialize ezcfg library context */
 	memset(agent, 0, sizeof(struct ezcfg_agent));
 
 	/* set ezcfg library context */
 	agent->ezcfg = ezcfg;
 
+	/* get nvram memory */
+	agent->nvram = ezcfg_nvram_new(ezcfg);
+	if(agent->nvram == NULL) {
+		err(ezcfg, "agent alloc nvram fail: %m\n");
+		goto fail_exit;
+	}
+
+	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(agent->nvram, ezcfg_common_get_config_file(ezcfg));
+	if (ezcfg_nvram_initialize(agent->nvram) == false) {
+		err(ezcfg, "agent init nvram fail: %m\n");
+		goto fail_exit;
+	}
+
+	/* initialize socket queue */
+        agent->sq_len = AGENT_SOCKET_QUEUE_LENGTH;
+
 	/* Successfully create agent */
 	return agent;
+
+fail_exit:
+	agent_delete(agent);
+	return NULL;
 }
 
 /**

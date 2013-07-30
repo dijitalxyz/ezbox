@@ -18,6 +18,8 @@
 #define AGENT_STATE_RUNNING	0
 #define AGENT_STATE_STOPPED	1
 
+#define AGENT_SOCKET_QUEUE_LENGTH	20
+
 /* agent/agent_core.c */
 struct ezcfg_agent *ezcfg_agent_start(struct ezcfg *ezcfg);
 
