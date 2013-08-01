@@ -26,6 +26,12 @@ int ezcfg_api_util_get_conf_string(const char *path,
         const char *section, const int idx, const char *keyword,
         char *buf, size_t len);
 
+/* Agent interface */
+struct ezcfg_agent;
+struct ezcfg_agent *ezcfg_api_agent_start(const char *name, int threads_max);
+int ezcfg_api_agent_stop(struct ezcfg_agent *agent);
+int ezcfg_api_agent_reload(struct ezcfg_agent *agent);
+
 /* Master thread interface */
 struct ezcfg_master;
 struct ezcfg_master *ezcfg_api_master_start(const char *name, int threads_max);

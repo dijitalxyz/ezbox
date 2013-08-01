@@ -56,47 +56,41 @@
 #endif
 
 /*
- * ezcfg_agent:
+ * ezcfg_agent_core:
  *
  * Opaque object handling one event source.
  * Multi-Agents System model - agent part.
  */
-struct ezcfg_agent {
+struct ezcfg_agent_core {
 	struct ezcfg *ezcfg;
 	char *name;
 	int state;
-	struct ezcfg_socket *listening_sockets;
-	int sq_len; /* Length of the socket queue */
 	struct ezcfg_nvram *nvram; /* Name-Value random access memory */
 };
 
 /* Private functions */
 /*
- * Deallocate ezcfg agent context, free up the resources
- * only delete agent_new() allocated resources before pthread_mutex initialized
- * other resources should be deleted in agent_finish()
+ * Deallocate ezcfg agent core state, free up the resources
  */
-static void agent_delete(struct ezcfg_agent *agent)
+static void agent_core_delete(struct ezcfg_agent_core *core)
 {
-	if (agent == NULL)
-		return;
-
-	if (agent->name != NULL) {
-		free(agent->name);
+	if (core->name != NULL) {
+		free(core->name);
 	}
 
-	if (agent->nvram != NULL) {
-		ezcfg_nvram_delete(agent->nvram);
+	if (core->nvram != NULL) {
+		ezcfg_nvram_delete(core->nvram);
 	}
 
-	free(agent);
+	free(core);
 }
 
+#if 0
 /*
  * Deallocate ezcfg agent context, free up the resources
  * when agent_new() success, this function will be called before agent_delete()
  */
-static void agent_finish(struct ezcfg_agent *agent)
+static void agent_finish(struct ezcfg_agent_core *agent)
 {
 	/* Close all listening sockets */
 	if (agent->listening_sockets != NULL) {
@@ -115,9 +109,9 @@ static void agent_finish(struct ezcfg_agent *agent)
  *
  * Returns: a new ezcfg agent
  **/
-static struct ezcfg_agent *agent_new(struct ezcfg *ezcfg)
+static struct ezcfg_agent_core *agent_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_agent *agent;
+	struct ezcfg_agent_core *agent;
 
 	ASSERT(ezcfg != NULL);
 
@@ -175,7 +169,7 @@ fail_exit:
  *
  * Returns: socket, or NULL, in case of an error
  **/
-static struct ezcfg_socket *agent_add_socket(struct ezcfg_agent *agent, int family, int type, int proto, const char *socket_path)
+static struct ezcfg_socket *agent_add_socket(struct ezcfg_agent_core *agent, int family, int type, int proto, const char *socket_path)
 {
 	struct ezcfg_socket *listener;
 	struct ezcfg *ezcfg;
@@ -223,9 +217,9 @@ static struct ezcfg_socket *agent_add_socket(struct ezcfg_agent *agent, int fami
  *
  * Returns: a new ezcfg agent, or #NULL, in case of an error
  **/
-static struct ezcfg_agent *agent_new_from_socket(struct ezcfg *ezcfg, const char *socket_path)
+static struct ezcfg_agent_core *agent_new_from_socket(struct ezcfg *ezcfg, const char *socket_path)
 {
-	struct ezcfg_agent *agent = NULL;
+	struct ezcfg_agent_core *agent = NULL;
 	struct ezcfg_socket *sp = NULL;
 
 	ASSERT(ezcfg != NULL);
@@ -267,28 +261,28 @@ fail_exit:
 	return NULL;
 }
 
-static void agent_update_inner_state(struct ezcfg_agent *agent)
+static void agent_update_inner_state(struct ezcfg_agent_core *agent)
 {
 	/* do nothing */
 	return;
 }
 
-static void agent_think_about_changes(struct ezcfg_agent *agent)
+static void agent_think_about_changes(struct ezcfg_agent_core *agent)
 {
 	/* do nothing */
 	return;
 }
 
-static void agent_perform_action(struct ezcfg_agent *agent)
+static void agent_perform_action(struct ezcfg_agent_core *agent)
 {
 	/* do nothing */
 	return;
 }
 
 /* Public functions */
-struct ezcfg_agent *ezcfg_agent_start(struct ezcfg *ezcfg)
+struct ezcfg_agent_master *ezcfg_agent_start(struct ezcfg *ezcfg)
 {
-	struct ezcfg_agent *agent = NULL;
+	struct ezcfg_agent_core *agent = NULL;
 	sigset_t sigset;
 
 	ASSERT(ezcfg != NULL);
@@ -318,4 +312,65 @@ start_out:
 		agent = NULL;
 	}
 	return agent;
+}
+#endif
+
+void ezcfg_agent_core_delete(struct ezcfg_agent_core *core)
+{
+	if (core == NULL)
+		return;
+
+	agent_core_delete(core);
+}
+
+/**
+ * ezcfg_agent_core_new:
+ *
+ * Create ezcfg agent core state.
+ *
+ * Returns: a new ezcfg agent core state structure
+ **/
+struct ezcfg_agent_core *ezcfg_agent_core_new(struct ezcfg *ezcfg)
+{
+	struct ezcfg_agent_core *core;
+
+	ASSERT(ezcfg != NULL);
+
+	core = calloc(1, sizeof(struct ezcfg_agent_core));
+	if (core == NULL) {
+		err(ezcfg, "calloc ezcfg_agent_core fail: %m\n");
+		return NULL;
+	}
+
+	/* initialize ezcfg library context */
+	memset(core, 0, sizeof(struct ezcfg_agent_core));
+
+	/* set ezcfg library context */
+	core->ezcfg = ezcfg;
+
+	/* get nvram memory */
+	core->nvram = ezcfg_nvram_new(ezcfg);
+	if(core->nvram == NULL) {
+		err(ezcfg, "agent core alloc nvram fail: %m\n");
+		goto fail_exit;
+	}
+
+	/* initialize nvram */
+	ezcfg_nvram_fill_storage_info(core->nvram, ezcfg_common_get_config_file(ezcfg));
+	if (ezcfg_nvram_initialize(core->nvram) == false) {
+		err(ezcfg, "agent init nvram fail: %m\n");
+		goto fail_exit;
+	}
+
+	/* Successfully create agent core state */
+	return core;
+
+fail_exit:
+	agent_core_delete(core);
+	return NULL;
+}
+
+struct ezcfg_nvram *ezcfg_agent_core_get_nvram(struct ezcfg_agent_core *core)
+{
+	return core->nvram;
 }

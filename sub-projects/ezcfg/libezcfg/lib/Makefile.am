@@ -44,7 +44,14 @@ libezcfg_la_SOURCES += $(top_builddir)/src/common/link_list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/shm.c
 
 # ezcfg Multi-Agents System model
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_core.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_common_conf.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_socket_conf.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker_ctrl.c
+libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker_soap_http.c
 
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/thread.c
@@ -319,6 +326,7 @@ endif
 # ezcfg API wrap
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-common.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-util.c
+libezcfg_la_SOURCES += $(top_builddir)/api/src/api-agent.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ipc.c
