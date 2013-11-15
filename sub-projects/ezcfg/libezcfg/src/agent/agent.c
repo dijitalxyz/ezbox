@@ -35,9 +35,14 @@
 #include <sys/un.h>
 #include <pthread.h>
 #include <signal.h>
+#include <sys/prctl.h>
 
 #include "ezcfg.h"
 #include "ezcfg-private.h"
+
+#ifndef PR_SET_CHILD_SUBREAPER
+#define PR_SET_CHILD_SUBREAPER 36
+#endif
 
 #if 0
 #define DBG(format, args...) do { \
@@ -126,6 +131,13 @@ struct ezcfg_agent *ezcfg_agent_start(struct ezcfg *ezcfg)
 	struct ezcfg_agent *agent = NULL;
 
 	ASSERT(ezcfg != NULL);
+
+	if (prctl(PR_SET_CHILD_SUBREAPER, 1) < 0) {
+		err(ezcfg, "failed to make us a subreaper: %m");
+		if (errno == EINVAL)
+			err(ezcfg, "perhaps the kernel version is too old (< 3.4?)");
+		return NULL;
+	}
 
 	agent = agent_new(ezcfg);
 	if (agent == NULL) {
