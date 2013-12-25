@@ -39,6 +39,9 @@ config RTC_SUPPORT
 config BIG_ENDIAN
 	bool
 
+config USES_DEVICETREE
+	bool
+
 config USES_INITRAMFS
 	bool
 
@@ -71,6 +74,9 @@ config NOMMU
 
 config HAS_MIPS16
 	depends on (mips || mipsel || mips64 || mips64el)
+	bool
+
+config RFKILL_SUPPORT
 	bool
 
 config ARCH_64BIT
