@@ -3,16 +3,19 @@
 # files to tmp/ directory
 #########################
 m:Config.in
+m:config/Config-build.in
 m:include/nls.mk
 m:include/target.mk
 m:rules.mk
 m:package/base-files
 m:package/Makefile
-m:package/kernel/modules/crypto.mk
+m:package/kernel/linux/modules/crypto.mk
 m:toolchain/uClibc/Makefile
 m:toolchain/uClibc/common.mk
 m:toolchain/uClibc/config-0.9.33.2/common
 m:toolchain/uClibc/config-0.9.33.2/locale
+m:toolchain/uClibc/patches-0.9.33.2/999-001-x86_64_fixes.patch
+m:toolchain/uClibc/patches-0.9.33.2/999-002-ldd-static.patch
 m:toolchain/gcc/common.mk
 m:tools/e2fsprogs/Makefile
 m:tools/cloog/Makefile
@@ -30,7 +33,9 @@ m:target/linux/at91
 m:target/linux/atheros
 m:target/linux/au1000
 m:target/linux/avr32
+m:target/linux/brcm2708
 m:target/linux/brcm47xx
+m:target/linux/bcm53xx
 m:target/linux/brcm63xx
 m:target/linux/cns21xx
 m:target/linux/cns3xxx
@@ -41,16 +46,21 @@ m:target/linux/etrax
 m:target/linux/gemini
 m:target/linux/goldfish
 m:target/linux/imx21
+m:target/linux/imx6
 m:target/linux/iop32x
 m:target/linux/ixp4xx
 m:target/linux/kirkwood
 m:target/linux/lantiq
 m:target/linux/leon
 m:target/linux/malta
+m:target/linux/mcs814x
 m:target/linux/mpc52xx
 m:target/linux/mpc83xx
 m:target/linux/mpc85xx
+m:target/linux/mvebu
+m:target/linux/mxs
 m:target/linux/octeon
+m:target/linux/omap
 m:target/linux/omap24xx
 m:target/linux/omap35xx
 m:target/linux/omap4
@@ -67,6 +77,7 @@ m:target/linux/realview
 m:target/linux/s3c24xx
 m:target/linux/sibyte
 m:target/linux/sparc
+m:target/linux/sunxi
 m:target/linux/ubicom32
 m:target/linux/uml
 m:target/linux/x86
@@ -79,6 +90,7 @@ d:LICENSE
 d:Makefile
 d:README
 # d:rules.mk
+d:config/
 d:include/
 d:scripts/
 d:toolchain/
@@ -99,10 +111,9 @@ d:target/linux/generic/
 #########################
 # package/ directory
 #########################
-d:package/busybox/
 d:package/kernel/
 d:package/libs/librpc/
 d:package/libs/libtool/
 d:package/libs/ocf-crypto-headers/
-d:package/opkg/
-d:package/toolchain/
+d:package/libs/toolchain/
+d:package/system/opkg/
