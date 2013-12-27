@@ -85,3 +85,8 @@ CPU Architecture Settings.
 
 3. x86
 	export ARCH=i386
+==
+Known issues
+==
+1. Please set LD_LIBRARY_PATH if it can't find correct libraries for building host tools.
+  $ export LD_LIBRARY_PATH="/path/to/your/staging/host/lib:$LD_LIBRARY_PATH"
