@@ -1,6 +1,6 @@
 # basic packages
 c:package/boot/grub2/grub2-2.00:package/boot/grub2
-c:package/system/utils/e2fsprogs/e2fsprogs-1.42.4:package/system/utils/e2fsprogs
+c:package/utils/e2fsprogs/e2fsprogs-1.42.4:package/utils/e2fsprogs
 c:package/libs/libjson-c/libjson-c-0.9:package/libs/libjson-c
 c:package/libs/libnl/libnl-2.0:package/libs/libnl
 c:package/libs/libpcap/libpcap-1.3.0:package/libs/libpcap
@@ -10,5 +10,5 @@ c:package/libs/openssl/openssl-1.0.1e:package/libs/openssl
 c:package/libs/zlib/zlib-1.2.7:package/libs/zlib
 c:package/network/services/dropbear/dropbear-2012.55:package/network/services/dropbear
 c:package/network/utils/iptables/iptables-1.4.18:package/network/utils/iptables
-c:package/udev/udev-173:package/udev
-c:package/util-linux/util-linux-2.21.2:package/util-linux
+c:package/system/udev/udev-173:package/system/udev
+c:package/utils/util-linux/util-linux-2.21.2:package/utils/util-linux
