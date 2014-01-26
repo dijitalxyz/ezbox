@@ -53,6 +53,15 @@ wndr3700_board_detect() {
 	AR71XX_MODEL="$machine"
 }
 
+cybertan_get_hw_magic() {
+	local part
+
+	part=$(find_mtd_part firmware)
+	[ -z "$part" ] && return 1
+
+	dd bs=8 count=1 skip=0 if=$part 2>/dev/null | hexdump -v -n 8 -e '1/1 "%02x"'
+}
+
 tplink_get_hwid() {
 	local part
 
@@ -85,6 +94,9 @@ tplink_board_detect() {
 	"070300"*)
 		model="TP-Link TL-WR703N"
 		;;
+	"071000"*)
+		model="TP-Link TL-WR710N"
+		;;
 	"072001"*)
 		model="TP-Link TL-WR720N"
 		;;
@@ -100,6 +112,9 @@ tplink_board_detect() {
 	"074300"*)
 		model="TP-Link TL-WR743N/ND"
 		;;
+	"075000"*)
+		model="TP-Link TL-WA750RE"
+		;;
 	"080100"*)
 		model="TP-Link TL-WA801N/ND"
 		;;
@@ -111,6 +126,9 @@ tplink_board_detect() {
 		;;
 	"084200"*)
 		model="TP-Link TL-WR842N/ND"
+		;;
+	"085000"*)
+		model="TP-Link TL-WA850RE"
 		;;
 	"090100"*)
 		model="TP-Link TL-WA901N/ND"
@@ -138,6 +156,9 @@ tplink_board_detect() {
 	"001101"*)
 		model="TP-Link TL-MR11U"
 		;;
+	"001301"*)
+		model="TP-Link TL-MR13U"
+		;;
 	"302000"*)
 		model="TP-Link TL-MR3020"
 		;;
@@ -161,6 +182,9 @@ tplink_board_detect() {
 		;;
 	"431000"*)
 		model="TP-Link TL-WDR4310"
+		;;
+	"453000"*)
+		model="MERCURY MW4530R"
 		;;
 	*)
 		hwver=""
@@ -237,6 +261,9 @@ ar71xx_board_detect() {
 	*"DB120 reference board")
 		name="db120"
 		;;
+	*"DIR-505 rev. A1")
+		name="dir-505-a1"
+		;;
 	*"DIR-600 rev. A1")
 		name="dir-600-a1"
 		;;
@@ -271,7 +298,16 @@ ar71xx_board_detect() {
 		name="jwap003"
 		;;
 	*"Hornet-UB")
-		name="hornet-ub"
+		local size
+		size=$(awk '/firmware/ { print $2 }' /proc/mtd)
+
+		if [ "x$size" = "x00790000" ]; then
+			name="hornet-ub"
+		fi
+
+		if [ "x$size" = "x00f90000" ]; then
+			name="hornet-ub-x2"
+		fi
 		;;
 	*LS-SR71)
 		name="ls-sr71"
@@ -281,6 +317,15 @@ ar71xx_board_detect() {
 		;;
 	*MR600)
 		name="mr600"
+		;;
+	*"My Net N600")
+		name="mynet-n600"
+		;;
+	*"My Net N750")
+		name="mynet-n750"
+		;;
+	*"WD My Net Wi-Fi Range Extender")
+		name="mynet-rext"
 		;;
 	*MZK-W04NU)
 		name="mzk-w04nu"
@@ -381,11 +426,17 @@ ar71xx_board_detect() {
 	*TEW-712BR)
 		name="tew-712br"
 		;;
+	*TEW-732BR)
+		name="tew-732br"
+		;;
 	*"TL-WR1041N v2")
 		name="tl-wr1041n-v2"
 		;;
 	*TL-WR1043ND)
 		name="tl-wr1043nd"
+		;;
+	*"TL-WR1043ND v2")
+		name="tl-wr1043nd-v2"
 		;;
 	*TL-WR2543N*)
 		name="tl-wr2543n"
@@ -399,6 +450,9 @@ ar71xx_board_detect() {
 	*TL-MR3040)
 		name="tl-mr3040"
 		;;
+	*"TL-MR3040 v2")
+		name="tl-mr3040-v2"
+		;;
 	*TL-MR3220)
 		name="tl-mr3220"
 		;;
@@ -411,14 +465,26 @@ ar71xx_board_detect() {
 	*"TL-MR3420 v2")
 		name="tl-mr3420-v2"
 		;;
+	*TL-WA750RE)
+		name="tl-wa750re"
+		;;
 	*TL-WA7510N)
 		name="tl-wa7510n"
+		;;
+	*TL-WA850RE)
+		name="tl-wa850re"
+		;;
+	*"TL-WA801ND v2")
+		name="tl-wa801nd-v2"
 		;;
 	*TL-WA901ND)
 		name="tl-wa901nd"
 		;;
 	*"TL-WA901ND v2")
 		name="tl-wa901nd-v2"
+		;;
+	*"TL-WA901ND v3")
+		name="tl-wa901nd-v3"
 		;;
 	*"TL-WDR3500")
 		name="tl-wdr3500"
@@ -441,17 +507,29 @@ ar71xx_board_detect() {
 	*"TL-WR841N/ND v8")
 		name="tl-wr841n-v8"
 		;;
+	*"TL-WR842N/ND v2")
+		name="tl-wr842n-v2"
+		;;
 	*TL-WR941ND)
 		name="tl-wr941nd"
 		;;
 	*"TL-WR703N v1")
 		name="tl-wr703n"
 		;;
+	*"TL-WR710N v1")
+		name="tl-wr710n"
+		;;
 	*"TL-WR720N v3")
 		name="tl-wr720n-v3"
 		;;
+	*"TL-MR10U")
+		name="tl-mr10u"
+		;;
 	*"TL-MR11U")
 		name="tl-mr11u"
+		;;
+	*"TL-MR13U")
+		name="tl-mr13u"
 		;;
 	*UniFi)
 		name="unifi"
@@ -492,6 +570,12 @@ ar71xx_board_detect() {
 	*WNR2000)
 		name="wnr2000"
 		;;
+	*WNR2200)
+		name="wnr2200"
+		;;
+	*"WNR612 V2")
+		name="wnr612-v2"
+		;;
 	*WRT160NL)
 		name="wrt160nl"
 		;;
@@ -524,6 +608,15 @@ ar71xx_board_detect() {
 		;;
 	*EmbWir-Dorin-Router)
 		name="ew-dorin-router"
+		;;
+	"8devices Carambola2"*)
+		name="carambola2"
+		;;
+	*"Sitecom WLR-8100")
+		name="wlr8100"
+		;;
+	*"BHU BXU2000n-2 rev. A1")
+		name="bxu2000n-2-a1"
 		;;
 	esac
 
