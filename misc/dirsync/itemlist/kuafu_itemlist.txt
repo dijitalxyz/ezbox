@@ -6,6 +6,7 @@ d:target/linux/ar71xx/
 d:target/linux/brcm47xx/
 d:target/linux/s3c24xx/
 d:target/linux/x86/
+d:target/linux/x86_64/
 #########################
 # distributions/kuafu/ directory
 #########################
