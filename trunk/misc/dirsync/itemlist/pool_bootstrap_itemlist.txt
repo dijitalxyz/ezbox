@@ -14,3 +14,4 @@ d:target/linux/lantiq/
 d:target/linux/ramips/
 d:target/linux/uml/
 d:target/linux/x86/
+d:target/linux/x86_64/

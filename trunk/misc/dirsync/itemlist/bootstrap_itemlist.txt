@@ -87,6 +87,7 @@ m:target/linux/sunxi
 m:target/linux/ubicom32
 m:target/linux/uml
 m:target/linux/x86
+m:target/linux/x86_64
 m:target/linux/xburst
 #########################
 # next do the diff action
@@ -117,7 +118,7 @@ d:target/linux/generic/
 #########################
 # package/ directory
 #########################
-d:package/kernel/
+d:package/kernel/linux/
 d:package/libs/librpc/
 d:package/libs/libtool/
 d:package/libs/ocf-crypto-headers/
