@@ -12,11 +12,11 @@ __target_inc=1
 DEVICE_TYPE?=router
 
 # Default packages - the really basic set
-DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg hotplug2
+DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd
 # FIXME: ezbox special settings
 DEFAULT_PACKAGES:=ezcfg libc libgcc
 # For router targets
-DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall 6relayd odhcp6c
+DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe kmod-ipt-nathelper firewall odhcpd odhcp6c
 DEFAULT_PACKAGES.bootloader:=
 
 ifneq ($(DUMP),)
@@ -78,7 +78,7 @@ define Profile
 	$(SH_FUNC) getvar "$(call shvar,Profile/$(1)/Description)"; \
 	echo "@@"; \
 	echo;
-  ifeq ($(CONFIG_TARGET_$(call target_conf,$(BOARD)_$(if $(SUBTARGET),$(SUBTARGET)_)$(1))),y)
+  ifeq ($(CONFIG_TARGET_$(call target_conf,$(BOARD)_$(if $(SUBTARGET),$(SUBTARGET)_))$(1)),y)
     PROFILE=$(1)
   endif
 endef
