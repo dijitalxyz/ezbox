@@ -53,12 +53,11 @@
 
 	ethernet@400000 {
 		status = "okay";
+		mtd-mac-address = <&factory 0x4>;
 
-		ralink,fixed-link = <1000 1 1 1>;
-	};
-
-	wmac@480000 {
-		status = "okay";
+                port@0 {
+			ralink,fixed-link = <1000 1 1 1>;
+		};
 	};
 
 	rtl8366s {
