@@ -57,7 +57,9 @@ do
       echo "file format error @ [$LINE] !!!"
       exit -1
     fi
-    if [ ! -d $SOURCE_DIR/$SOURCE ] ; then
+    if [ "$FIRST_CHAR" = "d" ] ; then
+      echo "need not check $SOURCE_DIR/$SOURCE for delete !!!"
+    elif [ ! -d $SOURCE_DIR/$SOURCE ] ; then
       if [ ! -f $SOURCE_DIR/$SOURCE ] ; then
         echo "$SOURCE_DIR/$SOURCE does not exist !!!"
         exit -1
@@ -70,6 +72,11 @@ do
       rm -rf $TARGET_DIR/$TARGET
       dbg "cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET"
       cp -afL $SOURCE_DIR/$SOURCE $TARGET_DIR/$TARGET
+    elif [ "$FIRST_CHAR" = "d" ] ; then
+      dbg "mkdir -p $TARGET_DIR/$TARGET"
+      mkdir -p $TARGET_DIR/$TARGET
+      dbg "rm -rf $TARGET_DIR/$TARGET"
+      rm -rf $TARGET_DIR/$TARGET
     elif [ "$FIRST_CHAR" = "l" ] ; then
       dbg "mkdir -p $TARGET_DIR/$TARGET"
       mkdir -p $TARGET_DIR/$TARGET

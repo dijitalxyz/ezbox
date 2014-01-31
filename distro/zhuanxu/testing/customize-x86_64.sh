@@ -24,6 +24,10 @@ fi
 do_customize() {
 #  [ ! -d $POOL_DIR/customize/target/linux/generic ] || cp -af $POOL_DIR/customize/target/linux/generic/* $WORK_DIR/target/linux/generic/
 #  [ ! -d $POOL_DIR/customize/target/linux/x86_64 ] || cp -af $POOL_DIR/customize/target/linux/x86_64/* $WORK_DIR/target/linux/x86_64/
+  if [ -d $WORK_DIR/target/linux/generic/base-files ] ; then \
+    rm -rf $WORK_DIR/target/linux/generic/base-files/init ; \
+    ln -sf sbin/ezcd $WORK_DIR/target/linux/generic/base-files/init ; \
+  fi
   echo "do_customize OK!"
 }
 
