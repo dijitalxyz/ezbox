@@ -12,3 +12,5 @@ c:package/network/services/dropbear/dropbear-2012.55:package/network/services/dr
 c:package/network/utils/iptables/iptables-1.4.18:package/network/utils/iptables
 c:package/system/udev/udev-173:package/system/udev
 c:package/utils/util-linux/util-linux-2.21.2:package/utils/util-linux
+# basic target
+d:target/linux/generic/base-files/init:target/linux/generic/base-files/init
