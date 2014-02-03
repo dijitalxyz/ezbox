@@ -1,5 +1,6 @@
 # basic packages
 c:package/boot/grub2/grub2-2.00:package/boot/grub2
+c:package/utils/busybox/busybox-1.19.4:package/utils/busybox
 c:package/utils/e2fsprogs/e2fsprogs-1.42.4:package/utils/e2fsprogs
 c:package/libs/libjson-c/libjson-c-0.9:package/libs/libjson-c
 c:package/libs/libnl/libnl-2.0:package/libs/libnl

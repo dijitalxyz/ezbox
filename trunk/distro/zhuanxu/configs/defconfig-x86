@@ -287,6 +287,8 @@ CONFIG_FEATURE_EZCFG_ezcfg-ssl-openssl=y
 #
 # Base system
 #
+CONFIG_PACKAGE_busybox=y
+# CONFIG_BUSYBOX_CONFIG_FEATURE_MOUNT_NFS is not set
 CONFIG_PACKAGE_dropbear=y
 CONFIG_PACKAGE_ezcfg=y
 
