@@ -36,6 +36,46 @@ define AddDepends/usb
 endef
 
 
+define KernelPackage/musb-hdrc
+  TITLE:=Support for Mentor Graphics silicon dual role USB
+  KCONFIG:= \
+	CONFIG_USB_MUSB_HDRC \
+	CONFIG_MUSB_PIO_ONLY=n \
+	CONFIG_USB_MUSB_DUAL_ROLE=y \
+	CONFIG_USB_MUSB_GADGET=n \
+	CONFIG_USB_MUSB_HOST=n \
+	CONFIG_USB_MUSB_DEBUG=y
+  DEPENDS:=@(TARGET_omap||TARGET_omap24xx)
+  FILES:=$(LINUX_DIR)/drivers/usb/musb/musb_hdrc.ko
+  AUTOLOAD:=$(call AutoLoad,46,musb_hdrc)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/musb-hdrc/description
+  Kernel support for Mentor Graphics silicon dual role USB device.
+endef
+
+$(eval $(call KernelPackage,musb-hdrc))
+
+
+
+define KernelPackage/nop-usb-xceiv
+  TITLE:=Support for USB OTG NOP transceiver
+  KCONFIG:= \
+	CONFIG_NOP_USB_XCEIV
+  DEPENDS:=+kmod-musb-hdrc
+  FILES:=$(LINUX_DIR)/drivers/usb/otg/nop-usb-xceiv.ko
+  AUTOLOAD:=$(call AutoLoad,45,nop-usb-xceiv)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/nop-usb-xceiv/description
+  Support for USB OTG NOP transceiver
+endef
+
+$(eval $(call KernelPackage,nop-usb-xceiv))
+
+
 define KernelPackage/usb-gadget
   TITLE:=USB Gadget support
   KCONFIG:=CONFIG_USB_GADGET
@@ -205,7 +245,7 @@ $(eval $(call KernelPackage,usb2-pci))
 
 define KernelPackage/usb-dwc2
   TITLE:=DWC2 USB controller driver
-  DEPENDS:=@LINUX_3_10
+  DEPENDS:=@(!LINUX_3_3&&!LINUX_3_6&&!LINUX_3_8&&!LINUX_3_9)
   KCONFIG:= \
 	CONFIG_USB_DWC2 \
 	CONFIG_USB_DWC2_DEBUG=n \
@@ -967,6 +1007,21 @@ define KernelPackage/usb-net-ipheth/description
 endef
 
 $(eval $(call KernelPackage,usb-net-ipheth))
+
+
+define KernelPackage/usb-net-kalmia
+  TITLE:=Samsung Kalmia based LTE USB modem
+  KCONFIG:=CONFIG_USB_NET_KALMIA
+  FILES:=$(LINUX_DIR)/drivers/net/usb/kalmia.ko
+  AUTOLOAD:=$(call AutoProbe,kalmia)
+  $(call AddDepends/usb-net)
+endef
+
+define KernelPackage/usb-net-kalmia/description
+ Kernel support for Samsung Kalmia based LTE USB modem
+endef
+
+$(eval $(call KernelPackage,usb-net-kalmia))
 
 
 define KernelPackage/usb-hid
