@@ -233,21 +233,7 @@
  }
 --- a/drivers/bcma/host_pci.c
 +++ b/drivers/bcma/host_pci.c
-@@ -188,8 +188,11 @@ static int bcma_host_pci_probe(struct pc
- 		pci_write_config_dword(dev, 0x40, val & 0xffff00ff);
- 
- 	/* SSB needed additional powering up, do we have any AMBA PCI cards? */
--	if (!pci_is_pcie(dev))
--		bcma_err(bus, "PCI card detected, report problems.\n");
-+	if (!pci_is_pcie(dev)) {
-+		bcma_err(bus, "PCI card detected, they are not supported.\n");
-+		err = -ENXIO;
-+		goto err_pci_release_regions;
-+	}
- 
- 	/* Map MMIO */
- 	err = -ENOMEM;
-@@ -235,7 +238,6 @@ static void bcma_host_pci_remove(struct
+@@ -238,7 +238,6 @@ static void bcma_host_pci_remove(struct
  	pci_release_regions(dev);
  	pci_disable_device(dev);
  	kfree(bus);
@@ -255,73 +241,18 @@
  }
  
  #ifdef CONFIG_PM_SLEEP
-@@ -267,8 +269,9 @@ static SIMPLE_DEV_PM_OPS(bcma_pm_ops, bc
+@@ -270,7 +269,7 @@ static SIMPLE_DEV_PM_OPS(bcma_pm_ops, bc
  
  #endif /* CONFIG_PM_SLEEP */
  
 -static DEFINE_PCI_DEVICE_TABLE(bcma_pci_bridge_tbl) = {
 +static const struct pci_device_id bcma_pci_bridge_tbl[] = {
  	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x0576) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4313) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4313) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 43224) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4331) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_BROADCOM, 0x4353) },
 --- a/drivers/bcma/main.c
 +++ b/drivers/bcma/main.c
-@@ -30,28 +30,37 @@ static ssize_t manuf_show(struct device
- 	struct bcma_device *core = container_of(dev, struct bcma_device, dev);
- 	return sprintf(buf, "0x%03X\n", core->id.manuf);
- }
-+static DEVICE_ATTR_RO(manuf);
-+
- static ssize_t id_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct bcma_device *core = container_of(dev, struct bcma_device, dev);
- 	return sprintf(buf, "0x%03X\n", core->id.id);
- }
-+static DEVICE_ATTR_RO(id);
-+
- static ssize_t rev_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct bcma_device *core = container_of(dev, struct bcma_device, dev);
- 	return sprintf(buf, "0x%02X\n", core->id.rev);
- }
-+static DEVICE_ATTR_RO(rev);
-+
- static ssize_t class_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct bcma_device *core = container_of(dev, struct bcma_device, dev);
- 	return sprintf(buf, "0x%X\n", core->id.class);
- }
--static struct device_attribute bcma_device_attrs[] = {
--	__ATTR_RO(manuf),
--	__ATTR_RO(id),
--	__ATTR_RO(rev),
--	__ATTR_RO(class),
--	__ATTR_NULL,
-+static DEVICE_ATTR_RO(class);
-+
-+static struct attribute *bcma_device_attrs[] = {
-+	&dev_attr_manuf.attr,
-+	&dev_attr_id.attr,
-+	&dev_attr_rev.attr,
-+	&dev_attr_class.attr,
-+	NULL,
- };
-+ATTRIBUTE_GROUPS(bcma_device);
- 
- static struct bus_type bcma_bus_type = {
- 	.name		= "bcma",
-@@ -59,7 +68,7 @@ static struct bus_type bcma_bus_type = {
- 	.probe		= bcma_device_probe,
- 	.remove		= bcma_device_remove,
- 	.uevent		= bcma_device_uevent,
--	.dev_attrs	= bcma_device_attrs,
-+	.dev_groups	= bcma_device_groups,
- };
- 
- static u16 bcma_cc_core_id(struct bcma_bus *bus)
-@@ -69,18 +78,6 @@ static u16 bcma_cc_core_id(struct bcma_b
+@@ -78,18 +78,6 @@ static u16 bcma_cc_core_id(struct bcma_b
  	return BCMA_CORE_CHIPCOMMON;
  }
  
@@ -340,7 +271,7 @@
  struct bcma_device *bcma_find_core_unit(struct bcma_bus *bus, u16 coreid,
  					u8 unit)
  {
-@@ -92,6 +89,7 @@ struct bcma_device *bcma_find_core_unit(
+@@ -101,6 +89,7 @@ struct bcma_device *bcma_find_core_unit(
  	}
  	return NULL;
  }
@@ -348,7 +279,7 @@
  
  bool bcma_wait_value(struct bcma_device *core, u16 reg, u32 mask, u32 value,
  		     int timeout)
-@@ -167,6 +165,7 @@ static int bcma_register_cores(struct bc
+@@ -176,6 +165,7 @@ static int bcma_register_cores(struct bc
  			bcma_err(bus,
  				 "Could not register dev for core 0x%03X\n",
  				 core->id.id);
