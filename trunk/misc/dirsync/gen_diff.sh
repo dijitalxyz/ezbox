@@ -43,6 +43,7 @@ do
     echo "it's a comment."
   else
     ACTION=${LINE%:*}
+    echo "ACTION=$ACTION"
     FILE_PATH=${LINE#*:}
     # do a diff action
     if [ $ACTION = "d" ] ; then
@@ -69,6 +70,18 @@ do
       rm -rf $DST_DIR/$FILE_PATH
       DIFF_FILE=tmp-${FILE_PATH//\//-}.diff
       diff -urNd $SRC_DIR/tmp/$FILE_PATH $DST_DIR/tmp/$FILE_PATH > $DIFF_DIR/$DIFF_FILE
+      LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
+      # remove empty diff file
+      if [ $LINE_COUNT -lt 1 ] ; then
+        rm -f $DIFF_DIR/$DIFF_FILE
+      fi
+    fi
+    # do a full path diff action
+    if [ $ACTION = "f" ] ; then
+      SOURCE_PATH=${FILE_PATH%|*}
+      TARGET_PATH=${FILE_PATH#*|}
+      DIFF_FILE=${SOURCE_PATH//\//-}.diff
+      diff -urNd $SRC_DIR/$SOURCE_PATH $DST_DIR/$TARGET_PATH > $DIFF_DIR/$DIFF_FILE
       LINE_COUNT=$(cat $DIFF_DIR/$DIFF_FILE | wc -l)
       # remove empty diff file
       if [ $LINE_COUNT -lt 1 ] ; then
