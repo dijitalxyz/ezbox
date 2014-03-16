@@ -64,9 +64,13 @@ struct ezcfg_uuid;
 /* ctrl/ctrl.c - daemon runtime setup */
 struct ezcfg_ctrl;
 
-/* xml/xml.c - daemon runtime setup */
+/* xml/xml.c */
 struct ezcfg_xml_element;
 struct ezcfg_xml;
+
+/* json/json.c */
+struct ezcfg_json_value;
+struct ezcfg_json;
 
 /* socket/socket.c */
 struct ezcfg_socket;

@@ -138,6 +138,10 @@ struct ezcfg_nvram {
 	int num_default_validators;
 	ezcfg_nv_validator_t *default_validators;
 
+	/* default propagators */
+	int num_default_propagators;
+	ezcfg_nv_propagator_t *default_propagators;
+
 	/* total_space = sizeof(header) + free_space + used_space */
 	int total_space; /* storage space for nvram */
 	int free_space; /* unused space */
@@ -1455,6 +1459,10 @@ struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 	/* set default validators */
 	nvram->num_default_validators = ezcfg_nvram_get_num_default_nvram_validators();
 	nvram->default_validators = default_nvram_validators;
+
+	/* set default propagators */
+	nvram->num_default_propagators = ezcfg_nvram_get_num_default_nvram_propagators();
+	nvram->default_propagators = default_nvram_propagators;
 
 	return nvram;
 }

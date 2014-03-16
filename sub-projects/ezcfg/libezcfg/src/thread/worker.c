@@ -229,6 +229,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 
 	/* dispatch protocol handler */
 	switch(worker->proto) {
+#if 0
 	case EZCFG_PROTO_CTRL :
 		ezcfg_worker_process_ctrl_new_connection(worker);
 		break;
@@ -264,6 +265,7 @@ static void process_new_connection(struct ezcfg_worker *worker)
 	case EZCFG_PROTO_UPNP_GENA :
 		ezcfg_worker_process_upnp_gena_new_connection(worker);
 		break;
+#endif
 #endif
 	default :
 		err(ezcfg, "unknown protocol\n");

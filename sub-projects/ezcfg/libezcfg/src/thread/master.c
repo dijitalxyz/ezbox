@@ -686,6 +686,7 @@ static bool accept_new_connection(struct ezcfg_master *master,
 		return false;
 	}
 
+#if 0
 	if (ezcfg_socket_get_proto(listener) == EZCFG_PROTO_UEVENT) {
 		if (ezcfg_master_handle_uevent_socket(master, listener, accepted) == false) {
 			ezcfg_socket_delete(accepted);
@@ -699,6 +700,7 @@ static bool accept_new_connection(struct ezcfg_master *master,
 			return false;
 		}
 	}
+#endif
 #endif
 
 	allowed = true;
@@ -878,6 +880,7 @@ struct ezcfg_master *ezcfg_master_start(struct ezcfg *ezcfg)
 
 load_other_sockets:
 
+#if 0
 	/* lock mutex before handling auths */
 	pthread_mutex_lock(&(master->auth_mutex));
 	ezcfg_master_load_auth_conf(master);
@@ -913,6 +916,7 @@ load_other_sockets:
 	ezcfg_master_load_socket_conf(master);
 	/* unlock mutex after handling listening_sockets */
 	pthread_mutex_unlock(&(master->ls_mutex));
+#endif
 
 start_out:
 	/* Start master (listening) thread */
@@ -1019,11 +1023,14 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 		master->auths = NULL;
 	}
 
+#if 0
 	ezcfg_master_load_auth_conf(master);
+#endif
 
 	/* unlock auths mutex */
 	pthread_mutex_unlock(&(master->auth_mutex));
 
+#if 0
 #if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
 	/* lock ssl mutex */
 	pthread_mutex_lock(&(master->ssl_mutex));
@@ -1068,9 +1075,9 @@ void ezcfg_master_reload(struct ezcfg_master *master)
 	/* unlock upnp mutex */
 	pthread_mutex_unlock(&(master->upnp_mutex));
 #endif
-
 	/* reload sockets */
 	ezcfg_master_load_socket_conf(master);
+#endif
 
 	/* unlock listening sockets mutex */
 	pthread_mutex_unlock(&(master->ls_mutex));

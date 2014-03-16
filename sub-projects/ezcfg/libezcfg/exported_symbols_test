@@ -88,6 +88,10 @@ ezcfg_delete
 ezcfg_xml_new
 ezcfg_xml_delete
 ezcfg_xml_parse
+ezcfg_json_new
+ezcfg_json_delete
+ezcfg_json_parse_text
+ezcfg_json_write_message
 ezcfg_upnp_new
 ezcfg_upnp_delete
 ezcfg_upnp_parse_description

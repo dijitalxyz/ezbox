@@ -40,6 +40,12 @@ typedef struct ezcfg_nv_validator_s {
 	bool (*handler)(const char *value);
 } ezcfg_nv_validator_t;
 
+/* nvram propagator struct */
+typedef struct ezcfg_nv_propagator_s {
+	char *name;
+	struct ezcfg_socket *sp;
+	bool (*handler)(const char *name, const char *value, struct ezcfg_socket *sp);
+} ezcfg_nv_propagator_t;
 
 /* rc service invocation struct */
 typedef struct ezcfg_rc_triple_s {
@@ -90,6 +96,12 @@ int ezcfg_nvram_get_num_default_nvram_savings(void);
 extern ezcfg_nv_validator_t default_nvram_validators[];
 bool ezcfg_nvram_validate_value(struct ezcfg *ezcfg, char *name, char *value);
 int ezcfg_nvram_get_num_default_nvram_validators(void);
+
+
+/* nvram/nvram-propagators.c */
+extern ezcfg_nv_propagator_t default_nvram_propagators[];
+bool ezcfg_nvram_propagate_value(struct ezcfg *ezcfg, char *name, char *value);
+int ezcfg_nvram_get_num_default_nvram_propagators(void);
 
 
 /* nvram/nvram.c */
@@ -354,6 +366,28 @@ int ezcfg_http_html_admin_cnc_latency_handler(struct ezcfg_http_html_admin *admi
 
 /* xml/xml.c */
 #include "ezcfg-priv_xml.h"
+
+/* json/json.c */
+#include "ezcfg-priv_json.h"
+
+/* json/json_http.c */
+struct ezcfg_json_http;
+void ezcfg_json_http_delete(struct ezcfg_json_http *jh);
+struct ezcfg_json_http *ezcfg_json_http_new(struct ezcfg *ezcfg);
+struct ezcfg_json *ezcfg_json_http_get_json(struct ezcfg_json_http *jh);
+struct ezcfg_http *ezcfg_json_http_get_http(struct ezcfg_json_http *jh);
+unsigned short ezcfg_json_http_get_http_version_major(struct ezcfg_json_http *jh);
+unsigned short ezcfg_json_http_get_http_version_minor(struct ezcfg_json_http *jh);
+bool ezcfg_json_http_set_http_version_major(struct ezcfg_json_http *jh, unsigned short major);
+bool ezcfg_json_http_set_http_version_minor(struct ezcfg_json_http *jh, unsigned short minor);
+char *ezcfg_json_http_get_http_header_value(struct ezcfg_json_http *jh, char *name);
+void ezcfg_json_http_reset_attributes(struct ezcfg_json_http *jh);
+bool ezcfg_json_http_parse_header(struct ezcfg_json_http *jh, char *buf, int len);
+bool ezcfg_json_http_parse_message_body(struct ezcfg_json_http *jh);
+char *ezcfg_json_http_set_message_body(struct ezcfg_json_http *jh, const char *body, int len);
+void ezcfg_json_http_dump(struct ezcfg_json_http *jh);
+int ezcfg_json_http_get_message_length(struct ezcfg_json_http *jh);
+int ezcfg_json_http_write_message(struct ezcfg_json_http *jh, char *buf, int len);
 
 /* soap/soap.c */
 struct ezcfg_soap;

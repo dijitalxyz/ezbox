@@ -86,6 +86,9 @@ static void reset_connection_attributes(struct ezcfg_agent_worker *worker) {
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_soap_http_reset_attributes(worker->proto_data);
 		break;
+	case EZCFG_PROTO_JSON_HTTP :
+		ezcfg_json_http_reset_attributes(worker->proto_data);
+		break;
 	default :
 		err(ezcfg, "unknown protocol\n");
 	}
@@ -121,6 +124,9 @@ static void init_protocol_data(struct ezcfg_agent_worker *worker)
 	case EZCFG_PROTO_SOAP_HTTP :
 		worker->proto_data = ezcfg_soap_http_new(ezcfg);
 		break;
+	case EZCFG_PROTO_JSON_HTTP :
+		worker->proto_data = ezcfg_json_http_new(ezcfg);
+		break;
 	default :
 		info(ezcfg, "unknown protocol\n");
 	}
@@ -138,11 +144,11 @@ static void process_new_connection(struct ezcfg_agent_worker *worker)
 
 	/* dispatch protocol handler */
 	switch(worker->proto) {
-	case EZCFG_PROTO_CTRL :
-		ezcfg_agent_worker_process_ctrl_new_connection(worker);
-		break;
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_agent_worker_process_soap_http_new_connection(worker);
+		break;
+	case EZCFG_PROTO_JSON_HTTP :
+		ezcfg_agent_worker_process_json_http_new_connection(worker);
 		break;
 	default :
 		err(ezcfg, "unknown protocol\n");
@@ -165,6 +171,10 @@ static void release_protocol_data(struct ezcfg_agent_worker *worker)
 		break;
 	case EZCFG_PROTO_SOAP_HTTP :
 		ezcfg_soap_http_delete(worker->proto_data);
+		worker->proto_data = NULL;
+		break;
+	case EZCFG_PROTO_JSON_HTTP :
+		ezcfg_json_http_delete(worker->proto_data);
 		worker->proto_data = NULL;
 		break;
 	default :

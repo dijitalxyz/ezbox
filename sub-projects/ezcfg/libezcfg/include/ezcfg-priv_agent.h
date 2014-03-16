@@ -82,4 +82,7 @@ void ezcfg_agent_worker_process_ctrl_new_connection(struct ezcfg_agent_worker *w
 /* agent/agent_worker_soap_http.c */
 void ezcfg_agent_worker_process_soap_http_new_connection(struct ezcfg_agent_worker *worker);
 
+/* agent/agent_worker_json_http.c */
+void ezcfg_agent_worker_process_json_http_new_connection(struct ezcfg_agent_worker *worker);
+
 #endif /* _EZCFG_PRIV_AGENT_H_ */
