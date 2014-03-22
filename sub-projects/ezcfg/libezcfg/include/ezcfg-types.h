@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-12-02   0.1       Splite it from ezcfg.h
@@ -23,6 +23,10 @@
  * ezbox config context
  */
 struct ezcfg;
+
+/* tree/binary_tree.c */
+struct ezcfg_binary_tree_node;
+struct ezcfg_binary_tree;
 
 /* agent/agent_core.c */
 struct ezcfg_agent_core;

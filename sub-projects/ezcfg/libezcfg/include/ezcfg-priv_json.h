@@ -17,6 +17,10 @@
 #include "ezcfg-types.h"
 
 /* json/json.c */
+struct ezcfg_json_value *ezcfg_json_value_create(char *buf);
+int ezcfg_json_value_delete(struct ezcfg_json_value *vp);
+int ezcfg_json_value_delete_wrap(void *data);
+
 void ezcfg_json_reset(struct ezcfg_json *json);
 void ezcfg_json_delete(struct ezcfg_json *json);
 struct ezcfg_json *ezcfg_json_new(struct ezcfg *ezcfg);

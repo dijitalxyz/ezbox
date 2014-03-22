@@ -4,7 +4,7 @@
  *
  * Description  : get a line from file
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2012-01-18   0.1       Copy it from ezcd/src/utils/utils_file_get_line.c

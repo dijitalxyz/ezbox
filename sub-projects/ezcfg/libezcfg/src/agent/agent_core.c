@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2013-07-29   0.1       Write it from scratch
@@ -287,8 +287,8 @@ struct ezcfg_agent_master *ezcfg_agent_start(struct ezcfg *ezcfg)
 
 	ASSERT(ezcfg != NULL);
 
-	/* There must be an agent control socket */
-	agent = agent_new_from_socket(ezcfg, ezcfg_common_get_sock_agent_ctrl_path(ezcfg));
+	/* There must be an agent nvram socket */
+	agent = agent_new_from_socket(ezcfg, ezcfg_common_get_sock_nvram_path(ezcfg));
 	if (agent == NULL) {
 		err(ezcfg, "can not initialize agent control socket");
 		goto start_out;

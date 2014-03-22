@@ -4,7 +4,7 @@
  *
  * Description  : implement nvram ssl argument
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2012-02-14   0.1       Write it from scratch

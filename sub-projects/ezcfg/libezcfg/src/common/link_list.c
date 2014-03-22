@@ -4,7 +4,7 @@
  *
  * Description  : single link list handler
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-23   0.1       Write it from scrach
@@ -64,9 +64,6 @@ struct ezcfg_link_list *ezcfg_link_list_new(struct ezcfg *ezcfg)
 	list = calloc(1, sizeof(struct ezcfg_link_list));
 	if (list != NULL) {
 		list->ezcfg = ezcfg;
-		list->length = 0;
-		list->head = NULL;
-		list->tail = NULL;
 	}
 	return list;
 }

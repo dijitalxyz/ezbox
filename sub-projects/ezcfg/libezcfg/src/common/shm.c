@@ -5,7 +5,7 @@
  * Description  : wrap system V IPC shared memory operations
  * Warning      : must exclusively use it, say lock EZCFG_SEM_SHM_INDEX before using it.
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2012-03-16   0.1       Write it from scratch

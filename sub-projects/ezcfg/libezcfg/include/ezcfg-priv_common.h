@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2011-12-02   0.1       Split it from ezcfg.h
@@ -93,16 +93,8 @@ size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
 size_t ezcfg_common_get_shm_ezctp_cq_unit_size(struct ezcfg *ezcfg);
 size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg);
 #endif
-char *ezcfg_common_get_sock_agent_ctrl_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sock_agent_ctrl_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_sock_nvram_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_sock_uevent_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sock_uevent_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_sock_master_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sock_master_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_web_document_root_path(struct ezcfg *ezcfg);
 void ezcfg_common_set_web_document_root_path(struct ezcfg *ezcfg, char *path);
 char *ezcfg_common_get_locale(struct ezcfg *ezcfg);

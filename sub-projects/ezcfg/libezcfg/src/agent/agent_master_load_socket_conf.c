@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2013-08-01   0.1       Modify it from thread/master_load_socket_conf.c
@@ -57,7 +57,6 @@ void ezcfg_agent_master_load_socket_conf(struct ezcfg_agent_master *master)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_socket *sp = NULL;
-	struct ezcfg_socket *ctrl_sp = NULL;
 	struct ezcfg_socket *nvram_sp = NULL;
 	struct ezcfg_socket **psp;
 	char *p = NULL;
@@ -71,22 +70,10 @@ void ezcfg_agent_master_load_socket_conf(struct ezcfg_agent_master *master)
 
 	ezcfg = ezcfg_agent_master_get_ezcfg(master);
 
-	/* ctrl fake socket */
-	//ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, EZCFG_SOCK_CTRL_PATH);
-	p = ezcfg_common_get_sock_ctrl_path(ezcfg);
-	if ((p != NULL) && (*p != '\0')) {
-		ctrl_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, p);
-		if (ctrl_sp == NULL) {
-			err(ezcfg, "ezcfg_socket_new(ctrl_sp)\n");
-			return ;
-		}
-	}
-
 	/* nvram fake socket */
-	//nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, EZCFG_SOCK_NVRAM_PATH);
 	p = ezcfg_common_get_sock_nvram_path(ezcfg);
 	if ((p != NULL) && (*p != '\0')) {
-		nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_SOAP_HTTP, p);
+		nvram_sp = ezcfg_socket_fake_new(ezcfg, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_JSON_HTTP, p);
 		if (nvram_sp == NULL) {
 			err(ezcfg, "ezcfg_socket_new(nvram_sp)\n");
 			return ;
@@ -96,17 +83,13 @@ void ezcfg_agent_master_load_socket_conf(struct ezcfg_agent_master *master)
 	/* tag listening_sockets to need_delete = true; */
 	sp = ezcfg_agent_master_get_listening_sockets(master);
 	while(sp != NULL) {
-		if(((ctrl_sp != NULL) && (ezcfg_socket_compare(sp, ctrl_sp) == false)) &&
-		   ((nvram_sp != NULL) && (ezcfg_socket_compare(sp, nvram_sp) == false))) {
+		if ((nvram_sp != NULL) && (ezcfg_socket_compare(sp, nvram_sp) == false)) {
 			ezcfg_socket_set_need_delete(sp, true);
 		}
 		sp = ezcfg_socket_get_next(sp);
 	}
 
 	/* delete unused fake sockets */
-	if (ctrl_sp != NULL) {
-		ezcfg_socket_delete(ctrl_sp);
-	}
 	if (nvram_sp != NULL) {
 		ezcfg_socket_delete(nvram_sp);
 	}

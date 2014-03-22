@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -79,6 +79,17 @@ typedef struct ezcfg_arg_nvram_ssl {
 /* common/ezcfg.c */
 #include "ezcfg-priv_common.h"
 
+/* list/linked_list.c */
+#include "ezcfg-priv_linked_list.h"
+
+/* list/stack_list.c */
+#include "ezcfg-priv_stack_list.h"
+
+/* tree/avl_tree.c */
+#include "ezcfg-priv_avl_tree.h"
+
+/* tree/binary_tree.c */
+#include "ezcfg-priv_binary_tree.h"
 
 /* thread/thread.c */
 int ezcfg_thread_start(struct ezcfg *ezcfg, int stacksize,

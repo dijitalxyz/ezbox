@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2013-08-01   0.1       Modify it from thread/master.c
@@ -660,8 +660,8 @@ struct ezcfg_agent_master *ezcfg_agent_master_start(struct ezcfg *ezcfg, struct 
 	/* stacksize = sizeof(struct ezcfg_agent_master) * 2; */
 	stacksize = 0;
 
-	/* There must be a ctrl socket */
-	master = master_new_from_socket(ezcfg, ezcfg_common_get_sock_ctrl_path(ezcfg));
+	/* There must be a nvram socket */
+	master = master_new_from_socket(ezcfg, ezcfg_common_get_sock_nvram_path(ezcfg));
 	if (master == NULL) {
 		err(ezcfg, "can not initialize control socket");
 		return NULL;

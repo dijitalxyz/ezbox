@@ -56,20 +56,13 @@ value
 struct ezcfg_json_value {
 	int type; /* false / null / true / object / array / number / string */
 	char *element;
-	struct ezcfg_json_value *value;
-	struct ezcfg_json_value *sibling;
 	int visited; /* used for stack operation */
-};
-
-struct json_stack_node {
-	struct json_stack_node *next;
-	struct ezcfg_json_value *elem;
 };
 
 struct ezcfg_json {
 	struct ezcfg *ezcfg;
-	struct ezcfg_json_value text; /* JSON-text = object / array */
-	struct json_stack_node stack;
+	struct ezcfg_binary_tree *text; /* JSON-text = object / array */
+	struct ezcfg_stack_list *stack;
 	int msg_len;
 };
 
@@ -92,6 +85,7 @@ static char *skip_ws(char *buf)
 	return p;
 }
 
+#if 0
 static char *find_ws(char *buf)
 {
 	char *p = buf;
@@ -104,6 +98,18 @@ static char *find_ws(char *buf)
 		return NULL;
 	else 
 		return p;
+}
+#endif
+
+static bool is_token_delim(char c)
+{
+	if ((c == 0x20) || (c == 0x09) ||
+	    (c == 0x0a) || (c == 0x0d) ||
+	    (c == ',')  || (c == '}')  ||
+	    (c == ']'))
+		return true;
+	else
+		return false;
 }
 
 #if 0
@@ -215,77 +221,22 @@ exp:
 	return p;
 }
 
-static bool stack_push(struct json_stack_node *sp, struct ezcfg_json_value *vp)
+static bool stack_clean_up(struct ezcfg_stack_list *sp)
 {
-	struct json_stack_node *n;
-
-	n = calloc(1, sizeof(struct json_stack_node));
-	if (n == NULL) {
-		return false;
+	while (ezcfg_stack_list_is_empty(sp) == false) {
+		ezcfg_stack_list_pop(sp);
 	}
-	n->elem = vp;
-	n->next = sp->next;
-	sp->next = n;
 	return true;
 }
 
-static struct ezcfg_json_value *stack_pop(struct json_stack_node *sp)
+static bool tree_clean_up(struct ezcfg_binary_tree *tp)
 {
-	struct json_stack_node *n;
-	struct ezcfg_json_value *vp;
-
-	if (sp->next == NULL) {
-		return NULL;
-	}
-	n = sp->next;
-	sp->next = n->next;
-	vp = n->elem;
-	free(n);
-	return vp;
-}
-
-static bool stack_is_empty(struct json_stack_node *sp)
-{
-	if (sp->next == NULL)
+	if (ezcfg_binary_tree_reset(tp) == EZCFG_RET_OK) {
 		return true;
-	else
-		return false;
-}
-
-static bool stack_clean_up(struct json_stack_node *sp, struct ezcfg_json_value *skip_vp)
-{
-	struct ezcfg_json_value *vp = NULL;
-	bool ret = false;
-
-	while (stack_is_empty(sp) == false) {
-		vp = stack_pop(sp);
-		if (vp == NULL) {
-			continue;
-		}
-		if (vp->sibling) {
-			stack_push(sp, vp->sibling);
-			vp->sibling = NULL;
-		}
-		if (vp->value) {
-			stack_push(sp, vp->value);
-			vp->value = NULL;
-		}
-		/* delete vp */
-		if (vp->element) {
-			free(vp->element);
-			vp->element = NULL;
-		}
-		if (vp == skip_vp) {
-			printf("%s(%d) it's skip_vp!\n", __func__, __LINE__);
-		}
-		else {
-			free(vp);
-		}
 	}
-
-	ret = true;
-
-	return ret;
+	else {
+		return false;
+	}
 }
 
 static struct ezcfg_json_value *json_value_new(int type)
@@ -297,54 +248,6 @@ static struct ezcfg_json_value *json_value_new(int type)
 		vp->type = type;
 	}
 	return vp;
-}
-
-static struct ezcfg_json_value *json_value_create(char *buf)
-{
-	if (buf == NULL) {
-		return NULL;
-	}
-
-	if (*buf == '"') {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_STRING);
-	}
-	else if (*buf == '{') {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_OBJECT);
-	}
-	else if (*buf == '[') {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_ARRAY);
-	}
-	else if ((strncmp(buf, "false", 5) == 0) &&
-		 (find_ws(buf) == buf+5)) {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_FALSE);
-	}
-	else if ((strncmp(buf, "null", 4) == 0) &&
-		 (find_ws(buf) == buf+4)) {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_NULL);
-	}
-	else if ((strncmp(buf, "true", 4) == 0) &&
-		 (find_ws(buf) == buf+4)) {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_TRUE);
-	}
-	else if ((*buf == '-' ) ||
-		 ((*buf >= '0') &&
-	          (*buf <= '9'))) {
-		return json_value_new(EZCFG_JSON_VALUE_TYPE_NUMBER);
-	}
-	else {
-		return NULL;
-	}
-}
-
-static struct ezcfg_json_value *json_value_find_last_sibling(struct ezcfg_json_value *vp)
-{
-	struct ezcfg_json_value *tmp_vp = vp;
-
-	while (tmp_vp->sibling != NULL) {
-		tmp_vp = tmp_vp->sibling;
-	}
-
-	return tmp_vp;
 }
 
 /* false / null / true / object / array / number / string */
@@ -391,6 +294,59 @@ static bool json_value_set_number_element(struct ezcfg_json_value *vp, char *buf
 }
 
 /* Public functions */
+struct ezcfg_json_value *ezcfg_json_value_create(char *buf)
+{
+	if (buf == NULL) {
+		return NULL;
+	}
+
+	if (*buf == '"') {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_STRING);
+	}
+	else if (*buf == '{') {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_OBJECT);
+	}
+	else if (*buf == '[') {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_ARRAY);
+	}
+	else if ((strncmp(buf, "false", 5) == 0) &&
+		 (is_token_delim(buf[5]) == true)) {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_FALSE);
+	}
+	else if ((strncmp(buf, "null", 4) == 0) &&
+		 (is_token_delim(buf[4]) == true)) {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_NULL);
+	}
+	else if ((strncmp(buf, "true", 4) == 0) &&
+		 (is_token_delim(buf[4]) == true)) {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_TRUE);
+	}
+	else if ((*buf == '-' ) ||
+		 ((*buf >= '0') &&
+	          (*buf <= '9'))) {
+		return json_value_new(EZCFG_JSON_VALUE_TYPE_NUMBER);
+	}
+	else {
+		return NULL;
+	}
+}
+
+int ezcfg_json_value_delete(struct ezcfg_json_value *vp)
+{
+	ASSERT(vp != NULL);
+
+	if (vp->element != NULL) {
+		free(vp->element);
+	}
+	free(vp);
+	return EZCFG_RET_OK;
+}
+
+int ezcfg_json_value_delete_wrap(void *data)
+{
+	return ezcfg_json_value_delete((struct ezcfg_json_value *)data);
+}
+
 void ezcfg_json_reset(struct ezcfg_json *json)
 {
 	//struct ezcfg *ezcfg;
@@ -400,24 +356,16 @@ void ezcfg_json_reset(struct ezcfg_json *json)
 	//ezcfg = json->ezcfg;
 
 	/* first clean up stack stuff */
-	stack_clean_up(&(json->stack), &(json->text));
+	if (json->stack) {
+		stack_clean_up(json->stack);
+	}
 
 	/* then clean up text stuff */
-	if (json->text.sibling) {
-		stack_push(&(json->stack), json->text.sibling);
-		json->text.sibling = NULL;
-	}
-	if (json->text.value) {
-		stack_push(&(json->stack), json->text.value);
-		json->text.value = NULL;
+	if (json->text) {
+		tree_clean_up(json->text);
 	}
 
-	stack_clean_up(&(json->stack), &(json->text));
-
-	if (json->text.element) {
-		free(json->text.element);
-		json->text.element = NULL;
-	}
+	/* reset msg_len */
 	json->msg_len = 0;
 }
 
@@ -428,6 +376,14 @@ void ezcfg_json_delete(struct ezcfg_json *json)
 	ASSERT(json != NULL);
 
 	ezcfg_json_reset(json);
+
+	if (json->stack) {
+		ezcfg_stack_list_delete(json->stack);
+	}
+
+	if (json->text) {
+		ezcfg_binary_tree_delete(json->text);
+	}
 
 	free(json);
 }
@@ -450,25 +406,31 @@ struct ezcfg_json *ezcfg_json_new(struct ezcfg *ezcfg)
 		return NULL;
 	}
 
+	json->text = ezcfg_binary_tree_new(ezcfg);
+	if (json->text == NULL) {
+		err(ezcfg, "initialize json text error.\n");
+		ezcfg_json_delete(json);
+		return NULL;
+	}
+
+	json->stack = ezcfg_stack_list_new(ezcfg);
+	if (json->stack == NULL) {
+		err(ezcfg, "initialize json stack error.\n");
+		ezcfg_json_delete(json);
+		return NULL;
+	}
+
+	json->ezcfg = ezcfg;
+
 	return json;
-}
-
-int ezcfg_json_get_text_type(struct ezcfg_json *json)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(json != NULL);
-
-	//ezcfg = json->ezcfg;
-
-	return json->text.type;
 }
 
 bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 {
-	//struct ezcfg *ezcfg;
+	struct ezcfg *ezcfg;
 	char *cur, *p;
-	struct ezcfg_json_value *vp, *last_vp;
+	struct ezcfg_json_value *vp;
+	struct ezcfg_binary_tree_node *np, *np_left, *np_right;
 	bool ret = false;
 	int buf_len;
 
@@ -476,28 +438,42 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 	ASSERT(text != NULL);
 	ASSERT(len > 0);
 
+	ezcfg = json->ezcfg;
+
 	cur = skip_ws(text);
-	if (*cur == '{') {
-		/* It's object start tag */
-		json->text.type = EZCFG_JSON_VALUE_TYPE_OBJECT;
-	}
-	else if (*cur == '[') {
-		/* It's array start tag */
-		json->text.type = EZCFG_JSON_VALUE_TYPE_ARRAY;
-	}
-	else {
+	if ((*cur != '{') &&
+	    (*cur != '[')) {
 		return false;
 	}
 
-	stack_push(&(json->stack), &(json->text));
+	vp = ezcfg_json_value_create(cur);
+	if (vp == NULL) {
+		return false;
+	}
+	np = ezcfg_binary_tree_node_new(ezcfg, vp);
+	if (np == NULL) {
+		ezcfg_json_value_delete(vp);
+		return false;
+	}
+
+	/* add root node for binary tree */
+	ezcfg_binary_tree_set_data_delete_handler(json->text, ezcfg_json_value_delete_wrap);
+	ezcfg_binary_tree_set_root(json->text, np);
+	if (ezcfg_stack_list_push(json->stack, np) == false) {
+		goto func_out;
+	}
 
 	while ((*cur != '\0') &&
-	       (stack_is_empty(&(json->stack)) == false)) {
+	       (ezcfg_stack_list_is_empty(json->stack) == false)) {
 		cur = skip_ws(cur);
-		vp = stack_pop(&(json->stack));
+		np = ezcfg_stack_list_pop(json->stack);
+		if (np == NULL) {
+			goto func_out;
+		}
+		vp = ezcfg_binary_tree_node_get_data(np);
 		switch (vp->type) {
 		case EZCFG_JSON_VALUE_TYPE_OBJECT:
-			if (vp->value == NULL) {
+			if (ezcfg_binary_tree_node_get_left(np) == NULL) {
 				if (*cur != '{') {
 					goto func_out;
 				}
@@ -506,10 +482,16 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 				cur = skip_ws(cur);
 				if (*cur == '}') {
 					/* it's an empty set object */
-					vp->value = json_value_new(EZCFG_JSON_VALUE_TYPE_EMPTYSET);
-					if (vp->value == NULL) {
+					vp = json_value_new(EZCFG_JSON_VALUE_TYPE_EMPTYSET);
+					if (vp == NULL) {
 						goto func_out;
 					}
+					np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+					if (np_left == NULL) {
+						ezcfg_json_value_delete(vp);
+						goto func_out;
+					}
+					ezcfg_binary_tree_node_append_left(np, np_left);
 					cur++;
 					json->msg_len++; /* increase for '}' */
 					continue;
@@ -518,19 +500,25 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 					goto func_out;
 				}
 				/* It maybe a name string start tag of nvpair */
-				vp->value = json_value_new(EZCFG_JSON_VALUE_TYPE_NVPAIR);
-				if (vp->value == NULL) {
+				vp = json_value_new(EZCFG_JSON_VALUE_TYPE_NVPAIR);
+				if (vp == NULL) {
 					goto func_out;
 				}
+				np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+				if (np_left == NULL) {
+					ezcfg_json_value_delete(vp);
+					goto func_out;
+				}
+				ezcfg_binary_tree_node_append_left(np, np_left);
 				/* push back to the stack */
-				if (stack_push(&(json->stack), vp) == false) {
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (stack_push(&(json->stack), vp->value) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 					goto func_out;
 				}
 			}
-			else if (vp->sibling == NULL) {
+			else if (ezcfg_binary_tree_node_get_right(np) == NULL) {
 				if (*cur != '}') {
 					goto func_out;
 				}
@@ -543,7 +531,7 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_NVPAIR:
-			if (vp->value == NULL) {
+			if (ezcfg_binary_tree_node_get_left(np) == NULL) {
 				if (*cur != '"') {
 					goto func_out;
 				}
@@ -573,19 +561,25 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 				cur = skip_ws(cur);
 
 				/* It maybe a value */
-				vp->value = json_value_create(cur);
-				if (vp->value == NULL) {
+				vp = ezcfg_json_value_create(cur);
+				if (vp == NULL) {
 					goto func_out;
 				}
+				np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+				if (np_left == NULL) {
+					ezcfg_json_value_delete(vp);
+					goto func_out;
+				}
+				ezcfg_binary_tree_node_append_left(np, np_left);
 				/* push back to the stack */
-				if (stack_push(&(json->stack), vp) == false) {
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (stack_push(&(json->stack), vp->value) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 					goto func_out;
 				}
 			}
-			else if (vp->sibling == NULL) {
+			else if (ezcfg_binary_tree_node_get_right(np) == NULL) {
 				if (*cur == '}') {
 					/* It's object end tag */
 					continue;
@@ -597,13 +591,19 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 				cur++;
 				json->msg_len++; /* increase for ',' */
 				/* It maybe a name string start tag of nvpair */
-				vp->sibling = json_value_new(EZCFG_JSON_VALUE_TYPE_NVPAIR);
-				if (vp->sibling == NULL) {
+				vp = json_value_new(EZCFG_JSON_VALUE_TYPE_NVPAIR);
+				if (vp == NULL) {
 					goto func_out;
 				}
+				np_right = ezcfg_binary_tree_node_new(ezcfg, vp);
+				if (np_right == NULL) {
+					ezcfg_json_value_delete(vp);
+					goto func_out;
+				}
+				ezcfg_binary_tree_node_append_right(np, np_right);
 
 				/* push back to the stack */
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
@@ -612,7 +612,7 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_ARRAY:
-			if (vp->value == NULL) {
+			if (ezcfg_binary_tree_node_get_left(np) == NULL) {
 				if (*cur != '[') {
 					goto func_out;
 				}
@@ -621,28 +621,40 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 				cur = skip_ws(cur);
 				if (*cur == ']') {
 					/* it's an empty set object */
-					vp->value = json_value_new(EZCFG_JSON_VALUE_TYPE_EMPTYSET);
-					if (vp->value == NULL) {
+					vp = json_value_new(EZCFG_JSON_VALUE_TYPE_EMPTYSET);
+					if (vp == NULL) {
 						goto func_out;
 					}
+					np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+					if (np_left == NULL) {
+						ezcfg_json_value_delete(vp);
+						goto func_out;
+					}
+					ezcfg_binary_tree_node_append_left(np, np_left);
 					cur++;
 					json->msg_len++; /* increase for ']' */
 					continue;
 				}
 				/* It maybe a value */
-				vp->value = json_value_create(cur);
-				if (vp->value == NULL) {
+				vp = ezcfg_json_value_create(cur);
+				if (vp == NULL) {
 					goto func_out;
 				}
+				np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+				if (np_left == NULL) {
+					ezcfg_json_value_delete(vp);
+					goto func_out;
+				}
+				ezcfg_binary_tree_node_append_left(np, np_left);
 				/* push back to the stack */
-				if (stack_push(&(json->stack), vp) == false) {
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (stack_push(&(json->stack), vp->value) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 					goto func_out;
 				}
 			}
-			else if (vp->sibling == NULL) {
+			else if (ezcfg_binary_tree_node_get_right(np) == NULL) {
 				if (*cur == ']') {
 					/* It's array end tag */
 					cur++;
@@ -656,29 +668,29 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 				json->msg_len++; /* increase for ',' */
 				cur = skip_ws(cur);
 				/* It maybe a value */
-				vp->sibling = json_value_create(cur);
-				if (vp->sibling == NULL) {
+				vp = ezcfg_json_value_create(cur);
+				if (vp == NULL) {
+					goto func_out;
+				}
+				np_left = ezcfg_binary_tree_node_new(ezcfg, vp);
+				if (np_left == NULL) {
+					ezcfg_json_value_delete(vp);
 					goto func_out;
 				}
 
 				/* check if vp->value is json native value */
-				if (json_value_is_native_value(vp->value) == false) {
+				if (json_value_is_native_value(vp) == false) {
 					goto func_out;
 				}
 
 				/* find the last element of the array */
-				last_vp = json_value_find_last_sibling(vp->value);
-				if (last_vp == NULL) {
-					goto func_out;
-				}
-				last_vp->sibling = vp->sibling;
-				vp->sibling = NULL;
+				ezcfg_binary_tree_node_append_left(np, np_left);
 
 				/* push back to the stack */
-				if (stack_push(&(json->stack), vp) == false) {
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (stack_push(&(json->stack), last_vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 					goto func_out;
 				}
 			}
@@ -739,7 +751,7 @@ bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len)
 	}
 
 	cur = skip_ws(cur);
-	if ((*cur == '\0') && (stack_is_empty(&(json->stack)) == true)) {
+	if ((*cur == '\0') && (ezcfg_stack_list_is_empty(json->stack) == true)) {
 		ret = true;
 	}
 
@@ -756,6 +768,7 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 	int ret = -1;
 	char *cur, *p;
 	struct ezcfg_json_value *vp;
+	struct ezcfg_binary_tree_node *np, *np_left, *np_right;
 	int cur_len = 0;
 
 	ASSERT(json != NULL);
@@ -767,24 +780,43 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 		return ret;
 	}
 
-	/* check if the value type is valid */
-	if ((json->text.type != EZCFG_JSON_VALUE_TYPE_OBJECT) &&
-	    (json->text.type != EZCFG_JSON_VALUE_TYPE_ARRAY)) {
+	/* check if json has valid text and stack */
+	if ((json->text == NULL) ||
+	    (json->stack == NULL)) {
 		return ret;
 	}
 
 	/* check if the stack is empty */
-	if (stack_is_empty(&(json->stack)) == false) {
+	if (ezcfg_stack_list_is_empty(json->stack) == false) {
+		return ret;
+	}
+
+	/* check if the value type is valid */
+	np = ezcfg_binary_tree_get_root(json->text);
+	if (np == NULL) {
+		return ret;
+	}
+	vp = ezcfg_binary_tree_node_get_data(np);
+	if (vp == NULL) {
+		return ret;
+	}
+
+	if ((vp->type != EZCFG_JSON_VALUE_TYPE_OBJECT) &&
+	    (vp->type != EZCFG_JSON_VALUE_TYPE_ARRAY)) {
 		return ret;
 	}
 
 	cur = buf;
 	cur_len = 0;
-	stack_push(&(json->stack), &(json->text));
+	ezcfg_stack_list_push(json->stack, np);
 
 	while ((cur_len < json->msg_len) &&
-	       (stack_is_empty(&(json->stack)) == false)) {
-		vp = stack_pop(&(json->stack));
+	       (ezcfg_stack_list_is_empty(json->stack) == false)) {
+		np = ezcfg_stack_list_pop(json->stack);
+		if (np == NULL) {
+			goto func_out;
+		}
+		vp = ezcfg_binary_tree_node_get_data(np);
 		switch (vp->type) {
 		case EZCFG_JSON_VALUE_TYPE_OBJECT:
 			if (vp->visited == 0) {
@@ -793,11 +825,12 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 				vp->visited = 1;
 
-				if (stack_push(&(json->stack), vp) == false) {
+				np_left = ezcfg_binary_tree_node_get_left(np);
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (vp->value) {
-					if (stack_push(&(json->stack), vp->value) == false) {
+				if (np_left) {
+					if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 						goto func_out;
 					}
 				}
@@ -808,11 +841,12 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 				vp->visited = 0;
 
-				if (vp->sibling) {
+				np_right = ezcfg_binary_tree_node_get_right(np);
+				if (np_right) {
 					*cur = ',';
 					cur++;
 					cur_len++;
-					if (stack_push(&(json->stack), vp->sibling) == false) {
+					if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 						goto func_out;
 					}
 				}
@@ -823,7 +857,8 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			break;
 		case EZCFG_JSON_VALUE_TYPE_NVPAIR:
 			if (vp->visited == 0) {
-				if (vp->value == NULL) {
+				np_left = ezcfg_binary_tree_node_get_left(np);
+				if (np_left == NULL) {
 					goto func_out;
 				}
 
@@ -845,20 +880,21 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 				vp->visited = 1;
 
-				if (stack_push(&(json->stack), vp) == false) {
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (stack_push(&(json->stack), vp->value) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 					goto func_out;
 				}
 			}
 			else if (vp->visited == 1) {
 				vp->visited = 0;
-				if (vp->sibling) {
+				np_right = ezcfg_binary_tree_node_get_right(np);
+				if (np_right) {
 					*cur = ',';
 					cur++;
 					cur_len++;
-					if (stack_push(&(json->stack), vp->sibling) == false) {
+					if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 						goto func_out;
 					}
 				}
@@ -874,11 +910,12 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 				vp->visited = 1;
 
-				if (stack_push(&(json->stack), vp) == false) {
+				np_left = ezcfg_binary_tree_node_get_left(np);
+				if (ezcfg_stack_list_push(json->stack, np) == false) {
 					goto func_out;
 				}
-				if (vp->value) {
-					if (stack_push(&(json->stack), vp->value) == false) {
+				if (np_left) {
+					if (ezcfg_stack_list_push(json->stack, np_left) == false) {
 						goto func_out;
 					}
 				}
@@ -889,11 +926,12 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 				vp->visited = 0;
 
-				if (vp->sibling) {
+				np_right = ezcfg_binary_tree_node_get_right(np);
+				if (np_right) {
 					*cur = ',';
 					cur++;
 					cur_len++;
-					if (stack_push(&(json->stack), vp->sibling) == false) {
+					if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 						goto func_out;
 					}
 				}
@@ -903,11 +941,13 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_EMPTYSET:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_left) {
 				goto func_out;
 			}
 
-			if (vp->sibling) {
+			if (np_right) {
 				goto func_out;
 			}
 
@@ -916,7 +956,8 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_STRING:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			if (np_left) {
 				goto func_out;
 			}
 
@@ -934,17 +975,20 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			cur++;
 			cur_len++;
 
-			if (vp->sibling) {
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_right) {
 				*cur = ',';
 				cur++;
 				cur_len++;
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_FALSE:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_left) {
 				goto func_out;
 			}
 
@@ -952,17 +996,19 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			cur += 5;
 			cur_len += 5;
 
-			if (vp->sibling) {
+			if (np_right) {
 				*cur = ',';
 				cur++;
 				cur_len++;
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_NULL:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_left) {
 				goto func_out;
 			}
 
@@ -970,17 +1016,19 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			cur += 4;
 			cur_len += 4;
 
-			if (vp->sibling) {
+			if (np_right) {
 				*cur = ',';
 				cur++;
 				cur_len++;
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_TRUE:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_left) {
 				goto func_out;
 			}
 
@@ -988,17 +1036,19 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 			cur += 4;
 			cur_len += 4;
 
-			if (vp->sibling) {
+			if (np_right) {
 				*cur = ',';
 				cur++;
 				cur_len++;
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
 			break;
 		case EZCFG_JSON_VALUE_TYPE_NUMBER:
-			if (vp->value) {
+			np_left = ezcfg_binary_tree_node_get_left(np);
+			np_right = ezcfg_binary_tree_node_get_right(np);
+			if (np_left) {
 				goto func_out;
 			}
 
@@ -1008,11 +1058,11 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 				cur_len++;
 			}
 
-			if (vp->sibling) {
+			if (np_right) {
 				*cur = ',';
 				cur++;
 				cur_len++;
-				if (stack_push(&(json->stack), vp->sibling) == false) {
+				if (ezcfg_stack_list_push(json->stack, np_right) == false) {
 					goto func_out;
 				}
 			}
@@ -1024,11 +1074,10 @@ int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len)
 	}
 
 	if ((cur_len == json->msg_len) &&
-	    (stack_is_empty(&(json->stack)) == true)) {
+	    (ezcfg_stack_list_is_empty(json->stack) == true)) {
 		ret = cur_len;
 	}
 
 func_out:
 	return ret;
 }
-

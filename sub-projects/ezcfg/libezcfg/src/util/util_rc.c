@@ -4,7 +4,7 @@
  *
  * Description  : system rc running
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-09   0.1       Write it from scrach

@@ -4,7 +4,7 @@
  *
  * Description  : implement RFC 3174 - US Secure Hash Algorithm 1 (SHA1) algorithm
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2013-04-01   0.1       Write it from scrach

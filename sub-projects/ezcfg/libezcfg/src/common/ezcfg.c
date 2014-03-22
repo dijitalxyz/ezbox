@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -61,11 +61,7 @@ struct ezcfg {
 	size_t 		shm_ezcfg_size;
 	size_t 		shm_ezcfg_nvram_queue_length;
 	size_t 		shm_ezcfg_rc_queue_length;
-	char 		sock_agent_ctrl_path[EZCFG_PATH_MAX];
-	char 		sock_ctrl_path[EZCFG_PATH_MAX];
 	char 		sock_nvram_path[EZCFG_PATH_MAX];
-	char 		sock_uevent_path[EZCFG_PATH_MAX];
-	char 		sock_master_path[EZCFG_PATH_MAX];
 	char 		web_document_root_path[EZCFG_PATH_MAX];
 	char 		locale[EZCFG_LOCALE_MAX];
 	pthread_mutex_t locale_mutex; /* Protects locale */
@@ -255,32 +251,6 @@ size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg)
 }
 #endif
 
-char *ezcfg_common_get_sock_agent_ctrl_path(struct ezcfg *ezcfg)
-{
-	return ezcfg->sock_agent_ctrl_path;
-}
-
-void ezcfg_common_set_sock_agent_ctrl_path(struct ezcfg *ezcfg, char *path)
-{
-	if (path == NULL)
-		return;
-
-	snprintf(ezcfg->sock_agent_ctrl_path, EZCFG_PATH_MAX, "%s", path);
-}
-
-char *ezcfg_common_get_sock_ctrl_path(struct ezcfg *ezcfg)
-{
-	return ezcfg->sock_ctrl_path;
-}
-
-void ezcfg_common_set_sock_ctrl_path(struct ezcfg *ezcfg, char *path)
-{
-	if (path == NULL)
-		return;
-
-	snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", path);
-}
-
 char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg)
 {
 	return ezcfg->sock_nvram_path;
@@ -292,32 +262,6 @@ void ezcfg_common_set_sock_nvram_path(struct ezcfg *ezcfg, char *path)
 		return;
 
 	snprintf(ezcfg->sock_nvram_path, EZCFG_PATH_MAX, "%s", path);
-}
-
-char *ezcfg_common_get_sock_uevent_path(struct ezcfg *ezcfg)
-{
-	return ezcfg->sock_uevent_path;
-}
-
-void ezcfg_common_set_sock_uevent_path(struct ezcfg *ezcfg, char *path)
-{
-	if (path == NULL)
-		return;
-
-	snprintf(ezcfg->sock_uevent_path, EZCFG_PATH_MAX, "%s", path);
-}
-
-char *ezcfg_common_get_sock_master_path(struct ezcfg *ezcfg)
-{
-	return ezcfg->sock_master_path;
-}
-
-void ezcfg_common_set_sock_master_path(struct ezcfg *ezcfg, char *path)
-{
-	if (path == NULL)
-		return;
-
-	snprintf(ezcfg->sock_master_path, EZCFG_PATH_MAX, "%s", path);
 }
 
 char *ezcfg_common_get_web_document_root_path(struct ezcfg *ezcfg)
@@ -489,39 +433,11 @@ void ezcfg_common_load_conf(struct ezcfg *ezcfg)
 	}
 #endif
 
-	/* find sock_ctrl_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_CTRL_PATH);
-	if (p != NULL) {
-		ezcfg_util_remove_trailing_char(p, '/');
-		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", p);
-		free(p);
-	}
-	else {
-		/* FIXME: must set sock_ctrl_path */
-		snprintf(ezcfg->sock_ctrl_path, EZCFG_PATH_MAX, "%s", EZCFG_SOCK_CTRL_PATH);
-	}
-
 	/* find sock_nvram_path keyword */
 	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_NVRAM_PATH);
 	if (p != NULL) {
 		ezcfg_util_remove_trailing_char(p, '/');
 		snprintf(ezcfg->sock_nvram_path, EZCFG_PATH_MAX, "%s", p);
-		free(p);
-	}
-
-	/* find sock_uevent_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_UEVENT_PATH);
-	if (p != NULL) {
-		ezcfg_util_remove_trailing_char(p, '/');
-		snprintf(ezcfg->sock_uevent_path, EZCFG_PATH_MAX, "%s", p);
-		free(p);
-	}
-
-	/* find sock_master_path keyword */
-	p = ezcfg_util_get_conf_string(ezcfg->config_file, EZCFG_EZCFG_SECTION_COMMON, 0, EZCFG_EZCFG_KEYWORD_SOCK_MASTER_PATH);
-	if (p != NULL) {
-		ezcfg_util_remove_trailing_char(p, '/');
-		snprintf(ezcfg->sock_master_path, EZCFG_PATH_MAX, "%s", p);
 		free(p);
 	}
 

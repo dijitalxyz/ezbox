@@ -4,7 +4,7 @@
  *
  * Description  : implement RFC1113 base64 encode/decode algorithm
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2011-04-10   0.1       Write it from scrach

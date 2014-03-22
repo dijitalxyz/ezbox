@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Copyright (C) 2008-2013 ezbox project
+# Copyright (C) 2008-2014 ezbox project
 # ------------------------------------------------------------------------------
 
 LIBEZCFG_CURRENT = 1
@@ -42,6 +42,12 @@ libezcfg_la_SOURCES = $(top_builddir)/src/common/ezcfg.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/link_list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/shm.c
+
+# ezcfg data structures
+libezcfg_la_SOURCES += $(top_builddir)/src/list/linked_list.c
+libezcfg_la_SOURCES += $(top_builddir)/src/list/stack_list.c
+libezcfg_la_SOURCES += $(top_builddir)/src/tree/avl_tree.c
+libezcfg_la_SOURCES += $(top_builddir)/src/tree/binary_tree.c
 
 # ezcfg Multi-Agents System model
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent.c
@@ -335,8 +341,8 @@ libezcfg_la_SOURCES += $(top_builddir)/api/src/api-common.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-util.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-agent.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ipc.c
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ipc.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c
 if CONFIG_EZBOX_SERVICE_OPENSSL
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_ssl.c

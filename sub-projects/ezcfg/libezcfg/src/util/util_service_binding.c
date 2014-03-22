@@ -1,10 +1,10 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * Module Name  : util/util_rc.c
+ * Module Name  : util/util_service_binding.c
  *
  * Description  : system service binding interface checking
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2011-05-12   0.1       Write it from scrach

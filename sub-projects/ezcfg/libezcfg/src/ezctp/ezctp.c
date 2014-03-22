@@ -5,7 +5,7 @@
  * Description  : implement ezctp shared memory/circular queue
  * Warning      : must exclusively use it, say lock SHM/CQ before using it.
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2012-03-13   0.1       Write it from scratch

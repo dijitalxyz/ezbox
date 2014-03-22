@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-08-01   0.1       Write it from scratch
@@ -1274,8 +1274,6 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 		return NULL;
 	}
 
-	memset(xml, 0, sizeof(struct ezcfg_xml));
-
 	xml->max_elements = EZCFG_XML_MAX_ELEMENTS * 2; /* must be times of 2 */
 	xml->root=calloc(xml->max_elements, sizeof(struct ezcfg_xml_element *));
 	if (xml->root == NULL) {
@@ -1283,8 +1281,6 @@ struct ezcfg_xml *ezcfg_xml_new(struct ezcfg *ezcfg)
 		free(xml);
 		return NULL;
 	}
-
-	memset(xml->root, 0, sizeof(struct ezcfg_xml_element *) * xml->max_elements);
 
 	xml->ezcfg = ezcfg;
 	xml->num_encoding_names = ARRAY_SIZE(default_character_encoding_names) - 1; /* first item is NULL */
@@ -1413,8 +1409,6 @@ struct ezcfg_xml_element *ezcfg_xml_element_new(
 		return NULL;
 	}
 
-	memset(elem, 0, sizeof(struct ezcfg_xml_element));
-
 	elem->name = strdup(name);
 	if (elem->name == NULL) {
 		err(ezcfg, "initialize xml element name error.\n");
@@ -1457,13 +1451,12 @@ bool ezcfg_xml_element_add_attribute(
 
 	ezcfg = xml->ezcfg;
 
-	a = malloc(sizeof(struct elem_attribute));
+	a = calloc(1, sizeof(struct elem_attribute));
 	if (a == NULL) {
 		err(ezcfg, "no memory for element attribute\n");
 		return false;
 	}
-	memset(a, 0, sizeof(struct elem_attribute));
-	a->prefix = NULL;
+
 	a->name = strdup(name);
 	if (a->name == NULL) {
 		err(ezcfg, "no memory for element attribute name\n");

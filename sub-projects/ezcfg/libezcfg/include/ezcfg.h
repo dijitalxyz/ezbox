@@ -4,7 +4,7 @@
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-07-12   0.1       Write it from scratch
@@ -40,6 +40,9 @@
 #define EZCFG_CONFIG_FILE_PATH	SYSCONFDIR "/ezcfg.conf"
 #define EZCFG_NVRAM_CONFIG_FILE_PATH	SYSCONFDIR "/nvram.conf"
 #define EZCFG_UPNP_TASK_FILE_PATH	SYSCONFDIR "/upnp_tasks"
+
+/* function return value */
+#define EZCFG_RET_OK            0
 
 /* minimum number of worker threads */
 /* ctrl socket, nvram socket, uevent socket */

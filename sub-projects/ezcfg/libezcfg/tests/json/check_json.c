@@ -9,12 +9,12 @@ START_TEST(test_ezcfg_json_new)
 	struct ezcfg_json *json;
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
 
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_OBJECT);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_new fail on object");
 	ezcfg_json_delete(json);
 
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_ARRAY);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_new fail on array");
 	ezcfg_json_delete(json);
@@ -56,20 +56,28 @@ START_TEST(test_ezcfg_json_parse_text_object)
 	printf("buf=[%s]\n", buf);
 
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_OBJECT);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_new fail on object");
 
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	fail_if(ezcfg_json_parse_text(json, buf, buf_len) == false,
 		"ezcfg_json_parse %s fail", path);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 
 	memset(buf, '\0', buf_len);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	fail_if(ezcfg_json_write_message(json, buf, buf_len) < 0,
 		"ezcfg_json_write_message %s fail", path);
 
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
+	printf("%s(%d) buf=[%s]\n\n", __func__, __LINE__, buf);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	free(buf);
 
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	ezcfg_json_delete(json);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	ezcfg_delete(ezcfg);
 	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 }
@@ -106,20 +114,28 @@ START_TEST(test_ezcfg_json_parse_text_array)
 	buf[buf_len -1] = '\0';
 
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_ARRAY);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_new fail on array");
 
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	fail_if(ezcfg_json_parse_text(json, buf, buf_len) == false,
 		"ezcfg_json_parse %s fail", path);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 
 	memset(buf, '\0', buf_len);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	fail_if(ezcfg_json_write_message(json, buf, buf_len) < 0,
 		"ezcfg_json_write_message %s fail", path);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 
+	printf("%s(%d) buf=[%s]\n\n", __func__, __LINE__, buf);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	free(buf);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 
 	ezcfg_json_delete(json);
+	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 	ezcfg_delete(ezcfg);
 	printf("%s(%d) +++++++++++++\n\n", __func__, __LINE__);
 }
@@ -141,7 +157,7 @@ START_TEST(test_ezcfg_json_parse_nil)
 
 	ezcfg = ezcfg_new(EZCFG_CONFIG_FILE_PATH);
 	snprintf(buf, buf_len, "{}");
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_OBJECT);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_parse_nil fail on new object");
 
@@ -150,7 +166,7 @@ START_TEST(test_ezcfg_json_parse_nil)
 	ezcfg_json_delete(json);
 
 	snprintf(buf, buf_len, "[]");
-	json = ezcfg_json_new(ezcfg, EZCFG_JSON_VALUE_TYPE_ARRAY);
+	json = ezcfg_json_new(ezcfg);
 	fail_if(json == NULL, 
 		"ezcfg_json_parse_nil fail on new array");
 	fail_if(ezcfg_json_parse_text(json, buf, buf_len) == false,

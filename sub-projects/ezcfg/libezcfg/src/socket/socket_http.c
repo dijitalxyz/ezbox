@@ -5,7 +5,7 @@
  * Description  : interface to configurate ezbox information
  *                handle HTTP/socket operations
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-11-30   0.1       Write it from scratch

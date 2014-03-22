@@ -1,10 +1,10 @@
 /* ============================================================================
  * Project Name : ezbox configuration utilities
- * File Name    : agent/agent_core.c
+ * File Name    : agent/agent.c
  *
  * Description  : interface to configurate ezbox information
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2013-07-29   0.1       Write it from scratch
