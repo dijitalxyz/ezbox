@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg-priv_json.h
  *
@@ -26,6 +28,9 @@ void ezcfg_json_delete(struct ezcfg_json *json);
 struct ezcfg_json *ezcfg_json_new(struct ezcfg *ezcfg);
 int ezcfg_json_get_text_type(struct ezcfg_json *json);
 bool ezcfg_json_parse_text(struct ezcfg_json *json, char *text, int len);
+int ezcfg_json_get_msg_len(struct ezcfg_json *json);
 int ezcfg_json_write_message(struct ezcfg_json *json, char *buf, int len);
+struct ezcfg_linked_list *ezcfg_json_build_nvram_node_list(struct ezcfg_json *json);
+bool ezcfg_json_is_nvram_representation(struct ezcfg_json *json);
 
 #endif /* _EZCFG_PRIV_JSON_H_ */

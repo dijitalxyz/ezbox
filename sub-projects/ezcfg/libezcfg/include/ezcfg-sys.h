@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg-sys.h
  *
@@ -39,6 +41,7 @@
 #define EZCFG_SYS_RESTORE_DEFAULTS        "restore_defaults"
 
 #define EZCFG_SYS_NICS                    "nics"
+
 #define EZCFG_SYS_ETH_LAN_NIC             "eth_lan_nic"
 #define EZCFG_SYS_WIFI_LAN_NIC            "wifi_lan_nic"
 #define EZCFG_SYS_BR_LAN_NICS             "br_lan_nics"

@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : agent/agent_master_load_common_conf.c
  *
@@ -39,14 +41,14 @@
 
 #if 0
 #define DBG(format, args...) do { \
-	char path[256]; \
-	FILE *fp; \
-	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
-	} \
+    char path[256];		  \
+    FILE *fp;						    \
+    snprintf(path, 256, "/tmp/%d-debug.txt", getpid());	    \
+    fp = fopen(path, "a");				    \
+    if (fp) {						    \
+      fprintf(fp, format, ## args);			    \
+      fclose(fp);					    \
+    }							    \
 } while(0)
 #else
 #define DBG(format, args...)
@@ -54,12 +56,12 @@
 
 void ezcfg_agent_master_load_common_conf(struct ezcfg_agent_master *master)
 {
-	struct ezcfg *ezcfg;
+  struct ezcfg *ezcfg;
 
-	if (master == NULL)
-		return ;
+  if (master == NULL)
+    return ;
 
-	ezcfg = ezcfg_agent_master_get_ezcfg(master);
+  ezcfg = ezcfg_agent_master_get_ezcfg(master);
 
-	ezcfg_common_load_conf(ezcfg);
+  //ezcfg_common_load_conf(ezcfg);
 }

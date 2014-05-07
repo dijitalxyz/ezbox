@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : agent/agent_worker_json_http.c
  *
@@ -90,13 +92,30 @@ static void send_json_http_error(struct ezcfg_agent_worker *worker, int status,
 	}
 }
 
+static bool is_json_http_nvram_request(struct ezcfg_http *http)
+{
+	char *uri = ezcfg_http_get_request_uri(http);
+
+	if (uri == NULL) {
+		return false;
+	}
+
+	if ((strcmp(uri, EZCFG_JSON_HTTP_NVRAM_URI) == 0) &&
+	    (ezcfg_http_request_method_cmp(http, EZCFG_HTTP_METHOD_POST) == 0)) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 static void handle_json_http_request(struct ezcfg_agent_worker *worker)
 {
 	struct ezcfg *ezcfg;
 	struct ezcfg_json_http *jh;
 	struct ezcfg_http *http;
-	//struct ezcfg_agent_master *master;
-	char *request_uri;
+	struct ezcfg_agent_master *master;
+	struct ezcfg_nvram *nvram;
 	char *msg = NULL;
 	int msg_len;
 
@@ -107,18 +126,61 @@ static void handle_json_http_request(struct ezcfg_agent_worker *worker)
 
 	ezcfg = ezcfg_agent_worker_get_ezcfg(worker);
 	http = ezcfg_json_http_get_http(jh);
-	//master = ezcfg_agent_worker_get_master(worker);
+	master = ezcfg_agent_worker_get_master(worker);
+	nvram = ezcfg_agent_master_get_nvram(master);
 
-	request_uri = ezcfg_http_get_request_uri(http);
-	if (request_uri == NULL) {
-		err(ezcfg, "no request uri for SOAP/HTTP binding GET method.\n");
+	if (is_json_http_nvram_request(http) == true) {
+		if (ezcfg_json_http_handle_nvram_request(jh, nvram) < 0) {
+			/* clean http structure info */
+			ezcfg_http_reset_attributes(http);
+			ezcfg_http_set_status_code(http, 400);
+			ezcfg_http_set_state_response(http);
+
+			/* build JSON/HTTP error response */
+			msg_len = ezcfg_json_http_get_message_length(jh);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_json_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_json_http_write_message(jh, msg, msg_len);
+			ezcfg_agent_worker_write(worker, msg, msg_len);
+			goto exit;
+                }
+		else {
+			/* build JSON/HTTP binding response */
+			msg_len = ezcfg_json_http_get_message_length(jh);
+			if (msg_len < 0) {
+				err(ezcfg, "ezcfg_json_http_get_message_length error.\n");
+				goto exit;
+			}
+			msg_len++; /* one more for '\0' */
+			msg = (char *)malloc(msg_len);
+			if (msg == NULL) {
+				err(ezcfg, "malloc msg error.\n");
+				goto exit;
+			}
+			memset(msg, 0, msg_len);
+			msg_len = ezcfg_json_http_write_message(jh, msg, msg_len);
+			ezcfg_agent_worker_write(worker, msg, msg_len);
+                        goto exit;
+                }
+	}
+	else {
+		err(ezcfg, "unknown json_http request.\n");
 
 		/* clean http structure info */
 		ezcfg_http_reset_attributes(http);
 		ezcfg_http_set_status_code(http, 400);
 		ezcfg_http_set_state_response(http);
 
-		/* build SOAP/HTTP binding error response */
+		/* build JSON/HTTP binding error response */
 		msg_len = ezcfg_json_http_get_message_length(jh);
 		if (msg_len < 0) {
 			err(ezcfg, "ezcfg_json_http_get_message_length error.\n");
@@ -135,7 +197,6 @@ static void handle_json_http_request(struct ezcfg_agent_worker *worker)
 		ezcfg_agent_worker_write(worker, msg, msg_len);
 		goto exit;
 	}
-
 exit:
 	if (msg != NULL)
 		free(msg);
@@ -161,7 +222,7 @@ void ezcfg_agent_worker_process_json_http_new_connection(struct ezcfg_agent_work
 
 	buf = malloc(buf_len+1); /* +1 for \0 */
 	if (buf == NULL) {
-		err(ezcfg, "not enough memory for processing SOAP/HTTP new connection\n");
+		err(ezcfg, "not enough memory for processing JSON/HTTP new connection\n");
 		return;
 	}
 	memset(buf, 0, buf_len+1);
@@ -188,7 +249,7 @@ void ezcfg_agent_worker_process_json_http_new_connection(struct ezcfg_agent_work
 		minor = ezcfg_json_http_get_http_version_minor(jh);
 		if ((major != 1) || (minor != 1)) {
 			send_json_http_error(worker, 505,
-			                "SOAP/HTTP binding version not supported",
+			                "JSON/HTTP binding version not supported",
 			                "%s", "Weird HTTP version");
 			goto exit;
 		}

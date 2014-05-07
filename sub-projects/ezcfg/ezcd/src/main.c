@@ -1,13 +1,16 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox Configuration Daemon
  * Module Name  : main.c
  *
  * Description  : EZCD main program
  *
- * Copyright (C) 2008-2013 by ezbox-project
+ * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
  * 2010-06-13   0.1       Write it from scratch
+ * 2014-05-13   0.2       Refine it for agent model
  * ============================================================================
  */
 
@@ -41,57 +44,14 @@
 
 int main(int argc, char **argv)
 {
-	char *name = strrchr(argv[0], '/');
-	name = name ? name+1 : argv[0];
+  char *name = strrchr(argv[0], '/');
+  name = name ? name+1 : argv[0];
 
-	if (!strcmp(argv[0], "/init")) {
-		return preinit_main(argc, argv);
-	}
-	else if (!strcmp(argv[0], "/sbin/init")) {
-		return init_main(argc, argv);
-	}
-	else if (!strcmp(argv[0], "/sbin/agent_env")) {
-		return agent_env_main(argc, argv);
-	}
-	else if (!strcmp(name, "rc")) {
-		return rc_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcd")) {
-		return ezcd_main(argc, argv);
-	}
-	else if (!strcmp(name, "ezcm")) {
-		return ezcm_main(argc, argv);
-	}
-	else if (!strcmp(name, "nvram")) {
-		return nvram_main(argc, argv);
-	}
-	else if (!strcmp(name, "shelld")) {
-		return shelld_main(argc, argv);
-	}
-#if (HAVE_EZBOX_SERVICE_EZCFG_IGRSD == 1)
-	else if (!strcmp(name, "igrs_monitor")) {
-		return igrs_monitor_main(argc, argv);
-	}
-#endif
-#if (HAVE_EZBOX_SERVICE_EZCFG_UPNPD == 1)
-	else if (!strcmp(name, "upnp_monitor")) {
-		return upnp_monitor_main(argc, argv);
-	}
-#endif
-	else if (!strcmp(name, "ubootenv")) {
-		return ubootenv_main(argc, argv);
-	}
-#if (HAVE_EZBOX_WAN_NIC == 1)
-	else if (!strcmp(name, "udhcpc.script") ||
-	         !strcmp(argv[0], UDHCPC_SCRIPT_FILE_PATH)) {
-		return udhcpc_script_main(argc, argv);
-	}
-#endif
-	else if (!strcmp(name, "upfw")) {
-		return upfw_main(argc, argv);
-	}
-	else {
-		printf("Unkown name [%s]!\n", name);
-		return (EXIT_FAILURE);
-	}
+  if (!strcmp(argv[0], "/sbin/agent_env")) {
+    return agent_env_main(argc, argv);
+  }
+  else {
+    printf("Unkown name [%s]!\n", name);
+    return (EXIT_FAILURE);
+  }
 }

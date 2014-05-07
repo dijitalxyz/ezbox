@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg.h
  *
@@ -7,7 +9,7 @@
  * Copyright (C) 2008-2014 by ezbox-project
  *
  * History      Rev       Description
- * 2010-07-12   0.1       Write it from scratch
+ * 2014-03-31   0.2       Prepare for new NVRAM model
  * ============================================================================
  */
 
@@ -43,9 +45,10 @@
 
 /* function return value */
 #define EZCFG_RET_OK            0
+#define EZCFG_RET_BAD          -1
 
 /* minimum number of worker threads */
-/* ctrl socket, nvram socket, uevent socket */
+/* nvram socket */
 #define EZCFG_THREAD_MIN_NUM	3
 
 #define EZCFG_ROOT_PATH		SYSCONFDIR "/ezcfg"
@@ -74,8 +77,12 @@
 #define EZCFG_SHM_SIZE_MAX	1073741824 /* 1024*1024*1024 */
 /* shared memory nvram queue minimum length */
 #define EZCFG_SHM_EZCFG_NVRAM_QUEUE_MIN        64
-/* shared memory nvram queue minimum length */
+/* shared memory nvram queue maximum length */
+#define EZCFG_SHM_EZCFG_NVRAM_QUEUE_MAX        1024
+/* shared memory rc queue minimum length */
 #define EZCFG_SHM_EZCFG_RC_QUEUE_MIN           64
+/* shared memory rc queue maximum length */
+#define EZCFG_SHM_EZCFG_RC_QUEUE_MAX           1024
 
 /* socket path */
 #define EZCFG_SOCK_ROOT_PATH    "@/etc/ezcfg/sock"
@@ -189,7 +196,7 @@
 #define EZCFG_PROTO_UPNP_SSDP	8
 #define EZCFG_PROTO_UPNP_HTTP	9
 #define EZCFG_PROTO_UPNP_GENA	10
-#define EZCFG_PROTO_JSON_HTTP	11
+#define EZCFG_PROTO_JSON_HTTP		11
 
 //#define EZCFG_SOCKET_PROTO_UNKNOWN_STRING         "0"
 #define EZCFG_SOCKET_PROTO_CTRL_STRING            "ctrl"
@@ -254,6 +261,17 @@
 #define EZCFG_JSON_HTTP_MAX_REQUEST_SIZE    (EZCFG_JSON_HTTP_CHUNK_SIZE * EZCFG_JSON_HTTP_MAX_CHUNK_NUM)
 /* ezcfg JSON over HTTP response size */
 #define EZCFG_JSON_HTTP_MAX_RESPONSE_SIZE   EZCFG_JSON_HTTP_MAX_REQUEST_SIZE
+
+
+/* ezcfg NVRAM on JSON over HTTP request/response mode */
+#define EZCFG_JSON_NVRAM_HTTP_MODE_REQUEST        EZCFG_HTTP_MODE_REQUEST
+#define EZCFG_JSON_NVRAM_HTTP_MODE_RESPONSE       EZCFG_HTTP_MODE_RESPONSE
+#define EZCFG_JSON_NVRAM_HTTP_CHUNK_SIZE          20480
+#define EZCFG_JSON_NVRAM_HTTP_MAX_CHUNK_NUM       32
+/* ezcfg NVRAM on JSON over HTTP request size */
+#define EZCFG_JSON_NVRAM_HTTP_MAX_REQUEST_SIZE    (EZCFG_JSON_NVRAM_HTTP_CHUNK_SIZE * EZCFG_JSON_NVRAM_HTTP_MAX_CHUNK_NUM)
+/* ezcfg NVRAM on JSON over HTTP response size */
+#define EZCFG_JSON_NVRAM_HTTP_MAX_RESPONSE_SIZE   EZCFG_JSON_NVRAM_HTTP_MAX_REQUEST_SIZE
 
 
 /* ezcfg xml definitions */

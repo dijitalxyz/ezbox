@@ -38,7 +38,8 @@ libezcfg_la_LDFLAGS = \
 	-version-info $(LIBEZCFG_CURRENT):$(LIBEZCFG_REVISION):$(LIBEZCFG_AGE) \
 	-export-symbols $(top_builddir)/$(EXPORTED_SYMBOLS)
 
-libezcfg_la_SOURCES = $(top_builddir)/src/common/ezcfg.c
+libezcfg_la_SOURCES = $(top_builddir)/src/common/meta_nvram.c
+libezcfg_la_SOURCES += $(top_builddir)/src/common/ezcfg.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/link_list.c
 libezcfg_la_SOURCES += $(top_builddir)/src/common/shm.c
@@ -53,17 +54,16 @@ libezcfg_la_SOURCES += $(top_builddir)/src/tree/binary_tree.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_core.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master.c
-libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_common_conf.c
-libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_socket_conf.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_common_conf.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_master_load_socket_conf.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker.c
-libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker_soap_http.c
 libezcfg_la_SOURCES += $(top_builddir)/src/agent/agent_worker_json_http.c
 
 # ezcfg Master/Worker thread model
 libezcfg_la_SOURCES += $(top_builddir)/src/thread/thread.c
-libezcfg_la_SOURCES += $(top_builddir)/src/thread/master.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/thread/master.c
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_uevent.c
-libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_common_conf.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_common_conf.c
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_socket_conf.c
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_auth_conf.c
 if CONFIG_EZBOX_SERVICE_OPENSSL
@@ -76,10 +76,10 @@ if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_upnp_ssdp.c
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/master_load_upnp_conf.c
 endif
-libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker.c
-#libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_ctrl.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_ctrl.c
 if CONFIG_EZBOX_SERVICE_EZCFG_HTTPD
-#libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_http.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_http.c
 endif
 #libezcfg_la_SOURCES += $(top_builddir)/src/thread/worker_soap_http.c
 if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
@@ -131,20 +131,20 @@ libezcfg_la_SOURCES += $(top_builddir)/src/util/util_upnp_monitor.c
 endif
 
 # ezcfg control
-libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl.c 
-libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ipc.c 
+#libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl.c 
+#libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ipc.c 
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_upnp.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_upnp.c
 endif 
 if CONFIG_EZBOX_SERVICE_EZCTP
-libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ezctp.c
+# libezcfg_la_SOURCES += $(top_builddir)/src/ctrl/ctrl_ezctp.c
 endif 
 
 # ezcfg nvram
 libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram.c
-libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_defaults.c
-libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_validators.c
-libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_propagators.c
+#libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_defaults.c
+#libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_validators.c
+#libezcfg_la_SOURCES += $(top_builddir)/src/nvram/nvram_propagators.c
 
 # ezctp support
 if CONFIG_EZBOX_SERVICE_EZCTP
@@ -304,6 +304,9 @@ libezcfg_la_SOURCES += $(top_builddir)/src/json/json.c
 # ezcfg JSON over HTTP
 libezcfg_la_SOURCES += $(top_builddir)/src/json/json_http.c
 
+# ezcfg NVRAM on JSON over HTTP
+libezcfg_la_SOURCES += $(top_builddir)/src/json/json_http_nvram.c
+
 if CONFIG_EZBOX_SERVICE_OPENSSL
 # ezcfg SSL handling
 libezcfg_la_SOURCES += $(top_builddir)/src/ssl/ssl.c
@@ -340,22 +343,21 @@ endif
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-common.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-util.c
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-agent.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-master.c
 #libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ctrl.c
 #libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ipc.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c
-if CONFIG_EZBOX_SERVICE_OPENSSL
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_ssl.c
-endif
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_socket.c
+#if CONFIG_EZBOX_SERVICE_OPENSSL
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-arg_nvram_ssl.c
+#endif
 libezcfg_la_SOURCES += $(top_builddir)/api/src/api-nvram.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-rc.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-uuid.c
-if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-upnp.c
-endif
-if CONFIG_EZBOX_SERVICE_EZCTP
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ezctp.c
-endif 
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ubootenv.c
-libezcfg_la_SOURCES += $(top_builddir)/api/src/api-firmware.c
-
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-rc.c
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-uuid.c
+#if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-upnp.c
+#endif
+#if CONFIG_EZBOX_SERVICE_EZCTP
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ezctp.c
+#endif 
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-ubootenv.c
+#libezcfg_la_SOURCES += $(top_builddir)/api/src/api-firmware.c

@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : agent/agent_core.c
  *
@@ -41,16 +43,16 @@
 
 #if 0
 #define DBG(format, args...) do { \
-	char path[256]; \
-	FILE *dbg_fp; \
-	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	dbg_fp = fopen(path, "a"); \
-	if (dbg_fp) { \
-		fprintf(dbg_fp, "tid=[%d] ", (int)gettid()); \
-		fprintf(dbg_fp, format, ## args); \
-		fclose(dbg_fp); \
-	} \
-} while(0)
+    char path[256];               \
+    FILE *dbg_fp;                                           \
+    snprintf(path, 256, "/tmp/%d-debug.txt", getpid());     \
+    dbg_fp = fopen(path, "a");                              \
+    if (dbg_fp) {                                            \
+      fprintf(dbg_fp, "tid=[%d] ", (int)gettid());           \
+      fprintf(dbg_fp, format, ## args);                      \
+      fclose(dbg_fp);                                        \
+    }                                                        \
+  } while(0)
 #else
 #define DBG(format, args...)
 #endif
@@ -62,10 +64,10 @@
  * Multi-Agents System model - agent part.
  */
 struct ezcfg_agent_core {
-	struct ezcfg *ezcfg;
-	char *name;
-	int state;
-	struct ezcfg_nvram *nvram; /* Name-Value random access memory */
+  struct ezcfg *ezcfg;
+  char *name;
+  int state;
+  struct ezcfg_nvram *nvram; /* Name-Value random access memory */
 };
 
 /* Private functions */
@@ -74,15 +76,15 @@ struct ezcfg_agent_core {
  */
 static void agent_core_delete(struct ezcfg_agent_core *core)
 {
-	if (core->name != NULL) {
-		free(core->name);
-	}
+  if (core->name != NULL) {
+    free(core->name);
+  }
 
-	if (core->nvram != NULL) {
-		ezcfg_nvram_delete(core->nvram);
-	}
+  if (core->nvram != NULL) {
+    ezcfg_nvram_delete(core->nvram);
+  }
 
-	free(core);
+  free(core);
 }
 
 #if 0
@@ -92,14 +94,14 @@ static void agent_core_delete(struct ezcfg_agent_core *core)
  */
 static void agent_finish(struct ezcfg_agent_core *agent)
 {
-	/* Close all listening sockets */
-	if (agent->listening_sockets != NULL) {
-		ezcfg_socket_list_delete(&(agent->listening_sockets));
-		agent->listening_sockets = NULL;
-	}
+  /* Close all listening sockets */
+  if (agent->listening_sockets != NULL) {
+    ezcfg_socket_list_delete(&(agent->listening_sockets));
+    agent->listening_sockets = NULL;
+  }
 
-        /* signal environment agent that we're done */
-        agent->state = AGENT_STATE_STOPPED;
+  /* signal environment agent that we're done */
+  agent->state = AGENT_STATE_STOPPED;
 }
 
 /**
@@ -111,45 +113,45 @@ static void agent_finish(struct ezcfg_agent_core *agent)
  **/
 static struct ezcfg_agent_core *agent_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_agent_core *agent;
+  struct ezcfg_agent_core *agent;
 
-	ASSERT(ezcfg != NULL);
+  ASSERT(ezcfg != NULL);
 
-	agent = calloc(1, sizeof(struct ezcfg_agent));
-	if (agent == NULL) {
-		err(ezcfg, "calloc ezcfg_agent fail: %m\n");
-		return NULL;
-	}
+  agent = malloc(sizeof(struct ezcfg_agent));
+  if (agent == NULL) {
+    err(ezcfg, "calloc ezcfg_agent fail: %m\n");
+    return NULL;
+  }
 
-	/* initialize ezcfg library context */
-	memset(agent, 0, sizeof(struct ezcfg_agent));
+  /* initialize ezcfg library context */
+  memset(agent, 0, sizeof(struct ezcfg_agent));
 
-	/* set ezcfg library context */
-	agent->ezcfg = ezcfg;
+  /* set ezcfg library context */
+  agent->ezcfg = ezcfg;
 
-	/* get nvram memory */
-	agent->nvram = ezcfg_nvram_new(ezcfg);
-	if(agent->nvram == NULL) {
-		err(ezcfg, "agent alloc nvram fail: %m\n");
-		goto fail_exit;
-	}
+  /* get nvram memory */
+  agent->nvram = ezcfg_nvram_new(ezcfg);
+  if(agent->nvram == NULL) {
+    err(ezcfg, "agent alloc nvram fail: %m\n");
+    goto fail_exit;
+  }
 
-	/* initialize nvram */
-	ezcfg_nvram_fill_storage_info(agent->nvram, ezcfg_common_get_config_file(ezcfg));
-	if (ezcfg_nvram_initialize(agent->nvram) == false) {
-		err(ezcfg, "agent init nvram fail: %m\n");
-		goto fail_exit;
-	}
+  /* initialize nvram */
+  ezcfg_nvram_fill_storage_info(agent->nvram, ezcfg_common_get_config_file(ezcfg));
+  if (ezcfg_nvram_initialize(agent->nvram) == false) {
+    err(ezcfg, "agent init nvram fail: %m\n");
+    goto fail_exit;
+  }
 
-	/* initialize socket queue */
-        agent->sq_len = AGENT_SOCKET_QUEUE_LENGTH;
+  /* initialize socket queue */
+  agent->sq_len = AGENT_SOCKET_QUEUE_LENGTH;
 
-	/* Successfully create agent */
-	return agent;
+  /* Successfully create agent */
+  return agent;
 
 fail_exit:
-	agent_delete(agent);
-	return NULL;
+  agent_delete(agent);
+  return NULL;
 }
 
 /**
@@ -171,33 +173,33 @@ fail_exit:
  **/
 static struct ezcfg_socket *agent_add_socket(struct ezcfg_agent_core *agent, int family, int type, int proto, const char *socket_path)
 {
-	struct ezcfg_socket *listener;
-	struct ezcfg *ezcfg;
+  struct ezcfg_socket *listener;
+  struct ezcfg *ezcfg;
 
-	ASSERT(agent != NULL);
-	ezcfg = agent->ezcfg;
+  ASSERT(agent != NULL);
+  ezcfg = agent->ezcfg;
 
-	ASSERT(socket_path != NULL);
+  ASSERT(socket_path != NULL);
 
-	/* initialize unix domain socket */
-	listener = ezcfg_socket_new(ezcfg, family, type, proto, socket_path);
-	if (listener == NULL) {
-		err(ezcfg, "init socket fail: %m\n");
-		return NULL;
-	}
+  /* initialize unix domain socket */
+  listener = ezcfg_socket_new(ezcfg, family, type, proto, socket_path);
+  if (listener == NULL) {
+    err(ezcfg, "init socket fail: %m\n");
+    return NULL;
+  }
 
-	if ((family == AF_LOCAL) &&
-	    (socket_path[0] != '@')) {
-		ezcfg_socket_set_need_unlink(listener, true);
-	}
+  if ((family == AF_LOCAL) &&
+      (socket_path[0] != '@')) {
+    ezcfg_socket_set_need_unlink(listener, true);
+  }
 
-	if (ezcfg_socket_list_insert(&(agent->listening_sockets), listener) < 0) {
-		err(ezcfg, "insert listener socket fail: %m\n");
-		ezcfg_socket_delete(listener);
-		listener = NULL;
-	}
+  if (ezcfg_socket_list_insert(&(agent->listening_sockets), listener) < 0) {
+    err(ezcfg, "insert listener socket fail: %m\n");
+    ezcfg_socket_delete(listener);
+    listener = NULL;
+  }
 
-	return listener;
+  return listener;
 }
 
 /**
@@ -219,108 +221,108 @@ static struct ezcfg_socket *agent_add_socket(struct ezcfg_agent_core *agent, int
  **/
 static struct ezcfg_agent_core *agent_new_from_socket(struct ezcfg *ezcfg, const char *socket_path)
 {
-	struct ezcfg_agent_core *agent = NULL;
-	struct ezcfg_socket *sp = NULL;
+  struct ezcfg_agent_core *agent = NULL;
+  struct ezcfg_socket *sp = NULL;
 
-	ASSERT(ezcfg != NULL);
-	ASSERT(socket_path != NULL);
+  ASSERT(ezcfg != NULL);
+  ASSERT(socket_path != NULL);
 
-	agent = agent_new(ezcfg);
-	if (agent == NULL) {
-		err(ezcfg, "new agent fail: %m\n");
-		return NULL;
-	}
+  agent = agent_new(ezcfg);
+  if (agent == NULL) {
+    err(ezcfg, "new agent fail: %m\n");
+    return NULL;
+  }
 
-	sp = agent_add_socket(agent, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, socket_path);
-	if (sp == NULL) {
-		err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
-		goto fail_exit;
-	}
+  sp = agent_add_socket(agent, AF_LOCAL, SOCK_STREAM, EZCFG_PROTO_CTRL, socket_path);
+  if (sp == NULL) {
+    err(ezcfg, "add socket [%s] fail: %m\n", socket_path);
+    goto fail_exit;
+  }
 
-	if (ezcfg_socket_enable_receiving(sp) < 0) {
-		err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
-		ezcfg_socket_list_delete_socket(&(agent->listening_sockets), sp);
-		goto fail_exit;
-	}
+  if (ezcfg_socket_enable_receiving(sp) < 0) {
+    err(ezcfg, "enable socket [%s] receiving fail: %m\n", socket_path);
+    ezcfg_socket_list_delete_socket(&(agent->listening_sockets), sp);
+    goto fail_exit;
+  }
 
-	if (ezcfg_socket_enable_listening(sp, agent->sq_len) < 0) {
-		err(ezcfg, "enable socket [%s] listening fail: %m\n", socket_path);
-		ezcfg_socket_list_delete_socket(&(agent->listening_sockets), sp);
-		goto fail_exit;
-	}
+  if (ezcfg_socket_enable_listening(sp, agent->sq_len) < 0) {
+    err(ezcfg, "enable socket [%s] listening fail: %m\n", socket_path);
+    ezcfg_socket_list_delete_socket(&(agent->listening_sockets), sp);
+    goto fail_exit;
+  }
 
-	ezcfg_socket_set_close_on_exec(sp);
+  ezcfg_socket_set_close_on_exec(sp);
 
-	return agent;
+  return agent;
 
 fail_exit:
-	/* first clean up all resources in agent */
-	agent_finish(agent);
-	/* don't delete sp, agent_delete will do it! */
-	agent_delete(agent);
-	return NULL;
+  /* first clean up all resources in agent */
+  agent_finish(agent);
+  /* don't delete sp, agent_delete will do it! */
+  agent_delete(agent);
+  return NULL;
 }
 
 static void agent_update_inner_state(struct ezcfg_agent_core *agent)
 {
-	/* do nothing */
-	return;
+  /* do nothing */
+  return;
 }
 
 static void agent_think_about_changes(struct ezcfg_agent_core *agent)
 {
-	/* do nothing */
-	return;
+  /* do nothing */
+  return;
 }
 
 static void agent_perform_action(struct ezcfg_agent_core *agent)
 {
-	/* do nothing */
-	return;
+  /* do nothing */
+  return;
 }
 
 /* Public functions */
 struct ezcfg_agent_master *ezcfg_agent_start(struct ezcfg *ezcfg)
 {
-	struct ezcfg_agent_core *agent = NULL;
-	sigset_t sigset;
+  struct ezcfg_agent_core *agent = NULL;
+  sigset_t sigset;
 
-	ASSERT(ezcfg != NULL);
+  ASSERT(ezcfg != NULL);
 
-	/* There must be an agent nvram socket */
-	agent = agent_new_from_socket(ezcfg, ezcfg_common_get_sock_nvram_path(ezcfg));
-	if (agent == NULL) {
-		err(ezcfg, "can not initialize agent control socket");
-		goto start_out;
-	}
+  /* There must be an agent nvram socket */
+  agent = agent_new_from_socket(ezcfg, ezcfg_common_get_sock_nvram_path(ezcfg));
+  if (agent == NULL) {
+    err(ezcfg, "can not initialize agent control socket");
+    goto start_out;
+  }
 
-	/* run main loop forever */
-	while (agent->state == AGENT_STATE_RUNNING) {
-		sigsuspend(&sigset);
-		/* first update inner state */
-		agent_update_inner_state(agent);
-		/* then thinks about the inner state changs */
-		agent_think_about_changes(agent);
-		/* perform actions */
-		agent_perform_action(agent);
-	}
+  /* run main loop forever */
+  while (agent->state == AGENT_STATE_RUNNING) {
+    sigsuspend(&sigset);
+    /* first update inner state */
+    agent_update_inner_state(agent);
+    /* then thinks about the inner state changs */
+    agent_think_about_changes(agent);
+    /* perform actions */
+    agent_perform_action(agent);
+  }
 
 start_out:
-	/* Start agent */
-	if (agent != NULL) {
-		agent_delete(agent);
-		agent = NULL;
-	}
-	return agent;
+  /* Start agent */
+  if (agent != NULL) {
+    agent_delete(agent);
+    agent = NULL;
+  }
+  return agent;
 }
 #endif
 
 void ezcfg_agent_core_delete(struct ezcfg_agent_core *core)
 {
-	if (core == NULL)
-		return;
+  if (core == NULL)
+    return;
 
-	agent_core_delete(core);
+  agent_core_delete(core);
 }
 
 /**
@@ -332,45 +334,44 @@ void ezcfg_agent_core_delete(struct ezcfg_agent_core *core)
  **/
 struct ezcfg_agent_core *ezcfg_agent_core_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_agent_core *core;
+  struct ezcfg_agent_core *core;
 
-	ASSERT(ezcfg != NULL);
+  ASSERT(ezcfg != NULL);
 
-	core = calloc(1, sizeof(struct ezcfg_agent_core));
-	if (core == NULL) {
-		err(ezcfg, "calloc ezcfg_agent_core fail: %m\n");
-		return NULL;
-	}
+  core = malloc(sizeof(struct ezcfg_agent_core));
+  if (core == NULL) {
+    err(ezcfg, "calloc ezcfg_agent_core fail: %m\n");
+    return NULL;
+  }
 
-	/* initialize ezcfg library context */
-	memset(core, 0, sizeof(struct ezcfg_agent_core));
+  /* initialize ezcfg library context */
+  memset(core, 0, sizeof(struct ezcfg_agent_core));
 
-	/* set ezcfg library context */
-	core->ezcfg = ezcfg;
+  /* set ezcfg library context */
+  core->ezcfg = ezcfg;
 
-	/* get nvram memory */
-	core->nvram = ezcfg_nvram_new(ezcfg);
-	if(core->nvram == NULL) {
-		err(ezcfg, "agent core alloc nvram fail: %m\n");
-		goto fail_exit;
-	}
+  /* get nvram memory */
+  core->nvram = ezcfg_nvram_new(ezcfg);
+  if(core->nvram == NULL) {
+    err(ezcfg, "agent core alloc nvram fail: %m\n");
+    goto fail_exit;
+  }
 
-	/* initialize nvram */
-	ezcfg_nvram_fill_storage_info(core->nvram, ezcfg_common_get_config_file(ezcfg));
-	if (ezcfg_nvram_initialize(core->nvram) == false) {
-		err(ezcfg, "agent init nvram fail: %m\n");
-		goto fail_exit;
-	}
+  /* initialize nvram */
+  if (ezcfg_nvram_initialize(core->nvram) != EZCFG_RET_OK) {
+    err(ezcfg, "agent init nvram fail: %m\n");
+    goto fail_exit;
+  }
 
-	/* Successfully create agent core state */
-	return core;
+  /* Successfully create agent core state */
+  return core;
 
 fail_exit:
-	agent_core_delete(core);
-	return NULL;
+  agent_core_delete(core);
+  return NULL;
 }
 
 struct ezcfg_nvram *ezcfg_agent_core_get_nvram(struct ezcfg_agent_core *core)
 {
-	return core->nvram;
+  return core->nvram;
 }

@@ -151,9 +151,9 @@ endif
 
 # ezcfg_upnpd
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcfg_upnpd.c
+#libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcfg_upnpd.c
 if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD_IGD1
-libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcfg_upnpd_igd1.c
+#libezcd_la_SOURCES += $(top_builddir)/src/pop/pop_etc_ezcfg_upnpd_igd1.c
 endif
 endif
 

@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezcfg Application Programming Interface
  * Module Name  : api-agent.c
  *
@@ -47,38 +49,55 @@
 
 #if 0
 #define DBG(format, args...) do {\
-	FILE *dbg_fp = fopen("/dev/kmsg", "a"); \
-	if (dbg_fp) { \
-		fprintf(dbg_fp, format, ## args); \
-		fclose(dbg_fp); \
-	} \
-} while(0)
+    FILE *dbg_fp = fopen("/dev/kmsg", "a");	\
+    if (dbg_fp) {				  \
+      fprintf(dbg_fp, format, ## args);		  \
+      fclose(dbg_fp);				  \
+    }						  \
+  } while(0)
 #else
 #define DBG(format, args...)
 #endif
 
 static bool debug = false;
-
-static void log_fn(struct ezcfg *ezcfg, int priority,
-                   const char *file, int line, const char *fn,
-                   const char *format, va_list args)
+static int
+log_func(struct ezcfg *ezcfg,
+	 int priority,
+	 const char *file,
+	 int line,
+	 const char *func,
+	 const char *format,
+	 va_list args)
 {
-	if (debug) {
-		char buf[1024];
-		struct timeval tv;
-		struct timezone tz;
+  char log_file[EZCFG_PATH_MAX];
+  int ret;
 
-		vsnprintf(buf, sizeof(buf), format, args);
-		gettimeofday(&tv, &tz);
-		fprintf(stderr, "%llu.%06u [%u] %s(%d): %s",
-		        (unsigned long long) tv.tv_sec, (unsigned int) tv.tv_usec,
-		        (int) getpid(), fn, line, buf);
-	}
-#if 0
-	else {
-		vsyslog(priority, format, args);
-	}
-#endif
+  if (debug == false) {
+    return EZCFG_RET_OK;
+  }
+
+  ret = ezcfg_common_get_log_file(ezcfg, log_file, sizeof(log_file));
+  if (ret == EZCFG_RET_BAD) {
+    return EZCFG_RET_BAD;
+  }
+
+  if (log_file[0] == '\0') {
+    fprintf(stderr, "libezcfg: %s(%d)@%s: ", file, line, func);
+    vfprintf(stderr, format, args);
+    return EZCFG_RET_OK;
+  }
+  else {
+    FILE *fp = fopen(log_file, "a");
+    if (fp != NULL) {
+      fprintf(fp, "libezcfg: %s(%d)@%s: ", file, line, func);
+      vfprintf(fp, format, args);
+      fclose(fp);
+      return EZCFG_RET_OK;
+    }
+    else {
+      return EZCFG_RET_BAD;
+    }
+  }
 }
 
 /**
@@ -90,50 +109,50 @@ static void log_fn(struct ezcfg *ezcfg, int priority,
  **/
 struct ezcfg_agent *ezcfg_api_agent_start(const char *name, int threads_max)
 {
-	struct ezcfg *ezcfg = NULL;
-	struct ezcfg_agent *agent = NULL;
+  struct ezcfg *ezcfg = NULL;
+  struct ezcfg_agent *agent = NULL;
 
-	if (name == NULL || threads_max < EZCFG_THREAD_MIN_NUM) {
-		//return -EZCFG_E_ARGUMENT ;
-		return NULL;
-	}
+  if (name == NULL || threads_max < EZCFG_THREAD_MIN_NUM) {
+    //return -EZCFG_E_ARGUMENT ;
+    return NULL;
+  }
 
-	ezcfg = ezcfg_new(ezcfg_api_common_get_config_file());
-	if (ezcfg == NULL) {
-		//return -EZCFG_E_RESOURCE ;
-		return NULL;
-	}
+  ezcfg = ezcfg_new(ezcfg_api_common_get_config_file());
+  if (ezcfg == NULL) {
+    //return -EZCFG_E_RESOURCE ;
+    return NULL;
+  }
 
-	ezcfg_log_init(name);
-	ezcfg_common_set_log_fn(ezcfg, log_fn);
+  ezcfg_log_init(name);
+  ezcfg_common_set_log_func(ezcfg, log_func);
 
-	agent = ezcfg_agent_start(ezcfg);
-	if (agent == NULL) {
-		ezcfg_delete(ezcfg);
-		return NULL;
-	}
+  agent = ezcfg_agent_start(ezcfg);
+  if (agent == NULL) {
+    ezcfg_delete(ezcfg);
+    return NULL;
+  }
 
-	ezcfg_agent_set_threads_max(agent, threads_max);
+  ezcfg_agent_set_threads_max(agent, threads_max);
 
-	return agent;
+  return agent;
 }
 
 int ezcfg_api_agent_stop(struct ezcfg_agent *agent)
 {
-	if (agent == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
+  if (agent == NULL) {
+    return -EZCFG_E_ARGUMENT ;
+  }
 
-	ezcfg_agent_stop(agent);
-	return 0;
+  ezcfg_agent_stop(agent);
+  return 0;
 }
 
 int ezcfg_api_agent_reload(struct ezcfg_agent *agent)
 {
-	if (agent == NULL) {
-		return -EZCFG_E_ARGUMENT ;
-	}
+  if (agent == NULL) {
+    return -EZCFG_E_ARGUMENT ;
+  }
 
-	ezcfg_agent_reload(agent);
-	return 0;
+  ezcfg_agent_reload(agent);
+  return 0;
 }

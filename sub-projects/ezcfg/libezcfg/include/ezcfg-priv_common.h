@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg-priv_common.h
  *
@@ -20,10 +22,15 @@
  * common/ezcfg.c
  * ezbox config context
  */
-void ezcfg_log(struct ezcfg *ezcfg,
-               int priority, const char *file, int line, const char *fn,
-               const char *format, ...)
-               __attribute__((format(printf, 6, 7)));
+int
+ezcfg_log(struct ezcfg *ezcfg,
+	  int priority,
+	  const char *file,
+	  int line,
+	  const char *fn,
+	  const char *format,
+	  ...)
+  __attribute__((format(printf, 6, 7)));
 
 static inline void __attribute__((always_inline, format(printf, 2, 3)))
 ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
@@ -53,58 +60,70 @@ ezcfg_log_null(struct ezcfg *ezcfg, const char *format, ...) {}
 #endif
 
 
-static inline void ezcfg_log_init(const char *program_name)
+static inline void
+ezcfg_log_init(const char *program_name)
 {
-	openlog(program_name, LOG_PID | LOG_CONS, LOG_DAEMON);
+  openlog(program_name, LOG_PID | LOG_CONS, LOG_DAEMON);
 }
 
-static inline void ezcfg_log_close(void)
+static inline void
+ezcfg_log_close(void)
 {
-	closelog();
+  closelog();
 }
 
-void ezcfg_common_set_log_fn(struct ezcfg *ezcfg,
-                      void (*log_fn)(struct ezcfg *ezcfg,
-                                    int priority, const char *file, int line, const char *fn,
-                                    const char *format, va_list args));
-int ezcfg_common_get_log_priority(struct ezcfg *ezcfg);
-void ezcfg_common_set_log_priority(struct ezcfg *ezcfg, int priority);
 
 struct ezcfg *ezcfg_new(char *path);
-void ezcfg_delete(struct ezcfg *ezcfg);
+int ezcfg_delete(struct ezcfg *ezcfg);
+int
+ezcfg_common_set_log_func(struct ezcfg *ezcfg,
+			  int (*log_func)(struct ezcfg *ezcfg,
+					  int priority,
+					  const char *file,
+					  int line,
+					  const char *fn,
+					  const char *format,
+					  va_list args));
+int ezcfg_common_get_log_file(struct ezcfg *ezcfg, char *buf, size_t size);
+int ezcfg_common_set_log_file(struct ezcfg *ezcfg, char *buf);
+int ezcfg_common_get_log_priority(struct ezcfg *ezcfg);
+int ezcfg_common_get_meta_nvram(struct ezcfg *ezcfg, const char *name, char *buf, size_t len);
 
-char *ezcfg_common_get_config_file(struct ezcfg *ezcfg);
-void ezcfg_common_set_config_file(struct ezcfg *ezcfg, char *file);
-char *ezcfg_common_get_rules_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_rules_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_root_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_root_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_sem_ezcfg_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sem_ezcfg_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_shm_ezcfg_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_shm_ezcfg_path(struct ezcfg *ezcfg, char *path);
-size_t ezcfg_common_get_shm_ezcfg_size(struct ezcfg *ezcfg);
-size_t ezcfg_common_get_shm_ezcfg_nvram_queue_length(struct ezcfg *ezcfg);
-size_t ezcfg_common_get_shm_ezcfg_rc_queue_length(struct ezcfg *ezcfg);
-#if (HAVE_EZBOX_SERVICE_EZCTP == 1)
-char *ezcfg_common_get_shm_ezctp_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_shm_ezctp_path(struct ezcfg *ezcfg, char *path);
-size_t ezcfg_common_get_shm_ezctp_size(struct ezcfg *ezcfg);
-size_t ezcfg_common_get_shm_ezctp_cq_unit_size(struct ezcfg *ezcfg);
-size_t ezcfg_common_get_shm_ezctp_cq_length(struct ezcfg *ezcfg);
-#endif
-char *ezcfg_common_get_sock_nvram_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_sock_nvram_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_web_document_root_path(struct ezcfg *ezcfg);
-void ezcfg_common_set_web_document_root_path(struct ezcfg *ezcfg, char *path);
-char *ezcfg_common_get_locale(struct ezcfg *ezcfg);
-void ezcfg_common_set_locale(struct ezcfg *ezcfg, char *locale);
-int ezcfg_common_locale_mutex_lock(struct ezcfg *ezcfg);
-int ezcfg_common_locale_mutex_unlock(struct ezcfg *ezcfg);
-struct ezcfg_list_entry *ezcfg_common_add_property(struct ezcfg *ezcfg, const char *key, const char *value);
-struct ezcfg_list_entry *ezcfg_common_get_properties_list_entry(struct ezcfg *ezcfg);
-void ezcfg_common_load_conf(struct ezcfg *ezcfg);
 
+/*
+ * commom/meta_nvram.c
+ * meta_nvram
+ *
+ * access to meta_nvram
+ */
+struct nvram_header {
+  char magic[4]; /* must be 'N','V','R','M' */
+  char version[4];
+  char coding[4];
+  char backend[4];
+  int32_t data_size;
+  int32_t data_used;
+  uint32_t data_crc;
+  uint32_t header_crc;
+};
+
+#define NVRAM_VERSOIN_MAJOR 0x00 /* version[0] */
+#define NVRAM_VERSOIN_MINOR 0x02 /* version[1] */
+#define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
+#define NVRAM_VERSOIN_REV   0x00 /* version[3] */ 
+
+int ezcfg_meta_nvram_delete(char *buffer);
+char *ezcfg_meta_nvram_new(int size);
+int ezcfg_meta_nvram_set_version(char *buffer, char version[4]);
+int ezcfg_meta_nvram_set_coding_type(char *buffer, char coding[4]);
+int ezcfg_meta_nvram_set_backend_type(char *buffer, char backend[4]);
+int ezcfg_meta_nvram_update_data_crc(char *buffer);
+int ezcfg_meta_nvram_update_header_crc(char *buffer);
+int ezcfg_meta_nvram_set_entry(char *buffer, const char *name, const char *value);
+int ezcfg_meta_nvram_unset_entry(char *buffer, const char *name);
+int ezcfg_meta_nvram_get_entry_value(char *buffer, const char *name, char **value);
+int ezcfg_meta_nvram_match_entry(char *buffer, const char *name1, const char *name2);
+int ezcfg_meta_nvram_match_entry_value(char *buffer, const char *name, char *value);
 
 /*
  * commom/list.c

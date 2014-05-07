@@ -180,6 +180,7 @@ typedef enum {
 #define EZCFG_HTTP_TRANSFER_CODING_CHUNKED    "chunked"
 
 /* ezcfg HTTP MIME type strings */
+#define EZCFG_HTTP_MIME_APPLICATION_JSON      "application/json"
 #define EZCFG_HTTP_MIME_APPLICATION_SOAP_XML  "application/soap+xml"
 #define EZCFG_HTTP_MIME_APPLICATION_X_JAVASCRIPT        "application/x-javascript"
 #define EZCFG_HTTP_MIME_TEXT_HTML             "text/html"

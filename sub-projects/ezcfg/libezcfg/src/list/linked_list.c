@@ -49,7 +49,8 @@ struct ezcfg_linked_list {
  */
 static void linked_list_node_delete(struct ezcfg_linked_list *list, struct linked_list_node *p)
 {
-	if (list->data_delete_handler) {
+	if ((list->data_delete_handler != NULL) &&
+	    (p->data != NULL)) {
 		list->data_delete_handler(p->data);
 	}
 	free(p);
@@ -173,6 +174,34 @@ bool ezcfg_linked_list_append(struct ezcfg_linked_list *list, void *data)
 	}
 	list->length += 1;
 	return true;
+}
+
+/*
+ * take the data of head link node
+ */
+void *ezcfg_linked_list_take_data(struct ezcfg_linked_list *list)
+{
+	struct linked_list_node *np;
+	void *data;
+
+	ASSERT(list != NULL);
+
+	np = list->head;
+
+	if (np == NULL) {
+		return NULL;
+	}
+
+	list->head = np->next;
+	if (list->tail == np) {
+		list->tail = NULL;
+	}
+	data = np->data;
+	np->data = NULL;
+	linked_list_node_delete(list, np);
+	list->length -= 1;
+
+	return data;
 }
 
 /*

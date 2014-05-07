@@ -79,12 +79,6 @@ static int nvram_user_defined(int argc, char **argv)
 		else
 			return (EXIT_SUCCESS);
 	}
-	else if (strcmp(argv[0], "commit") == 0) {
-		if (ezcfg_api_nvram_commit() < 0)
-			return (EXIT_FAILURE);
-		else
-			return (EXIT_SUCCESS);
-	}
 	else {
 		return (EXIT_FAILURE);
 	}
@@ -97,7 +91,6 @@ int env_action_nvram(int argc, char **argv)
 #endif
 {
 	int flag, ret;
-	struct stat stat_buf;
 
 	if (argc < 2) {
 		return (EXIT_FAILURE);
@@ -139,21 +132,6 @@ int env_action_nvram(int argc, char **argv)
 		utils_remount_boot_partition_readonly();
 
 		/* start */
-		/* update nvram with ezbox_upgrade.cfg */
-		if ((stat(UPGRADE_CONFIG_FILE_PATH, &stat_buf) == 0) &&
-		    (S_ISREG(stat_buf.st_mode))) {
-			ret = utils_sync_nvram_with_cfg(UPGRADE_CONFIG_FILE_PATH, NULL);
-			if (ret == EXIT_SUCCESS) {
-				if (ezcfg_api_nvram_commit() < 0) {
-					ret = EXIT_FAILURE;
-				}
-				else {
-					/* remove ezbox_upgrade.cfg */
-					unlink(UPGRADE_CONFIG_FILE_PATH);
-					ret = EXIT_SUCCESS;
-				}
-			}
-		}
 		break;
 
 	case RC_ACT_STOP :

@@ -32,33 +32,33 @@ sbin_PROGRAMS =	ezcd
 # basic functions
 ezcd_SOURCES = $(top_builddir)/src/main.c
 ezcd_SOURCES += $(top_builddir)/src/agent_env.c
-ezcd_SOURCES += $(top_builddir)/src/preinit.c
-ezcd_SOURCES += $(top_builddir)/src/init.c
-ezcd_SOURCES += $(top_builddir)/src/ezcd.c
-ezcd_SOURCES += $(top_builddir)/src/ezcm.c
-ezcd_SOURCES += $(top_builddir)/src/nvram.c
-ezcd_SOURCES += $(top_builddir)/src/rc.c
+#ezcd_SOURCES += $(top_builddir)/src/preinit.c
+#ezcd_SOURCES += $(top_builddir)/src/init.c
+#ezcd_SOURCES += $(top_builddir)/src/ezcd.c
+#ezcd_SOURCES += $(top_builddir)/src/ezcm.c
+#ezcd_SOURCES += $(top_builddir)/src/nvram.c
+#ezcd_SOURCES += $(top_builddir)/src/rc.c
 ezcd_SOURCES += $(top_builddir)/src/shelld.c
-if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
-ezcd_SOURCES += $(top_builddir)/src/igrs_monitor.c
-endif
-if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
-ezcd_SOURCES += $(top_builddir)/src/upnp_monitor.c
-endif
+#if CONFIG_EZBOX_SERVICE_EZCFG_IGRSD
+#ezcd_SOURCES += $(top_builddir)/src/igrs_monitor.c
+#endif
+#if CONFIG_EZBOX_SERVICE_EZCFG_UPNPD
+#ezcd_SOURCES += $(top_builddir)/src/upnp_monitor.c
+#endif
 
 #ezcd_SOURCES += $(top_builddir)/src/rc/rc_func.c
 #ezcd_SOURCES += $(top_builddir)/src/rc/rc_debug.c
 
 # ubootenv support
-ezcd_SOURCES += $(top_builddir)/src/ubootenv.c
+#ezcd_SOURCES += $(top_builddir)/src/ubootenv.c
 
 # udhcpc script support
 if CONFIG_EZBOX_WAN_NIC
-ezcd_SOURCES += $(top_builddir)/src/udhcpc_script.c
+#ezcd_SOURCES += $(top_builddir)/src/udhcpc_script.c
 endif
 
 # upgrade firmware support
-ezcd_SOURCES += $(top_builddir)/src/upfw.c
+#ezcd_SOURCES += $(top_builddir)/src/upfw.c
 
 libezcfg.so: $(LIBEZCFG_LIB)
 	-rm -f libezcfg.so

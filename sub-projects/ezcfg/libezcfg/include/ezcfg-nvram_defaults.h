@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg-nvram_defaults.h
  *
@@ -14,6 +16,7 @@
 #ifndef _EZCFG_NVRAM_DEFAULTS_H_
 #define _EZCFG_NVRAM_DEFAULTS_H_
 
+#include "ezcfg-nvram_meta.h"
 #include "ezcfg-env.h"
 #include "ezcfg-sys.h"
 #include "ezcfg-ezcfg.h"
@@ -53,10 +56,14 @@
 #define GLUE3(a, b, c)   	a ## b ## c
 #define GLUE4(a, b, c, d)	a ## b ## c ## d
 
-#define NVRAM_PREFIX(service)      	GLUE3(EZCFG_, service, _NVRAM_PREFIX)
+#define NVRAM_PREFIX(prefix)      	GLUE3(EZCFG_, prefix, _NVRAM_PREFIX)
+#define NVRAM_ENTITY(prefix, name)	GLUE4(EZCFG_, prefix, _, name)
+#define NVRAM_NAME(prefix, name) \
+  NVRAM_PREFIX(prefix) NVRAM_ENTITY(prefix, name)
+
 #define SERVICE_OPTION(service, name)	GLUE4(EZCFG_, service, _, name)
 
 #define NVRAM_SERVICE_OPTION(service, name) \
-	NVRAM_PREFIX(service) SERVICE_OPTION(service, name)
+  NVRAM_PREFIX(service) SERVICE_OPTION(service, name)
 
 #endif

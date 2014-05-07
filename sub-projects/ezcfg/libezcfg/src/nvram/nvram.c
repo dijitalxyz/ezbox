@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : nvram/nvram.c
  *
@@ -9,7 +11,7 @@
  *
  * History      Rev       Description
  * 2010-08-20   0.1       Write it from scratch
- * 2010-11-06   0.2       Rewrite it using sorted string storing approach
+ * 2014-03-31   0.2       Rewrite it using sorted string storing approach
  * ============================================================================
  */
 
@@ -30,74 +32,42 @@
 #include "ezcfg.h"
 #include "ezcfg-private.h"
 
-#define NVRAM_VERSOIN_MAJOR 0x00 /* version[0] */
-#define NVRAM_VERSOIN_MINOR 0x01 /* version[1] */
-#define NVRAM_VERSOIN_MICRO 0x00 /* version[2] */
-#define NVRAM_VERSOIN_REV   0x03 /* version[3] */ 
-
 #if 0
 #define DBG(format, args...) do { \
-	char path[256]; \
-	FILE *fp; \
-	snprintf(path, 256, "/tmp/%d-debug.txt", getpid()); \
-	fp = fopen(path, "a"); \
-	if (fp) { \
-		fprintf(fp, format, ## args); \
-		fclose(fp); \
-	} \
-} while(0)
+    char path[256];               \
+    FILE *fp;                                               \
+    snprintf(path, 256, "/tmp/%d-debug.txt", getpid());     \
+    fp = fopen(path, "a");                                  \
+    if (fp) {                                               \
+      fprintf(fp, format, ## args);                         \
+      fclose(fp);                                           \
+    }                                                       \
+  } while(0)
 #else
 #define DBG(format, args...)
 #endif
 
-enum {
-	NV_INIT = 0,
-	NV_RELOAD,
-};
+//static unsigned char default_magic[4] = {'N','V','R','M'};
 
-static unsigned char default_magics[][4] = {
-	{ 'N', 'O', 'N', 'E' },
-	{ 'F', 'I', 'L', 'E' },
-	{ 'F', 'L', 'S', 'H' },
-};
+//static unsigned char default_backend[4] = {'N','O','N','E'};
 
 static unsigned char default_version[4] = {
-	NVRAM_VERSOIN_MAJOR ,
-	NVRAM_VERSOIN_MINOR ,
-	NVRAM_VERSOIN_MICRO ,
-	NVRAM_VERSOIN_REV ,
+  NVRAM_VERSOIN_MAJOR ,
+  NVRAM_VERSOIN_MINOR ,
+  NVRAM_VERSOIN_MICRO ,
+  NVRAM_VERSOIN_REV ,
 };
 
-static unsigned char default_codings[][4] = {
-	{ 'N', 'O', 'N', 'E' },
-	{ 'G', 'Z', 'I', 'P' },
-};
+//static unsigned char default_coding[4] = {'N','O','N','E'};
 
-struct nvram_header {
-	unsigned char magic[4];
-	unsigned char version[4];
-	unsigned char coding[4];
-	int32_t size;
-	int32_t used;
-	uint32_t crc;
-};
-
-struct nvram_storage {
-	/* storage backend type, mapping to nvram header->magic
-	 * 0 -> NONE : in memory only
-	 * 1 -> FILE : store on file-system a file
-	 * 2 -> FLSH : store on flash chip
-	 */
-	int backend;
-
-	/* nvram content coding type, mapping to nvram header->coding
-	 * 0 -> NONE : plain text
-	 * 1 -> GZIP : store with gzip compress
-	 */
-	int coding;
-
-	/* nvram storage device/file path */
-	char *path;
+struct nvram_node {
+  char *name;
+  char *value;
+  size_t nlen; /* name length */
+  size_t vlen; /* value length */
+  struct ezcfg_socket *sock_list;
+  int (*validate)(struct nvram_node *nvp);
+  int (*propagate)(struct nvram_node *nvp);
 };
 
 /**************************************************************************
@@ -111,2542 +81,628 @@ struct nvram_storage {
  * combination of deleting the old value and adding the new one.
  *
  * The NVRAM is preceeded by a header which contained info for
- * NVRAM storage medium, version, coding style and a 32 bit CRC over
+ * NVRAM version, coding scheme, storage medium and a 32 bit CRC over
  * the data part.
  *
  **************************************************************************
  */
-
 struct ezcfg_nvram {
-	struct ezcfg *ezcfg;
+  struct ezcfg *ezcfg;
 
-	pthread_mutex_t mutex; /* Protects nvram operations */
-	char *buffer; /* NVRAM in memory buffer */
+  pthread_mutex_t mutex; /* Protects nvram operations */
 
-	/* storage info */
-	struct nvram_storage storage[EZCFG_NVRAM_STORAGE_NUM];
+  struct nvram_node *node_list;
+  size_t node_list_size;
+  size_t node_list_used;
 
-	/* default settings */
-	int num_default_settings;
-	ezcfg_nv_pair_t *default_settings;
-
-	/* default savings */
-	int num_default_savings;
-	char **default_savings;
-
-	/* default validators */
-	int num_default_validators;
-	ezcfg_nv_validator_t *default_validators;
-
-	/* default propagators */
-	int num_default_propagators;
-	ezcfg_nv_propagator_t *default_propagators;
-
-	/* total_space = sizeof(header) + free_space + used_space */
-	int total_space; /* storage space for nvram */
-	int free_space; /* unused space */
-	int used_space; /* user used space */
+  size_t total_space_used;
 };
 
 /*
  * Private functions
  */
-static char *find_nvram_entry_position(char *data, const char *name)
+static int nvram_node_clean(struct nvram_node *np)
 {
-	int name_len, entry_len, cmp_len;
-	char *entry;
+  if (np->name != NULL) {
+    free(np->name);
+    np->name = NULL;
+  }
+  np->nlen = 0;
 
-	entry = data;
-	name_len = strlen(name);
+  if (np->value != NULL) {
+    free(np->value);
+    np->value = NULL;
+  }
+  np->vlen = 0;
 
-	while (*entry != '\0') {
-		entry_len = strlen(entry) + 1;
-		cmp_len = (entry_len > name_len) ? name_len : entry_len ;
-		if ((strncmp(name, entry, name_len) == 0) &&
-		     (*(entry + cmp_len) == '=')) {
-			break;
-		}
-		else {
-			entry += entry_len;
-		}
-	}
-	return entry;
+  if (np->sock_list != NULL) {
+    free(np->sock_list);
+    np->sock_list = NULL;
+  }
+
+  return EZCFG_RET_OK;
 }
 
-static bool nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
+static int find_nvram_entry_position(struct ezcfg_nvram *nvram, const char *name, bool *equal)
 {
-	struct ezcfg *ezcfg;
-	int name_len, entry_len, new_entry_len;
-	//struct nvram_header *header;
-	char *data, *p;
+  int bottom, upper, middle;
+  struct nvram_node *np;
 
-	ezcfg = nvram->ezcfg;
+  *equal = false;
+  bottom = 0;
+  upper = nvram->node_list_used;
+  middle = (bottom + upper) / 2;
 
-	name_len = strlen(name);
-	new_entry_len = name_len + strlen(value) + 2;
-
-	//header = (struct nvram_header *)nvram->buffer;
-	data = nvram->buffer + sizeof(struct nvram_header);
-
-	/* first entry */
-	if (nvram->used_space == 0) {
-		if (new_entry_len + 1 > nvram->free_space) {
-			err(ezcfg, "no enough space for nvram entry set\n");
-			return false;
-		}
-		sprintf(data, "%s=%s", name, value);
-		*(data + new_entry_len + 1) = '\0';
-		nvram->used_space += (new_entry_len + 1);
-		nvram->free_space -= (new_entry_len + 1);
-		return true;
-	}
-
-	p = find_nvram_entry_position(data, name);
-	if (*p != '\0') {
-		/* find nvram entry */
-		entry_len = strlen(p) + 1;
-		if (new_entry_len > (nvram->free_space + entry_len)) {
-			err(ezcfg, "no enough space for nvram entry set\n");
-			return false;
-		}
-
-		if (entry_len == new_entry_len) {
-			/* replace directory */
-			sprintf(p, "%s=%s", name, value);
-			return true;
-		}
-		else {
-			/* original entry is smaller/larger, move backward/forward */
-			memmove(p + new_entry_len, p + entry_len, nvram->used_space - (p - data) - entry_len);
-			sprintf(p, "%s=%s", name, value);
-			nvram->used_space += (new_entry_len - entry_len);
-			nvram->free_space -= (new_entry_len - entry_len);
-			return true;
-		}
-	}
-	else {
-		/* not find nvram entry */
-		if (new_entry_len > nvram->free_space) {
-			err(ezcfg, "no enough space for nvram entry set\n");
-			return false;
-		}
-		/* insert nvram entry */
-		memmove(p + new_entry_len, p, nvram->used_space - (p - data));
-		sprintf(p, "%s=%s", name, value);
-		nvram->used_space += new_entry_len;
-		nvram->free_space -= new_entry_len;
-		return true;
-	}
+  while (bottom < upper) {
+    middle = (bottom + upper) / 2;
+    np = &(nvram->node_list[middle]);
+    if (strcmp(np->name, name) == 0) {
+      *equal = true;
+      return middle;
+    }
+    else if (strcmp(np->name, name) < 0) {
+      bottom = middle + 1;
+    }
+    else {
+      upper = middle - 1;
+    }
+  }
+  return middle;
 }
 
-static bool nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
+static int nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
-	//struct ezcfg *ezcfg;
-	char *data, *p;
-	//int name_len;
-	int entry_len;
-	bool ret = false;
+  struct ezcfg *ezcfg;
+  char *tmp_name = NULL, *tmp_value = NULL;
+  struct nvram_node *np;
+  int i, j;
+  bool equal;
 
-	//ezcfg = nvram->ezcfg;
+  ezcfg = nvram->ezcfg;
 
-	//name_len = strlen(name);
+  /* first entry */
+  if (nvram->node_list_used == 0) {
+    tmp_name = strdup(name);
+    tmp_value = strdup(value);
+    if ((tmp_name == NULL) || (tmp_value == NULL)) {
+      goto fail_exit;
+    }
+    np = nvram->node_list;
 
-	data = nvram->buffer + sizeof(struct nvram_header);
+    np->name = tmp_name;
+    np->nlen = strlen(tmp_name) + 1;
+    tmp_name = NULL;
 
-	p = find_nvram_entry_position(data, name);
+    np->value = tmp_value;
+    np->vlen = strlen(tmp_value) + 1;
+    tmp_value = NULL;
 
-	if (*p != '\0') {
-		/* find nvram entry */
-		entry_len = strlen(p) + 1;
-		memmove(p, p + entry_len, nvram->used_space - (p - data) - entry_len);
-		nvram->used_space -= entry_len;
-		nvram->free_space += entry_len;
-		ret = true;
-	}
-	else {
-		/* not find nvram entry */
-		ret = false;
-	}
+    nvram->node_list_used += 1;
 
-	return ret;
+    nvram->total_space_used += np->nlen;
+    nvram->total_space_used += np->vlen;
+
+    return EZCFG_RET_OK;
+  }
+
+  i = find_nvram_entry_position(nvram, name, &equal);
+  if (equal == true) {
+    np = &(nvram->node_list[i]);
+    if (strlen(value) < np->vlen) {
+      sprintf(np->value, "%s", value);
+      return EZCFG_RET_OK;
+    }
+    else {
+      tmp_value = strdup(value);
+      if (tmp_value == NULL) {
+        return EZCFG_RET_BAD;
+      }
+      free(np->value);
+      np->value = tmp_value;
+      nvram->total_space_used -= np->vlen;
+      np->vlen = strlen(tmp_value) + 1;
+      nvram->total_space_used += np->vlen;
+      return EZCFG_RET_OK;
+    }
+  }
+  else {
+    /* not find nvram entry */
+    if (nvram->node_list_used == nvram->node_list_size) {
+      err(ezcfg, "no enough space for nvram entry set\n");
+      return EZCFG_RET_BAD;
+    }
+    /* insert nvram entry */
+    tmp_name = strdup(name);
+    tmp_value = strdup(value);
+    if ((tmp_name == NULL) || (tmp_value == NULL)) {
+      goto fail_exit;
+    }
+
+    for (j = nvram->node_list_used; j > i; j--) {
+      nvram->node_list[j] = nvram->node_list[j-1];
+    }
+
+    np = &(nvram->node_list[i]);
+
+    np->name = tmp_name;
+    np->nlen = strlen(tmp_name) + 1;
+    tmp_name = NULL;
+
+    np->value = tmp_value;
+    np->vlen = strlen(tmp_value) + 1;
+    tmp_value = NULL;
+
+    nvram->node_list_used += 1;
+
+    nvram->total_space_used += np->nlen;
+    nvram->total_space_used += np->vlen;
+
+    return EZCFG_RET_OK;
+  }
+
+  fail_exit:
+  if (tmp_name != NULL)
+    free(tmp_name);
+  if (tmp_value != NULL)
+    free(tmp_value);
+  return EZCFG_RET_BAD;
+}
+
+static int nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
+{
+  struct nvram_node *np;
+  int i, j;
+  int ret;
+  bool equal;
+
+  //ezcfg = nvram->ezcfg;
+
+  //name_len = strlen(name);
+
+  i = find_nvram_entry_position(nvram, name, &equal);
+
+  if (equal == true) {
+    /* find nvram entry */
+    np = &(nvram->node_list[i]);
+
+    nvram->total_space_used -= np->nlen;
+    nvram->total_space_used -= np->vlen;
+    nvram->node_list_used -= 1;
+    nvram_node_clean(np);
+
+    for (j = i; j < (int)nvram->node_list_used; j++) {
+      nvram->node_list[i] = nvram->node_list[i+1];
+    }
+
+    ret = EZCFG_RET_OK;
+  }
+  else {
+    /* not find nvram entry */
+    ret = EZCFG_RET_BAD;
+  }
+
+  return ret;
+}
+
+static int nvram_commit(struct ezcfg_nvram *nvram)
+{
+  return EZCFG_RET_OK;
 }
 
 /* It's user's duty to free the returns string */
-static bool nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
+static int nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
 {
-	struct ezcfg *ezcfg;
-	char *p, *data;
-	int name_len;
+  struct ezcfg *ezcfg;
+  struct nvram_node *np;
+  int i;
+  bool equal;
 
-	ezcfg = nvram->ezcfg;
+  *value = NULL;
+  ezcfg = nvram->ezcfg;
 
-	data = nvram->buffer + sizeof(struct nvram_header);
-	name_len = strlen(name);
-	*value = NULL;
-
-	/* find nvram entry position */
-	p = find_nvram_entry_position(data, name);
-
-	if (*p != '\0') {
-		/* find nvram entry */
-		*value = strdup(p + name_len + 1);
-		if (*value == NULL) {
-			err(ezcfg, "not enough memory for get nvram node.\n");
-			return false;
-		}
-	}
-	return true;
+  /* find nvram entry position */
+  i = find_nvram_entry_position(nvram, name, &equal);
+  if (equal == true) {
+    /* find nvram entry */
+    np = &(nvram->node_list[i]);
+    *value = strdup(np->value);
+    if (*value == NULL) {
+      err(ezcfg, "not enough memory for get nvram node.\n");
+      return EZCFG_RET_BAD;
+    }
+    return EZCFG_RET_OK;
+  }
+  return EZCFG_RET_BAD;
 }
 
 static bool nvram_match_entry(struct ezcfg_nvram *nvram, const char *name1, char *name2)
 {
-	//struct ezcfg *ezcfg;
-	char *data;
-	char *p1, *p2;
-	int name_len;
+  int p1, p2;
+  bool equal1, equal2;
+  struct nvram_node *np1, *np2;
 
-	//ezcfg = nvram->ezcfg;
+  /* find nvram entry position */
+  p1 = find_nvram_entry_position(nvram, name1, &equal1);
 
-	data = nvram->buffer + sizeof(struct nvram_header);
+  if (equal1 == false) {
+    return EZCFG_RET_BAD;
+  }
+  /* find nvram entry */
+  np1 = &(nvram->node_list[p1]);
 
-	/* find nvram entry position */
-	name_len = strlen(name1);
-	p1 = find_nvram_entry_position(data, name1);
+  /* find nvram entry position */
+  p2 = find_nvram_entry_position(nvram, name2, &equal2);
 
-	if (*p1 == '\0') {
-		return false;
-	}
-	/* find nvram entry */
-	p1 += (name_len + 1);
+  if (equal2 == false) {
+    return EZCFG_RET_BAD;
+  }
+  /* find nvram entry */
+  np2 = &(nvram->node_list[p2]);
 
-	/* find nvram entry position */
-	name_len = strlen(name2);
-	p2 = find_nvram_entry_position(data, name2);
-
-	if (*p2 == '\0') {
-		return false;
-	}
-	/* find nvram entry */
-	p2 += (name_len + 1);
-
-	return (strcmp(p1, p2) == 0);
+  if (strcmp(np1->value, np2->value) == 0)
+    return EZCFG_RET_OK;
+  else
+    return EZCFG_RET_BAD;
 }
 
-static bool nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name, char *value)
+static int nvram_match_entry_value(struct ezcfg_nvram *nvram, const char *name, char *value)
 {
-	//struct ezcfg *ezcfg;
-	char *data;
-	char *p;
-	int name_len;
-
-	//ezcfg = nvram->ezcfg;
-
-	data = nvram->buffer + sizeof(struct nvram_header);
-
-	/* find nvram entry position */
-	name_len = strlen(name);
-	p = find_nvram_entry_position(data, name);
-
-	if (*p == '\0') {
-		return false;
-	}
-	/* find nvram entry */
-	p += (name_len + 1);
-
-	return (strcmp(p, value) == 0);
-}
-
-static int nvram_get_socket_index(struct ezcfg_nvram *nvram,
-	struct ezcfg_arg_nvram_socket *ap)
-{
-	char buf[32];
-	int i;
-	char *value;
-	char *domain2, *type2, *protocol2, *address2;
-	bool ret;
-
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
-		&value);
-	if ((ret == true) && (value != NULL)) {
-		i = atoi(value);
-		free(value);
-	}
-	for( ; i >= 0; i--) {
-		/* get nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_DOMAIN);
-		ret = nvram_get_entry_value(nvram, buf, &domain2);
-
-		/* get nvram socket type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_TYPE);
-		ret = nvram_get_entry_value(nvram, buf, &type2);
-
-		/* get nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_PROTOCOL);
-		ret = nvram_get_entry_value(nvram, buf, &protocol2);
-
-		/* get nvram socket address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_ADDRESS);
-		ret = nvram_get_entry_value(nvram, buf, &address2);
-
-		if (domain2 != NULL && type2 != NULL &&
-		    protocol2 != NULL && address2 != NULL) {
-			if ((strcmp(ap->domain, domain2) == 0) &&
-			    (strcmp(ap->type, type2) == 0) &&
-			    (strcmp(ap->protocol, protocol2) == 0) &&
-			    (strcmp(ap->address, address2) == 0)) {
-				free(domain2);
-				free(type2);
-				free(protocol2);
-				free(address2);
-				return(i);
-			}
-		}
-
-		if (domain2 != NULL)
-			free(domain2);
-		if (type2 != NULL)
-			free(type2);
-		if (protocol2 != NULL)
-			free(protocol2);
-		if (address2 != NULL)
-			free(address2);
-	}
-	return(0);
-}
-
-static bool nvram_remove_socket_by_index(struct ezcfg_nvram *nvram, int idx)
-{
-	char buf[32];
-	int i;
-	char *value;
-	bool ret;
-
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
-		&value);
-	if (value != NULL) {
-		i = atoi(value);
-		free(value);
-	}
-
-	if (i < idx) {
-		return false;
-	}
-
-	/* put the last socket to index-th socket place */
-	if (idx < i) {
-		/* get nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_DOMAIN);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram socket domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
-			EZCFG_EZCFG_KEYWORD_DOMAIN);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram socket type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_TYPE);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram socket type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
-			EZCFG_EZCFG_KEYWORD_TYPE);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_PROTOCOL);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram socket protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
-			EZCFG_EZCFG_KEYWORD_PROTOCOL);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram socket address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, i-1,
-			EZCFG_EZCFG_KEYWORD_ADDRESS);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram socket address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SOCKET, idx-1,
-			EZCFG_EZCFG_KEYWORD_ADDRESS);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-	}
-
-	/* update socket number */
-	i--;
-	snprintf(buf, sizeof(buf), "%d", i);
-	ret = nvram_set_entry(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
-		buf);
-
-func_out:
-	return ret;
-}
-
-#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
-static int nvram_get_ssl_index(struct ezcfg_nvram *nvram,
-	struct ezcfg_arg_nvram_ssl *ap)
-{
-	char buf[32];
-	int i;
-	char *value;
-	struct ezcfg_arg_nvram_ssl a2;
-	bool ret;
-
-	/* initialize ezcfg_arg_nvram_ssl */
-	ezcfg_arg_nvram_ssl_init(&a2);
-
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
-		&value);
-	if ((ret == true) && (value != NULL)) {
-		i = atoi(value);
-		free(value);
-	}
-	for( ; i >= 0; i--) {
-		/* get nvram ssl role */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_ROLE);
-		ret = nvram_get_entry_value(nvram, buf, &a2.role);
-
-		/* get nvram ssl method */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_METHOD);
-		ret = nvram_get_entry_value(nvram, buf, &a2.method);
-
-		/* get nvram ssl socket_enable */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
-		ret = nvram_get_entry_value(nvram, buf, &a2.socket_enable);
-
-		/* get nvram ssl socket_domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
-		ret = nvram_get_entry_value(nvram, buf, &a2.socket_domain);
-
-		/* get nvram ssl socket_type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
-		ret = nvram_get_entry_value(nvram, buf, &a2.socket_type);
-
-		/* get nvram ssl socket_protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
-		ret = nvram_get_entry_value(nvram, buf, &a2.socket_protocol);
-
-		/* get nvram ssl socket_address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
-		ret = nvram_get_entry_value(nvram, buf, &a2.socket_address);
-
-		if (a2.role != NULL && a2.method != NULL &&
-		    a2.socket_enable != NULL &&
-		    a2.socket_domain != NULL && a2.socket_type != NULL &&
-		    a2.socket_protocol != NULL && a2.socket_address != NULL) {
-			if ((strcmp(ap->role, a2.role) == 0) &&
-			    (strcmp(ap->method, a2.method) == 0) &&
-			    (strcmp(ap->socket_enable, a2.socket_enable) == 0) &&
-			    (strcmp(ap->socket_domain, a2.socket_domain) == 0) &&
-			    (strcmp(ap->socket_type, a2.socket_type) == 0) &&
-			    (strcmp(ap->socket_protocol, a2.socket_protocol) == 0) &&
-			    (strcmp(ap->socket_address, a2.socket_address) == 0)) {
-				ezcfg_arg_nvram_ssl_clean(&a2);
-				return(i);
-			}
-		}
-
-		ezcfg_arg_nvram_ssl_clean(&a2);
-	}
-	return(0);
-}
-
-static bool nvram_remove_ssl_by_index(struct ezcfg_nvram *nvram, int idx)
-{
-	char buf[32];
-	int i;
-	char *value;
-	bool ret;
-
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
-		&value);
-	if (value != NULL) {
-		i = atoi(value);
-		free(value);
-	}
-
-	if (i < idx) {
-		return false;
-	}
-
-	/* put the last ssl to index-th ssl place */
-	if (idx < i) {
-		/* get nvram ssl role */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_ROLE);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl role */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_ROLE);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl method */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_METHOD);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl method */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_METHOD);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl socket_enable */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl socket_enable */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl socket_domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl socket_domain */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl socket_type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl socket_type */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl socket_protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl socket_protocol */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-
-		/* get nvram ssl socket_address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, i-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
-		ret = nvram_get_entry_value(nvram, buf, &value);
-		if (value == NULL) {
-			ret = false;
-			goto func_out;
-		}
-
-		/* set nvram ssl socket_address */
-		snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-			NVRAM_PREFIX(EZCFG),
-			EZCFG_EZCFG_SECTION_SSL, idx-1,
-			EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
-		ret = nvram_set_entry(nvram, buf, value);
-		free(value);
-		if (ret == false) {
-			goto func_out;
-		}
-	}
-
-	/* update socket number */
-	i--;
-	snprintf(buf, sizeof(buf), "%d", i);
-	ret = nvram_set_entry(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
-		buf);
-
-func_out:
-	return ret;
-}
-#endif
-
-static bool nvram_cleanup_runtime_entries(struct ezcfg_nvram *nvram)
-{
-	//struct ezcfg *ezcfg;
-	ezcfg_nv_pair_t *nvp;
-	int i;
-	char *data, *entry, *name, *p;
-	bool ret;
-
-	//ezcfg = nvram->ezcfg;
-	data = nvram->buffer + sizeof(struct nvram_header);
-	entry = data;
-	while(*entry != '\0') {
-		p = strchr(entry, '=');
-		if (p == NULL) {
-			return false;
-		}
-
-		/* split name and value */
-		*p = '\0';
-		for (i=0; i<nvram->num_default_settings; i++) {
-			nvp = &nvram->default_settings[i];
-			if (strcmp(entry, nvp->name) == 0) {
-				break;
-			}
-		}
-
-		if (i == nvram->num_default_settings) {
-			/* not in default_settings, it's a runtime nvram */
-			name = strdup(entry);
-			if (name == NULL) {
-				*p = '=';
-				ret = false;
-				goto func_out;
-			}
-			/* restore '=' */
-			*p = '=';
-			ret = nvram_unset_entry(nvram, name);
-			free(name);
-			if (ret == false)
-				goto func_out;
-
-			/* try it again from the beginning */
-			/* FIXME: no we just do it at the same place again */
-			//entry = data;
-		}
-		else {
-			/* restore '=' */
-			*p = '=';
-			/* move to next entry */
-			entry += (strlen(entry) + 1);
-		}
-	}
-
-	ret = true;
-func_out:
-	return ret;
-}
-
-static bool nvram_load_by_defaults(struct ezcfg_nvram *nvram, const int flag)
-{
-	struct ezcfg *ezcfg;
-	ezcfg_nv_pair_t *nvp;
-	char *data, *p;
-	int i;
-
-	ezcfg = nvram->ezcfg;
-	data = nvram->buffer + sizeof(struct nvram_header);
-
-	DBG("%s(%d) flag=[%d]\n", __func__, __LINE__, flag);
-
-	/* clean up runtime generated nvram values for init */
-	if (flag == NV_INIT) {
-		if (nvram_cleanup_runtime_entries(nvram) == false)
-			return false;
-	}
-
-	/* fill missing critic nvram with default settings */
-	for (i=0; i<nvram->num_default_settings; i++) {
-		nvp = &nvram->default_settings[i];
-
-		DBG("%s(%d) name=[%s] value=[%s]\n", __func__, __LINE__, nvp->name, nvp->value);
-		/* skip setting name/value in reload if it's set already */
-		if (flag ==  NV_RELOAD) {
-			/* find nvram entry position */
-			p = find_nvram_entry_position(data, nvp->name);
-			if (*p != '\0') {
-				/* find nvram entry */
-				DBG("%s(%d) name=[%s] continue p=[%s]\n", __func__, __LINE__, nvp->name, p);
-				continue;
-			}
-		}
-
-		if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
-			err(ezcfg, "set nvram entry error.\n");
-			return false;
-		}
-	}
-
-	return true;
-}
-
-static bool nvram_load_from_file(struct ezcfg_nvram *nvram, const int idx, const int flag)
-{
-	struct ezcfg *ezcfg;
-	struct nvram_header *header;
-	char *data;
-	FILE *fp;
-	uint32_t crc;
-	ezcfg_nv_pair_t *nvp;
-	char *value = NULL;
-	int i;
-	bool ret = false;
-
-	ezcfg = nvram->ezcfg;
-
-	fp = fopen(nvram->storage[idx].path, "r");
-	if (fp == NULL) {
-		err(ezcfg, "can't open file for nvram load\n");
-		return false;
-	}
-
-	if (fread(nvram->buffer, nvram->total_space, 1, fp) < 1) {
-		err(ezcfg, "read nvram buffer error\n");
-		goto load_exit;
-	}
-
-	header = (struct nvram_header *)nvram->buffer;
-	if ((nvram->total_space - header->size) != 0) {
-		err(ezcfg, "nvram size is not matched\n");
-		goto load_exit;
-	}
-
-	data = nvram->buffer + sizeof(struct nvram_header);
-
-	/* do CRC-32 calculation */
-	crc = ezcfg_util_crc32((unsigned char *)data, nvram->total_space - sizeof(struct nvram_header));
-	if (header->crc != crc) {
-		err(ezcfg, "nvram crc is error.\n");
-		goto load_exit;
-	}
-
-	/* fill nvram space info */
-	nvram->used_space = header->used;
-	nvram->free_space = nvram->total_space - sizeof(struct nvram_header) - nvram->used_space;
-
-	/* clean up runtime generated nvram values */
-	if (flag == NV_INIT) {
-		if (nvram_cleanup_runtime_entries(nvram) == false)
-			goto load_exit;
-	}
-
-	/* fill missing critic nvram with default settings */
-	for (i=0; i<nvram->num_default_settings; i++) {
-		nvp = &nvram->default_settings[i];
-		ret = nvram_get_entry_value(nvram, nvp->name, &value);
-		if (value == NULL) {
-			if (ret == true) {
-				if (nvram_set_entry(nvram, nvp->name, nvp->value) == false) {
-					err(ezcfg, "set nvram error.\n");
-					ret = false;
-					goto load_exit;
-				}
-			}
-		}
-		else {
-			free(value);
-		}
-	}
-
-	ret = true;
-
-load_exit:
-	if (fp != NULL) {
-		fclose(fp);
-	}
-
-	return ret;
-}
-
-static bool nvram_load_from_flash(struct ezcfg_nvram *nvram, const int idx, const int flag)
-{
-	return true;
-}
-
-static void generate_nvram_header(struct ezcfg_nvram *nvram, const int idx)
-{
-	struct nvram_header *header;
-	char *data;
-	int i;
-
-	if (idx >= EZCFG_NVRAM_STORAGE_NUM)
-		return;
-
-	header = (struct nvram_header *)nvram->buffer;
-	data = nvram->buffer + sizeof(struct nvram_header);
-
-	for (i=0; i<4; i++) {
-		header->magic[i] = default_magics[nvram->storage[idx].backend][i];
-	}
-	for (i=0; i<4; i++) {
-		header->coding[i] = default_codings[nvram->storage[idx].coding][i];
-	}
-	for (i=0; i<4; i++) {
-		header->version[i] = default_version[i];
-	}
-	header->size = nvram->total_space;
-	header->used = nvram->used_space;
-
-	memset(data + nvram->used_space, '\0', nvram->free_space);
-	header->crc = ezcfg_util_crc32((unsigned char *)data, nvram->used_space + nvram->free_space);
-}
-
-#if 0
-static void nvram_header_copy(struct nvram_header *dest, const struct nvram_header *src)
-{
-	memcpy(dest, src, sizeof(struct nvram_header));
-}
-#endif
-
-static bool nvram_commit_to_file(struct ezcfg_nvram *nvram, const int idx)
-{
-	struct ezcfg *ezcfg;
-	FILE *fp = NULL;
-	bool ret = false;
-	struct stat stat_buf;
-
-	ezcfg = nvram->ezcfg;
-
-	/* generate nvram header info */
-	generate_nvram_header(nvram, idx);
-
-	/* check path */
-	if ((stat(nvram->storage[idx].path, &stat_buf) != 0) ||
-	    (S_ISREG(stat_buf.st_mode) == 0)) {
-		remove(nvram->storage[idx].path);
-		ezcfg_util_mkdir(nvram->storage[idx].path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH, 0);
-	}
-
-	fp = fopen(nvram->storage[idx].path, "w");
-	if (fp == NULL) {
-		err(ezcfg, "can't open file for nvram commit\n");
-		ret = false;
-		goto commit_exit;
-	}
-
-	if (fwrite(nvram->buffer, nvram->total_space, 1, fp) < 1) {
-		err(ezcfg, "write nvram to file error\n");
-		ret = false;
-		goto commit_exit;
-	}
-
-	ret = true;
-
-commit_exit:
-	if (fp != NULL) {
-		fclose(fp);
-	}
-
-	return ret;
-}
-
-static bool nvram_commit_to_flash(struct ezcfg_nvram *nvram, const int idx)
-{
-	return true;
-}
-
-static void sync_ezcfg_settings(struct ezcfg_nvram *nvram)
-{
-	char *p;
-	int number, i;
-	char buf[64];
-
-	/* ezcfg_common.socket_number */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), &p);
-	if (p != NULL) {
-		number = atoi(p);
-		free(p);
-		for(i = 0; i < number; i++) {
-			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-				EZCFG_EZCFG_NVRAM_PREFIX,
-				EZCFG_EZCFG_SECTION_SOCKET, i,
-				EZCFG_EZCFG_KEYWORD_DOMAIN);
-			nvram_get_entry_value(nvram, buf, &p);
-			if (p != NULL) {
-				/* It's OK for this socket setting */
-				free(p);
-			}
-			else {
-				snprintf(buf, sizeof(buf), "%d", i);
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER), buf);
-				break;
-			}
-		}
-	}
-
-#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
-	/* ezcfg_common.ssl_number */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER), &p);
-	if (p != NULL) {
-		number = atoi(p);
-		free(p);
-		for(i = 0; i < number; i++) {
-			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-				EZCFG_EZCFG_NVRAM_PREFIX,
-				EZCFG_EZCFG_SECTION_SSL, i,
-				EZCFG_EZCFG_KEYWORD_ROLE);
-			nvram_get_entry_value(nvram, buf, &p);
-			if (p != NULL) {
-				/* It's OK for this socket setting */
-				free(p);
-			}
-			else {
-				snprintf(buf, sizeof(buf), "%d", i);
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER), buf);
-				break;
-			}
-		}
-	}
-#endif
-
-	/* ezcfg_common.auth_number */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), &p);
-	if (p != NULL) {
-		number = atoi(p);
-		free(p);
-		for(i = 0; i < number; i++) {
-			snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-				EZCFG_EZCFG_NVRAM_PREFIX,
-				EZCFG_EZCFG_SECTION_AUTH, i,
-				EZCFG_EZCFG_KEYWORD_TYPE);
-			nvram_get_entry_value(nvram, buf, &p);
-			if (p != NULL) {
-				/* It's OK for this auth setting */
-				free(p);
-			}
-			else {
-				snprintf(buf, sizeof(buf), "%d", i);
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, COMMON_AUTH_NUMBER), buf);
-				break;
-			}
-		}
-	}
-
-	/* ezcfg_auth.0.user must be "root" */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), &p);
-	if ((p == NULL) ||
-	    ((p != NULL) && (strcmp(p, EZCFG_AUTH_USER_ADMIN_STRING) != 0))) {
-		/* not valid admin user, fix it! */
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_TYPE), EZCFG_AUTH_TYPE_HTTP_BASIC_STRING);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_USER), EZCFG_AUTH_USER_ADMIN_STRING);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_REALM), EZCFG_AUTH_REALM_ADMIN_STRING);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_DOMAIN), EZCFG_AUTH_DOMAIN_ADMIN_STRING);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, AUTH_0_SECRET), EZCFG_AUTH_SECRET_ADMIN_STRING);
-	}
-	/* release p */
-	if (p != NULL) {
-		free(p);
-	}
-}
-
-static void sync_ui_settings(struct ezcfg_nvram *nvram)
-{
-	char *p;
-	char tz_area[32];
-	char tz_location[64];
-
-	tz_area[0] = '\0';
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
-	if (p != NULL) {
-		snprintf(tz_area, sizeof(tz_area), "%s", p);
-		free(p);
-	}
-
-	tz_location[0] = '\0';
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
-	if (p != NULL) {
-		snprintf(tz_location, sizeof(tz_location), "%s", p);
-		free(p);
-	}
-
-	/* UI setting has been finished */
-	if (ezcfg_util_tzdata_check_area_location(tz_area, tz_location) == true) {
-		/* ui_tz_area */
-		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA)) == false) {
-			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_AREA), &p);
-			if (p != NULL) {
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_AREA), p);
-				free(p);
-			}
-		}
-
-		/* ui_tz_location */
-		if (nvram_match_entry(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION)) == false) {
-			nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(UI, TZ_LOCATION), &p);
-			if (p != NULL) {
-				nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_TZ_LOCATION), p);
-				free(p);
-			}
-		}
-	}
-}
-
-#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
-static void sync_dnsmasq_settings(struct ezcfg_nvram *nvram)
-{
-	char *p;
-	int i, ret;
-	int ip[4], mask[4], ip2[4];
-	//bool ip_ok = false, mask_ok = false;
-	char buf[64];
-
-	ret = EZCFG_SERVICE_BINDING_UNKNOWN ;
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_BINDING), &p);
-	if (p != NULL) {
-		ret = ezcfg_util_service_binding(p);
-	}
-
-	/* get ip/netmask */
-	if (ret == EZCFG_SERVICE_BINDING_LAN) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, IPADDR), &p);
-	}
-	else if (ret == EZCFG_SERVICE_BINDING_WAN) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, IPADDR), &p);
-	}
-	else {
-		return ;
-	}
-
-	if (p == NULL) {
-		return ;
-	}
-	ret = sscanf(p, "%d.%d.%d.%d", &ip[0], &ip[1], &ip[2], &ip[3]);
-	free(p);
-	if (ret != 4) {
-		return ;
-	}
-
-	if (ret == EZCFG_SERVICE_BINDING_LAN) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(LAN, NETMASK), &p);
-	}
-	else if (ret == EZCFG_SERVICE_BINDING_WAN) {
-		nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(WAN, NETMASK), &p);
-	}
-	else {
-		return ;
-	}
-	if (p == NULL) {
-		return ;
-	}
-	ret = sscanf(p, "%d.%d.%d.%d", &mask[0], &mask[1], &mask[2], &mask[3]);
-	free(p);
-	if (ret != 4) {
-		return ;
-	}
-
-	/* set dnsmasq_dhcpd_start_ipaddr */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), &p);
-	if (p == NULL) {
-		return ;
-	}
-	ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
-	free(p);
-	if (ret == 4) {
-		for(i = 0; i < 4; i++) {
-			ip2[i] &= (255 - mask[i]);
-			ip2[i] |= (ip[i] & mask[i]);
-		}
-		snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_START_IPADDR), buf);
-	}
-
-	/* set dnsmasq_dhcpd_end_ipaddr */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), &p);
-	if (p == NULL) {
-		return ;
-	}
-	ret = sscanf(p, "%d.%d.%d.%d", &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
-	free(p);
-	if (ret == 4) {
-		for(i = 0; i < 4; i++) {
-			ip2[i] &= (255 - mask[i]);
-			ip2[i] |= (ip[i] & mask[i]);
-		}
-		snprintf(buf, sizeof(buf), "%d.%d.%d.%d", ip2[0], ip2[1], ip2[2], ip2[3]);
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_END_IPADDR), buf);
-	}
-
-	/* set dnsmasq_dhcpd_enable */
-	nvram_get_entry_value(nvram, NVRAM_SERVICE_OPTION(RC, DNSMASQ_ENABLE), &p);
-	if (p == NULL) {
-		return ;
-	}
-	if (strcmp(p, "0") == 0) {
-		nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(DNSMASQ, DHCPD_ENABLE), p);
-	}
-	free(p);
-}
-#endif
-
-static void nvram_sync_entries(struct ezcfg_nvram *nvram)
-{
-	/* sync ezcfg settings */
-	sync_ezcfg_settings(nvram);
-
-	/* sync UI settings */
-	sync_ui_settings(nvram);
-
-	/* sync LAN settings */
-#if (HAVE_EZBOX_SERVICE_DNSMASQ == 1)
-	sync_dnsmasq_settings(nvram);
-#endif
-}
-
-static void check_sys_settings(struct ezcfg_nvram *nvram)
-{
-}
-
-static void nvram_check_entries(struct ezcfg_nvram *nvram)
-{
-	/* sync UI settings */
-	check_sys_settings(nvram);
-}
-
-static bool nvram_commit(struct ezcfg_nvram *nvram)
-{
-	struct ezcfg *ezcfg;
-	bool ret;
-	int i;
-
-	ezcfg = nvram->ezcfg;
-
-	/* check nvram entries */
-	nvram_check_entries(nvram);
-
-	/* sync nvram entries */
-	nvram_sync_entries(nvram);
-
-	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
-		switch (nvram->storage[i].backend) {
-		case EZCFG_NVRAM_BACKEND_NONE :
-			info(ezcfg, "nvram in memory only, do nothing\n");
-			ret = true;
-			break;
-
-		case EZCFG_NVRAM_BACKEND_FILE :
-			info(ezcfg, "nvram store on file-system file\n");
-			ret = nvram_commit_to_file(nvram, i);
-			break;
-
-		case EZCFG_NVRAM_BACKEND_FLASH :
-			info(ezcfg, "nvram store on flash chip\n");
-			ret = nvram_commit_to_flash(nvram, i);
-			break;
-
-		default:
-			err(ezcfg, "unknown nvram type.\n");
-			ret = false;
-			break;
-		}
-	}
-
-	return ret;
+  int p;
+  bool equal;
+  struct nvram_node *np;
+
+  /* find nvram entry position */
+  p = find_nvram_entry_position(nvram, name, &equal);
+
+  if (equal == false) {
+    return EZCFG_RET_BAD;
+  }
+  /* find nvram entry */
+  np = &(nvram->node_list[p]);
+
+  if (strcmp(np->value, value) == 0)
+    return EZCFG_RET_OK;
+  else
+    return EZCFG_RET_BAD;
 }
 
 /*
  * Public functions
  */
-
-bool ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
+int ezcfg_nvram_delete(struct ezcfg_nvram *nvram)
 {
-	//struct ezcfg *ezcfg;
-	int i;
+  struct nvram_node *np;
 
-	ASSERT(nvram != NULL);
+  ASSERT(nvram != NULL);
 
-	//ezcfg = nvram->ezcfg;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  if (nvram->node_list != NULL) {
+    np = nvram->node_list;
+    while (np->name != NULL) {
+      nvram_node_clean(np);
+      np++;
+    }
+    free(nvram->node_list);
+    nvram->node_list = NULL;
+    nvram->node_list_size = 0;
+  }
 
-	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
-		if (nvram->storage[i].path != NULL) {
-			free(nvram->storage[i].path);
-		}
-	}
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	if (nvram->buffer != NULL) {
-		free(nvram->buffer);
-	}
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	pthread_mutex_destroy(&nvram->mutex);
-	free(nvram);
-	return true;
+  pthread_mutex_destroy(&nvram->mutex);
+  free(nvram);
+  return EZCFG_RET_OK;
 }
 
 struct ezcfg_nvram *ezcfg_nvram_new(struct ezcfg *ezcfg)
 {
-	struct ezcfg_nvram *nvram;
+  struct ezcfg_nvram *nvram = NULL;
+  char *name;
+  char buf[EZCFG_PATH_MAX];
+  int ret;
+  int node_list_size;
+  struct nvram_node *node_list = NULL;
 
-	ASSERT(ezcfg != NULL);
+  ASSERT(ezcfg != NULL);
 
-	nvram = malloc(sizeof(struct ezcfg_nvram));
-	if (nvram == NULL) {
-		err(ezcfg, "can not malloc nvram\n");
-		return NULL;
-	}
+  /* get nvram node list size from meta nvram */
+  name = NVRAM_NAME(META, NVRAM_NODE_LIST_SIZE);
+  ret = ezcfg_common_get_meta_nvram(ezcfg, name, buf, sizeof(buf));
+  if (ret != EZCFG_RET_OK) {
+    goto func_fail;
+  }
+  node_list_size = atoi(buf);
+  if (node_list_size < 1) {
+    goto func_fail;
+  }
 
-	memset(nvram, 0, sizeof(struct ezcfg_nvram));
+  node_list = malloc(sizeof(struct nvram_node) * node_list_size);
+  if (node_list == NULL) {
+    err(ezcfg, "can not malloc %d bytes for nvram node list.\n", node_list_size);
+    goto func_fail;
+  }
 
-	nvram->ezcfg = ezcfg;
+  nvram = malloc(sizeof(struct ezcfg_nvram));
+  if (nvram == NULL) {
+    err(ezcfg, "can not malloc nvram\n");
+    goto func_fail;
+  }
 
-	/* initialize nvram mutex */
-	pthread_mutex_init(&nvram->mutex, NULL);
+  memset(nvram, 0, sizeof(struct ezcfg_nvram));
 
-	/* set default settings */
-	nvram->num_default_settings = ezcfg_nvram_get_num_default_nvram_settings();
-	nvram->default_settings = default_nvram_settings;
+  pthread_mutex_init(&nvram->mutex, NULL);
+  nvram->node_list_size = node_list_size;
+  nvram->node_list = node_list;
 
-	/* set default savings */
-	nvram->num_default_savings = ezcfg_nvram_get_num_default_nvram_savings();
-	nvram->default_savings = default_nvram_savings;
+  return nvram;
 
-	/* set default validators */
-	nvram->num_default_validators = ezcfg_nvram_get_num_default_nvram_validators();
-	nvram->default_validators = default_nvram_validators;
-
-	/* set default propagators */
-	nvram->num_default_propagators = ezcfg_nvram_get_num_default_nvram_propagators();
-	nvram->default_propagators = default_nvram_propagators;
-
-	return nvram;
+ func_fail:
+  if (node_list) {
+    free(node_list);
+  }
+  if (nvram) {
+    nvram->node_list = NULL;
+    ezcfg_nvram_delete(nvram);
+  }
+  return NULL;
 }
 
-bool ezcfg_nvram_set_backend_type(struct ezcfg_nvram *nvram, const int idx, const int type)
+int ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t len)
 {
-	//struct ezcfg *ezcfg;
+  ASSERT(nvram != NULL);
+  ASSERT(buf != NULL);
+  ASSERT(len > 0);
 
-	ASSERT(nvram != NULL);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(type >= 0);
+  snprintf(buf, len, "%d.%d.%d.%d", 
+           default_version[0],
+           default_version[1],
+           default_version[2],
+           default_version[3]);
 
-	//ezcfg = nvram->ezcfg;
-
-	nvram->storage[idx].backend = type;
-
-	return true;
+  return EZCFG_RET_OK;
 }
 
-bool ezcfg_nvram_set_coding_type(struct ezcfg_nvram *nvram, const int idx, const int type)
+int ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
 {
-	//struct ezcfg *ezcfg;
+  //struct ezcfg *ezcfg;
+  int ret;
 
-	ASSERT(nvram != NULL);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(type >= 0);
+  ASSERT(nvram != NULL);
+  ASSERT(name != NULL);
+  ASSERT(value != NULL);
 
-	//ezcfg = nvram->ezcfg;
+  //ezcfg = nvram->ezcfg;
 
-	nvram->storage[idx].coding = type;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	return true;
-}
+  ret = nvram_set_entry(nvram, name, value);
 
-bool ezcfg_nvram_set_storage_path(struct ezcfg_nvram *nvram, const int idx, const char *path)
-{
-	struct ezcfg *ezcfg;
-	char *p;
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	ASSERT(nvram != NULL);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(path != NULL);
-
-	ezcfg = nvram->ezcfg;
-
-	p = strdup(path);
-	if (p == NULL) {
-		err(ezcfg, "can not alloc nvram storage path\n");
-		return false;
-	}
-
-	if (nvram->storage[idx].path) {
-		free(nvram->storage[idx].path);
-	}
-	nvram->storage[idx].path = p;
-
-	return true;
-}
-
-bool ezcfg_nvram_set_total_space(struct ezcfg_nvram *nvram, const int total_space)
-{
-	struct ezcfg *ezcfg;
-	char *buf;
-	bool ret = false;
-
-	ASSERT(nvram != NULL);
-
-	ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	if (total_space < (int)sizeof(struct nvram_header) + nvram->used_space) {
-		ret = false;
-		goto func_exit;
-	}
-
-	buf = (char *)realloc(nvram->buffer, total_space);
-	if (buf == NULL) {
-		err(ezcfg, "can not realloc nvram buffer\n");
-		ret = false;
-		goto func_exit;
-	}
-
-	nvram->free_space = total_space-sizeof(struct nvram_header)-nvram->used_space;
-	if (total_space > (int)sizeof(struct nvram_header)+nvram->used_space) {
-		memset(buf+sizeof(struct nvram_header)+nvram->used_space, '\0', nvram->free_space);
-	}
-	nvram->buffer = buf;
-	nvram->total_space = total_space;
-
-func_exit:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-int ezcfg_nvram_get_total_space(struct ezcfg_nvram *nvram)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	return nvram->total_space;
-}
-
-int ezcfg_nvram_get_free_space(struct ezcfg_nvram *nvram)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	return nvram->free_space;
-}
-
-int ezcfg_nvram_get_used_space(struct ezcfg_nvram *nvram)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	return nvram->used_space;
-}
-
-bool ezcfg_nvram_get_version_string(struct ezcfg_nvram *nvram, char *buf, size_t len)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	//ezcfg = nvram->ezcfg;
-
-	snprintf(buf, len, "%d.%d.%d.%d", 
-	         default_version[0],
-	         default_version[1],
-	         default_version[2],
-	         default_version[3]);
-
-	return true;
-}
-
-bool ezcfg_nvram_get_storage_backend_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
-{
-	//struct ezcfg *ezcfg;
-	int i;
-
-	ASSERT(nvram != NULL);
-	ASSERT(idx >= 0);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	//ezcfg = nvram->ezcfg;
-
-	i = nvram->storage[idx].backend;
-
-	snprintf(buf, len, "%c%c%c%c", 
-	         default_magics[i][0],
-	         default_magics[i][1],
-	         default_magics[i][2],
-	         default_magics[i][3]);
-
-	return true;
-}
-
-bool ezcfg_nvram_get_storage_coding_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
-{
-	//struct ezcfg *ezcfg;
-	int i;
-
-	ASSERT(nvram != NULL);
-	ASSERT(idx >= 0);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	//ezcfg = nvram->ezcfg;
-
-	i = nvram->storage[idx].coding;
-
-	snprintf(buf, len, "%c%c%c%c", 
-	         default_codings[i][0],
-	         default_codings[i][1],
-	         default_codings[i][2],
-	         default_codings[i][3]);
-
-	return true;
-}
-
-bool ezcfg_nvram_get_storage_path_string(struct ezcfg_nvram *nvram, const int idx, char *buf, size_t len)
-{
-	//struct ezcfg *ezcfg;
-
-	ASSERT(nvram != NULL);
-	ASSERT(idx >= 0);
-	ASSERT(idx < EZCFG_NVRAM_STORAGE_NUM);
-	ASSERT(buf != NULL);
-	ASSERT(len > 0);
-
-	//ezcfg = nvram->ezcfg;
-
-	buf[0] = '\0';
-	if (nvram->storage[idx].path != NULL) {
-		snprintf(buf, len, "%s", nvram->storage[idx].path);
-	}
-
-	return true;
-}
-
-bool ezcfg_nvram_set_default_settings(struct ezcfg_nvram *nvram, ezcfg_nv_pair_t *settings, int num_settings)
-{
-	nvram->default_settings = settings;
-	nvram->num_default_settings = num_settings;
-	return true;
-}
-
-#if 0
-bool ezcfg_nvram_set_default_validators(struct ezcfg_nvram *nvram, ezcfg_nv_validator_t *validators, int num_validators)
-{
-	nvram->default_validators = validators;
-	nvram->num_default_validators = num_validators;
-	return true;
-}
-#endif
-
-bool ezcfg_nvram_set_entry(struct ezcfg_nvram *nvram, const char *name, const char *value)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-
-	ASSERT(nvram != NULL);
-	ASSERT(name != NULL);
-	ASSERT(value != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	ret = nvram_set_entry(nvram, name, value);
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return ret;
 }
 
 /* It's user's duty to free the returns string */
-bool ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
+int ezcfg_nvram_get_entry_value(struct ezcfg_nvram *nvram, const char *name, char **value)
 {
-	//struct ezcfg *ezcfg;
-	bool ret = false;
+  int ret;
 
-	ASSERT(nvram != NULL);
-	ASSERT(name != NULL);
-	ASSERT(value != NULL);
+  ASSERT(nvram != NULL);
+  ASSERT(name != NULL);
+  ASSERT(value != NULL);
 
-	//ezcfg = nvram->ezcfg;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  ret = nvram_get_entry_value(nvram, name, value);
 
-	ret = nvram_get_entry_value(nvram, name, value);
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return ret;
 }
 
-bool ezcfg_nvram_get_all_entries_list(struct ezcfg_nvram *nvram, struct ezcfg_list_node *list)
+int ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
 {
-	struct ezcfg *ezcfg;
-	char *entry, *p;
-	int entry_len;
-	bool ret = false;
+  int ret;
 
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
+  ASSERT(nvram != NULL);
+  ASSERT(name != NULL);
 
-	ezcfg = nvram->ezcfg;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  ret = nvram_unset_entry(nvram, name);
 
-	entry = nvram->buffer + sizeof(struct nvram_header);
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	/* find all nvram entries */
-	while (*entry != '\0') {
-		entry_len = strlen(entry) + 1;
-		p = strchr(entry, '=');
-		if (p == NULL) {
-			return false;
-		}
-		*p = '\0';
-		if (ezcfg_list_entry_add(ezcfg, list, entry, p+1, 1, 0) == NULL) {
-			*p = '=';
-			ret = false;
-			goto func_exit;
-		}
-		*p = '=';
-		entry += entry_len;
-	}
-	ret = true;
-
-func_exit:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return ret;
 }
 
-bool ezcfg_nvram_unset_entry(struct ezcfg_nvram *nvram, const char *name)
+int ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
 {
-	bool ret = false;
+  int ret;
 
-	ASSERT(nvram != NULL);
-	ASSERT(name != NULL);
+  ASSERT(nvram != NULL);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	ret = nvram_unset_entry(nvram, name);
+  ret = nvram_commit(nvram);
 
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	return ret;
+  return ret;
 }
 
-bool ezcfg_nvram_commit(struct ezcfg_nvram *nvram)
+int ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
 {
-	//struct ezcfg *ezcfg;
-	bool ret;
-
-	ASSERT(nvram != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-#if 0
-	/* check nvram entries */
-	nvram_check_entries(nvram);
-
-	/* sync nvram entries */
-	nvram_sync_entries(nvram);
-
-	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
-		switch (nvram->storage[i].backend) {
-		case EZCFG_NVRAM_BACKEND_NONE :
-			info(ezcfg, "nvram in memory only, do nothing\n");
-			ret = true;
-			break;
-
-		case EZCFG_NVRAM_BACKEND_FILE :
-			info(ezcfg, "nvram store on file-system file\n");
-			ret = nvram_commit_to_file(nvram, i);
-			break;
-
-		case EZCFG_NVRAM_BACKEND_FLASH :
-			info(ezcfg, "nvram store on flash chip\n");
-			ret = nvram_commit_to_flash(nvram, i);
-			break;
-
-		default:
-			err(ezcfg, "unknown nvram type.\n");
-			ret = false;
-			break;
-		}
-	}
-#else
-	ret = nvram_commit(nvram);
-#endif
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return EZCFG_RET_OK;
 }
 
-bool ezcfg_nvram_fill_storage_info(struct ezcfg_nvram *nvram, const char *conf_path)
+int ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2)
 {
-	char *p;
-	int nvram_buffer_size;
+  int ret;
 
-	ASSERT(nvram != NULL);
+  ASSERT(nvram != NULL);
+  ASSERT(name1 != NULL);
+  ASSERT(name2 != NULL);
 
-	if (conf_path == NULL) {
-		/* set default settings */
-		ezcfg_nvram_set_backend_type(nvram, 0, EZCFG_NVRAM_BACKEND_FILE);
-		ezcfg_nvram_set_coding_type(nvram, 0, EZCFG_NVRAM_CODING_NONE);
-		ezcfg_nvram_set_storage_path(nvram, 0, EZCFG_NVRAM_STORAGE_PATH);
-		ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_BUFFER_SIZE);
-		return true;
-	}
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 0, EZCFG_EZCFG_KEYWORD_BACKEND_TYPE);
-	if (p == NULL) {
-		ezcfg_nvram_set_backend_type(nvram, 0, EZCFG_NVRAM_BACKEND_FILE);
-	}
-	else {
-		ezcfg_nvram_set_backend_type(nvram, 0, atoi(p));
-		free(p);
-	}
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 0, EZCFG_EZCFG_KEYWORD_CODING_TYPE);
-	if (p == NULL) {
-		ezcfg_nvram_set_coding_type(nvram, 0, EZCFG_NVRAM_CODING_NONE);
-	}
-	else {
-		ezcfg_nvram_set_coding_type(nvram, 0, atoi(p));
-		free(p);
-	}
+  ret = nvram_match_entry(nvram, name1, name2);
 
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 0, EZCFG_EZCFG_KEYWORD_STORAGE_PATH);
-	if (p == NULL) {
-		ezcfg_nvram_set_storage_path(nvram, 0, EZCFG_NVRAM_STORAGE_PATH);
-	}
-	else {
-		ezcfg_nvram_set_storage_path(nvram, 0, p);
-		free(p);
-	}
-
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 0, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
-	if (p == NULL) {
-        	ezcfg_nvram_set_total_space(nvram, EZCFG_NVRAM_BUFFER_SIZE);
-		nvram_buffer_size = EZCFG_NVRAM_BUFFER_SIZE;
-	}
-	else {
-		nvram_buffer_size = atoi(p);
-		ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
-		free(p);
-	}
-
-	/* setup backup nvram storage */
-#if (1 < EZCFG_NVRAM_STORAGE_NUM)
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_BACKEND_TYPE);
-	if (p == NULL) {
-		ezcfg_nvram_set_backend_type(nvram, 1, EZCFG_NVRAM_BACKEND_FILE);
-	}
-	else {
-		ezcfg_nvram_set_backend_type(nvram, 1, atoi(p));
-		free(p);
-	}
-
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_CODING_TYPE);
-	if (p == NULL) {
-		ezcfg_nvram_set_coding_type(nvram, 1, EZCFG_NVRAM_CODING_NONE);
-	}
-	else {
-		ezcfg_nvram_set_coding_type(nvram, 1, atoi(p));
-		free(p);
-	}
-
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_STORAGE_PATH);
-	if (p == NULL) {
-		ezcfg_nvram_set_storage_path(nvram, 1, EZCFG_NVRAM_BACKUP_STORAGE_PATH);
-	}
-	else {
-		ezcfg_nvram_set_storage_path(nvram, 1, p);
-		free(p);
-	}
-
-	p = ezcfg_util_get_conf_string(conf_path, EZCFG_EZCFG_SECTION_NVRAM, 1, EZCFG_EZCFG_KEYWORD_BUFFER_SIZE);
-	if (p == NULL) {
-		if (nvram_buffer_size < EZCFG_NVRAM_BUFFER_SIZE) {
-			nvram_buffer_size = EZCFG_NVRAM_BUFFER_SIZE;
-		}
-        	ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
-	}
-	else {
-		if (nvram_buffer_size < atoi(p)) {
-			nvram_buffer_size = atoi(p);
-		}
-		ezcfg_nvram_set_total_space(nvram, nvram_buffer_size);
-		free(p);
-	}
-#endif
-
-	return true;
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
+  
+  return ret;
 }
 
-bool ezcfg_nvram_load(struct ezcfg_nvram *nvram, int flag)
+int ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
 {
-	struct ezcfg *ezcfg;
-	bool ret = false;
-	int i;
+  int ret;
 
-	ASSERT(nvram != NULL);
+  ASSERT(nvram != NULL);
+  ASSERT(name != NULL);
+  ASSERT(value != NULL);
 
-	ezcfg = nvram->ezcfg;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	/* check whether the storage info set correctly */
-	for (i = 0; i < EZCFG_NVRAM_STORAGE_NUM; i++) {
-		if (nvram->storage[i].backend != EZCFG_NVRAM_BACKEND_NONE &&
-		    nvram->storage[i].path == NULL) {
-			err(ezcfg, "not setting nvram storage path.\n");
-			return false;
-		}
-	}
+  ret = nvram_match_entry_value(nvram, name, value);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	/* check if restore_defaults is set */
-	if ((flag == NV_RELOAD) && (nvram_match_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "1") == true)) {
-
-		info(ezcfg, "restore system defaults.\n");
-
-		/* set default settings */
-		ret = nvram_load_by_defaults(nvram, flag);
-
-		/* clean up restore_defaults flag */
-		if (ret == true) {
-			ret = nvram_set_entry(nvram, NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "0");
-			if (ret == false) {
-				err(ezcfg, "clean up restore system defaults flag fail.\n");
-			}
-			ret = nvram_commit(nvram);
-		}
-	}
-	else {
-		/* break the loop when load is OK */
-		for (i = 0; (ret == false) && (i < EZCFG_NVRAM_STORAGE_NUM); i++) {
-			switch (nvram->storage[i].backend) {
-			case EZCFG_NVRAM_BACKEND_NONE :
-				ret = nvram_load_by_defaults(nvram, flag);
-				break;
-
-			case EZCFG_NVRAM_BACKEND_FILE :
-				ret = nvram_load_from_file(nvram, i, flag);
-				if (ret == false) {
-					err(ezcfg, "nvram_load_from_file fail, use default settings.\n");
-					ret = nvram_load_by_defaults(nvram, flag);
-				}
-				break;
-
-			case EZCFG_NVRAM_BACKEND_FLASH :
-				ret = nvram_load_from_flash(nvram, i, flag);
-				if (ret == false) {
-					err(ezcfg, "nvram_load_from_flash fail, use default settings.\n");
-					ret = nvram_load_by_defaults(nvram, flag);
-				}
-				break;
-
-			default:
-				err(ezcfg, "unknown nvram type.\n");
-				ret = false;
-				break;
-			}
-		}
-	}
-
-#if 0
-	/* check if restore_defaults is set */
-	if ((flag == NV_RELOAD) && (nvram_match_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, SYS_RESTORE_DEFAULTS), "1") == true)) {
-		struct ezcfg_link_list *list=NULL;
-		char *name, *value;
-
-		info(ezcfg, "restore system defaults.\n");
-
-		list = ezcfg_link_list_new(ezcfg);
-		if (list == NULL) {
-			err(ezcfg, "restore system defaults fail.\n");
-			ret = false;
-			goto restore_out;
-		}
-
-		/* save the savings */
-		for (i=0; i<nvram->num_default_savings; i++) {
-			name = nvram->default_savings[i];
-			ret = nvram_get_entry_value(nvram, name, &value);
-			if (value != NULL) {
-				ret = ezcfg_link_list_insert(list, name, value);
-				free(value);
-				if (ret == false) {
-					err(ezcfg, "restore system defaults insert fail.\n");
-					goto restore_out;
-				}
-			}
-		}
-
-		/* clean up nvram */
-		nvram->used_space = 0;
-		nvram->free_space = nvram->total_space-sizeof(struct nvram_header)-nvram->used_space;
-		memset(nvram->buffer+sizeof(struct nvram_header)+nvram->used_space, '\0', nvram->free_space);
-
-		/* set default settings */
-		ret = nvram_load_by_defaults(nvram, flag);
-
-		/* restore the savings */
-		for(i=1; i<=ezcfg_link_list_get_length(list); i++) {
-			name = ezcfg_link_list_get_node_name_by_index(list, i);
-			value = ezcfg_link_list_get_node_value_by_index(list, i);
-			ret = nvram_set_entry(nvram, name, value);
-			if (ret == false) {
-				err(ezcfg, "restore system defaults set fail.\n");
-				goto restore_out;
-			}
-		}
-
-restore_out:
-		/* delete link list */
-		if (list != NULL)
-			ezcfg_link_list_delete(list);
-	}
-#endif
-
-	/* check nvram entries */
-	nvram_check_entries(nvram);
-
-	/* sync nvram entries */
-	nvram_sync_entries(nvram);
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return ret;
 }
 
-bool ezcfg_nvram_initialize(struct ezcfg_nvram *nvram)
+int ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
 {
-	return ezcfg_nvram_load(nvram, NV_INIT);
+  //struct ezcfg *ezcfg;
+  int ret = EZCFG_RET_BAD;
+
+  ASSERT(nvram != NULL);
+  ASSERT(name != NULL);
+  ASSERT(value != NULL);
+
+  //ezcfg = nvram->ezcfg;
+
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
+
+  //ret = ezcfg_nvram_validate_value(ezcfg, name, value);
+
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
+
+  return ret;
 }
 
-bool ezcfg_nvram_reload(struct ezcfg_nvram *nvram)
+int ezcfg_nvram_set_entries(struct ezcfg_nvram *nvram, struct ezcfg_linked_list *list)
 {
-	return ezcfg_nvram_load(nvram, NV_RELOAD);
+  int ret = EZCFG_RET_BAD;
+  ezcfg_nv_pair_t *data;
+  int i, list_length;
+
+  ASSERT(nvram != NULL);
+  ASSERT(list != NULL);
+
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
+
+  /* parse settings */
+  list_length = ezcfg_linked_list_get_length(list);
+  for (i = 1; i < list_length+1; i++) {
+    data = (ezcfg_nv_pair_t *)ezcfg_linked_list_get_node_data_by_index(list, i);
+    if (data == NULL) {
+      ret = EZCFG_RET_BAD;
+      goto func_out;
+    }
+    ret = nvram_set_entry(nvram, data->name, data->value);
+    if (ret == EZCFG_RET_BAD) {
+      goto func_out;
+    }
+  }
+
+ func_out:
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
+
+  return ret;
 }
 
-bool ezcfg_nvram_match_entry(struct ezcfg_nvram *nvram, char *name1, char *name2)
+int ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	//struct ezcfg *ezcfg;
-	bool ret = false;
+  int ret = EZCFG_RET_BAD;
+  char *name, *value;
+  int i, list_length;
 
-	ASSERT(nvram != NULL);
-	ASSERT(name1 != NULL);
-	ASSERT(name2 != NULL);
+  ASSERT(nvram != NULL);
+  ASSERT(list != NULL);
 
-	//ezcfg = nvram->ezcfg;
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
 
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
+  /* parse settings */
+  list_length = ezcfg_link_list_get_length(list);
+  for (i = 1; i < list_length+1; i++) {
+    name = ezcfg_link_list_get_node_name_by_index(list, i);
+    value = ezcfg_link_list_get_node_value_by_index(list, i);
+    if ((name == NULL) || (value == NULL)) {
+      ret = EZCFG_RET_BAD;
+      goto func_out;
+    }
+    ret = nvram_set_entry(nvram, name, value);
+    if (ret == EZCFG_RET_BAD) {
+      goto func_out;
+    }
+  }
 
-	ret = nvram_match_entry(nvram, name1, name2);
+ func_out:
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
 
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  return ret;
 }
 
-bool ezcfg_nvram_match_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
+int ezcfg_nvram_unset_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
 {
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-
-	ASSERT(nvram != NULL);
-	ASSERT(name != NULL);
-	ASSERT(value != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	ret = nvram_match_entry_value(nvram, name, value);
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-bool ezcfg_nvram_is_valid_entry_value(struct ezcfg_nvram *nvram, char *name, char *value)
-{
-	struct ezcfg *ezcfg;
-	bool ret = false;
-
-	ASSERT(nvram != NULL);
-	ASSERT(name != NULL);
-	ASSERT(value != NULL);
-
-	ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	ret = ezcfg_nvram_validate_value(ezcfg, name, value);
-
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-bool ezcfg_nvram_insert_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name, *value;
-	struct ezcfg_arg_nvram_socket a;
-	char buf[64];
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	ezcfg_arg_nvram_socket_init(&a);
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
-			a.domain = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
-			a.type = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
-			a.protocol = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
-			a.address = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-	}
-
-	/* validate settings */
-	if ((a.domain == NULL) || (a.type == NULL) ||
-	    (a.protocol == NULL) || (a.address == NULL)) {
-		return(false);
-	}
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* get socket index in nvram */
-	i = nvram_get_socket_index(nvram, &a);
-	/* socket exist! */
-	if (i > 0) {
-		ret = true;
-		goto func_out;
-	}
-
-	/* add the new socket */
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
-		&value);
-	if (value != NULL) {
-		i = atoi(value);
-		free(value);
-	}
-
-	/* set nvram socket domain */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SOCKET, i,
-		EZCFG_EZCFG_KEYWORD_DOMAIN);
-	ret = nvram_set_entry(nvram, buf, a.domain);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram socket type */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SOCKET, i,
-		EZCFG_EZCFG_KEYWORD_TYPE);
-	ret = nvram_set_entry(nvram, buf, a.type);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram socket protocol */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SOCKET, i,
-		EZCFG_EZCFG_KEYWORD_PROTOCOL);
-	ret = nvram_set_entry(nvram, buf, a.protocol);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram socket address */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SOCKET, i,
-		EZCFG_EZCFG_KEYWORD_ADDRESS);
-	ret = nvram_set_entry(nvram, buf, a.address);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* update socket number */
-	i++;
-	snprintf(buf, sizeof(buf), "%d", i);
-	ret = nvram_set_entry(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SOCKET_NUMBER),
-		buf);
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-bool ezcfg_nvram_remove_socket(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name;
-	struct ezcfg_arg_nvram_socket a;
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-	ezcfg_arg_nvram_socket_init(&a);
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, EZCFG_EZCFG_KEYWORD_DOMAIN) == 0) {
-			a.domain = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_TYPE) == 0) {
-			a.type = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_PROTOCOL) == 0) {
-			a.protocol = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_ADDRESS) == 0) {
-			a.address = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-	}
-
-	/* validate settings */
-	if ((a.domain == NULL) || (a.type == NULL) ||
-	    (a.protocol == NULL) || (a.address == NULL)) {
-		return(false);
-	}
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* get socket index in nvram */
-	i = nvram_get_socket_index(nvram, &a);
-	/* socket does not exist! */
-	if (i < 1) {
-		ret = true;
-		goto func_out;
-	}
-
-	/* remove the i-th socket */
-	ret = nvram_remove_socket_by_index(nvram, i);
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-#if (HAVE_EZBOX_SERVICE_OPENSSL == 1)
-bool ezcfg_nvram_insert_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name, *value;
-	struct ezcfg_arg_nvram_ssl a;
-	char buf[64];
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-	ezcfg_arg_nvram_ssl_init(&a);
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, EZCFG_EZCFG_KEYWORD_ROLE) == 0) {
-			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_METHOD) == 0) {
-			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE) == 0) {
-			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN) == 0) {
-			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE) == 0) {
-			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL) == 0) {
-			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS) == 0) {
-			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-	}
-
-	/* validate settings */
-	if ((a.role == NULL) || (a.method == NULL) ||
-	    (a.socket_enable == NULL) ||
-	    (a.socket_domain == NULL) || (a.socket_type == NULL) ||
-	    (a.socket_protocol == NULL) || (a.socket_address == NULL)) {
-		return(false);
-	}
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* get ssl index in nvram */
-	i = nvram_get_ssl_index(nvram, &a);
-	/* ssl exist! */
-	if (i > 0) {
-		ret = true;
-		goto func_out;
-	}
-
-	/* add the new ssl */
-	i = 0;
-	ret = nvram_get_entry_value(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
-		&value);
-	if (value != NULL) {
-		i = atoi(value);
-		free(value);
-	}
-
-	/* set nvram ssl role */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_ROLE);
-	ret = nvram_set_entry(nvram, buf, a.role);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl method */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_METHOD);
-	ret = nvram_set_entry(nvram, buf, a.method);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl socket_enable */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE);
-	ret = nvram_set_entry(nvram, buf, a.socket_enable);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl socket_domain */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN);
-	ret = nvram_set_entry(nvram, buf, a.socket_domain);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl socket_type */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_SOCKET_TYPE);
-	ret = nvram_set_entry(nvram, buf, a.socket_type);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl socket_protocol */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL);
-	ret = nvram_set_entry(nvram, buf, a.socket_protocol);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* set nvram ssl socket_address */
-	snprintf(buf, sizeof(buf), "%s%s.%d.%s",
-		NVRAM_PREFIX(EZCFG),
-		EZCFG_EZCFG_SECTION_SSL, i,
-		EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS);
-	ret = nvram_set_entry(nvram, buf, a.socket_address);
-	if (ret == false) {
-		goto func_out;
-	}
-
-	/* update socket number */
-	i++;
-	snprintf(buf, sizeof(buf), "%d", i);
-	ret = nvram_set_entry(nvram,
-		NVRAM_SERVICE_OPTION(EZCFG, COMMON_SSL_NUMBER),
-		buf);
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-bool ezcfg_nvram_remove_ssl(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name;
-	struct ezcfg_arg_nvram_ssl a;
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-	a.role = NULL;
-	a.method = NULL;
-	a.socket_enable = NULL;
-	a.socket_domain = NULL;
-	a.socket_type = NULL;
-	a.socket_protocol = NULL;
-	a.socket_address = NULL;
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (strcmp(name, EZCFG_EZCFG_KEYWORD_ROLE) == 0) {
-			a.role = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_METHOD) == 0) {
-			a.method = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ENABLE) == 0) {
-			a.socket_enable = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_DOMAIN) == 0) {
-			a.socket_domain = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_TYPE) == 0) {
-			a.socket_type = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_PROTOCOL) == 0) {
-			a.socket_protocol = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-		else if (strcmp(name, EZCFG_EZCFG_KEYWORD_SOCKET_ADDRESS) == 0) {
-			a.socket_address = ezcfg_link_list_get_node_value_by_index(list, i);
-		}
-	}
-
-	/* validate settings */
-	if ((a.role == NULL) || (a.method == NULL) ||
-	    (a.socket_enable == NULL) ||
-	    (a.socket_domain == NULL) || (a.socket_type == NULL) ||
-	    (a.socket_protocol == NULL) || (a.socket_address == NULL)) {
-		return(false);
-	}
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* get ssl index in nvram */
-	i = nvram_get_ssl_index(nvram, &a);
-	/* ssl does not exist! */
-	if (i < 1) {
-		ret = true;
-		goto func_out;
-	}
-
-	/* remove the i-th ssl */
-	ret = nvram_remove_ssl_by_index(nvram, i);
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-#endif
-
-bool ezcfg_nvram_set_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name, *value;
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		value = ezcfg_link_list_get_node_value_by_index(list, i);
-		if ((name == NULL) || (value == NULL)) {
-			ret = false;
-			goto func_out;
-		}
-		ret = nvram_set_entry(nvram, name, value);
-		if (ret == false) {
-			goto func_out;
-		}
-	}
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
-}
-
-bool ezcfg_nvram_unset_multi_entries(struct ezcfg_nvram *nvram, struct ezcfg_link_list *list)
-{
-	//struct ezcfg *ezcfg;
-	bool ret = false;
-	char *name;
-	int i, list_length;
-
-	ASSERT(nvram != NULL);
-	ASSERT(list != NULL);
-
-	//ezcfg = nvram->ezcfg;
-
-	/* lock nvram access */
-	pthread_mutex_lock(&nvram->mutex);
-
-	/* parse settings */
-	list_length = ezcfg_link_list_get_length(list);
-	for (i = 1; i < list_length+1; i++) {
-		name = ezcfg_link_list_get_node_name_by_index(list, i);
-		if (name == NULL) {
-			ret = false;
-			goto func_out;
-		}
-		ret = nvram_unset_entry(nvram, name);
-		if (ret == false) {
-			goto func_out;
-		}
-	}
-
-func_out:
-	/* unlock nvram access */
-	pthread_mutex_unlock(&nvram->mutex);
-
-	return ret;
+  int ret = EZCFG_RET_BAD;
+  char *name;
+  int i, list_length;
+
+  ASSERT(nvram != NULL);
+  ASSERT(list != NULL);
+
+  /* lock nvram access */
+  pthread_mutex_lock(&nvram->mutex);
+
+  /* parse settings */
+  list_length = ezcfg_link_list_get_length(list);
+  for (i = 1; i < list_length+1; i++) {
+    name = ezcfg_link_list_get_node_name_by_index(list, i);
+    if (name == NULL) {
+      ret = EZCFG_RET_BAD;
+      goto func_out;
+    }
+    ret = nvram_unset_entry(nvram, name);
+    if (ret == EZCFG_RET_BAD) {
+      goto func_out;
+    }
+  }
+
+ func_out:
+  /* unlock nvram access */
+  pthread_mutex_unlock(&nvram->mutex);
+
+  return ret;
 }

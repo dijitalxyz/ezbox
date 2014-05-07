@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ *  ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : agent/agent.c
  *
@@ -109,7 +111,7 @@ static struct ezcfg_agent *agent_new(struct ezcfg *ezcfg)
 
 	ASSERT(ezcfg != NULL);
 
-	agent = calloc(1, sizeof(struct ezcfg_agent));
+	agent = malloc(sizeof(struct ezcfg_agent));
 	if (agent == NULL) {
 		err(ezcfg, "calloc ezcfg_agent fail: %m\n");
 		return NULL;

@@ -1,4 +1,6 @@
-/* ============================================================================
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+/**
+ * ============================================================================
  * Project Name : ezbox configuration utilities
  * File Name    : ezcfg-private.h
  *
@@ -27,53 +29,41 @@
 
 #define gettid() syscall(__NR_gettid)
 
-typedef void * (*ezcfg_thread_func_t)(void *);
+typedef void *(*ezcfg_thread_func_t)(void *);
+
 /* name-value pair struct */
 typedef struct ezcfg_nv_pair_s {
-	char *name;
-	char *value;
+  char *name;
+  char *value;
 } ezcfg_nv_pair_t;
-
-/* nvram validator struct */
-typedef struct ezcfg_nv_validator_s {
-	char *name;
-	bool (*handler)(const char *value);
-} ezcfg_nv_validator_t;
-
-/* nvram propagator struct */
-typedef struct ezcfg_nv_propagator_s {
-	char *name;
-	struct ezcfg_socket *sp;
-	bool (*handler)(const char *name, const char *value, struct ezcfg_socket *sp);
-} ezcfg_nv_propagator_t;
 
 /* rc service invocation struct */
 typedef struct ezcfg_rc_triple_s {
-	char *service;
-	char *action;
-	int wait;
+  char *service;
+  char *action;
+  int wait;
 } ezcfg_rc_triple_t;
 
 /* args/arg_nvram_socket.c */
 typedef struct ezcfg_arg_nvram_socket {
-	char *domain;
-	char *type;
-	char *protocol;
-	char *address;
+  char *domain;
+  char *type;
+  char *protocol;
+  char *address;
 } ezcfg_arg_nvram_socket_t;
 
 /* args/arg_nvram_ssl.c */
 typedef struct ezcfg_arg_nvram_ssl {
-	char *role;
-	char *method;
-	char *socket_enable;
-	char *socket_domain;
-	char *socket_type;
-	char *socket_protocol;
-	char *socket_address;
-	char *certificate_file;
-	char *certificate_chain_file;
-	char *private_key_file;
+  char *role;
+  char *method;
+  char *socket_enable;
+  char *socket_domain;
+  char *socket_type;
+  char *socket_protocol;
+  char *socket_address;
+  char *certificate_file;
+  char *certificate_chain_file;
+  char *private_key_file;
 } ezcfg_arg_nvram_ssl_t;
 
 /* common/ezcfg.c */
@@ -104,13 +94,11 @@ int ezcfg_nvram_get_num_default_nvram_savings(void);
 
 
 /* nvram/nvram-validators.c */
-extern ezcfg_nv_validator_t default_nvram_validators[];
 bool ezcfg_nvram_validate_value(struct ezcfg *ezcfg, char *name, char *value);
 int ezcfg_nvram_get_num_default_nvram_validators(void);
 
 
 /* nvram/nvram-propagators.c */
-extern ezcfg_nv_propagator_t default_nvram_propagators[];
 bool ezcfg_nvram_propagate_value(struct ezcfg *ezcfg, char *name, char *value);
 int ezcfg_nvram_get_num_default_nvram_propagators(void);
 
@@ -223,15 +211,15 @@ int ezcfg_ssi_file_get_line(struct ezcfg_ssi *ssi, char *buf, size_t size);
 /* http/http_ssi.c */
 struct ezcfg_http_ssi;
 void ezcfg_http_ssi_delete(struct ezcfg_http_ssi *hs);
-struct ezcfg_http_ssi *ezcfg_http_ssi_new(
-	struct ezcfg *ezcfg,
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
-	struct ezcfg_ssi *ssi);
-int ezcfg_http_handle_ssi_request(
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram,
-	struct ezcfg_ssi *ssi);
+struct ezcfg_http_ssi *
+ezcfg_http_ssi_new(struct ezcfg *ezcfg,
+                   struct ezcfg_http *http,
+                   struct ezcfg_nvram *nvram,
+                   struct ezcfg_ssi *ssi);
+
+int ezcfg_http_handle_ssi_request(struct ezcfg_http *http,
+                                  struct ezcfg_nvram *nvram,
+                                  struct ezcfg_ssi *ssi);
 
 
 /* http/http_nvram.c */
@@ -239,17 +227,19 @@ int ezcfg_http_handle_ssi_request(
 
 
 /* http/http_html_index.c */
-int ezcfg_http_handle_index_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+int ezcfg_http_handle_index_request(struct ezcfg_http *http,
+                                    struct ezcfg_nvram *nvram);
 
 
 /* http/http_html_apply.c */
-int ezcfg_http_handle_apply_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
+int ezcfg_http_handle_apply_request(struct ezcfg_http *http,
+                                    struct ezcfg_nvram *nvram);
 
 struct ezcfg_http_html_apply;
-struct ezcfg_http_html_apply *ezcfg_http_html_apply_new(
-	struct ezcfg *ezcfg,
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram);
+struct ezcfg_http_html_apply *
+ezcfg_http_html_apply_new(struct ezcfg *ezcfg,
+                          struct ezcfg_http *http,
+                          struct ezcfg_nvram *nvram);
 void ezcfg_http_html_apply_delete(struct ezcfg_http_html_apply *apply);
 bool ezcfg_http_html_apply_handle_post_data(struct ezcfg_http_html_apply *apply);
 bool ezcfg_http_html_apply_save_settings(struct ezcfg_http_html_apply *apply);
@@ -270,10 +260,10 @@ bool ezcfg_http_html_apply_set_http_css_common_header(struct ezcfg_http_html_app
 int ezcfg_http_handle_admin_request(struct ezcfg_http *http, struct ezcfg_nvram *nvram);
 
 struct ezcfg_http_html_admin;
-struct ezcfg_http_html_admin *ezcfg_http_html_admin_new(
-	struct ezcfg *ezcfg,
-	struct ezcfg_http *http,
-	struct ezcfg_nvram *nvram);
+struct ezcfg_http_html_admin *
+ezcfg_http_html_admin_new(struct ezcfg *ezcfg,
+                          struct ezcfg_http *http,
+                          struct ezcfg_nvram *nvram);
 void ezcfg_http_html_admin_delete(struct ezcfg_http_html_admin *admin);
 int ezcfg_http_html_admin_get_action(struct ezcfg_http_html_admin *admin);
 bool ezcfg_http_html_admin_handle_post_data(struct ezcfg_http_html_admin *admin);

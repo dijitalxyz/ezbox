@@ -23,6 +23,7 @@ struct ezcfg_linked_list *ezcfg_linked_list_new(struct ezcfg *ezcfg);
 void ezcfg_linked_list_delete(struct ezcfg_linked_list *list);
 bool ezcfg_linked_list_insert(struct ezcfg_linked_list *list, void *data);
 bool ezcfg_linked_list_append(struct ezcfg_linked_list *list, void *data);
+void *ezcfg_linked_list_take_data(struct ezcfg_linked_list *list);
 bool ezcfg_linked_list_remove(struct ezcfg_linked_list *list, void *data);
 bool ezcfg_linked_list_in(struct ezcfg_linked_list *list, void *data);
 int ezcfg_linked_list_get_length(struct ezcfg_linked_list *list);
