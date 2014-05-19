@@ -353,7 +353,7 @@ $(eval $(call KernelPackage,8139cp))
 define KernelPackage/r8169
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=RealTek RTL-8169 PCI Gigabit Ethernet Adapter kernel support
-  DEPENDS:=@PCI_SUPPORT +kmod-mii
+  DEPENDS:=@PCI_SUPPORT +kmod-mii +r8169-firmware
   KCONFIG:=CONFIG_R8169 \
     CONFIG_R8169_NAPI=y \
     CONFIG_R8169_VLAN=n
@@ -446,7 +446,7 @@ $(eval $(call KernelPackage,e1000e))
 define KernelPackage/b44
   TITLE:=Broadcom 44xx driver
   KCONFIG:=CONFIG_B44
-  DEPENDS:=@PCI_SUPPORT +!TARGET_brcm47xx:kmod-ssb +kmod-mii
+  DEPENDS:=@PCI_SUPPORT +!TARGET_brcm47xx:kmod-ssb +kmod-mii +LINUX_3_14:kmod-libphy
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/broadcom/b44.ko
   AUTOLOAD:=$(call AutoLoad,19,b44,1)
